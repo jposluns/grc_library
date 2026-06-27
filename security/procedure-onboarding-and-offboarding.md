@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-27\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -32,7 +32,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 2.3 It applies regardless of whether personnel are onboarded or offboarded locally or remotely, and regardless of whether access is to on-premises, cloud, or hybrid systems.
 
-2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 10 to ensure that coordinated revocation.
+2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 11 to ensure that coordinated revocation.
 
 ---
 
@@ -133,7 +133,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 6.3.2 Where the line manager believes that transitional access to the former role's systems is temporarily necessary, they must submit a written request to IT Operations and the CISO. Transitional access may be granted for a maximum of 30 days and must be fully removed thereafter.
 
-6.3.3 Privileged access associated with the former role must be revoked within 2 hours of the effective date of the role change, consistent with the timeline in Section 9.
+6.3.3 Privileged access associated with the former role must be revoked within 2 hours of the effective date of the role change, consistent with the timeline in Section 10.
 
 ---
 
@@ -143,7 +143,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 7.1.1 HR must notify IT Operations a minimum of 5 business days before the individual's last working day. Where notice is shorter (e.g., immediate resignation), IT Operations must be notified on the same day.
 
-7.1.2 IT Operations will initiate the deprovisioning checklist (Section 10) upon receipt of departure notification.
+7.1.2 IT Operations will initiate the deprovisioning checklist (Section 11) upon receipt of departure notification.
 
 ### 7.2 Last working day
 

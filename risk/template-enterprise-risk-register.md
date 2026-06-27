@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.1.4\
-**Date:** 2026-06-24\
+**Version:** 1.1.5\
+**Date:** 2026-06-27\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -137,7 +137,7 @@ If residual risk is not within appetite and is being formally accepted, complete
 
 ## Risk rating matrix
 
-The full 5×5 matrix is defined in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md). Summary:
+The 5×5 rating matrix below matches the canonical scoring grid in [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) §5.2; the likelihood and impact scales and the score-to-rating thresholds it uses are defined in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md) Section 4 to Section 5.
 
 | | **1 Negligible** | **2 Minor** | **3 Moderate** | **4 Major** | **5 Catastrophic** |
 |---|---|---|---|---|---|
