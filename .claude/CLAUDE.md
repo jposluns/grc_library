@@ -384,6 +384,34 @@ of this default is the partitionable-work SOP in the
 [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
 pack rule (its §2).
 
+## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
+
+The compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md))
+and per-document framework-alignment tables carry control-code citations whose
+*semantic fit* (is the cited control the right one for the row's document?) the
+existence gates 48/49/54 cannot check: a code can exist, be in the right catalogue,
+and still be the wrong control. That "valid code, wrong control" class is gate-blind
+and recurred (the 2026-06-27 trust-recovery `/full-qa` found 8 matrix + 7 source-doc
+instances, remediated in #392). Semantic fit is not mechanically gate-checkable
+(correct GRC mappings routinely share no vocabulary with the document subject), so the
+durable instrument is a cadenced audit, the
+[`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md) skill (slash
+command `/matrix-fit`): it judges each cited code against the source control TITLE in
+the reference base, scoped by the recall-oriented worklist
+[`tools/audit-matrix-semantic-fit.py`](../tools/audit-matrix-semantic-fit.py) produces.
+
+Run `/matrix-fit` on this cadence:
+1. **After each FR-167 matrix-expansion batch**, over that batch's worklist (the primary
+   cadence; the first real firing is FR-167 batch 10, ai).
+2. **Once at matrix completion**, over the whole matrix (the closing check).
+3. **Ad-hoc** when a control-code citation is in doubt (a maintainer flag, or a
+   `/validate` / `/full-qa` note about a loose or wrong code).
+
+It is NOT a gate and NOT a substitute for gates 48/49/54; it is the semantic layer on
+top of them (a row must pass the existence gates first). Findings are fixed in-window or
+routed under the normal triage; a zero-finding run still gets a history row. This is the
+PR B half of TODO §4.20; the PR A advisory tool shipped in #394.
+
 ## Attended-autonomous operating mode
 
 Between fully-attended (the maintainer authorises each step) and overnight mode (a
