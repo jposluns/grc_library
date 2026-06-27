@@ -6,9 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-27, Library Version 2026.06.366, PR #387
+## 2026-06-27, Library Version 2026.06.367, PR #388
 
-`.claude/` + `.working/` reference-base durability: make the scratch reference base durable on scratch `main` and consumed at resume; codify the persist-to-`main` discipline; log the scratch-write resolution; batch the clean Sweep 59 history row. This is the first of the maintainer's three pre-resume directive tasks (the other two: the orchestrator-token instrumentation item, and this scratch-merge whose grc_library-side codification lands here). No corpus-document change.
+`.working/` + TODO: add the orchestrator-token-instrumentation backlog item (the maintainer's third pre-resume directive, after the feasibility investigation) and batch the #387 post-merge QA rows. This is the last of the three pre-resume directive tasks. No corpus-document change.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) section 4.19 "Orchestrator main-loop token instrumentation for session-metrics" (L, S): records that orchestrator main-loop tokens are not instrumentable from inside a session (investigated this session, the `Agent` tool returns only `subagent_tokens`; no main-session `usage` transcript is written to a readable location mid-session, the project dir holds only subagents and tool-results subdirectories, and the per-session file under the home Claude sessions directory is bare process metadata), and the three realistic paths (harness support, maintainer-side external measurement, or a post-hoc transcript-sum aid conditional on a main `usage` transcript persisting post-session). The [`.working/session-metrics.md`](../session-metrics.md) Orchestrator-tokens column stays `not instrumented` until a path lands.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #387 `/validate-pr` row (0 findings; full Subagent A dispatch; cross-reference check clean). Version `1.2.176` to `1.2.177`.
+- [`.working/improvement-log.md`](../improvement-log.md): the #387 `/retro` row (clean PR; the path-span catch is the already-covered new-prose class, no new pattern; the persist-to-`main` / MCP-PR codification is the durable fix for the scratch-write friction). Version `1.0.134` to `1.0.135`.
+- [`README.md`](../../README.md): Library `2026.06.366` to `2026.06.367`, README Version `1.9.237` to `1.9.238`.
+
+### Verification
+
+- `tools/run_all_audits.sh` 54/54 green on the post-commit state; `tools/run-pr-time-checks.sh` all-pass before push; CHANGELOG added lines dash-free and path-linked ([`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)). The feasibility claims in section 4.19 are grounded in this session's direct on-disk inspection (no main-session `usage` JSONL found in the project dir or `~/.claude/sessions/`).
 
 ### Changed
 
