@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.364, PR #385
+
+FR-167 batch 9 (security domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Security section expanded from 10 rows to 35 (25 net-new) across all 8 framework columns. Authored via the research-assistant discipline: 5 verified-disjoint research workers; the orchestrator re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); gates 48 and 49 confirm validity.
+
+### Added
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md): 25 net-new Security-domain rows (section grows 10 to 35): cryptography (4), IAM and zero-trust (4), endpoint/network/data (7), SOC/incident/testing (5), personnel and change (5). Matrix Version `1.8.0` to `1.9.0`. Trade columns populated by grounded analogy to the existing Security-section ICT-security/AEO-S mappings (BASC chapter references drawn from sibling rows, none fabricated).
+
+### Changed
+
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the matrix Version bump.
+- [`README.md`](../../README.md): Library `2026.06.363` to `2026.06.364`, README Version `1.9.234` to `1.9.235`.
+- [`TODO.md`](../../TODO.md): FR-167 batch-progress note (batch 9 security shipped; next batch ai); a new follow-up item for the six source-document framework-table code errors found this batch.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #384 `/validate-pr` row (0 findings). [`.working/improvement-log.md`](../improvement-log.md): the #384 `/retro` row.
+
+### Discipline observations
+
+- Six source documents carry incorrect control codes in their own framework-alignment tables; the matrix uses the corrected codes and the errors are flagged for a follow-up fix: remote-working `HRS-09` should be `HRS-04`; acceptance-into-service `AIS-01` mislabeled "Acceptance Into Service" (it is Application and Interface Security; the change-management CCC family is correct); data-loss-prevention `DSP-04` mislabeled "Data Leakage Prevention" (it is Data Classification; `UEM-11` is the DLP control) and ISO §8.10 to §8.11 should be A.8.12; security-awareness `HRS-06`/`HRS-07` should be `HRS-11`/`HRS-12`; personnel-screening `HRS-06` dropped; BYOD ISO `A.6.2` should be `A.6.7`. This is the doc-self-cited-code-may-be-mislabeled guard rail firing across a batch.
+- Worker-brief gap corrected at apply-time: the initial batch-9 brief instructed N/A trade columns, but the existing Security section populates trade columns via the ICT-security/AEO-S lens; the orchestrator re-read the 10 existing rows and authored the 25 new rows' trade columns to match that established convention.
+
+### Verification
+
+- Gates 48 and 49 pass; `tools/run_all_audits.sh` 54/54 green on the working tree; generators in sync. All batch-9 codes re-validated against the reference modules.
+
 ## 2026-06-27, Library Version 2026.06.363, PR #384
 
 FR-167 batch 8 (governance domain): the [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Governance section expanded from 4 rows to 19 (15 net-new) across all 8 framework columns. A scoping pass classified all 32 governance documents (15 INCLUDE, 11 EXCLUDE-meta, 2 EXCLUDE-glossary, 4 already-in-matrix) against the matrix coverage-summary exclusions before authoring. Authored via the research-assistant discipline: 3 verified-disjoint research workers; the orchestrator re-validated every CCM and NIST CSF code against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); gates 48 and 49 confirm validity.
