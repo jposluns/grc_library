@@ -30,6 +30,14 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #413: TODO hygiene: relocate resume-metadata to session-handoff + rotate FR-167 batches (2026-06-27)
+
+TODO-hygiene pass (maintainer-flagged): moved the `## Session resume metadata` sweep-history block out of TODO into [`session-handoff.md`](session-handoff.md) (a machine-readable "Resume cursor" section) so TODO stays purely forward-looking, and re-pointed gate 45's sweep-cursor check to read the cursor there (queued-PR check still scans TODO); rotated the FR-167 inline shipped-batch ledger to DONE and trimmed the FR-167 bullet to its forward-looking remainder. Queued the deferred broader TODO-hygiene pass as §4.23.
+
+### FR-167 batches 1-11: comprehensive compliance-matrix per-domain expansion (#275 through #404, rotated 2026-06-27)
+
+All eleven per-domain matrix batches shipped (rotated to DONE in bulk in PR #413 after the maintainer flagged the shipped history left inline in the FR-167 TODO bullet): batch 1 architecture (#275), 2 risk (#313), 3 dev-security (#317), 4 supply-chain (#341), 5 resilience (#378), 6 operations (#380), 7 compliance (#383), 8 governance (#384), 9 security (#385), 10 ai (#402, new AI section, matrix 1.9.1 to 1.10.0), 11 privacy (#404, the final per-domain batch, matrix 1.10.0 to 1.11.0). Remaining FR-167 work (the matrix's partial sections, completion, and the closing whole-matrix `/matrix-fit`, plus the open AICM-column decision) stays in TODO as the trimmed FR-167 bullet.
+
 ### PR #412: FR-169 (high) + FR-171 (high) + FR-177 (medium) + FR-185 (low): risk scoring & acceptance-authority reconciliation (2026-06-27)
 
 Second trust-recovery-remediation batch, the risk-domain reconciliation: FR-169 reconciled the ERM standard's likelihood scale to the canonical threat-precedent anchors in the risk-assessment methodology (maintainer-chosen over the standard's time-frequency anchors); FR-171 aligned the risk-acceptance procedure and risk-appetite template to the single canonical High/critical acceptance authority (Executive Committee or Board Risk Committee, per the exception/risk-acceptance policy §2.2), replacing the divergent "Executive Management" and "CRO" values; FR-177 aligned the ERM standard's Low-band action verb to the methodology ("Accept; monitor annually"); FR-185 narrowed the ERM §5.2 three-document-match over-claim (the register references the scale rather than independently defining it). Batches the #411 `/validate-pr` (0) + `/retro` rows.

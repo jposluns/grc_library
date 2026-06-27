@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.392, PR #413
+
+`.working/`, [`TODO.md`](../../TODO.md), and tooling housekeeping for local project: **TODO-hygiene pass** (maintainer-flagged: shipped/historical content had accreted in TODO instead of rotating out). Three changes plus the batched prior-PR QA rows.
+
+### Changed
+- **Resume-metadata relocation** (maintainer-chosen Option 2): removed the `## Session resume metadata` block (its sweep-history line was ~29.5K characters, duplicating [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) and the handoff) from [`TODO.md`](../../TODO.md); added a concise machine-readable "Resume cursor" section to [`.working/session-handoff.md`](../session-handoff.md) carrying the gate-45 sweep cursor (`Last validation sweep: Sweep 67 iter 1`) plus pointers. TODO is now purely forward-looking.
+- **Gate 45 re-point** ([`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py)): split the monolithic `check_file` into `check_queued_pr` (scans `TARGET_FILES` = TODO.md) and `check_sweep_cursor` (scans the new `SWEEP_CURSOR_FILE` constant, the session-handoff file); `main()` routes each check to its file; the composite `check_file` is retained so the existing unit tests pass unchanged. Docstring, scope note, and the TODO preamble updated. Verified: with a simulated stale history the cursor check correctly flags the session-handoff line; the linter regression suite is 181/181 green.
+- **FR-167 rotation**: rotated the eleven shipped per-domain matrix batches (#275 architecture through #404 privacy) from the inline FR-167 ledger to [`.working/DONE.md`](../DONE.md) (one consolidated entry); trimmed the FR-167 TODO bullet to its forward-looking remainder (the partial sections, matrix completion, the closing `/matrix-fit`, and the open AICM-column maintainer decision).
+
+### Added (to TODO.md)
+- **§4.23** queues the deferred broader TODO-hygiene pass a research scan surfaced (other shipped-clause annotations, the §4.11 full-vs-partial shipped verification, and whether the Standing-conventions / Backlog-totals / Priority-7 sections belong in TODO), plus a candidate gate-45 extension to flag shipped-PR-history accretion. Deferred (not auto-acted) because several items are lower-confidence / maintainer-judgment calls.
+
+### Changed (.working/, working-state)
+- Batched per recursion-avoidance: the #412 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (ledger `1.2.198` to `1.2.199`) and the #412 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (ledger `1.0.150` to `1.0.151`).
+
+### Verification
+- No corpus-document body changed (TODO, `.working/`, and one tool only). [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green post-commit; gate 36 (linter regression) green incl. the unchanged gate-45 unit tests; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean before the first commit.
+
+Library `2026.06.391` to `2026.06.392`; README `1.9.262` to `1.9.263`.
+
 ## 2026-06-27, Library Version 2026.06.391, PR #412
 
 **FR-169 + FR-171 + FR-177 + FR-185: risk scoring and acceptance-authority reconciliation.** Second trust-recovery-remediation batch, the risk-domain group (responding to the maintainer's mid-session direction to bundle coherent groups rather than ship single-change PRs). Reconciles four cross-document conflicts among the risk-scoring and risk-acceptance documents to single canonical surfaces. The methodology procedure and the exception/risk-acceptance policy are the canonical sources and were NOT edited; the divergent surfaces were brought into agreement with them.

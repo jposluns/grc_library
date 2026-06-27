@@ -14,11 +14,14 @@ catches the two harder-to-tolerate drift shapes that remain:
    resume experience because the maintainer reads "PR #N is next"
    when it has already shipped.
 
-2. **Sweep-cursor-behind-history**: TODO.md's "Last validation sweep"
-   line references Sweep N iteration M, but
+2. **Sweep-cursor-behind-history**: the session-handoff file's "Last
+   validation sweep" line references Sweep N iteration M, but
    `.working/validate-sweeps/history.md` contains a more recent sweep
    iteration row. This breaks the resume experience because the
-   maintainer reads a sweep cursor that has been superseded.
+   maintainer reads a sweep cursor that has been superseded. (The sweep
+   cursor lives in `.working/session-handoff.md`, the canonical resume
+   point, not in TODO.md: the resume-metadata block was relocated there
+   so TODO.md stays purely forward-looking.)
 
 The gate does NOT enforce the version-snapshot field's currency. Per
 the PR #127 convention amendment, that field is intentionally allowed
@@ -28,8 +31,10 @@ The gate is a regular corpus audit gate (runs on every audit cycle,
 not just at PR time). This catches drift at audit-time before any
 push, so the maintainer can refresh TODO before merging the next PR.
 
-Scope: scans TODO.md by default. Other files adopting the convention
-should be added to TARGET_FILES.
+Scope: the queued-PR check scans TODO.md (TARGET_FILES); the
+sweep-cursor check scans SWEEP_CURSOR_FILE (`.working/session-handoff.md`).
+Other files adopting the queued-PR convention should be added to
+TARGET_FILES.
 
 Exit codes:
     0 - All checked patterns are current.
@@ -49,6 +54,9 @@ TARGET_FILES: list[str] = [
     "TODO.md",
 ]
 SWEEP_HISTORY_PATH = ".working/validate-sweeps/history.md"
+# The sweep cursor lives in the session-handoff file (the canonical resume
+# point), not in TODO.md: TODO.md is purely forward-looking work items.
+SWEEP_CURSOR_FILE = ".working/session-handoff.md"
 
 # Queued-PR patterns. Match `Next` / `queued` / `pending` immediately
 # adjacent to `PR #<n>`, where "immediately adjacent" means only
@@ -125,12 +133,10 @@ def latest_sweep_iteration(history_path: Path) -> tuple[int, int] | None:
     return max(rows)
 
 
-def check_file(path: Path, merged: set[int], latest: tuple[int, int] | None) -> list[str]:
-    """Scan a single TODO-shaped file and return finding strings."""
+def check_queued_pr(path: Path, merged: set[int]) -> list[str]:
+    """Check 1: queued-PR-already-merged. Scans a forward-looking TODO file."""
     findings: list[str] = []
     text = path.read_text(encoding="utf-8")
-
-    # Check 1: queued-PR-already-merged.
     # Walk line-by-line so we can report line numbers.
     for lineno, line in enumerate(text.splitlines(), 1):
         for match in QUEUED_PR_PATTERN.finditer(line):
@@ -144,26 +150,39 @@ def check_file(path: Path, merged: set[int], latest: tuple[int, int] | None) -> 
                     f"PR has landed (move to PRs-completed list, or "
                     f"remove the queued framing)."
                 )
-
-    # Check 2: sweep-cursor-behind-history.
-    if latest is not None:
-        latest_sweep, latest_iter = latest
-        for lineno, line in enumerate(text.splitlines(), 1):
-            match = SWEEP_CURSOR_PATTERN.search(line)
-            if not match:
-                continue
-            cursor_sweep = int(match.group(1))
-            cursor_iter = int(match.group(2))
-            if (cursor_sweep, cursor_iter) < (latest_sweep, latest_iter):
-                findings.append(
-                    f"  L{lineno} [sweep-cursor-stale] line claims "
-                    f"last sweep was Sweep {cursor_sweep} iter "
-                    f"{cursor_iter}, but {SWEEP_HISTORY_PATH} has a "
-                    f"more recent row at Sweep {latest_sweep} iter "
-                    f"{latest_iter}. Update the cursor."
-                )
-
     return findings
+
+
+def check_sweep_cursor(path: Path, latest: tuple[int, int] | None) -> list[str]:
+    """Check 2: sweep-cursor-behind-history. Scans the session-handoff file
+    (SWEEP_CURSOR_FILE), where the resume cursor lives."""
+    findings: list[str] = []
+    if latest is None:
+        return findings
+    text = path.read_text(encoding="utf-8")
+    latest_sweep, latest_iter = latest
+    for lineno, line in enumerate(text.splitlines(), 1):
+        match = SWEEP_CURSOR_PATTERN.search(line)
+        if not match:
+            continue
+        cursor_sweep = int(match.group(1))
+        cursor_iter = int(match.group(2))
+        if (cursor_sweep, cursor_iter) < (latest_sweep, latest_iter):
+            findings.append(
+                f"  L{lineno} [sweep-cursor-stale] line claims "
+                f"last sweep was Sweep {cursor_sweep} iter "
+                f"{cursor_iter}, but {SWEEP_HISTORY_PATH} has a "
+                f"more recent row at Sweep {latest_sweep} iter "
+                f"{latest_iter}. Update the cursor."
+            )
+    return findings
+
+
+def check_file(path: Path, merged: set[int], latest: tuple[int, int] | None) -> list[str]:
+    """Composite of both checks against a single file. Retained for the unit
+    tests (which exercise each check via a single constructed fixture file);
+    main() routes the two checks to their respective files instead."""
+    return check_queued_pr(path, merged) + check_sweep_cursor(path, latest)
 
 
 def main() -> int:
@@ -175,6 +194,7 @@ def main() -> int:
     latest = latest_sweep_iteration(REPO_ROOT / SWEEP_HISTORY_PATH)
 
     all_findings: dict[str, list[str]] = {}
+    # Queued-PR check scans the forward-looking TODO file(s).
     for rel in TARGET_FILES:
         path = REPO_ROOT / rel
         if not path.exists():
@@ -183,9 +203,22 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 2
-        findings = check_file(path, merged, latest)
+        findings = check_queued_pr(path, merged)
         if findings:
             all_findings[rel] = findings
+    # Sweep-cursor check scans the session-handoff file (the resume cursor's home).
+    cursor_path = REPO_ROOT / SWEEP_CURSOR_FILE
+    if not cursor_path.exists():
+        print(
+            f"ERROR: sweep-cursor file {SWEEP_CURSOR_FILE} does not exist.",
+            file=sys.stderr,
+        )
+        return 2
+    cursor_findings = check_sweep_cursor(cursor_path, latest)
+    if cursor_findings:
+        all_findings[SWEEP_CURSOR_FILE] = (
+            all_findings.get(SWEEP_CURSOR_FILE, []) + cursor_findings
+        )
 
     if not all_findings:
         n = len(TARGET_FILES)
