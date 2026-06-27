@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #392: Trust-recovery /full-qa remediation: matrix + source-doc control-code semantic-fit fixes (2026-06-27)
+
+A maintainer-invoked `/full-qa` over the FR-167 matrix found 9 "valid code, wrong control" and structural defects (all Medium/Low); all fixed: 8 matrix cells, the detailed-CHANGELOG-mirror header repair (F-1), and the 7 source documents whose own framework tables carried the same class (closing the Source-doc framework-table control-code corrections item). Also populated 3 governance trade cells (maintainer redirect) and ended overnight mode.
+
 ### PR #381: project-governance separation §5.3 resolved + Phase 2 review-schedule migration (2026-06-26)
 
 Closed the §5.3 deferred-classifications item: `register-coverage-gaps.md` stays corpus (adopter-routing role), and `register-document-review-schedule.md` migrated to `.project-governance/` (Phase 2) with its 7 corpus citers severed or re-pointed to the reusable corpus patterns. The separation spec gained a distinct §5.4 Phase-2 subsection.
