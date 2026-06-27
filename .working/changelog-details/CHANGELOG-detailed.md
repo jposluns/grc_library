@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-27, Library Version 2026.06.396, PR #417
+
+**Session-closing handoff (trust-recovery High-tier remediation session).** Working-state close-out PR; no corpus-document body change. The session it closes resumed from handoff #410 and cleared the entire trust-recovery High set FR-168..175 across #411..#416 (High-first, every value ground-truth-verified before applying, every PR a full `/validate-pr` + `/retro`, all CI-green; the resume-mandated loop-break Sweep 67 ran first, clean).
+
+### Changed
+- [`.working/session-handoff.md`](session-handoff.md): added the this-session block (#411..#416), refreshed the state snapshot to post-#416 (handoff #417; green-at-`6fb3840` 54/54; library `2026.06.395`->`.396`, README `1.9.266`->`.267`, audit-spec `1.16.14`), added this session's asserted-expectations block (the three-surface India-date agreement and the FR-168 `GRC-04` verification flagged as the claims most worth Sweep 68's attention), and updated the next-actions order to mark FR-168..175 CLOSED with the 24 P2 findings FR-176..199 plus the maintainer's P3-batch-in-one-fan-out test as the next priority.
+- [`.working/session-metrics.md`](session-metrics.md): added the session row (Version `1.0.16`->`1.0.17`); honest measured floor (only the #416 `/validate-pr` Subagent A return, 226,151, survived the mid-session compaction; the rest excluded rather than estimated per the measured-versus-not-instrumented discipline).
+
+### Batched (recursion-avoidance)
+- The #416 `/validate-pr` history row (0 in-window / 0 out-of-window, clean) and the #416 `/retro` improvement-log row. The handoff PR's own `/validate-pr` skip row is recorded inline in [`validate-pr/history.md`](../validate-pr/history.md) (handoff-PR exemption).
+
+### Verification
+- This PR changes no corpus-document body and no gate-affecting surface, so it carries a gate-identical state to the #416 merge. `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` green (recorded at push). The receiving `/resume` re-runs the audit on `main` (= #417) and confirms the green-at-`6fb3840` baseline as a gate-identical descendant.
+
+### Loop-break (no trailing QA on this PR)
+- Per CLAUDE.md PR-workflow step 5a, the session-closing handoff PR skips its own `/validate-pr` + `/retro` to avoid the post-merge validate-then-PR recursion that has no terminating next substantive PR at a session boundary. The compensating control is the corpus-wide **Sweep 68** at the next `/resume` (stronger than the skipped per-PR sweep: it re-examines the whole corpus over the #411..#417 deltas), cross-checked against this handoff's asserted expectations.
+
 ## 2026-06-27, Library Version 2026.06.395, PR #416
 
 **FR-175: India DPDPA in-force-date reconciliation.** Closes the last remaining trust-recovery High (the fifth and final decided/verified-value reconciliation of this resume). The conflict: the privacy jurisdiction index asserted an India DPDP in-force date that contradicted the dedicated India annex and the canonical citations register. The maintainer authorised attempting the external verification in-session (via the wind-down decision framework) rather than deferring to a fresh session.
