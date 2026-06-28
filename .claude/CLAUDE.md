@@ -626,6 +626,15 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   stated goal, or rest on a stale-state belief, stop, consider, and surface the concern with
   named options before executing (the charitable-interpretation corollary; the anti-over-ask
   calibration). The requestor-facing counterpart to `clarify-before-acting`.
+- `.claude/rules/governance/high-assurance-verification.md` — the heavier pre-apply harness
+  for *sensitive* changes (gate-blind on correctness, delicate at scale, costly to get
+  wrong): research fan-out, a mechanical signal pass over the negatives, two independent
+  adversarial verifiers (false-negative and false-positive lenses), a programmatic invariant
+  floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest
+  on orchestrator in-context precision. The proactive counterpart to
+  `trust-recovery-escalation`; its sensitive items persist across sessions in
+  [`.working/high-assurance/register.md`](../.working/high-assurance/register.md), surfaced
+  at `/resume`.
 
 The `dev-security/claude-rules/README.md` is the authoritative pack version history and
 future-work signalling; pack changes are tracked through the library's CHANGELOG and

@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.428, PR #450
+
+Session-closing handoff PR. Adds the twelfth governance pack rule ([`high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md)), standardizing the #448 independent-adversarial-verification method, plus its persistent register; batches the #449 QA rows; records the maintainer-answered overnight directives; refreshes the handoff.
+
+### Added
+
+- [`dev-security/claude-rules/governance/high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md) (and its byte-identical mirror [`.claude/rules/governance/high-assurance-verification.md`](../../.claude/rules/governance/high-assurance-verification.md)): the twelfth governance rule. A heavier pre-apply verification harness for *sensitive* changes, defined by three trigger conditions (gate-blind correctness, delicate scale, high escaped-error cost) and a five-stage harness (research fan-out; mechanical signal pass over the negatives; two independent adversarial verifiers, false-negative + false-positive lenses, blind to each other and to the research; programmatic invariant floor; deterministic scripted apply + re-parse). Proactive counterpart to [`trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md) (reactive); a heavier tier above [`ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md). Generalizes the harness that made the #448 AICM-column apply integrity-absolute.
+- [`.working/high-assurance/register.md`](../high-assurance/register.md): the persistent cross-session register the rule's "Persistence between sessions" section specifies (`pending`/`in-progress`/`verified`/`deferred`), surfaced at `/resume` alongside the pending-decisions queue and matrix-fit history. Seeded with the #448 CSA AICM v1.1 column as the inaugural `verified` exemplar.
+
+### Changed
+
+- Enumeration-surface wiring for the new rule: [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) MIRROR_MAP entry added; [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) docstring "eleven" to "twelve" governance rules; pack [`README.md`](../../dev-security/claude-rules/README.md) directory-tree entry + "two areas" prose + version-history row + metadata Version `1.51.3` to `1.52.0`; pack [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) rule bullet + phased-rollout paragraph; project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) security-and-governance index bullet; [`skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) growth-narrative word-form "five rules to eleven" to "twelve".
+- [`.working/pending-decisions.md`](../pending-decisions.md): the four maintainer-answered overnight-mode directives recorded as resolved standing instructions (full autonomy + harness-on-net-new; download-missing-legislation; out-of-scope set with FR-70 in-scope; ISO-titles-usable).
+- [`.working/session-handoff.md`](../session-handoff.md), [`.working/session-metrics.md`](../session-metrics.md): session-closing refresh (next-actions overnight queue, snapshot, asserted-expectations, metrics row).
+
+### Verification
+
+- Pre-push guard (`run_all_audits.sh` 54/54 + `run-pr-time-checks.sh` D1-D4 + history-aware 45/40/31) green on the #450 branch tip.
+- [`lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) confirms the new mirror is byte-identical; [`lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) green (12 rules consistent across the three enumeration surfaces); [`lint-language.py`](../../tools/lint-language.py) clean on the new pack prose (no em/en dashes, no British `-ise`; verified before first commit).
+- The rule's prose is **semantically un-gate-verified** (the gates check wiring and house-style, not the rule's internal consistency); the next `/resume` corpus-wide `/validate` is the semantic compensating control for this loop-break handoff PR.
+
+### Discipline observations
+
+- The `AskUserQuestion` primitive errored twice (permission-stream closed) when surfacing the overnight clarifications; per the graceful-degradation discipline the four questions were recorded in [`pending-decisions.md`](../pending-decisions.md) with stricter-safe defaults, then the maintainer answered all four by screenshot and the defaults were overwritten with the actual decisions before commit.
+- One in-window `/validate-pr` finding on #449 (a docstring addition shifted a cited line from 52 to 54, leaving a [`TODO.md`](../../TODO.md) `:52` anchor stale) was fixed in this PR's batch; the two `.working/` carriers of the same `:52` were correctly left as frozen-state archives.
+
+Per the session-closing handoff loop-break, this PR skips its own trailing `/validate-pr` + `/retro`; the exemption is recorded inline in the [`validate-pr/history.md`](../validate-pr/history.md) #450 row. Library `2026.06.427` to `2026.06.428`; README `1.9.298` to `1.9.299`.
+
 ## 2026-06-28, Library Version 2026.06.427, PR #449
 
 FR-167 closure prep (PR-C): extend the advisory semantic-fit worklist tool to scope the new "CSA AICM v1.1" matrix column, so the closing whole-matrix `/matrix-fit` covers the AICM citations the #448 column added.
