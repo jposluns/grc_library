@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.421, PR #443
+
+DD-10 vetting-record correction: the addyosmani spot-scanned skill count was an undercount (18) on every live surface; corrected to 19, grounded by the upstream-confirmed total of 24 skills and the vetting-log's own explicit 19-item list.
+
+### Changed
+- [`dev-security/claude-rules/vetting-log.md`](../../dev-security/claude-rules/vetting-log.md): "the 18 remaining skill directories" and "the 18 spot-scanned skill directories" corrected to 19 (the line explicitly enumerates 19 directories); metadata `Version` `1.3.1` to `1.3.2`, `Date` `2026-06-19` to `2026-06-28`.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): "5 skills in full + 18 spot-scanned" corrected to "+ 19 spot-scanned"; metadata `Version` `1.51.2` to `1.51.3` with a paired `## Version history` row.
+- [`dev-security/claude-rules/setup-generator-prompt.md`](../../dev-security/claude-rules/setup-generator-prompt.md): "5 skills fully vetted, 18 spot-scanned for red flags" corrected to "19 spot-scanned" (no `Version` field; not a gate-40 versioned doc).
+- [`README.md`](../../README.md): Library Version `2026.06.420` to `2026.06.421`; README Version `1.9.291` to `1.9.292`.
+- [`TODO.md`](../../TODO.md): DD-10 removed; [`.working/DONE.md`](../DONE.md): #443 entry added.
+
+### Verification
+- Upstream count web-verified this turn: addyosmani/agent-skills holds 24 skills (23 lifecycle + the `using-agent-skills` meta-skill).
+- The vetting-log line 57 list was counted programmatically: 19 distinct spot-scanned skill directories; 5 fully vetted + 19 = 24 = upstream total (all skills examined; LICENSE is not a skill).
+- The historical CHANGELOG-detailed entry (the original addyosmani vetting record) was deliberately NOT edited (no retroactive edits; it keeps its as-shipped "18").
+- Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green before push; CI green before merge.
+
+### Discipline observation
+- DD-10 as filed referenced a root README.md "= 23" surface that no longer exists; the actionable core (align surfaces to the upstream count) resolved to a real 18-to-19 undercount on the three surviving surfaces, grounded by evidence rather than the stale premise.
+- Batches the #442 `/validate-pr` (0 findings) and `/retro` rows committed earlier on the branch.
+
 ## 2026-06-28, Library Version 2026.06.420, PR #442
 
 Pack-guidance addition (distributable pack content): added [`dev-security/claude-rules/guidance-claude-md-optimization.md`](../../dev-security/claude-rules/guidance-claude-md-optimization.md), a maintainer-facing guidance doc on the keep-and-condense method for an always-loaded rules file, distilled from the method this library used on its own [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) in PR #441.
