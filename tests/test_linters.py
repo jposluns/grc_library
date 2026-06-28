@@ -2993,6 +2993,70 @@ class MatrixControlCodeTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    AICM_HEADER = (
+        "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 "
+        "| ISO 27001:2022 | NIST CSF 2.0 | CTPAT |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    )
+
+    def _matrix_with_aicm(self, ccm: str, aicm: str, iso: str, nist: str) -> str:
+        return (
+            "# X\n\n## Section\n\n"
+            + self.AICM_HEADER
+            + f"| Gov | Doc | path | {ccm} | {aicm} | {iso} | {nist} | N/A |\n"
+        )
+
+    def test_aicm_only_code_and_na_not_flagged(self) -> None:
+        # False-positive guard for the CSA AICM v1.1 column: AICM-only
+        # (AI-specific) codes pass. MDS-06 (Adversarial Attack Analysis) and
+        # GRC-10 (AI Impact Assessment) are is_aicm_only; the CCM column carries
+        # the CCM base code, the AICM column the AI-specific delta.
+        fixture = self.make_fixture(
+            "fake-matrix-aicm-valid.md",
+            self._matrix_with_aicm("GRC-01", "MDS-06, GRC-10", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"valid AICM-only codes must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_aicm_na_not_flagged(self) -> None:
+        # The common case: a non-AI row's AICM cell is N/A and must pass.
+        fixture = self.make_fixture(
+            "fake-matrix-aicm-na.md",
+            self._matrix_with_aicm("GRC-01", "N/A", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"an N/A AICM cell must pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_aicm_ccm_base_code_flagged(self) -> None:
+        # Catalogue discipline, symmetric to ccm-aicm-confusion: IAM-01 is a
+        # CCM v4.1 base control (also restated in AICM v1.1, which extends CCM),
+        # so it belongs in the "CSA CCM v4.1" column, NOT the AICM column, which
+        # carries only the AI-specific delta.
+        fixture = self.make_fixture(
+            "fake-matrix-aicm-ccmbase.md",
+            self._matrix_with_aicm("GRC-01", "IAM-01", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "aicm-is-ccm-base")
+
+    def test_aicm_unknown_code_flagged(self) -> None:
+        # A code-shaped token that is no real CSA control (ZZ-99) in the AICM
+        # column is flagged as an unknown AICM code.
+        fixture = self.make_fixture(
+            "fake-matrix-aicm-unknown.md",
+            self._matrix_with_aicm("GRC-01", "ZZ-99", "A.5.1", "GV.OC"),
+        )
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertLinterFails(result, "aicm-unknown")
+
 
 class DocumentControlCodeTests(LinterTestCase):
     """tools/lint-document-control-codes.py (per-document NIST CSF 2.0 codes)"""

@@ -50,6 +50,18 @@ Scope (deliberately bounded):
     the v4.1-labelled column carries only v4.1 codes. Title accuracy of CCM
     codes stays the citation gate's job; this gate does not re-check titles.
 
+  * **CSA AICM v1.1 column** -- the symmetric counterpart of the CCM-column
+    check. AICM v1.1 is CSA's AI-focused *extension* of CCM v4.1 (it restates
+    the CCM control base and adds AI-specific controls), so this column exists
+    to carry only the AI-specific delta: a token must be an AICM-*only*
+    identifier (``ccm_aicm_reference.is_aicm_only`` -- in AICM v1.1.0 but not
+    CCM v4.1.0; the ``MDS`` Model-Security domain, ``GRC-09..15``, ``AIS-09..15``,
+    ``DSP-20..24``, ``HRS-14/15``, ``IAM-16..18``, ``LOG-15/16``, ``TVM-13``).
+    A CCM v4.1 base control (which AICM also restates) is flagged: it belongs
+    in the "CSA CCM v4.1" column, so that the AICM column adds AI-specific
+    signal rather than duplicating the CCM column. ``N/A`` is allowed (most
+    non-AI rows). Title accuracy stays the CSA citation gate's job.
+
 Out of scope (by design):
 
   * **CTPAT / PIP / BASC v6 / WCO SAFE / AEO/AEO-S columns** -- these
@@ -96,6 +108,7 @@ NIST_FUNCTIONS = frozenset({"GV", "ID", "PR", "DE", "RS", "RC"})
 ISO_HEADER = "ISO 27001:2022"
 NIST_HEADER = "NIST CSF 2.0"
 CCM_HEADER = "CSA CCM v4.1"
+AICM_HEADER = "CSA AICM v1.1"
 
 ISO_ANNEX_RE = re.compile(r"^A\.(\d+)\.(\d+)$")
 ISO_CLAUSE_RE = re.compile(r"^§(\d+)(?:\.\d+)*$")
@@ -240,8 +253,46 @@ def check_ccm_token(tok: str) -> tuple[str, str] | None:
     )
 
 
+def check_aicm_token(tok: str) -> tuple[str, str] | None:
+    """Return ``(rule, message)`` if ``tok`` is not a valid AICM-only token, else None.
+
+    The column is labelled "CSA AICM v1.1" and exists to carry the AI-specific
+    controls AICM v1.1.0 adds on top of CCM v4.1.0 (the AICM-only set: AIS-09..15,
+    the MDS Model-Security domain, GRC-09..15, DSP-20..24, HRS-14/15, IAM-16..18,
+    LOG-15/16, TVM-13). AICM v1.1 is CSA's AI-focused extension of CCM v4.1, so its
+    code set restates the CCM base and adds these; a CCM v4.1 base control therefore
+    belongs in the "CSA CCM v4.1" column, NOT here. This is the symmetric counterpart
+    of ``check_ccm_token``'s AICM-only-in-the-CCM-column check: it keeps the AICM
+    column to the AI-specific delta so the column adds signal rather than duplicating
+    the CCM column.
+    """
+    if tok == "N/A":
+        return None
+    if is_aicm_only(tok):
+        return None
+    if is_ccm_v41(tok):
+        return (
+            "aicm-is-ccm-base",
+            f"'{tok}' is a CSA CCM v4.1.0 base control, not an AICM-only "
+            f"(AI-specific) control; the 'CSA AICM v1.1' column carries only the "
+            f"controls AICM v1.1 adds on top of CCM v4.1, so cite '{tok}' in the "
+            f"'CSA CCM v4.1' column instead (CCM/AICM catalogue discipline).",
+        )
+    if CCM_CODE_RE.match(tok):
+        return (
+            "aicm-unknown",
+            f"'{tok}' is not a valid CSA AICM v1.1.0 control identifier "
+            f"(not in the authoritative AICM v1.1.0 catalogue).",
+        )
+    return (
+        "aicm-malformed",
+        f"unrecognized CSA AICM v1.1 token '{tok}' "
+        f"(expected a control identifier 'DOMAIN-NN' or 'N/A').",
+    )
+
+
 def scan_matrix(path: Path) -> list[Finding]:
-    """Validate the CSA CCM v4.1, ISO and NIST framework columns of the matrix."""
+    """Validate the CSA CCM v4.1, CSA AICM v1.1, ISO and NIST framework columns of the matrix."""
     text = read_text_safe(path)
     if text is None:
         return []
@@ -249,15 +300,17 @@ def scan_matrix(path: Path) -> list[Finding]:
     iso_idx: int | None = None
     nist_idx: int | None = None
     ccm_idx: int | None = None
+    aicm_idx: int | None = None
     for lineno, line in enumerate(text.splitlines(), start=1):
         if not line.lstrip().startswith("|"):
-            iso_idx = nist_idx = ccm_idx = None  # left a table block
+            iso_idx = nist_idx = ccm_idx = aicm_idx = None  # left a table block
             continue
         cells = split_row(line)
         if ISO_HEADER in cells and NIST_HEADER in cells:
             iso_idx = cells.index(ISO_HEADER)
             nist_idx = cells.index(NIST_HEADER)
             ccm_idx = cells.index(CCM_HEADER) if CCM_HEADER in cells else None
+            aicm_idx = cells.index(AICM_HEADER) if AICM_HEADER in cells else None
             continue
         if is_separator_row(cells):
             continue
@@ -266,6 +319,11 @@ def scan_matrix(path: Path) -> list[Finding]:
         if ccm_idx is not None and len(cells) > ccm_idx:
             for tok in tokenize_cell(cells[ccm_idx]):
                 result = check_ccm_token(tok)
+                if result:
+                    findings.append(Finding(lineno, result[0], result[1]))
+        if aicm_idx is not None and len(cells) > aicm_idx:
+            for tok in tokenize_cell(cells[aicm_idx]):
+                result = check_aicm_token(tok)
                 if result:
                     findings.append(Finding(lineno, result[0], result[1]))
         if len(cells) > iso_idx:
@@ -292,6 +350,7 @@ def main(argv: list[str]) -> int:
         print(
             f"OK: matrix framework-control codes valid in {rel} "
             f"(CSA CCM v4.1 column membership, no AICM-only codes; "
+            f"CSA AICM v1.1 column membership, AICM-only codes only, no CCM-base codes; "
             f"ISO 27001:2022 Annex A membership + clause format; "
             f"NIST CSF 2.0 well-formedness + Category membership; "
             f"CCM/AICM title accuracy covered by the CSA citation gate)."
@@ -303,9 +362,10 @@ def main(argv: list[str]) -> int:
     print(
         f"\nFAIL: {len(findings)} matrix control-code issue(s). CSA CCM v4.1 "
         f"column tokens are validated for CCM v4.1.0 catalogue membership "
-        f"(AICM-only codes rejected); ISO codes against the ISO/IEC 27001:2022 "
-        f"Annex A control set and clause range; NIST tokens against the CSF 2.0 "
-        f"Core Function prefixes and the authoritative 22-Category set.",
+        f"(AICM-only codes rejected); CSA AICM v1.1 column tokens for AICM-only "
+        f"(AI-specific) membership (CCM-base codes rejected); ISO codes against "
+        f"the ISO/IEC 27001:2022 Annex A control set and clause range; NIST tokens "
+        f"against the CSF 2.0 Core Function prefixes and the authoritative 22-Category set.",
         file=sys.stderr,
     )
     return 1
