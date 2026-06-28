@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** 1 pending (the 4 domain-wide PRI-* mapping picks below; proceeded with recommended defaults, confirm or redirect)
+**Status:** 0 pending (the 4 domain-wide PRI-* mapping picks below were confirmed by the maintainer on 2026-06-28; all four applied defaults retained, no changes)
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -22,7 +22,7 @@ PR #428 corrected 7 invalid `PRI-*` CCM citations across 3 privacy files (surfac
 - `policy-...:145` PRI-02 "Lawful processing and consent" to **DSP-12** "Limitation of Purpose in Personal Data Processing" (approximate fit: CCM v4.1 has no dedicated consent / lawful-basis control).
 - `policy-...:147` PRI-03 "Cross-border data transfers" to **DSP-10** "Sensitive Data Transfer" (could co-cite DSP-19 "Data Location").
 - `charter-privacy-management-programme.md:218` the range "PRI-01 through PRI-07" to **Option A: "Data Security and Privacy Lifecycle Management (DSP) domain"** (framework-level reference matching the table's whole-framework granularity; alternatives B "DSP-01 through DSP-19" valid range, C an enumerated control list). A literal positional PRI-to-DSP renumber was rejected as fabricated.
-- **Status**: proceeded with recommended defaults (stricter-safe, evidence-backed); awaiting maintainer confirm/redirect.
+- **Status**: resolved. Maintainer confirmed all four applied defaults on 2026-06-28 (GRC-06 for PRI-01, DSP-12 for PRI-02, DSP-10 for PRI-03, and the DSP-domain reference for the charter range); no changes. Rotates out at the next handoff per the resolved-entry convention.
 
 No other pending decisions.
 

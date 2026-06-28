@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.408, PR #430
+
+Internal assistant-guidance change (invisible to adopters): codified a Communication conventions section in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (no decorative honesty-intensifiers; use `IMPORTANT:` as the emphasis marker), maintainer-directed during the #429 close-out. Batches the #429 `/validate-pr` (0 findings) and `/retro` rows plus the pending-decisions resolution (the four PRI-* judgement-call mappings, confirmed by the maintainer 2026-06-28). Library `2026.06.407` to `2026.06.408`; README `1.9.278` to `1.9.279`.
+
 ## 2026-06-28, Library Version 2026.06.407, PR #429
 
 **Close the two remaining low-severity trust-recovery tail findings (FR-188, FR-198).** Two XS trust-recovery tail items, both surfaced 2026-06-27 (FR-188 from `/fitness`, FR-198 from `/full-qa`), bundled as the same trust-recovery-tail velocity unit.
