@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.423, PR #445
+
+Session-closing handoff for the #438 to #445 session (CLAUDE.md-optimization + pre-push guard + DD-10 + gate-50 check-4). One substantive codification plus the standard close-out bookkeeping; loop-break exemption from the trailing per-PR QA.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the `## Session migration and PR close-out checklist` multi-surface-incompleteness guard bullet gains the bare-token-grep discipline for count, value, or term corrections (grep the bare token, e.g. `\b18\b`, not a phrasing-specific string; cites the #443 miss and links the #443 history row). New prose dash-checked before commit (zero em/en dashes, no British `-ise`); `.claude/` is gate-exempt.
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed with this session's new current blocks (Next actions, State snapshot, Asserted expectations) for the #438 to #445 session; the prior #437-session blocks demoted to 1-prior (no prune this PR, per the convention that the closing session only adds and the receiving `/resume` prunes).
+- [`.working/session-metrics.md`](session-metrics.md): added the #438 to #445 session row (`Version` `1.0.20` to `1.0.21`); the subagent-token figure recorded as not-retained (post-compaction resume), not fabricated.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #445 loop-break exemption row (`Version` `1.2.227` to `1.2.228`).
+- [`README.md`](../../README.md): Library Version `2026.06.422` to `2026.06.423`; README Version `1.9.293` to `1.9.294`.
+
+### Verification
+- `run_all_audits.sh` 54/54 at `03fac87` (the pre-#445-commit branch tip) and re-run on the #445 commit via the pre-push guard before push; `run-pr-time-checks.sh` all-pass. `.working/` prose em/en-dash-free under gate 51. Gate count unchanged at 54; governance rules 11, skills 16, commands 9 (no rule, skill, or command added).
+
+### Discipline observation
+- Loop-break exemption (maintainer-authorised standing rule). This session-closing handoff PR does NOT run its own trailing `/validate-pr` and `/retro`; the compensating control is the next session's `/resume` corpus-wide `/validate` (Sweep 73 over the #438 to #445 deltas), cross-checked against the handoff's `## Asserted expectations`. The exemption is recorded inline in the [`.working/validate-pr/history.md`](../validate-pr/history.md) #445 row.
+- The substantive change closes the loop on the #443 `/retro` lesson (phrasing-specific contradiction-search) by codifying the bare-token-grep into the close-out checklist, the orchestrator-checklist guard-rail class per the `ai-assistant-workflow-disciplines` §1 update protocol.
+- A pre-existing cosmetic defect was noted but NOT fixed this PR (to keep scope tight at wind-down): two prior session rows in [`.working/session-metrics.md`](session-metrics.md) are concatenated onto one physical line (a prior-refresh missing-newline artefact); harmless (no table-structure gate on `.working/`), flagged for a future cleanup pass.
+
 ## 2026-06-28, Library Version 2026.06.422, PR #444
 
 Gate 50 fourth internal check (version-history parity), the #376 mechanizable half; plus the bundled #443 `/validate-pr` HIGH fix.
