@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.412, PR #434
+
+Codifies, durably, the "never assert a state you cannot observe" discipline family, after a session in which the assistant breached it (surfaced a wind-down on an ungrounded "context is heavy" claim with no instrument behind it; asserted a reference's absence and version from a partial `ls` and a stored note rather than the repo index and the upstream source). A chat commitment dies at the session boundary; the fix is to write it into the surfaces a fresh session loads. Maintainer-directed (scope confirmed: pack + project).
+
+### Added
+- **Pack rule subsection** in [`evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md) (and the byte-identical [`.claude/rules/` mirror](../../.claude/rules/governance/evidence-grounded-completion.md)): "Un-observable state, inventory, and external-version currency" (three corollaries: un-observable internal state is never assertable and never a wind-down/stop/defer trigger; inventory/absence claims require the collection's index, not a partial look; external-version currency is settled by the upstream source verified this turn, never a stored note/cache/catalogue, and a superseded version is not worked from without explicit authorization). No rule added; governance-rule count stays eleven.
+- **`## Reference-version currency` section** in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the project SOP (scratch is storage not authority; the index->validate-upstream->act order; the deprecation-archival workflow; pause-and-ask on a license/maintainer-download with a defer-and-move-on graceful-degradation default; never work on a superseded version without authorization).
+- **Scratch-index load** added to the [`/resume`](../../.claude/commands/resume.md) Reference-knowledge-base step and the [`session-handoff.md`](../session-handoff.md) How-to-resume (step 2a), with the index as the authority for what is held and where (MITRE is under `ref/frameworks/`, not `ref/standards/`).
+- **Version-currency / deprecation-archival workflow** in the [`multi-session-orchestration`](../multi-session-orchestration.md) runbook §6.
+- **Pending decision** in [`pending-decisions.md`](../pending-decisions.md): the ATLAS scratch update (scratch v5.6.0 deprecated vs upstream v2026.05), egress/maintainer-download-gated, deferred per the SOP.
+
+### Changed
+- **Wind-down framework** in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the "objective signals, not subjective" clause now explicitly bars un-instrumented internal-state triggers ("context is heavy") and requires a named externally-observable signal.
+- **Pack version** `1.51.0` to `1.51.1` (patch; existing-rule extension) with a `## Version history` row.
+- **TODO §4.26**: appended the upstream-validated correction (ATLAS current = v2026.05, not the v5.6.0 the prior note cited; v5.6.0 is the deprecated line scratch holds; ATT&CK v19.1 current).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) **54/54** after the edits; [`tools/lint-language.py`](../../tools/lint-language.py) clean on the new pack prose; the pack rule and its `.claude/` mirror confirmed byte-identical (`diff -q`); gate 51 (`.working/` prose hygiene) clean. Pack version-history row added alongside the metadata `Version` bump (paired-surface).
+- The ATLAS finding was reached by the new SOP itself: scratch index -> the scratch ATLAS data's `version: 5.6.0` field (deprecated header) -> upstream atlas-data releases (`v2026.05`, 2026-05-27); ATT&CK scratch v19.1 cross-checked against upstream v19.1. No version was copied from a stored note.
+
+### Why
+A discipline held only in chat is re-broken next session (a fresh `/resume` loads the pack rules and the project guidance files, not the conversation). Writing it into the pack rule (distributed), the project [`CLAUDE.md`](../../.claude/CLAUDE.md), the `/resume` process, the handoff, and the runbook is what makes it survive the session boundary. The live ATLAS case demonstrates the SOP working: it caught that a stored "current = v5.6.0" belief was stale before it could be written into the register.
+
 ## 2026-06-28, Library Version 2026.06.411, PR #433
 
 The first PR of the handoff-file-staleness resume session (invisible to adopters; `.claude/` + `.working/` + version surfaces only, no corpus-document body changed). It runs the mandatory `/resume` loop-break sweep, prunes the accumulated session handoff, and codifies a standing pruning convention so the handoff cannot re-accumulate stale history across resumes.

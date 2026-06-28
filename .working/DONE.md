@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #434: codify "never assert a state you cannot observe" (2026-06-28)
+
+Not previously in TODO; maintainer-directed after the discipline was breached this session. Extended the evidence-grounded-completion pack rule (+mirror) with the un-observable-state / inventory / external-version-currency corollary (pack 1.51.1), sharpened the wind-down framework (named observable signal required), and added the Reference-version-currency SOP + scratch-index-load to /resume + handoff + runbook §6; applied it to catch that scratch ATLAS v5.6.0 is deprecated vs upstream v2026.05 (logged pending).
+
 ### PR #433: handoff pruning convention + Sweep 71 (2026-06-28)
 
 Not previously in TODO; maintainer-directed. Pruned the session handoff from 426 lines / 47 stacked session blocks to ~120 (keep current + 1 prior) and codified the prune-at-resume convention across the handoff, the /resume command (step 6a), and the CLAUDE.md close-out checklist. Ran the loop-break Sweep 71 (A/C clean; B 2 gate-exempt notes resolved by the prune; no asserted-expectations contradiction).

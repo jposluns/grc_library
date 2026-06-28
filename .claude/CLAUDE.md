@@ -423,6 +423,43 @@ top of them (a row must pass the existence gates first). Findings are fixed in-w
 routed under the normal triage; a zero-finding run still gets a history row. This is the
 PR B half of TODO §4.20; the PR A advisory tool shipped in #394.
 
+## Reference-version currency (scratch `ref/` is storage, upstream is the authority)
+
+The project-specific operationalization of the `evidence-grounded-completion` rule's external-version-currency
+corollary, for the scratch `ref/` reference base. Maintainer-directed 2026-06-28.
+
+**The check order, whenever an externally-versioned reference (a standard, framework, or dataset such as
+MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task:**
+1. **Find what scratch holds, via its index, not a guess.** Consult the scratch reference index
+   ([`grc_library_scratch/ref/INDEX.md`](../../grc_library_scratch/ref/INDEX.md), `ref/catalogue.yml`,
+   `ref/SECTION-INDEX.md`, `ref/COVERAGE-MAP.md`) to find the held artefact and its recorded version, not a
+   guessed directory path. (Asserting "we do not hold X" from a partial `ls` is the un-observable-inventory
+   failure the pack rule forbids; MITRE lives under `ref/frameworks/`, not `ref/standards/`, which a 2026-06-28
+   guess got wrong.)
+2. **Validate the current version upstream this turn.** The authoritative answer to "is this current?" is the
+   upstream / primary source (the vendor's releases page or repository), never the scratch copy, a stored note,
+   or memory. Scratch is believed-current STORAGE, not a version authority.
+3. **Act only after both.**
+
+**On discovering upstream is newer than scratch holds (the version-update SOP):**
+- Updating scratch is part of SOP, via the deprecation-archival workflow (download the new version into scratch;
+  keep the old but move its files, extracted text plus original, to `ref/.deprecated/<standard>/<version>/`;
+  update `catalogue.yml` and the index docs). The full workflow lives in the
+  [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6.
+- **If the update needs a license or a maintainer download** (the new version cannot be auto-fetched, or egress
+  is blocked per the DD-10 known issue), **pause and ask the maintainer for direction.** On no response, apply
+  the graceful-degradation default: **defer the current item until direction is given, and move on to the next
+  independent item** (the attended-autonomous pending-decisions mechanism; record it in
+  [`pending-decisions.md`](../.working/pending-decisions.md)).
+- **Never write or rely on a superseded version unless the maintainer explicitly authorizes** working from the
+  older one. A register row, a citation, or a mapping must carry the upstream-confirmed current version, or the
+  item waits.
+
+Scratch writes go via MCP PR (the local git proxy 403s direct scratch pushes, per
+[`third-party-issues.md`](../.working/third-party-issues.md)), so the scratch half of any update is a separate
+cross-repo step. The version-currency register that records each reference's upstream-check location and
+last-verified date is TODO §4.26 (the durable artefact form of this SOP).
+
 ## Attended-autonomous operating mode
 
 Between fully-attended (the maintainer authorises each step) and overnight mode (a
@@ -491,6 +528,15 @@ step, it does NOT act on that conclusion silently. It surfaces the decision to t
    feel done": actual drift, hallucination, or mistakes the QA layer did not catch; OR a large
    fresh-context-best series remaining (a migration, rename, or corpus-wide sweep the partitionable-work
    SOP keeps single-session); OR a genuine degradation read anchored to the tractability factors below.
+   **An un-instrumented internal state is NOT a valid justification.** "Context is heavy", "this is
+   getting long", "I feel degraded" have no instrument behind them (the assistant cannot read its own
+   context depth), so per the `evidence-grounded-completion` rule's un-observable-state corollary they
+   are never assertable and never a wind-down trigger. The trigger must be a NAMED, externally-observable
+   signal: a failing check, a `/validate` or `/validate-pr` finding, a maintainer correction, a concrete
+   self-inconsistency that can be quoted, or the documented fresh-context-best property of the next item
+   (e.g. a `TODO.md` note tagging an item large / cross-repo / migration-class). Absent such a signal,
+   the default is to continue. (Added 2026-06-28 after a wind-down was surfaced on an ungrounded
+   "context is heavy" claim; the maintainer flagged it as an unobservable-state assertion.)
 2. **A per-PR likelihood-of-success assessment** for each of the pending next-five PRs (drawn from
    `TODO.md`, the same list the PR-workflow step-6 surfacing produces), each anchored to objective
    tractability factors: partitionable vs single-session; incremental-edit vs fresh-context-class;
