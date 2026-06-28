@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.4\
-**Date:** 2026-06-27\
+**Version:** 1.0.5\
+**Date:** 2026-06-28\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -225,6 +225,33 @@ derived encoding:
 
 The trust split above still governs: `ref/standards/` is trusted ground truth for these
 checks; `ref/publications/` is screened-not-trusted and is never a standards source.
+
+**Version currency and the deprecation-archival workflow (maintainer-directed 2026-06-28).**
+The scratch `ref/` base is believed-current STORAGE, not a version authority. The authoritative
+answer to "is this the current version?" is always the upstream / primary source verified this
+turn, never the scratch copy, a stored note, or memory (the pack
+[`evidence-grounded-completion`](../dev-security/claude-rules/governance/evidence-grounded-completion.md)
+rule's external-version-currency corollary; the project
+[`.claude/CLAUDE.md`](../.claude/CLAUDE.md) `## Reference-version currency` SOP). The order
+whenever an externally-versioned reference is load-bearing: (1) find what scratch holds via its
+index ([`ref/INDEX.md`](../../grc_library_scratch/ref/INDEX.md), `ref/catalogue.yml`,
+`ref/SECTION-INDEX.md`), not a guessed path (MITRE lives under `ref/frameworks/`, not
+`ref/standards/`); (2) verify the current version upstream this turn; (3) act only after both.
+
+On discovering upstream is newer than scratch holds, the deprecation-archival workflow:
+1. Download the new version into scratch (egress permitting).
+2. Keep the old version but move its files (extracted text plus the original binary) to
+   `ref/.deprecated/<standard>/<version>/`.
+3. Update `ref/catalogue.yml` and the index docs to the new version; record the upstream-check
+   location and the last-verified date (the version-currency register, TODO §4.26).
+4. The scratch write goes via a GitHub MCP PR (the proxy-403 transport restriction above).
+
+If the new version requires a license or a maintainer download (it cannot be auto-fetched, or
+egress is blocked per the DD-10 known issue), **pause and ask the maintainer for direction**; on
+no response, apply the graceful-degradation default (defer the current item, record it in
+[`pending-decisions.md`](pending-decisions.md), and move on to the next independent item). **Never
+write or rely on a superseded version unless the maintainer explicitly authorizes** working from
+the older one; otherwise the dependent item waits.
 
 ---
 
