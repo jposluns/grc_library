@@ -762,6 +762,19 @@ pack, CC BY-SA 4.0):
   self-reminder checkpoint at task start, before persistence, before completion claims,
   and at tension points. Added pack 1.49.0 (the distributable form the PRIMORDIAL RULE
   section above signalled was queued).
+- `.claude/rules/governance/surface-counterproductive-instructions.md` — a clear
+  instruction is not automatically a correct one. When following an instruction as given
+  would reduce efficiency, effectiveness, or productivity, lower quality, destroy work
+  already done, contradict a stated goal, or rest on a stale-state belief, stop, consider,
+  and surface the concern with named options before executing (stop, consider, confirm),
+  so the requestor can confirm or redirect. The charitable-interpretation corollary
+  forbids silently taking a harmful literal reading or reverting committed work without
+  confirming; the anti-over-ask calibration keeps it from becoming friction (fire only on
+  material downside, one informed round, accept an informed override). Requestor-facing
+  counterpart to `clarify-before-acting` (ambiguity) and broader than `project-integrity`
+  (any net-negative effect, not only the Quality versus Speed versus Cost tradeoff). Added
+  pack 1.51.0, maintainer-directed after a literal-and-silent reading of a wind-down
+  instruction reverted committed work.
 
 The `dev-security/claude-rules/` pack covers security and development-governance
 discipline. The initial governance rollout completed at pack version 1.11.0
@@ -773,7 +786,11 @@ pack version 1.47.0 added the ninth rule (`trust-recovery-escalation.md`) after 
 session whose discipline failures required a structured white-box re-examination of
 the window; pack version 1.49.0 added the tenth rule (`project-integrity.md`), the
 project-agnostic distribution of the PRIMORDIAL RULE's Quality > Speed > Cost apex
-ordering. See `dev-security/claude-rules/README.md` for the authoritative pack version
+ordering; pack version 1.51.0 added the eleventh rule
+(`surface-counterproductive-instructions.md`), the discipline of surfacing a
+clear-but-counterproductive instruction and confirming before acting on it (the
+requestor-facing counterpart to `clarify-before-acting`). See
+`dev-security/claude-rules/README.md` for the authoritative pack version
 history and future-work signalling. Pack changes are tracked through the
 library's CHANGELOG and per-rule version metadata.
 

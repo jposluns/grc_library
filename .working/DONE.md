@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #423: surface-counterproductive-instructions governance rule (the 11th) + #422 fold-in (2026-06-28)
+
+Added the eleventh pack governance rule (stop, consider, confirm before acting on a clear-but-counterproductive instruction; charitable-interpretation corollary; anti-over-ask calibration), maintainer-directed after a literal "wind down" reading reverted committed work (not previously in TODO). Also folded in the abandoned #422 handoff's #421 `/validate-pr` + `/retro` rows and fixed the adopter-guide:60 "Core reference set" casing residue.
+
 ### PR #421: FR-182 (medium) + FR-195 (FYI) + FR-196 (low) + FR-197 (FYI): README and adopter-guide navigation reconciliation (2026-06-28)
 
 Fourth P2 batch (navigation cluster): FR-182 made the README:271 "grow-toward catalogue" framing canonical (README:80 and adopter-guide:83/:228 now point to the Day-1 floor + Tier 1 starter set as the day-one start, Core reference set as the grow-toward catalogue); FR-195 added a discoverability pointer after the catalogue intro (lower-effort than linking 39 titles); FR-196 relabelled the 7 README bullets "thematic areas" and bridged them to the 11 domain directories; FR-197 assessed as no-change (deliberate two-tier funnel, portal generated). Batches the #420 `/validate-pr` (0) + `/retro` rows.

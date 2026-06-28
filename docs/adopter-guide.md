@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-06-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -57,7 +57,7 @@ The repository ships both a GRC corpus and a reference implementation for AI-ass
 
 **Audience.** An organisation that wants the Markdown content as a starting point but has its own maintenance workflow (or no AI assistance in the loop).
 
-**What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core Reference Set called out in the root [`README.md`](../README.md). The [`specification-master-project.md`](../specification-master-project.md) if you want to preserve the controlled document model.
+**What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core reference set called out in the root [`README.md`](../README.md). The [`specification-master-project.md`](../specification-master-project.md) if you want to preserve the controlled document model.
 
 **What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be Word + SharePoint, Confluence pages, a different toolchain, or human-only review; the library's content is portable to any of those.
 

@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.401, PR #423
+
+**New governance rule: `surface-counterproductive-instructions` (the eleventh pack rule), plus folded-in prior-session working state.**
+
+### Added
+- [`dev-security/claude-rules/governance/surface-counterproductive-instructions.md`](../../dev-security/claude-rules/governance/surface-counterproductive-instructions.md), the eleventh pack governance rule. Trigger: a clear instruction whose execution as given would reduce efficiency/effectiveness/productivity, lower quality, destroy work already done or be hard to reverse, contradict a stated goal, or rest on a stale-state belief. Response: stop, consider (name the cost; check a charitable reading and a stale-state validation), confirm (surface the concrete downside with named options, recommendation first; act on the answer). Includes the charitable-interpretation corollary (never silently take a harmful literal reading; never revert or discard committed work to satisfy a literal reading without confirming), the anti-over-ask calibration, a relationship section delineating it from `clarify-before-acting` / `project-integrity` / `action-before-explanation-of-inaction` / `validate-inference-before-action`, tool-specific guidance, an exception-handling protocol, and a framework-alignment table.
+- Byte-identical local mirror [`.claude/rules/governance/surface-counterproductive-instructions.md`](../../.claude/rules/governance/surface-counterproductive-instructions.md).
+- [`.working/validate-sweeps/2026-06-28-sweep69-iter1.md`](../validate-sweeps/2026-06-28-sweep69-iter1.md), the Sweep 69 detail file.
+
+### Changed
+- Wired the new rule across the three gate-41 enumeration surfaces: the pack [`README.md`](../../dev-security/claude-rules/README.md) directory tree and its "two areas" prose list, pack [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md), and project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (governance-bullet list and rollout narrative).
+- [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) MIRROR_MAP gains the new rule's mapping (gate 37).
+- [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) docstring "ten" to "eleven" governance rules; [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) growth narrative "five rules to ten" to "eleven" (gate-39-blind word-forms).
+- Pack `1.50.0` to `1.51.0` (minor; new rule), pack README version-history row added. Library `2026.06.400` to `2026.06.401`; README `1.9.271` to `1.9.272`.
+- Folded in the abandoned PR #422's stranded working-state: the #421 `/validate-pr` row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.206` to `1.2.207`) and the #421 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (`1.0.158` to `1.0.159`).
+- [`TODO.md`](../../TODO.md) §4.24 added (pack README "When to use each rule" table completeness, the Sweep 69 out-of-window observation); FR-178/194/199 left open for the PR-E rebuild later this session.
+
+### Fixed
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md):60 title-case "Core Reference Set" to sentence-case "Core reference set" (`1.3.3` to `1.3.4`), the #421 `/validate-pr` Low finding and Sweep 69 A-1 (deduped), fixed directly rather than re-routed to TODO.
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 on the committed state; [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass against the merge base. [`tools/lint-language.py`](../../tools/lint-language.py) run on the new rule prose and the mirror before commit (no em/en dashes, Canadian -ize orthography); gate 37 confirms the mirror byte-identical and mapped; gate 41 confirms the new rule present in all three enumeration surfaces.
+
+### Discipline observation
+- This PR is itself an application of the rule it adds. On discovering the open, colliding PR #422 (an unclear, potentially destructive state) the orchestrator stopped and surfaced the sequencing decision to the maintainer (abandon-and-fold versus merge-first) rather than silently resolving it, and surfaced the rule's name and framing before wiring ten surfaces. Both are stop-consider-confirm in action.
+
 ## 2026-06-28, Library Version 2026.06.400, PR #421
 
 **FR-182 + FR-195 + FR-196 (+ FR-197 assessed): README and adopter-guide navigation reconciliation.** Fourth P2 trust-recovery-finding batch (the README/docs navigation cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
