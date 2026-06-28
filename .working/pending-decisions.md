@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** empty.
+**Status:** empty (the four overnight-clarification questions were answered by the maintainer 2026-06-28 via screenshot; recorded below as RESOLVED standing directives for the overnight run, not open questions).
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -12,32 +12,45 @@ stalling.
 On `/resume`, the assistant reads this file first, surfaces the still-`pending` entries to
 the maintainer, resolves those tasks, and only then continues to the next queued items.
 
-## Entries
+## Resolved overnight directives (maintainer-answered 2026-06-28; standing instructions for the overnight run)
 
-_No pending decisions._
+The `AskUserQuestion` primitive errored twice (permission-stream closed); the maintainer
+answered all four in plain text (screenshot). These are now standing directives the overnight
+session follows directly. No longer pending.
 
-The previously-queued entries were all resolved and rotated out at the 2026-06-28
-resume (this Sweep-73 close-out PR):
+1. **Overnight merge authority = FULL AUTONOMY, with mandatory adversarial verification on
+   net-new.** The orchestrator authors and self-merges green PRs for ALL P1/P2 content,
+   including net-new standalone documents, WITHOUT holding for morning review. **The one
+   condition: run the new high-assurance adversarial-verification harness (the
+   [`high-assurance-verification`](../dev-security/claude-rules/governance/high-assurance-verification.md)
+   process, independent false-negative + false-positive verifier agents over the net-new
+   content) on ANYTHING net-new BEFORE accepting/merging it.** Record each net-new item and
+   its harness outcome in [`high-assurance/register.md`](high-assurance/register.md). (This
+   directly operationalizes the rule shipped this session: net-new domain docs are exactly the
+   gate-blind, high-escaped-cost class the harness is for.)
 
-- **TODO §4.10 (TODO/DONE rotation gate) design disposition**, RESOLVED: the maintainer
-  chose **Option B (the "marked-done detector")** over deferral or the FP-prone id-cross-check
-  (Option A). The build is queued in this session's guard-rails phase; the decision is recorded
-  inline in TODO §4.10.
-- **MITRE ATLAS scratch version update**: the grc_library register half is done and
-  authoritative (`register-canonical-citations.md` ATT&CK `v19.1` / ATLAS `v2026.05`). **Scope
-  update (maintainer, 2026-06-28 resume): this session now owns BOTH repos and may write to
-  scratch** (superseding the earlier "another session owns scratch"). So the scratch half (archive
-  the deprecated ATLAS `v5.6.0` into `ref/.superseded/`, store upstream `v2026.05`, refresh
-  `catalogue.yml`) is now THIS session's to do, via MCP PR to the scratch branch
-  `claude/resume-todo-prioritization-i4sl26`; folded into the §4.26 scratch track alongside the
-  per-reference `last_checked` fields (fed by the in-flight version-currency research worker).
-  **Maintainer directive (2026-06-28): ATLAS is publicly available; update it in the scratch repo
-  at next convenience.** Queued as a scratch PR (archive the deprecated `v5.6.0` into
-  `ref/.superseded/`, store upstream `v2026.05` as-is, refresh `catalogue.yml`); not blocking the
-  grc_library queue, scheduled at a convenient seam (likely with or right after the FR-167 AICM
-  column work, which also draws on the scratch `ref/standards/CSA/` extracts).
-- **The four #428 PRI-\* CCM mappings** (GRC-06 / DSP-12 / DSP-10 / charter DSP-domain),
-  RESOLVED: maintainer-confirmed 2026-06-28, no changes.
+2. **Source-absent jurisdictions/regimes (FR-59 / FR-61 / FR-62) = cover sourced, ATTEMPT to
+   download the missing legislation, defer only the truly-unavailable.** Deepen the
+   ref-base-covered ones; for each missing source, ATTEMPT to download the primary-source
+   legislation and add it to the appropriate `grc_library_scratch/ref/legislation/` (or
+   `ref/standards/`) directory via the scratch ingestion workflow (MCP PR to scratch; egress
+   permitting per DD-10). Only where a source cannot be obtained, defer that jurisdiction and
+   record it. (Redirect from the "defer all source-absent" default: the maintainer wants the
+   download attempted first.)
 
-The audit trail for the rotated entries lives in the relevant TODO items, the CHANGELOG and
-its detailed mirror, [`DONE.md`](DONE.md), and git history.
+3. **Out-of-overnight-scope = multi-session orchestration tracks (§4.7 / §4.11 / §4.16 /
+   §4.18), FR-48 (H2 rename), and FR-167 gap-fill.** The procedural closing `/matrix-fit` may
+   still run. **FR-70 (crypto-asset / blockchain domain) is IN overnight scope** (the
+   maintainer's list omitted it): treat it as net-new and run the adversarial-verification
+   harness on it before merging, per directive 1.
+
+4. **ISO/IEC 27001:2022 Annex A control TITLES are usable (NOT proprietary).** The maintainer
+   clarified: a control title is like a detailed table of contents and is commonly reproduced;
+   the proprietary material is the section CONTENT the title heads, not the title. So the ISO
+   title-map may carry the verbatim Annex A titles (unblocking the queued P3 ISO-validation
+   gate-54 extension and the `/matrix-fit` ISO-column assessment); do NOT reproduce the ISO
+   control body/implementation text. Build the ISO title-map from the scratch
+   `ref/standards/ISO/` Annex A extracts.
+
+The audit trail lives here, in the [`session-handoff.md`](session-handoff.md) next-actions
+queue, and in the session-closing chat message.
