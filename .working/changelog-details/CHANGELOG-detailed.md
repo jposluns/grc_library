@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.406, PR #428
+
+**Domain-wide privacy `PRI-*` CCM citation correction (the #427 out-of-window finding, completed).** The #427 `/validate-pr` sibling-file cross-check found the invalid-`PRI-*` class extended into three more privacy files (seven citations), beyond the two procedures #427 fixed. `PRI-*` is the CCM v3.x Privacy family; CCM v4.1 has no PRI domain.
+
+### Fixed
+
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) (`1.4.5` to `1.4.6`, Date 2026-06-28), framework-mapping table rows 144-151: PRI-01 to `GRC-06` (Governance Responsibility Model), PRI-02 to `DSP-12` (Limitation of Purpose in Personal Data Processing), PRI-03 to `DSP-10` (Sensitive Data Transfer), PRI-04 to `DSP-11` (Personal Data Access, Reversal, Rectification and Deletion), PRI-05 to `SEF-08` (Security Breach Notification).
+- [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md) (`1.5.0` to `1.5.1`), line 218: the range "CSA CCM v4.1 PRI-01 through PRI-07" to "CSA CCM v4.1 Data Security and Privacy Lifecycle Management (DSP) domain" (a framework-level reference matching the table's whole-framework granularity; a positional PRI-to-DSP renumber was rejected as fabricated since the families do not align).
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (`1.5.0` to `1.5.1`), line 263: the PIA row PRI-05 to `DSP-09` (Data Protection Impact Assessment), an exact title match for the "Privacy Impact and Risk Assessment Control" row.
+
+### Decision (default-and-document, not silently picked)
+
+Three mappings were unambiguous (PRI-04 to DSP-11, breach PRI-05 to SEF-08 reusing #427's fits, PIA PRI-05 to DSP-09 by exact title). The other four (PRI-01 governance row, PRI-02 consent row, PRI-03 cross-border row, the charter range) are genuine semantic choices; they were surfaced to the maintainer with named options and recommendations. The ~2-minute graceful-degradation timer fired with no answer, so the recommended evidence-backed defaults (GRC-06 / DSP-12 / DSP-10 / the DSP-domain reference) were applied (reversible on-branch; `/matrix-fit` is the backstop) and recorded in [`.working/pending-decisions.md`](../pending-decisions.md) for maintainer confirm/redirect. The PRI-02 to DSP-12 fit is flagged approximate (CCM v4.1 has no dedicated consent/lawful-basis control).
+
+### Verification
+
+- Each replacement code re-validated at apply-time against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py): all of GRC-06 / DSP-12 / DSP-10 / DSP-11 / SEF-08 / DSP-09 are `is_ccm_v41` True, `is_aicm_only` False; all PRI-0x are `is_ccm_v41` False.
+- `tools/run_all_audits.sh` 54/54 post-regeneration; per-document Version + Date co-bumped on all three docs; taxonomy + scorecard regenerated, portal unchanged.
+
+Batches the #427 `/validate-pr` (0 in-scope; the out-of-window finding this PR resolves; record [`2026-06-28-PR-427.md`](../validate-pr/2026-06-28-PR-427.md)) and `/retro` rows. Library `2026.06.405` to `2026.06.406`; README `1.9.276` to `1.9.277`.
+
 ## 2026-06-28, Library Version 2026.06.405, PR #427
 
 **P3 source-document control-code fix: five mis-cited CSA CCM codes corrected across two privacy procedures.** A `/validate`-routed P3 cleanup (surfaced in FR-167 batch 11 research). The `PRI-*` family is CCM v3.x, folded into `DSP-*` in v4.1, so `PRI-04`/`PRI-05` are not valid v4.1 codes; a third citation (`SEF-02`) was a valid-but-wrong control. The worker research surfaced that each code appears twice per document (the §1.1 alignment prose and the framework-alignment table), so the backlog's "3 defects" was actually 5 occurrences.
