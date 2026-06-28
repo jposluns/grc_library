@@ -226,7 +226,7 @@ derived encoding:
 The trust split above still governs: `ref/standards/` is trusted ground truth for these
 checks; `ref/publications/` is screened-not-trusted and is never a standards source.
 
-**Version currency and the deprecation-archival workflow (maintainer-directed 2026-06-28).**
+**Version currency and the superseded-archival workflow (maintainer-directed 2026-06-28).**
 The scratch `ref/` base is believed-current STORAGE, not a version authority. The authoritative
 answer to "is this the current version?" is always the upstream / primary source verified this
 turn, never the scratch copy, a stored note, or memory (the pack
@@ -238,10 +238,10 @@ index ([`ref/INDEX.md`](../../grc_library_scratch/ref/INDEX.md), `ref/catalogue.
 `ref/SECTION-INDEX.md`), not a guessed path (MITRE lives under `ref/frameworks/`, not
 `ref/standards/`); (2) verify the current version upstream this turn; (3) act only after both.
 
-On discovering upstream is newer than scratch holds, the deprecation-archival workflow:
+On discovering upstream is newer than scratch holds, the superseded-archival workflow:
 1. Download the new version into scratch (egress permitting).
-2. Keep the old version but move its files (extracted text plus the original binary) to
-   `ref/.deprecated/<standard>/<version>/`.
+2. Keep the old version but move its files (extracted text plus the original binary) into scratch's
+   retained-version store `ref/.superseded/` (bucket-mirrored layout and `REGISTER.md` per scratch `CONTRIBUTING.md`).
 3. Update `ref/catalogue.yml` and the index docs to the new version; record the upstream-check
    location and the last-verified date (the version-currency register, TODO §4.26).
 4. The scratch write goes via a GitHub MCP PR (the proxy-403 transport restriction above).
