@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.410, PR #432
+
+Session-closing handoff for the post-#425-resume session (invisible to adopters): refreshed [`.working/session-handoff.md`](../session-handoff.md) (new top Next-actions, State-snapshot, and Asserted-expectations blocks covering #426..#431, with the immediate-next-priority set to TODO §4.26 the reference version-currency register), wrote the [`.working/session-metrics.md`](../session-metrics.md) row (subagent-token floor 813,645 across the three post-compaction `/validate-pr` Subagent A returns), and batched the #431 `/validate-pr` (0 findings) and `/retro` rows. Skips its own trailing `/validate-pr` + `/retro` (handoff-PR loop-break, exemption row inline in [`validate-pr/history.md`](../validate-pr/history.md)); the next `/resume`'s corpus-wide Sweep 71 over the #426..#432 deltas is the compensating control. Library `2026.06.409` to `2026.06.410`; README `1.9.280` to `1.9.281`.
+
 ## 2026-06-28, Library Version 2026.06.409, PR #431
 
 Internal assistant-guidance + backlog change (invisible to adopters): added the "suggest"/"advise" interpretation rule to the Communication conventions section in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (treat as believes-right-but-uncertain, assess and give feedback, push back when warranted), and captured the maintainer's reference version-currency register directive as [`TODO.md`](../../TODO.md) section 4.26 with the assistant's recommendation to extend the existing [`register-canonical-citations.md`](../../governance/register-canonical-citations.md) rather than build a parallel register, plus the egress and scope caveats and the MITRE version-currency fold-in. Batches the #430 `/validate-pr` (0 findings) and `/retro` rows. Library `2026.06.408` to `2026.06.409`; README `1.9.279` to `1.9.280`.
