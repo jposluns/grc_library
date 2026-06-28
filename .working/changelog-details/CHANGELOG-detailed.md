@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.429, PR #451
+
+Overnight-run resume close-out (assistant-guidance + working-state + a tooling docstring; invisible to adopters). First PR of the maintainer-authorized overnight run resumed from session-closing handoff #450. Records the loop-break Sweep 74, fixes its two in-window findings, prunes/refreshes the handoff, and transitions the overnight file to `in-flight`.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md):155 (the §4.1 distillation-source bullet): "the eleven `governance/` pack rules" to "the twelve `governance/` pack rules". Sweep 74 Subagent-B finding; the 12th governance rule landed in #450, re-staling this gate-41-blind free-prose count (the same surface Sweep 70 corrected ten to eleven). TODO is gate-exempt; the count is not mechanically gated.
+- [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py):6 (module docstring): "maps each library document to the control identifiers of eight frameworks" to "nine frameworks". Sweep 74 Subagent-B finding; the CSA AICM v1.1 column (the 9th framework) landed in #448, and the docstring contradicted the file's own Scope section, which validates the AICM v1.1 column. Docstring only; gate-49 logic unchanged (the linter still passed at 54/54).
+- [`.working/session-handoff.md`](../session-handoff.md): pruned to current + 1 prior per its `## Refresh and pruning discipline` (deleted the 2-prior #438-#445 Next-actions block, the #445 State-snapshot, and the #437 Asserted-expectations block; migrate-before-delete confirmed, no un-recorded load-bearing item, the overnight directives live in [`pending-decisions.md`](../pending-decisions.md) + [`overnight-pr.md`](../overnight-pr.md) and the deferred queue in [`TODO.md`](../../TODO.md)); refreshed with the overnight session's Next-actions and State-snapshot blocks; resume cursor advanced to Sweep 74.
+- [`.working/overnight-pr.md`](../overnight-pr.md): `Status` `stub` to `in-flight` (overnight-session start per the change-tracking overnight protocol), populated with the four maintainer-resolved directives as the authorization scope and the planned overnight order.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md):15 (the #450 handoff row): moved the `**SKIPPED (session-closing handoff PR; loop-break exemption)**` marker from the Summary cell into the gate-read **Findings cell** (field index 4). Gate-50's `parse_validate_pr_status` detects a handoff exemption only from the Findings cell (`HANDOFF_FINDINGS` regex), and the #450 row left `n/a` there. While #450 was the highest-numbered PR it was exempt as the in-flight latest; once this PR's CHANGELOG #451 entry made #450 no longer latest, gate 50 reclassified #450 as a normal substantive PR and flagged the absent `/retro` row. The marker placement now matches the correct #445 handoff row; the row's meaning (a loop-break exemption) is unchanged. This is a fix to the malformed artefact, not a gate weakening (the gate's Findings-cell contract is correct and #445 followed it).
+
+### Added
+
+- [`.working/validate-sweeps/2026-06-28-sweep74-iter1.md`](../validate-sweeps/2026-06-28-sweep74-iter1.md): the Sweep-74 iteration-1 detail file (six H2 sections, verbatim A/B/C returns + orchestrator synthesis).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep-74 row (Version `2.0.66` to `2.0.67`).
+
+### Verification
+
+- Mechanical baseline: `tools/run_all_audits.sh` 54/54 at resume (HEAD `ec4e91a`/#450) and re-run on the PR-1 working tree before push (the two edits are a docstring and a gate-exempt TODO line, none gate-affecting).
+- Sweep 74: full three-subagent dispatch (A/B/C, no abbreviation); 2 in-window C1 findings, both apply-time re-verified at source and fixed; corpus-wide bare-token contradiction grep (`eleven (governance|pack|rule)`, `11 governance`, `(eight|8) ... frameworks`) returned 0 residual live carriers; both fixes confirmed present. Asserted-expectations cross-check against #450/#448: no contradiction of a claimed-clean surface (ordinary in-window findings).
+
+### Discipline observation
+
+- The two findings are the recurring orchestrator-side multi-surface-incompleteness class: a new collection member (#450's 12th rule, #448's 9th framework column) re-stales a free-prose count on a gate-41-blind surface (TODO bullet, linter docstring). The pre-flight scanner's `PF-collection-*` candidates did not flag TODO:155 (it is not in the scanner's tracked-collection set) nor the linter docstring's "eight frameworks" (frameworks are not a scanner-tracked collection); the corpus-wide Subagent-B sweep is what caught both, vindicating the full three-subagent dispatch over a scanner-only pass.
+
 ## 2026-06-28, Library Version 2026.06.428, PR #450
 
 Session-closing handoff PR. Adds the twelfth governance pack rule ([`high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md)), standardizing the #448 independent-adversarial-verification method, plus its persistent register; batches the #449 QA rows; records the maintainer-answered overnight directives; refreshes the handoff.
