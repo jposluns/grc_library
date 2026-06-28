@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.06.399 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.270 (semantic per-document version for this file)
+**Library Version:** 2026.06.400 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.271 (semantic per-document version for this file)
 
 ---
 
@@ -37,7 +37,7 @@ The Governance, Risk, and Compliance Documentation Library is a Creative Commons
 
 The library is designed to be adopted, adapted, or extended by any organisation without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
 
-The repository provides reusable artefacts across the following domains:
+The repository provides reusable artefacts across the following thematic areas:
 
 - Enterprise governance, risk, compliance, audit, and assurance.
 - Information security, identity, access, logging, data classification, incident response, and secure engineering.
@@ -47,7 +47,7 @@ The repository provides reusable artefacts across the following domains:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The library spans 11 governance domains and grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organisations operating in those sectors or participating in covered programmes.
+The seven thematic areas above span 11 governance domain directories, and the library grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organisations operating in those sectors or participating in covered programmes.
 
 ---
 
@@ -77,7 +77,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every document with its type, domain, status, and related artefacts.
 
-2. **Identify the documents relevant to your programme.** Start with the Core Reference Set below, then expand into domain-specific standards and procedures.
+2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
 3. **Copy and adapt.** All content is CC BY-SA 4.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organisation-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
 
@@ -268,7 +268,7 @@ Owners and approving authorities must be role-based, not person-specific. Docume
 
 ## Core reference set
 
-This core reference set is the curated catalogue of the library's foundational artefacts across domains; it is the fuller set an adopter grows toward, not the day-one starting point. An adopter begins with the much smaller Day-1 floor and Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)) and adds toward this catalogue as the programme matures. The foundational artefacts are:
+This core reference set is the curated catalogue of the library's foundational artefacts across domains; it is the fuller set an adopter grows toward, not the day-one starting point. An adopter begins with the much smaller Day-1 floor and Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)) and adds toward this catalogue as the programme matures. Each artefact below is discoverable by title in the document index ([`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)) and the audience-keyed portal ([`docs/portal.md`](docs/portal.md)); the catalogue here is the grow-toward overview rather than a per-file navigation surface. The foundational artefacts are:
 
 | Domain | Artefact |
 | --- | --- |
