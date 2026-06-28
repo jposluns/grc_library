@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #429: FR-188 (low) + FR-198 (low): trust-recovery tail (2026-06-28)
+
+Closed the last two low-severity trust-recovery findings: FR-188 retargeted the supplier-exit deletion-certificate escalation off the DPO (the responsible party) to Legal and the Contract Owner; FR-198 swapped the matrix Pseudonymisation row's loose DSP-10 for DSP-16 (Data Retention and Deletion).
+
 ### PR #428: Domain-wide privacy PRI-* CCM citation correction (low) (2026-06-28)
 
 Completed the invalid-`PRI-*` correction across the remaining 3 privacy files (7 citations: the policy framework-mapping table x5, the charter range, the PIA row) after the #427 `/validate-pr` found the class was domain-wide. Three unambiguous mappings (DSP-11/SEF-08/DSP-09) plus four recommended-default judgement-calls (GRC-06/DSP-12/DSP-10/charter DSP-domain reference) recorded in pending-decisions for confirm/redirect. Not previously a standalone TODO item; the domain-wide remainder of the #427 privacy-code class.

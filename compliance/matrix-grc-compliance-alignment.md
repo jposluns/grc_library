@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.1\
-**Date:** 2026-06-27\
+**Version:** 1.11.2\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -260,7 +260,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | A.5.34, A.5.31, §5.3 | GV.PO, GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | A.5.34, A.8.12 | GV.PO, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | A.5.34 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | DSP-07, DSP-17, DSP-10 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | DSP-07, DSP-17, DSP-16 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | A.5.34 | GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | A.5.34 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | A.5.34, A.5.31 | GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
