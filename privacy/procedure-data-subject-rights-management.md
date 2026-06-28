@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.0\
-**Date:** 2026-06-23\
+**Version:** 1.5.1\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -26,7 +26,7 @@
 
 This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, PIPEDA, PIPL, and related laws, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
-The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, PIPEDA Schedule 1 (CSA Model Code fair-information principles), PIPL Articles 44 to 47, and CSA CCM v4.1 PRI-04.
+The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, PIPEDA Schedule 1 (CSA Model Code fair-information principles), PIPL Articles 44 to 47, and CSA CCM v4.1 DSP-11.
 
 ### 1.2 Scope
 
@@ -371,7 +371,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 PRI-04 |
+| Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 DSP-11 |
 | Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45 |
 | Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment); PIPL Art. 46 |
 | Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17 |
