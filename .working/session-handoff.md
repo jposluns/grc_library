@@ -26,7 +26,7 @@ if it falls behind [`validate-sweeps/history.md`](validate-sweeps/history.md). T
 lives in that history file; the live per-session state (branch, versions, counts, green-at-`<sha>`) is
 in the "Next actions" blocks below and is an as-of-last-refresh snapshot (drift forward is expected).
 
-- **Last validation sweep**: Sweep 69 iter 1 (2026-06-28; the loop-break corpus-wide `/validate` over the #418..#421 deltas, run at this guard-rails-prompts resume after the prior session's handoff PR #422 was abandoned; 1 Low in-window finding (adopter-guide:60 casing, fixed in the guard-rail rule PR), Subagents B/C clean; no asserted-expectations contradiction).
+- **Last validation sweep**: Sweep 70 iter 1 (2026-06-28; the loop-break corpus-wide `/validate` over the #423/#424/#425 deltas, run at this resume; 2 in-window findings (B-1 `TODO.md`:160 warning, B-2 `.claude/CLAUDE.md`:283 note, both the free-prose governance-rule count stale at "ten" after the #423 eleventh-rule add, both fixed in the Sweep-70 close-out PR), Subagents A/C clean; no asserted-expectations contradiction).
 
 ## Next actions (the queue for the next session)
 
