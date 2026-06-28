@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #424: FR-178 (medium) + FR-194 (low) + FR-199 (low): P2 editorial/format remainder (2026-06-28)
+
+FR-178: both the information-security and privacy policies converted fully to "must" (maintainer Option B, 31 + 23 occurrences); FR-194: ELT (Executive Leadership Team) added to the glossary; FR-199: the two soft-law register "Current version" cells (WP216, EDPB Opinion 28/2024) normalized to "Original (no later revision)". Rebuilt from the abandoned-#422 carry-forward.
+
 ### PR #423: surface-counterproductive-instructions governance rule (the 11th) + #422 fold-in (2026-06-28)
 
 Added the eleventh pack governance rule (stop, consider, confirm before acting on a clear-but-counterproductive instruction; charitable-interpretation corollary; anti-over-ask calibration), maintainer-directed after a literal "wind down" reading reverted committed work (not previously in TODO). Also folded in the abandoned #422 handoff's #421 `/validate-pr` + `/retro` rows and fixed the adopter-guide:60 "Core reference set" casing residue.
