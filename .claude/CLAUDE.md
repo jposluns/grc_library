@@ -442,9 +442,10 @@ MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task:**
 3. **Act only after both.**
 
 **On discovering upstream is newer than scratch holds (the version-update SOP):**
-- Updating scratch is part of SOP, via the deprecation-archival workflow (download the new version into scratch;
-  keep the old but move its files, extracted text plus original, to `ref/.deprecated/<standard>/<version>/`;
-  update `catalogue.yml` and the index docs). The full workflow lives in the
+- Updating scratch is part of SOP, via the superseded-archival workflow (download the new version into scratch;
+  keep the old but move its files, extracted text plus original, into scratch's retained-version store
+  `ref/.superseded/` (bucket-mirrored layout and `REGISTER.md` per scratch `CONTRIBUTING.md`); update
+  `catalogue.yml` and the index docs). The full workflow lives in the
   [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6.
 - **If the update needs a license or a maintainer download** (the new version cannot be auto-fetched, or egress
   is blocked per the DD-10 known issue), **pause and ask the maintainer for direction.** On no response, apply

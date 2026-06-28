@@ -28,7 +28,7 @@ if it falls behind [`validate-sweeps/history.md`](validate-sweeps/history.md). T
 lives in that history file; the live per-session state (branch, versions, counts, green-at-`<sha>`) is
 in the "Next actions" blocks below and is an as-of-last-refresh snapshot (drift forward is expected).
 
-- **Last validation sweep**: Sweep 71 iter 1 (2026-06-28; the loop-break corpus-wide `/validate` over the #426..#432 deltas, run at the handoff-file-staleness resume; Subagents A and C clean (0 findings), Subagent B surfaced 2 notes at `session-handoff.md`:169 and `:212` inside the frozen prior snapshots this resume's prune removes, not corpus defects; no asserted-expectations contradiction; corpus CSF-1.1-clean 0/311, four-surface parity 54).
+- **Last validation sweep**: Sweep 72 iter 1 (2026-06-28; the loop-break corpus-wide `/validate` over the #433..#437 deltas, run at the formal-active-session resume; Subagents A and C clean (0 findings), Subagent B surfaced 1 Medium cross-repo finding (grc_library named the scratch retained-version store `ref/.deprecated/` while the scratch repo built `ref/.superseded/`), fixed in #438 by renaming the 9 live carriers to `.superseded`; no asserted-expectations contradiction; corpus CSF-1.1-clean 0/311, four-surface parity 54).
 
 ## Next actions (the queue for the next session)
 

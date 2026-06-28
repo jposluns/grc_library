@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.416, PR #438
+
+Sweep 72 close-out (the formal-active-session `/resume` loop-break corpus-wide `/validate` over the #433..#437 deltas). Working-state, `.claude/`, and TODO change; no corpus-document body change.
+
+### Changed
+- Renamed the scratch retained-version store from `ref/.deprecated/<standard>/<version>/` to `ref/.superseded/` (the scratch-authoritative name plus bucket-mirrored layout) across the 9 live carriers: [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (the `## Reference-version currency` SOP plus the "superseded-archival" workflow rename), [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md) (section 6 header plus workflow step 2), [`.working/pending-decisions.md`](../pending-decisions.md) (the ATLAS archival reference), and [`TODO.md`](../../TODO.md) section 4.26 (heading plus parts 4 / decided / validated). The divergent `<standard>/<version>/` layout restatement was replaced with a pointer to the scratch repo's contributing guide; `TODO.md`:251's previously false "codified in the scratch repo" claim is now accurate. The three historical CHANGELOG carriers ([`CHANGELOG.md`](../../CHANGELOG.md):21, this file:81/83) are left intact (immutable record of what #434 named at the time).
+
+### Verification (Sweep 72)
+Full three-subagent dispatch over #433..#437. Subagent A (recent-PR deep review): 0 findings; all four #437 asserted-clean claims re-verified true. Subagent B (corpus-wide stale-reference): the 1 Medium `cross-repo-term-drift` finding (fixed here); all 9 pre-flight candidates dismissed; live counts and MITRE currency clean. Subagent C (audit-programme integrity): 0 findings; four-surface parity 54; counts 11/16/9; gate-37 mirror byte-identical. No asserted-expectations contradiction (the finding is in-window, on a #434 surface not asserted clean for cross-repo coherence). Empty-delta termination at iteration 1. `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` all-pass before push; the [`preflight-changelog.py`](../../tools/preflight-changelog.py) aid clean.
+
+### Batched bookkeeping (recursion-avoidance)
+- Sweep 72 history row plus detail file [`2026-06-28-sweep72-iter1.md`](../validate-sweeps/2026-06-28-sweep72-iter1.md); validate-sweeps/history `2.0.64` to `2.0.65`.
+- [`session-handoff.md`](../session-handoff.md) resume cursor advanced to Sweep 72.
+- #437 `/retro` row recorded as the handoff-PR loop-break exemption, keeping the `/validate-pr` and `/retro` QA-record surfaces in parity (the bookkeeping-parity gate; paired to the [`validate-pr/history.md`](../validate-pr/history.md) row #437); improvement-log `1.0.171` to `1.0.172`.
+- [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md) Version `1.0.5` to `1.0.6` (the version-bump discipline for its section-6 superseded-rename body change in this PR).
+
 ## 2026-06-28, Library Version 2026.06.415, PR #437
 
 Session-closing handoff PR for the handoff-file-staleness resume session (#433 through #437). Working-state only; no corpus-document body change. Lands the session's state on `main` as a green merge so the next `/resume` rebuilds from `main` rather than an unmerged branch.
