@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.401, PR #422
+
+**Session-closing handoff (2026-06-28 P2-remediation resume session).** `.working/`-only working-state close-out for the resume session that remediated four P2 trust-recovery batches (#418 FR-176/183/184; #419 FR-191/189/190; #420 FR-181/192/193; #421 FR-182/195/196/197). Per the handoff-PR loop-break (the PR-workflow step 5a exception) this PR skips its own trailing `/validate-pr` and `/retro`; the compensating control is the corpus-wide Sweep 69 the next `/resume` runs first over the #418 through #422 deltas. The maintainer directed the wind-down after PR-D (#421), deferring PR-E (FR-178/194/199) and the P3-batch to a new (likely overnight) session.
+
+### Changed
+- [`.working/session-handoff.md`](session-handoff.md): new this-session block for #418 through #421; a PR-E carry-forward box recording the pre-verified FR-178 (Option B, full `shall` to `must` in both policies), FR-194 (ELT = Executive Leadership Team, glossary E-block), and FR-199 (normalize the WP216 and EDPB Opinion 28/2024 soft-law "Current version" cells to "Original (no later revision)", explicitly NOT "1.0" which would fabricate a version) content; state snapshot post-#421; this session's asserted expectations; the green-at-`1151966` 54/54 mechanical baseline; the Sweep 69 next-control note; and the How-to-resume step-5 next-sweep pointer updated to Sweep 69.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.206` to `1.2.207`): the #421 formal `/validate-pr` row (1 Low out-of-window casing finding) and the #422 handoff-exemption row.
+- [`.working/improvement-log.md`](../improvement-log.md) (`1.0.158` to `1.0.159`): the #421 `/retro` row.
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.17` to `1.0.18`): this session's row (229,922 measured floor; compaction dropped most subagent-return counts).
+- [`TODO.md`](../../TODO.md): added the [`docs/adopter-guide.md`](../../docs/adopter-guide.md) line-60 casing follow-up (from the #421 `/validate-pr`) and PR-E carry-forward notes on the FR-178 Option-B decision and the FR-199 "Original (no later revision)" normalization (with the do-not-use-"1.0" fabrication caveat). FR-178/194/199 remain OPEN (PR-E).
+- [`README.md`](../../README.md): library CalVer `2026.06.400` to `2026.06.401`, README Version `1.9.271` to `1.9.272`.
+
+### Verification
+- `tools/run_all_audits.sh` 54/54 green at `1151966` (the #421 merge); the #422 handoff carries a gate-identical state (`.working/` + version surfaces only, none gate-affecting). `tools/run-pr-time-checks.sh` to be re-run pre-push. [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before the first commit. No corpus-document body changed; the PR-E working-tree edits started this session were reverted (nothing committed).
+
 ## 2026-06-28, Library Version 2026.06.400, PR #421
 
 **FR-182 + FR-195 + FR-196 (+ FR-197 assessed): README and adopter-guide navigation reconciliation.** Fourth P2 trust-recovery-finding batch (the README/docs navigation cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
