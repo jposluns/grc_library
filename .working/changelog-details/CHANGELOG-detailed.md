@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.407, PR #429
+
+**Close the two remaining low-severity trust-recovery tail findings (FR-188, FR-198).** Two XS trust-recovery tail items, both surfaced 2026-06-27 (FR-188 from `/fitness`, FR-198 from `/full-qa`), bundled as the same trust-recovery-tail velocity unit.
+
+### Fixed
+
+- **FR-188 (low): supplier-exit circular self-escalation.** [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md) (`1.0.3` to `1.0.4`, Date to 2026-06-28) action 4.4 ("Where deletion certificate cannot be obtained: document the gap and risk; escalate to ...") named the escalation target as the Data Protection Officer, but the row's Responsible party was already the DPO, so the action escalated to itself. Retargeted to "Legal and the Contract Owner": the document's own action 3.6 escalates a supplier contractual failure (data not returned) to Legal, and a deletion-certificate-not-obtained is the deletion-side parallel (an unfulfilled contractual obligation plus a residual privacy risk), so Legal pursues the contractual angle and the Contract Owner (the exit decision authority per the Roles table) owns the residual-risk decision. The Responsible cell stays DPO (the DPO documents the gap and raises the escalation).
+- **FR-198 (low): matrix Pseudonymisation row DSP-10 weak fit.** [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.11.1` to `1.11.2`, Date to 2026-06-28) Privacy-domain Pseudonymisation row mapped `DSP-07, DSP-17, DSP-10`. `DSP-10` ("Sensitive Data Transfer") was a defensible-but-loose third fit. The finding flagged `DSP-08` or `DSP-16` as tighter; chose `DSP-16` ("Data Retention and Deletion") on evidence: `DSP-08` ("Data Privacy by Design and Default") would duplicate the already-present `DSP-07` ("Data Protection by Design and Default") "by design and default" theme, whereas `DSP-16` is non-redundant and maps to the standard's scope item 3 (long-term retention via anonymisation after the operational purpose ends) and to its Related Documents link to [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md). The Pseudonymisation standard body carries no DSP codes, so the matrix row was the sole carrier (no paired source-doc surface).
+
+### Verification
+
+- All 54 audit gates pass on the committed state (gates 49 and 54 confirm `DSP-16` valid v4.1; gates 40 and 31 confirm per-document Version+Date co-bumps). `DSP-16` and `DSP-10` titles confirmed against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py).
+- FR-188 verified as a single-carrier fix: a corpus-wide grep for the escalate-to-DPO pattern returned only the one cell (other hits are the backlog and fitness-review records).
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated and in sync ([`build-taxonomy.py`](../../tools/build-taxonomy.py) / [`build-portal.py`](../../tools/build-portal.py) exit 0).
+
+### Discipline observation
+
+This PR was authored post-context-compaction; the §4.25 core-governance-prose codification was deliberately deferred to a fresher context (fresh-context-best, per the maintainer's tractability framework), and only the low-risk single-carrier fixes were taken. The #428 `/validate-pr` history row and `/retro` row are batched here per recursion-avoidance; the #428 `/validate-pr` run completed in the prior session (0 findings, corpus-wide `PRI-*` eradicated), and this row records that completed run.
+
+### Batched
+
+- #428 `/validate-pr` history row ([`.working/validate-pr/history.md`](../validate-pr/history.md), `1.2.212` to `1.2.213`; 0 findings, CLEAN).
+- #428 `/retro` row ([`.working/improvement-log.md`](../improvement-log.md), `1.0.163` to `1.0.164`).
+
 ## 2026-06-28, Library Version 2026.06.406, PR #428
 
 **Domain-wide privacy `PRI-*` CCM citation correction (the #427 out-of-window finding, completed).** The #427 `/validate-pr` sibling-file cross-check found the invalid-`PRI-*` class extended into three more privacy files (seven citations), beyond the two procedures #427 fixed. `PRI-*` is the CCM v3.x Privacy family; CCM v4.1 has no PRI domain.
