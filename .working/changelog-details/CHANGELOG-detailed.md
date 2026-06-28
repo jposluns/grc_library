@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.403, PR #425
+
+`.working/` close-out for the guard-rails-prompts session (terse; session-closing handoff, no corpus-document body change). Refreshed [`.working/session-handoff.md`](../session-handoff.md) (this-session block, the asserted-expectations block, green-at-`9dadbb3` 54/54, Sweep 70 as the next loop-break control); reset [`.working/overnight-pr.md`](../overnight-pr.md) to `stub` (the overnight run ended at the post-#424 wind-down no-answer default, content fully landed in #423/#424); batched the #424 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #424 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md); added the Sweep 69 row + [`.working/validate-sweeps/2026-06-28-sweep69-iter1.md`](../validate-sweeps/2026-06-28-sweep69-iter1.md); wrote the [`.working/session-metrics.md`](../session-metrics.md) row. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 70 the next `/resume` runs first over the #423/#424/#425 deltas, cross-checked against this handoff's asserted expectations. Library `2026.06.402` to `2026.06.403`; README `1.9.273` to `1.9.274`.
+
 ## 2026-06-28, Library Version 2026.06.402, PR #424
 
 **PR-E: FR-178 + FR-194 + FR-199, the P2 editorial/format remainder (rebuilt from the abandoned-#422 carry-forward).**
