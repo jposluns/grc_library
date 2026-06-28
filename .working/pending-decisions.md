@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** 0 pending (the 4 domain-wide PRI-* mapping picks below were confirmed by the maintainer on 2026-06-28; all four applied defaults retained, no changes)
+**Status:** 1 pending (the ATLAS scratch-version-update decision below, surfaced 2026-06-28, awaiting maintainer direction; the 4 PRI-* picks were confirmed and rotate out at the next handoff)
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -14,7 +14,14 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Entries
 
-### 2026-06-28: domain-wide privacy PRI-* to CCM v4.1 mapping (4 judgement-call rows; proceeded with recommended defaults)
+### 2026-06-28: MITRE ATLAS scratch version update (pending; needs a maintainer download / egress)
+
+Validating reference currency upstream this turn (the new `## Reference-version currency` SOP), the scratch `ref/frameworks/MITRE/` base holds **ATLAS v5.6.0** (`catalogue.yml`; `ATLAS.yaml` `version: 5.6.0`, header self-declares the line deprecated), while the upstream authority (atlas-data releases) is now **v2026.05** (2026-05-27, format v6.0.0). So scratch ATLAS is superseded. (ATT&CK is current: scratch v19.1 = upstream v19.1.) Per the version-update SOP, updating scratch needs a download (egress-gated, DD-10) and an MCP PR (proxy-403), so the decision was surfaced to the maintainer:
+
+- **(a)** maintainer provides / authorizes the v2026.05 download to scratch now; or
+- **(b)** defer the ATLAS currency item (the scratch update + the grc_library `register-canonical-citations.md:169` row, kept coherent) until directed.
+
+**Status: pending.** Per the SOP, with no answer the default is **(b) defer and move on**; I will NOT write the superseded v5.6.0 anywhere, and I will NOT bump the register's ATLAS row in isolation (it must stay coherent with the scratch base). The register currency fix and the scratch reconciliation are the §4.26 cross-repo work. Resolve at `/resume` or when the maintainer answers.
 
 PR #428 corrected 7 invalid `PRI-*` CCM citations across 3 privacy files (surfaced as the #427 `/validate-pr` out-of-window finding; `PRI-*` is CCM v3.x, no PRI domain in v4.1). Three were unambiguous and applied directly (PRI-04 to DSP-11, breach PRI-05 to SEF-08, PIA-row PRI-05 to DSP-09). The other four are genuine semantic-mapping choices; they were surfaced to the maintainer with named options and recommendations, the ~2-minute graceful-degradation timer fired with no answer, so the recommended evidence-backed defaults were applied (reversible on-branch; `/matrix-fit` is the backstop). **Confirm or redirect each:**
 
