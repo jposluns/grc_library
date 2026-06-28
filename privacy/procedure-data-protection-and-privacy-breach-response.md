@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.15\
+**Version:** 1.4.16\
 **Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@
 
 This procedure defines the lifecycle for detecting, containing, assessing, notifying, remediating, and closing personal data breaches and privacy incidents. It establishes mandatory roles, response timeframes, jurisdiction-specific notification obligations, and evidence requirements, and ensures that regulatory notification deadlines are met for all applicable laws.
 
-The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; section numbering changed in 2025 standalone revision), GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, PIPEDA (Breach of Security Safeguards Regulations), PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 PRI-05 and SEF-02.
+The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; section numbering changed in 2025 standalone revision), GDPR Articles 33 to 34, UK GDPR Articles 33 to 34, PIPEDA (Breach of Security Safeguards Regulations), PIPL Article 57, LGPD, Quebec Law 25, and CSA CCM v4.1 SEF-08 and SEF-06.
 
 ### 1.2 Scope
 
@@ -342,7 +342,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 
 | Control Area | Framework Reference |
 | --- | --- |
-| Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 PRI-05 |
+| Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 SEF-08 |
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34 |
 | Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 (CPPA pending reintroduction) |
 | Regulatory breach notification: China | PIPL Art. 57 |
@@ -351,7 +351,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
 | Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev. 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
-| SIEM alert integration | CSA CCM v4.1 SEF-02; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
+| SIEM alert integration | CSA CCM v4.1 SEF-06; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Record keeping and retention | ISO/IEC 27701 §8.9; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 | AI training data leakage | ISO/IEC 27701 §8.9; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
 | BASC trade data | BASC International Standard v6; [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) |

@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.405, PR #427
+
+**P3 source-document control-code fix: five mis-cited CSA CCM codes corrected across two privacy procedures.** A `/validate`-routed P3 cleanup (surfaced in FR-167 batch 11 research). The `PRI-*` family is CCM v3.x, folded into `DSP-*` in v4.1, so `PRI-04`/`PRI-05` are not valid v4.1 codes; a third citation (`SEF-02`) was a valid-but-wrong control. The worker research surfaced that each code appears twice per document (the §1.1 alignment prose and the framework-alignment table), so the backlog's "3 defects" was actually 5 occurrences.
+
+### Fixed
+
+- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md) (`1.5.0` to `1.5.1`, Date to 2026-06-28), lines 29 and 374: `CSA CCM v4.1 PRI-04` to `DSP-11` ("Personal Data Access, Reversal, Rectification and Deletion"). DSP-11's title enumerates access/rectification/deletion, the core of data-subject-rights management; unambiguous fit.
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.15` to `1.4.16`), lines 29 and 345: `PRI-05` to `SEF-08` ("Security Breach Notification") for the privacy-breach-response programme. SEF-08's title is the on-the-nose match for a breach-notification programme; the alternative `DSP-18` ("Disclosure Notification") is a weaker fit (disclosure-request handling, not breach notification), so SEF-08 was chosen.
+- Same document, lines 29 and 354: `SEF-02` ("Service Management Policy and Procedures", a generic ITSM control, valid v4.1 but the wrong control) to `SEF-06` ("Event Triage Processes") for the SIEM-alert-integration row. SIEM-alert integration is precisely event triage.
+
+### Verification
+
+- Each replacement code re-validated at apply-time against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py): `is_ccm_v41` True and `is_aicm_only` False for DSP-11 / SEF-08 / SEF-06; `is_ccm_v41` False for PRI-04 / PRI-05; titles quoted from the module (corroborated against the scratch `CSA-CCM-v4.1.0` catalogue CSV).
+- `tools/run_all_audits.sh` 54/54 post-regeneration (taxonomy + scorecard regenerated for the two per-document Version/Date bumps; portal correctly unchanged). Per-document Version + Date co-bumped on both edited docs.
+- One orchestrator decision recorded (default-and-document, not silently picked): `PRI-05` to `SEF-08` over the `DSP-18` alternative, on title fit; surfaced to the maintainer with an easy override.
+
+Closes the TODO P3 privacy source-document-code item (rotated to [`.working/DONE.md`](../DONE.md)); adds [`TODO.md`](../../TODO.md) §4.25 queuing two maintainer-directed wind-down and overnight-mode SOP refinements. Batches the #426 `/validate-pr` (0 findings) and `/retro` rows. Library `2026.06.404` to `2026.06.405`; README `1.9.275` to `1.9.276`.
+
 ## 2026-06-28, Library Version 2026.06.404, PR #426
 
 **Sweep 70 close-out: the `/resume` loop-break corpus-wide `/validate` plus two stale-count fixes.** Ran Sweep 70 (the compensating control for session-closing handoff PR #425) over the #423/#424/#425 deltas: Subagents A and C clean, Subagent B surfaced two in-window findings, both the same class (the governance-rule count, advanced from ten to eleven by #423's new `surface-counterproductive-instructions` rule, left stale at "ten" in two gate-41-blind free-prose surfaces).

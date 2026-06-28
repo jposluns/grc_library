@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #427: Privacy source-doc framework-table CCM code defects (low) (2026-06-28)
+
+Corrected five mis-cited CSA CCM codes across two privacy procedures: PRI-04 to DSP-11 (data-subject rights), PRI-05 to SEF-08 (breach-notification programme), SEF-02 to SEF-06 (SIEM/event triage), each validated against the in-repo CCM v4.1 reference module. Closes the TODO P3 "Privacy source-document framework-table control-code defects" item (surfaced in FR-167 batch 11 research).
+
 ### PR #424: FR-178 (medium) + FR-194 (low) + FR-199 (low): P2 editorial/format remainder (2026-06-28)
 
 FR-178: both the information-security and privacy policies converted fully to "must" (maintainer Option B, 31 + 23 occurrences); FR-194: ELT (Executive Leadership Team) added to the glossary; FR-199: the two soft-law register "Current version" cells (WP216, EDPB Opinion 28/2024) normalized to "Original (no later revision)". Rebuilt from the abandoned-#422 carry-forward.
