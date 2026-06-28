@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.402, PR #424
+
+**PR-E: FR-178 + FR-194 + FR-199, the P2 editorial/format remainder (rebuilt from the abandoned-#422 carry-forward).**
+
+### Changed
+- **FR-178** (within-document shall/must mixing, [`specification-master-project.md`](../../specification-master-project.md) §6.1): [`security/policy-information-security.md`](../../security/policy-information-security.md) (`1.3.5` to `1.3.6`) and [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) (`1.4.4` to `1.4.5`) converted fully to "must" (maintainer Option B, 2026-06-28), 31 + 23 occurrences. Replace-all verified safe before applying: no capital "Shall", no "shall not", no embedded-in-word or proper-noun occurrence; 0 residual "shall" after.
+- **FR-194**: [`governance/register-glossary.md`](../../governance/register-glossary.md) (`1.4.2` to `1.4.3`) gains the **ELT** (Executive Leadership Team) row, inserted alphabetically between EIOPA and ERC; expansion confirmed against the three corpus usages ([`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md), [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md)).
+- **FR-199**: [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (`1.5.3` to `1.5.4`) soft-law "Current version" cells for WP216 and EDPB Opinion 28/2024 normalized from the repeated standard ID to "Original (no later revision)" (the "1.0" string deliberately avoided, neither source carries that designation).
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first). Library `2026.06.401` to `2026.06.402`; README `1.9.272` to `1.9.273`.
+- Overnight mode entered ([`.working/overnight-pr.md`](../overnight-pr.md) stub to in-flight); the #423 `/validate-pr` (0 findings) + `/retro` rows batched in; FR-178/194/199 rotated TODO to DONE.
+
+### Verification
+- Every value re-verified against the live files before applying (the carry-forward was verified last session; `validate-inference-before-action` requires re-confirming, the corpus drifts). [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 post-commit; [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) all-pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean before commit.
+
 ## 2026-06-28, Library Version 2026.06.401, PR #423
 
 **New governance rule: `surface-counterproductive-instructions` (the eleventh pack rule), plus folded-in prior-session working state.**

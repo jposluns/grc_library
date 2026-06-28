@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.2\
-**Date:** 2026-06-24\
+**Version:** 1.4.3\
+**Date:** 2026-06-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -120,6 +120,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **EDI** | Electronic Data Interchange. |
 | **EECC** | European Electronic Communications Code. |
 | **EIOPA** | European Insurance and Occupational Pensions Authority. |
+| **ELT** | Executive Leadership Team. |
 | **ERC** | Enterprise Risk Committee. Executive-level forum delegated by the Board Risk Committee. See [`governance/register-role-authority.md`](register-role-authority.md). |
 | **ERM** | Enterprise Risk Management. |
 | **ESG** | Environmental, Social, and Governance. |

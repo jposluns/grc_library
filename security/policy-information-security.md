@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.5\
-**Date:** 2026-06-24\
+**Version:** 1.3.6\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -43,8 +43,8 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 - An Enterprise Risk Committee reviews risk posture and control effectiveness quarterly.
 
 **Information Security Management System (ISMS)**
-- The ISMS shall operate in accordance with ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
-- Control ownership shall be assigned for each ISO/IEC 27002 control family and CSA CCM domain.
+- The ISMS must operate in accordance with ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+- Control ownership must be assigned for each ISO/IEC 27002 control family and CSA CCM domain.
 
 **Roles and Responsibilities**
 
@@ -66,66 +66,66 @@ Where the organisation participates in a sector-specific security programme (for
 
 ### 1. Information security framework
 
-1.1 The organisation shall maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
-1.2 The ISMS shall integrate risk management, business continuity, privacy, and AI governance.
-1.3 Security objectives shall be measurable and reviewed annually.
+1.1 The organisation must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+1.2 The ISMS must integrate risk management, business continuity, privacy, and AI governance.
+1.3 Security objectives must be measurable and reviewed annually.
 
 ### 2. Asset management
 
-2.1 All information assets shall be inventoried and classified by confidentiality, integrity, and availability impact.
-2.2 Owners shall be assigned to each asset and responsible for protection throughout its lifecycle.
-2.3 Unauthorized assets shall be removed from the network and reported to the CISO.
+2.1 All information assets must be inventoried and classified by confidentiality, integrity, and availability impact.
+2.2 Owners must be assigned to each asset and responsible for protection throughout its lifecycle.
+2.3 Unauthorized assets must be removed from the network and reported to the CISO.
 
 ### 3. Access control and identity management
 
-3.1 Access shall follow the principle of least privilege and be granted based on approved business need.
-3.2 All privileged accounts shall use multi-factor authentication.
-3.3 Role-based access controls shall be defined and periodically reviewed for accuracy.
+3.1 Access must follow the principle of least privilege and be granted based on approved business need.
+3.2 All privileged accounts must use multi-factor authentication.
+3.3 Role-based access controls must be defined and periodically reviewed for accuracy.
 3.4 Access revocation must occur within 24 hours of employee termination or role change.
 
 ### 4. Network and infrastructure security
 
-4.1 The network shall be segmented according to sensitivity, criticality, and regulatory requirements.
-4.2 Firewalls, intrusion prevention systems, and secure gateways shall be configured, monitored, and updated regularly.
-4.3 Cloud environments shall implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
-4.4 All network traffic shall be logged and retained per the Logging and Monitoring Standard.
+4.1 The network must be segmented according to sensitivity, criticality, and regulatory requirements.
+4.2 Firewalls, intrusion prevention systems, and secure gateways must be configured, monitored, and updated regularly.
+4.3 Cloud environments must implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
+4.4 All network traffic must be logged and retained per the Logging and Monitoring Standard.
 
 ### 5. Endpoint and mobile security
 
-5.1 All endpoints shall have up-to-date antivirus, endpoint detection, and response capabilities.
-5.2 Device encryption shall be enforced for all laptops, tablets, and mobile devices storing organisational data.
-5.3 Removable media shall be restricted and encrypted when use is approved.
+5.1 All endpoints must have up-to-date antivirus, endpoint detection, and response capabilities.
+5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organisational data.
+5.3 Removable media must be restricted and encrypted when use is approved.
 
 ### 6. Vulnerability and patch management
 
-6.1 Vulnerability scans shall occur at least monthly for all systems and after any major change.
+6.1 Vulnerability scans must occur at least monthly for all systems and after any major change.
 6.2 Critical vulnerabilities must be remediated within seven days; high within fourteen days.
-6.3 Patch deployment shall be automated where possible and tracked for compliance metrics.
+6.3 Patch deployment must be automated where possible and tracked for compliance metrics.
 
 ### 7. Information handling and data protection
 
-7.1 Data classification and labelling shall follow the Data Classification Standard.
-7.2 Data at rest and in transit shall be encrypted using approved algorithms (AES-256 or stronger).
-7.3 Backups shall be performed daily, tested quarterly, and stored securely in geographically diverse locations.
+7.1 Data classification and labelling must follow the Data Classification Standard.
+7.2 Data at rest and in transit must be encrypted using approved algorithms (AES-256 or stronger).
+7.3 Backups must be performed daily, tested quarterly, and stored securely in geographically diverse locations.
 
 ### 8. AI model and system security
 
-8.1 AI systems and models shall be protected against unauthorized access, modification, or data poisoning.
-8.2 Model artifacts shall be version-controlled, integrity-checked, and logged.
-8.3 Validation and verification procedures shall be implemented to ensure that accuracy, fairness, and reproducibility.
-8.4 AI model risk metrics shall align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
+8.1 AI systems and models must be protected against unauthorized access, modification, or data poisoning.
+8.2 Model artifacts must be version-controlled, integrity-checked, and logged.
+8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility.
+8.4 AI model risk metrics must align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
 
 ### 9. Incident response and reporting
 
 9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
-9.2 Incident response shall follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
+9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
 9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
 ### 10. Monitoring and continuous improvement
 
-10.1 The ISMS shall be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
-10.2 The ISMS shall be audited annually for ISO/IEC 27001 compliance.
-10.3 Corrective actions shall be documented, tracked, and verified by Internal Audit.
+10.1 The ISMS must be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
+10.2 The ISMS must be audited annually for ISO/IEC 27001 compliance.
+10.3 Corrective actions must be documented, tracked, and verified by Internal Audit.
 
 ---
 
