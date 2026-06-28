@@ -141,6 +141,8 @@ Surfaced from the Sweep 22 (2026-06-22) discipline-failure assessment. The pack 
 
 Escalated from a convention reminder by two consecutive misses (#278 DD-1, #279 DD-9 — the latter on the very PR fixing the former, for the PR's own newly-shipped item). A lint that flags any TODO resolution line marked "SHIPPED in #N" (or any DD/FR id whose disposition references a merged PR) when the same id still appears as an open backlog item or is absent from [`.working/DONE.md`](.working/DONE.md). The rotation analogue of the existing delta/parity gates: deterministic, catches the exact miss-class twice-observed. Co-design with 4.6 as one "post-merge bookkeeping parity" gate family; share the handoff-PR exemption logic. Until it exists, the close-out-checklist item holds: for EVERY DD/FR a PR ships (including ones first surfaced in that PR), rotate TODO→DONE in the same diff.
 
+**Design note (2026-06-28 validation; deferred).** A first build attempt was scoped and the design space narrowed: the maintainer-chosen "id cross-check" shape (flag any FR/DD/P-id that is BOTH an open TODO backlog-item subject AND a closed item in a `DONE.md` heading) was validated against the current clean `main` and produced **4/4 false positives** (FR-167, a multi-part item with shipped sub-batches but legitimately open; FR-44, where the same FR tag covers a shipped convention statement and an open derivative sweep; FR-104 / FR-130, "not pursued" dropped decisions recorded in both DONE and TODO Priority 7). The FR-44 (same-tag-different-scope) and FR-167 (multi-part) cases are NOT separable by id-matching without semantic understanding, confirming the change-tracking rule's own "this is brittle; the convention is cheaper" verdict. **Disposition: deferred** (graceful-degradation conservative default on no maintainer answer, 2026-06-28; logged in [`pending-decisions.md`](.working/pending-decisions.md) for confirm-or-redirect on resume). The convention + close-out checklist remain the guard, as the rule prescribes. **The FP-free alternative if a gate is still wanted** is a "marked-done detector" (flag a TODO item that marks ITSELF done: strikethrough `~~`, `[done]` / `Status: completed` suffix, or a bare `SHIPPED` marker) — it keys on self-marking, not cross-file id overlap, so it carries no id-granularity FP; narrower than the id-cross-check but shippable clean.
+
 ### 4.7 Overnight unattended-run driver (M, L)
 
 Deferred to a future session (maintainer-directed 2026-06-22). For longer unattended runs, a single overnight session is the wrong shape (it degrades like any long session). The sound architecture is an **external driver loop** (cron / CI / Agent SDK script, outside the corpus) that launches a **fresh `claude -p` or SDK session per task-unit**, each reading `.working/session-handoff.md` + the TODO/DONE queue, doing one unit, committing, advancing the queue, and exiting. The durable-state layer already exists (`session-handoff.md`, `/resume`, the green-merge-as-last-act + loop-break disciplines); the missing piece is the driver plus an overnight runbook.
@@ -355,7 +357,7 @@ Approximate active counts after the 2026-06-23 restructure (the priority section
 - **P4 (adopter experience)**: 9 subsections (4.1-4.8, 4.10; 4.9 closed in PR #295).
 - **P5 (content expansion)**: 8 subsections (5.1-5.8).
 - **P6 (domain-level)**: 5 items (6.1-6.5).
-- **P7 (awaiting decision)**: 0 pending + 2 dropped-decision audit-trail entries.
+- **P7 (awaiting decision)**: 1 pending (§4.23(c)) + 2 dropped-decision audit-trail entries.
 
 ---
 
