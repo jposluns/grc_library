@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-06-27\
+**Version:** 1.0.6\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -204,7 +204,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 9.3 Post-incident review
 
-9.3.1 Following any device loss, theft, or compromise involving a remote working scenario, a post-incident review will be conducted within 10 business days.
+9.3.1 Following any device loss, theft, or compromise involving a remote working scenario, a post-incident review will be conducted within 5 business days.
 
 9.3.2 The review will assess whether this standard's controls were followed, identify any gaps, and produce recommendations for any required standard updates.
 

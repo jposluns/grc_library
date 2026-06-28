@@ -2,8 +2,8 @@
 
 **Document Title:** Crisis Management and Emergency Operations Activation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-28\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-eoc-contact-directory.md`](register-eoc-contact-directory.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md)\
@@ -50,7 +50,7 @@ Assess known facts, affected services, immediate risks, data impact, safety conc
 
 ### Step 2: Activate crisis structure
 
-Assign crisis roles, establish meeting cadence, open action and decision logs, define objectives, and initiate approved communication channels.
+The authority to activate the crisis structure rests with the Executive Sponsor, the crisis-management role accountable for major decisions, risk acceptance, and resource prioritization in [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md); adopting organisations confirm the activation-authority threshold per the Limitations clause. Assign crisis roles, establish meeting cadence, open action and decision logs, define objectives, and initiate approved communication channels.
 
 ### Step 3: Stabilize operations
 
