@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.404, PR #426
+
+**Sweep 70 close-out: the `/resume` loop-break corpus-wide `/validate` plus two stale-count fixes.** Ran Sweep 70 (the compensating control for session-closing handoff PR #425) over the #423/#424/#425 deltas: Subagents A and C clean, Subagent B surfaced two in-window findings, both the same class (the governance-rule count, advanced from ten to eleven by #423's new `surface-counterproductive-instructions` rule, left stale at "ten" in two gate-41-blind free-prose surfaces).
+
+### Fixed
+
+- [`TODO.md`](../../TODO.md):160 (§4.1 "Corpus-management discipline as a shareable skill" distillation-source line): "the ten `governance/` pack rules" to "the eleven". A live present-tense count, gate-41-blind (gate 41 checks the directory tree and the two CLAUDE.md bullet enumerations, not free prose).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md):283 (the `## Session migration and PR close-out checklist` prose-count-staleness bullet): "the ten governance rules" to "the eleven governance rules". Borderline (an illustrative example of an ungated prose count), corrected so the example is not itself an instance of the drift it warns about.
+
+### Verification
+
+- Sweep 70 full three-subagent dispatch (A/B/C); Subagent A independently re-verified all three #425 asserted-clean claim-sets (11th-rule wiring, FR-178/194/199, adopter-guide casing), no contradiction. The two B-findings are on gate-exempt free prose NOT in the asserted-clean set, so ordinary in-window findings.
+- `tools/run_all_audits.sh` 54/54; gate 54 = 0 CSF-1.1 carriers / 311 documents; four-surface gate parity at 54. `tools/run-pr-time-checks.sh` all-pass. No per-document `Version`/`Date` bump due (the two edited files are gate-exempt working-state and instruction files, not versioned corpus documents); the only version-bearing change is the README CalVer plus Version cascade.
+
+Records landed: the per-iteration detail file and the [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) row; the resume sweep cursor advanced in [`.working/session-handoff.md`](../session-handoff.md). Library `2026.06.403` to `2026.06.404`; README `1.9.274` to `1.9.275`.
+
 ## 2026-06-28, Library Version 2026.06.403, PR #425
 
 `.working/` close-out for the guard-rails-prompts session (terse; session-closing handoff, no corpus-document body change). Refreshed [`.working/session-handoff.md`](../session-handoff.md) (this-session block, the asserted-expectations block, green-at-`9dadbb3` 54/54, Sweep 70 as the next loop-break control); reset [`.working/overnight-pr.md`](../overnight-pr.md) to `stub` (the overnight run ended at the post-#424 wind-down no-answer default, content fully landed in #423/#424); batched the #424 `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #424 `/retro` row into [`.working/improvement-log.md`](../improvement-log.md); added the Sweep 69 row + [`.working/validate-sweeps/2026-06-28-sweep69-iter1.md`](../validate-sweeps/2026-06-28-sweep69-iter1.md); wrote the [`.working/session-metrics.md`](../session-metrics.md) row. Per the handoff-PR loop-break (CLAUDE.md PR-workflow step 5a) this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the corpus-wide Sweep 70 the next `/resume` runs first over the #423/#424/#425 deltas, cross-checked against this handoff's asserted expectations. Library `2026.06.402` to `2026.06.403`; README `1.9.273` to `1.9.274`.
