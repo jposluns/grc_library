@@ -2211,7 +2211,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Canonical Citations Register"
-  version: "1.5.4"
+  version: "1.5.5"
   date: "2026-06-28"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.413, PR #435
+
+Reconciles the MITRE ATT&CK / ATLAS rows of the canonical citations register to the upstream-confirmed current versions (closing scratch-review S-1), and fixes the in-window finding the #434 `/validate-pr` surfaced. The version values were re-verified against the upstream authority THIS turn (not copied from the prior turn or from scratch), per the `## Reference-version currency` SOP that shipped in #434.
+
+### Changed
+- **[`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md):168-169** (Version `1.5.4` to `1.5.5`, Date `2026-06-28`):
+  - `MITRE ATT&CK` current `v15` (2024-10) to **`v19.1` (2026-05)**, Superseded `-` to `v15`.
+  - `MITRE ATLAS` current `v4.7` (2024) to **`v2026.05` (2026-05)**, Superseded `-` to `v4.7`.
+  - Both current versions re-confirmed upstream this turn via WebFetch: `mitre-atlas/atlas-data` latest release `v2026.05` (2026-05-27, new YAML format v6.0.0); `mitre-attack/attack-stix-data` latest `v19.1` (2026-05-12). The register is the single source of truth the [`lint-standards-currency.py`](../../tools/lint-standards-currency.py) gate parses; promoting the current version arms that gate to flag future stale citations of the prior version.
+  - The deprecated old-scheme ATLAS **`v5.6.0`** (the line scratch currently holds) is deliberately NOT written into the Superseded cell or anywhere else, per the maintainer's TODO §4.26 note; nothing functional is lost (no audited corpus document cites `MITRE ATLAS v5.6.0`).
+
+### Fixed
+- **[`.claude/commands/resume.md`](../../.claude/commands/resume.md):25** (the #434 `/validate-pr` in-window finding, class c): dropped `MITRE` from the `ref/standards/` issuing-body enumeration (now `NIST / CSA CCM-AICM-CAIQ / ISO / OWASP`), so the paragraph no longer contradicts its own later sentence ("MITRE, for example, lives under `ref/frameworks/`, not `ref/standards/`"). The resume command file carries no per-document Version field, so no metadata bump applies.
+
+### Verification
+- **Mechanical**: `tools/run_all_audits.sh` 54/54 post-edit (run before push); `tools/run-pr-time-checks.sh` against the merge base (D1-D4 + history-aware trio); [`lint-standards-currency.py`](../../tools/lint-standards-currency.py) confirms the promoted register rows flag no remaining in-scope stale citation after the worklist fixes below.
+- **Currency (this-turn upstream check, not a stored note)**: ATLAS `v2026.05` and ATT&CK `v19.1` confirmed against the upstream release pages this turn; the prior register values (`v15`, `v4.7`) are stale.
+- **Corpus sweep (S-1)**: promoting the register surfaced stale explicit-version MITRE citations in the in-scope Q4 verification worklist [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](../../.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md) (the prose entries L47/L48, gate-flagged; the table rows L127/L128, same staleness in non-adjacent form). All four were updated to the verified-current versions (the worklist literally asked "verify version; current may be later", now done). Audited domain documents cite version-less "MITRE ATLAS" / "MITRE ATT&CK", so no domain-document citer was stranded. (An initial assumption that `.project-governance/` was out of the currency-linter scan scope was wrong; the gate caught it pre-commit, which is the gate working as designed.)
+- **Semantic boundary**: the gates verify register parse-ability and citation existence; they do NOT verify the upstream version is genuinely current (that is the this-turn WebFetch above) nor that the scratch base matches (it does not yet; scratch holds the deprecated v5.6.0, tracked under §4.26).
+
+### Batched bookkeeping (recursion-avoidance)
+- #434 `/validate-pr` history row + per-PR record [`2026-06-28-PR-434.md`](../validate-pr/2026-06-28-PR-434.md) (1 in-window finding, fixed here); validate-pr/history `1.2.217` to `1.2.218`.
+- #434 `/retro` row; improvement-log `1.0.168` to `1.0.169`.
+- TODO S-1 rotated to [`DONE.md`](../DONE.md) as PR #435; [`pending-decisions.md`](../pending-decisions.md) ATLAS parent resolved (a), the scratch-ingestion-shape sub-question recorded; [`session-handoff.md`](../session-handoff.md) refreshed.
+
+### Discipline observation
+The register fix leads the scratch re-ingest deliberately: the register records the upstream-confirmed CURRENT version (the SOP's "never write a superseded version"), and the scratch base is storage that lags. Holding the register at the stale `v4.7` to "wait for scratch" would have been the worse choice. The one defect this PR carries forward is the temporary register-vs-scratch incoherence (register `v2026.05`, scratch `v5.6.0`), resolved when the authorized scratch re-ingest lands.
+
 ## 2026-06-28, Library Version 2026.06.412, PR #434
 
 Codifies, durably, the "never assert a state you cannot observe" discipline family, after a session in which the assistant breached it (surfaced a wind-down on an ungrounded "context is heavy" claim with no instrument behind it; asserted a reference's absence and version from a partial `ls` and a stored note rather than the repo index and the upstream source). A chat commitment dies at the session boundary; the fix is to write it into the surfaces a fresh session loads. Maintainer-directed (scope confirmed: pack + project).

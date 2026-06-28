@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #435: S-1 MITRE ATT&CK / ATLAS version-currency register reconciliation (2026-06-28)
+
+Closed scratch-review S-1: bumped [`register-canonical-citations.md`](../governance/register-canonical-citations.md) MITRE rows to the upstream-confirmed current versions (ATT&CK v15 -> v19.1, ATLAS v4.7 -> v2026.05; both re-verified upstream this turn), with the corpus sweep updating the four stale MITRE entries in the in-scope Q4 verification worklist (audited domain docs cite version-less forms). Also fixed the #434 /validate-pr finding (resume.md:25 standards-vs-frameworks self-contradiction); the scratch re-ingest half stays open under §4.26 + pending-decisions.
+
 ### PR #434: codify "never assert a state you cannot observe" (2026-06-28)
 
 Not previously in TODO; maintainer-directed after the discipline was breached this session. Extended the evidence-grounded-completion pack rule (+mirror) with the un-observable-state / inventory / external-version-currency corollary (pack 1.51.1), sharpened the wind-down framework (named observable signal required), and added the Reference-version-currency SOP + scratch-index-load to /resume + handoff + runbook §6; applied it to catch that scratch ATLAS v5.6.0 is deprecated vs upstream v2026.05 (logged pending).
