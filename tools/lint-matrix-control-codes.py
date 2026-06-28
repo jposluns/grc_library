@@ -3,7 +3,7 @@
 
 The GRC Library compliance-alignment matrix
 (``compliance/matrix-grc-compliance-alignment.md``) maps each library
-document to the control identifiers of eight frameworks. A wrong control
+document to the control identifiers of nine frameworks. A wrong control
 *mapping* (whether a document semantically belongs under a given control)
 is a judgement call and stays the author's apply-time responsibility; it is
 not mechanically checkable. A wrong control *code* (hallucinated, mistyped,
