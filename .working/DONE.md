@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #419: FR-191 (low) + FR-189 (low) + FR-190 (FYI): incident and resilience procedure reconciliation (2026-06-28)
+
+Second P2 batch (incident/resilience cluster): FR-191 harmonized the P1/P2 post-incident-review deadline to 5 business days corpus-wide (the maintainer's library default; cross-domain joint, privacy-breach, AI-incident, and remote-working device-loss PIRs all moved 10 to 5, P3/P4 tiers unchanged), grep-confirmed none left at 10; FR-189 named the Executive Sponsor as the EOC activation authority in the crisis-management procedure; FR-190 assessed as no-change (informational, mitigated by Limitations clauses). Batches the #418 `/validate-pr` (0) + `/retro` rows.
+
 ### PR #418: FR-176 (medium) + FR-183 (low) + FR-184 (low): security cross-reference and Wi-Fi floor cluster (2026-06-27)
 
 First P2 trust-recovery-finding batch (security floor/cross-reference cluster, fan-out research): FR-176 added a crosswalk note linking the encryption policy's data-classification key-rotation cadence to the key-lifecycle framework's key-type cadence (no value change); FR-183 pointed the authentication standard's password-Storage row to the Encryption and Key Management Policy as the governing hashing-parameter floor; FR-184 (maintainer decision) raised home-network Wi-Fi to WPA3 with an IoT carve-out and reconciled the surrounding "encouraged"/"does not mandate" framing. Batches the clean Sweep 68 loop-break `/validate` row.

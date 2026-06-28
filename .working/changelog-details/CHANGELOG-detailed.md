@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.398, PR #419
+
+**FR-191 + FR-189 + FR-190: incident and resilience procedure reconciliation.** Second P2 trust-recovery-finding batch (the incident/resilience cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
+
+### Changed
+- [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) (`1.1.5` to `1.1.6`): FR-191, joint PIR P2 deadline 10 to 5 business days in both the Severity-rules table and the lifecycle-table prose that paraphrases it.
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.13` to `1.4.14`): FR-191, P1/P2 PIR deadline 10 to 5 across the §8.1 requirement statement, the severity table (P1 and P2 rows), the §10 checklist item, and the PIR-completion-rate metric. P3 (20 business days) unchanged.
+- [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md) (`1.0.4` to `1.0.5`): FR-191, the AI-incident PIR for P1/P2 events 10 to 5 business days.
+- [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md) (`1.0.5` to `1.0.6`): FR-191, the device-loss post-incident review 10 to 5 business days.
+- [`resilience/procedure-crisis-management-eoc-activation.md`](../../resilience/procedure-crisis-management-eoc-activation.md) (`1.0.1` to `1.0.2`): FR-189, Step 2 now names the Executive Sponsor as the crisis-structure activation authority (grounded in [`resilience/plan-business-continuity-and-crisis-management.md`](../../resilience/plan-business-continuity-and-crisis-management.md)'s crisis-role accountabilities), with the activation-threshold deferred to the Limitations clause.
+- [`README.md`](../../README.md): library CalVer `2026.06.397` to `2026.06.398`, README Version `1.9.268` to `1.9.269`, Date to `2026-06-28`.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the five Version bumps.
+- [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](../DONE.md): FR-189, FR-190, FR-191 rotated TODO to DONE.
+
+### Verification
+- `tools/run_all_audits.sh`: 54/54 on the committed state.
+- `tools/run-pr-time-checks.sh`: delta gates D1 to D4 plus the history-aware corpus gates pass against the merge base.
+- Corpus-wide PIR-deadline grep confirms no P1/P2 PIR deadline remains at 10 business days (the FR-191 one-pass completeness check); the P3/P4 longer windows (15/20/discretion) are intentionally retained per the maintainer's "P1/P2 to 5" scope.
+- Batches the #418 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Discipline observation
+- FR-191's fitness finding named only two surfaces (the security single-domain vs the cross-domain joint PIR), but a corpus-wide grep found PIR deadlines in four further procedures (privacy-breach, AI-incident, remote-working device-loss, plus key-ops/recovery already at 5). The maintainer set 5 business days as the library default for the P1/P2 PIR deadline (adopters retune on fork), so the value was propagated in one pass across all PIR-bearing surfaces rather than only the two named ones. The pattern (a finding's named surfaces understating the corpus-wide occurrence set) and a proposed worker-brief rail are recorded in the #418 retro row.
+- FR-189 names a role the source plan accountably implies (the Executive Sponsor "approves major decisions, risk acceptance, and resource prioritization") rather than one it states with the exact phrase "activation authority"; the threshold is deferred to the Limitations clause to preserve the procedure's adopter-customisation posture.
+
 ## 2026-06-27, Library Version 2026.06.397, PR #418
 
 **FR-176 + FR-183 + FR-184: security cross-reference and Wi-Fi floor cluster.** First batch of the P2 trust-recovery-finding remediation (the security floor/cross-reference cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification. The three findings are co-located in the `security/` domain and share the encryption policy file, so they are bundled as one coherent PR.

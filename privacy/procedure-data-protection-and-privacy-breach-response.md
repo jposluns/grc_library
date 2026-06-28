@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.13\
-**Date:** 2026-06-23\
+**Version:** 1.4.14\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -228,12 +228,12 @@ Where full information is not available within the notification deadline, a phas
 
 ### 8.1 Post-incident review (PIR) requirement
 
-A formal post-breach review (PIR) is mandatory for all P1 and P2 privacy breaches and must be completed within 10 business days of incident closure.
+A formal post-breach review (PIR) is mandatory for all P1 and P2 privacy breaches and must be completed within 5 business days of incident closure.
 
 | Severity | PIR Required | Deadline |
 | --- | --- | --- |
-| P1: Critical | Mandatory | Within 10 business days of closure |
-| P2: High | Mandatory | Within 10 business days of closure |
+| P1: Critical | Mandatory | Within 5 business days of closure |
+| P2: High | Mandatory | Within 5 business days of closure |
 | P3: Medium | At Data Protection Officer discretion | Within 20 business days of closure |
 
 ### 8.2 PIR scope
@@ -317,7 +317,7 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 - Conduct the formal notification assessment with Legal Counsel (notifiable per jurisdiction? deadline? individual notification? content?); the CIO, as acting DPO, approves before any submission (§6.1).
 - Initiate and track the jurisdictional notification clocks (for example, GDPR and UK GDPR 72 hours from awareness, Quebec Law 25 72 hours, PIPL without undue delay, Brazil LGPD 2 business days for initial notification) (§6.2).
 - Open or update the breach register entry (§9.1).
-- Initiate the post-incident review track, mandatory for P1 and P2, within 10 business days of closure (§8.1).
+- Initiate the post-incident review track, mandatory for P1 and P2, within 5 business days of closure (§8.1).
 
 ---
 
@@ -331,7 +331,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | **Regulatory Notification SLA Adherence (%)** | Percentage of notifiable breaches where regulatory notifications were submitted within the applicable jurisdictional deadline | 100% |
 | **Mean Time to Notify (MTTN)** | Average time in hours from organisational awareness of a notifiable breach to submission of the regulatory notification | Target: ≤ 48 hours (comfortably within 72-hour deadlines) |
 | **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay following regulatory notification | ≥ 95% |
-| **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 10 business days of closure | ≥ 95% |
+| **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 5 business days of closure | ≥ 95% |
 | **Corrective Action Closure Rate (%)** | Percentage of PIR-identified corrective actions closed within their agreed deadline | ≥ 90% |
 | **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organisation within 24 hours of the *supplier's* awareness of the breach (per GDPR Article 33(2); see §6.3) | Tracked; persistent non-compliance triggers contract review |
 
