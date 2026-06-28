@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-06-28\
 **License:** CC BY-SA 4.0
 
