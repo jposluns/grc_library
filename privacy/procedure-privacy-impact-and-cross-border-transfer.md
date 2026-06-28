@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.0\
-**Date:** 2026-06-22\
+**Version:** 1.5.1\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -260,7 +260,7 @@ Processing of children's personal data requires enhanced safeguards including ve
 | Data Protection Impact Assessments | GDPR Article 35 |
 | Conformity Assessment Information Requirements | EU AI Act Annex IV |
 | AI Impact Assessment Obligations (Canada) | AIDA §29 |
-| Privacy Impact and Risk Assessment Control | CSA CCM v4.1 PRI-05 |
+| Privacy Impact and Risk Assessment Control | CSA CCM v4.1 DSP-09 |
 | AI Impact Assessment | ISO/IEC 42005:2025 |
 
 ---

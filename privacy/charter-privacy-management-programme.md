@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.0\
-**Date:** 2026-06-22\
+**Version:** 1.5.1\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -215,7 +215,7 @@ Results are reported to the CIO and included in the annual GRC programme report 
 | PIPEDA | Personal Information Protection and Electronic Documents Act (Canada) |
 | Quebec Law 25 | Act Respecting the Protection of Personal Information in the Private Sector |
 | UK GDPR / Data Protection Act 2018 | United Kingdom data protection law |
-| CSA CCM v4.1 PRI-01 through PRI-07 | Privacy controls |
+| CSA CCM v4.1 Data Security and Privacy Lifecycle Management (DSP) domain | Privacy controls |
 | NIST Privacy Framework v1.0 | Privacy risk management |
 
 ---

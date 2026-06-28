@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.5\
+**Version:** 1.4.6\
 **Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -141,14 +141,14 @@ This policy defines principles, governance structure, and control framework for 
 
 | Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
 |---|---|---|---|---|
-| Governance and accountability | Clauses 5 to 7 | APO13.01 | PRI-01 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
-| Lawful processing and consent | Clause 8.2 | DSS05 | PRI-02 | GDPR, PIPL, LGPD |
+| Governance and accountability | Clauses 5 to 7 | APO13.01 | GRC-06 | GDPR Art 5, PIPEDA Sch 1 Principle 1 (Accountability) |
+| Lawful processing and consent | Clause 8.2 | DSS05 | DSP-12 | GDPR, PIPL, LGPD |
 | Data classification and handling | Clause 8.5 | DSS01 | DSP-01 | ISO 8000-8 §5, SOX, SOC 2 |
-| Cross-border data transfers | Clause 8.6 | APO10 | PRI-03 | GDPR Ch V, CBPR 2.0 |
+| Cross-border data transfers | Clause 8.6 | APO10 | DSP-10 | GDPR Ch V, CBPR 2.0 |
 | AI training data governance | N/A | DSS05.06 | DSP-04 | ISO 8000-8 §6, EU Data Act (Regulation (EU) 2023/2854) |
-| Data subject rights | Clause 8.7 | MEA01 | PRI-04 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
+| Data subject rights | Clause 8.7 | MEA01 | DSP-11 | GDPR Arts 15 to 22, PIPEDA Sch 1 Principle 9 (Individual Access) |
 | Records management | Clause 8.8 | DSS01 | DSP-02 | ISO 8000-8 §7, Retention laws |
-| Breach management | Clause 8.9 | DSS02 | PRI-05 | GDPR Art 33, PIPL Art 57 |
+| Breach management | Clause 8.9 | DSS02 | SEF-08 | GDPR Art 33, PIPL Art 57 |
 
 ---
 
