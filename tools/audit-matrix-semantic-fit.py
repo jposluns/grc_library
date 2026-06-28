@@ -40,7 +40,9 @@ RECALL-ORIENTED TRIAGE by design (maintainer decision, 2026-06-27, taken after
 the lexical signal empirically listed ~64 rows on the clean corpus and so could
 not serve as a precision-first reporter). A row lands on the worklist when,
 across every cited control whose title this aid knows (CCM v4.1 via ``CCM_V41``;
-NIST CSF 2.0 categories via ``CSF_CATEGORIES``), NO control's title shares a
+CSA AICM v1.1 via ``AICM_V11``, which supplies titles for the AI-specific
+AICM-only delta carried in the matrix's "CSA AICM v1.1" column; NIST CSF 2.0
+categories via ``CSF_CATEGORIES``), NO control's title shares a
 single significant word with the document subject. A single anchoring code (a
 sibling whose title overlaps the subject) keeps the row OFF the worklist, both
 because matrix rows legitimately carry a primary mapping plus looser supporting
@@ -74,7 +76,7 @@ import re
 import sys
 from pathlib import Path
 
-from ccm_aicm_reference import CCM_V41
+from ccm_aicm_reference import AICM_V11, CCM_V41
 from nist_csf_reference import CSF_CATEGORIES
 
 try:
@@ -88,10 +90,16 @@ except Exception:  # pragma: no cover - lint_common shape is stable; fallback ke
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MATRIX_PATH = REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md"
 
-# Combined code -> title lookup the aid can assess against (CCM v4.1 + CSF 2.0
-# categories). ISO codes have no title source and are intentionally absent.
+# Combined code -> title lookup the aid can assess against (CCM v4.1 + AICM v1.1
+# + CSF 2.0 categories). ISO codes have no title source and are intentionally
+# absent. AICM v1.1 is the AI-focused extension of CCM v4.1; as an implementation
+# detail its code-set carries the CCM base plus 40 AICM-only codes (identical
+# titles for the shared base). Updating AICM_V11 folds in the AICM-only titles so
+# the matrix's "CSA AICM v1.1" column (which carries those AICM-only codes) is
+# assessable; the shared-base titles are unchanged by the update.
 KNOWN_TITLES: dict[str, str] = {}
 KNOWN_TITLES.update(CCM_V41)
+KNOWN_TITLES.update(AICM_V11)
 KNOWN_TITLES.update(CSF_CATEGORIES)
 
 # Control-code token: CCM (e.g. DSP-16, A&A-02) or CSF category (e.g. GV.OC).
@@ -188,7 +196,7 @@ def scan_matrix(path: Path) -> list[dict]:
     """Scan the compliance matrix's per-domain mapping tables."""
     candidates: list[dict] = []
     lines = path.read_text(encoding="utf-8").splitlines()
-    title_idx = ccm_idx = csf_idx = None
+    title_idx = ccm_idx = aicm_idx = csf_idx = None
     in_table = False
     for raw, line in enumerate(lines, start=1):
         if line.lstrip().startswith("|"):
@@ -197,6 +205,7 @@ def scan_matrix(path: Path) -> list[dict]:
             if "Document Title" in cells and "CSA CCM v4.1" in cells:
                 title_idx = cells.index("Document Title")
                 ccm_idx = cells.index("CSA CCM v4.1")
+                aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
                 csf_idx = cells.index("NIST CSF 2.0") if "NIST CSF 2.0" in cells else None
                 in_table = True
                 continue
@@ -208,6 +217,8 @@ def scan_matrix(path: Path) -> list[dict]:
                 continue
             subject = strip_type_prefix(cells[title_idx])
             codes = CODE_RE.findall(cells[ccm_idx])
+            if aicm_idx is not None and len(cells) > aicm_idx:
+                codes += CODE_RE.findall(cells[aicm_idx])
             if csf_idx is not None and len(cells) > csf_idx:
                 codes += CODE_RE.findall(cells[csf_idx])
             result = assess_row(subject, codes)
@@ -216,7 +227,7 @@ def scan_matrix(path: Path) -> list[dict]:
                 candidates.append(result)
         else:
             in_table = False
-            title_idx = ccm_idx = csf_idx = None
+            title_idx = ccm_idx = aicm_idx = csf_idx = None
     return candidates
 
 
@@ -295,8 +306,8 @@ def run(matrix: bool, source_docs: bool) -> int:
         report(scan_source_docs(), "Source-doc framework tables")
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
-        "TITLE (CCM v4.1 / CSF 2.0). A worklisted row is a focus candidate, not a mismatch; "
-        "a non-worklisted row may still carry a loose supporting code (the skill covers those too)."
+        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0). A worklisted row is a focus candidate, not a "
+        "mismatch; a non-worklisted row may still carry a loose supporting code (the skill covers those too)."
     )
     return 0
 
@@ -340,6 +351,24 @@ def _self_test() -> int:
             # No known-title codes (ISO has no title source) -> not flagged.
             r = assess_row("Some Document", ["A.5.33", "A.8.10"])
             self.assertIsNone(r)
+
+        def test_aicm_only_code_is_assessable(self):
+            # An AICM-only code (carried in the matrix's "CSA AICM v1.1" column)
+            # now has a title via AICM_V11, so it participates in assessment.
+            # MDS-02 = "Model Artifact Scanning" anchors a model-artifact subject
+            # (shares "model"/"artifact") -> rescued, not flagged.
+            self.assertIn("MDS-02", KNOWN_TITLES)
+            self.assertEqual(KNOWN_TITLES["MDS-02"], "Model Artifact Scanning")
+            r = assess_row("Model Artifact Integrity Verification", ["MDS-02"])
+            self.assertIsNone(r)
+
+        def test_aicm_only_code_no_anchor_flagged(self):
+            # An AICM-only code whose title shares no token with the subject
+            # lands the row on the worklist (recall-oriented), same as any other
+            # assessable code with no lexical anchor. MDS-02 = "Model Artifact
+            # Scanning" shares nothing with "Physical Perimeter Fencing".
+            r = assess_row("Physical Perimeter Fencing", ["MDS-02"])
+            self.assertIsNotNone(r)
 
         def test_prefix_token_match(self):
             self.assertTrue(token_match("classification", "classify"))

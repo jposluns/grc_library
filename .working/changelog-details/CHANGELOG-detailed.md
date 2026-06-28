@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.427, PR #449
+
+FR-167 closure prep (PR-C): extend the advisory semantic-fit worklist tool to scope the new "CSA AICM v1.1" matrix column, so the closing whole-matrix `/matrix-fit` covers the AICM citations the #448 column added.
+
+### Changed
+
+- [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py): the `KNOWN_TITLES` code-to-title lookup now loads `AICM_V11` (alongside `CCM_V41` and `CSF_CATEGORIES`), so the 40 AICM-only control titles (the AI-specific delta carried in the matrix's "CSA AICM v1.1" column, e.g. the MDS Model Security domain) are assessable for the lexical-anchor check. `scan_matrix` now detects the "CSA AICM v1.1" header column (`aicm_idx`) and folds its codes into each row's assessed code pool, the same way it already handled the NIST CSF 2.0 column. Module docstring (the RECALL-ORIENTED TRIAGE title-source enumeration) and the `run()` audit-narrative line updated to name AICM v1.1 as a title source. The tool remains advisory (not a gate; exits 0 always; deliberately not wired into any of the four CI audit surfaces, it is a maintainer dev-aid).
+- Inline self-test (`--self-test`) gained two AICM cases: `test_aicm_only_code_is_assessable` (an AICM-only code, MDS-02 "Model Artifact Scanning", anchors a model-artifact subject and rescues the row) and `test_aicm_only_code_no_anchor_flagged` (the same code lands a no-overlap subject on the worklist). The self-test stays behind `--self-test` and out of `tests/` by the tool's existing design (so the gate-36 regression runner does not adopt it as a gated test). All 7 inline tests pass.
+
+### Verification
+
+- `python3 tools/audit-matrix-semantic-fit.py --self-test`: 7 tests OK.
+- `python3 tools/audit-matrix-semantic-fit.py --matrix-only` on the live corpus: AICM-only codes (MDS-03, MDS-06, MDS-12, AIS-05, etc.) now appear in the assessed code pool, confirming the column is scanned; closing-audit worklist is 62 rows.
+- Full `tools/run_all_audits.sh` green (the tool is not a gate, but the matrix, generated artefacts, and the touched `.working/` QA files all pass).
+- No matrix change; the AICM column data shipped in #448 is unchanged.
+
+### Discipline observation
+
+One apply-time self-catch: the first draft of `test_aicm_only_code_is_assessable` asserted MDS-01's title as "Model Security Policy and Procedures" (an inference), and the test passed only by a coincidental "Security" token overlap. Verifying the real title against `AICM_V11` showed MDS-01 is "Training Pipeline Security"; the test was rewritten to use MDS-02 = "Model Artifact Scanning" with an `assertEqual` on the real title so it passes for the stated reason. This is the `evidence-grounded-completion` "read before characterising" rule applied to a test comment, the same title-fabrication class the #448 verification layer was built to catch.
+
+Batches the #448 `/validate-pr` (0 findings, [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md) → `1.2.232`) and `/retro` ([`.working/improvement-log.md`](../../.working/improvement-log.md) → `1.0.182`) rows. Library `2026.06.426` to `2026.06.427`; README `1.9.297` to `1.9.298`.
+
 ## 2026-06-28, Library Version 2026.06.426, PR #448
 
 FR-167: add the CSA AICM v1.1 column to the compliance matrix (PR-B of the FR-167 close-out; PR-A #447 shipped the validating gate 49). AICM v1.1 is CSA's AI-focused extension of CCM v4.1; the column carries only the AICM-only AI-specific delta.
