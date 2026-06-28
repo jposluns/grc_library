@@ -252,6 +252,10 @@ Maintainer-directed: a fork-friendly mechanism so the project never relies on a 
 
 **Validated 2026-06-28 (upstream-checked at the handoff-staleness resume): the ATLAS target above is CORRECTED.** Upstream authority (mitre-atlas/atlas-data releases) shows current = **v2026.05** (2026-05-27, YAML format v6.0.0); the **v5.6.0** the assessment line cites is the DEPRECATED old-scheme line (the `ATLAS.yaml` header self-declares it deprecated) and is what scratch currently holds. ATT&CK **v19.1** is confirmed current and matches scratch. So the register's ATLAS row must move to **v2026.05**, NOT v5.6.0, and scratch needs the superseded-archival update (move v5.6.0 into scratch's `ref/.superseded/` store, download v2026.05). That scratch update is egress / maintainer-download-gated and is logged as a **pending decision** in [`pending-decisions.md`](../.working/pending-decisions.md); per the `## Reference-version currency` SOP, do NOT write the superseded v5.6.0 anywhere, and keep the register row and the scratch base coherent (fix them together).
 
+### 4.27 CLAUDE.md removal-ledger review cadence (standing) — added 2026-06-28 (PR #441)
+
+The PR #441 condense of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) moved the cut rationale, war-stories, and provenance into [`.working/claude-md-considerations.md`](.working/claude-md-considerations.md) (the removal ledger), each entry carrying an "evidence the removal was wrong" signal. Standing activity (not a one-time task): each `/retro` does a quick scan of the ledger's open RM entries and the periodic hallucination-metrics pass does a deeper one; if an entry's signal appears, advise the maintainer to restore the cut text or make a new CLAUDE.md change, and record the disposition in that entry's Status. Wired into [`.working/improvement-log.md`](.working/improvement-log.md)'s Convention section. This item is the durable tracker so the cadence is not lost; it stays open by design.
+
 ---
 
 ## Priority 5 — Content expansion (country / programme / regulator overlays)
