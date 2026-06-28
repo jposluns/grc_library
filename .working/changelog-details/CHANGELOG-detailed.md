@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.399, PR #420
+
+**FR-181 + FR-192 + FR-193: privacy jurisdiction and breach-notification reconciliation.** Third P2 trust-recovery-finding batch (the privacy cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
+
+### Changed
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (`1.0.7` to `1.0.8`): FR-181, the EU AI Act 2026-developments bullet (`:131`) reworded forward-looking ("become applicable in August 2026"; "have been designated"), matching the EU annex; the genuinely-past August-2025 GPAI clause left unchanged.
+- [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md) (`1.0.2` to `1.0.3`): FR-192, a Breach notification (Articles 48 to 49) bullet added, propagating the breach-response procedure's existing ANPD figure (statutory basis grounded in the scratch reference base's LGPD text; the numeric ANPD-Resolution figure attributed to its regulation under a verify-before-reliance qualifier).
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.14` to `1.4.15`): FR-193, India added to the §6.2 notification table (after the China row), the §1.2 scope enumeration, and the §12 framework-alignment table, grounded in the India annex's DPDPA duties; the Regulatory-Deadline cell states the duty plus the phased-commencement reference (no fabricated clock); India correctly omitted from the §10 numeric-clock checklist (the DPDPA carries no fixed numeric deadline).
+- [`README.md`](../../README.md): CalVer `2026.06.398` to `2026.06.399`, README Version `1.9.269` to `1.9.270`.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the three Version bumps.
+- [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](../DONE.md): FR-181, FR-192, FR-193 rotated TODO to DONE.
+
+### Verification
+- `tools/run_all_audits.sh`: 54/54 on the committed state.
+- `tools/run-pr-time-checks.sh`: delta gates D1 to D4 plus the history-aware corpus gates pass against the merge base.
+- Batches the #419 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Discipline observation
+- FR-192: the ANPD numeric breach figure (2 business days initial / 5 business days full report) is NOT corroborable against the scratch reference base, which holds only the LGPD statute (Article 48 delegates the deadline to the ANPD "within a reasonable period"); the implementing ANPD Resolution CD/ANPD No. 2 is not in the base. Rather than assert the figure as bare fact or drop it (which would make the annex softer than the procedure, a new inconsistency), it was propagated as a pre-existing corpus claim with explicit regulation attribution and a verify-before-reliance qualifier. The statutory basis itself was confirmed against the held LGPD text.
+- FR-193: the India breach-notification row's Regulatory-Deadline cell states the DPDPA duty plus the 13 November 2025 phased-commencement reference rather than a numeric clock, because the India annex (the in-corpus source) carries no fixed statutory deadline; fabricating one would violate evidence-grounding. India was added to the three jurisdiction-coverage surfaces (table, scope, framework-alignment) but not to the §10 numeric-clock checklist, where it does not fit.
+
 ## 2026-06-28, Library Version 2026.06.398, PR #419
 
 **FR-191 + FR-189 + FR-190: incident and resilience procedure reconciliation.** Second P2 trust-recovery-finding batch (the incident/resilience cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
