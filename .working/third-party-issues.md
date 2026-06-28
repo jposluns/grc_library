@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.4\
-**Date:** 2026-06-27\
+**Version:** 1.0.5\
+**Date:** 2026-06-28\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -81,6 +81,16 @@ for TEXT files (reliable), and a SINGLE paced git push for binaries (do not burs
 multiple pushes; the burst appears to trip the restriction). If the git-proxy
 scratch-write path 403s on a clean small push, treat it as the environment restriction
 recorded here, not a corpus/credential defect, and fall back to maintainer re-upload.
+
+### 2026-06-28: AskUserQuestion permission-stream flake (recurring)
+
+**Observed.** During the 2026-06-28 P2-remediation session, the `AskUserQuestion` tool intermittently failed with "Tool permission request failed: Error: Tool permission stream closed before response received." It worked for the resume clarification batch (four questions answered) but then flaked on a follow-up batched clarification (the PIR-scope plus FR-178 questions).
+
+**Diagnosis.** A transient permission-stream failure in the execution environment, not a corpus or tooling defect. Same class as the intermittent failures noted in several prior session handoffs (the primitive has flaked across multiple sessions).
+
+**Impact.** Bounded. The still-relevant decision (PIR-scope) reached the assistant via plain chat; one sub-decision (FR-178 Option A/B) was deferred to its PR. No work lost.
+
+**Lesson / mitigation.** When `AskUserQuestion` flaks, surface the decision in plain chat with the same named-options shape and, for graceful-degradation decisions, arm the background-sleep timer manually. The maintainer reliably answers in chat. The wind-down decision this session was surfaced in chat for this reason.
 
 ### 2026-06-24: GitHub MCP server disconnected mid-session
 
