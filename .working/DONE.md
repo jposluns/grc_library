@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #430: Communication-conventions codification (2026-06-28)
+
+Not previously in TODO; maintainer-directed during the #429 close-out. Added a Communication conventions section to .claude/CLAUDE.md: no decorative honesty-intensifiers, and use IMPORTANT: as the emphasis marker.
+
 ### PR #429: FR-188 (low) + FR-198 (low): trust-recovery tail (2026-06-28)
 
 Closed the last two low-severity trust-recovery findings: FR-188 retargeted the supplier-exit deletion-certificate escalation off the DPO (the responsible party) to Legal and the Contract Owner; FR-198 swapped the matrix Pseudonymisation row's loose DSP-10 for DSP-16 (Data Retention and Deletion).
