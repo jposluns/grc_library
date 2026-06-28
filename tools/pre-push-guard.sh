@@ -47,15 +47,23 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
 
 # Best-effort refresh of the merge base so the delta gates in
-# run-pr-time-checks.sh compare against the true origin/main. Offline is
-# tolerated: run-pr-time-checks.sh falls back to whatever base ref exists
-# locally, and a stale base only risks a false PASS on the delta gates,
-# which CI then catches.
-git fetch origin main --quiet 2>/dev/null || true
+# run-pr-time-checks.sh compare against the true base ref (origin/main by
+# default; whatever BASE_REF names otherwise). Fetching all of origin keeps
+# the refresh correct under a BASE_REF override. Offline is tolerated:
+# run-pr-time-checks.sh falls back to whatever base ref exists locally, and a
+# stale base only risks a false PASS on the delta gates, which CI then catches.
+git fetch origin --quiet 2>/dev/null || true
 
+# Capture each runner's exit code from the BARE command, not from inside an
+# `if ! cmd` test: `rc=$?` after `if ! cmd; then` would capture the negated
+# status (0), making the guard exit 0 on failure. (improvement-log #439 HIGH:
+# the original `if ! cmd; then rc=$?` form exited 0 on a failing runner and
+# let `&& git push` proceed. set -u is on, set -e is NOT, so a non-zero rc
+# does not abort the script before we handle it.)
 echo "=== pre-push guard 1/2: run_all_audits.sh (corpus gates, from HEAD) ==="
-if ! tools/run_all_audits.sh; then
-    rc=$?
+tools/run_all_audits.sh
+rc=$?
+if [ "${rc}" -ne 0 ]; then
     echo ""
     echo "pre-push guard FAILED at run_all_audits.sh (rc=${rc}). Fix the artefact; do not push."
     exit "${rc}"
@@ -63,8 +71,9 @@ fi
 
 echo ""
 echo "=== pre-push guard 2/2: run-pr-time-checks.sh (delta + history-aware gates) ==="
-if ! tools/run-pr-time-checks.sh; then
-    rc=$?
+tools/run-pr-time-checks.sh
+rc=$?
+if [ "${rc}" -ne 0 ]; then
     echo ""
     echo "pre-push guard FAILED at run-pr-time-checks.sh (rc=${rc}). Fix the artefact; do not push."
     exit "${rc}"
