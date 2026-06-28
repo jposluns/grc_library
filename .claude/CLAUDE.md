@@ -280,7 +280,7 @@ defence is external. Two mechanisms:
    - If this PR changed an enumerated collection (gates, governance rules, skills),
      every prose count of that collection was checked for staleness (the
      collection-enumeration audit catches the structured enumerations; prose counts
-     like "the ten governance rules" are not gated).
+     like "the eleven governance rules" are not gated).
    - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed. At a
      session-closing handoff PR, the `## Asserted expectations` section and the
      green-at-`<sha>` snapshot line are refreshed too (scoped to what this session
