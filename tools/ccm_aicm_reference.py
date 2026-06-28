@@ -20,6 +20,28 @@ Cloud Security Alliance. This is an index, NOT a redistribution of the
 matrices, which carry an explicit no-redistribution clause and are obtained
 directly from CSA (https://cloudsecurityalliance.org).
 
+CCM-vs-AICM RELATIONSHIP (read before reasoning about these two catalogues)
+---------------------------------------------------------------------------
+AICM v1.1 is CSA's **AI-focused extension of CCM v4.1**, NOT a separate or
+parallel catalogue and NOT merely "CCM plus extra rows". It builds on the CCM
+cloud-control foundation: it restates the CCM control base (often with
+AI-specific applicability, lifecycle relevance, and AI-governance-framework
+mappings layered on) and ADDS AI-specific controls (the AICM-only delta: the
+``MDS`` Model-Security domain plus AI-specific controls in ``AIS``, ``GRC``,
+``DSP``, ``HRS``, ``IAM``, ``LOG``, ``TVM`` - see ``is_aicm_only``). As MODELED
+here, the AICM code set therefore contains every CCM code (``CCM_V41`` keys are
+a subset of ``AICM_V11`` keys), which is an implementation detail of this
+index, not the characterization of the standard: do NOT call AICM a "superset"
+of CCM (that framing wrongly implies AICM is just CCM-with-additions and loses
+the AI-focused re-contextualization). Use **"AI-focused extension"**.
+
+Practical consequence for callers: a code's catalogue is decided by the
+surface that names it, not by the code alone. The ``is_ccm_v41`` /
+``is_aicm_only`` split exists exactly so a "CSA CCM v4.1"-labelled surface can
+be held to CCM base codes and a "CSA AICM v1.1"-labelled surface to the
+AI-specific delta (see ``tools/lint-matrix-control-codes.py``), even though the
+blended union (``ALL_TITLES``) would accept either.
+
 Maintenance: when CSA publishes a new CCM/AICM version, refresh these dicts
 from the authoritative spreadsheet and bump the VERSION strings below.
 """
