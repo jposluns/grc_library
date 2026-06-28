@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.424, PR #446
+
+Resume close-out (assistant-guidance + working-state; invisible to adopters). First PR of the TODO-prioritization session, the loop-break compensating control for session-closing handoff PR #445.
+
+### Added
+- A **Sweep 73** row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.65` to `2.0.66`): the `/resume` corpus-wide `/validate` over the #438..#445 deltas. Full A/B/C dispatch, all clean (0 High/Medium); 1 out-of-window note (the #445 handoff snapshot recorded pack `1.51.2` while live pack [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) is `1.51.3`, advanced by #443's DD-10 fix with a matching version-history row, so gate-50 check-4 holds); no asserted-expectations contradiction. Zero-finding sweep, so no per-iteration detail file (history row only).
+
+### Changed
+- Pruned [`.working/session-handoff.md`](../session-handoff.md) per its refresh-and-pruning discipline (keep current + 1 prior in each per-session stack): deleted the older Next-actions blocks (#432, #425), the #437 State-snapshot block, and the #432/#425 Asserted-expectations blocks; kept the #445 blocks (and the #437 Asserted block as the 1-prior). Refreshed with this session's current Next-actions and State-snapshot blocks; advanced the Resume cursor to Sweep 73.
+- Recorded this session's three maintainer decisions: in [`TODO.md`](../../TODO.md), FR-167 now records ADD the CSA AICM v1.1 column (a ~250-row non-partitionable matrix reshape; per-row AICM-code research fans out, orchestrator applies serially) and §4.10 now records build Option B (the marked-done detector, FP-free); [`.working/pending-decisions.md`](pending-decisions.md) rotated to empty (the §4.10, ATLAS, and PRI-* entries all resolved), with the ATLAS note updated to reflect that this session now owns both repos and may write to scratch (so the §4.26 scratch half + ATLAS `v5.6.0` to `v2026.05` superseded-archival are back in scope this session).
+
+### Fixed
+- A pre-existing missing-newline artefact in [`.working/session-metrics.md`](../session-metrics.md) flagged in the #445 detailed CHANGELOG: two older session rows had been concatenated onto one physical line by a prior-refresh artefact, and the orphaned second row's leading date-label cell was also lost. Split into two physical rows and restored the `2026-06-26 (resume from handoff #373)` label, reconstructed from the verifiable session chain (the `#369`-resume row sits just below shipping #370/#371/#372+#373; the `#377`-resume row sits just above; the gap is unambiguously the `#373`-resume session that shipped #374/#375/#376+#377). Cosmetic, gate-exempt (`.working/`).
+
+### Verification
+- `tools/run_all_audits.sh` all 54 gates pass at the close-out state. Sweep 73 baseline 54/54 at `85562fe`/#445. Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green before push.
+- No corpus-document body changed (`.working/` + TODO + version surfaces only); no per-document Version/Date bumps required.
+
+### Discipline observation
+- A background research worker (read-only) verified 20 of the [`register-canonical-citations.md`](../../governance/register-canonical-citations.md) references against their primary upstreams this turn: **all 20 match the register; zero drift**. The rest were honestly marked NOT VERIFIED (coverage boundary, no fabricated dates). This research feeds the deferred §4.26 register-currency-columns apply and the scratch `last_checked` fields; it did not change any artefact in this PR.
+
+Library `2026.06.423` to `2026.06.424`; README `1.9.294` to `1.9.295`.
+
 ## 2026-06-28, Library Version 2026.06.423, PR #445
 
 Session-closing handoff for the #438 to #445 session (CLAUDE.md-optimization + pre-push guard + DD-10 + gate-50 check-4). One substantive codification plus the standard close-out bookkeeping; loop-break exemption from the trailing per-PR QA.
