@@ -671,6 +671,15 @@ and as Rule 9 in `~/.claude/CLAUDE.md` (the user-level memory form); originally
 adapted from Karpathy's "Think Before Coding" CLAUDE.md rule
 (<https://github.com/multica-ai/andrej-karpathy-skills>, MIT).
 
+## Communication conventions
+
+These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.
+
+- **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. The intensifier adds nothing and erodes the trust it pretends to assert. State caveats and self-assessments plainly, without the intensifier.
+- **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker, replacing intensifier-led framing. Reserve it for genuinely high-signal points so it does not degrade into noise.
+
+Added 2026-06-28 by maintainer direction, after an "honestly" intensifier crept into the assistant's chat voice; the maintainer accepted the no-intensifier resolution and directed that the `IMPORTANT:` emphasis convention be codified.
+
 ## Security and governance requirements
 Rules in `.claude/rules/` (sourced from this repo's own `dev-security/claude-rules/`
 pack, CC BY-SA 4.0):
