@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.2\
-**Date:** 2026-06-24\
+**Version:** 1.3.3\
+**Date:** 2026-06-28\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -80,7 +80,7 @@ The repository ships both a GRC corpus and a reference implementation for AI-ass
 ## Quick start
 
 1. **Fork or copy the repository.** Fork on GitHub if you intend to track upstream updates. Copy into a private repository if your organisation cannot host a fork.
-2. **Pick a starting set.** Browse [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md). Start with the Core Reference Set called out in the root [`README.md`](../README.md): the governance charter, the document architecture framework, the cross-framework alignment matrix, the document index register, the enterprise governance and risk management policy, the information security policy, and the privacy and data governance policy.
+2. **Pick a starting set.** Browse [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md). Begin with the six-artefact Day-1 floor in [`docs/template-quickstart.md`](template-quickstart.md), then the 17-document Tier 1 starter set below. The Core reference set called out in the root [`README.md`](../README.md) is the larger catalogue you grow toward as the programme matures, not the day-one starting point.
 3. **Substitute roles and identifiers.** Every Owner and Approving Authority is role-based. Map each role to a real person in your organisation in a private overlay that you do not commit to a public fork. Do not edit roles into named individuals inside the artefacts themselves.
 4. **Validate applicability.** Each artefact contains framework references, regulatory citations, and review-frequency expectations. Validate that each applies to your jurisdiction, sector, processing role, and risk appetite before adopting it.
 5. **Track upstream.** If you forked, periodically pull from upstream. Most upstream changes are corrections and additions; conflicts are rare in practice because the corpus uses stable filenames and a controlled metadata block.
@@ -225,7 +225,7 @@ A short copy-paste checklist for first-time adoption:
 
 ```
 [ ] Repository forked or copied
-[ ] Core Reference Set identified and read end-to-end
+[ ] Day-1 floor and Tier 1 starter set identified and read end-to-end
 [ ] Roles mapped to organisation in private overlay
 [ ] Jurisdictional scope confirmed
 [ ] Sectoral applicability confirmed

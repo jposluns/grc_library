@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #421: FR-182 (medium) + FR-195 (FYI) + FR-196 (low) + FR-197 (FYI): README and adopter-guide navigation reconciliation (2026-06-28)
+
+Fourth P2 batch (navigation cluster): FR-182 made the README:271 "grow-toward catalogue" framing canonical (README:80 and adopter-guide:83/:228 now point to the Day-1 floor + Tier 1 starter set as the day-one start, Core reference set as the grow-toward catalogue); FR-195 added a discoverability pointer after the catalogue intro (lower-effort than linking 39 titles); FR-196 relabelled the 7 README bullets "thematic areas" and bridged them to the 11 domain directories; FR-197 assessed as no-change (deliberate two-tier funnel, portal generated). Batches the #420 `/validate-pr` (0) + `/retro` rows.
+
 ### PR #420: FR-181 (medium) + FR-192 (low) + FR-193 (low): privacy jurisdiction and breach-notification reconciliation (2026-06-28)
 
 Third P2 batch (privacy cluster): FR-181 made the EU AI Act Annex III index entry forward-looking ("become applicable in August 2026"); FR-192 added a Breach notification (Articles 48 to 49) bullet to the Brazil annex, propagating the breach-response procedure's attributed ANPD figure under a verify-before-reliance qualifier; FR-193 added India to the §6.2 breach-notification table, the §1.2 scope, and the §12 framework-alignment table, grounded in the India annex's DPDPA duties (no fabricated clock). Batches the #419 `/validate-pr` (0) + `/retro` rows.

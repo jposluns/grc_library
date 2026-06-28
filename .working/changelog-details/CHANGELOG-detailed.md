@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.400, PR #421
+
+**FR-182 + FR-195 + FR-196 (+ FR-197 assessed): README and adopter-guide navigation reconciliation.** Fourth P2 trust-recovery-finding batch (the README/docs navigation cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
+
+### Changed
+- [`README.md`](../../README.md) (library CalVer `2026.06.399` to `2026.06.400`, README Version `1.9.270` to `1.9.271`): FR-182, `:80` reworded so the day-one start is the Day-1 floor plus Tier 1 starter set, growing toward the Core reference set (the maintainer-confirmed `:271` framing). FR-195, a discoverability pointer sentence added after the `:271` catalogue intro. FR-196, `:40` relabels the seven bullets "thematic areas" and `:50` bridges them to the 11 governance domain directories.
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (`1.3.2` to `1.3.3`): FR-182, `:83` reframed to begin with the six-artefact Day-1 floor and the 17-document Tier 1 starter set (the Core reference set being the grow-toward catalogue), and the `:228` checklist item updated to "Day-1 floor and Tier 1 starter set identified and read end-to-end".
+- [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](../DONE.md): FR-182, FR-195, FR-196, FR-197 rotated TODO to DONE.
+- [`.working/third-party-issues.md`](../third-party-issues.md) (`1.0.4` to `1.0.5`): a 2026-06-28 entry logging the recurring AskUserQuestion permission-stream flake.
+
+### Verification
+- `tools/run_all_audits.sh`: 54/54 on the committed state.
+- `tools/run-pr-time-checks.sh`: delta gates D1 to D4 plus the history-aware corpus gates pass against the merge base.
+- [`README.md`](../../README.md) and [`docs/adopter-guide.md`](../../docs/adopter-guide.md) are not tracked in [`taxonomy.yml`](../../taxonomy.yml) or the generated portal, so no generated-artefact regeneration was required (confirmed via `--check`).
+- Batches the #420 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Discipline observation
+- FR-197 was assessed and deliberately left unchanged: the README role-keyed routing table and the portal question-keyed table are a two-tier funnel serving different entry points, and the portal is a generated file that must not be hand-edited. Recording the no-change disposition (rather than silently dropping the finding) keeps the audit trail complete.
+- The FR-182 edits were scoped to the README:80 prose, the README:271 intro, and the adopter-guide; the #397 FR-140 Core-reference-set catalogue row (Risk block) was confirmed undisturbed.
+- FR-195 chose the one-sentence discoverability pointer over wrapping the 39 catalogue titles in markdown links (the lower-effort fix that satisfies the finding without a 39-link verification burden).
+
 ## 2026-06-28, Library Version 2026.06.399, PR #420
 
 **FR-181 + FR-192 + FR-193: privacy jurisdiction and breach-notification reconciliation.** Third P2 trust-recovery-finding batch (the privacy cluster), researched via a verified-disjoint fan-out worker and applied with apply-time verification.
