@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.418, PR #440
+
+Hot-fix for the #439 `/validate-pr` HIGH finding: [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) exited 0 on a failing runner. Assistant-workflow tooling change; no corpus-document body change.
+
+### Fixed
+- [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh): the guard exited `0` when a runner failed, because `rc=$?` placed after `if ! tools/run_all_audits.sh; then` captures the status of the negated compound `! cmd` (which is `0` when `cmd` failed and the then-branch runs), not the runner's real non-zero code. So `exit "${rc}"` exited `0` and `tools/pre-push-guard.sh && git push` would have proceeded despite a failed gate, defeating the guard's purpose and contradicting its own header. Fixed by capturing `$?` from the bare command on both runner blocks: `tools/run_all_audits.sh; rc=$?; if [ "${rc}" -ne 0 ]; then ...`. With `set -u` (and no `set -e`) a non-zero rc does not abort before the check. Verified on BOTH paths this time: a faithful guard copy with a failing runner exits non-zero, the real guard on the green state exits 0, and the corrected idiom (`false; rc=$?`) propagates a non-zero code.
+- [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) (LOW): the best-effort merge-base refresh was hardcoded to `git fetch origin main`, so a documented `BASE_REF=origin/develop` override would refresh the wrong ref while the delta gates compared against the override base. Changed to `git fetch origin` (all branches), which keeps the refresh correct under any `BASE_REF`.
+
+### Rationale
+- The #439 self-test exercised only the both-pass path (the guard exited 0 because both runners passed), so the broken failure path shipped. The lesson, recorded in the #439 `/retro` row: a guard's FAILURE path must be tested, not asserted. This is evidence-grounded-completion applied to safety mechanisms: assert the failure behaviour only after exercising the falsifying case.
+- The bug never masked a real gate failure in practice, because every push since #439 was green; the `/validate-pr` cadence caught it one PR after merge, before it could.
+
+### Verification
+`tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` all-pass on the post-commit state (run via the now-fixed guard). Failure-path test: a copy of the guard with a failing runner substituted exits non-zero. [`preflight-changelog.py`](../../tools/preflight-changelog.py) clean on the added CHANGELOG lines.
+
+### Batched bookkeeping (recursion-avoidance)
+- #439 `/validate-pr` history row (2 in-window findings: 1 HIGH guard-logic, 1 LOW) plus per-PR record [`2026-06-28-PR-439.md`](../validate-pr/2026-06-28-PR-439.md); validate-pr/history `1.2.221` to `1.2.222`.
+- #439 `/retro` row (the untested-failure-path lesson); improvement-log `1.0.173` to `1.0.174`.
+
 ## 2026-06-28, Library Version 2026.06.417, PR #439
 
 Pre-push QA-enforcement guard (the maintainer-directed preventative from the #438 retrospective). Assistant-workflow tooling plus `.claude/` guidance change; no corpus-document body change.
