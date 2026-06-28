@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.425, PR #447
+
+Audit-tooling and reference codification, guard-first for the FR-167 CSA AICM v1.1 matrix column (PR-A of the FR-167 close-out; PR-B populates the column).
+
+### Added
+- `check_aicm_token` in [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py) (gate 49) and its `scan_matrix` wiring: the gate now detects a "CSA AICM v1.1" column header and validates each token as an AICM-only control (`is_aicm_only`), `N/A`, or a flag. The check is symmetric to the existing CCM-column check: a CCM v4.1 base control in the AICM column is flagged `aicm-is-ccm-base` ("belongs in the CSA CCM v4.1 column"), an unknown code-shape `aicm-unknown`, other text `aicm-malformed`.
+- Four regression tests in [`tests/test_linters.py`](../../tests/test_linters.py) (`MatrixControlCodeTests`): AICM-only codes + `N/A` pass; a CCM-base code in the AICM column is flagged; an unknown code is flagged. Suite 185 to 189 tests, all green.
+
+### Changed
+- Codified the CCM/AICM relationship in the [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) module docstring (the maintainer's 2026-06-28 question): **AICM v1.1 is CSA's AI-focused extension of CCM v4.1, NOT a "superset"** (the framing this session initially used and corrected). The code-set nesting (verified: 207 CCM codes, all present in AICM's 247, zero CCM-only, 40 AICM-only) is an implementation detail of this index, not the characterization of the standard; the `is_aicm_only` split exists so a CCM-labelled and an AICM-labelled surface can each be held to their own catalogue. Primary home so a future session reasoning about these codes does not repeat the mischaracterization.
+- Gate-49 §6 narrative and the content-drift-defence summary in [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.15` to `1.16.16`) document the new AICM-column validation (the gate-behaviour-changed paired-surface discipline). [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the spec Version bump.
+
+### Verification
+- `tools/run_all_audits.sh` all 54 gates pass; gate 49 runs clean on the live matrix (no AICM column yet, validates as before); `check_aicm_token` unit-checked (AICM-only pass; CCM-base, unknown, malformed flagged); the 4 new regression tests pass. Gate count unchanged at **54** (a new internal column-check of gate 49, the gate-48 multi-check precedent). The matrix body is untouched in this PR (guard-first: the column lands in PR-B against this validating gate).
+
+### Discipline observation
+- Guard-first sequencing (the #439/#440 lesson): the validating gate + its tests ship BEFORE the 250-row data apply, so the AICM column is validated as it is built rather than after. The CCM/AICM codification answers the maintainer's "is there a clarification to codify" question at the authoritative module, not only in chat.
+
+Batches the #446 `/validate-pr` (0 findings) and `/retro` rows. Library `2026.06.424` to `2026.06.425`; README `1.9.295` to `1.9.296`.
+
 ## 2026-06-28, Library Version 2026.06.424, PR #446
 
 Resume close-out (assistant-guidance + working-state; invisible to adopters). First PR of the TODO-prioritization session, the loop-break compensating control for session-closing handoff PR #445.
