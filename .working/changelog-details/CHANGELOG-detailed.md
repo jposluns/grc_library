@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.420, PR #442
+
+Pack-guidance addition (distributable pack content): added [`dev-security/claude-rules/guidance-claude-md-optimization.md`](../../dev-security/claude-rules/guidance-claude-md-optimization.md), a maintainer-facing guidance doc on the keep-and-condense method for an always-loaded rules file, distilled from the method this library used on its own [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) in PR #441.
+
+### Added
+- [`dev-security/claude-rules/guidance-claude-md-optimization.md`](../../dev-security/claude-rules/guidance-claude-md-optimization.md): the guidance doc (173 lines). Sections: purpose; when to condense (and when not to); the keep-or-cut taxonomy; the removal-ledger discipline; verifying the condense; relationship to the rest of the pack; a worked example (this library's own PR #441 condense); framework alignment; why this guidance exists. Project-agnostic; a pack-root doc alongside [`setup-generator-prompt.md`](../../dev-security/claude-rules/setup-generator-prompt.md), not a governance rule, not mirrored into the local `.claude/rules/` copies (pack-root docs are not in the [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) `MIRROR_MAP`).
+- [`TODO.md`](../../TODO.md) §4.28: a low-priority narrow read-only diagnostic skill (file length, section count, an actionable-token-density heuristic, a no-removal-ledger flag), advisory only and never a gate. The mechanical aid that remains after a full optimization skill was declined as too judgment-heavy (maintainer Decision 2).
+
+### Changed
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): added the guidance doc to the directory tree and a `## Version history` row; metadata `Version` `1.51.1` to `1.51.2` (paired with the row, same commit).
+- [`README.md`](../../README.md): Library Version `2026.06.419` to `2026.06.420`; README Version `1.9.290` to `1.9.291`.
+
+### Verification
+- [`tools/lint-language.py`](../../tools/lint-language.py) run on the new doc and the changed pack README before the first commit: no findings (house style: no em/en dashes, `-ize`, `ensure that`). A Python dash scan confirmed zero em/en dashes in the new doc (173 lines).
+- The pre-push guard ([`run_all_audits.sh`](../../tools/run_all_audits.sh) + [`run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)) green before push; CI green before merge.
+
+### Discipline observation
+- Multi-surface lock-step: the pack README directory tree, its `## Version history` row, and its metadata `Version` were updated together; the old `1.51.1` pack-Version phrasing was grepped to confirm no stale occurrence remained.
+- The #441 `/validate-pr` (0 findings) and `/retro` rows were committed to the feature branch ahead of this PR's content and ship in this diff per recursion-avoidance.
+
 ## 2026-06-28, Library Version 2026.06.419, PR #441
 
 CLAUDE.md condense (Option B: keep actionable rules, cut rationale, war-stories, and duplication) plus a removal ledger. Assistant-guidance change; no corpus-document body change.
