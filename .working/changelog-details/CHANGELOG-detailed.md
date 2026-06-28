@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.419, PR #441
+
+CLAUDE.md condense (Option B: keep actionable rules, cut rationale, war-stories, and duplication) plus a removal ledger. Assistant-guidance change; no corpus-document body change.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): condensed 881 to 634 lines (about 28 percent). All 23 section headers retained; every actionable rule, procedure step, gate identity, path, and command retained (verified by an actionable-token survival grep and a green 54/54 [`run_all_audits.sh`](../../tools/run_all_audits.sh)). The condense cut rationale, war-stories, provenance, and duplication: the PR #187 timezone war-story; the commit-graph-gate rationale in PR-workflow step 1; the duplicated handoff-PR loop mechanics across steps 5a and 5c and Session-migration item 3; the inline checklist war-stories; the wind-down session list and provenance; the Sweep 22 recount; the four-question version-bump operationalization (now mechanized by the pre-push guard); the clarify-rule rationale and the Karpathy attribution; the communication-conventions provenance; the eleven pack-rule long descriptions; and the pack version-history narrative. A condense note at the top of the file points to the ledger.
+
+### Added
+- [`.working/claude-md-considerations.md`](../claude-md-considerations.md): the removal ledger. One RM entry per substantive removal (RM-1 through RM-15), each with the verbatim removed text (quoted in a fenced block so the em-dashes it carries do not trip gate 51, [`lint-working-prose-hygiene.py`](../../tools/lint-working-prose-hygiene.py), which exempts code spans and fenced blocks), a why, an expected gain, a potential risk, and an "evidence the removal was wrong" signal. Reviewed each `/retro` and the periodic hallucination-metrics pass; a removal whose signal appears is restored or inspires a new CLAUDE.md change.
+
+### Rationale
+- Option B was the maintainer's choice over a light trim or an L3 relocation: the file is auto-loaded every turn, so the rationale, war-story, and provenance bulk is a recurring token and attention cost for content that is authoritative elsewhere (the pack rule files, the pack README, the improvement-log, CHANGELOG). The condense kept a one-line behavioural anchor for each rule so the rules are not cargo-culted; the full why is one click away.
+- The ledger makes the condense fully reversible and turns the cut rationale into a falsifiable hypothesis register rather than git archaeology. This is the maintainer-directed enhancement to the chosen Option-A scope.
+- The guard-first sequencing (PR #439 and #440 before this condense) is what let RM-10 delete the version-bump four-question operationalization down to a pointer: the guard now enforces mechanically what the prose used to ask the assistant to remember.
+
+### Verification
+[`run_all_audits.sh`](../../tools/run_all_audits.sh) 54/54 green on the condensed CLAUDE.md and the new ledger; gate 51 green on the ledger (em-dashes confined to fenced blocks). [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) is exempt from the language and dash gates (`.claude` in `DEFAULT_EXEMPT_DIRS`), so its pre-existing em-dashes are unaffected. Actionable-token survival check: all rules, paths, and gate numbers present; the only intentionally dropped token is the Karpathy attribution (RM-11), which survives in the pack rule's own provenance. Pushed via the pre-push guard.
+
+### Batched bookkeeping (recursion-avoidance)
+- #440 `/validate-pr` history row (0 findings); validate-pr/history `1.2.222` to `1.2.223`.
+- #440 `/retro` row plus the ledger-review-cadence pointer added to the [`improvement-log.md`](../improvement-log.md) Convention section; improvement-log `1.0.174` to `1.0.175`.
+- [`TODO.md`](../../TODO.md) section 4.27 added (the standing ledger-review-cadence tracker).
+
 ## 2026-06-28, Library Version 2026.06.418, PR #440
 
 Hot-fix for the #439 `/validate-pr` HIGH finding: [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) exited 0 on a failing runner. Assistant-workflow tooling change; no corpus-document body change.
