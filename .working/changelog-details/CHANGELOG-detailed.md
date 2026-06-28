@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.422, PR #444
+
+Gate 50 fourth internal check (version-history parity), the #376 mechanizable half; plus the bundled #443 `/validate-pr` HIGH fix.
+
+### Added
+- [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py): `version_history_parity_findings()` (check 4) plus a `discover_version_history_files()` repo-walk (skipping `lint_common.DEFAULT_EXEMPT_DIRS`, not the audited-domain run, so it does not trip gate 52). For every file with both a metadata `Version` and a `## Version history` table, the metadata `Version` must appear as a table row; flags only the missing-row case, tolerates historical rows. Currently in scope: the pack README (the only file with both).
+- [`tests/test_linters.py`](../../tests/test_linters.py): four `BookkeepingParityTests` cases (matching-row clean, missing-row flagged, no-table ignored, extra-historical-rows tolerated); `_load_module` now inserts `tools/` on `sys.path` (the gate now imports `lint_common`).
+### Changed
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): gate-50 §6 narrative gains the fourth-check description; metadata `Version` `1.16.14` to `1.16.15`, `Date` to 2026-06-28.
+- [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) docstring: "three checks" to "four checks"; OK message gains "version-history parity".
+- [`taxonomy.yml`](../../taxonomy.yml): regenerated for the spec-audit-programme metadata bump (generated artefact; [`build-taxonomy.py`](../../tools/build-taxonomy.py)).
+- [`dev-security/claude-rules/vetting-log.md`](../../dev-security/claude-rules/vetting-log.md): line 80 Status field "remaining 18 skill directories" to 19 (the #443 HIGH fix); metadata `Version` `1.3.2` to `1.3.3`.
+- [`README.md`](../../README.md): Library Version `2026.06.421` to `2026.06.422`; README Version `1.9.292` to `1.9.293`.
+- [`TODO.md`](../../TODO.md) §4.6 "Gate 50 check 4" sub-item removed; [`.working/DONE.md`](../DONE.md) #444 entry added; [`.working/design-decisions.md`](design-decisions.md) #376 entry marked built.
+
+### Verification
+- Gate 50 standalone green on current state; the failure path unit-tested (a metadata `Version` absent from its history table flags; a file with no history table is ignored; extra historical rows tolerated).
+- `run_all_audits.sh` 54/54 after the taxonomy regen and the CHANGELOG/version-bump completion; gate count unchanged at 54 (check 4 is internal to gate 50).
+- The #443 HIGH fix re-verified: a bare-`18` scan of all three live addyosmani surfaces now returns nothing (README:437 "18 domains" is unrelated CSA CCM).
+
+### Discipline observation
+- The #443 finding (a third "18" carrier on vetting-log:80) is bundled here per recursion-avoidance rather than a dedicated hot-fix PR. Root cause logged in the #443 `/retro`: phrasing-specific contradiction-search; the bare-token-grep discipline was applied to verify this fix.
+- Batches the #443 `/validate-pr` per-PR record + history row and the `/retro` row committed earlier on the branch.
+
 ## 2026-06-28, Library Version 2026.06.421, PR #443
 
 DD-10 vetting-record correction: the addyosmani spot-scanned skill count was an undercount (18) on every live surface; corrected to 19, grounded by the upstream-confirmed total of 24 skills and the vetting-log's own explicit 19-item list.

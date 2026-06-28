@@ -272,7 +272,7 @@ The recurring "update-one-of-a-pair" failure (a change updates one field of a pa
 
 - **Non-mechanizable half (b), the coded-value-to-description-prose pair.** The #371/#374 miss (a control-code migration `RC.IM` to `ID.IM` left the word "recovery" in the paired description cell) is semantic prose drift, not a presence check, and is NOT mechanizable (a gate cannot tell whether a description still echoes the old code's meaning). It stays a convention: the CLAUDE.md close-out-checklist paired-surface bullet (instance b) plus worker-brief DO rail 8 already carry it.
 
-**Build deferred to a fresh session** (the gate-logic precision is degradation-sensitive and best authored on fresh context); this entry records the resolved design so the build is a straight implementation, not a re-deliberation. The TODO #376 item is refined to point here.
+**Built in PR #444** (2026-06-28) as gate 50 check 4 (`version_history_parity_findings()` plus four regression tests plus the §6 narrative note), per the resolved design above: precision-first, FP-free, no new numbered gate, no gate-count ripple. The original deferral note (the gate-logic precision is degradation-sensitive and best authored on fresh context) is retained for provenance.
 
 ---
 

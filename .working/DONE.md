@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #444: gate 50 check 4 (version-history parity) + DD-10 completion (2026-06-28)
+
+Added gate 50's fourth internal check (version-history parity: a file's metadata Version must appear as a row in its own `## Version history` table; the #376 mechanizable half, no new gate, no count ripple) and bundled the #443 `/validate-pr` HIGH fix (vetting-log Status line, the third "18" carrier, to 19).
+
 ### PR #443: DD-10 (low): addyosmani spot-scanned skill count corrected 18 to 19 (2026-06-28)
 
 Web-verified the upstream addyosmani/agent-skills repo at 24 skills; the EXT-01 vetting examined all 24 (5 fully vetted + 19 spot-scanned, the latter explicitly listed in the vetting-log), so the propagated "18 spot-scanned" undercount was corrected across the vetting-log, the pack README, and the setup-generator prompt.

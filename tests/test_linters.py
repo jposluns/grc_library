@@ -3117,7 +3117,12 @@ class BookkeepingParityTests(LinterTestCase):
     """tools/lint-bookkeeping-parity.py (gate 50)"""
 
     def _load_module(self):
+        # The linter imports `lint_common`, so tools/ must be on sys.path
+        # before exec (the filename has hyphens, so a bare import won't work).
         import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
         spec = importlib.util.spec_from_file_location(
             "_lint_bookkeeping_parity",
             REPO_ROOT / "tools/lint-bookkeeping-parity.py",
@@ -3272,6 +3277,56 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(
             findings, [],
             f"descriptive lowercase 'shipped in #N' must not flag; got {findings}",
+        )
+
+    def test_version_history_parity_matching_row_not_flagged(self) -> None:
+        # Check 4: metadata Version present as a history row: must NOT flag.
+        mod = self._load_module()
+        files = [(
+            "x.md",
+            "**Version:** 1.2.3\\\n\n## Version history\n\n"
+            "| V | Date |\n|---|---|\n| 1.2.3 | 2026-01-01 |\n",
+        )]
+        self.assertEqual(
+            mod.version_history_parity_findings(files), [],
+            "a metadata Version with a matching history row must not flag",
+        )
+
+    def test_version_history_parity_missing_row_flagged(self) -> None:
+        # Check 4: metadata Version absent from the history table: must flag.
+        mod = self._load_module()
+        files = [(
+            "y.md",
+            "**Version:** 1.2.4\\\n\n## Version history\n\n"
+            "| V | Date |\n|---|---|\n| 1.2.3 | 2026-01-01 |\n",
+        )]
+        findings = mod.version_history_parity_findings(files)
+        self.assertTrue(findings, "missing paired history row should flag")
+        self.assertIn("version-history-parity", findings[0])
+        self.assertIn("1.2.4", findings[0])
+
+    def test_version_history_parity_no_table_ignored(self) -> None:
+        # Check 4: a versioned file with NO `## Version history` table is out
+        # of scope: must NOT flag (the check is scoped to files with both).
+        mod = self._load_module()
+        files = [("z.md", "**Version:** 9.9.9\\\n\nNo history table here.\n")]
+        self.assertEqual(
+            mod.version_history_parity_findings(files), [],
+            "a file without a Version history table is out of scope",
+        )
+
+    def test_version_history_parity_tolerates_extra_historical_rows(self) -> None:
+        # Check 4: history rows with no current metadata match (the normal
+        # historical rows) are tolerated; only the metadata Version must match.
+        mod = self._load_module()
+        files = [(
+            "x.md",
+            "**Version:** 1.3.0\\\n\n## Version history\n\n| V | Date |\n|---|---|\n"
+            "| 1.3.0 | 2026-02-01 |\n| 1.2.0 | 2026-01-01 |\n| 1.1.0 | 2025-12-01 |\n",
+        )]
+        self.assertEqual(
+            mod.version_history_parity_findings(files), [],
+            "extra historical rows must be tolerated",
         )
 
 

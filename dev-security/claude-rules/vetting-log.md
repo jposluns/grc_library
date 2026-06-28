@@ -1,7 +1,7 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.2\
+**Version:** 1.3.3\
 **Date:** 2026-06-28\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
@@ -77,7 +77,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 
 **Verdict:** Vetted (no concerns) on the fully-read subset; the 19 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
 
-**Status:** `Vetted` for the fully-vetted subset above; `Spot-scanned` for the remaining 18 skill directories.
+**Status:** `Vetted` for the fully-vetted subset above; `Spot-scanned` for the remaining 19 skill directories.
 
 **Re-vet cadence:** Standards-currency cadence (annual). Re-vet immediately if upstream addyosmani materially expands scope into security-sensitive territory (for example, adds shell-execution skills, network-fetch skills, MCP server definitions, or any skill whose Process steps include instructions to disable controls). Spot-checks beyond the fully-vetted subset above are at the maintainer's discretion when back-porting individual skills.
 
