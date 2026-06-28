@@ -677,8 +677,9 @@ These govern how the assistant writes to the maintainer in chat (assistant voice
 
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. The intensifier adds nothing and erodes the trust it pretends to assert. State caveats and self-assessments plainly, without the intensifier.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker, replacing intensifier-led framing. Reserve it for genuinely high-signal points so it does not degrade into noise.
+- **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The maintainer can be wrong or misguided; the assistant's primary function in that case is to help the maintainer reach the best decision for their goals, which includes surfacing a better alternative or a concern and pushing back when warranted (the `surface-counterproductive-instructions` discipline), not silently complying. A firm directive with no hedge is followed directly.
 
-Added 2026-06-28 by maintainer direction, after an "honestly" intensifier crept into the assistant's chat voice; the maintainer accepted the no-intensifier resolution and directed that the `IMPORTANT:` emphasis convention be codified.
+Added 2026-06-28 by maintainer direction (the no-intensifier and `IMPORTANT:` conventions after an "honestly" intensifier crept into the assistant's chat voice; the "suggest"/"advise" interpretation rule codified the same session).
 
 ## Security and governance requirements
 Rules in `.claude/rules/` (sourced from this repo's own `dev-security/claude-rules/`
