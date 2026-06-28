@@ -4,6 +4,10 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-06-28, Library Version 2026.06.409, PR #431
+
+Internal assistant-guidance + backlog change (invisible to adopters): added the "suggest"/"advise" interpretation rule to the Communication conventions section in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (treat as believes-right-but-uncertain, assess and give feedback, push back when warranted), and captured the maintainer's reference version-currency register directive as [`TODO.md`](TODO.md) section 4.26 with the assistant's recommendation to extend the existing canonical-citations register rather than build a parallel one. Batches the #430 `/validate-pr` (0 findings) and `/retro` rows. Library `2026.06.408` to `2026.06.409`; README `1.9.279` to `1.9.280`.
+
 ## 2026-06-28, Library Version 2026.06.408, PR #430
 
 Internal assistant-guidance change (invisible to adopters): codified a Communication conventions section in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (no decorative honesty-intensifiers; use `IMPORTANT:` as the emphasis marker), maintainer-directed during the #429 close-out. Batches the #429 `/validate-pr` (0 findings) and `/retro` rows plus the pending-decisions resolution. Library `2026.06.407` to `2026.06.408`; README `1.9.278` to `1.9.279`.

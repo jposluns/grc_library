@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #431: suggest/advise interpretation rule codified + version-register directive captured (2026-06-28)
+
+Not previously in TODO; maintainer-directed. Added the suggest/advise interpretation bullet to the Communication conventions section of .claude/CLAUDE.md, and captured the maintainer's reference version-currency register directive as TODO 4.26 (with the extend-the-canonical-citations-register recommendation and the egress/scope caveats).
+
 ### PR #430: Communication-conventions codification (2026-06-28)
 
 Not previously in TODO; maintainer-directed during the #429 close-out. Added a Communication conventions section to .claude/CLAUDE.md: no decorative honesty-intensifiers, and use IMPORTANT: as the emphasis marker.
