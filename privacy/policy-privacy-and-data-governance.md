@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.4\
-**Date:** 2026-06-23\
+**Version:** 1.4.5\
+**Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -71,68 +71,68 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 1. Lawful and fair processing
 
-- Personal data shall be collected and processed only for legitimate business purposes in compliance with applicable laws.
-- Individuals shall be informed about data collection, use, retention, and transfer through transparent notices.
+- Personal data must be collected and processed only for legitimate business purposes in compliance with applicable laws.
+- Individuals must be informed about data collection, use, retention, and transfer through transparent notices.
 - Consent, where required, must be specific, informed, and revocable.
 
 ### 2. Data classification and handling
 
 - All data assets must be classified based on sensitivity: Public, Controlled, Internal, Confidential, and Restricted, per the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
-- Handling procedures for each classification level shall be documented and enforced through technical and organisational controls.
-- Sensitive personal data and AI datasets shall be encrypted at rest and in transit.
+- Handling procedures for each classification level must be documented and enforced through technical and organisational controls.
+- Sensitive personal data and AI datasets must be encrypted at rest and in transit.
 
 ### 3. Data quality and accuracy
 
 - Data must be accurate, complete, and kept up to date in accordance with ISO 8000-8.
-- Periodic validation processes shall verify data integrity, detect anomalies, and prevent unauthorized modification.
+- Periodic validation processes must verify data integrity, detect anomalies, and prevent unauthorized modification.
 
 ### 4. Records and retention management
 
-- Records shall be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
-- Destruction or anonymization of records shall be conducted securely and verifiably.
-- Retention schedules shall cover both structured data and AI training artifacts.
+- Records must be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
+- Destruction or anonymization of records must be conducted securely and verifiably.
+- Retention schedules must cover both structured data and AI training artifacts.
 
 ### 5. Privacy by design and default
 
-- Systems and processes shall embed privacy principles from inception, including data minimization and pseudonymization.
-- Privacy Impact Assessments (PIAs) shall be conducted for new systems, major changes, and AI model training activities.
-- PIAs shall assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
+- Systems and processes must embed privacy principles from inception, including data minimization and pseudonymization.
+- Privacy Impact Assessments (PIAs) must be conducted for new systems, major changes, and AI model training activities.
+- PIAs must assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
 
 ### 6. Cross-border data transfers
 
 - All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
-- The organisation shall maintain a register of all cross-border data flows, reviewed quarterly.
+- The organisation must maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
 ### 7. AI training data governance
 
-- AI models shall only be trained on datasets that comply with privacy, consent, and licensing obligations.
+- AI models must only be trained on datasets that comply with privacy, consent, and licensing obligations.
 - Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
-- Disclosure of training dataset categories shall be documented for transparency and compliance with the EU Data Act (Regulation (EU) 2023/2854).
-- Synthetic and anonymized data used for AI training shall undergo reidentification risk assessments.
+- Disclosure of training dataset categories must be documented for transparency and compliance with the EU Data Act (Regulation (EU) 2023/2854).
+- Synthetic and anonymized data used for AI training must undergo reidentification risk assessments.
 
 ### 8. Data subject rights
 
-- Individuals shall have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
+- Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
 - Requests must be processed within legal timeframes (typically 30 days).
 - Denials must be justified in writing and reviewed by the CIO (acting DPO).
 
 ### 9. Third-party and supplier governance
 
 - All vendors processing personal or regulated data must be assessed for privacy and security compliance before engagement.
-- Data processing agreements shall include breach notification, audit rights, and cross-border data protection clauses.
-- Supplier performance shall be monitored and reviewed annually.
+- Data processing agreements must include breach notification, audit rights, and cross-border data protection clauses.
+- Supplier performance must be monitored and reviewed annually.
 
 ### 10. Incident response and breach management
 
-- Data breaches shall be reported immediately to the CISO and CIO (acting DPO).
-- Regulatory notifications shall be issued within 72 hours (GDPR standard) or as required by local laws.
-- Post-incident reviews shall determine root cause, impact, and mitigation actions.
+- Data breaches must be reported immediately to the CISO and CIO (acting DPO).
+- Regulatory notifications must be issued within 72 hours (GDPR standard) or as required by local laws.
+- Post-incident reviews must determine root cause, impact, and mitigation actions.
 
 ### 11. Monitoring and continual improvement
 
-- Compliance shall be monitored through audits, metrics, and incident trends.
-- Lessons learned from data breaches or privacy complaints shall be integrated into training and control design.
+- Compliance must be monitored through audits, metrics, and incident trends.
+- Lessons learned from data breaches or privacy complaints must be integrated into training and control design.
 - This policy is reviewed annually and upon major regulatory change.
 
 ---
