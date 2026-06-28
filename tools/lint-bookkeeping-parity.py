@@ -22,7 +22,7 @@ three other audit surfaces; it is deliberately NOT added to the pre-push
 history-aware runner (which is for delta and commit-graph gates), because
 the post-commit ``run_all_audits.sh`` already runs it before any push.
 
-The three checks:
+The four checks:
 
 **Check 1, QA-cadence parity (the §4.6 surface).** Derive the merged-PR
 list from ``CHANGELOG.md`` ``## YYYY-MM-DD, Library Version X, PR #N``
@@ -63,6 +63,20 @@ primitive both exist; there is no surface to test against yet, so the gate
 does not fabricate an attestation format. ``worker_provenance_findings()``
 documents its activation condition and returns no findings.
 
+**Check 4, version-history parity (the §4.6 #376 surface).** For every
+tracked file that carries BOTH a metadata ``**Version:**`` field AND a
+``## Version history`` table, the metadata ``Version`` value must appear as
+a row in that table (the #372 paired-surface miss: the pack README metadata
+``Version`` moved with no matching history row). Precision-first and FP-free
+(the gate-48 S5 / check-2 precedent): flag ONLY a metadata ``Version`` with
+no matching history row; tolerate history rows with no current metadata match
+(the normal historical rows). This is the mechanizable half of the #376
+"update-one-of-a-pair" design; the semantic half (a coded-value migration
+leaving a stale description) is not mechanizable and stays the close-out
+checklist convention. Adding this as a fourth internal check of gate 50 (not
+a new numbered gate) follows the gate-48 "two checks to four" precedent: no
+gate-count change, no four-surface re-wiring.
+
 Exit codes:
     0 - All present-and-rotated checks pass.
     1 - At least one missing record or rotation-failure marker detected.
@@ -74,6 +88,8 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+
+from lint_common import DEFAULT_EXEMPT_DIRS, read_text_safe
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -158,6 +174,15 @@ TODO_DESPANNED_MARKERS: list[tuple[str, re.Pattern[str]]] = [
     # open item is not a marker and is not flagged.
     ("uppercase-shipped-marker", re.compile(r"\b(?:SHIPPED|DONE)\s+in\s+#?\d+\b")),
 ]
+
+
+# Check 4 (version-history parity) patterns.
+# Metadata Version field: the first `**Version:** X.Y.Z` line in a file.
+METADATA_VERSION = re.compile(r"^\*\*Version:\*\*\s*([0-9]+(?:\.[0-9]+)+)", re.MULTILINE)
+# The `## Version history` section heading.
+VERSION_HISTORY_HEADING = re.compile(r"^##\s+Version history\s*$", re.MULTILINE)
+# A whole table cell that is a dotted version token (2+ parts).
+VERSION_TOKEN = re.compile(r"^[0-9]+(?:\.[0-9]+)+$")
 
 
 def read(rel: str) -> str:
@@ -280,6 +305,68 @@ def todo_rotation_findings(todo_text: str) -> list[str]:
     return findings
 
 
+def discover_version_history_files() -> list[tuple[str, str]]:
+    """Every tracked .md file carrying BOTH a metadata Version field and a
+    ``## Version history`` table, skipping the standard exempt dirs.
+
+    The discovery is repo-wide (not the audited-domain run) because the
+    files that carry a ``## Version history`` table live in the pack dir,
+    outside the corpus domains; it skips ``DEFAULT_EXEMPT_DIRS`` (``.git``,
+    ``node_modules``, ``__pycache__``, ``.claude``, ``.working``) rather than
+    enumerating the audited domains, so it does not duplicate the
+    ``AUDITED_DOMAIN_DIRS`` run (gate 52).
+    """
+    out: list[tuple[str, str]] = []
+    for path in sorted(REPO_ROOT.rglob("*.md")):
+        rel = path.relative_to(REPO_ROOT)
+        if any(part in DEFAULT_EXEMPT_DIRS for part in rel.parts):
+            continue
+        text = read_text_safe(path)
+        if text is None:
+            continue
+        if METADATA_VERSION.search(text) and VERSION_HISTORY_HEADING.search(text):
+            out.append((str(rel), text))
+    return out
+
+
+def version_history_parity_findings(files: list[tuple[str, str]]) -> list[str]:
+    """Check 4: a file's metadata Version must appear as a row in its own
+    ``## Version history`` table.
+
+    Precision-first / FP-free: flag ONLY a metadata Version with no matching
+    history row. History rows with no current metadata match (the normal
+    historical rows) are tolerated.
+    """
+    findings: list[str] = []
+    for rel, text in files:
+        mv = METADATA_VERSION.search(text)
+        vh = VERSION_HISTORY_HEADING.search(text)
+        if not (mv and vh):
+            continue
+        meta_version = mv.group(1)
+        # Restrict to the Version history section (heading to the next H2 / EOF).
+        section = text[vh.end():]
+        nxt = re.search(r"^##\s+", section, re.MULTILINE)
+        if nxt:
+            section = section[: nxt.start()]
+        history_versions: set[str] = set()
+        for line in section.splitlines():
+            if not line.lstrip().startswith("|"):
+                continue
+            for cell in (c.strip() for c in line.split("|")):
+                if VERSION_TOKEN.match(cell):
+                    history_versions.add(cell)
+        if meta_version not in history_versions:
+            findings.append(
+                f"  [version-history-parity] {rel}: metadata Version "
+                f"{meta_version} has no matching row in the file's "
+                f"## Version history table. When the metadata Version is "
+                f"bumped, add the paired version-history row in the same "
+                f"commit (the #372 paired-surface miss)."
+            )
+    return findings
+
+
 def worker_provenance_findings() -> list[str]:
     """Check 3 (dormant stub): worker-delivered-diff provenance attestation.
 
@@ -310,13 +397,14 @@ def main() -> int:
     all_findings: list[str] = []
     all_findings.extend(qa_cadence_findings(changelog, vp_status, retros))
     all_findings.extend(todo_rotation_findings(todo_text))
+    all_findings.extend(version_history_parity_findings(discover_version_history_files()))
     all_findings.extend(worker_provenance_findings())
 
     if not all_findings:
         print(
             "OK: bookkeeping-parity audit clean "
             f"(QA-cadence parity from PR #{INCEPTION}; TODO/DONE rotation; "
-            "worker-provenance dormant)."
+            "version-history parity; worker-provenance dormant)."
         )
         return 0
 
