@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.426, PR #448
+
+FR-167: add the CSA AICM v1.1 column to the compliance matrix (PR-B of the FR-167 close-out; PR-A #447 shipped the validating gate 49). AICM v1.1 is CSA's AI-focused extension of CCM v4.1; the column carries only the AICM-only AI-specific delta.
+
+### Added
+- A "CSA AICM v1.1" framework column in [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.11.2` to `1.11.3`), inserted after the CSA CCM v4.1 column in all 11 domain tables (261 data rows). **68 rows** carry AICM-only codes (the MDS Model Security domain + AI-specific AIS/GRC/DSP/HRS/IAM/LOG/TVM controls); **193 rows** are `N/A` (no AI dimension). A legend row and a coverage-summary row describe AICM as the AI-focused extension carrying only AI-specific controls (the matrix now maps nine frameworks; the "eight frameworks" intro updated to "nine").
+
+### Changed
+- Matrix metadata `Version` `1.11.2` to `1.11.3`, `Date` 2026-06-28; [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+
+### Verification (maintainer-directed absolute-integrity, multi-layer)
+- **Research**: a 5-worker fan-out produced per-row AICM candidates (partitioned by domain group), against [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py)'s 40-code AICM-only set.
+- **Independent adversarial verification (the user-directed recheck)**: **Verifier A** re-read every title-based `N/A` document (an AI-signal grep produced the worklist) and caught **9 genuine misses** that the faster title-based research had wrongly skipped, each evidenced by a quoted dedicated AI-control section; **Verifier B** adversarially judged every proposed AICM code against its AICM v1.1 control TITLE, returning per-code CONFIRM/TIGHTEN verdicts and tightening **3 over-assignments** (dropped a loose MDS-10, AIS-11, MDS-13). No wrong or invalid codes.
+- **Mechanical**: every applied code confirmed `is_aicm_only` (34 distinct, all valid); **gate 49** (extended in #447) validates the column (AICM-only, no CCM-base); a **deterministic re-parse** of the rendered matrix confirmed all 68 cells match the verified map and the column sits exactly after CCM in every table (0 mismatches). All 54 gates pass.
+- Semantic-fit assurance recorded in [`.working/matrix-fit/history.md`](../matrix-fit/history.md) (the two-verifier pass substitutes for a tool-driven `/matrix-fit` because [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py) does not yet scope the AICM column).
+
+### Discipline observation
+- **FR-167 is NOT closed by this PR.** Remaining: (a) extend [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py) + `KNOWN_TITLES` to scope the AICM column, then run the formal closing whole-matrix `/matrix-fit`; (b) matrix gap-fill of any substantive doc not yet rowed. Recorded in TODO; not rotated to DONE.
+- Guard-first (the #439/#440 lesson): the validating gate (#447) shipped before this data apply, so the column was validated as it landed. The apply itself was a deterministic, dry-run-validated, idempotent-guarded script, so its correctness does not rest on hand-editing 261 rows.
+
+Batches the #447 `/validate-pr` (0 findings) and `/retro` rows. Library `2026.06.425` to `2026.06.426`; README `1.9.296` to `1.9.297`.
+
 ## 2026-06-28, Library Version 2026.06.425, PR #447
 
 Audit-tooling and reference codification, guard-first for the FR-167 CSA AICM v1.1 matrix column (PR-A of the FR-167 close-out; PR-B populates the column).
