@@ -163,8 +163,18 @@ drive end-to-end on the maintainer's behalf:
    matters most for large multi-commit or file-move changes such as the
    governance Phase-1 migration (gates 40, 31, 45 folded in per the
    design-decisions "Gate-family coherence, Option A" decision). The two
-   runners together cover every gate the CI workflow runs.
-2. Push with `git push -u origin <branch>` and open the PR via
+   runners together cover every gate the CI workflow runs. Run both as a
+   single pre-push gate: `tools/pre-push-guard.sh && git push -u origin
+   <branch>`. The guard chains `run_all_audits.sh` then
+   `run-pr-time-checks.sh`, stopping non-zero on the first failure, so a
+   gate defect blocks the push instead of flipping CI red after the fact.
+   Git hooks do not fire in this environment, so the `&&`-chained guard is
+   what actually enforces the pre-push runner (the same pattern as
+   `preflight-changelog.py && git commit`); an "intermediate" push that
+   skips the guard is the momentum-bypass failure the guard closes
+   (improvement-log #438).
+2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u
+   origin <branch>`. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription
    discipline in `## PR activity subscription discipline` below; on failure,

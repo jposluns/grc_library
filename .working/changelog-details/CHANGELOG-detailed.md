@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.417, PR #439
+
+Pre-push QA-enforcement guard (the maintainer-directed preventative from the #438 retrospective). Assistant-workflow tooling plus `.claude/` guidance change; no corpus-document body change.
+
+### Added
+- [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh): a single pre-push gate that chains [`run_all_audits.sh`](../../tools/run_all_audits.sh) (corpus gates from HEAD) then [`run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) (the D1 to D4 delta gates plus the history-aware trio 45 / 40 / 31 against the merge base), stopping non-zero on the first failure. Run as `tools/pre-push-guard.sh && git push -u origin <branch>`. The two runners together cover every gate CI runs, so a green guard means the push will not flip CI red on a gate failure. Best-effort `git fetch origin main` first so the delta gates compare against the true merge base; offline is tolerated.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) PR-workflow steps 1 to 2: the push procedure is now `tools/pre-push-guard.sh && git push -u origin <branch>`. Records why a standalone `&&`-gated guard rather than a git pre-push hook (hooks do not fire in this environment, the same reason [`preflight-changelog.py`](../../tools/preflight-changelog.py) is run as an `&&`-gate on commits), and names the momentum-bypass failure it closes (improvement-log #438).
+
+### Rationale
+- The #438 retrospective named the root cause as momentum-over-verification: an "intermediate" bookkeeping push went out without [`run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh), so D2 (a version-bump delta gate) and the gate-50 #437 parity failure reached CI as a red check. CI is the correctness backstop and caught both; the cost was a fail-then-fix cycle, not a shipped defect. The guard's value is removing that loop by making "run both runners before push" one command that cannot be partially skipped. It is a discipline and cleanliness improvement, not a new correctness guarantee CI lacks (stated plainly to avoid overstating it).
+- Scope boundary: the guard gates PUSHES; [`preflight-changelog.py`](../../tools/preflight-changelog.py) stays the commit-time `&&`-gate (it inspects newly-added working-tree lines, already committed by push time). Complementary, not redundant.
+- Relationship to TODO §4.6 (QA-cadence mechanical enforcement): §4.6's missing-QA-row half is already gate 50 ([`lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py), which caught the #437 parity gap in CI); this guard is the distinct still-missing piece, local enforcement of the pre-push runner. §4.6 is NOT closed by this PR.
+
+### Verification
+[`pre-push-guard.sh`](../../tools/pre-push-guard.sh) self-tested green (both runners pass) before commit. `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` all-pass on the post-commit state before push (run via the guard itself). [`preflight-changelog.py`](../../tools/preflight-changelog.py) clean on the added CHANGELOG lines. The guard is a workflow helper, not an audit gate, so it needs no four-surface wiring (it is not in the gate-parity set, the same as [`run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)).
+
+### Batched bookkeeping (recursion-avoidance)
+- #438 `/validate-pr` history row (0 findings; the 2 class-d caveats dispositioned, one verified true against the scratch repo's contributing guide, one corroborated by the green runs and CI); validate-pr/history `1.2.220` to `1.2.221`.
+- #438 `/retro` row (the momentum-over-verification pattern; this guard is its Proposed-improvement); improvement-log `1.0.172` to `1.0.173`.
+
 ## 2026-06-28, Library Version 2026.06.416, PR #438
 
 Sweep 72 close-out (the formal-active-session `/resume` loop-break corpus-wide `/validate` over the #433..#437 deltas). Working-state, `.claude/`, and TODO change; no corpus-document body change.
