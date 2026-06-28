@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.5\
-**Date:** 2026-06-24\
+**Version:** 1.1.6\
+**Date:** 2026-06-28\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -83,7 +83,7 @@ The coordination lifecycle mirrors the domain procedures but layers cross-stream
 | Investigation | Each domain investigates within its scope; Coordinator owns the consolidated timeline, the shared evidence index, and the cross-domain root cause draft. | Consolidated timeline, joint evidence index, root cause draft. |
 | Notification and communication | Privacy and Legal own regulatory notification streams; Communications owns external messaging. All public statements approved by Executive Sponsor. | Notification records, communication log, approval evidence. |
 | Recovery and validation | Each domain validates within its scope; Coordinator confirms cross-domain dependencies are satisfied before return to service. | Recovery validation by domain, joint return-to-service approval. |
-| Joint post-incident review | Multi-domain PIR within the per-severity deadline set in the Severity rules across streams table (P1 within 5 business days, P2 within 10, P3 within 15, of closure). Output is one consolidated PIR; per-domain PIRs feed into it. | Joint PIR report, corrective action register, lessons learned. |
+| Joint post-incident review | Multi-domain PIR within the per-severity deadline set in the Severity rules across streams table (P1 within 5 business days, P2 within 5, P3 within 15, of closure). Output is one consolidated PIR; per-domain PIRs feed into it. | Joint PIR report, corrective action register, lessons learned. |
 | Closure | All domains confirm independent closure criteria are met; Executive Sponsor signs joint closure. | Joint closure record, residual risk acceptance. |
 
 ---
@@ -146,7 +146,7 @@ Severity is determined inside each domain by its own procedure. When the same ev
 | Joint coordination severity | Coordination call cadence | Executive Sponsor cadence | Joint PIR deadline |
 | --- | --- | --- | --- |
 | P1 Critical | Every 2 hours during active response | Briefed at declaration and at least every 4 hours | Within 5 business days of closure |
-| P2 High | Every 8 business hours during active response | Briefed at declaration and daily | Within 10 business days of closure |
+| P2 High | Every 8 business hours during active response | Briefed at declaration and daily | Within 5 business days of closure |
 | P3 Medium | Daily during active response | Briefed at declaration and at closure | Within 15 business days of closure |
 | P4 Low | At Coordinator discretion | Closure-only briefing | At Coordinator discretion |
 
