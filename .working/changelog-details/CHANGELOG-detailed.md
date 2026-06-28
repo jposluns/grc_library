@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.414, PR #436
+
+Working-state housekeeping: TODO §4.23 hygiene pass (parts a+b) plus the batched #435 QA rows and the ATLAS scratch-decision resolution. No corpus-document body change.
+
+### Changed
+- [`TODO.md`](../../TODO.md): (a) §4.11 trimmed to its residue (deliverable 4, the worker-provenance gate; deliverables 1-3, the runbook + worker-brief Model-B section + CLAUDE.md light-SOP, verified shipped against the 54-gate inventory and the stale "scratch is empty" feasibility note corrected); (b) deleted the shipped/closed clauses the §4.23 research scan named (Queueing-rules "FR-166/DD-1/DD-9 already shipped", P3-intro "B2 closed #408 / DD-12 closed", §4.8 "actioned in #275", §4.18 "D4 shipped in #366", Backlog-totals "closed in #N"); §4.23 itself trimmed to its remaining open part; §4.23(c) (do the audit-trail-only sections belong in TODO) filed in `## Priority 7` as a maintainer call.
+- [`.working/pending-decisions.md`](../pending-decisions.md): the ATLAS sub-question resolved (maintainer: defer the scratch half, another session owns it); Status now 0 pending.
+
+### Batched bookkeeping (recursion-avoidance)
+- #435 `/validate-pr` history row (0 findings; corpus-wide cross-reference greps clean); validate-pr/history `1.2.218` to `1.2.219`.
+- #435 `/retro` row (the currency gate caught a wrong scan-scope inference pre-commit); improvement-log `1.0.169` to `1.0.170`.
+
+### Verification
+`tools/run_all_audits.sh` 54/54 post-commit; `tools/run-pr-time-checks.sh` all-pass; the [`preflight-changelog.py`](../../tools/preflight-changelog.py) aid clean. No generated-artefact regen needed (no corpus-document metadata changed; TODO and `.working/` are gate-exempt for taxonomy).
+
 ## 2026-06-28, Library Version 2026.06.413, PR #435
 
 Reconciles the MITRE ATT&CK / ATLAS rows of the canonical citations register to the upstream-confirmed current versions (closing scratch-review S-1), and fixes the in-window finding the #434 `/validate-pr` surfaced. The version values were re-verified against the upstream authority THIS turn (not copied from the prior turn or from scratch), per the `## Reference-version currency` SOP that shipped in #434.
