@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #443: DD-10 (low): addyosmani spot-scanned skill count corrected 18 to 19 (2026-06-28)
+
+Web-verified the upstream addyosmani/agent-skills repo at 24 skills; the EXT-01 vetting examined all 24 (5 fully vetted + 19 spot-scanned, the latter explicitly listed in the vetting-log), so the propagated "18 spot-scanned" undercount was corrected across the vetting-log, the pack README, and the setup-generator prompt.
+
 ### PR #435: S-1 MITRE ATT&CK / ATLAS version-currency register reconciliation (2026-06-28)
 
 Closed scratch-review S-1: bumped [`register-canonical-citations.md`](../governance/register-canonical-citations.md) MITRE rows to the upstream-confirmed current versions (ATT&CK v15 -> v19.1, ATLAS v4.7 -> v2026.05; both re-verified upstream this turn), with the corpus sweep updating the four stale MITRE entries in the in-scope Q4 verification worklist (audited domain docs cite version-less forms). Also fixed the #434 /validate-pr finding (resume.md:25 standards-vs-frameworks self-contradiction); the scratch re-ingest half stays open under §4.26 + pending-decisions.

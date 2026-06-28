@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.1\
-**Date:** 2026-06-19\
+**Version:** 1.3.2\
+**Date:** 2026-06-28\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -54,7 +54,7 @@ Fully vetted (read in full, EXT-01 pattern scan):
 - `skills/using-agent-skills/SKILL.md` (meta-skill that explains the format)
 - `skills/context-engineering/SKILL.md`
 
-Scanned for red-flag patterns (not read in full): the 18 remaining skill directories under `skills/` (`interview-me`, `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `doubt-driven-development`, `source-driven-development`, `frontend-ui-engineering`, `api-and-interface-design`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `code-simplification`, `performance-optimization`, `git-workflow-and-versioning`, `deprecation-and-migration`, `documentation-and-adrs`, `observability-and-instrumentation`, `shipping-and-launch`). Per the README's skill index plus a spot-scan of the skill titles and `description:` frontmatter fields surfaced via the upstream `README.md`, these are general engineering workflow skills (interview, refinement, TDD, debugging, observability, etc.) with no security-sensitive content surface beyond the five vetted in full. Consumers electing the overlay via the setup-generator who wish to fetch one of these additional skills should apply EXT-01 per fetch.
+Scanned for red-flag patterns (not read in full): the 19 remaining skill directories under `skills/` (`interview-me`, `idea-refine`, `spec-driven-development`, `planning-and-task-breakdown`, `incremental-implementation`, `test-driven-development`, `doubt-driven-development`, `source-driven-development`, `frontend-ui-engineering`, `api-and-interface-design`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `code-simplification`, `performance-optimization`, `git-workflow-and-versioning`, `deprecation-and-migration`, `documentation-and-adrs`, `observability-and-instrumentation`, `shipping-and-launch`). Per the README's skill index plus a spot-scan of the skill titles and `description:` frontmatter fields surfaced via the upstream `README.md`, these are general engineering workflow skills (interview, refinement, TDD, debugging, observability, etc.) with no security-sensitive content surface beyond the five vetted in full. Consumers electing the overlay via the setup-generator who wish to fetch one of these additional skills should apply EXT-01 per fetch.
 
 **EXT-01 pattern scan results across the fully-vetted files:**
 
@@ -75,7 +75,7 @@ Scanned for red-flag patterns (not read in full): the 18 remaining skill directo
 - **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per [`NOTICE.md`](../../NOTICE.md)), not redistribution.
 - **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps [`dev-security/procedure-secure-code-review.md`](../procedure-secure-code-review.md). `ci-cd-and-automation` overlaps [`dev-security/claude-rules/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`dev-security/claude-rules/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
 
-**Verdict:** Vetted (no concerns) on the fully-read subset; the 18 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
+**Verdict:** Vetted (no concerns) on the fully-read subset; the 19 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
 
 **Status:** `Vetted` for the fully-vetted subset above; `Spot-scanned` for the remaining 18 skill directories.
 
