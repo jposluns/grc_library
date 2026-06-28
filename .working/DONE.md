@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #420: FR-181 (medium) + FR-192 (low) + FR-193 (low): privacy jurisdiction and breach-notification reconciliation (2026-06-28)
+
+Third P2 batch (privacy cluster): FR-181 made the EU AI Act Annex III index entry forward-looking ("become applicable in August 2026"); FR-192 added a Breach notification (Articles 48 to 49) bullet to the Brazil annex, propagating the breach-response procedure's attributed ANPD figure under a verify-before-reliance qualifier; FR-193 added India to the §6.2 breach-notification table, the §1.2 scope, and the §12 framework-alignment table, grounded in the India annex's DPDPA duties (no fabricated clock). Batches the #419 `/validate-pr` (0) + `/retro` rows.
+
 ### PR #419: FR-191 (low) + FR-189 (low) + FR-190 (FYI): incident and resilience procedure reconciliation (2026-06-28)
 
 Second P2 batch (incident/resilience cluster): FR-191 harmonized the P1/P2 post-incident-review deadline to 5 business days corpus-wide (the maintainer's library default; cross-domain joint, privacy-breach, AI-incident, and remote-working device-loss PIRs all moved 10 to 5, P3/P4 tiers unchanged), grep-confirmed none left at 10; FR-189 named the Executive Sponsor as the EOC activation authority in the crisis-management procedure; FR-190 assessed as no-change (informational, mitigated by Limitations clauses). Batches the #418 `/validate-pr` (0) + `/retro` rows.

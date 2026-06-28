@@ -101,7 +101,7 @@ _93 documents._
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-06-22 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-06-22 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.4 | 2026-06-23 |
-| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.14 | 2026-06-28 |
+| [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.15 | 2026-06-28 |
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.5.0 | 2026-06-23 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.5.0 | 2026-06-22 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.0 | 2026-05-28 |
@@ -231,11 +231,11 @@ _174 documents._
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.1 | 2026-06-02 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.2 | 2026-06-20 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.1 | 2026-06-02 |
-| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.7 | 2026-06-27 |
+| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.8 | 2026-06-28 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.7 | 2026-06-24 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.6 | 2026-06-27 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.2 | 2026-06-22 |
-| [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.0.2 | 2026-06-22 |
+| [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-06-28 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-06-22 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.2 | 2026-06-22 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.0.2 | 2026-06-22 |
