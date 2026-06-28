@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.14\
+**Version:** 1.4.15\
 **Date:** 2026-06-28\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; sec
 1. Applies to all confirmed or suspected personal data breaches involving personal data held or processed by the organisation, its processors, or its sub-processors.
 2. Covers trade and customs data breaches where personal data is embedded in supply chain or customs records, including BASC-certified logistics environments.
 3. Covers AI training data leakage where personal data used to train or fine-tune AI models is exposed to unauthorized parties.
-4. Applies across all jurisdictions in which the organisation operates, including the European Union, United Kingdom, Canada (federal and provincial), China, Brazil, and United States.
+4. Applies across all jurisdictions in which the organisation operates, including the European Union, United Kingdom, Canada (federal and provincial), China, India, Brazil, and United States.
 5. This procedure operates alongside [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
 
 ### 1.3 Relationship to the incident response procedure
@@ -173,6 +173,7 @@ The notification assessment is documented in the breach record and approved by t
 | **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | As soon as feasible (no fixed statutory deadline) | As soon as feasible after the determination that significant harm is likely |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | 72 hours to the CAI; promptly to affected individuals | Promptly after notifying CAI |
 | **China** | PIPL Art. 57 | Cyberspace Administration of China (CAC) / relevant PIPC authority | Breach of personal information | Immediately / without delay upon discovery | Promptly to affected individuals if high risk; may be deferred if measures have effectively prevented harm, subject to authority direction |
+| **India** | DPDPA 2023; Digital Personal Data Protection Rules 2025 | Data Protection Board of India (DPBI) | Personal data breach (failure to implement adequate security safeguards, or any breach affecting Data Principals) | As required by the DPDPA and the Rules 2025 (phased commencement from the 13 November 2025 notification); verify the current statutory notification timeline | Required: Data Fiduciaries must notify affected Data Principals |
 | **Brazil** | LGPD Arts. 48 to 49 | Autoridade Nacional de Proteção de Dados (ANPD) | Breach likely to cause risk or harm to data subjects | Within reasonable period per ANPD guidelines (ANPD Resolution CD/ANPD No. 2 guidance: 2 business days for initial notification; 5 business days for full report) | Without undue delay |
 | **United States** | State breach notification laws (varies) | Varies by state (e.g., State Attorney General) | Personal information of state residents exposed | Varies by state; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) for current state-level mapping | Varies by state; generally without unreasonable delay |
 
@@ -345,6 +346,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34 |
 | Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 (CPPA pending reintroduction) |
 | Regulatory breach notification: China | PIPL Art. 57 |
+| Regulatory breach notification: India | DPDPA 2023; Digital Personal Data Protection Rules 2025; DPBI |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
 | Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev. 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |

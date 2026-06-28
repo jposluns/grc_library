@@ -2,8 +2,8 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -38,6 +38,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Data Protection Officer (DPO) (Articles 41 to 43):** Controllers must designate a DPO (Encarregado). Contact details must be published.
 - **DPIA (Article 38):** The ANPD may require a Data Protection Impact Assessment (RIPD) for high-risk processing, including processing based on legitimate interest and large-scale processing of sensitive data.
 - **Legitimate interest (Article 10):** Controllers relying on legitimate interest for AI processing must conduct a balancing test and, when requested by the ANPD, provide a DPIA.
+- **Breach notification (Articles 48 to 49):** The controller must notify the ANPD and affected data subjects of a security incident that may cause relevant risk or harm, within a reasonable period as defined by the national authority. ANPD Resolution CD/ANPD No. 2 operationalizes this as 2 business days for the initial notification and 5 business days for the full report; verify the current ANPD timeline before reliance.
 - **ANPD guidance (2024 to 2025):** ANPD has published guidance stating that AI training using personal data requires a specific lawful basis and that data minimization and purpose limitation apply. ANPD has signalled intent to issue sector-specific AI guidance.
 
 ---
