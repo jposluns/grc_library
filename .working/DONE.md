@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #433: handoff pruning convention + Sweep 71 (2026-06-28)
+
+Not previously in TODO; maintainer-directed. Pruned the session handoff from 426 lines / 47 stacked session blocks to ~120 (keep current + 1 prior) and codified the prune-at-resume convention across the handoff, the /resume command (step 6a), and the CLAUDE.md close-out checklist. Ran the loop-break Sweep 71 (A/C clean; B 2 gate-exempt notes resolved by the prune; no asserted-expectations contradiction).
+
 ### PR #431: suggest/advise interpretation rule codified + version-register directive captured (2026-06-28)
 
 Not previously in TODO; maintainer-directed. Added the suggest/advise interpretation bullet to the Communication conventions section of .claude/CLAUDE.md, and captured the maintainer's reference version-currency register directive as TODO 4.26 (with the extend-the-canonical-citations-register recommendation and the egress/scope caveats).

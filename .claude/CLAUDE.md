@@ -291,6 +291,17 @@ defence is external. Two mechanisms:
      counts; orchestrator main-loop tokens recorded as `not instrumented`, never a
      fabricated figure), batched into the handoff diff and never placed in
      `CHANGELOG.md`. See that file's measured-versus-not-instrumented discipline.
+   - **If this is the first PR of a resumed session** (the `/resume` `/validate`
+     close-out), the handoff was **pruned** per its `## Refresh and pruning
+     discipline`: keep current + 1 prior in each per-session stack (Next-actions
+     narrative, State snapshot, Asserted expectations), delete older blocks and
+     superseded one-off queue / dated "This session's work" sections, keep the
+     standing sections in full, and migrate-before-delete any un-recorded
+     load-bearing item (open decision, pending maintainer action). The session
+     handoff exists to be a fast single resume point; pruning keeps it from
+     accumulating stale session history across resumes (the file had reached 426
+     lines / 47 stacked blocks before the 2026-06-28 first prune). See `/resume`
+     command step 6a.
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command,
      or new prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on
      it **before the first commit**. New-pack-prose drafting recurrently reintroduces
