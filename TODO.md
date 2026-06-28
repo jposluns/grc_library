@@ -256,6 +256,10 @@ Maintainer-directed: a fork-friendly mechanism so the project never relies on a 
 
 The PR #441 condense of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) moved the cut rationale, war-stories, and provenance into [`.working/claude-md-considerations.md`](.working/claude-md-considerations.md) (the removal ledger), each entry carrying an "evidence the removal was wrong" signal. Standing activity (not a one-time task): each `/retro` does a quick scan of the ledger's open RM entries and the periodic hallucination-metrics pass does a deeper one; if an entry's signal appears, advise the maintainer to restore the cut text or make a new CLAUDE.md change, and record the disposition in that entry's Status. Wired into [`.working/improvement-log.md`](.working/improvement-log.md)'s Convention section. This item is the durable tracker so the cadence is not lost; it stays open by design.
 
+### 4.28 CLAUDE.md-optimization diagnostic skill (L, S) — maintainer-directed 2026-06-28 (low priority)
+
+Decision (maintainer 2026-06-28, after the PR #441 condense): the keep-and-condense method is documented as pack guidance ([`guidance-claude-md-optimization.md`](dev-security/claude-rules/guidance-claude-md-optimization.md), shipped 2026-06-28); a full optimization skill was declined as too judgment-heavy to mechanize (the keep-versus-cut call is exactly the part a skill cannot do). The tractable mechanical aid is a NARROW read-only diagnostic, a `/claude-md-audit`-style reporter over a target rules file that surfaces file length, section count, an actionable-token-density heuristic (ratio of greppable rule tokens such as commands, paths, gate numbers, and thresholds to total prose), and a "no removal ledger referenced" flag. Advisory output only, never a gate (the keep/cut decision stays the maintainer's). Low priority: build only if the guidance doc proves insufficient on its own. Pairs with the §4.27 ledger-review cadence.
+
 ---
 
 ## Priority 5 — Content expansion (country / programme / regulator overlays)
