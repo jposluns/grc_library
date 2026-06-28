@@ -252,7 +252,13 @@ is external. Two mechanisms:
    - If the PR changed a **convention, count, routing rule, or gate-wiring that is
      restated across surfaces**, the OLD phrasing was grepped across the full changed file
      AND every sibling surface, with zero hits confirmed before commit (the
-     multi-surface-incompleteness guard).
+     multi-surface-incompleteness guard). For a **count, value, or term correction**, the
+     contradiction grep is on the BARE token (`grep -nE '\b18\b'`), not a phrasing-specific
+     string (`18 spot-scanned`): a phrasing-specific grep misses word-order variants of the
+     same stale value on other lines. (PR #443 corrected a count on two lines but its
+     phrasing-specific grep missed a third line whose word order differed; a bare-token
+     scan would have caught it. See the #443 row in
+     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md).)
    - `tools/preflight-changelog.py` was run **before the first commit** (as `python3
      tools/preflight-changelog.py && git commit ...`). It gates em/en dashes and unlinked
      path-shaped references in the *added* CHANGELOG lines, exiting non-zero so the `&&`
