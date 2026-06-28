@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #428: Domain-wide privacy PRI-* CCM citation correction (low) (2026-06-28)
+
+Completed the invalid-`PRI-*` correction across the remaining 3 privacy files (7 citations: the policy framework-mapping table x5, the charter range, the PIA row) after the #427 `/validate-pr` found the class was domain-wide. Three unambiguous mappings (DSP-11/SEF-08/DSP-09) plus four recommended-default judgement-calls (GRC-06/DSP-12/DSP-10/charter DSP-domain reference) recorded in pending-decisions for confirm/redirect. Not previously a standalone TODO item; the domain-wide remainder of the #427 privacy-code class.
+
 ### PR #427: Privacy source-doc framework-table CCM code defects (low) (2026-06-28)
 
 Corrected five mis-cited CSA CCM codes across two privacy procedures: PRI-04 to DSP-11 (data-subject rights), PRI-05 to SEF-08 (breach-notification programme), SEF-02 to SEF-06 (SIEM/event triage), each validated against the in-repo CCM v4.1 reference module. Closes the TODO P3 "Privacy source-document framework-table control-code defects" item (surfaced in FR-167 batch 11 research).
