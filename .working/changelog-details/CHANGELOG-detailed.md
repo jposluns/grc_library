@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-28, Library Version 2026.06.415, PR #437
+
+Session-closing handoff PR for the handoff-file-staleness resume session (#433 through #437). Working-state only; no corpus-document body change. Lands the session's state on `main` as a green merge so the next `/resume` rebuilds from `main` rather than an unmerged branch.
+
+### Fixed
+- [`TODO.md`](../../TODO.md):358 (the #436 `/validate-pr` in-window finding, class c/h): Backlog-totals "P7 (awaiting decision): 0 pending" contradicted the same file's Priority-7 intro (:321) "One open decision pending (§4.23(c))" after the §4.23(c) filing updated the intro but not the paired count. Fixed to "1 pending (§4.23(c)) + 2 dropped-decision audit-trail entries."
+
+### Changed
+- [`TODO.md`](../../TODO.md) §4.10: added a design note recording the 2026-06-28 validation (the maintainer-chosen id-cross-check shape produces 4/4 false positives on clean `main` (FR-167 multi-part, FR-44 same-tag-different-scope, FR-104/FR-130 dropped decisions); FR-44/FR-167 not separable by id-matching); disposition deferred; the FP-free "marked-done detector" recorded as the alternative if a gate is still wanted.
+- [`.working/pending-decisions.md`](../pending-decisions.md): added the §4.10 gate-design disposition (proceeded-with-defer on the graceful-degradation default; confirm-or-redirect on resume); Status now 1 pending.
+
+### Handoff-PR loop-break (no trailing QA on this PR)
+Per the session-closing handoff-PR exception, this PR runs NO trailing `/validate-pr` + `/retro` (recorded inline in [`validate-pr/history.md`](../validate-pr/history.md) row #437). The compensating control is the next session's `/resume` corpus-wide `/validate` (Sweep 72 over the #433..#437 deltas), cross-checked against the handoff's refreshed `## Asserted expectations`.
+
+### Batched bookkeeping (recursion-avoidance)
+- #436 `/validate-pr` history row + per-PR record [`2026-06-28-PR-436.md`](../validate-pr/2026-06-28-PR-436.md) (1 in-window finding, fixed here); validate-pr/history `1.2.219` to `1.2.220`.
+- #436 `/retro` row; improvement-log `1.0.170` to `1.0.171`.
+- [`session-handoff.md`](../session-handoff.md) refreshed: session-closing State snapshot, this-session Asserted-expectations block (prior block kept as current+1), green-at-`9d26372`.
+- [`session-metrics.md`](../session-metrics.md) `1.0.19` to `1.0.20`: the session row (measured floor 828,435 subagent tokens across the three retained `/validate-pr` returns; Sweep 71 returns pre-compaction, excluded not estimated; orchestrator main-loop not instrumented).
+
+### Verification
+`tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` all-pass on the #437 state before push; the [`preflight-changelog.py`](../../tools/preflight-changelog.py) aid clean. green-at-`9d26372`/#436 = 54/54 (this handoff is a `.working/` + TODO + version-surface descendant, gate-identical).
+
 ## 2026-06-28, Library Version 2026.06.414, PR #436
 
 Working-state housekeeping: TODO §4.23 hygiene pass (parts a+b) plus the batched #435 QA rows and the ATLAS scratch-decision resolution. No corpus-document body change.

@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** 0 pending. The ATLAS decision is fully resolved (parent: "Act on atlas"; scratch sub-question: the maintainer directed defer-the-scratch-half on 2026-06-28, "scratch is now being worked on by another session"). The 4 PRI-* picks were confirmed. All resolved entries rotate out at the next handoff.
+**Status:** 1 pending (the §4.10 gate-design disposition below: proceeded-with-defer on the graceful-degradation default, confirm or redirect on resume). The ATLAS decision is fully resolved (parent: "Act on atlas"; scratch sub-question: the maintainer directed defer-the-scratch-half on 2026-06-28, "scratch is now being worked on by another session"). The 4 PRI-* picks were confirmed. The resolved entries rotate out at the next handoff.
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -14,6 +14,11 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Entries
 
+### 2026-06-28: TODO §4.10 (TODO/DONE rotation gate) design disposition (proceeded-with-defer; confirm on resume)
+
+The maintainer queued §4.10 as PR #7 of the next-10 and selected the **id-cross-check** shape (flag any FR/DD/P-id that is both an open TODO backlog-item subject and a closed item in a `DONE.md` heading). Building it, the shape was validated against the current clean `main` and produced **4/4 false positives**: FR-167 (multi-part item, shipped sub-batches but legitimately open), FR-44 (same FR tag covers a shipped convention statement and an open derivative sweep), FR-104 / FR-130 ("not pursued" dropped decisions recorded in both DONE and TODO Priority 7). The FR-44 / FR-167 cases are not separable by id-matching without semantic understanding, confirming the change-tracking rule's "this is brittle" verdict. The fallback decision (defer vs the FP-free "marked-done detector" Option B vs build-A-with-exemptions) was surfaced to the maintainer; the `AskUserQuestion` primitive errored (transient permission-stream failure) and the ~2-minute graceful-degradation timer fired with no answer.
+
+- **Status: proceeded-with-defer (conservative default).** §4.10 is deferred (the convention + close-out checklist remain the guard, as the change-tracking rule prescribes); the design note is recorded inline in TODO §4.10. **Confirm or redirect on resume:** defer further, OR build the FP-free Option B (marked-done detector), OR build Option A with a documented exemption set. Reversible (no gate shipped); no corpus change.
 ### 2026-06-28: MITRE ATLAS scratch version update (pending; needs a maintainer download / egress)
 
 Validating reference currency upstream this turn (the new `## Reference-version currency` SOP), the scratch `ref/frameworks/MITRE/` base holds **ATLAS v5.6.0** (`catalogue.yml`; `ATLAS.yaml` `version: 5.6.0`, header self-declares the line deprecated), while the upstream authority (atlas-data releases) is now **v2026.05** (2026-05-27, format v6.0.0). So scratch ATLAS is superseded. (ATT&CK is current: scratch v19.1 = upstream v19.1.) Per the version-update SOP, updating scratch needs a download (egress-gated, DD-10) and an MCP PR (proxy-403), so the decision was surfaced to the maintainer:
