@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #460: correct the wind-down decision framework (default is continue, not hand off) (2026-06-29)
+
+Maintainer-directed after ~13 of 15 assistant-proposed handoffs were the wrong call: the default is now CONTINUE, a handoff needs named degradation evidence (work-size/shape/length are NOT triggers), large series are worked PR-by-PR with skeptical verifier subagents. Put through a skeptical verifier before commit (its first real use), which caught a residual section-level contradiction; fixed and re-verified clean. The skeptical-verifier standard + override-logging discipline is queued as a follow-up.
+
 ### PR #459: act on the #458 /retro improvements (verification-scope checklist line + queue S4 gate) (2026-06-29)
 
 Shipped improvement #1 as a `.claude/CLAUDE.md` close-out-checklist line (a corpus-wide completion claim must be verified by greping the full corpus, not the change's own input set, the scope-width companion to the bare-token line); queued improvement #2 (the "no bare normative shall" gate) in TODO §4.5 as candidate S4. One facet of §4.8; §4.8 stays open. Batches the #458 /validate-pr + /retro rows.
