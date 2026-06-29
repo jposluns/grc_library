@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.444, PR #466
+
+Adds gate 56 (bare-normative-shall), the §4.5 S4 guard-rail gate: a standalone normative `shall` in corpus prose, the plain-normative form FR-44 harmonized to `must`. Complement to gate 9 (shall-near-uncertainty). Batches the #465 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Added
+- [`tools/lint-bare-normative-shall.py`](../../tools/lint-bare-normative-shall.py): new gate-56 linter. Matches a standalone `shall` token (`(?<![A-Za-z0-9_-])shall(?![A-Za-z0-9_-])`, case-insensitive, so `Marshall` and hyphenated filename tokens embedding the word do not match) over [`tools/lint_common.py`](../../tools/lint_common.py) `iter_non_code_lines` (fenced code skipped), after stripping inline backtick spans and skipping blockquote (`>`) lines. Scans the root README and NOTICE files plus the audited domain dirs; exempts four documents that quote the verb verbatim when describing the normative-verb convention (the master-project and ingestion specifications, the AI document-ingestion instruction, and the root changelog).
+- [`tests/test_linters.py`](../../tests/test_linters.py): `BareNormativeShallTests` with 5 cases (bare normative `shall` flagged; backticked `shall` word-reference not flagged; hyphenated-filename token not flagged; blockquote verbatim `shall` not flagged; `must` not flagged).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §6 inventory row 56; §6 narrative sentence; §5 category-4 placement updated to `(gates 2, 9, 20, 51, 56)`. Spec Version `1.16.17` to `1.16.18`.
+
+### Changed
+- Four-surface wiring: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), and [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml) each gain the "Bare-normative-shall audit" step (hyphenated name so the §6 markdown row does not self-flag a space-bounded `shall`).
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 growth-narrative count `fifty-five` to `fifty-six` (gate-39-blind word-form, the recurring per-new-gate hand-bump). Pack [`README.md`](../../dev-security/claude-rules/README.md) metadata `Version` `1.53.3` to `1.53.4` with a paired `## Version history` row; the 1.53.3 row parenthetical reworded to word-form so its historical numeric gate-count quote no longer trips gate 39 at count 56.
+
+### Verification
+- Gate count is 56: [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py) reports "OK ... (56 gates) across 458 files"; the §6 inventory declares 56 rows; the four surfaces declare matching names ([`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) green).
+- The new gate passes green on the corpus and the regression suite passes; full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) green at the pre-push state (recorded in the pre-push guard run).
+- A skeptical pre-push verifier subagent (substantive change: new gate + linter + multi-surface) was dispatched, briefed to refute; findings validated and resolved before push.
+
+### Discipline observation
+- The gate name was deliberately hyphenated after observing that a space-bounded "Bare normative shall audit" name would self-flag (the §6 markdown row contains the literal token); the hyphen makes the name token boundary fail the `shall`-token regex.
+- The pack README new-row meta-description initially contained a literal numeric `"55 gates"` quote that itself tripped gate 39; reworded to "historical numeric gate-count quote" (the word-form-vs-numeric trap recurs whenever a row narrates a numeric gate-count token).
+
 ## 2026-06-29, Library Version 2026.06.443, PR #465
 
 The Sweep 76 close-out (the `/resume` loop-break corpus-wide `/validate` over the #458..#464 deltas, the compensating control for session-closing handoff PR #464) plus the one in-window finding it surfaced, the handoff prune, and the resume-session decisions.
