@@ -183,6 +183,9 @@ jobs:
       - name: Per-document control-code validity audit
         run: python3 tools/lint-document-control-codes.py
 
+      - name: Cross-document retention-consistency audit
+        run: python3 tools/lint-retention-consistency.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

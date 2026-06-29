@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.440, PR #462
+
+Adds gate 55, the cross-document retention-consistency audit, closing TODO §4.5 S1 (the first of the guard-rail-gates batch).
+
+### Added
+
+- [`tools/lint-retention-consistency.py`](../../tools/lint-retention-consistency.py) (gate 55): verifies an explicit set of (register category, procedure) pairs agree on their evidence-retention period. For each pair it extracts the canonical period from the named row of [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) (matched on the row's first table cell) and the procedure's `retained for a minimum of ...` figure, normalises both to days, and flags a mismatch or a missing citation. Tracked pairs: `CAPA records` to [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), `Internal audit reports` to [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md), `Control testing evidence` to [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) (all three at a 7-year floor). It accepts a `--root` override so the regression fixture can point it at an isolated tree. Enforces value agreement, not mapping correctness; deliberately a curated pair set (zero false-positive surface), the mechanical enforcement of the "matches ..." cross-reference notes the register rows already carry.
+- A 4-case regression class `RetentionConsistencyTests` in [`tests/test_linters.py`](../../tests/test_linters.py): consistent tree passes; a procedure that drifts to 5 years while the register stays 7 fails with `MISMATCH`; a procedure whose `retained for a minimum of` anchor is removed fails with a missing-citation finding; a deleted procedure file yields the graceful `cannot read procedure` finding with no traceback (the 4th case was added with the pre-push fix below).
+
+### Changed
+
+- Wired gate 55 into all four parity surfaces in the same order (gate 35 confirms parity): [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 table row 55 + a gate-55 narrative sentence; [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh); [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml); [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml).
+- Gate count 54 to 55. Stale-count propagation: gate 39 (cross-file gate-count consistency) parses the §6 table row count as canonical and confirmed no stale `54`-as-count prose remains; the one flagged carrier ([`TODO.md`](../../TODO.md) §4.20-area historical note "verifying against the 54-gate inventory") was reworded to "the gate inventory of the time" (honest, since that past verification ran against the then-current count). All other `54` occurrences in the corpus and tooling are references to gate 54 (the per-document control-code validity audit, unchanged), not the gate count.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): metadata Version `1.16.16` to `1.16.17`, Date to 2026-06-29 (body change: the gate-55 row and narrative).
+- [`TODO.md`](../../TODO.md) §4.5: S1 bullet rotated out (closed); intro reworded to the remaining forward set (S2, S3, S4).
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 55 gates pass (gate 35 parity, gate 39 count-consistency, gate 55 itself green; gate 36 regression suite includes the 4 retention cases).
+- The new gate run standalone: `OK: 3 retention pair(s) consistent`.
+- Full skeptical pre-push verifier (substantive tier) run on the diff before push: COULD-NOT-REFUTE across all 7 adversarial categories, with one LOW finding fixed pre-push (below).
+
+### Discipline observation
+
+- The gate-count bump is the canonical multi-surface-incompleteness risk; it was de-risked by gate 39 (mechanical canonical-vs-prose count check) and gate 35 (four-surface parity), both of which were run on the final state and are green, rather than by manual enumeration alone. A research worker first enumerated the live-vs-frozen count surfaces so the distinction (gate 54 the number versus 54 the count) was explicit before any edit.
+- **Skeptical-verifier catch (the new standard working on its first guard-rail-gate use):** the pre-push verifier found one LOW defect, the linter's missing-file branches were dead code because `tools/lint_common.py` `read_text_safe` catches only `UnicodeDecodeError`, so a renamed / moved register or procedure would crash with an uncaught `FileNotFoundError` instead of emitting the intended `cannot read ...` finding (ironic, given the linter's purpose is catching a broken cross-reference link). Validated, then fixed pre-push: both reads are now guarded with `Path.is_file()` so the missing-file branch is live, and a 4th regression case (a deleted procedure) exercises it and asserts no traceback. No verifier finding was overruled.
+
 ## 2026-06-29, Library Version 2026.06.439, PR #461
 
 `.claude/` + `.working/` + pack for local project: codified the **skeptical pre-push verification** standard, maintainer-directed ("Agreed with your recommendations on skeptical verifiers ... make this a standard for anything other than a quick fix"), with the finding-handling loop, the three-strikes-then-defer cap, the override-logging-and-revertability discipline, and the unattended-override resume-surfacing the maintainer specified in follow-up directives.
