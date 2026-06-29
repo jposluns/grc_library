@@ -173,8 +173,15 @@ drive end-to-end on the maintainer's behalf:
    (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
    session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
    compensating control is the next session's `/resume` corpus-wide `/validate`. Record
-   the exemption inline in the handoff PR's `.working/validate-pr/history.md` row Summary
-   cell (see `## Session migration and PR close-out checklist` item 3).
+   the exemption in the handoff PR's `.working/validate-pr/history.md` row **Findings cell**
+   (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
+   exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
+   `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
+   (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it passes
+   while the PR is the highest-numbered (exempt as in-flight) but gate 50 flags it the
+   moment the next PR demotes it (the #445/#450 recurrence, fixed in #446/#451). Fuller
+   prose may still go in the Summary cell. (See `## Session migration and PR close-out
+   checklist` item 3.)
 5b. Invoke `/retro` to run the post-merge retrospective per the
    [`pr-retrospective`](../dev-security/claude-rules/skills/pr-retrospective/SKILL.md)
    skill: append one row to [`.working/improvement-log.md`](../.working/improvement-log.md).
@@ -290,7 +297,13 @@ is external. Two mechanisms:
    in the handoff's `## Asserted expectations` section, what this session mechanically
    verified (scoped to touched surfaces) plus the green-at-`<sha>` baseline, which the
    receiving `/validate` cross-checks (a contradiction of a claimed-clean touched surface
-   is a genuine miss, escalated).
+   is a genuine miss, escalated). The closing PR's `.working/validate-pr/history.md` row
+   records the exemption with the gate-50-recognized marker (`SKIPPED` with `handoff`, or
+   `handoff-PR exception`) in its **Findings cell**, never a bare `n/a`: that cell is what
+   `tools/lint-bookkeeping-parity.py` reads to classify the row as handoff-exempt, so a
+   marker placed only in the Summary cell leaves the row flagged the moment the next PR
+   demotes it from highest-numbered (the #445/#450 recurrence; #450 followed the prior
+   wording that said "Summary cell", which this PR corrects).
 
 ## Multi-session orchestration
 
