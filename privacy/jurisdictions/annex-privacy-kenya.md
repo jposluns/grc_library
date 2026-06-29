@@ -2,8 +2,8 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- Data subjects shall not be subject to decisions based solely on automated processing, including profiling, that significantly affects them.
+- Data subjects must not be subject to decisions based solely on automated processing, including profiling, that significantly affects them.
 - Controllers must provide transparency and allow human review of automated decisions.
 - The ODPC has signalled intent to issue guidance on AI and data processing aligned with international best practices.
 

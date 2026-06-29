@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.5\
-**Date:** 2026-06-24\
+**Version:** 1.4.6\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -63,7 +63,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ### 1. Log generation and coverage
 
-1.1 All systems shall generate security, operational, and access logs sufficient to reconstruct significant events including authentication, privilege changes, configuration modifications, and data transfers.
+1.1 All systems must generate security, operational, and access logs sufficient to reconstruct significant events including authentication, privilege changes, configuration modifications, and data transfers.
 
 1.2 Logs must include at minimum:
 - Timestamp (UTC or synchronized to NTP).
@@ -72,38 +72,38 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 - Result or status code.
 - Identity of the initiating user or system component.
 
-1.3 Logs for cloud or AI systems shall include provider identifiers, API actions, and model inference events.
+1.3 Logs for cloud or AI systems must include provider identifiers, API actions, and model inference events.
 
-1.4 BASC-regulated trade and customs platforms must log: cargo manifest creation, customs document transmission, cargo inspection results, and seal verification events. Each entry shall include user ID, timestamp, facility identifier, and cargo reference number per BASC Section 6. Tamper-proof logging or WORM storage is mandatory for customs data records.
+1.4 BASC-regulated trade and customs platforms must log: cargo manifest creation, customs document transmission, cargo inspection results, and seal verification events. Each entry must include user ID, timestamp, facility identifier, and cargo reference number per BASC Section 6. Tamper-proof logging or WORM storage is mandatory for customs data records.
 
 ### 2. Time synchronization
 
 2.1 All log sources must synchronize to approved enterprise NTP servers.
-2.2 Any drift exceeding ±1 minute shall trigger an automatic alert and corrective synchronization.
+2.2 Any drift exceeding ±1 minute must trigger an automatic alert and corrective synchronization.
 
 ### 3. Centralized log collection
 
-3.1 All logs shall be forwarded to the enterprise SIEM within 60 seconds of generation where technically feasible.
+3.1 All logs must be forwarded to the enterprise SIEM within 60 seconds of generation where technically feasible.
 3.2 Transmission must occur over encrypted channels (TLS 1.3 or better).
 3.3 Logs from critical systems must be collected in near-real-time and verified for integrity through cryptographic hashing (SHA-256 minimum).
 
 ### 4. Retention and protection
 
-4.1 Security and audit logs shall be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 5 years, AI decision and detection logs 7 years). Sector-mandated logs are retained longer where legally required, including BASC-governed trade and customs logs required for regional audit and customs validation.
+4.1 Security and audit logs must be retained per the tiered retention periods in [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), which is authoritative and sets retention by log class (for example: access logs 1 year, privileged-access session logs 2 years, SIEM event logs 1 year hot plus 2 years cold, security incident records 5 years, AI decision and detection logs 7 years). Sector-mandated logs are retained longer where legally required, including BASC-governed trade and customs logs required for regional audit and customs validation.
 4.2 Log archives must be stored in write-once, read-many (WORM) or tamper-evident repositories, with BASC trade-data logs maintained in secure BASC-approved data centres or validated cloud regions.
 4.3 Access to logs must be limited to authorized personnel with MFA and role-based access controls.
 4.4 Logs containing personal, regulated, or customs data must be protected in accordance with GDPR, PIPEDA, PIPL, and BASC data-protection requirements.
 
 ### 5. Monitoring and alerting
 
-5.1 The SOC shall define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and BASC Section 6 trade-security controls.
+5.1 The SOC must define correlation rules for detecting anomalies, intrusion attempts, and unauthorized activities aligned with MITRE ATT&CK and NIST CSF Detect Function, including alerts for cargo data tampering, unauthorized customs-system access, and BASC Section 6 trade-security controls.
 5.2 Alerts must be triaged within 15 minutes for high severity and one hour for medium severity events.
 5.3 Automated incident tickets must be generated for all critical alerts.
-5.4 Dashboards shall display real-time metrics on system health, event volume, and incident trends.
+5.4 Dashboards must display real-time metrics on system health, event volume, and incident trends.
 
 ### 6. AI system logging and traceability
 
-6.1 AI models and pipelines shall produce event logs capturing training, testing, inference, and deployment activities.
+6.1 AI models and pipelines must produce event logs capturing training, testing, inference, and deployment activities.
 6.2 Logs must include model identifiers, dataset references, input sources, output summaries, and decision outcomes.
 6.3 AI security events (model drift, adversarial input, data poisoning) must be integrated with SIEM alerts for unified visibility.
 
@@ -115,20 +115,20 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ### 8. Log review and use
 
-8.1 SOC analysts shall review critical event logs daily.
-8.2 Weekly reviews shall validate that correlation rules, thresholds, and data normalization remain effective.
-8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) shall be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`compliance/`](../compliance/).
+8.1 SOC analysts must review critical event logs daily.
+8.2 Weekly reviews must validate that correlation rules, thresholds, and data normalization remain effective.
+8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`compliance/`](../compliance/).
 
 ### 9. Automation and AI integration
 
-9.1 Automation scripts shall handle repetitive log correlation, threat scoring, and alert enrichment.
+9.1 Automation scripts must handle repetitive log correlation, threat scoring, and alert enrichment.
 9.2 Predictive analytics and AI-assisted monitoring tools may be used to identify anomalies and improve detection accuracy.
-9.3 All automated decisions shall be explainable and logged for audit review.
+9.3 All automated decisions must be explainable and logged for audit review.
 
 ### 10. Continual improvement
 
-10.1 Log coverage, retention, and detection rules shall be reassessed annually.
-10.2 Lessons learned from incidents and audits shall inform updates to this standard.
+10.1 Log coverage, retention, and detection rules must be reassessed annually.
+10.2 Lessons learned from incidents and audits must inform updates to this standard.
 
 ---
 

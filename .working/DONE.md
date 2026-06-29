@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #455: FR-44: corpus-wide shall->must normative-verb harmonization (2026-06-29)
+
+Converted all 125 normative "shall"/"shall not" to "must"/"must not" across 17 documents (per master-spec §6.1's must/must-not register) and fixed the stale glossary doctype definitions that still sanctioned "shall"; a deterministic scripted apply preserved the 3 non-normative occurrences (the lint-shall-near-uncertainty.py filename references and a backticked word-reference).
+
 ### PR #454: §4.24: pack-README rule-scope table completed (2026-06-29)
 
 Added the four missing governance-rule rows (9 to 12: trust-recovery-escalation, project-integrity, surface-counterproductive-instructions, high-assurance-verification) to the pack README "Rule files and their scope" table, which had fallen behind as the pack grew past rule 8; the table is exhaustive by design, so completed rather than scoped.
