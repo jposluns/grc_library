@@ -3757,5 +3757,52 @@ class TodoMarkedDoneTests(LinterTestCase):
         )
 
 
+class TodoRotationOnPrTests(unittest.TestCase):
+    """tools/check-todo-rotation-on-pr.py (delta gate D5)
+
+    Unit-tests the false-positive-critical trigger helper
+    ``asserts_todo_closure`` directly (the gate is otherwise a git-diff
+    delta check verified behaviourally via run-pr-time-checks.sh). The
+    trigger must fire on the canonical "clos(e|es|ed|ing) [the] TODO §"
+    closure phrasing and NOT on incidental TODO mentions.
+    """
+
+    @staticmethod
+    def _load():
+        import importlib.util
+        path = REPO_ROOT / "tools" / "check-todo-rotation-on-pr.py"
+        spec = importlib.util.spec_from_file_location("check_todo_rotation_on_pr", path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_closure_phrasings_flagged(self) -> None:
+        m = self._load()
+        for line in (
+            "Adds gate 56, closing TODO §4.5 S4. The gate flags ...",
+            "closes TODO §4.14 (the matrix gap-fill).",
+            "Completes the family, closing TODO §4.10.",
+            "closing the TODO §4.13 item",
+        ):
+            self.assertIsNotNone(
+                m.asserts_todo_closure([line]),
+                f"closure phrasing should be flagged: {line!r}",
+            )
+
+    def test_incidental_todo_mentions_not_flagged(self) -> None:
+        m = self._load()
+        for line in (
+            "rotated TODO §4.5 S4 into DONE.md, closing the #466 finding.",
+            "TODO §4.10 + P3 docs updated; the complementary check remains.",
+            "the close-TODO-to-DONE rotation discipline",
+            "Resolves the two pending maintainer decisions.",
+            "S4 (no-bare-normative-shall) shipped in #466 (gate 56).",
+        ):
+            self.assertIsNone(
+                m.asserts_todo_closure([line]),
+                f"incidental mention must not be flagged: {line!r}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

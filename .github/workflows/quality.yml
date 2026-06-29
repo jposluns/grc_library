@@ -208,6 +208,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-date-cobump-on-pr.py
 
+      - name: Backlog-rotation-on-PR check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-todo-rotation-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
