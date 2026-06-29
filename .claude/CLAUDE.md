@@ -444,48 +444,72 @@ still-pending entries (confirming "proceeded" stricter-safe defaults for redirec
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
-Concluding that a session-closing handoff is the right next step is often correct, but
-taking it silently is the same failure the `clarify-before-acting` and
-`action-before-explanation-of-inaction` rules forbid: narrating an inaction (the handoff)
-as if forced, without surfacing the capability assessment that would let the maintainer
-redirect.
+**The default is to continue, not to hand off.** Concluding that a session-closing handoff
+is the right next step is USUALLY the wrong call: empirically, about 13 of the last 15 times
+the assistant proposed a handoff it was not the right decision (maintainer observation,
+2026-06-29). A handoff is warranted ONLY on evidence of issues (the trigger below). Session
+length, context "heaviness", "this is getting long", and "a large / substantial /
+fresh-context-best series remaining" are NOT, by themselves, valid triggers; the assistant
+keeps working through them, sustaining quality with skeptical verifier subagents (see the
+note in the trigger section) rather than reaching for a handoff. The maintainer is welcome
+to be offered a handoff to consider before a substantial, critical, or long piece of work
+begins, but that is a non-default SUGGESTION for the maintainer's choice, never the
+assistant's default, and absent the maintainer's decision the assistant continues. On the
+rare occasion a handoff IS warranted (genuine evidence of degradation), taking it silently
+is the same failure the `clarify-before-acting` and `action-before-explanation-of-inaction`
+rules forbid: narrating an inaction (the handoff) as if forced, without surfacing the
+capability assessment that would let the maintainer redirect.
 
 **The trigger.** Whenever the assistant concludes a session-closing handoff is the right
 next step, it does NOT act silently. It surfaces the decision (via `AskUserQuestion`) with
 all three of:
 
 1. **Its justification** for winding down, stated in objective signals, not a subjective
-   "I feel done": actual drift, hallucination, or mistakes the QA layer did not catch; OR a
-   large fresh-context-best series remaining (a migration, rename, or corpus-wide sweep);
-   OR a degradation read anchored to the tractability factors below. **An un-instrumented
-   internal state is NOT a valid justification.** "Context is heavy", "this is getting
-   long", "I feel degraded" have no instrument behind them (per the
-   `evidence-grounded-completion` un-observable-state corollary) and are never a wind-down
-   trigger. The trigger must be a NAMED, externally-observable signal: a failing check, a
-   `/validate` or `/validate-pr` finding, a maintainer correction, a concrete
-   self-inconsistency that can be quoted, or the documented fresh-context-best property of
-   the next item. Absent such a signal, the default is to continue.
+   "I feel done": actual drift, hallucination, or mistakes the QA layer did not catch (the
+   ONLY class of valid trigger). **An un-instrumented internal state is NOT a valid
+   justification**, and neither is the *size or shape of the work remaining*. "Context is
+   heavy", "this is getting long", "I feel degraded", "a large / substantial /
+   fresh-context-best series is next", and "a migration / rename / corpus-wide sweep is
+   next" are all INVALID triggers: the first three have no instrument behind them (per the
+   `evidence-grounded-completion` un-observable-state corollary), and the rest are
+   work-shape, not evidence of a problem. A large series ahead is worked through PR-by-PR
+   (each PR is its own focused unit) with skeptical verifier subagents sustaining quality,
+   NOT handed off. The trigger must be a NAMED, externally-observable signal of an actual
+   problem: a failing check, a `/validate` or `/validate-pr` finding, a maintainer
+   correction, or a concrete self-inconsistency that can be quoted. Absent such a signal,
+   the default is to continue. **Calibration:** the bar to even *propose* a handoff is high
+   (see the intro's empirical observation and its offer-as-non-default note, the single
+   source for both); the assistant does not propose a handoff absent the named evidence above.
 2. **A per-PR likelihood-of-success assessment** for each of the pending next-five PRs
    (from `TODO.md`), each anchored to objective tractability factors: partitionable vs
    single-session; incremental-edit vs fresh-context-class; count of cross-surface
    bookkeeping touchpoints; unresolved authorial decisions in the way; whether references
-   are in hand.
+   are in hand. These factors inform how to SEQUENCE the next PRs and how heavily to verify
+   each (a fresh-context-class PR gets a skeptical verifier subagent, not a handoff); they
+   are never themselves a wind-down trigger (the only trigger is the degradation evidence in
+   item 1). This assessment is produced only once a handoff has been evidence-triggered, to
+   help the maintainer weigh continue-vs-handoff, not to manufacture a handoff from work shape.
 3. **Named options** (the `clarify-before-acting` shape, recommended option first):
-   - **A. Handoff** (the conservative default).
+   - **A. Handoff** (the conservative resolution of this already-evidence-triggered
+     decision; NOT the session-level default, which is to continue per the intro above).
    - **B. The assistant's recommended order of additional PRs with high likelihood of
      success** (small, partitionable, low-risk items where objective signals support
      continuing).
    - **C. An alternative order at slightly higher risk.**
-   - **D. "Do more than we should."** A deliberate impulse-check, NOT a real path: if the
-     maintainer picks D, the assistant reminds the maintainer not to be stupid and hands
-     off immediately (a Ulysses pact).
+   - **D. "Do more than we should."** A deliberate impulse-check for the case where a
+     handoff has ALREADY been evidence-triggered and the temptation is to override it and
+     push on anyway (this is NOT the ordinary case of continuing a large series, which is
+     the correct default): if the maintainer picks D, the assistant reminds the maintainer
+     not to be stupid and hands off immediately (a Ulysses pact).
 
 **The timeout (graceful degradation).** This decision uses the same roughly-2-minute
 background-`sleep` timer as the attended-autonomous mechanism. If the maintainer answers
 before it fires, act on the answer. If it fires with no answer, **proceed with option A
-(handoff)**: the conservative, reversible, no-regret default. A no-answer timeout NEVER
-auto-selects B, C, or D. The one carve-out: in an overnight run the overnight conflict
-rules govern instead.
+(handoff)**: the conservative, reversible, no-regret resolution of an already-triggered
+wind-down decision. (This timeout is reached only once a handoff has been legitimately
+triggered by degradation evidence; it is not the session-level default, which is to
+continue.) A no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an
+overnight run the overnight conflict rules govern instead.
 
 **Quality > Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
 relax any discipline: each additional PR still gets its full per-PR `/validate-pr` +
