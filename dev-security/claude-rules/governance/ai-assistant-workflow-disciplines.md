@@ -182,6 +182,34 @@ Polling for CI status in a tight loop. The discipline lives elsewhere (the webho
 
 ---
 
+## Skeptical pre-push verification (a tiered standard layered on the disciplines, not a sixth)
+
+The apply-time correction of discipline 3 is the orchestrator re-reading its own and the worker's output. For any change beyond a quick fix, a stronger, INDEPENDENT adversarial check runs before push: a skeptical verifier subagent, briefed to REFUTE the change (hunt the defect), not to confirm it. This is a standard layered across disciplines 1 to 3, not a sixth discipline, and it applies to orchestrator-authored changes as much as to worker drafts. It is tiered by change weight, because indiscriminate verification wastes budget and erodes the signal that a change is genuinely substantive (the same calibration [`high-assurance-verification.md`](high-assurance-verification.md) applies to its own trigger):
+
+- **Quick-fix / pure-bookkeeping tier** (version bumps, working-state records, a single-line prose or typo fix, generated-artefact regeneration): NO standing verifier. The mechanical gates, the change-log preflight, and the routine post-merge PR-scoped sweep are sufficient; a verifier here is net-negative (token cost, signal erosion).
+- **Substantive tier** (a corpus-document body change, a new or edited gate or linter, a multi-surface change, a control-code / citation / normative-value change): ONE skeptical verifier subagent, pre-push, scoped to the diff, briefed to refute. It catches defects before CI and merge (cheaper than a post-merge catch plus a hot-fix) and is the mechanism that sustains quality across a long session, which is why work size or session length is never itself a reason to wind down (see the consuming project's wind-down framework).
+- **Sensitive tier** (gate-blind correctness AND delicate scale AND high escaped-error cost, all three): the full [`high-assurance-verification.md`](high-assurance-verification.md) harness (two independent adversarial verifiers, deterministic apply). Unchanged; the substantive tier is its lighter sibling, not a replacement.
+
+When genuinely in doubt between tiers, run the verifier: a false escalation costs one subagent, a false de-escalation ships a defect.
+
+### The verifier-finding handling loop
+
+A verifier finding is a hypothesis, not a fact, until the orchestrator validates it (per [`evidence-grounded-completion.md`](evidence-grounded-completion.md) and [`validate-inference-before-action.md`](validate-inference-before-action.md)):
+
+1. **Validate** the finding against the artefact. If it is correct, fix; if it is genuinely a false positive, see "Overruling" below.
+2. **Fix** the artefact, then **re-verify** (dispatch the verifier again on the fixed state).
+3. **Loop cap, three iterations.** If a finding is not resolved after a third verify-fix iteration, STOP: do not force the change through. Defer the change pending the maintainer's review, recording the unresolved finding where the project keeps its decision queue.
+
+### Overruling a verifier is never silent
+
+The orchestrator may judge a finding incorrect and proceed against it, but only with a logged override. Record, in the project's durable override register, (a) the finding verbatim, (b) the validation reasoning for overruling it, and (c) the exact commit / diff / state needed to REVERT the change if the override proves wrong. An override with no recorded revert path is prohibited: the point of the log is that a wrong override can be cleanly undone.
+
+An override made in an overnight or otherwise unattended run is surfaced to the maintainer at the next attended boundary: the end of the unattended run, the return to attended mode, or at latest the next session resume (which reads the override register alongside the other standing registers). An un-reviewed override is a standing item the maintainer clears, exactly as a pending decision is; it is never silently closed.
+
+The override register and the resume-surfacing step are the project's operationalization; this rule states the discipline, the project wires the file and the resume hook.
+
+---
+
 ## Prohibited anti-patterns
 
 Across all five disciplines:

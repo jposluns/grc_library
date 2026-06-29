@@ -440,7 +440,14 @@ each merge or decision. Its three standing rules:
 On `/resume` the assistant reads
 [`.working/pending-decisions.md`](../.working/pending-decisions.md) first, surfaces the
 still-pending entries (confirming "proceeded" stricter-safe defaults for redirect, asking
-"deferred-blocked" questions), and resolves those tasks before the next queued items.
+"deferred-blocked" questions), and resolves those tasks before the next queued items. In the
+same step it reads [`.working/verifier-overrides.md`](../.working/verifier-overrides.md) and
+surfaces every `pending` verifier override for maintainer review: an override made in an
+unattended run (the orchestrator judged a skeptical-verifier finding a false positive and
+proceeded against it) is never silently closed; it is surfaced at the next attended boundary
+(end of the unattended run, return to attended mode, or at latest this resume) with the
+finding, the overruling reasoning, and the recorded revert path, and the maintainer, not the
+assistant, resolves it to `reviewed`.
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
@@ -656,7 +663,15 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
 - `.claude/rules/governance/ai-assistant-workflow-disciplines.md` — five disciplines for
   multi-PR work: research-assistant (workers research, orchestrator authors); pipeline
   construction (parallel research, serial apply, CI gating); apply-time worker correction;
-  always split when in doubt; background work during CI waits. This project tracks the
+  always split when in doubt; background work during CI waits. It also carries the
+  **skeptical pre-push verification** standard (a tiered standard layered on the disciplines,
+  not a sixth): no standing verifier for quick-fix / bookkeeping changes, one refute-briefed
+  verifier subagent pre-push for substantive changes, the full high-assurance harness for
+  sensitive changes; a verifier finding is validated then fixed-and-re-verified (three-iter
+  cap, then defer to maintainer review); overruling a verifier is never silent (logged with
+  the finding, the reasoning, and the revert path in
+  [`.working/verifier-overrides.md`](../.working/verifier-overrides.md), surfaced at the next
+  attended boundary). This project tracks the
   apply-time-catch vs shipped-escape ratio in
   [`.working/hallucination-metrics.md`](../.working/hallucination-metrics.md) and dispatches
   workers from [`.working/worker-brief-template.md`](../.working/worker-brief-template.md).

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #461: codify the skeptical pre-push verification standard (2026-06-29)
+
+Maintainer-directed (not previously in TODO): a tiered verifier standard layered on the five disciplines (not a sixth), no verifier for quick fixes, one refute-briefed verifier pre-push for substantive changes, the full high-assurance harness for sensitive ones; with the validate-fix-re-verify loop (three-strikes-then-defer), the "overruling a verifier is never silent" log (finding + reasoning + revert path), and the new override register [`.working/verifier-overrides.md`](verifier-overrides.md) surfaced at the next attended boundary / `/resume` step 7. Stricter early-run oversight kept in memory, not codified, per maintainer direction.
+
 ### PR #460: correct the wind-down decision framework (default is continue, not hand off) (2026-06-29)
 
 Maintainer-directed after ~13 of 15 assistant-proposed handoffs were the wrong call: the default is now CONTINUE, a handoff needs named degradation evidence (work-size/shape/length are NOT triggers), large series are worked PR-by-PR with skeptical verifier subagents. Put through a skeptical verifier before commit (its first real use), which caught a residual section-level contradiction; fixed and re-verified clean. The skeptical-verifier standard + override-logging discipline is queued as a follow-up.
