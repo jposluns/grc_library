@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.431, PR #453
+
+Pack-skill addition (distributable pack content): the seventeenth skill, the executable companion to the twelfth governance rule (#450). Batches the #452 QA rows.
+
+### Added
+
+- [`dev-security/claude-rules/skills/high-assurance-verification/SKILL.md`](../../dev-security/claude-rules/skills/high-assurance-verification/SKILL.md): the executable form of the [`high-assurance-verification`](../../dev-security/claude-rules/governance/high-assurance-verification.md) rule. Eight-section pack template (frontmatter with `derives_from`, Overview, When to Use, Process, Red Flags, Verification, Common Rationalizations, See Also). The Process is a seven-step harness: (1) confirm the three-condition trigger and open the persistent-register row (guard-first sequencing); (2) research fan-out; (3) mechanical signal pass over the negatives (open-on-negative-with-signal); (4) two independent adversarial verifiers (false-negative + false-positive, blind to each other and to the research); (5) programmatic invariant floor; (6) deterministic scripted apply plus re-parse; (7) close the register row and surface. Mirrors the rule's five stages plus the trigger/register and record bookends, so the rule's stages and the skill's steps stay in parity.
+- [`.claude/commands/high-assurance.md`](../../.claude/commands/high-assurance.md): the `/high-assurance` slash command, restating the seven numbered steps as `N. **Title**:` items for gate-44 step-identifier parity with the SKILL.
+
+### Changed
+
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): PAIRS registry extended with the `high-assurance-verification` SKILL to `/high-assurance` command pair (now 8 pairs; gate 44 confirms matching step-identifier sets 1-7).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): skills tree gains the high-assurance-verification skill entry (matrix-fit flipped from the tree's last `└──` to `├──`; the new skill is the last `└──`); collection-enumeration gate 41 confirms 17 skills consistent. Metadata Version `1.52.0` to `1.53.0` with a matching `## Version history` row pinned to library `2026.06.431`.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 growth-narrative count "a handful of skills to sixteen" to "seventeen" (gate-39-blind word-form).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #452 `/validate-pr` row (0/0); Version `1.2.236` to `1.2.237`.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #452 `/retro` row (routine; closes the #451-surfaced pattern); Version `1.0.184` to `1.0.185`.
+
+### Verification
+
+- Gate 32 (skill derives-from) resolves; gate 44 (paired-skill step-parity) 8 pairs with matching identifiers; gate 41 (collection-enumeration) 17 skills consistent across the README tree and the skills dir. [`tools/lint-language.py`](../../tools/lint-language.py) clean on both new files (dash-free, `-ize`, no bare "ensure"). `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` green via the pre-push guard.
+- The #452 `/validate-pr` (Subagent A on the 16a383c diff + cross-reference): 0 findings; the CLAUDE.md handoff-marker fix is coherent and complete across both surfaces, the line-499 mechanism correctly distinguished, the version cascade consistent.
+
+### Notes
+
+- This is not net-new corpus content (it codifies an existing rule), so the overnight directive-1 adversarial-verification harness does not apply; it is a pack-skill addition gated by the standard skill-wiring checks.
+
 ## 2026-06-29, Library Version 2026.06.430, PR #452
 
 Process-discipline correction (assistant-guidance + working-state; invisible to adopters). Fixes the root cause of the recurring handoff-exemption-marker defect surfaced by gate 50 on PR #451, and batches the #451 QA rows.
