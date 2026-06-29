@@ -52,6 +52,22 @@ from lint_common import AUDITED_DOMAIN_DIRS, iter_non_code_lines, read_text_safe
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INGESTION_SPEC = "specification-ingestion.md"
 
+# The authored adopter-facing guides under docs/ are in scope for this gate
+# (they carry house-style prose), but the two generated artefacts there
+# (docs/portal.md, docs/maturity-scorecard.md) are produced by build-portal.py
+# and must not be hand-edited, so they are excluded from the scan.
+GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md"})
+
+# docs/worked-example.md is the meta-tutorial that demonstrates the
+# document-creation process, so it deliberately contains examples of the very
+# things other gates forbid: vendor names it shows being sanitised, the
+# lowercase tutorial step headings ("## Step 1: pick the document type"), and
+# the word "ensure" while teaching the ensure-that rule. It is therefore exempt
+# from the heading-case, sanitisation, and ensure checks (the same
+# meta-demonstration exemption the AI ingestion instruction already carries for
+# "ensure"); dash and -ise enforcement still apply.
+WORKED_EXAMPLE = "docs/worked-example.md"
+
 ISE_PATTERN = re.compile(
     r"\b("
     r"recognise|recognised|recognising|"
@@ -150,7 +166,12 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
         elif path.is_dir():
             for f in path.rglob("*.md"):
                 files.append(f)
-    return sorted(set(files))
+    # Exclude the generated docs/ artefacts (build-portal.py output); they are
+    # not hand-authored prose and are kept in sync by their own --check gate.
+    return sorted(
+        f for f in set(files)
+        if f.relative_to(REPO_ROOT).as_posix() not in GENERATED_DOCS
+    )
 
 
 def check_file(path: Path) -> list[tuple[str, int, str]]:
@@ -160,6 +181,7 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
     is_master_spec = relative == "specification-master-project.md"
     is_instruction_file = relative == "instruction-ai-document-ingestion.md"
     is_review_record_template = relative == "governance/template-document-review-record.md"
+    is_worked_example = relative == WORKED_EXAMPLE
 
     file_text = read_text_safe(path)
     if file_text is None:
@@ -174,17 +196,17 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
         # Skip the specs', the AI ingestion instruction's, and the document review
         # record template's own self-referential rule statements about "ensure that".
         if (not is_ingestion_spec and not is_master_spec and not is_instruction_file
-                and not is_review_record_template
+                and not is_review_record_template and not is_worked_example
                 and ENSURE_PATTERN.search(line)):
             findings.append(("ensure", lineno, line.strip()))
 
-        if not is_ingestion_spec:
+        if not is_ingestion_spec and not is_worked_example:
             for term in SANITISATION_TERMS:
                 if term in line:
                     findings.append(("sanitisation", lineno, term))
 
         heading = HEADING_PATTERN.match(line)
-        if heading:
+        if heading and not is_worked_example:
             _, heading_text = heading.groups()
             stem = strip_numbering(heading_text)
             if stem and stem[0].islower():
@@ -206,6 +228,9 @@ def main(argv: list[str]) -> int:
         # Domain run splatted from lint_common (scan-scope parity gate
         # forbids hardcoding the run).
         *AUDITED_DOMAIN_DIRS,
+        # Authored adopter-facing guides; the two generated artefacts in docs/
+        # are filtered out in iter_markdown_files (see GENERATED_DOCS).
+        "docs",
     ]
 
     files = iter_markdown_files(paths)

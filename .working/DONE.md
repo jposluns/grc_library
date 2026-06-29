@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #470: docs/ house-style enforcement gap closed (P3) (2026-06-29)
+
+Brought the authored `docs/` adopter guides under the gate-2 language/style audit (scan extended to `docs/`, generated artefacts excluded, worked-example meta-tutorial exempted from heading-case/sanitisation/ensure) and fixed all 117 accumulated findings (71 dashes, 25 `-ise`, 4 heading-case, 1 vendor name). Maintainer-decided "full house-style now".
+
 ### PR #469: §4.10 (P4): TODO/DONE-rotation gate family completed (2026-06-29)
 
 Closes TODO §4.10. The rotation gate family is now complete across two PRs: gate 57 (the static marked-done detector, `lint-todo-marked-done.py`) shipped in #468, and this PR adds the complementary **D5 PR-time check** (`check-todo-rotation-on-pr.py`) that fails when a PR's added CHANGELOG lines assert a TODO-item closure (`clos... TODO §X`) but the diff does not rotate the item (touch both TODO.md and DONE.md), with a `TodoRotation:` opt-out trailer and the handoff-PR exemption. D5 caught the #466-class wholesale-forgotten rotation that gate 57 cannot see.

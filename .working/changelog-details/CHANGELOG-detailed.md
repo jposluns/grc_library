@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.448, PR #470
+
+Brings the authored `docs/` adopter guides under gate 2 (language and style) and fixes the 117 accumulated house-style findings the previously-out-of-scope tree had. Maintainer-decided "full house-style now" (refining the earlier dash-only Option A). Closes the P3 `docs/` house-style enforcement-gap item. Batches the #469 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Added
+- [`tools/lint-language.py`](../../tools/lint-language.py): `"docs"` added to the default scan path set; `GENERATED_DOCS` constant ([`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)) filtered in `iter_markdown_files`; `WORKED_EXAMPLE`/`is_worked_example` carve-out exempting [`docs/worked-example.md`](../../docs/worked-example.md) from the heading-case, sanitisation, and ensure checks it demonstrates (dash and `-ize` still enforced), mirroring the existing AI-ingestion-instruction exemption.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `LanguageLinterTests.test_worked_example_meta_tutorial_exempt` (the live meta-tutorial scans clean) and `test_generated_docs_excluded_from_scan` (`iter_markdown_files(["docs"])` excludes the two generated artefacts, includes worked-example).
+
+### Changed
+- **71 em/en-dash fixes**: [`docs/decision-tree.md`](../../docs/decision-tree.md) 58 (`" — "` to `": "`, except one `"— but"` clause to a comma), [`docs/adopter-guide.md`](../../docs/adopter-guide.md) 5, [`docs/template-quickstart.md`](../../docs/template-quickstart.md) 4 (all `" — "` to `": "`), [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md) 4 (to parentheses, since each line already carried a colon). The decision-tree / adopter / quickstart dashes were applied by a deterministic non-code-line script and re-parsed; the roadmap four were hand-edited.
+- **25 `-ise` to `-ize`**: applied by a deterministic transform restricted to the linter's own closed `ISE_PATTERN` allow-list on non-code lines (so words like "advised"/"raising" cannot be hit), across the roadmap (9), [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) (9), [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md) (4), adopter-guide (2), quickstart (1).
+- **4 heading-case fixes**: roadmap `### E1 pace` ... `### E4 pace` to `### E1 Pace` ... `### E4 Pace`.
+- **1 vendor-name fix**: adopter-guide "Word + SharePoint, Confluence pages" reworded to a generic "a word processor plus a collaboration platform, a wiki" (the sanitisation rule flagged SharePoint; "Word"/"Confluence" on the same line read inconsistently if only one were genericized, so the whole example was made generic).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §5 category-4 gate-2 description gains a scope note (covers authored `docs/`, excludes the generated artefacts, exempts the worked-example meta-tutorial). Spec Version `1.16.20` to `1.16.21`.
+- Per-document Version and Date bumps on the 6 edited `docs/` files (adopter-guide `1.3.5`, decision-tree `1.0.8`, roadmap `1.0.5`, quickstart `3.0.5`, maturity-self-assessment `1.0.5`, startup-roadmap `2.2.3`); [`docs/worked-example.md`](../../docs/worked-example.md) is NOT bumped (only the linter exempts it; its body is unchanged).
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the spec metadata bump.
+- [`TODO.md`](../../TODO.md): the P3 `docs/` house-style item deleted (rotated to [`.working/DONE.md`](DONE.md)); [`pending-decisions.md`](pending-decisions.md) docs/ entry updated to the "full house-style now" resolution.
+
+### Verification
+- `tools/run_all_audits.sh` 57/57 (gate 2 now scans `docs/` and they are clean; gate 52 scan-scope parity green with the new `"docs"` literal; generators in sync). The two new regression tests pass.
+- The `-ise` and bulk-dash transforms were deterministic-script + re-parse (the gate confirms 0 findings), not hand-edits at scale; the contextual dash exceptions (roadmap parens, decision-tree `"— but"` comma) and all heading/vendor fixes were hand-edited.
+- A skeptical pre-push verifier subagent (substantive: gate-scope change + linter carve-out + 117 prose edits) was dispatched, briefed to refute; findings validated before push.
+
+### Discipline observation
+- The "dash check" framing (the original Option A) assumed 71 dash findings; bringing `docs/` under the actual gate surfaced 46 more (25 `-ise`, 14 heading-case, 5 sanitisation, 2 ensure). The scope fork was surfaced to the maintainer, who chose "full house-style now"; the worked-example meta-tutorial's 16 findings (heading-case + sanitisation + ensure) were resolved by exemption rather than edits, because the tutorial must show the very forms the rules forbid.
+
 ## 2026-06-29, Library Version 2026.06.447, PR #469
 
 Adds the D5 PR-time backlog-rotation check (the workflow step "Backlog-rotation-on-PR check"), the PR-time complementary half of the §4.10 TODO/DONE-rotation bookkeeping-parity gate family, **closing TODO §4.10** (gate 57, the static half, shipped in #468). Catches the wholesale-forgotten rotation gate 57 cannot see. Batches the #468 `/validate-pr` (0 findings) and `/retro` rows. This PR dogfoods D5: its own CHANGELOG asserts a closure, so the §4.10 rotation is what makes the check pass.

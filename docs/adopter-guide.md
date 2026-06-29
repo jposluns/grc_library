@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.4\
-**Date:** 2026-06-28\
+**Version:** 1.3.5\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -28,8 +28,8 @@ The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience
 
 Two registers carry the library's vocabulary and are worth opening before you start reading domain documents:
 
-- [`governance/register-glossary.md`](../governance/register-glossary.md) — Glossary and Acronym Index. Resolves **acronyms and external-domain terms** (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
-- [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md) — Key Terms and Definitions Register. Defines **library-internal GRC concepts** (Audit, Authorize, Control, Owner roles, Exception, etc.) that may differ from generic usage.
+- [`governance/register-glossary.md`](../governance/register-glossary.md): Glossary and Acronym Index. Resolves **acronyms and external-domain terms** (regulations, standards, frameworks, regulators, sector programmes, technical concepts).
+- [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md): Key Terms and Definitions Register. Defines **library-internal GRC concepts** (Audit, Authorize, Control, Owner roles, Exception, etc.) that may differ from generic usage.
 
 The split is by term class: external acronyms / regulators / standards in the Glossary; internal GRC vocabulary in the Key Terms register. Each register cross-references the other. Newcomers can keep both open in adjacent tabs while reading the domain documents.
 
@@ -43,7 +43,7 @@ You are not required to adopt the entire library. Most organisations will adopt 
 
 The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`tools/`](../tools/) and the operational pack in [`dev-security/claude-rules/`](../dev-security/claude-rules/)). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
 
-### Mode A — Fork the whole repo (full adoption)
+### Mode A: Fork the whole repo (full adoption)
 
 **Audience.** An organisation building or modernising its GRC programme that also wants AI-assisted maintenance of the resulting corpus.
 
@@ -53,17 +53,17 @@ The repository ships both a GRC corpus and a reference implementation for AI-ass
 
 **Next step.** Follow the Quick start below and the [`docs/decision-tree.md`](decision-tree.md) for prioritisation.
 
-### Mode B — Adopt the corpus only
+### Mode B: Adopt the corpus only
 
 **Audience.** An organisation that wants the Markdown content as a starting point but has its own maintenance workflow (or no AI assistance in the loop).
 
 **What you take.** The domain directories you need (`governance/`, `security/`, `privacy/`, `risk/`, etc. as applicable to your scope). The Core reference set called out in the root [`README.md`](../README.md). The [`specification-master-project.md`](../specification-master-project.md) if you want to preserve the controlled document model.
 
-**What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be Word + SharePoint, Confluence pages, a different toolchain, or human-only review; the library's content is portable to any of those.
+**What you ignore.** [`tools/`](../tools/) (the audit toolchain) and [`dev-security/claude-rules/`](../dev-security/claude-rules/) (the pack) unless you choose to opt into one or both later. Your maintenance workflow may be a word processor plus a collaboration platform, a wiki, a different toolchain, or human-only review; the library's content is portable to any of those.
 
 **Next step.** Copy the relevant domain directories. Substitute roles and jurisdiction-specific values per the Quick start. The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
-### Mode C — Adopt the pack only
+### Mode C: Adopt the pack only
 
 **Audience.** A developer or team that is not building or adopting a GRC library, but wants a solid Claude Code baseline for any project: security rules, language-specific patterns, governance disciplines, and skills for the recurring failure modes an AI coding assistant exhibits.
 
@@ -198,10 +198,10 @@ The library publishes phase-level releases through the [CHANGELOG](../CHANGELOG.
 2. Run `tools/run_all_audits.sh` to confirm your fork is still conformant after the merge.
 3. Resolve any version conflicts by keeping your fork's version on the artefact and recording an upstream-reconciliation note in your local change record.
 
-A customised fork hits three recurring cases the pull does not resolve on its own:
+A customized fork hits three recurring cases the pull does not resolve on its own:
 
 - **Merge conflicts in artefacts you have edited.** Where you have adapted an artefact and upstream also changed it, resolve the conflict in favour of your adaptation, then re-apply any upstream correction that still matters (a fixed citation, a new control) on top. Record what you took and what you kept in your local change record.
-- **A new upstream audit gate your fork now fails.** Upstream sometimes adds a gate that your customised content trips (see "Running the audit toolchain on your fork" below). The library's own posture is to fix the artefact rather than weaken the gate; an adopter may instead relax or scope a gate locally where a customisation legitimately requires it, but should document the deviation and a review date in the local change record (the same exception discipline the pack's gate-discipline rule describes) rather than silently disabling the check.
+- **A new upstream audit gate your fork now fails.** Upstream sometimes adds a gate that your customized content trips (see "Running the audit toolchain on your fork" below). The library's own posture is to fix the artefact rather than weaken the gate; an adopter may instead relax or scope a gate locally where a customisation legitimately requires it, but should document the deviation and a review date in the local change record (the same exception discipline the pack's gate-discipline rule describes) rather than silently disabling the check.
 - **Version-monotonicity conflicts.** If both you and upstream bumped the same artefact, keep your fork's version line and record the upstream version you reconciled against, so your local history stays monotonic.
 
 ### Running the audit toolchain on your fork

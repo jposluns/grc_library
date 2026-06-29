@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-26\
+**Version:** 1.0.5\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -34,7 +34,7 @@ This template applies to:
 - An adopting organisation tracking maturity progression year-over-year.
 - An external assessor or internal auditor conducting a programme-level review using the library as a reference framework.
 
-It does not replace a formal audit; it produces a directional picture of where a programme stands so the adopter can prioritise where to invest next.
+It does not replace a formal audit; it produces a directional picture of where a programme stands so the adopter can prioritize where to invest next.
 
 ---
 
@@ -44,9 +44,9 @@ The five tiers, modelled on the process-maturity ladder used in NIST CSF Tiers, 
 
 | Tier | Name | Definition |
 | --- | --- | --- |
-| 1 | Initial | Ad-hoc, reactive. Artefacts copied from the library exist but have not been customised. No assigned owner. Activity is incident-driven. |
-| 2 | Managed | Some artefacts customised. Ownership assigned for the core artefacts (policy, register). Activity is mostly reactive but a basic cadence exists; processes repeatable and tracked, with basic metrics defined. |
-| 3 | Defined | Artefacts customised to the organisation's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied; processes standardised and documented for organisation-wide consistency. |
+| 1 | Initial | Ad-hoc, reactive. Artefacts copied from the library exist but have not been customized. No assigned owner. Activity is incident-driven. |
+| 2 | Managed | Some artefacts customized. Ownership assigned for the core artefacts (policy, register). Activity is mostly reactive but a basic cadence exists; processes repeatable and tracked, with basic metrics defined. |
+| 3 | Defined | Artefacts customized to the organisation's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied; processes standardized and documented for organisation-wide consistency. |
 | 4 | Quantitatively Managed | Quantitative metrics on programme health (review completion rate, control-test pass rate, finding-closure time, etc.). Programme adjustments driven by data, not by opinion; statistical controls applied to quantitative objectives. |
 | 5 | Optimized | Continuous improvement loop in place. Metrics drive targeted improvements; lessons learned feed back into artefact updates. The library-derived programme is itself a contributor to upstream improvement (issues filed against the library where the adopter has found gaps). |
 
@@ -61,7 +61,7 @@ A programme can be at different tiers per domain. A multi-national might be Tier
 3. **Score the domain** by taking the median of the per-question tiers. Median, not mean, so a single low score does not drag the median; conversely a single high score does not inflate it.
 4. **Score the overall programme** by taking the median of the per-domain scores.
 5. **Record the assessment date** and the assessor's name in the header. Keep prior assessments alongside the current one so progression is visible year over year.
-6. **Use the per-tier next-step guidance** at the end of the document to prioritise the next investment.
+6. **Use the per-tier next-step guidance** at the end of the document to prioritize the next investment.
 
 A complete self-assessment for a single-domain or single-jurisdiction programme typically takes 1 to 2 hours. A full 11-domain assessment for a multi-national programme typically takes 1 to 2 days, often split across owners by domain.
 
@@ -75,7 +75,7 @@ For each statement, place your tier (1 to 5) in the response column. Per-stateme
 
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
-| G1 | A governance charter is in place, customised to our organisation's structure. | _ | |
+| G1 | A governance charter is in place, customized to our organisation's structure. | _ | |
 | G2 | The document inventory (which artefacts we have adopted, where they live, who owns them) is current. | _ | |
 | G3 | Each artefact has a named owner and an approving authority defined in the metadata block. | _ | |
 | G4 | A documented review cadence is applied: artefacts that are due for review are reviewed on schedule. | _ | |
@@ -238,7 +238,7 @@ Per-statement scoring (apply to each statement above):
 
 Focus: get to Tier 2 in the highest-exposure domain first. Pick one domain (typically Privacy if no other regulator is dominant, or the sector overlay if a sector regulator is in scope) and bring it to Tier 2 before broadening. Tier-2 progression is best achieved by:
 
-- Customising the highest-impact artefacts in the chosen domain (policy + one register).
+- Customizing the highest-impact artefacts in the chosen domain (policy + one register).
 - Assigning a named owner per artefact.
 - Adding the artefacts to a basic review schedule.
 
@@ -323,7 +323,7 @@ Keep prior assessments alongside the current one so progression is visible year 
 
 ## Review questions for the assessor
 
-Before finalising:
+Before finalizing:
 
 1. Did we use the median (not the mean) for per-domain and overall scoring?
 2. Did we score conservatively where the organisation has a programme but cannot prove it operates consistently?

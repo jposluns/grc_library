@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-21\
+**Version:** 1.0.5\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -46,10 +46,10 @@ It does not apply to programmes that are already past Year 1 and operating in st
 
 1. **Complete the startup-roadmap composition first.** Run through [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) and identify the core baseline plus the activity / data / audience / regulatory modules and the GRC-capacity tier that apply. The roadmap below sequences those modules; it cannot tell you which to pick.
 2. **Choose the calendar pace** matching the capacity tier:
-   - **E1 (founder part-time)**: extended pace — Phase 1 lasts 6 months, Phase 2 lasts 6 months, full Year 1 is the steady state.
-   - **E2 (light, 1 to 2 people)**: standard pace — 90 / 180 / 365.
-   - **E3 (standard, 3 to 10 people)**: accelerated pace — 60 / 120 / 365.
-   - **E4 (department)**: parallel pace — Phase 1 and Phase 2 overlap; 60 / 90 / 270.
+   - **E1 (founder part-time)**: extended pace (Phase 1 lasts 6 months, Phase 2 lasts 6 months, full Year 1 is the steady state).
+   - **E2 (light, 1 to 2 people)**: standard pace (90 / 180 / 365).
+   - **E3 (standard, 3 to 10 people)**: accelerated pace (60 / 120 / 365).
+   - **E4 (department)**: parallel pace (Phase 1 and Phase 2 overlap; 60 / 90 / 270).
 3. **Walk through the phase sections** below, mapping each phase's activity to the modules you picked.
 4. **Record the milestones** in the recording-template section at the end.
 5. **Review against the maturity self-assessment** at the end of each phase; the assessment is the source of truth for "are we done with this phase".
@@ -66,30 +66,30 @@ Reach the core-baseline defensible posture. The organisation can answer the most
 
 | Question a stakeholder might ask | Is there a documented answer? |
 | --- | --- |
-| Where is our information-security policy? | Yes; copied, customised, signed off. |
+| Where is our information-security policy? | Yes; copied, customized, signed off. |
 | Who owns our access controls? | Yes; named in the artefact's metadata. |
 | What do we do when an incident happens? | Yes; the procedure is copied and at desk-check level tested. |
-| What personal data do we hold and how do we handle it? | Yes; privacy policy customised; record of processing populated; home-jurisdiction annex adopted. |
+| What personal data do we hold and how do we handle it? | Yes; privacy policy customized; record of processing populated; home-jurisdiction annex adopted. |
 | What are our top operational risks? | Yes; risk register populated with the actual top 10. |
 
 ### Activities (in sequence)
 
 1. **Days 1 to 14: copy and orient.** Clone the library or fork the relevant subset. Read [`docs/adopter-guide.md`](adopter-guide.md). Run the quickstart-template composition to identify the modules. Identify the named owners for the core baseline artefacts.
-2. **Days 14 to 45: customise the core baseline.** Adapt the six core-baseline artefacts to the organisation. Replace placeholders; update role names; verify the home-jurisdiction privacy annex; populate the risk register with real risks (not aspirational ones).
-3. **Days 45 to 60: customise high-priority Dimension A and B modules.** A1 if there is custom development. B1 if there is customer data. The most-likely modules at this stage map to incidents the organisation actually faces.
+2. **Days 14 to 45: customize the core baseline.** Adapt the six core-baseline artefacts to the organisation. Replace placeholders; update role names; verify the home-jurisdiction privacy annex; populate the risk register with real risks (not aspirational ones).
+3. **Days 45 to 60: customize high-priority Dimension A and B modules.** A1 if there is custom development. B1 if there is customer data. The most-likely modules at this stage map to incidents the organisation actually faces.
 4. **Days 60 to 80: name owners and approving authorities.** Every adopted artefact carries an owner and an approving authority in its metadata block. Day 60 is when this becomes load-bearing; Phase 1 cannot close without it.
 5. **Days 80 to 90: desk-check the incident-response procedure.** A short tabletop with the named owners; document the result.
 
 ### Acceptance criteria
 
-- All six core-baseline artefacts are customised, signed off, and have a named owner in the metadata.
-- The high-priority A and B modules are also customised and have owners.
+- All six core-baseline artefacts are customized, signed off, and have a named owner in the metadata.
+- The high-priority A and B modules are also customized and have owners.
 - An initial maturity-self-assessment is recorded; expectation is most domains at Tier 1 to 2.
 - The incident-response procedure has been desk-check tested at least once.
 
 ### Acceptance signals (anti-signals to watch)
 
-- "We will customise it later" against any baseline artefact. Phase 1 cannot close on this.
+- "We will customize it later" against any baseline artefact. Phase 1 cannot close on this.
 - "We will populate the risk register when we have time." The register is part of the baseline. Populate it.
 - Adopted artefacts where the owner is "TBD" or "the leadership team". An artefact without a single named owner has no owner.
 
@@ -99,7 +99,7 @@ Reach the core-baseline defensible posture. The organisation can answer the most
 
 ### Primary goal
 
-Operationalise the artefacts adopted in Phase 1. The artefacts exist; in Phase 2 they are used. Reviews happen on schedule. Findings get tracked. Activity creates artefact updates.
+Operationalize the artefacts adopted in Phase 1. The artefacts exist; in Phase 2 they are used. Reviews happen on schedule. Findings get tracked. Activity creates artefact updates.
 
 ### Defendable end-state at Phase 2 close
 
@@ -114,7 +114,7 @@ Operationalise the artefacts adopted in Phase 1. The artefacts exist; in Phase 2
 ### Activities (in sequence)
 
 1. **Days 91 to 105: stand up the review cadence.** Copy [`governance/template-document-review-record.md`](../governance/template-document-review-record.md) or equivalent. Schedule the first review wave for the artefacts adopted in Phase 1; aim to complete the first wave within the phase.
-2. **Days 105 to 135: layer the Phase 1 modules at depth.** Customise the artefacts in the chosen modules that were deprioritised in Phase 1. Specifically: framework documents (where the GRC capacity tier supports them), the procedures behind the policies, and the registers behind the procedures.
+2. **Days 105 to 135: layer the Phase 1 modules at depth.** Customize the artefacts in the chosen modules that were deprioritised in Phase 1. Specifically: framework documents (where the GRC capacity tier supports them), the procedures behind the policies, and the registers behind the procedures.
 3. **Days 135 to 150: add the Dimension C, D modules.** Audience-shaped artefacts (B2B vendor questionnaires, B2C breach-notification flows) and sector-overlay content (compliance folders).
 4. **Days 150 to 165: run the first incident-response tabletop end-to-end.** Not a desk-check; a full scenario walk with the responding roles in attendance.
 5. **Days 165 to 180: refresh the maturity self-assessment.** Compare scores to the Phase 1 baseline; document the trajectory.
@@ -175,25 +175,25 @@ Reach a steady-state programme. By Phase 3 close, the programme runs on its own 
 
 The phase sequence above is presented at the **E2** (light, 1 to 2 people) pace as the default reference. Other capacity tiers adjust the calendar:
 
-### E1 pace (founder part-time)
+### E1 Pace (founder part-time)
 
 - Phase 1: 6 months instead of 3.
 - Phase 2: 6 months instead of 3.
 - Phase 3: not a distinct phase; the programme stays at Phase 2 maturity through Year 1 and ratchets to Phase 3 in Year 2.
 - Acceptance criteria are unchanged; only the calendar is.
 
-### E2 pace (light)
+### E2 Pace (light)
 
 - The reference pace. 90 / 180 / 365.
 
-### E3 pace (standard, 3 to 10 people)
+### E3 Pace (standard, 3 to 10 people)
 
 - Phase 1: 60 days instead of 90.
 - Phase 2: 120 days instead of 180.
 - Phase 3: same Year-1 close at 365 days.
 - The accelerated pace assumes per-domain owners are in place from Day 1.
 
-### E4 pace (department)
+### E4 Pace (department)
 
 - Phase 1 and Phase 2 overlap; from Day 30 onwards the team is doing both customisation and operational running in parallel.
 - Phase 1 close at Day 60; Phase 2 close at Day 90; steady-state from Day 270; Year-1 retrospective at Day 365.
