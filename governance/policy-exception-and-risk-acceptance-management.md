@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.5\
-**Date:** 2026-06-27\
+**Version:** 1.3.6\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -58,12 +58,12 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 ## Policy and control statements
 
 ### 1. Exception request and registration
-1.1 All exceptions shall be documented in the enterprise exception register before deviation occurs. 
+1.1 All exceptions must be documented in the enterprise exception register before deviation occurs. 
 1.2 Each entry must include the affected control or standard reference, description and rationale, risk level (low, medium, high, critical), proposed compensating controls, expiry date, approver details, sign-off evidence, the exception's `max_duration` (the absolute maximum cumulative lifetime including all renewals, defaulting to 540 days, see §3.4), and the exception's `renewal_count_limit` (the absolute maximum number of renewals permitted, defaulting to 3, see §3.5). 
 1.3 Requests must use the approved template and be submitted via the governance portal or automated workflow.
 
 ### 2. Risk assessment and approval
-2.1 Exceptions shall undergo risk assessment consistent with ISO 31000 and COBIT APO12.03. 
+2.1 Exceptions must undergo risk assessment consistent with ISO 31000 and COBIT APO12.03. 
 2.2 Approval levels: 
 - **Low risk:** Department Head or equivalent. 
 - **Medium risk:** CIO or delegate. 
@@ -73,11 +73,11 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 2.4 The approval pathway in §2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organisations may tune the tier thresholds in §2.2 (and the named bodies in §3.5 where they have no equivalent committee, per the §3.4 / §3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate.
 
 ### 3. Duration and renewal
-3.1 Exceptions shall be time-bound. The initial term shall not exceed 180 days. 
+3.1 Exceptions must be time-bound. The initial term must not exceed 180 days. 
 3.2 Renewals must undergo full re-approval and risk reassessment. 
 3.3 Expired exceptions must be remediated or escalated immediately.
 
-3.4 **Maximum cumulative duration (`max_duration`).** The cumulative lifetime of an exception, summed across the initial term and all renewals, shall not exceed 540 days (three 180-day terms) unless an explicit higher cap has been recorded on the register entry and approved by the Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) at the time the exception was first registered. A `max_duration` recorded on the entry is a hard ceiling: when reached, the exception must be remediated, descoped, converted to a documented risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), or replaced by a re-baselined entry per §3.6. Further renewal is not permitted at any authority level.
+3.4 **Maximum cumulative duration (`max_duration`).** The cumulative lifetime of an exception, summed across the initial term and all renewals, must not exceed 540 days (three 180-day terms) unless an explicit higher cap has been recorded on the register entry and approved by the Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) at the time the exception was first registered. A `max_duration` recorded on the entry is a hard ceiling: when reached, the exception must be remediated, descoped, converted to a documented risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), or replaced by a re-baselined entry per §3.6. Further renewal is not permitted at any authority level.
 
 3.5 **Renewal count limit (`renewal_count_limit`) and renewal-ceiling escalation pathway.** Approval authority for a renewal does not, on its own, authorise an unbounded sequence of renewals. The following hard ceilings apply to every exception regardless of risk classification:
 
@@ -88,9 +88,9 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | **3rd renewal** | Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-and-remediation-pathway memo (why has the underlying gap not been closed across two prior renewals? what is the binding remediation deadline?); explicit Board Risk Committee acceptance of the residual risk of continued non-closure; the Board Risk Committee may also require remediation by a fixed date, conversion to a formal risk acceptance, or descope of the underlying requirement in lieu of further renewal |
 | **4th renewal or beyond** | Not permitted under this policy | The exception must be closed (with the residual gap formally accepted as a risk under [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)), descoped (the underlying control requirement re-scoped or formally waived), or replaced by a re-baselined entry per §3.6. A 4th renewal must not be granted by any authority. |
 
-The `renewal_count_limit` field defaults to 3 (the value at which the 4th-renewal prohibition takes effect). A lower limit may be recorded on individual entries by the approving authority where the risk profile warrants a tighter cap. A higher limit shall not be recorded; the absolute prohibition on a 4th renewal is policy-wide and cannot be raised through the entry field.
+The `renewal_count_limit` field defaults to 3 (the value at which the 4th-renewal prohibition takes effect). A lower limit may be recorded on individual entries by the approving authority where the risk profile warrants a tighter cap. A higher limit must not be recorded; the absolute prohibition on a 4th renewal is policy-wide and cannot be raised through the entry field.
 
-The renewal number and the approving authority shall be recorded on the exception register entry as part of each renewal event so the cumulative count is auditable.
+The renewal number and the approving authority must be recorded on the exception register entry as part of each renewal event so the cumulative count is auditable.
 
 3.6 **Re-baselining carve-out.** An exception whose underlying scope has materially changed (for example, a new control requirement supersedes the original or a structural change in the affected system alters the nature of the deviation) may be re-baselined: a fresh exception register entry is opened, the renewal count is reset to zero, the `max_duration` clock is reset, and the new entry undergoes the full §2 approval pathway from scratch. Re-baselining requires ERC approval and is recorded on the register with an explicit cross-reference to the prior entry so the history is auditable; re-baselining is not a renewal and does not consume a renewal slot. Re-baselining must not be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed underlying scope is treated as the next renewal in the sequence (the ERC declines the re-baseline and the count continues).
 
@@ -100,14 +100,14 @@ The renewal number and the approving authority shall be recorded on the exceptio
 
 ### 4. Compensating controls and monitoring
 4.1 Requestors must implement compensating controls to mitigate risk exposure. 
-4.2 Compliance and security teams shall verify compensating control effectiveness within 30 days of approval. 
+4.2 Compliance and security teams must verify compensating control effectiveness within 30 days of approval. 
 4.3 Exceptions are subject to monitoring and periodic internal audit review.
 
 ### 5. Tracking and reporting
-5.1 All active exceptions shall be recorded in a central register with owner, expiry, risk rating, status metadata, `max_duration` per §3.4, `renewal_count_limit` per §3.5, and current renewal count. 
-5.2 Each exception register entry shall record the ID of the related risk-acceptance record (if any) per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields"; record `None` if the exception is a policy/control deviation that did not produce a separate risk acceptance. This linkage makes the exception register and risk-acceptance register cross-traversable: an auditor reviewing a risk acceptance can find the corresponding exception and vice versa. 
-5.3 Weekly automated reports shall alert control owners of expiries within 30 days. 
-5.4 Quarterly aggregate reports shall summarize exception trends and exposure by domain. A dedicated trade-security exceptions report shall highlight deviations affecting cargo integrity, customs compliance, and logistics controls aligned to the trade and supply-chain programs.
+5.1 All active exceptions must be recorded in a central register with owner, expiry, risk rating, status metadata, `max_duration` per §3.4, `renewal_count_limit` per §3.5, and current renewal count. 
+5.2 Each exception register entry must record the ID of the related risk-acceptance record (if any) per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md) "Required record fields"; record `None` if the exception is a policy/control deviation that did not produce a separate risk acceptance. This linkage makes the exception register and risk-acceptance register cross-traversable: an auditor reviewing a risk acceptance can find the corresponding exception and vice versa. 
+5.3 Weekly automated reports must alert control owners of expiries within 30 days. 
+5.4 Quarterly aggregate reports must summarize exception trends and exposure by domain. A dedicated trade-security exceptions report must highlight deviations affecting cargo integrity, customs compliance, and logistics controls aligned to the trade and supply-chain programs.
 
 ### 6. Closure and verification
 6.1 Exception closure requires evidence that corrective actions or control remediation have been implemented. 
@@ -118,8 +118,8 @@ The renewal number and the approving authority shall be recorded on the exceptio
 7.2 Where implemented, automated expiry alerts, metadata tagging, and integration with risk dashboards support near real-time oversight.
 
 ### 8. Continual improvement
-8.1 Exception metrics shall be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses. 
-8.2 Lessons learned shall inform control redesign and updates to the risk management framework.
+8.1 Exception metrics must be reviewed quarterly for trends, repeat occurrences, and systemic control weaknesses. 
+8.2 Lessons learned must inform control redesign and updates to the risk management framework.
 
 
 

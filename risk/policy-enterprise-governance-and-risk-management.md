@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.7\
-**Date:** 2026-06-24\
+**Version:** 1.4.8\
+**Date:** 2026-06-29\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -58,27 +58,27 @@ The organisation operates the **Three Lines Model**:
 
 ### 4.1 Risk framework
 
-The organisation shall maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
+The organisation must maintain a standard risk management framework aligned to ISO 31000 with a common taxonomy, scoring criteria, and risk registers used consistently across all units and regions.
 
 ### 4.2 Risk identification
 
-Risk identification shall cover strategic, financial, operational, compliance, information security, privacy, third-party, business continuity, and AI-specific risks as defined in ISO 23894. Identification activities shall be conducted at programme inception, upon material change, and at each scheduled review cycle.
+Risk identification must cover strategic, financial, operational, compliance, information security, privacy, third-party, business continuity, and AI-specific risks as defined in ISO 23894. Identification activities must be conducted at programme inception, upon material change, and at each scheduled review cycle.
 
 ### 4.3 Risk analysis
 
-Risk analysis shall use both qualitative and quantitative methods. Where AI-driven business processes are involved, FAIR-AI methodologies shall be applied to support quantitative loss estimation and scenario analysis.
+Risk analysis must use both qualitative and quantitative methods. Where AI-driven business processes are involved, FAIR-AI methodologies must be applied to support quantitative loss estimation and scenario analysis.
 
 ### 4.4 Risk appetite
 
-The Board shall approve risk appetite statements for each material risk category, including defined AI usage classes. Appetite statements shall set boundaries for acceptable risk exposure and escalation thresholds.
+The Board must approve risk appetite statements for each material risk category, including defined AI usage classes. Appetite statements must set boundaries for acceptable risk exposure and escalation thresholds.
 
 ### 4.5 Risk treatment
 
-Risk treatment plans shall document the selected option (one of the canonical six per `risk/standard-enterprise-risk-management.md` Section 6: avoid, mitigate, transfer, accept, exploit, or enhance), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2019 APO12.06. Accepted risks shall follow the Risk Acceptance Procedure.
+Risk treatment plans must document the selected option (one of the canonical six per `risk/standard-enterprise-risk-management.md` Section 6: avoid, mitigate, transfer, accept, exploit, or enhance), the accountable owner, required budget, expected residual risk, and acceptance criteria, consistent with COBIT 2019 APO12.06. Accepted risks must follow the Risk Acceptance Procedure.
 
 ### 4.6 AI risk controls
 
-Controls governing AI systems shall address, at minimum:
+Controls governing AI systems must address, at minimum:
 
 - Dataset governance and lineage tracking.
 - Model lifecycle governance (development, validation, deployment, retirement).
@@ -92,11 +92,11 @@ These requirements are aligned with ISO 23894 and the NIST AI RMF (Govern, Map, 
 
 ### 4.7 Risk monitoring and key risk indicators
 
-Key Risk Indicators (KRIs) and control performance indicators shall be defined, baselined, and reviewed at minimum quarterly. Material changes in KRI trend shall be escalated to the ERC within the reporting cycle in which they are detected.
+Key Risk Indicators (KRIs) and control performance indicators must be defined, baselined, and reviewed at minimum quarterly. Material changes in KRI trend must be escalated to the ERC within the reporting cycle in which they are detected.
 
 ### 4.8 Reporting
 
-Consolidated enterprise risk reporting shall be presented to executive leadership and the Board Risk Committee at least quarterly, with an annual summary. AI risk trends shall be included in consolidated reporting.
+Consolidated enterprise risk reporting must be presented to executive leadership and the Board Risk Committee at least quarterly, with an annual summary. AI risk trends must be included in consolidated reporting.
 
 ---
 
@@ -147,7 +147,7 @@ Consolidated enterprise risk reporting shall be presented to executive leadershi
 
 ## 8. Exceptions
 
-Exceptions to this policy require documented justification, a compensating control, approval by the CIO, and time-bounded review. AI-related exceptions additionally require AIGC approval. All exceptions shall be logged in the risk register.
+Exceptions to this policy require documented justification, a compensating control, approval by the CIO, and time-bounded review. AI-related exceptions additionally require AIGC approval. All exceptions must be logged in the risk register.
 
 ---
 
