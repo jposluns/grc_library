@@ -3697,5 +3697,65 @@ class BareNormativeShallTests(LinterTestCase):
         )
 
 
+class TodoMarkedDoneTests(LinterTestCase):
+    """tools/lint-todo-marked-done.py (gate 57)
+
+    Flags a TODO backlog item that marks ITSELF done in place (a Markdown
+    strikethrough span, a ``[done]`` / ``[completed]`` tag, or a
+    ``Status: completed`` / ``Status: done`` field) instead of being
+    deleted and rotated to ``.working/DONE.md``. A bare ``SHIPPED`` word is
+    deliberately NOT flagged (it appears in legitimate open-item prose); a
+    backticked mention of any marker is not flagged (inline code stripped).
+    """
+
+    def test_strikethrough_item_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "todo-strike.md",
+            "# TODO\n\n- ~~**FR-9**: write the thing~~ done in #500\n",
+        )
+        result = run_linter("tools/lint-todo-marked-done.py", fixture)
+        self.assertLinterFails(result, "strikethrough")
+
+    def test_done_tag_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "todo-donetag.md",
+            "# TODO\n\n- **P-1.2**: refactor the helper [done]\n",
+        )
+        result = run_linter("tools/lint-todo-marked-done.py", fixture)
+        self.assertLinterFails(result, "done")
+
+    def test_status_completed_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "todo-status.md",
+            "# TODO\n\n- **FR-4**: build the gate (Status: completed)\n",
+        )
+        result = run_linter("tools/lint-todo-marked-done.py", fixture)
+        self.assertLinterFails(result, "Status")
+
+    def test_shipped_in_open_multipart_prose_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "todo-shipped-prose.md",
+            "# TODO\n\n- **FR-167**: the AICM column SHIPPED in PR-B; the "
+            "extension **SHIPPED** (PR-C). Remaining: gap-fill keeps this open.\n",
+        )
+        result = run_linter("tools/lint-todo-marked-done.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a bare 'SHIPPED' in open multi-part item prose must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+    def test_backticked_marker_mention_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "todo-backtick-marker.md",
+            "# TODO\n\n- Design note: a self-marked item uses strikethrough "
+            "`~~`, a `[done]` suffix, or a `Status: completed` field.\n",
+        )
+        result = run_linter("tools/lint-todo-marked-done.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a backticked mention of a marker must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
