@@ -229,10 +229,6 @@ The maintainer flagged (2026-06-27) that shipped/historical content had accreted
 
 **Remaining (open):** (c) **whether the `## Standing conventions`, `## Backlog totals`, and `## Priority 7` (audit-trail-only) sections belong in TODO at all** or in a conventions / design-decisions doc. This is a **maintainer call** (they are non-forward-looking but appear intentionally retained); filed for decision in `## Priority 7`. The **accretion guard** is the §4.10 TODO/DONE-rotation gate (consider extending gate 45 to flag shipped-PR-number history accreting inside an open TODO item, so rotation is mechanically prompted rather than convention-only).
 
-### 4.24 Pack README "When to use each rule" table completeness (S, S) — surfaced 2026-06-28 (Sweep 69 out-of-window)
-
-The pack [`dev-security/claude-rules/README.md`](dev-security/claude-rules/README.md) "When to use each rule" table lists only governance rules 1-8; it fell behind when rules 9 (`trust-recovery-escalation`), 10 (`project-integrity`), and 11 (`surface-counterproductive-instructions`) were added. The table is not gate-41-enforced (gate 41 checks the directory tree, the pack CLAUDE.md bullets, and the project CLAUDE.md bullets, not this table), so the omission accreted silently. Decide whether the table should be exhaustive (add rows for rules 9/10/11) or is deliberately scoped to the core-collaboration rules (document the scoping in the table intro). Surfaced by Sweep 69 while adding rule 11; rule 11 was kept consistent with rules 9/10 (present in the gate-enforced tree + both CLAUDE.md enumerations + the exhaustive "two areas" prose, absent from this table) rather than scope-creep a multi-row table fix into the rule PR.
-
 ### 4.25 Wind-down / overnight-mode SOP refinements (maintainer-directed 2026-06-28) (S, S)
 
 Two maintainer-directed refinements to codify in the `## Wind-down decision framework`, `## Attended-autonomous operating mode`, and overnight-protocol sections of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (a focused PR; flagged "not urgent, handle later today"). Effective behaviorally on direction; codification queued here.
