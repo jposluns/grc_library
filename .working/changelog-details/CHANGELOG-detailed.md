@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.446, PR #468
+
+Adds gate 57 (backlog marked-done), the static content-side half of the §4.10 TODO/DONE-rotation bookkeeping-parity gate family. Resolves both pending maintainer decisions. Batches the #467 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Added
+- [`tools/lint-todo-marked-done.py`](../../tools/lint-todo-marked-done.py): new gate-57 linter. Flags a backlog item (in [`TODO.md`](../../TODO.md)) that self-marks done via a Markdown strikethrough span (`~~...~~`), a `[done]`/`[completed]` tag, or a `Status: completed`/`Status: done` field, over `iter_non_code_lines` (fenced code skipped) after stripping inline backtick spans. Scans the backlog file only. A bare `SHIPPED` word is intentionally excluded (FP against open multi-part items like FR-167; the companion PR-time check covers shipped-but-unrotated).
+- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoMarkedDoneTests` with 5 cases (strikethrough flagged; `[done]` tag flagged; `Status: completed` flagged; bare `SHIPPED` in open multi-part prose NOT flagged; backticked marker mention NOT flagged).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §6 inventory row 57; §5 category-5 placement (the bookkeeping-parity family with gate 50) and clause. Spec Version `1.16.18` to `1.16.19`.
+
+### Changed
+- Four-surface wiring: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), and [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml) each gain the "Backlog marked-done audit" step. The name is "Backlog ..." not "TODO ..." so the §6 row name does not trip gate 9 (`TODO` is one of its uncertainty markers) adjacent to gate 56's `shall`-bearing name.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md):93 growth-narrative count `fifty-six` to `fifty-seven` (gate-39-blind word-form, the recurring per-new-gate hand-bump). Pack [`README.md`](../../dev-security/claude-rules/README.md) metadata `Version` `1.53.4` to `1.53.5` with a paired `## Version history` row.
+- [`.working/pending-decisions.md`](../pending-decisions.md): both pending decisions marked RESOLVED (the §4.10 gate-family design and the `docs/` dash house-style), Status 2 to 0 pending.
+- [`TODO.md`](../../TODO.md): §4.10 annotated with the marked-done half shipped (#468) and the complementary check remaining; the P3 `docs/` item updated to the decided Option A (extend the dash gate to `docs/` and fix all 71).
+
+### Verification
+- Gate count 57: [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py) green; §6 declares 57 rows; [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) reports "57 gates across all four audit-programme surfaces"; full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 57/57.
+- The new gate is FP-free on the live backlog file (exit 0) and the 5-case fixture passes; the full regression suite passes.
+- A skeptical pre-push verifier subagent (substantive change: new gate + linter + multi-surface) was dispatched, briefed to refute; findings validated before push.
+
+### Discipline observation
+- Two self-caught defects from the local backstops before push: (1) the new gate-57 §6 row name "TODO marked-done audit" tripped gate 9 (its `TODO` uncertainty marker sat adjacent to gate 56's `shall`-bearing name in the inventory table), so the gate was renamed to "Backlog marked-done audit"; (2) the spec Version bump required regenerating [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md). Both caught by the local `run_all_audits.sh`, neither reached CI.
+- The bare-`SHIPPED` FP analysis (verified against the live backlog file) is the reason Option B was scoped to the three structural markers rather than the four the design note listed; surfaced to the maintainer and aligned with the "long-term best solution" directive (a brittle FR-167 exemption was the alternative).
+
 ## 2026-06-29, Library Version 2026.06.445, PR #467
 
 `.working/` + [`TODO.md`](../../TODO.md) for local project: the TODO §4.5 S4 to DONE rotation that PR #466 omitted (its `/validate-pr` in-window finding), plus the batched #466 QA bookkeeping. Rotated the closed S4 item out of [`TODO.md`](../../TODO.md) (the §4.5 bullet deleted, the §4.5 narrative updated to "S4 shipped in #466 as gate 56", the line-18 phase-pointer changed from "§4.5 S3/S4" to "§4.5 S3") and added a PR #466 row to [`.working/DONE.md`](DONE.md). Carries the #466 `/validate-pr` record [`2026-06-29-PR-466.md`](../validate-pr/2026-06-29-PR-466.md) + its [`history.md`](../validate-pr/history.md) row (3 in-window findings, one root cause: this rotation) and the #466 [`improvement-log.md`](improvement-log.md) `/retro` row (pattern: the multi-surface-incompleteness rotation class; proposed improvement: prioritize the §4.10 rotation gate, with a coverage-gap note that the maintainer-decided Option-B "marked-done detector" would not catch a wholesale-forgotten rotation like #466's). No corpus-document body change. Library `2026.06.444` to `2026.06.445`; README `1.9.315` to `1.9.316`.

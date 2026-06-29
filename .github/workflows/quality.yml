@@ -189,6 +189,9 @@ jobs:
       - name: Bare-normative-shall audit
         run: python3 tools/lint-bare-normative-shall.py
 
+      - name: Backlog marked-done audit
+        run: python3 tools/lint-todo-marked-done.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
