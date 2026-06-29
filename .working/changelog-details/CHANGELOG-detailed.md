@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.430, PR #452
+
+Process-discipline correction (assistant-guidance + working-state; invisible to adopters). Fixes the root cause of the recurring handoff-exemption-marker defect surfaced by gate 50 on PR #451, and batches the #451 QA rows.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) PR-workflow step 5a: the handoff-PR `/validate-pr` exemption is now recorded in the validate-pr-history row's **Findings cell** (was "Summary cell"), with the gate-50-recognized marker form (`SKIPPED` with `handoff`, or `handoff-PR exception`, never bare `n/a`). Root cause of the #445/#450 recurrence: [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) `parse_validate_pr_status` reads the Findings cell (field index 4) to classify a row as handoff-exempt; the prior wording sent the marker to the Summary cell, so a compliant author left the Findings cell `n/a` and the row was flagged once it was no longer the highest-numbered PR. Fuller prose may still go in the Summary cell.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) close-out-checklist item 3 (Closing-handoff-PR discipline): added the same Findings-cell marker rule, so the handoff-specific checklist item and step 5a agree.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #451 `/validate-pr` row (0 in-window, 0 out-of-window); Version `1.2.235` to `1.2.236`, Date to `2026-06-29`.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #451 `/retro` row (the handoff-marker pattern, 2nd occurrence -> signal/pattern, plus the meta proposal-not-codified gap); Version `1.0.183` to `1.0.184`, Date to `2026-06-29`.
+
+### Verification
+
+- The #451 `/validate-pr` (Subagent A on the dfccd5c diff + cross-reference check): 0 findings. The two prose-count fixes are correct and complete (0 residual live carriers by corpus grep); version cascade consistent; the #450 row marker is in the Findings cell (gate 50 green); the handoff prune is current + 1 prior in all three stacks.
+- Mechanical baseline: `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` green via the pre-push guard before push.
+
+### Discipline observation
+
+- This is the 2nd occurrence of the handoff-exemption-marker-in-wrong-cell class (#445 -> fixed #446; #450 -> fixed #451) and exposes a meta-pattern: #446's `/retro` proposed the preventing checklist line but it was never codified, so the defect recurred. This PR codifies the actual root-cause fix (the contradictory step-5a instruction). Gate-50 hardening (detecting the marker in the Summary cell too) was considered and rejected: a normal PR's free-prose Summary could contain "SKIPPED"+"handoff" and earn a false exemption, so the controlled Findings cell stays the single detection site. The proposal-follow-through gap (how high-value `/retro` proposals get scheduled rather than sitting in the register) is surfaced to the maintainer, not auto-built overnight.
+
 ## 2026-06-28, Library Version 2026.06.429, PR #451
 
 Overnight-run resume close-out (assistant-guidance + working-state + a tooling docstring; invisible to adopters). First PR of the maintainer-authorized overnight run resumed from session-closing handoff #450. Records the loop-break Sweep 74, fixes its two in-window findings, prunes/refreshes the handoff, and transitions the overnight file to `in-flight`.
