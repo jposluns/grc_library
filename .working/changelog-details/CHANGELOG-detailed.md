@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.432, PR #454
+
+Pack documentation-completeness fix (distributable pack content): completed the pack-README rule-scope table. Closes TODO §4.24; batches the #453 QA rows.
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) `## Rule files and their scope` table: added four governance-rule rows (rules 9 to 12: [`trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md), [`project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md), [`surface-counterproductive-instructions.md`](../../dev-security/claude-rules/governance/surface-counterproductive-instructions.md), [`high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md)), each with a when-to-use cell in the table's established style, inserted after the `ai-assistant-workflow-disciplines` row and before the languages section. The table had listed only rules 1 to 8; it is exhaustive by design (every pack file with its scope), so completing it is the correct fix, not documenting a scoping. Metadata Version `1.53.0` to `1.53.1` with a matching `## Version history` row pinned to library `2026.06.432`.
+- [`TODO.md`](../../TODO.md): deleted §4.24 (closed); added the closing entry to [`.working/DONE.md`](../DONE.md) (PR #454).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #453 `/validate-pr` row (0/0); Version `1.2.237` to `1.2.238`.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #453 `/retro` row (routine clean skill addition); Version `1.0.185` to `1.0.186`.
+
+### Verification
+
+- The omission is not gate-caught (the scope table is not in the gate-41 enumeration set), so the fix is a prose completeness correction confirmed by reading: the table now lists all twelve governance rules in order, matching the twelve governance-rule files on disk. `tools/run_all_audits.sh` 54/54 and `tools/run-pr-time-checks.sh` green via the pre-push guard.
+- The #453 `/validate-pr` (Subagent A on the 79c3a63 diff + cross-reference): 0 findings; the new skill operationalizes its rule faithfully, all links resolve, the 17-skill count is consistent.
+
 ## 2026-06-29, Library Version 2026.06.431, PR #453
 
 Pack-skill addition (distributable pack content): the seventeenth skill, the executable companion to the twelfth governance rule (#450). Batches the #452 QA rows.

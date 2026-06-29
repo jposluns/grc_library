@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #454: §4.24: pack-README rule-scope table completed (2026-06-29)
+
+Added the four missing governance-rule rows (9 to 12: trust-recovery-escalation, project-integrity, surface-counterproductive-instructions, high-assurance-verification) to the pack README "Rule files and their scope" table, which had fallen behind as the pack grew past rule 8; the table is exhaustive by design, so completed rather than scoped.
+
 ### PR #444: gate 50 check 4 (version-history parity) + DD-10 completion (2026-06-28)
 
 Added gate 50's fourth internal check (version-history parity: a file's metadata Version must appear as a row in its own `## Version history` table; the #376 mechanizable half, no new gate, no count ripple) and bundled the #443 `/validate-pr` HIGH fix (vetting-log Status line, the third "18" carrier, to 19).
