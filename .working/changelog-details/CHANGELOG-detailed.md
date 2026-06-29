@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.435, PR #457
+
+`.working/` session-closing handoff for the overnight correction-batch session (#451 through #456): handoff refresh (new Next-actions / State-snapshot / Asserted-expectations blocks), the session-metrics row, overnight-pr progress kept `in-flight`, the batched #456 `/validate-pr` (1 Low, fixed) + `/retro` rows, the gate-50 handoff-exemption row, and the live-TODO glossary line-anchor fix. No corpus-document body change. This PR skips its own `/validate-pr` + `/retro` per the session-closing handoff-PR loop-break; the next session's corpus-wide `/validate` (Sweep 75) is the compensating control. Library `2026.06.434` to `2026.06.435`; README `1.9.305` to `1.9.306`.
+
 ## 2026-06-29, Library Version 2026.06.434, PR #456
 
 ERC acronym-expansion reconcile (bulk pass): canonicalized "Executive Risk Committee" to "Enterprise Risk Committee" across 9 documents, leaving one semantically-tangled document for authorial review. Batches the #455 QA rows.
