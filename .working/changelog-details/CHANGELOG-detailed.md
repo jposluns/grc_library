@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.439, PR #461
+
+`.claude/` + `.working/` + pack for local project: codified the **skeptical pre-push verification** standard, maintainer-directed ("Agreed with your recommendations on skeptical verifiers ... make this a standard for anything other than a quick fix"), with the finding-handling loop, the three-strikes-then-defer cap, the override-logging-and-revertability discipline, and the unattended-override resume-surfacing the maintainer specified in follow-up directives.
+
+### Added
+
+- New unnumbered section **`## Skeptical pre-push verification (a tiered standard layered on the disciplines, not a sixth)`** in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md), with three subsections: the tiered standard (quick-fix / bookkeeping: no standing verifier; substantive: one refute-briefed verifier pre-push scoped to the diff; sensitive: the full [`high-assurance-verification`](../../dev-security/claude-rules/governance/high-assurance-verification.md) harness), `### The verifier-finding handling loop` (validate the finding against the artefact; fix then re-verify; three-iteration loop cap then defer to maintainer review), and `### Overruling a verifier is never silent` (log the finding verbatim, the overruling reasoning, and the exact revert path; surface an unattended override at the next attended boundary). The section is unnumbered by design so the rule's "five disciplines" framing (lines 9 to 14 and the recurring carriers) is unchanged.
+- New override register [`.working/verifier-overrides.md`](../verifier-overrides.md) (Version 1.0.0), modelled on [`high-assurance/register.md`](../high-assurance/register.md): records per override the finding verbatim, the overruling reasoning, the exact revert information, attended-or-unattended, and a `pending` / `reviewed` status the maintainer (not the assistant) clears. No override logged yet (the standard itself shipped in this PR).
+
+### Changed
+
+- [`.claude/rules/governance/ai-assistant-workflow-disciplines.md`](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): mirrored byte-identical to the pack source (`diff -q` clean; [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) reports 16 copies in sync).
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) step 7: extended from "resolve pending decisions" to also read [`.working/verifier-overrides.md`](../verifier-overrides.md) and surface every `pending` override for maintainer review (the finding, the reasoning, the revert path), so an unattended-run override is cleared at the next attended boundary.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the workflow-disciplines rule-index bullet now summarizes the skeptical pre-push verification standard and points at the override register; the `## Attended-autonomous operating mode` resume-read note now reads the override register alongside the pending-decisions queue and surfaces `pending` overrides.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack metadata `Version` `1.53.1` to `1.53.2`; a `## Version history` row added (Pack `1.53.2`, Library `2026.06.439`).
+
+### Verification
+
+- [`tools/lint-language.py`](../../tools/lint-language.py) run on the new pack prose before the first commit: `OK: no language findings`.
+- [`tools/lint-working-prose-hygiene.py`](../../tools/lint-working-prose-hygiene.py) (gate 51, em/en-dash ban in `.working/`): `OK` on the new register.
+- [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py): pack source and `.claude/` mirror byte-identical.
+- A skeptical pre-push verifier subagent (the standard applied to its own codifying PR) reviewed the diff before push; result recorded in the chat surface.
+- Full `tools/run_all_audits.sh` and the pre-push guard green before push (recorded in the verification chat surface).
+
+### Discipline observation
+
+- The "stricter early-run oversight of the verifier" the maintainer requested is held in working memory for the first few runs and deliberately NOT codified, per the maintainer's explicit direction ("don't codify the stricter oversight in the first few runs, keep that in memory so we don't have to change it later").
+- The standard is applied to its own PR: this is a substantive multi-surface change, so it gets the one-refute-briefed-verifier tier it codifies.
+
 ## 2026-06-29, Library Version 2026.06.438, PR #460
 
 `.claude/` + `.working/` for local project: corrected the assistant's wind-down decision framework, maintainer-directed after the observation that about 13 of the last 15 assistant-proposed session-handoffs were the wrong call (2026-06-29).
