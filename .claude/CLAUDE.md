@@ -301,13 +301,18 @@ is external. Two mechanisms:
      `/validate-pr`. (#469's §4.10 close left the `tools/lint-bookkeeping-parity.py`
      docstring stale; #471's §4.6 close left it and a CLAUDE.md line stale; #472 fixed
      both. The intra-TODO-only cleanup of #469 is the evidence the grep must span files.)
-   - **Gate-39 count-phrasing** (the P7 trap): when CHANGELOG or any gate-39-scanned prose
-     cites a gate by its number, phrase it as `gates N and M` (the digits AFTER `gates`),
-     never as a two-digit number followed by one short word followed by `gate(s)`. Gate 39's
-     P7 pattern reads that run as a stale gate-count claim and fails the build; citing two
-     numbered gates in sequence, or a `§<two-digit-section> as gate <M>` phrasing, both trip
-     it (#471 and #472 each amended for this). The fix is always to put the number after
-     `gates` or to drop the adjacency.
+   - **Gate-39 count-phrasing** (the P7 trap): when prose in a gate-39-SCANNED surface (a
+     tool docstring, a `governance/` spec, `TODO.md`, `README.md`, or any other corpus
+     `.md`) cites a gate by its number, phrase it as `gates N and M` (the digits AFTER
+     `gates`), never as a two-digit number followed by one short word followed by `gate(s)`.
+     Gate 39's P7 pattern reads that run as a stale gate-count claim and fails the build;
+     citing two numbered gates in sequence, or a `§<two-digit-section> as gate <M>`
+     phrasing, both trip it (#471 amended `TODO.md`, #472 the
+     `tools/lint-bookkeeping-parity.py` docstring). The fix is always to put the number
+     after `gates` or to drop the adjacency. NOTE: `CHANGELOG.md`, `.claude/`, and
+     `.working/` are in gate 39's exempt set (`EXEMPT_FILES` plus `DEFAULT_EXEMPT_DIRS`),
+     so the trap does NOT fire there; it is the SCANNED surfaces above that the phrasing
+     rule protects (the earlier worry that a CHANGELOG entry could trip it was mistaken).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
