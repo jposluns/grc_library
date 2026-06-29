@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-06-29\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -168,7 +168,7 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 | --- | --- | --- |
 | Patch compliance report | Monthly | CISO |
 | Exception status review | Monthly | CISO, relevant System Owners |
-| Programme effectiveness summary | Quarterly | Executive Risk Committee (ERC) |
+| Programme effectiveness summary | Quarterly | Enterprise Risk Committee (ERC) |
 | Annual programme review | Annual | CISO, CIO, Internal Audit |
 
 ### 7.4 Key metrics
