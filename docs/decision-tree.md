@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.7\
-**Date:** 2026-06-24\
+**Version:** 1.0.8\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -65,7 +65,7 @@ Answer each of the following to determine your reading path.
 - European Union
 - United Kingdom
 - United States (federal)
-- United States (state — California, New York, others)
+- United States (state: California, New York, others)
 - Canada
 - Australia / New Zealand
 - Singapore / South-East Asia
@@ -106,47 +106,47 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 
 ### 2.1 Orientation (read first)
 
-1. [`README.md`](../README.md) — repository overview, structure, adoption posture. Acronyms in this file are expanded at first occurrence (per PR #172 / FR-4 and PR #179 / FR-106 / PR #196 / FR-113 polish), so glossary lookup is rarely needed while reading.
-2. [`docs/adopter-guide.md`](adopter-guide.md) — general adoption principles. Same first-occurrence expansion convention.
-3. [`governance/register-glossary.md`](../governance/register-glossary.md) — acronym reference. Open this if you encounter an unexplained acronym in any document; the orientation files above expand acronyms inline, so glossary lookup is reserved for the deeper-domain documents in §2.2 and beyond.
-4. [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) — what the library does not yet cover.
+1. [`README.md`](../README.md): repository overview, structure, adoption posture. Acronyms in this file are expanded at first occurrence (per PR #172 / FR-4 and PR #179 / FR-106 / PR #196 / FR-113 polish), so glossary lookup is rarely needed while reading.
+2. [`docs/adopter-guide.md`](adopter-guide.md): general adoption principles. Same first-occurrence expansion convention.
+3. [`governance/register-glossary.md`](../governance/register-glossary.md): acronym reference. Open this if you encounter an unexplained acronym in any document; the orientation files above expand acronyms inline, so glossary lookup is reserved for the deeper-domain documents in §2.2 and beyond.
+4. [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md): what the library does not yet cover.
 
 ### 2.2 Governance core
 
-5. [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) — library authority model.
-6. [`governance/register-role-authority.md`](../governance/register-role-authority.md) — the roles the library uses; you will map these to people in your organisation.
-7. [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md) — how documents relate.
-8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) — comprehensive machine-readable register of every document with type, domain, status, and related artefacts. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point per PR #165 / FR-56); the document index is the deeper-dive register for readers who already know what they are looking for.
+5. [`governance/charter-governance-library.md`](../governance/charter-governance-library.md): library authority model.
+6. [`governance/register-role-authority.md`](../governance/register-role-authority.md): the roles the library uses; you will map these to people in your organisation.
+7. [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md): how documents relate.
+8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every document with type, domain, status, and related artefacts. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point per PR #165 / FR-56); the document index is the deeper-dive register for readers who already know what they are looking for.
 
 ### 2.3 Risk and compliance foundation
 
-9. [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) — enterprise risk policy.
-10. [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) — risk methodology.
-11. [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) — compliance management.
-12. [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md) — legal and regulatory tracking.
+9. [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md): enterprise risk policy.
+10. [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md): risk methodology.
+11. [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md): compliance management.
+12. [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md): legal and regulatory tracking.
 
 ### 2.4 Security foundation
 
-13. [`security/policy-information-security.md`](../security/policy-information-security.md) — security policy.
-14. [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md) — data classification.
-15. [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) — IAM foundation.
-16. [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) — incident response.
+13. [`security/policy-information-security.md`](../security/policy-information-security.md): security policy.
+14. [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md): data classification.
+15. [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md): IAM foundation.
+16. [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md): incident response.
 
 ### 2.5 Privacy foundation (where personal data is processed)
 
-17. [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) — privacy policy.
-18. [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) — PIA procedure.
-19. [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) — navigation into per-jurisdiction privacy annexes.
+17. [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md): privacy policy.
+18. [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md): PIA procedure.
+19. [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md): navigation into per-jurisdiction privacy annexes.
 
 ### 2.6 Resilience foundation
 
-20. [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) — BC/DR standard.
-21. [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md) — BC/CM plan template.
+20. [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md): BC/DR standard.
+21. [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md): BC/CM plan template.
 
 ### 2.7 Supplier and third-party foundation
 
-22. [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) — supplier governance.
-23. [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md) — due diligence procedure.
+22. [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md): supplier governance.
+23. [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md): due diligence procedure.
 
 ---
 
@@ -158,44 +158,44 @@ Read the sub-section matching your sector. Skip the others.
 
 Read the sector-overview annex first, then the programme overlays for programmes your organisation participates in.
 
-1. [`compliance/logistics/README.md`](../compliance/logistics/README.md) — sector + programme index.
-2. [`compliance/logistics/annex-logistics-sector-requirements.md`](../compliance/logistics/annex-logistics-sector-requirements.md) — sector overview.
+1. [`compliance/logistics/README.md`](../compliance/logistics/README.md): sector + programme index.
+2. [`compliance/logistics/annex-logistics-sector-requirements.md`](../compliance/logistics/annex-logistics-sector-requirements.md): sector overview.
 3. Then the trusted-trader programmes you participate in:
    - **CTPAT (US)**: [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md) and [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
    - **AEO-UK**: [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) and [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
    - **PIP (Canada)**: [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md)
    - **BASC (multi-country)**: [`compliance/logistics/annex-basc-programme-overview.md`](../compliance/logistics/annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](../compliance/logistics/policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md)
-4. [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md) — gap-assessment template across programmes.
+4. [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md): gap-assessment template across programmes.
 
 ### 3.2 If financial services
 
-1. [`compliance/financial-services/README.md`](../compliance/financial-services/README.md) — sector index.
-2. [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md) — sector overview.
-3. If EU-regulated: [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) — DORA implementation.
-4. If US publicly-traded: [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) — SOX IT general controls.
+1. [`compliance/financial-services/README.md`](../compliance/financial-services/README.md): sector index.
+2. [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md): sector overview.
+3. If EU-regulated: [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md): DORA implementation.
+4. If US publicly-traded: [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md): SOX IT general controls.
 
 ### 3.3 If healthcare
 
-1. [`compliance/healthcare/README.md`](../compliance/healthcare/README.md) — sector index.
-2. [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../compliance/healthcare/annex-healthcare-sector-requirements.md) — sector overview.
+1. [`compliance/healthcare/README.md`](../compliance/healthcare/README.md): sector index.
+2. [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../compliance/healthcare/annex-healthcare-sector-requirements.md): sector overview.
 
 ### 3.4 If energy and utilities
 
-1. [`compliance/energy-and-utilities/README.md`](../compliance/energy-and-utilities/README.md) — sector index.
-2. [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) — sector overview.
+1. [`compliance/energy-and-utilities/README.md`](../compliance/energy-and-utilities/README.md): sector index.
+2. [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md): sector overview.
 
 ### 3.5 If telecommunications
 
-1. [`compliance/telecommunications/README.md`](../compliance/telecommunications/README.md) — sector index.
-2. [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) — sector overview.
+1. [`compliance/telecommunications/README.md`](../compliance/telecommunications/README.md): sector index.
+2. [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](../compliance/telecommunications/annex-telecommunications-sector-requirements.md): sector overview.
 
 ### 3.6 If public sector or providing services to public sector
 
-1. [`compliance/public-sector/README.md`](../compliance/public-sector/README.md) — sector index.
-2. [`compliance/public-sector/annex-public-sector-requirements.md`](../compliance/public-sector/annex-public-sector-requirements.md) — sector overview.
-3. If providing cloud services to US federal agencies: [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md) — FedRAMP.
+1. [`compliance/public-sector/README.md`](../compliance/public-sector/README.md): sector index.
+2. [`compliance/public-sector/annex-public-sector-requirements.md`](../compliance/public-sector/annex-public-sector-requirements.md): sector overview.
+3. If providing cloud services to US federal agencies: [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md): FedRAMP.
 
-### 3.7 If "Other / general technology" — no sector overlay
+### 3.7 If "Other / general technology": no sector overlay
 
 Skip Section 3. The universal baseline (Section 2) plus jurisdiction-conditional (Section 4) and capability-conditional (Section 5) reading will suffice.
 
@@ -236,13 +236,13 @@ See Section 3.1 above (these live under `compliance/logistics/`).
 
 Read in this order:
 
-1. [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) — AI governance authority.
-2. [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) — AI governance framework.
-3. [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) — AI compliance policy.
-4. [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) — AI security and risk standard.
-5. [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md) — impact assessment procedure.
-6. [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) — AI risk register template.
-7. [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) — AI system inventory.
+1. [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md): AI governance authority.
+2. [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md): AI governance framework.
+3. [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md): AI compliance policy.
+4. [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md): AI security and risk standard.
+5. [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md): impact assessment procedure.
+6. [`ai/register-ai-risk.md`](../ai/register-ai-risk.md): AI risk register template.
+7. [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md): AI system inventory.
 
 If you build agentic AI:
 
@@ -252,16 +252,16 @@ If you build agentic AI:
 
 ### 5.2 If you operate cloud workloads
 
-1. [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md) — cloud baseline.
-2. [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) — network segmentation.
-3. [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) — cloud exit.
+1. [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md): cloud baseline.
+2. [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md): network segmentation.
+3. [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md): cloud exit.
 
 ### 5.3 If you develop software in-house
 
-1. [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) — secure development policy.
-2. [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) — developer requirements.
-3. [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) — DevOps requirements.
-4. [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md) — SCA / SBOM.
+1. [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md): secure development policy.
+2. [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): developer requirements.
+3. [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md): DevOps requirements.
+4. [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md): SCA / SBOM.
 5. If using AI coding assistants: [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md).
 
 ### 5.4 If you operate identity infrastructure
@@ -282,8 +282,8 @@ These are illustrative rather than prescriptive. Adapt to your context.
 
 ### 6.1 30-day starter set (any adopter)
 
-1. Universal baseline orientation (2.1) and governance core (2.2) — read.
-2. Universal baseline risk and compliance foundation (2.3) — read.
+1. Universal baseline orientation (2.1) and governance core (2.2): read.
+2. Universal baseline risk and compliance foundation (2.3): read.
 3. Identify your sector and read the sector index README (3.x).
 4. Identify your jurisdiction and read the relevant privacy annex (4.1).
 5. Map the library's roles ([`register-role-authority.md`](../governance/register-role-authority.md)) to people in your organisation.
@@ -325,7 +325,7 @@ Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTP
 
 **"I'm a 5-person early-stage SaaS in the UK with no specific sector. What do I read first?"**
 
-Universal baseline orientation (2.1), governance core (2.2 — but treat as aspirational; many roles will collapse to the founder), risk policy (2.3 item 9), security policy (2.4 item 13), incident response (2.4 item 16), UK privacy annex (4.1). Aim for a minimum-viable governance posture rather than full adoption; see [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) for how to consolidate roles.
+Universal baseline orientation (2.1), governance core (2.2, but treat as aspirational; many roles will collapse to the founder), risk policy (2.3 item 9), security policy (2.4 item 13), incident response (2.4 item 16), UK privacy annex (4.1). Aim for a minimum-viable governance posture rather than full adoption; see [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) for how to consolidate roles.
 
 **"I'm a multinational healthcare system. Where do I start?"**
 
