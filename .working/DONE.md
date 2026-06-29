@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #466: §4.5 S4: gate 56 bare-normative-shall audit (2026-06-29)
+
+Closes TODO §4.5 S4. New gate 56 (`lint-bare-normative-shall.py`) flags a bare normative `shall` in authored corpus prose (the FR-44 `shall`->`must` harmonized form), the plain-form complement to gate 9 (which only fires on a `shall` adjacent to an uncertainty marker), excluding the 3 preserved classes. 4-surface wired with a 5-case fixture; gate count 55 to 56. (Rotation itself shipped in the follow-up PR per the #466 `/validate-pr` in-window finding.)
+
 ### PR #463: S2 resolved by promoting 5 maintainer roles into the role-authority register (2026-06-29)
 
 Closes TODO §4.5 S2. The scoped "role-consistency gate" was already shipped as gate 8 (`lint-roles.py`), so S2 reframed (maintainer choice) to migrating the 5 roles in that gate's `EXTRA_KNOWN_ROLES` allow-list (GRC Programme Manager, Compliance/Information Security/Security Architecture Maintainer, Governance Library Maintainer) into the register as the single source of truth; allow-list emptied. No new gate, no gate-count change.
