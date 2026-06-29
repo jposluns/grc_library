@@ -98,6 +98,14 @@ run_check "D3 CHANGELOG dash-on-PR check" \
 run_check "D4 Per-PR Version-Date co-bump check" \
     python3 tools/check-date-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
+# Delta gate D5: when a PR's added CHANGELOG lines assert a TODO-item
+# closure ("clos... TODO §X"), require the same diff to rotate the item
+# (touch TODO.md and .working/DONE.md). PR-time companion of gate 57
+# (the static marked-done detector); catches the wholesale-forgotten
+# rotation where TODO.md is never edited.
+run_check "D5 Backlog-rotation-on-PR check" \
+    python3 tools/check-todo-rotation-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
 # history.md) include history relative to the working state of TODO.md.
