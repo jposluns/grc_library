@@ -294,8 +294,12 @@ is external. Two mechanisms:
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
-   This checklist is the convention-level companion to the queued P4.6 mechanical
-   QA-cadence gate; until that gate exists, the checklist is the guard.
+   The mechanizable half of QA-cadence enforcement (the former TODO §4.6, closed
+   as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
+   PR has no `/validate-pr` plus `/retro` row. The abbreviated-marker half (a row
+   that exists but records a sham QA pass) is not mechanizable on free prose, so for
+   that residual this checklist plus the `## Throughput pressure does not authorise
+   QA abbreviation` section are the convention-level guard.
 
 3. **Closing-handoff-PR discipline (a session's last act is a green merge).** A session
    ends by landing its working-state on `main` as a green, merged PR (the
