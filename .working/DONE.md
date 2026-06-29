@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #458: Sweep 75 iter 1 close-out + FR-44 completion fix (2026-06-29)
+
+The `/resume` loop-break corpus-wide `/validate` over the #451..#457 deltas surfaced one escalation finding (it contradicted a #457 asserted-clean claim): the #455 FR-44 sweep had missed dev-security/policy-secure-development-and-engineering.md entirely (absent from #455's 17-doc list), leaving 12 bare normative "shall"; this PR converted them to "must" and the corpus is now genuinely shall-free outside the 3 preserved classes. Not previously a separate TODO item; surfaced by Sweep 75 as the completion of FR-44.
+
 ### PR #455: FR-44: corpus-wide shall->must normative-verb harmonization (2026-06-29)
 
 Converted all 125 normative "shall"/"shall not" to "must"/"must not" across 17 documents (per master-spec §6.1's must/must-not register) and fixed the stale glossary doctype definitions that still sanctioned "shall"; a deterministic scripted apply preserved the 3 non-normative occurrences (the lint-shall-near-uncertainty.py filename references and a backticked word-reference).

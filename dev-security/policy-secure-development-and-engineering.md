@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.2\
-**Date:** 2026-06-19\
+**Version:** 1.0.3\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -72,7 +72,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ### 2. Code management and version control
 
-2.1 All source code shall reside in approved version control repositories with enforced access controls and audit logging.
+2.1 All source code must reside in approved version control repositories with enforced access controls and audit logging.
 
 2.2 Commits and merges must require multi-person review and automated validation.
 
@@ -80,7 +80,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ### 3. Secure coding practices
 
-3.1 Developers shall follow OWASP ASVS v5 and language-specific secure coding standards.
+3.1 Developers must follow OWASP ASVS v5 and language-specific secure coding standards.
 
 3.2 Code must be free of hardcoded secrets, credentials, or API keys.
 
@@ -92,7 +92,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 4.1 AI-assisted code generation tools must be approved and monitored by the CISO.
 
-4.2 All AI-generated code shall undergo static and dynamic security scanning before integration.
+4.2 All AI-generated code must undergo static and dynamic security scanning before integration.
 
 4.3 Human review and sign-off are mandatory for any AI-generated code merged into production repositories.
 
@@ -106,13 +106,13 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 5.3 Vulnerable components must be patched or replaced within defined SLAs: Critical, 7 days; High, 14 days.
 
-5.4 A Software Bill of Materials (SBOM) shall be maintained for all applications per NIST Executive Order 14028 guidance.
+5.4 A Software Bill of Materials (SBOM) must be maintained for all applications per NIST Executive Order 14028 guidance.
 
 ### 6. Testing and validation
 
 6.1 Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST), and Software Composition Analysis (SCA) are mandatory for all releases.
 
-6.2 Penetration testing shall occur annually or after major updates.
+6.2 Penetration testing must occur annually or after major updates.
 
 6.3 Unit, integration, and acceptance testing must include security criteria and pass/fail thresholds.
 
@@ -122,21 +122,21 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 7.1 All code changes must be peer-reviewed by at least one qualified developer and one security reviewer.
 
-7.2 Peer reviews shall verify functionality, maintainability, and adherence to secure coding standards.
+7.2 Peer reviews must verify functionality, maintainability, and adherence to secure coding standards.
 
 7.3 Review comments and approvals must be logged within the version control platform.
 
 ### 8. Continuous integration and deployment (CI/CD)
 
-8.1 CI/CD pipelines shall include automated security scanning, dependency checks, and signature validation.
+8.1 CI/CD pipelines must include automated security scanning, dependency checks, and signature validation.
 
 8.2 Deployment pipelines must require approval gates based on test results and risk severity levels.
 
-8.3 Build environments shall be isolated and signed artefacts must be validated before release.
+8.3 Build environments must be isolated and signed artefacts must be validated before release.
 
 ### 9. Secure configuration and environment management
 
-9.1 Development environments shall mirror production security configurations where feasible.
+9.1 Development environments must mirror production security configurations where feasible.
 
 9.2 Configuration baselines and infrastructure-as-code templates must be stored in controlled repositories.
 
@@ -144,11 +144,11 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ### 10. Continual improvement and metrics
 
-10.1 Development teams shall track metrics including vulnerability density, code coverage, and remediation time.
+10.1 Development teams must track metrics including vulnerability density, code coverage, and remediation time.
 
-10.2 Annual secure coding training shall be mandatory for all developers.
+10.2 Annual secure coding training must be mandatory for all developers.
 
-10.3 Lessons learned from incidents or audits shall drive updates to the SDLC framework.
+10.3 Lessons learned from incidents or audits must drive updates to the SDLC framework.
 
 ---
 
