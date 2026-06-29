@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.442, PR #464
+
+`.working/` + version surfaces for local project: session-closing handoff PR for the 2026-06-29 unattended session (#458 through #463). Batches the #463 [`/validate-pr`](validate-pr/2026-06-29-PR-463.md) (0 findings, 1 frozen-record note) and `/retro` rows; transitions [`overnight-pr.md`](overnight-pr.md) `in-flight` to `stub` (overnight mode ended by maintainer direction; durable directive content retained in [`pending-decisions.md`](pending-decisions.md)); refreshes [`session-handoff.md`](session-handoff.md) with the new current state snapshot, the session-closing asserted-expectations block (green-at-`9dc073c` 55/55), and the [`session-metrics.md`](session-metrics.md) row. Skips its own trailing `/validate-pr` + `/retro` per the handoff-PR exception; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 76 over the #458..#464 deltas). Library `2026.06.441` to `2026.06.442`; README `1.9.312` to `1.9.313`.
+
 ## 2026-06-29, Library Version 2026.06.441, PR #463
 
 Promotes 5 maintainer / library-meta roles into the Role Authority Register and closes TODO §4.5 S2 as a register consolidation (not a new gate), having found the role-consistency check already shipped as gate 8.
