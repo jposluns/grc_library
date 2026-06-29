@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #462: S1 cross-document retention-consistency gate (gate 55) (2026-06-29)
+
+Closes TODO §4.5 S1: new `tools/lint-retention-consistency.py` (gate 55) verifying that the evidence-retention period each of three procedures (CAPA, internal-audit, control-testing) cites matches its canonical row in the Data Retention Schedule register; the mechanical enforcement of the register rows' existing "matches ..." cross-reference notes. Wired into all four parity surfaces + a 4-case regression fixture; gate count 54 to 55.
+
 ### PR #461: codify the skeptical pre-push verification standard (2026-06-29)
 
 Maintainer-directed (not previously in TODO): a tiered verifier standard layered on the five disciplines (not a sixth), no verifier for quick fixes, one refute-briefed verifier pre-push for substantive changes, the full high-assurance harness for sensitive ones; with the validate-fix-re-verify loop (three-strikes-then-defer), the "overruling a verifier is never silent" log (finding + reasoning + revert path), and the new override register [`.working/verifier-overrides.md`](verifier-overrides.md) surfaced at the next attended boundary / `/resume` step 7. Stricter early-run oversight kept in memory, not codified, per maintainer direction.
