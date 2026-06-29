@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-06-26\
+**Version:** 1.0.7\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -99,7 +99,7 @@ The **GRC Manager** is responsible for:
 
 ### 2.4 ERC reporting
 
-The **Executive Risk Committee (ERC)** receives a quarterly CAPA status report that includes:
+The **Enterprise Risk Committee (ERC)** receives a quarterly CAPA status report that includes:
 
 - Total number of open CAPAs by classification and domain;
 - CAPAs opened and closed in the reporting period;
@@ -286,7 +286,7 @@ Approval authority for an extension does not, on its own, authorise an unbounded
 | Extension number | Required approving authority | Additional requirement |
 |------------------|------------------------------|------------------------|
 | **1st extension** | Per §6.3 (CISO for Critical; GRC Manager for High / Moderate / Low) | Documented justification and revised target date |
-| **2nd extension** | Executive Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
+| **2nd extension** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
 | **3rd extension** | Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
 | **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension may not be granted by any authority. |
 

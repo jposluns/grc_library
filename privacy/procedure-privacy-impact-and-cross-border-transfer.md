@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.1\
-**Date:** 2026-06-28\
+**Version:** 1.5.2\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -41,7 +41,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 | CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
 | CISO | Ensures that technical and organisational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
-| Executive Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
+| Enterprise Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
 
 High-risk processing activities require CIO approval and ERC escalation.
 

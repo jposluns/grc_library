@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.1\
-**Date:** 2026-06-28\
+**Version:** 1.5.2\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -203,7 +203,7 @@ The Privacy Management Programme is reviewed annually by the Data Protection Off
 - Cross-border transfer mechanism currency.
 - Programme gaps identified through audits or incidents.
 
-Results are reported to the CIO and included in the annual GRC programme report to the Executive Risk Committee (ERC).
+Results are reported to the CIO and included in the annual GRC programme report to the Enterprise Risk Committee (ERC).
 
 ---
 

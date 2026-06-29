@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-06-29\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -121,7 +121,7 @@ Additional regulatory requirements applicable to the organisation's jurisdiction
 
 ### 3.3 ERC approval
 
-The draft Annual Audit Plan is submitted to the **Executive Risk Committee (ERC) for approval no later than 31 January** of the year to which it applies.
+The draft Annual Audit Plan is submitted to the **Enterprise Risk Committee (ERC) for approval no later than 31 January** of the year to which it applies.
 
 The submission package includes:
 
