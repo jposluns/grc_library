@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.436, PR #458
+
+Sweep 75 close-out (the `/resume` loop-break corpus-wide `/validate`) plus the FR-44 completion fix it surfaced.
+
+### Fixed
+
+- [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md): converted the 12 bare normative `shall` occurrences the FR-44 sweep (#455) missed to `must` (lines 75, 83, 95, 109, 115, 125, 131, 135, 139, 147, 149, 151), via a deterministic `\bshall\b`->`must` word-boundary substitution. The file's own pre-existing `must` (e.g. L135 "signed artefacts must be validated") was preserved. Document Version `1.0.2`->`1.0.3`, Date `2026-06-19`->`2026-06-29`. Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) from the bumped metadata.
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): added the Sweep 75 iter-1 row; Version `2.0.67`->`2.0.68`.
+- Added the per-iteration detail file [`.working/validate-sweeps/2026-06-29-sweep75-iter1.md`](../validate-sweeps/2026-06-29-sweep75-iter1.md).
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress updated for #458; stays `in-flight` (continuing overnight run).
+- [`.working/session-handoff.md`](../session-handoff.md): Resume cursor advanced to Sweep 75; pruned per the keep-current-plus-1-prior discipline (resume step 6a); Next-actions / State-snapshot refreshed.
+
+### Verification
+
+- **Sweep 75**: full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity). One deduped finding (Subagent A `fr44-miss` = Subagent B `fr44-shall-residue`); Subagent C clean. The finding is the **escalation case**: it contradicts the #457 handoff's asserted-clean claim that the FR-44 sweep was complete corpus-wide. Root cause: #455's file-discovery omitted this Policy-doctype document (it was not in the enumerated 17-doc list), and the "0 normative shall remain" verification grepped the sweep's own input set, so it self-corroborated the miss. Gate-9 ([`lint-shall-near-uncertainty.py`](../../tools/lint-shall-near-uncertainty.py)) is blind to this class (it fires only near uncertainty markers), so the residue escaped the mechanical layer too.
+- **Apply-time**: orchestrator re-read the file (confirmed 12 occurrences, metadata 1.0.2/2026-06-19, gate-9 green) and ran an independent corpus-wide bare-token grep confirming this is the only residual file (the 3 preserved-class hits remain: the gate-9 filename token in 2 files, and the one backticked `` `shall` `` word-reference at [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) line 145).
+- **Post-fix re-parse**: corpus-wide bare normative `shall` grep returns 0; `tools/run_all_audits.sh` 54/54 green; gate-9 green. Iteration-2 empty-delta primary-stop termination.
+
+### Discipline observation
+
+The frozen #455 CHANGELOG-detailed claim "0 normative shall remain" is left as-shipped (frozen records are not retro-edited); the scoping limitation (the grep ran against the sweep's own input set, not a true corpus-wide scan) is recorded here so a future reader does not mistake the #455 claim for corpus-wide proof. The general lesson, logged for the worker-brief / sweep methodology: a corpus-wide-completion verification must grep the corpus, not the change's own input set, or it self-corroborates the very omission it should catch.
+
 ## 2026-06-29, Library Version 2026.06.435, PR #457
 
 `.working/` session-closing handoff for the overnight correction-batch session (#451 through #456): handoff refresh (new Next-actions / State-snapshot / Asserted-expectations blocks), the session-metrics row, overnight-pr progress kept `in-flight`, the batched #456 `/validate-pr` (1 Low, fixed) + `/retro` rows, the gate-50 handoff-exemption row, and the live-TODO glossary line-anchor fix. No corpus-document body change. This PR skips its own `/validate-pr` + `/retro` per the session-closing handoff-PR loop-break; the next session's corpus-wide `/validate` (Sweep 75) is the compensating control. Library `2026.06.434` to `2026.06.435`; README `1.9.305` to `1.9.306`.
