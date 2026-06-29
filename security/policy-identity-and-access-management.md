@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.1\
-**Date:** 2026-06-23\
+**Version:** 1.3.2\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -50,46 +50,46 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 1. Identity management
 
-1.1 All identities (user, service, and device) shall be uniquely identifiable and associated with a verified entity.
-1.2 Access provisioning shall follow the principle of least privilege and need to know.
+1.1 All identities (user, service, and device) must be uniquely identifiable and associated with a verified entity.
+1.2 Access provisioning must follow the principle of least privilege and need to know.
 1.3 IAM directories must maintain authoritative records of all identities, access entitlements, and authentication factors.
 1.4 Identities must be deactivated within 24 hours of termination or contract completion.
 
 ### 2. Authentication
 
 2.1 Multi-Factor Authentication (MFA) is mandatory for all privileged accounts and remote access.
-2.2 Passwords and tokens shall comply with NIST SP 800-63B complexity and rotation standards.
-2.3 Where possible, passwordless authentication (FIDO2 or certificate-based) shall be implemented to reduce credential theft risks.
+2.2 Passwords and tokens must comply with NIST SP 800-63B complexity and rotation standards.
+2.3 Where possible, passwordless authentication (FIDO2 or certificate-based) must be implemented to reduce credential theft risks.
 2.4 Shared credentials are prohibited; each account must be traceable to a single entity.
 
 ### 3. Authorization
 
-3.1 All access shall be role-based (RBAC) or attribute-based (ABAC) where feasible. Roles must align with approved job functions, data classifications, and BASC Section 6 access-security requirements.
+3.1 All access must be role-based (RBAC) or attribute-based (ABAC) where feasible. Roles must align with approved job functions, data classifications, and BASC Section 6 access-security requirements.
 3.2 Segregation of Duties (SoD) must be implemented for high-risk roles to prevent conflicts of interest.
 3.3 Temporary access (e.g., vendor or project) must include start and expiry dates and be reviewed prior to renewal.
-3.4 System owners shall review user entitlements at least quarterly.
+3.4 System owners must review user entitlements at least quarterly.
 
 ### 4. Privileged access management (PAM)
 
 4.1 Privileged accounts (administrators, root, service, and API keys) must be centrally managed and audited.
 4.2 Privileged access sessions must be logged, monitored, and retained per the [data-retention schedule](../governance/register-data-retention-schedule.md) (2 years for privileged-access session logs).
-4.3 Emergency ("break-glass") accounts shall have documented approval, use, and expiration controls.
+4.3 Emergency ("break-glass") accounts must have documented approval, use, and expiration controls.
 
 ### 5. Access review and certification
 
-5.1 All user and service account access rights shall undergo periodic certification at least annually, with evidence maintained.
+5.1 All user and service account access rights must undergo periodic certification at least annually, with evidence maintained.
 5.2 Any discrepancies identified during certification must be remediated within 15 business days.
 5.3 Audit logs for provisioning, deprovisioning, and certification must be preserved for compliance verification.
 
 ### 6. AI and automation access controls
 
-6.1 AI systems, automation agents, and APIs shall have discrete non-human identities subject to equivalent authentication and access governance.
+6.1 AI systems, automation agents, and APIs must have discrete non-human identities subject to equivalent authentication and access governance.
 6.2 AI models and training environments must use signed access tokens with expiration control.
 6.3 Access to AI model weights, embeddings, or datasets must be limited to authorized personnel and validated through logs.
 
 ### 7. Monitoring and logging
 
-7.1 All IAM events, including logins, privilege escalations, failed authentications, and permission changes, shall be logged in the SIEM per the Logging and Monitoring Standard.
+7.1 All IAM events, including logins, privilege escalations, failed authentications, and permission changes, must be logged in the SIEM per the Logging and Monitoring Standard.
 7.2 IAM alerts must be correlated with endpoint and network telemetry to detect anomalous behaviour.
 7.3 AI-driven anomaly detection may be used to identify compromised accounts or access misuse.
 
@@ -106,8 +106,8 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 ### 10. Continual improvement
 
-10.1 IAM processes shall be reviewed annually in conjunction with ISO 27001 and COBIT DSS05 controls.
-10.2 Emerging technologies such as adaptive authentication, identity federation, and decentralized ID (DID) models shall be evaluated for adoption.
+10.1 IAM processes must be reviewed annually in conjunction with ISO 27001 and COBIT DSS05 controls.
+10.2 Emerging technologies such as adaptive authentication, identity federation, and decentralized ID (DID) models must be evaluated for adoption.
 
 ---
 

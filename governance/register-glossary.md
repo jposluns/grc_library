@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.3\
-**Date:** 2026-06-28\
+**Version:** 1.4.4\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -348,13 +348,13 @@ Terms used by the library to classify its own artefacts.
 | **Guideline** | A doctype expressing recommended (non-mandatory) practice. Uses "should" rather than "must". |
 | **Matrix** | A doctype mapping artefacts to external frameworks or to each other. |
 | **Plan** | A doctype defining a sequence of activities, milestones, or recovery steps for a specific scenario. |
-| **Policy** | A doctype expressing organisational position. Mandatory. Uses "shall" / "must". |
+| **Policy** | A doctype expressing organisational position. Mandatory. Uses "must". |
 | **Procedure** | A doctype defining an operational sequence of activities. |
 | **Register** | A doctype maintaining a running record (inventory, list, index). |
 | **Roadmap** | A doctype defining time-sequenced milestones for a programme. |
 | **SOP** | Standard Operating Procedure. A doctype for compact operational guidance, typically in checklist form. |
 | **Specification** | A doctype defining requirements for an artefact or process. |
-| **Standard** | A doctype expressing required minimum requirements. Mandatory. Uses "shall" / "must". |
+| **Standard** | A doctype expressing required minimum requirements. Mandatory. Uses "must". |
 | **Template** | A doctype providing reusable structural patterns for documents the adopter will create. |
 
 ---

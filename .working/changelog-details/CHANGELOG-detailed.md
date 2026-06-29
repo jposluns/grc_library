@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.433, PR #455
+
+FR-44: corpus-wide normative-verb harmonization (shall to must). Closes the project-local TODO FR-44; batches the #454 QA rows.
+
+### Changed
+
+- **17 documents**: all 125 normative "shall" / "shall not" occurrences converted to "must" / "must not" per master-spec [`specification-master-project.md`](../../specification-master-project.md) §6.1 (the requirement-language register: must / must not are the normative verbs). Each document bumped its Version and Date (2026-06-29). The documents: [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) (22), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md) (16), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) (15), [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (15), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) (12), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) (12), [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) (9), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (8), [`security/policy-network-communications-security.md`](../../security/policy-network-communications-security.md) (5), [`governance/framework-sustainability-and-responsible-technology.md`](../../governance/framework-sustainability-and-responsible-technology.md) (3), and 7 single-occurrence files ([`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md), [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md), [`privacy/jurisdictions/annex-privacy-kenya.md`](../../privacy/jurisdictions/annex-privacy-kenya.md), [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md), [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md), and the glossary below).
+- [`governance/register-glossary.md`](../../governance/register-glossary.md): two doctype definitions ("Policy" and "Standard") read `Uses "shall" / "must".`, sanctioning "shall" against §6.1; corrected to `Uses "must".`. This was a cross-document contradiction (the glossary still permitted a verb the master spec does not).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the 17 metadata bumps (taxonomy first, then portal/scorecard).
+- [`TODO.md`](../../TODO.md): FR-44 deleted (closed); [`.working/DONE.md`](../DONE.md) entry added (PR #455).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #454 row (0/0); Version `1.2.238` to `1.2.239`. [`.working/improvement-log.md`](../improvement-log.md): #454 retro row; Version `1.0.186` to `1.0.187`.
+
+### Verification
+
+- **Deterministic scripted apply with re-parse** (the high-assurance "delicate at scale" method, editorial-cost so not the full harness): a dry-run-validated script classified every occurrence, converted the 125 normative ones, and the re-parse caught 3 false positives a blind word-bounded replace would have corrupted: the real filename [`tools/lint-shall-near-uncertainty.py`](../../tools/lint-shall-near-uncertainty.py) (gate 9, appears in the spec and the health-report template, hyphen-bounded) and a backticked word-reference `` `shall` `` in the minimum-viable-governance guideline. The refined regex excludes hyphen/backtick-adjacent "shall", so those 3 files were correctly skipped (no change, no version bump).
+- Post-apply corpus grep: **0 normative (space/punctuation-bounded) "shall" remain**; the only residual "shall" are the 3 preserved non-normative references. Spot-read confirmed grammatical conversions ("must operate", "must not exceed", "A 4th renewal must not be granted") and the glossary fix.
+- Gate 9 detects both "shall" and "must" as mandatory markers (module docstring: "Mandatory markers detected: shall, must, is required"), so the conversion did not neuter it; `tools/run_all_audits.sh` **54/54** green after the conversion + 17 version bumps + artefact regen.
+
+### Discipline observation
+
+- The re-parse step of the deterministic-apply method earned its keep: a blind `\bshall\b` replace would have rewritten the "shall" inside the gate-9 filename to "must" (a broken link / wrong reference) and flattened a deliberate backticked word-reference. Classifying the negatives (the non-normative occurrences) before applying is the open-on-negative-with-signal discipline applied to a sweep.
+
 ## 2026-06-29, Library Version 2026.06.432, PR #454
 
 Pack documentation-completeness fix (distributable pack content): completed the pack-README rule-scope table. Closes TODO §4.24; batches the #453 QA rows.

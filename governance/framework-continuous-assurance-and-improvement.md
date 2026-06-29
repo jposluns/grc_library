@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-06-29\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -94,7 +94,7 @@ This structure provides a continuous feedback loop ensuring organisational learn
 
 ### 4.1 Digital trust indicators (COBIT 2019)
 
-The organisation shall track and improve:
+The organisation must track and improve:
 - Governance effectiveness and transparency.
 - Data reliability and system integrity.
 - Security resilience and service availability.

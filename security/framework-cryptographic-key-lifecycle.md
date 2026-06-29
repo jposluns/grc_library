@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-06-27\
+**Version:** 1.0.3\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -106,7 +106,7 @@ See [`compliance/`](../compliance/) for the sector annex applicable to the organ
 
 ## 6. Post-quantum cryptography transition
 
-In alignment with the Post-Quantum Cryptography Roadmap, the organisation shall:
+In alignment with the Post-Quantum Cryptography Roadmap, the organisation must:
 
 1. Inventory all cryptographic dependencies by 2025 (complete).
 2. Deploy PQC hybrid algorithms in new systems from 2026.

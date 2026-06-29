@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.12\
-**Date:** 2026-06-27\
+**Version:** 1.3.13\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -44,7 +44,7 @@ This procedure applies to:
 
 | Role | Responsibilities |
 | --- | --- |
-| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications. No system shall be isolated or reimaged without the Incident Commander's direction. |
+| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications. No system must be isolated or reimaged without the Incident Commander's direction. |
 | **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. Authorizes IR partner engagement. Oversees regulatory notification decisions. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers, partners, and regulators. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
@@ -105,7 +105,7 @@ Security incidents may be detected from any of the following sources:
 
 ### 4.2 Triage process
 
-Upon receipt of an alert or report, the SOC analyst shall:
+Upon receipt of an alert or report, the SOC analyst must:
 
 1. **Validate** the event: confirm it is not a false positive by corroborating evidence from at least one additional source.
 2. **Classify severity** using the criteria in Section 3.
@@ -149,7 +149,7 @@ Upon receipt of an alert or report, the SOC analyst shall:
 
 ### 5.3 Eradication
 
-Once the scope of compromise is confirmed, the SOC and IT Operations shall:
+Once the scope of compromise is confirmed, the SOC and IT Operations must:
 
 1. Remove all identified malware, persistence mechanisms, backdoors, and unauthorized accounts.
 2. Revoke and rotate all credentials that were or may have been exposed, including service accounts, API keys, and certificates.
@@ -192,7 +192,7 @@ Where the organisation participates in a sector programme that defines elevated-
 
 ### 6.4 Notification confidentiality
 
-Regulatory notifications are Restricted classification materials. Content shall not be shared externally beyond regulators, Legal, the CIO, and the CISO without written authorization. No public statements regarding the incident shall be made without CIO approval and coordination with Legal Counsel.
+Regulatory notifications are Restricted classification materials. Content must not be shared externally beyond regulators, Legal, the CIO, and the CISO without written authorization. No public statements regarding the incident must be made without CIO approval and coordination with Legal Counsel.
 
 ---
 
@@ -209,7 +209,7 @@ Regulatory notifications are Restricted classification materials. Content shall 
 
 ### 7.2 PIR process
 
-The PIR shall be conducted by the Incident Commander (for P1/P2) or SOC lead (for P3/P4) and shall address:
+The PIR must be conducted by the Incident Commander (for P1/P2) or SOC lead (for P3/P4) and must address:
 
 1. **Timeline reconstruction**: complete chronological sequence from initial indicator to closure, with timestamps.
 2. **Root cause analysis**: the fundamental control failure, vulnerability, or process gap that enabled the incident.
@@ -308,7 +308,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 
 ## 10. Metrics
 
-The SOC shall track and report the following metrics at the monthly security operations review and quarterly governance review:
+The SOC must track and report the following metrics at the monthly security operations review and quarterly governance review:
 
 | Metric | Definition | Target |
 | --- | --- | --- |

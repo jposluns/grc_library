@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-06-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -49,17 +49,17 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 1. Compliance management system
 
-1.1 The organisation shall operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
+1.1 The organisation must operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
 
-1.2 The CMS shall maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
+1.2 The CMS must maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
 
-1.3 Each obligation shall have an assigned owner, mapped controls, and evidence linkages validated by Internal Audit.
+1.3 Each obligation must have an assigned owner, mapped controls, and evidence linkages validated by Internal Audit.
 
 ---
 
 ## 2. Regulatory horizon scanning and change management
 
-2.1 Legal, compliance, and regional teams shall continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organisation participates).
+2.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organisation participates).
 
 2.2 AI-related regulatory tracking must capture EU AI Act obligations, AIDA conformity updates, and supervisory guidance.
 
@@ -71,7 +71,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 3. Risk assessment and treatment
 
-3.1 Compliance risks shall be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
+3.1 Compliance risks must be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
 
 3.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
@@ -81,13 +81,13 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 4. Control design and evidence management
 
-4.1 Each obligation shall be mapped to one or more documented and tested controls.
+4.1 Each obligation must be mapped to one or more documented and tested controls.
 
 4.2 Evidence of compliance (audits, logs, reports) must be retained in the GRC repository for a minimum of seven years.
 
 4.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organisation participates in a covered programme per the relevant sector annex; see [`compliance/`](../compliance/).
 
-4.4 AI governance controls shall include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
+4.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
 
 ---
 
@@ -115,7 +115,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 7. Monitoring, metrics, and review
 
-7.1 The Compliance Steering Group shall review compliance KPIs quarterly, including AI governance and BASC metrics.
+7.1 The Compliance Steering Group must review compliance KPIs quarterly, including AI governance and BASC metrics.
 
 7.2 KPIs include: obligation coverage completeness; audit success rate; notification timeliness; BASC audit pass percentage; AI regulatory readiness score.
 
@@ -125,7 +125,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 8. Continuous improvement
 
-8.1 Gaps identified through audits, incidents, or BASC assessments shall be documented in the CAPA Procedure and compliance controls register.
+8.1 Gaps identified through audits, incidents, or BASC assessments must be documented in the CAPA Procedure and compliance controls register.
 
 8.2 Corrective actions (CAPAs) must include root cause, remediation, and verification evidence.
 

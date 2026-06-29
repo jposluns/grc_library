@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.1\
-**Date:** 2026-06-24\
+**Version:** 1.1.2\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -54,7 +54,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ## 1. Network segmentation and architecture
 
-1.1 The network shall be segmented into zones based on business function, sensitivity, and regulatory requirements. Sector-programme zones (for example, BASC customs and logistics segments) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+1.1 The network must be segmented into zones based on business function, sensitivity, and regulatory requirements. Sector-programme zones (for example, BASC customs and logistics segments) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 1.2 Segmentation must isolate:
 - Corporate systems.
@@ -62,7 +62,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 - Public-facing services and DMZ.
 - Sector-programme systems (where the organisation participates in a covered programme, per the relevant sector annex).
 
-1.3 Inter-zone communication shall be restricted and logged, requiring explicit access rules approved by the CISO.
+1.3 Inter-zone communication must be restricted and logged, requiring explicit access rules approved by the CISO.
 
 ---
 
@@ -114,7 +114,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ## 6. AI-assisted network defence
 
-6.1 AI analytics shall continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
+6.1 AI analytics must continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
 
 6.2 AI tools must produce explainable results for all autonomous actions and integrate with SOC dashboards.
 
@@ -130,11 +130,11 @@ Where the organisation participates in a sector programme that imposes additiona
 
 ## 8. Monitoring, testing, and continuous improvement
 
-8.1 The SOC shall continuously monitor performance, intrusion alerts, and access logs.
+8.1 The SOC must continuously monitor performance, intrusion alerts, and access logs.
 
 8.2 Penetration tests and vulnerability scans must occur at least annually; sector-programme inspections occur at the cadence stated in the relevant sector annex.
 
-8.3 Quarterly reviews shall validate ZTNA configuration effectiveness.
+8.3 Quarterly reviews must validate ZTNA configuration effectiveness.
 
 8.4 Lessons learned and audit findings feed into the Continuous Improvement programme and CAPA process.
 

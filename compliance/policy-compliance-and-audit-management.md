@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.4\
-**Date:** 2026-06-24\
+**Version:** 1.0.5\
+**Date:** 2026-06-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -55,7 +55,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 5. AI and trade compliance oversight
 5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles. 
-5.2 Documentation and audit trails shall demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles. 
+5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles. 
 5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks. 
 5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy. 
 5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
@@ -65,44 +65,44 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ## Policy and control statements
 
 ### 1. Compliance management framework
-1.1 The organisation shall operate an ISO 37301-compliant CMS integrating policies, procedures, registers, and monitoring plans. 
-1.2 Compliance obligations shall be maintained in a central repository with mapped laws, standards, and contract clauses. 
-1.3 Compliance performance indicators shall be reviewed quarterly and escalated where thresholds are breached.
+1.1 The organisation must operate an ISO 37301-compliant CMS integrating policies, procedures, registers, and monitoring plans. 
+1.2 Compliance obligations must be maintained in a central repository with mapped laws, standards, and contract clauses. 
+1.3 Compliance performance indicators must be reviewed quarterly and escalated where thresholds are breached.
 
 ### 2. Audit planning and execution
-2.1 Annual audit plans shall be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits. 
-2.2 Audit criteria shall follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation. 
-2.3 Each audit shall document objective evidence, findings, severity, and recommendations. 
-2.4 Audit evidence, process documentation, and system-specific procedures shall be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
+2.1 Annual audit plans must be risk-based, approved by the Audit Committee, and include IT, operational, supplier, AI, and trade-compliance audits. 
+2.2 Audit criteria must follow ISO 19011 principles of integrity, independence, evidence-based assessment, and risk orientation. 
+2.3 Each audit must document objective evidence, findings, severity, and recommendations. 
+2.4 Audit evidence, process documentation, and system-specific procedures must be retained per the records retention and destruction standard ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)) and aligned with the operations domain's IT service management framework ([`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)) so that testing and assurance activities remain traceable to governance artefacts.
 
 ### 3. Audit independence and objectivity
-3.1 Internal Audit shall remain functionally independent and report directly to the Board Audit Committee. 
-3.2 Auditors shall not audit activities where they hold operational responsibility.
+3.1 Internal Audit must remain functionally independent and report directly to the Board Audit Committee. 
+3.2 Auditors must not audit activities where they hold operational responsibility.
 
 ### 4. Findings, nonconformities, and CAPA management
-4.1 All audit findings shall be classified as critical, major, or minor nonconformities. 
-4.2 CAPAs shall include root cause analysis, defined actions, responsible parties, target dates, and verification evidence. 
-4.3 CAPA effectiveness shall be validated by Internal Audit or Compliance within 90 days of implementation. 
+4.1 All audit findings must be classified as critical, major, or minor nonconformities. 
+4.2 CAPAs must include root cause analysis, defined actions, responsible parties, target dates, and verification evidence. 
+4.3 CAPA effectiveness must be validated by Internal Audit or Compliance within 90 days of implementation. 
 4.4 Findings involving trade-compliance frameworks must be verified by the applicable compliance officer and reported to the relevant program authority when required.
 
 ### 5. Algorithmic and AI compliance auditing
-5.1 AI systems shall undergo algorithmic audits for transparency, bias, robustness, and ethical compliance. 
-5.2 AI audit trails shall include datasets, models, parameters, evaluation metrics, and risk classification per ISO 23894 and NIST AI RMF. 
+5.1 AI systems must undergo algorithmic audits for transparency, bias, robustness, and ethical compliance. 
+5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification per ISO 23894 and NIST AI RMF. 
 5.3 Where the cost-benefit profile justifies, automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows; automation is optional, not mandatory.
 
 ### 6. Reporting and escalation
-6.1 Audit results shall be reported to management within 15 business days of closure. 
+6.1 Audit results must be reported to management within 15 business days of closure. 
 6.2 Material compliance breaches must be escalated to the CCO and Audit Committee within two business days. 
-6.3 Quarterly dashboards shall summarize findings, CAPA status, and key metrics.
+6.3 Quarterly dashboards must summarize findings, CAPA status, and key metrics.
 
 ### 7. Records and retention
-7.1 All audit reports, evidence, and CAPA records shall be retained for at least seven years. 
-7.2 Records shall be securely stored in compliance with data protection and evidentiary requirements.
+7.1 All audit reports, evidence, and CAPA records must be retained for at least seven years. 
+7.2 Records must be securely stored in compliance with data protection and evidentiary requirements.
 
 ### 8. Continual improvement
-8.1 Audit methodologies shall be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01. 
-8.2 Lessons learned and regulatory updates shall inform training, control enhancement, and risk recalibration. 
-8.3 Digital trust and algorithmic assurance metrics shall be integrated in accordance with COBIT 2019 MEA01.
+8.1 Audit methodologies must be reviewed annually per ISO 19011 Clause 10 and COBIT MEA01. 
+8.2 Lessons learned and regulatory updates must inform training, control enhancement, and risk recalibration. 
+8.3 Digital trust and algorithmic assurance metrics must be integrated in accordance with COBIT 2019 MEA01.
 
 
 
