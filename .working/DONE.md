@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #471: §4.6 (P4): QA-cadence mechanical enforcement closed as satisfied (2026-06-29)
+
+Closed §4.6 as substantially-satisfied by the existing gate 50 Check 1 (`lint-bookkeeping-parity.py`), which already enforces §4.6's mechanically-valuable missing-row half corpus-wide (every in-window PR needs a `validate-pr` + `/retro` row, with the handoff/subsumption exemptions). The residual abbreviated-marker half is not FP-free-mechanizable on the free-prose row schema (the S3-shaped finding), so it stays the CLAUDE.md "Throughput pressure does not authorise QA abbreviation" convention. Maintainer-decided "close 4.6 as satisfied". No new gate.
+
 ### PR #470: docs/ house-style enforcement gap closed (P3) (2026-06-29)
 
 Brought the authored `docs/` adopter guides under the gate-2 language/style audit (scan extended to `docs/`, generated artefacts excluded, worked-example meta-tutorial exempted from heading-case/sanitisation/ensure) and fixed all 117 accumulated findings (71 dashes, 25 `-ise`, 4 heading-case, 1 vendor name). Maintainer-decided "full house-style now".
