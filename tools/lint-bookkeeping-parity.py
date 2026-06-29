@@ -10,8 +10,9 @@ layer did not previously catch (Sweep 22, 2026-06-22: eleven PRs recorded
 with an informal substitute for the formal QA record).
 
 This is the §4.11 "bookkeeping-parity" gate family member co-designed with
-the queued §4.6 (QA-cadence) and §4.10 (TODO/DONE rotation) items; the
-separate pre-push-runner gate (folding gates 40/31 into
+the §4.6 (QA-cadence) and §4.10 (TODO/DONE rotation) items, both since closed
+(§4.6 as this gate's Check 1, satisfied in #471; §4.10 closed via gate 57 plus
+the D5 PR-time check); the separate pre-push-runner gate (folding gates 40/31 into
 ``run-pr-time-checks.sh``) was built first in PR #333, so this gate extends
 rather than duplicates it. It is modelled on
 ``tools/lint-todo-staleness.py`` (gate 45), the closest analogue: that gate
@@ -24,7 +25,7 @@ the post-commit ``run_all_audits.sh`` already runs it before any push.
 
 The four checks:
 
-**Check 1, QA-cadence parity (the §4.6 surface).** Derive the merged-PR
+**Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from ``CHANGELOG.md`` ``## YYYY-MM-DD, Library Version X, PR #N``
 headers. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
 ``.working/validate-pr/history.md`` AND (for substantive PRs) a row in
@@ -47,7 +48,7 @@ headers. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
   they are listed in ``KNOWN_HANDOFF_NO_ROW`` so the gate does not
   false-positive on a legitimately-absent row.
 
-**Check 2, TODO/DONE rotation parity (the §4.10 surface).** Precision-first
+**Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
 rotation-failure shapes the change-tracking rule explicitly prohibits on a
 backlog bullet, a self-completion marker. A descriptive mention such as
@@ -63,7 +64,7 @@ primitive both exist; there is no surface to test against yet, so the gate
 does not fabricate an attestation format. ``worker_provenance_findings()``
 documents its activation condition and returns no findings.
 
-**Check 4, version-history parity (the §4.6 #376 surface).** For every
+**Check 4, version-history parity (the former §4.6 #376 surface).** For every
 tracked file that carries BOTH a metadata ``**Version:**`` field AND a
 ``## Version history`` table, the metadata ``Version`` value must appear as
 a row in that table (the #372 paired-surface miss: the pack README metadata
