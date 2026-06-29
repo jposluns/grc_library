@@ -3549,5 +3549,90 @@ class DirectionalDependencyTests(LinterTestCase):
             )
 
 
+class RetentionConsistencyTests(LinterTestCase):
+    """tools/lint-retention-consistency.py (gate 55)
+
+    The gate is pointed at an isolated temporary repo root (``--root``) holding
+    a minimal Data Retention Schedule register and the three procedures it is
+    cross-referenced with, so a deliberate retention drift can be detected
+    without depending on the live corpus (which is clean).
+    """
+
+    REGISTER_REL = "governance/register-data-retention-schedule.md"
+    PROCS = {
+        "compliance/procedure-capa.md": "CAPA records",
+        "compliance/standard-internal-audit.md": "Internal audit reports",
+        "compliance/procedure-control-testing.md": "Control testing evidence",
+    }
+
+    def _write_tree(self, d: str, *, capa_proc_years: int = 7, capa_anchor: bool = True) -> None:
+        root = Path(d)
+        (root / "governance").mkdir(parents=True, exist_ok=True)
+        (root / "compliance").mkdir(parents=True, exist_ok=True)
+        register = (
+            "# Data Retention Schedule\n\n"
+            "| Record category | Retention period | Basis |\n"
+            "|---|---|---|\n"
+            "| CAPA records | 7 years after closure | Quality management |\n"
+            "| Internal audit reports | 7 years | ISO 19011 |\n"
+            "| Control testing evidence | 7 years | Audit support |\n"
+        )
+        (root / self.REGISTER_REL).write_text(register, encoding="utf-8")
+        bodies = {
+            "compliance/procedure-capa.md": (
+                "# CAPA\n\nAll CAPA records must be "
+                + (f"retained for a minimum of **{capa_proc_years} years**" if capa_anchor else "kept for **7 years**")
+                + " from the CAPA closure date.\n"
+            ),
+            "compliance/standard-internal-audit.md": (
+                "# Internal Audit\n\nAll audit working papers must be retained for "
+                "a minimum of **7 years** from the date of the final report.\n"
+            ),
+            "compliance/procedure-control-testing.md": (
+                "# Control Testing\n\nEvidence is retained for a minimum of 7 years "
+                "per the records-retention standard.\n"
+            ),
+        }
+        for rel, body in bodies.items():
+            (root / rel).write_text(body, encoding="utf-8")
+
+    def test_consistent_tree_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d)
+            result = run_linter("tools/lint-retention-consistency.py", "--root", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"a consistent register/procedure tree must pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+
+    def test_retention_mismatch_flagged(self) -> None:
+        # The CAPA procedure drifts to 5 years while the register row stays 7.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, capa_proc_years=5)
+            result = run_linter("tools/lint-retention-consistency.py", "--root", d)
+            self.assertLinterFails(result, "MISMATCH")
+
+    def test_missing_citation_flagged(self) -> None:
+        # The CAPA procedure no longer carries the retained-for-a-minimum-of anchor.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, capa_anchor=False)
+            result = run_linter("tools/lint-retention-consistency.py", "--root", d)
+            self.assertLinterFails(result, "retained for a minimum of")
+
+    def test_missing_procedure_file_flagged_gracefully(self) -> None:
+        # A renamed / moved procedure must yield the graceful "cannot read" finding,
+        # not an uncaught FileNotFoundError traceback (read_text_safe catches only
+        # UnicodeDecodeError, so the linter guards the missing-file case explicitly).
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d)
+            (Path(d) / "compliance/procedure-capa.md").unlink()
+            result = run_linter("tools/lint-retention-consistency.py", "--root", d)
+            self.assertLinterFails(result, "cannot read procedure")
+            self.assertNotIn(
+                "Traceback", result.stderr,
+                f"missing procedure must be a graceful finding, not a crash.\nstderr:\n{result.stderr}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

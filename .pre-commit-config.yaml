@@ -400,3 +400,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-retention-consistency
+        name: Cross-document retention-consistency audit
+        entry: python3 tools/lint-retention-consistency.py
+        language: system
+        pass_filenames: false
+        always_run: true
