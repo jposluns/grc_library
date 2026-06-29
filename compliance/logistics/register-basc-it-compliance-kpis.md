@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.0\
-**Date:** 2026-06-21\
+**Version:** 1.2.1\
+**Date:** 2026-06-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -41,7 +41,7 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 
 ## Reporting
 
-The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly results are shared with the BASC Compliance function for inclusion in BASC monitoring reports. Annual results are included in the GRC programme report to the Executive Risk Committee (ERC).
+The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly results are shared with the BASC Compliance function for inclusion in BASC monitoring reports. Annual results are included in the GRC programme report to the Enterprise Risk Committee (ERC).
 
 ---
 

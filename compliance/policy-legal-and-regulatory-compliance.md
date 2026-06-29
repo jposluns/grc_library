@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,7 +119,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 7.2 KPIs include: obligation coverage completeness; audit success rate; notification timeliness; BASC audit pass percentage; AI regulatory readiness score.
 
-7.3 Results are presented to the Executive Risk Committee (ERC) and Board Audit and Risk Committee.
+7.3 Results are presented to the Enterprise Risk Committee (ERC) and Board Audit and Risk Committee.
 
 ---
 

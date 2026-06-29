@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-06-29\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -40,7 +40,7 @@ This standard establishes the requirements, principles, and operational framewor
 
 Internal audits serve as a primary mechanism for:
 
-- Providing independent assurance to senior leadership and the Executive Risk Committee (ERC) that material risks are being managed within tolerance;
+- Providing independent assurance to senior leadership and the Enterprise Risk Committee (ERC) that material risks are being managed within tolerance;
 - Identifying control gaps and nonconformities before they result in incidents, regulatory findings, or certification failures;
 - Driving continuous improvement across the GRC programme;
 - Supporting readiness for external audits, regulatory inspections, and certification surveillance assessments.

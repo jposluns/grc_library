@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.434, PR #456
+
+ERC acronym-expansion reconcile (bulk pass): canonicalized "Executive Risk Committee" to "Enterprise Risk Committee" across 9 documents, leaving one semantically-tangled document for authorial review. Batches the #455 QA rows.
+
+### Changed
+
+- **9 documents**: 10 "Executive Risk Committee" occurrences canonicalized to "Enterprise Risk Committee" (glossary canonical, [`governance/register-glossary.md`](../../governance/register-glossary.md):123), "(ERC)" acronym preserved. Each confirmed same-body before replacement: every occurrence is the ERC governance reporting/approval body (e.g. "results presented to the Executive Risk Committee (ERC)", "the Executive Risk Committee (ERC) receives a quarterly CAPA status report"), and the drift was visible as table-cells-already-say-Enterprise vs prose-says-Executive within the same documents (the 2 KPI registers). Each bumped Version + Date (2026-06-29): [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](../../compliance/logistics/register-basc-it-compliance-kpis.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (2 occurrences), [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md), [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md), [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the 9 metadata bumps.
+- [`TODO.md`](../../TODO.md): the ERC item narrowed (not closed) to its residual, the guideline-minimum-viable tier-mapping edge for authorial review.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #455 row (0/0); Version `1.2.239` to `1.2.240`. [`.working/improvement-log.md`](../improvement-log.md): #455 retro row; Version `1.0.187` to `1.0.188`.
+
+### Deferred (authorial judgment, NOT silently merged)
+
+- [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md) retains "Executive Risk Committee" at its Tier-1 table (line 58, a spurious duplicate of the "Enterprise Risk Committee" library-forum row 59) and its Tier-2 consolidation mapping (line 80, "Executive Committee | Executive Management, Executive Risk Committee, Audit Committee ..."). A blind canonicalization here would either create a redundant duplicate row (Tier-1) or contradict the adjacent "Enterprise Risk Committee" consolidated-body row (Tier-2, line 81). Per the verify-before-reconcile discipline ("do not silently merge what may be distinct"), this doc's tier tables are left for an authorial pass and the residual is recorded in TODO.
+
+### Verification
+
+- Post-apply corpus grep: "Executive Risk Committee" remains ONLY in the deferred guideline; all 9 reconciled docs and the corpus elsewhere use "Enterprise Risk Committee". A deterministic scripted apply (context-printing dry-run reviewed before write) performed the canonicalization; the dry-run context confirmed every occurrence was the same governance body. `tools/run_all_audits.sh` 54/54 after the reconcile + 9 version bumps + artefact regen; pre-push guard green.
+
 ## 2026-06-29, Library Version 2026.06.433, PR #455
 
 FR-44: corpus-wide normative-verb harmonization (shall to must). Closes the project-local TODO FR-44; batches the #454 QA rows.
