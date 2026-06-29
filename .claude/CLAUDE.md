@@ -291,6 +291,23 @@ is external. Two mechanisms:
      of the OLD code's function or meaning (the prose half is not mechanically gateable,
      so the checklist line is the guard; the worker-brief template carries the migration
      form as DO rail 8 for fan-out workers).
+   - **Section-close cross-FILE cleanup** (the §N-orphan guard): when this PR closes a
+     numbered TODO §-section (deletes its heading), grep the WHOLE repo for `§N` and
+     `PN.M` references to it, not only `TODO.md` siblings. CLAUDE.md and tool docstrings
+     are recurring cross-FILE carriers, and each live (non-frozen-`.working`) citer is
+     reworded (or has its `§` dropped) in the same PR. The intra-doc-ref gate catches a
+     surviving `§N` only INSIDE the same `.md` file; a tool docstring's "queued §N" or a
+     CLAUDE.md "queued PN gate" is gate-blind and surfaces only at the next PR's
+     `/validate-pr`. (#469's §4.10 close left the `tools/lint-bookkeeping-parity.py`
+     docstring stale; #471's §4.6 close left it and a CLAUDE.md line stale; #472 fixed
+     both. The intra-TODO-only cleanup of #469 is the evidence the grep must span files.)
+   - **Gate-39 count-phrasing** (the P7 trap): when CHANGELOG or any gate-39-scanned prose
+     cites a gate by its number, phrase it as `gates N and M` (the digits AFTER `gates`),
+     never as a two-digit number followed by one short word followed by `gate(s)`. Gate 39's
+     P7 pattern reads that run as a stale gate-count claim and fails the build; citing two
+     numbered gates in sequence, or a `§<two-digit-section> as gate <M>` phrasing, both trip
+     it (#471 and #472 each amended for this). The fix is always to put the number after
+     `gates` or to drop the adjacency.
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
