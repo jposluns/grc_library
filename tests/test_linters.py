@@ -3634,5 +3634,68 @@ class RetentionConsistencyTests(LinterTestCase):
             )
 
 
+class BareNormativeShallTests(LinterTestCase):
+    """tools/lint-bare-normative-shall.py (gate 56)
+
+    Flags a bare normative ``shall`` in authored prose (the FR-44
+    ``shall``->``must`` convention) while preserving three classes: a
+    backticked ``shall`` word-reference, a hyphenated identifier embedding
+    ``shall`` (the gate-9 filename), and a verbatim quote (fenced code or
+    Markdown blockquote).
+    """
+
+    def test_bare_normative_shall_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "bare-shall.md",
+            "# Doc\n\nThe organization shall implement the controls.\n",
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertLinterFails(result, "shall")
+
+    def test_backticked_shall_word_reference_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "backtick-shall.md",
+            "# Doc\n\nNo library `shall` operates without an accountable role.\n",
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a backticked `shall` word-reference must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+    def test_hyphenated_filename_token_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "filename-shall.md",
+            "# Doc\n\nSee [`lint-shall-near-uncertainty.py`](../tools/lint-shall-near-uncertainty.py).\n",
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a hyphenated identifier embedding 'shall' must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+    def test_blockquote_verbatim_shall_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "blockquote-shall.md",
+            "# Doc\n\n> Verbatim source extract: the supplier shall comply with the standard.\n",
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a bare 'shall' in a verbatim blockquote must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+    def test_must_not_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "must-only.md",
+            "# Doc\n\nThe organization must implement the controls.\n",
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"the harmonized 'must' form must not be flagged.\nstdout:\n{result.stdout}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
