@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.445, PR #467
+
+`.working/` + [`TODO.md`](../../TODO.md) for local project: the TODO §4.5 S4 to DONE rotation that PR #466 omitted (its `/validate-pr` in-window finding), plus the batched #466 QA bookkeeping. Rotated the closed S4 item out of [`TODO.md`](../../TODO.md) (the §4.5 bullet deleted, the §4.5 narrative updated to "S4 shipped in #466 as gate 56", the line-18 phase-pointer changed from "§4.5 S3/S4" to "§4.5 S3") and added a PR #466 row to [`.working/DONE.md`](DONE.md). Carries the #466 `/validate-pr` record [`2026-06-29-PR-466.md`](../validate-pr/2026-06-29-PR-466.md) + its [`history.md`](../validate-pr/history.md) row (3 in-window findings, one root cause: this rotation) and the #466 [`improvement-log.md`](improvement-log.md) `/retro` row (pattern: the multi-surface-incompleteness rotation class; proposed improvement: prioritize the §4.10 rotation gate, with a coverage-gap note that the maintainer-decided Option-B "marked-done detector" would not catch a wholesale-forgotten rotation like #466's). No corpus-document body change. Library `2026.06.444` to `2026.06.445`; README `1.9.315` to `1.9.316`.
+
 ## 2026-06-29, Library Version 2026.06.444, PR #466
 
 Adds gate 56 (bare-normative-shall), the §4.5 S4 guard-rail gate: a standalone normative `shall` in corpus prose, the plain-normative form FR-44 harmonized to `must`. Complement to gate 9 (shall-near-uncertainty). Batches the #465 `/validate-pr` (0 findings) and `/retro` rows.
