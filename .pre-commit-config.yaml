@@ -407,3 +407,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-bare-normative-shall
+        name: Bare-normative-shall audit
+        entry: python3 tools/lint-bare-normative-shall.py
+        language: system
+        pass_filenames: false
+        always_run: true

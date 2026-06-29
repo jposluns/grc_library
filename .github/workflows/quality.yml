@@ -186,6 +186,9 @@ jobs:
       - name: Cross-document retention-consistency audit
         run: python3 tools/lint-retention-consistency.py
 
+      - name: Bare-normative-shall audit
+        run: python3 tools/lint-bare-normative-shall.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
