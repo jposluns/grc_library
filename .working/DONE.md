@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #469: §4.10 (P4): TODO/DONE-rotation gate family completed (2026-06-29)
+
+Closes TODO §4.10. The rotation gate family is now complete across two PRs: gate 57 (the static marked-done detector, `lint-todo-marked-done.py`) shipped in #468, and this PR adds the complementary **D5 PR-time check** (`check-todo-rotation-on-pr.py`) that fails when a PR's added CHANGELOG lines assert a TODO-item closure (`clos... TODO §X`) but the diff does not rotate the item (touch both TODO.md and DONE.md), with a `TodoRotation:` opt-out trailer and the handoff-PR exemption. D5 caught the #466-class wholesale-forgotten rotation that gate 57 cannot see.
+
 ### PR #466: §4.5 S4: gate 56 bare-normative-shall audit (2026-06-29)
 
 Closes TODO §4.5 S4. New gate 56 (`lint-bare-normative-shall.py`) flags a bare normative `shall` in authored corpus prose (the FR-44 `shall`->`must` harmonized form), the plain-form complement to gate 9 (which only fires on a `shall` adjacent to an uncertainty marker), excluding the 3 preserved classes. 4-surface wired with a 5-case fixture; gate count 55 to 56. (Rotation itself shipped in the follow-up PR per the #466 `/validate-pr` in-window finding.)

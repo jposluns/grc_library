@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-29, Library Version 2026.06.447, PR #469
+
+Adds the D5 PR-time backlog-rotation check (the workflow step "Backlog-rotation-on-PR check"), the PR-time complementary half of the §4.10 TODO/DONE-rotation bookkeeping-parity gate family, **closing TODO §4.10** (gate 57, the static half, shipped in #468). Catches the wholesale-forgotten rotation gate 57 cannot see. Batches the #468 `/validate-pr` (0 findings) and `/retro` rows. This PR dogfoods D5: its own CHANGELOG asserts a closure, so the §4.10 rotation is what makes the check pass.
+
+### Added
+- [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py): the D5 PR-only delta check. The pure helper `asserts_todo_closure(added_lines)` returns the first matching line when the added CHANGELOG text contains the closure adjacency (`\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+§`, case-insensitive), else `None`; `added_changelog_lines(merge_base, head)` extracts the `+` lines of [`CHANGELOG.md`](../../CHANGELOG.md) and this detailed mirror via `git diff`. `main()` exits 1 when a closure is asserted but the diff does not touch BOTH [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](DONE.md), unless a `TodoRotation:` opt-out trailer is present in the added CHANGELOG lines (multi-PR closure, or a narration-only mention); exit 2 on a git/usage error. Models [`tools/check-changelog-on-pr.py`](../../tools/check-changelog-on-pr.py).
+- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoRotationOnPrTests` with 2 cases (closure phrasings flagged via `asserts_todo_closure`; incidental `TODO` mentions, for example "closing the #466 finding" and "TODO §4.10 updated", NOT flagged).
+
+### Changed
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): new "D5 Backlog-rotation-on-PR check" run line before gate 45.
+- [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml): new "Backlog-rotation-on-PR check" step (`if: github.event_name == 'pull_request'`) after D4.
+- [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py): "Backlog-rotation-on-PR check" added to `WORKFLOW_DELTA_GATE_STEPS` so the new workflow step is recognized as a PR-only delta gate and excluded from the gate-name parity count (the same treatment D1 to D4 receive); without it the workflow surface counted 58 against the spec's 57.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): §6.1 delta-gate table gains the D5 row; a D5 narrative paragraph follows D4's. Spec Version `1.16.19` to `1.16.20`; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the spec metadata bump.
+- [`TODO.md`](../../TODO.md): §4.10 section deleted (closed); the four cross-references that named §4.10 as queued work (the line-18 phase pointer, the §4.6 co-design bullet, the §4.11 deliverable-4 bullet, the §4.23 accretion-guard note) updated to "shipped (gate 57 + the D5 check)"; the P4 subsection count `9` to `8`.
+- [`.working/DONE.md`](DONE.md): PR #469 §4.10 closure row.
+- [`.working/pending-decisions.md`](pending-decisions.md): the §4.10 entry updated from "complementary check queued next" to "shipped as the D5 PR-time check"; §4.10 fully closed.
+
+### Verification
+- Gate count unchanged at 57: D5 is a delta check, not a numbered gate. [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) reports "57 gates across all four audit-programme surfaces"; [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py) green; the full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) passes; the regression suite passes.
+- D5 self-test on this branch: `python3 tools/check-todo-rotation-on-pr.py origin/main HEAD` (after this commit) is the dogfood, the closure assertion plus the §4.10 rotation in the same diff.
+- A skeptical pre-push verifier subagent (substantive change: new check + multi-surface wiring) was dispatched, briefed to refute; findings validated before push.
+
+### Discipline observation
+- The D5 trigger was scoped to the precise `clos...`-then-`TODO §` adjacency (rather than a looser `clos.*TODO`) so incidental mentions ("closing the #466 finding", "TODO §4.10 updated", "close-TODO-to-DONE") do not false-positive; the probe verified 4/4 positive phrasings match and 5/5 negatives stay clean before wiring.
+- The gate-parity surface count (58 vs 57) self-flagged at the local `run_all_audits.sh` after the workflow step was added, the standard new-delta-gate step (D1 to D4 each carry the same `WORKFLOW_DELTA_GATE_STEPS` exemption); caught locally, not at CI.
+
 ## 2026-06-29, Library Version 2026.06.446, PR #468
 
 Adds gate 57 (backlog marked-done), the static content-side half of the §4.10 TODO/DONE-rotation bookkeeping-parity gate family. Resolves both pending maintainer decisions. Batches the #467 `/validate-pr` (0 findings) and `/retro` rows.
