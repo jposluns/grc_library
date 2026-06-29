@@ -45,19 +45,22 @@ ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
 # Owner/Approving Authority), and `Supplier Risk Maintainer` is in fact
 # defined in governance/register-role-authority.md — keeping a copy
 # here was redundant and contradicted the set's purpose.
-EXTRA_KNOWN_ROLES = {
-    "Governance Library Maintainer",      # repository maintainer role
-    "Compliance Maintainer",              # alias used by some compliance docs
-    "Security Architecture Maintainer",   # alias used by dev-security
-    "GRC Programme Manager",              # referenced in continuous-improvement
-    "Information Security Maintainer",    # security domain maintainer
-    # AI Governance Maintainer was historically a single role; it has
-    # since been split into AI Governance Approver, AI Data Steward,
-    # and AI System Inventory Keeper. Those three are now in
-    # governance/register-role-authority.md and don't need entries
-    # here. The composite role no longer appears anywhere in the
-    # corpus.
-}
+# The five maintainer / library-meta roles formerly listed here (Governance
+# Library Maintainer, Compliance Maintainer, Security Architecture Maintainer,
+# GRC Programme Manager, Information Security Maintainer) were promoted to rows
+# in governance/register-role-authority.md so the register is the single source
+# of truth for them; they no longer need allow-list entries.
+# AI Governance Maintainer was historically a single role; it has
+# since been split into AI Governance Approver, AI Data Steward,
+# and AI System Inventory Keeper. Those three are now in
+# governance/register-role-authority.md and don't need entries
+# here. The composite role no longer appears anywhere in the
+# corpus.
+# The set is intentionally empty: it remains as the mechanism for any future
+# cross-functional body, named forum, or external named entity that is a
+# legitimate Owner / Approving Authority value but is not a formal
+# organisational role belonging in the register.
+EXTRA_KNOWN_ROLES: set[str] = set()
 
 DEFAULT_PATHS = [
     "README.md",

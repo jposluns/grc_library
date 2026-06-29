@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #463: S2 resolved by promoting 5 maintainer roles into the role-authority register (2026-06-29)
+
+Closes TODO §4.5 S2. The scoped "role-consistency gate" was already shipped as gate 8 (`lint-roles.py`), so S2 reframed (maintainer choice) to migrating the 5 roles in that gate's `EXTRA_KNOWN_ROLES` allow-list (GRC Programme Manager, Compliance/Information Security/Security Architecture Maintainer, Governance Library Maintainer) into the register as the single source of truth; allow-list emptied. No new gate, no gate-count change.
+
 ### PR #462: S1 cross-document retention-consistency gate (gate 55) (2026-06-29)
 
 Closes TODO §4.5 S1: new `tools/lint-retention-consistency.py` (gate 55) verifying that the evidence-retention period each of three procedures (CAPA, internal-audit, control-testing) cites matches its canonical row in the Data Retention Schedule register; the mechanical enforcement of the register rows' existing "matches ..." cross-reference notes. Wired into all four parity surfaces + a 4-case regression fixture; gate count 54 to 55.
