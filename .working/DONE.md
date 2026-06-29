@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #459: act on the #458 /retro improvements (verification-scope checklist line + queue S4 gate) (2026-06-29)
+
+Shipped improvement #1 as a `.claude/CLAUDE.md` close-out-checklist line (a corpus-wide completion claim must be verified by greping the full corpus, not the change's own input set, the scope-width companion to the bare-token line); queued improvement #2 (the "no bare normative shall" gate) in TODO §4.5 as candidate S4. One facet of §4.8; §4.8 stays open. Batches the #458 /validate-pr + /retro rows.
+
 ### PR #458: Sweep 75 iter 1 close-out + FR-44 completion fix (2026-06-29)
 
 The `/resume` loop-break corpus-wide `/validate` over the #451..#457 deltas surfaced one escalation finding (it contradicted a #457 asserted-clean claim): the #455 FR-44 sweep had missed dev-security/policy-secure-development-and-engineering.md entirely (absent from #455's 17-doc list), leaving 12 bare normative "shall"; this PR converted them to "must" and the corpus is now genuinely shall-free outside the 3 preserved classes. Not previously a separate TODO item; surfaced by Sweep 75 as the completion of FR-44.

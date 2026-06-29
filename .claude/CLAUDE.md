@@ -266,6 +266,17 @@ is external. Two mechanisms:
      phrasing-specific grep missed a third line whose word order differed; a bare-token
      scan would have caught it. See the #443 row in
      [`.working/validate-pr/history.md`](../.working/validate-pr/history.md).)
+   - If the PR makes a **corpus-wide completion claim** (a token harmonization, rename, or
+     reconcile asserted complete across the corpus), the completion-verification grep was run
+     over the **full corpus file set, not the change's own input set**: an input-set grep
+     confirms only that *what was touched* is clean, never that *the corpus* is clean, so it
+     self-corroborates a file-discovery omission. This is the scope-width companion to the
+     bare-token line above (which fixes pattern-width). (PR #455's FR-44 `shall`->`must` sweep
+     asserted "0 normative shall remain" from a grep of its own enumerated 17-document input
+     set, missing an eligible Policy document that was never in the set; the next session's
+     corpus-wide `/validate` (Sweep 75) caught it and #458 fixed it. See the #458 rows in
+     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md) and
+     [`.working/improvement-log.md`](../.working/improvement-log.md).)
    - `tools/preflight-changelog.py` was run **before the first commit** (as `python3
      tools/preflight-changelog.py && git commit ...`). It gates em/en dashes and unlinked
      path-shaped references in the *added* CHANGELOG lines, exiting non-zero so the `&&`
