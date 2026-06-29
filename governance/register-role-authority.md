@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.5.1\
-**Date:** 2026-06-22\
+**Version:** 1.5.2\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines generic governance roles used across the GRC Documentation Library. Roles are deliberately organisation-neutral and must not be replaced with named individuals in the public repository.
+This register defines generic governance roles used across the GRC Documentation Library. Roles are deliberately organisation-neutral and must not be replaced with named individuals in the public repository. Most rows describe roles in an adopting organisation's governance structure; a small number of `*Maintainer` and library-meta rows (for example the Governance Library Maintainer) instead describe the roles that maintain this reference corpus itself, and say so explicitly in their accountability cell.
 
 ---
 
@@ -61,6 +61,11 @@ This register defines generic governance roles used across the GRC Documentation
 | Control Framework Maintainer | Maintenance of the cross-framework alignment matrix and the reverse framework control crosswalk. | Cross-framework matrix updates, control mapping updates. |
 | Document Owner | Maintenance of a governance document, metadata, review cycle, and related artefacts. | Minor document updates, review records. |
 | Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, and reports status per the cadence in [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) §8. Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). | Treatment-option selection for the named risk, treatment-plan ownership and target-date adjustments, status reports to the ERC. |
+| GRC Programme Manager | Coordination of the annual GRC programme management cycle: library review and currency, quarterly and Enterprise Risk Committee performance reporting, policy-owner attestation tracking, control-testing scheduling, and the continuous-improvement register. Owns the governance performance, metrics, and continuous-assurance frameworks. Distinct from the Chief Risk Officer (enterprise risk methodology) and the Governance Library Maintainer (corpus-maintenance authority); this role runs the programme-management cycle over the library content. | Annual review cycle coordination, programme-management and continuous-improvement updates, performance-report content. |
+| Compliance Maintainer | Maintenance of compliance-domain governance artefacts (global regulatory applicability register, sector-requirement annexes, and related regulatory mappings). Distinct from the Chief Compliance Officer (organisation-wide compliance accountability); this role maintains the cross-compliance governance content of the library. | Compliance-artefact updates; compliance content consistency. |
+| Information Security Maintainer | Maintenance of information-security domain artefacts (the security domain index and its governance, identity and access, logging and monitoring, data-classification, secure-operations, incident-response, vulnerability-management, and secure-development content). Distinct from the Chief Information Security Officer (organisation-wide security accountability); this role maintains the library's security-domain governance content. | Security-domain artefact updates; security-domain content consistency. |
+| Security Architecture Maintainer | Maintenance of developer-security and security-architecture artefacts (compliance controls and gap register, security baseline and standards reference, developer security requirements). Distinct from the Chief Information Security Officer (organisation-wide security) and the Information Security Maintainer (information-security domain content); this role maintains the developer-security and architecture governance content. | Developer-security artefact updates; security-architecture content consistency. |
+| Governance Library Maintainer | The library-meta role: maintenance and approval authority for the GRC library itself, covering the corpus governance artefacts (library charter, document index, glossary, audit-programme specification, project-governance records, contributor and licensing documents) and the corpus's metadata, review-cadence, and audit-trail integrity. Distinct from the in-corpus governance roles above, which describe an adopting organisation's structure; this role governs the reference corpus as a maintained artefact (see [`governance/charter-governance-library.md`](charter-governance-library.md)). | Corpus document approvals, library metadata and review-cadence decisions, audit-programme and project-governance updates. |
 
 ---
 

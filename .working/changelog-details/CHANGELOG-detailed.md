@@ -6,9 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-06-29, Library Version 2026.06.440, PR #462
+## 2026-06-29, Library Version 2026.06.441, PR #463
 
-Adds gate 55, the cross-document retention-consistency audit, closing TODO §4.5 S1 (the first of the guard-rail-gates batch).
+Promotes 5 maintainer / library-meta roles into the Role Authority Register and closes TODO §4.5 S2 as a register consolidation (not a new gate), having found the role-consistency check already shipped as gate 8.
+
+### Changed
+- [`governance/register-role-authority.md`](../../governance/register-role-authority.md): added 5 rows to the authority register (GRC Programme Manager, Compliance Maintainer, Information Security Maintainer, Security Architecture Maintainer, Governance Library Maintainer), mirroring the sibling `*Maintainer` accountability pattern (Supplier Risk Maintainer, AI Risk Maintainer, AI Security Maintainer, etc.). Version `1.5.1` to `1.5.2`, Date to `2026-06-29`.
+- [`tools/lint-roles.py`](../../tools/lint-roles.py): emptied `EXTRA_KNOWN_ROLES` (the 5 roles formerly listed there are now register rows; the set remains as the documented mechanism for any future non-role named entity). The known-role set is unchanged at 40 (formerly 35 register rows + 5 allow-list; now 40 register rows + 0 allow-list), so gate 8 stays green.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the register's Version/Date bump (the only delta is the register's `1.5.1`/`2026-06-22` to `1.5.2`/`2026-06-29`).
+
+### Design rationale
+- S2 was scoped (TODO §4.5) as a new "role-definition-consistency gate". On building it, gate 8 ([`tools/lint-roles.py`](../../tools/lint-roles.py), "Owner and Approving Authority role audit", wired across all four parity surfaces) was found to already validate every `Owner` / `Approving Authority` metadata value against the register. The 5 "missing" roles the prior session's S2-blocker surfaced were exactly the gate's `EXTRA_KNOWN_ROLES` allow-list entries. Building a second role gate would duplicate gate 8; the genuinely valuable slice is consolidating those 5 roles out of the linter escape-hatch into the governance register a human reads. Maintainer chose this reframe ("migrate allow-list to register") over extending to RACI checking or dropping S2.
+- RACI-table checking (the other half of the original S2 sketch) was deliberately NOT added: the register's RACI cells are descriptive composites (role lists, conditional text such as "Tiered by risk level per ...", stakeholder groups such as "Affected stakeholders"), not single role tokens, so validating them against the register would be high-false-positive, against the maintainer's low-FP directive.
+
+### Verification
+- Gate 8 ([`tools/lint-roles.py`](../../tools/lint-roles.py)) green: `OK: all roles in scanned files are defined (known: 40).`
+- [`tools/lint-language.py`](../../tools/lint-language.py) clean on the register.
+- Linter regression suite: 193 tests OK (the roles fixtures `test_undefined_role_flagged` and `test_root_override_with_missing_register_exits_2` unaffected; the valid fixture's `Governance Library Maintainer` Owner now resolves via the register row).
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 55 gates pass (gate 33 taxonomy-sync required regenerating the two derived artefacts; re-run clean).
+
+### Discipline observation
+- This PR is the apply-time catch of a duplicate-work hazard: the planned "build a new gate, wire 4 surfaces, count 55 to 56" would have shipped a gate redundant with gate 8. `validate-inference-before-action` (read [`tools/lint-roles.py`](../../tools/lint-roles.py) before building a near-namesake) and `surface-counterproductive-instructions` (surface the redundancy with named options rather than build the duplicate) caught it before any duplicate code was written.
+
+Batches the #462 `/validate-pr` (1 in-window finding, the TODO:18 stale S1 pointer, fixed in this branch) and `/retro` rows.
 
 ### Added
 
