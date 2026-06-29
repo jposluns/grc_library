@@ -1,6 +1,6 @@
 # Pending Decisions
 
-**Status:** 0 pending. The S2 role-drift decision (2026-06-29) was RESOLVED by the maintainer (the "migrate allow-list to register" reframe; see the entry below), shipped as PR #463, which is open and **held for maintainer review of the drafted accountability prose**. The four overnight-clarification questions were answered by the maintainer 2026-06-28 via screenshot; recorded below as RESOLVED standing directives for the overnight run, not open questions.
+**Status:** 1 pending (the `docs/` dash house-style decision, Sweep-76 Finding 2; see the Pending section). The S2 role-drift decision (2026-06-29) was RESOLVED by the maintainer (the "migrate allow-list to register" reframe), shipped as PR #463 (since merged). The four overnight-clarification questions were answered by the maintainer 2026-06-28 via screenshot; recorded below as RESOLVED standing directives. **Two resume-session decisions resolved 2026-06-29 (maintainer screenshot):** operating model = **full project PR workflow** (per-PR feature branch, open + self-merge green PRs via GitHub MCP, attended-autonomous), overriding the wrong harness-config "single-branch / no-PR" text (the maintainer confirmed the harness config was wrong; no cleanup needed since no work was committed under it); next focus = **guard-rail gates + codifications**. Recorded here for durability across compaction.
 
 This file is the durable queue for the **attended-autonomous operating mode** (see the
 `## Attended-autonomous operating mode` section in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md)):
@@ -14,7 +14,9 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-_No open pending decisions. The S2 entry below is RESOLVED and retained for the record._
+### `docs/` dash house-style decision (Sweep-76 Finding 2, surfaced 2026-06-29)
+
+Sweep 76 found `docs/` authored prose carries 71 em/en-dashes across 4 files ([`docs/decision-tree.md`](../docs/decision-tree.md) 58, [`docs/adopter-guide.md`](../docs/adopter-guide.md) 5, [`docs/template-quickstart.md`](../docs/template-quickstart.md) 4, [`docs/template-implementation-roadmap.md`](../docs/template-implementation-roadmap.md) 4), violating the CLAUDE.md house-style but outside [`tools/lint-language.py`](../tools/lint-language.py)'s path scope. Surfaced to the maintainer with named options; the `AskUserQuestion` primitive is flaky this session, so it is recorded here per the attended-autonomous defer path and tracked in TODO P3. **Options put to the maintainer** (recommended first): (A) extend the dash check to `docs/` and fix all 71 (closes the gate-blind gap permanently); (B) document `docs/` as an intentional house-style carve-out (no fix); (C) one-time fix the 71 without extending the gate. Out-of-window / pre-existing; reversible / on-branch when actioned. **Not auto-defaulted** (it is a gate-scope authorial decision); held for the maintainer. Does not block other queued work.
 
 ### S2 role-drift resolution (2026-06-29; RESOLVED 2026-06-29, maintainer chose the allow-list to register reframe)
 
