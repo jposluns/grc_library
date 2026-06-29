@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.2\
-**Date:** 2026-06-24\
+**Version:** 2.2.3\
+**Date:** 2026-06-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -53,13 +53,13 @@ Every adopter copies this set on Day 1, regardless of size, sector, or maturity.
 | `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organisation that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
 | `risk/` | [`policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | The posture-setting enterprise risk governance policy: it names the organisation's risk appetite and who owns it, and it is the same risk artefact named in the quickstart Day-1 floor and the adopter-guide Tier 1 set. Populating [`procedure-risk-register.md`](../risk/procedure-risk-register.md) with the actual top 10 risks is the recommended early follow-on (a short, real register beats a long imagined one), not a separate Day-1 floor artefact. |
 
-The baseline is six artefacts. An organisation that has copied and customised these six has a defensible floor. Layer modules on top.
+The baseline is six artefacts. An organisation that has copied and customized these six has a defensible floor. Layer modules on top.
 
 ---
 
 ## How to use the modules
 
-Modules are organised in five dimensions. For each dimension, identify which modules apply to your organisation and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
+Modules are organized in five dimensions. For each dimension, identify which modules apply to your organisation and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
 
 | Dimension | Question to ask |
 | --- | --- |
@@ -240,7 +240,7 @@ Copy the minimum viable subset of each chosen module. Skip framework documents a
 
 #### E2: Light (1 to 2 people)
 
-Copy the core artefacts of each chosen module and customise them. Skip programme-performance-review documents (e.g. [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)) until capacity exists to operate them.
+Copy the core artefacts of each chosen module and customize them. Skip programme-performance-review documents (e.g. [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)) until capacity exists to operate them.
 
 #### E3: Standard (3 to 10 people)
 
@@ -301,7 +301,7 @@ Adopt order: the full library is in scope. Day 1 the core baseline, plus the ful
 
 When applying a composition, answer the following before going live with the adopted set:
 
-1. Have we copied and customised the core baseline (the six artefacts everyone needs)?
+1. Have we copied and customized the core baseline (the six artefacts everyone needs)?
 2. Have we identified the activity modules that apply (Dimension A)?
 3. Have we identified the data-scope modules that apply (Dimension B)? In particular, have we surfaced any special-category, children's, or cross-border processing?
 4. Have we identified the audience modules (Dimension C)?

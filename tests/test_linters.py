@@ -243,6 +243,41 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "sanitisation")
 
+    def test_worked_example_meta_tutorial_exempt(self) -> None:
+        # docs/worked-example.md is the meta-tutorial that demonstrates the
+        # document-creation process, so it deliberately contains lowercase
+        # tutorial step headings, vendor names it shows being sanitised, and
+        # the word "ensure" while teaching the ensure-that rule. The
+        # is_worked_example carve-out exempts it from the heading-case,
+        # sanitisation, and ensure checks; it must scan clean.
+        result = run_linter("tools/lint-language.py", "docs/worked-example.md")
+        if result.returncode != 0:
+            self.fail(
+                "docs/worked-example.md should be exempt (heading-case / "
+                "sanitisation / ensure) and scan clean, but lint-language "
+                f"failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
+
+    def test_generated_docs_excluded_from_scan(self) -> None:
+        # The two generated artefacts under docs/ (portal.md,
+        # maturity-scorecard.md) are build output and must not be scanned as
+        # authored prose; iter_markdown_files filters them via GENERATED_DOCS.
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "lint_language_mod", REPO_ROOT / "tools" / "lint-language.py"
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        scanned = {
+            p.relative_to(REPO_ROOT).as_posix()
+            for p in mod.iter_markdown_files(["docs"])
+        }
+        self.assertNotIn("docs/portal.md", scanned)
+        self.assertNotIn("docs/maturity-scorecard.md", scanned)
+        # Sanity: an authored docs file IS in scope.
+        self.assertIn("docs/worked-example.md", scanned)
+
 
 class LinksLinterTests(LinterTestCase):
     """tools/lint-links.py"""
