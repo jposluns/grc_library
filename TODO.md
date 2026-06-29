@@ -101,11 +101,12 @@ Backlog items now carry `(severity, effort)`; this item formalises the conventio
 
 ### 4.5 Audit-gate candidates from the 2026-06-22 review (M, S each)
 
-Decided 2026-06-23 (maintainer triage): **build all three** — S1, S2, S3. Each is a `lint-*.py` + 4-surface wiring + regression fixture; one gate per PR to keep diffs reviewable.
+Decided 2026-06-23 (maintainer triage): **build all three** from the 2026-06-22 review (S1, S2, S3); **S4 added 2026-06-29** (maintainer-endorsed, from the #458 `/retro` / Sweep 75). Each is a `lint-*.py` + 4-surface wiring + regression fixture; one gate per PR to keep diffs reviewable.
 
 - **S1 Cross-document retention-consistency gate**: verify retention periods cited in `governance/register-data-retention-schedule.md` match the procedures (`compliance/standard-internal-audit.md`, `compliance/procedure-capa.md`, `compliance/procedure-control-testing.md`). **Unblocked**: FR-136 (#262) and FR-137 (#263) landed, so the canonical retention values now exist; S1 is the next mechanical-gate candidate to action.
 - **S2 Role-definition-consistency gate**: verify every role mentioned in normative documents has a row in `governance/register-role-authority.md` (catches FR-115-class issues).
 - **S3 Citation-precision-for-claim gate**: flag "aligned with [normative source] X" claims and verify X actually contains the supporting language (catches FR-120-class issues).
+- **S4 No-bare-normative-`shall` gate** (from the #458 `/retro` / Sweep 75, maintainer-endorsed 2026-06-29): flag any bare normative `shall` in authored corpus prose, excluding the 3 preserved classes (the gate-9 linter filename token `lint-shall-near-uncertainty.py`; backticked `` `shall` `` word-references; verbatim source extracts / quotes). Mechanically prevents FR-44 (`shall`->`must`) regression and would have caught the #455 miss in [`dev-security/policy-secure-development-and-engineering.md`](dev-security/policy-secure-development-and-engineering.md) (fixed in #458) that gate 9 is blind to (gate 9 fires only `shall` adjacent to an uncertainty marker, not the bare normative form). The preserved-class exclusions are the design care-point (reuse the gate-9 exemption logic). Natural fit for the guard-rail-gates batch.
 
 ### 4.3 Standard-version-upgrade process (M, M)
 
