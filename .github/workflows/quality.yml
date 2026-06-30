@@ -192,6 +192,9 @@ jobs:
       - name: Backlog marked-done audit
         run: python3 tools/lint-todo-marked-done.py
 
+      - name: Per-document ISO Annex A validity audit
+        run: python3 tools/lint-document-iso-annex-a.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

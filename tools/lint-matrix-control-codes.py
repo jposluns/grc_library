@@ -89,18 +89,12 @@ from collections import namedtuple
 from pathlib import Path
 
 from ccm_aicm_reference import is_aicm_only, is_ccm_v41
+from iso_27001_reference import check_iso_token
 from lint_common import REPO_ROOT, read_text_safe
 from nist_csf_reference import is_valid_category, relocation_note
 
 MATRIX_REL = "compliance/matrix-grc-compliance-alignment.md"
 MATRIX_PATH = REPO_ROOT / MATRIX_REL
-
-# ISO/IEC 27001:2022 Annex A control counts per theme (A.5 Organizational,
-# A.6 People, A.7 Physical, A.8 Technological); 37+8+14+34 = 93 controls.
-ISO_ANNEX_A_RANGES = {5: 37, 6: 8, 7: 14, 8: 34}
-# ISO/IEC 27001:2022 management-system clauses: 4 (Context) through
-# 10 (Improvement).
-ISO_CLAUSE_MIN, ISO_CLAUSE_MAX = 4, 10
 
 # NIST CSF 2.0 Core Function prefixes (the matrix column key lists these six).
 NIST_FUNCTIONS = frozenset({"GV", "ID", "PR", "DE", "RS", "RC"})
@@ -110,8 +104,10 @@ NIST_HEADER = "NIST CSF 2.0"
 CCM_HEADER = "CSA CCM v4.1"
 AICM_HEADER = "CSA AICM v1.1"
 
-ISO_ANNEX_RE = re.compile(r"^A\.(\d+)\.(\d+)$")
-ISO_CLAUSE_RE = re.compile(r"^§(\d+)(?:\.\d+)*$")
+# ISO/IEC 27001:2022 Annex A and clause validation (the structural reference
+# data and ``check_iso_token``) lives in ``iso_27001_reference.py``, shared
+# with gate 58 (per-document ISO Annex A), mirroring the shared
+# ``nist_csf_reference`` module.
 NIST_RE = re.compile(r"^([A-Z]{2})\.([A-Z]{2,})$")
 # A CCM/AICM control-identifier shape: DOMAIN-NN (domain prefix, two-digit
 # number). Used only to give a sharper message when a CCM-column token looks
@@ -143,43 +139,6 @@ def is_separator_row(cells: list[str]) -> bool:
 def tokenize_cell(cell: str) -> list[str]:
     """Split a code cell into individual tokens on commas and semicolons."""
     return [t.strip() for t in re.split(r"[,;]", cell) if t.strip()]
-
-
-def check_iso_token(tok: str) -> tuple[str, str] | None:
-    """Return ``(rule, message)`` if ``tok`` is not a valid ISO token, else None."""
-    if tok == "N/A":
-        return None
-    m = ISO_ANNEX_RE.match(tok)
-    if m:
-        theme, num = int(m.group(1)), int(m.group(2))
-        if theme not in ISO_ANNEX_A_RANGES:
-            return (
-                "iso-annex-theme",
-                f"ISO 27001:2022 Annex A theme 'A.{theme}' does not exist "
-                f"(valid themes: A.5-A.8): '{tok}'",
-            )
-        if not 1 <= num <= ISO_ANNEX_A_RANGES[theme]:
-            return (
-                "iso-annex-range",
-                f"ISO 27001:2022 Annex A control '{tok}' out of range "
-                f"(A.{theme}.1-A.{theme}.{ISO_ANNEX_A_RANGES[theme]})",
-            )
-        return None
-    m = ISO_CLAUSE_RE.match(tok)
-    if m:
-        clause = int(m.group(1))
-        if not ISO_CLAUSE_MIN <= clause <= ISO_CLAUSE_MAX:
-            return (
-                "iso-clause-range",
-                f"ISO 27001:2022 clause '{tok}' out of range "
-                f"(§{ISO_CLAUSE_MIN}-§{ISO_CLAUSE_MAX})",
-            )
-        return None
-    return (
-        "iso-malformed",
-        f"unrecognized ISO 27001:2022 token '{tok}' "
-        f"(expected an Annex A code 'A.5-A.8.N' or a clause '§4-§10')",
-    )
 
 
 def check_nist_token(tok: str) -> tuple[str, str] | None:

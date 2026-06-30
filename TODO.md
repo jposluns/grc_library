@@ -27,10 +27,6 @@ Correctness fixes and the **error-prevention tooling** that keeps the corpus fro
 
 H2 numbering patterns drift — multi-doctype structural rename. Deferred until a dedicated session is scheduled.
 
-### 1.2 Per-document ISO Annex A code validation (L, M) — deferred follow-up to the gate-49-extension track (maintainer-confirmed 2026-06-26)
-
-Extend [`tools/lint-document-control-codes.py`](tools/lint-document-control-codes.py) (gate 54, NIST CSF 2.0 only) to also validate ISO/IEC 27001:2022 Annex A codes (and clause refs) where they appear in per-document framework-reference / crosswalk tables, reusing gate 49's `check_iso_token` logic. Deferred from the gate-54 build because per-document ISO codes are higher-false-positive (clause refs `§10.2`, ranges `A.5.19 to A.5.22`, mixed editions) and the matrix's ISO column is already covered by gate 49; scope a precision-first design before building. **Reference-base aid (2026-06-27 scratch-review S-4)**: the chief blocker the matrix-fit aid records ([`tools/audit-matrix-semantic-fit.py`](tools/audit-matrix-semantic-fit.py):54 "ISO 27001:2022 codes are not assessed (no title source in the repo)") is now addressable: `grc_library_scratch/ref/standards/ISO/` holds the ISO/IEC 27001:2022 Annex A + 27002:2022 control-title extracts. A maintainer-local ISO Annex A title map (proprietary: cite by clause, do not commit the verbatim titles if licence-sensitive) would let both gate 54 and `/matrix-fit` assess ISO-column rows. Licence-handling of the proprietary titles is a maintainer decision.
-
 ### 1.3 Retro-log open-loop consolidation (S, S) — surfaced 2026-06-23 (was 4.8)
 
 A review of [`.working/improvement-log.md`](.working/improvement-log.md) found that the **convention/checklist layer** absorbs retro candidates well (lint-language pre-flight, grep-after-convention-change, CHANGELOG-link front-loading are codified in the CLAUDE.md close-out checklist and holding), but the **mechanical-gate and rule-codification layers** accumulate "queued, apply next time" candidates that do not self-clear. Still open (action deliberately, not at a long-turn tail):
@@ -50,7 +46,6 @@ Decided 2026-06-23 (maintainer triage): **build them all** from the 2026-06-22 r
 
 The §1.5 reference version-currency register **shipped in #505** (the `Upstream check location` + `Last verified (UTC)` columns across all 16 register tables, the advisory staleness cadence in [`specification-citation-verification.md`](governance/specification-citation-verification.md) §12.3, the scratch-is-storage / upstream-is-authority principle, the §7 publisher allow-list extension, and 7 upstream-confirmed register corrections), and **all three citation version-upgrade follow-ups have now shipped** (ISO/IEC 27033 -> 27033-1:2015 #506; ISO/IEC 27036-2 2014 -> 2022 #507; NIST SP 800-88 Rev. 2 re-point + IEEE 2883 introduction #508). Remaining residuals:
 
-- **IEEE 2883 scratch ingestion** (maintainer-supplied PDF, 2026-06-30): ingest IEEE Std 2883-2022 into the scratch [`ref/standards/`](../grc_library_scratch/ref/) base, **watermark-scrubbed** (the supplied PDF carries a per-licensee "licensed to <name>" watermark on every page, a PII risk), via an MCP PR to scratch (catalogue + regenerate the scratch indexes + scratch `validate.py`). The corpus already cites IEEE 2883 (#508) by ID plus upstream URL; this makes it a held trusted `ref/standards/` artefact.
 - **MITRE ATLAS scratch superseded-archival** (move the deprecated `v5.6.0` to scratch `ref/.superseded/`, fetch `v2026.05`): MCP / maintainer-download-gated, logged in [`pending-decisions.md`](../.working/pending-decisions.md); the register's ATLAS row already reads `v2026.05`, so the corpus side is correct.
 - The **51 `needs-reconfirm` rows** (iso.org, the IEC webstore, and several government sources block automated fetch) await a browser or different-egress reconfirm pass to fill their `Upstream check location` URLs and stamp a verified date.
 
@@ -381,7 +376,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 Approximate active counts after the 2026-06-30 work-type re-tier and renumber (the priority sections themselves are the source of truth; these drift).
 
-- **P1 (fix errors and prevent recurrence)**: 5 items (1.1 FR-48, 1.2 Per-document ISO, 1.3 retro guard rails, 1.4 audit-gate candidates, 1.5 reference version-currency).
+- **P1 (fix errors and prevent recurrence)**: 4 items (1.1 FR-48, 1.3 retro guard rails, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
 - **P3 (clean up and tooling)**: 14 items (3.1-3.14).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).

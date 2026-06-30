@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #509: TODO §1.2 Per-document ISO Annex A validity audit (gate 58, P1) (2026-06-30)
+
+Shipped gate 58 (`lint-document-iso-annex-a.py`), the ISO-column sibling of gate 54 and per-document counterpart of gate 49's ISO column: validates ISO/IEC 27001:2022 Annex A codes, theme-only refs, same-theme ranges, and clauses in ISO-labelled per-document framework tables (matrix and pack excluded), edition-pinned and table-scoped so a bare prose `§N` is never mis-read. Extracted the shared `iso_27001_reference` module (gate 49 refactored to import it so the two ISO gates cannot drift); wired all four surfaces + a 9-test regression fixture. Maintainer-chosen separate-gate, theme-only-valid design.
+
 ### PR #508: NIST SP 800-88 Rev. 2 re-point + IEEE 2883 introduction (§1.5 follow-up #3, P1) (2026-06-30)
 
 Re-pointed media sanitization to NIST SP 800-88 Rev. 2 (final 2025-09-26; Rev. 1 withdrawn) and introduced IEEE 2883:2022 as a newly-cited standard (new register `## IEEE standards` section + allow-list domain) for the Clear/Purge/Destruct techniques Rev. 2 now defers to; updated 4 corpus surfaces + the lead doc's framework-alignment column. Maintainer-chosen faithful+IEEE option; verified against the maintainer-supplied IEEE 2883 PDF. **Closes the §1.5 version-upgrade follow-ups** (27033/27036-2/800-88 all shipped).
