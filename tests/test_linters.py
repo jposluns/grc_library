@@ -3804,6 +3804,142 @@ class TodoMarkedDoneTests(LinterTestCase):
         )
 
 
+class DocumentIsoAnnexATests(LinterTestCase):
+    """tools/lint-document-iso-annex-a.py (gate 58)
+
+    Per-document ISO/IEC 27001:2022 Annex A validity: flags a non-existent
+    Annex A control, a non-2022 theme, an out-of-range or inverted range, or
+    an out-of-range clause, but only inside an ISO 27001:2022-labelled table
+    cell. Theme-only refs and valid ranges pass; a bare section number in
+    prose (the document's own section) is never read as an ISO clause.
+    """
+
+    SCRIPT = "tools/lint-document-iso-annex-a.py"
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the live corpus carries no invalid ISO 27001:2022 Annex
+        # A codes in per-document framework tables. Added when the scanner was
+        # wired as gate 58.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on the live corpus; "
+            f"per-document ISO Annex A codes should all be valid 2022 codes.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _row_doc(self, label: str, code_cell: str, notes_cell: str | None = None) -> str:
+        # Framework-as-row: the framework name is the first cell; codes live in
+        # the code cell (cell 1); notes (if any) in cell 2.
+        if notes_cell is None:
+            return (
+                "# X\n\n## Framework alignment\n\n"
+                "| Framework | Reference |\n| --- | --- |\n"
+                f"| {label} | {code_cell} |\n"
+            )
+        return (
+            "# X\n\n## Framework alignment\n\n"
+            "| Framework | Code | Notes |\n| --- | --- | --- |\n"
+            f"| {label} | {code_cell} | {notes_cell} |\n"
+        )
+
+    def _col_doc(self, iso_body_cell: str) -> str:
+        # Framework-as-column: an ISO 27001:2022 column header, then a body row
+        # whose ISO column holds the code.
+        return (
+            "# X\n\n## Control mapping\n\n"
+            "| Control Area | ISO/IEC 27001:2022 | NIST CSF |\n| --- | --- | --- |\n"
+            f"| Some control | {iso_body_cell} | GV.OC |\n"
+        )
+
+    def test_nonexistent_control_flagged(self) -> None:
+        # A.8.99 is past A.8's 34 controls: out of range.
+        fixture = self.make_fixture(
+            "iso-doc-oor.md", self._row_doc("ISO/IEC 27001:2022", "A.8.99"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso-annex-range")
+
+    def test_non_2022_theme_flagged(self) -> None:
+        # A.9 is a 2013-edition theme; the 2022 themes are A.5-A.8.
+        fixture = self.make_fixture(
+            "iso-doc-2013.md", self._row_doc("ISO/IEC 27001:2022", "A.9.2"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso-annex-theme")
+
+    def test_clause_out_of_range_flagged(self) -> None:
+        # Management-system clauses run §4-§10; §12 is out of range.
+        fixture = self.make_fixture(
+            "iso-doc-clause.md", self._col_doc("§12"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso-clause-range")
+
+    def test_inverted_range_flagged(self) -> None:
+        # A same-theme range whose endpoints are inverted (high to low).
+        fixture = self.make_fixture(
+            "iso-doc-badrange.md", self._row_doc("ISO/IEC 27001:2022", "A.8.21 to A.8.20"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso-annex-range")
+
+    def test_valid_range_not_flagged(self) -> None:
+        # False-positive guard: a valid same-theme range, including the
+        # "drop the A. and theme" short form on the second endpoint.
+        fixture = self.make_fixture(
+            "iso-doc-validrange.md",
+            self._row_doc("ISO/IEC 27001:2022", "A.8.20 to 21: Network controls"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a valid Annex A range must not be flagged.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_theme_only_and_valid_codes_not_flagged(self) -> None:
+        # False-positive guard: a whole-theme reference (A.5), a valid control
+        # (A.8.1), and a valid clause (§6) all pass.
+        fixture = self.make_fixture(
+            "iso-doc-valid.md",
+            self._row_doc("ISO/IEC 27001:2022", "A.5; A.8.1; §6"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"theme-only refs, valid codes, and valid clauses must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_prose_section_number_not_scanned(self) -> None:
+        # The critical precision rule: a bare section number in document prose
+        # (the document's OWN section, not an ISO clause) is never scanned.
+        fixture = self.make_fixture(
+            "iso-doc-prose.md",
+            "# X\n\n## Scope\n\nThe controls in §12 of this policy apply org-wide.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a bare section number in prose must not be read as an ISO clause.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_non_iso_row_not_scanned(self) -> None:
+        # A non-ISO framework row carrying out-of-range-looking tokens must not
+        # be scanned as ISO (the row is not ISO 27001:2022-labelled).
+        fixture = self.make_fixture(
+            "iso-doc-nonrow.md",
+            self._row_doc("NIST SP 800-53 Rev. 5", "AC-99; §12"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a non-ISO framework row must not be scanned as an ISO table.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
 

@@ -153,6 +153,7 @@ run_gate "Per-document control-code validity audit"      python3 tools/lint-docu
 run_gate "Cross-document retention-consistency audit"    python3 tools/lint-retention-consistency.py
 run_gate "Bare-normative-shall audit"                    python3 tools/lint-bare-normative-shall.py
 run_gate "Backlog marked-done audit"                        python3 tools/lint-todo-marked-done.py
+run_gate "Per-document ISO Annex A validity audit"       python3 tools/lint-document-iso-annex-a.py
 
 # ----------------------------------------------------------------------
 # Summary
