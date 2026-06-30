@@ -305,7 +305,7 @@ Create or modify the approved files. Constraints:
 
 - **Project `CLAUDE.md` is concise.** Target under 200 lines (Anthropic's explicit recommendation). Put detail in the referenced or copied modules, not in the always-loaded file.
 - **Use the WHAT/WHY/HOW framework**: what the project is and where things live, why each part exists, how to operate (build, test, lint, CI commands). Skip self-evident content; if removing a line would not confuse a future maintainer, omit it.
-- **Use standard section names** (`## Project`, `## Commands`, `## Structure`, `## Conventions`, `## Boundaries`, `## Testing`). Claude has seen these millions of times in READMEs and recognises them instantly.
+- **Use standard section names** (`## Project`, `## Commands`, `## Structure`, `## Conventions`, `## Boundaries`, `## Testing`). Claude has seen these millions of times in READMEs and recognizes them instantly.
 - **Commands go in backticks or code blocks**. A command in prose reads as a description; a command in code formatting reads as executable.
 - **Include rationale on prohibitions**. "Never force-push to main; rewrites shared history" lands better than "never force-push".
 - **Make instructions actionable**. If the consumer or Claude cannot execute the instruction immediately without a clarifying question, rewrite or remove it.

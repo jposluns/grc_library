@@ -208,7 +208,7 @@ This skill is complete on a given run when:
 
 ## See Also
 
-- Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the verification discipline this skill applies at corpus scope. Each persona's finding requires evidence (quoted excerpt or location reference); the skill operationalises evidence-grounded-completion across ten parallel lenses.
+- Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the verification discipline this skill applies at corpus scope. Each persona's finding requires evidence (quoted excerpt or location reference); the skill operationalizes evidence-grounded-completion across ten parallel lenses.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): the per-PR regression check. Where `/validate` catches what changed, `/fitness` evaluates what's there. Both can coexist; neither replaces the other. See `.working/fitness-reviews/README.md` § "Relationship to `validation-sweep`" for the comparison table.
 - Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): per-document fresh-reader check. Where `fresh-reader-validation` runs one persona on one document, `library-fitness-review` runs ten personas on the whole corpus. The single-document skill is the focused follow-up when a fitness review surfaces a specific page that warrants deeper persona-fresh-reader scrutiny.
 - Related skill [`skill-authoring-discipline`](../skill-authoring-discipline/SKILL.md): the discipline this skill's own authoring follows. The fitness-review skill catches library-level failure modes; the authoring-discipline skill catches skill-level failure modes during the SKILL.md drafting.

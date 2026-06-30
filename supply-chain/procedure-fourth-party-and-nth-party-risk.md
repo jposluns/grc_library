@@ -2,8 +2,8 @@
 
 **Document Title:** Fourth-Party and Nth-Party Risk Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-06-30\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -156,7 +156,7 @@ Sub-tier risk findings are reported to the Supplier Risk Maintainer at minimum q
 1. Tier 1 critical sub-tier register is reviewed quarterly with the SRO.
 2. Tier 2 material sub-tier register is reviewed semi-annually.
 3. Concentration analysis is refreshed at minimum semi-annually and after any material change in the supplier portfolio.
-4. The procedure recognises that visibility beyond the fourth tier becomes proportionate; nth-party visibility is best-effort intelligence rather than contractual right.
+4. The procedure recognizes that visibility beyond the fourth tier becomes proportionate; nth-party visibility is best-effort intelligence rather than contractual right.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.5\
-**Date:** 2026-06-28\
+**Version:** 1.5.6\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -123,7 +123,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US HITECH | 2009 | 2009 | Health Information Technology for Economic and Clinical Health Act | - |
 | US SOX | 2002 | 2002-07 | Sarbanes-Oxley Act | - |
 | US CCPA | 2018 (CPRA amendments 2020) | 2018 | California Consumer Privacy Act | - |
-| Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognises electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - |
+| Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognizes electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - |
 | Colorado AI Act | 2024 (Colorado SB 24-205, signed 17 May 2024). Original effective date 1 February 2026; postponed by Colorado SB 25B-004 (signed 28 August 2025) to 30 June 2026. Enforcement effectively frozen by U.S. District Court for the District of Colorado on 27 April 2026 pending litigation (xAI v. Colorado). Governor's Working Group framework (17 March 2026) proposes further amendments with a revised effective date of 1 January 2027 | 2024-05-17 | Colorado Consumer Protections for Artificial Intelligence | - |
 | US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 |
 | US CMMC | 2.0 | 2024 | Cybersecurity Maturity Model Certification | 1.0, 1.02 |

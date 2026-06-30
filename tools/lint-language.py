@@ -68,26 +68,32 @@ GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md"})
 # "ensure"); dash and -ise enforcement still apply.
 WORKED_EXAMPLE = "docs/worked-example.md"
 
+# Each stem carries all four regular inflections of the Commonwealth `-ise`
+# verb: base (`-ise`), third-person singular (`-ises`), past / participle
+# (`-ised`), and present participle (`-ising`). The `-ises` form was added
+# 2026-06-30 (#480 /validate-pr finding: `recognises` and the other
+# third-person forms passed gate 2 because only three of the four inflections
+# were listed); keep all four present for any stem added later.
 ISE_PATTERN = re.compile(
     r"\b("
-    r"recognise|recognised|recognising|"
-    r"organise|organised|organising|"
-    r"prioritise|prioritised|prioritising|"
-    r"categorise|categorised|categorising|"
-    r"emphasise|emphasised|emphasising|"
-    r"harmonise|harmonised|harmonising|"
-    r"standardise|standardised|standardising|"
-    r"optimise|optimised|optimising|"
-    r"centralise|centralised|centralising|"
-    r"customise|customised|customising|"
-    r"finalise|finalised|finalising|"
-    r"specialise|specialised|specialising|"
-    r"utilise|utilised|utilising|"
-    r"minimise|minimised|minimising|"
-    r"maximise|maximised|maximising|"
-    r"criticise|criticised|criticising|"
-    r"generalise|generalised|generalising|"
-    r"operationalise|operationalised|operationalising"
+    r"recognise|recognises|recognised|recognising|"
+    r"organise|organises|organised|organising|"
+    r"prioritise|prioritises|prioritised|prioritising|"
+    r"categorise|categorises|categorised|categorising|"
+    r"emphasise|emphasises|emphasised|emphasising|"
+    r"harmonise|harmonises|harmonised|harmonising|"
+    r"standardise|standardises|standardised|standardising|"
+    r"optimise|optimises|optimised|optimising|"
+    r"centralise|centralises|centralised|centralising|"
+    r"customise|customises|customised|customising|"
+    r"finalise|finalises|finalised|finalising|"
+    r"specialise|specialises|specialised|specialising|"
+    r"utilise|utilises|utilised|utilising|"
+    r"minimise|minimises|minimised|minimising|"
+    r"maximise|maximises|maximised|maximising|"
+    r"criticise|criticises|criticised|criticising|"
+    r"generalise|generalises|generalised|generalising|"
+    r"operationalise|operationalises|operationalised|operationalising"
     r")\b",
     re.IGNORECASE,
 )
