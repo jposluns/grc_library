@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.44\
+**Version:** 1.27.45\
 **Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,6 +76,7 @@ All active repository documents should be Public.
 | Compliance | Annex | UK AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | Compliance Maintainer | Annual | HMRC AEO-S, WCO SAFE, ISO 27001, trusted-trader IT controls |
 | Compliance | Matrix | GRC Library Compliance Alignment Matrix | [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md) | Governance Library Maintainer | Annual | CSA CCM v4.1, ISO 27001, NIST CSF, CTPAT, PIP, BASC v6, WCO SAFE, AEO/AEO-S |
 | Compliance | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md) | Chief Compliance Officer | Annual | ISO 19011:2018, ISO 27001 §9.2, audit principles, independence, CAPA |
+| Compliance | Standard | Sanctions and Export-Control Screening Standard | [`compliance/standard-sanctions-and-export-control-screening.md`](../compliance/standard-sanctions-and-export-control-screening.md) | Chief Compliance Officer | Annual | OFAC/UN/EU/UK OFSI sanctions, US EAR/ITAR, EU dual-use, ISO 37301:2021, denied-party screening, UBO/50-percent-rule |
 | Compliance | Procedure | Audit Planning Procedure | [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md) | Chief Compliance Officer | Annual | Risk-based audit plan, annual scheduling, ERC approval, evidence retention |
 | Compliance | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) | Chief Compliance Officer | Annual | ISO 9001 §10.2, ISO 27001 §10.1, root cause analysis, CAPA lifecycle |
 | Compliance | Procedure | UK AEO IT Self-Assessment Procedure | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | Chief Compliance Officer | Annual | HMRC AEO-S, WCO SAFE Framework, ISO 27001 §9.1, IT self-assessment |
