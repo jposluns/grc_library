@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology Security Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/README.md`](../README.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -51,7 +51,7 @@ OT excludes pure information systems (databases, document management, email, bus
 | **Default trust** | Zero trust target; assume breach | Trust within segmented zones; control at boundaries |
 | **Real-time constraints** | Latency tolerance varies | Deterministic real-time often required; security overhead constrained |
 
-These differences are not absolute; modern OT increasingly resembles IT in connectivity and architecture (IT/OT convergence). But the operational consequences of OT failures keep the prioritisation distinct.
+The reversed CIA triad is itself subordinate to a higher objective: per NIST SP 800-82 Rev. 3, human safety is paramount, ahead of protection of the process, so where safety and availability conflict, safety governs. These differences are not absolute; modern OT increasingly resembles IT in connectivity and architecture (IT/OT convergence). But the operational consequences of OT failures keep the prioritisation distinct.
 
 ### 2.3 What this annex does not cover
 
