@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #484: FR-71 (high[critical]): M&A Due Diligence Procedure (2026-06-30)
+
+Shipped `compliance/procedure-mergers-acquisitions-due-diligence.md`: a GRC M&A due-diligence procedure (four phases with gates; a 13-dimension due-diligence checklist each cross-referenced to its governing corpus instrument; a red-flag/deal-breaker register; hand-off into the governance triggered review, the post-close internal audit, and the risk register, incl. a TIA re-trigger for inherited transfers). Closes the gap the GRC programme procedure's M&A trigger pointed at. Placed in `compliance/` per the originating fitness-review Rec-14 plan. Authored via the high-assurance harness: FP verifier 0 defects (ISO 31000/37301, COBIT EDM03/APO12/BAI05, NIST CSF GV all verified; no COSO; no phantom links; no invented thresholds); two FN completeness improvements applied (divestiture scoped out cleanly; sanctions coverage-gap noted in Limitations). Listed in compliance/README and the document-index register.
+
 ### PR #483: FR-34 (high[critical]): Transfer Impact Assessment (TIA) template (2026-06-30)
 
 Shipped `privacy/template-transfer-impact-assessment.md`: the EDPB Recommendations 01/2020 six-step methodology (map, identify tool, assess effectiveness/Schrems II, supplementary measures, procedural steps, re-evaluate) as adopter-fillable fill-tables, grounded in GDPR Chapter V (Arts 44 to 49, held and quotable) with the methodology attributed to the EDPB Recommendation (not held, framed in own prose) and SCCs referenced generically (no unverified version pinned). Authored via the high-assurance harness; both verifiers clean on citations (0 false positives), two FN completeness improvements applied in-window (Art 46(2)(e)/(f) tool routes; Art 48 foreign-disclosure-order assessment). FR-74 consolidates: its instrument half is delivered, residual is the annex/procedure deepening (left open). Listed in privacy/README and the document-index register; TIA cross-ref wiring queued as a follow-up.
