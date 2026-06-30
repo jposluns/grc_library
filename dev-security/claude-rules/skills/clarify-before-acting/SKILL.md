@@ -20,6 +20,8 @@ The discipline is from the canonical rule [`governance/clarify-before-acting.md`
 - A trade-off must be made that the requestor would reasonably want to weigh in on (backwards compatibility vs cleanliness, performance vs readability, breadth-of-fix vs scope-of-PR).
 - The state of the world is unclear (an unfamiliar branch exists, a lock file is present, a partially-applied migration is detected, a stash with content is found). Investigate first, then ask whether to preserve, resolve, or discard.
 
+Before the ask-vs-default decision, run the **compute-first gate**: if the answer is a findable fact the assistant can retrieve itself (a file location, a citation, a count, a version, where a term is used in the corpus, what a document currently says), retrieve it with a `grep` or a read and surface the answer, do not ask the requestor for it. The ask-vs-default test governs only the genuine ambiguities and authorial choices that survive this gate, never findable facts.
+
 Not all ambiguity warrants asking. If the wrong-guess cost is bounded to a quick edit AND a sensible convention exists in the project, the language community, or the immediate context, default and document the default in the response so the requestor can override it. Ask when the wrong choice would produce work the requestor would want to unwind, or when the choice has consequences beyond this PR (target branch, public API shape, dependency choice, security-sensitive default).
 
 ## Process
@@ -37,6 +39,7 @@ A clarification is not a request to re-explain the original task. The requestor 
 
 ## Red Flags
 
+- Asking the requestor for a fact a `grep` or file read would answer, instead of retrieving it (the compute-first gate fires before the ask-vs-default decision).
 - Silently picking when the wrong guess would require unwinding.
 - Asking after acting ("I went ahead and used branch X; want me to switch?" is post-hoc consent-seeking, not a clarification).
 - Asking trivia (pinging the user for every micro-decision that has a sensible default; signal-to-noise erodes and eventually the user hand-waves "do whatever", which collapses the discipline back into silent picking).

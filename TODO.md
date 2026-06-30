@@ -37,7 +37,6 @@ A review of [`.working/improvement-log.md`](.working/improvement-log.md) found t
 
 **The close-out-checklist apply-time disciplines were codified in #478** (three CLAUDE.md `## Session migration and PR close-out checklist` bullets): **audit-gate change completeness** (the audit-programme spec's detailed-prose enumeration, its per-gate narrative, the grouped-list, the module docstring, and the regression fixture are parallel surfaces no parity gate inspects, folding in #312 gate-behaviour-changed paired-surfaces and the Sweep-77-A1 gate-57 detailed-prose miss, plus the `WORKFLOW_DELTA_GATE_STEPS` note); **full-file-grep and parallel-case re-verification for prose corrections** (folding in #271 parallel-case verification, #340 full-file-grep for prose-fact corrections, and #320 corpus-wide-scrub narrative-surface scope); and **generated-artefact regen order** (#323, taxonomy first then portal/scorecard). The bare-token contradiction search (#261/#262) was already codified in the earlier close-out-checklist bullet. **Residual (still open):**
 
-- **Codify compute-don't-ask** (#269) into the `clarify-before-acting` rule's "ask vs default" test (a pack-rule edit + its `.claude/` mirror + pack version bump, distinct from the CLAUDE.md-checklist work above) — it currently distinguishes ask-vs-sensible-default but not ask-vs-self-compute.
 - **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling).
 - **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules"). This one is a gate change, not a checklist line.
 
@@ -215,6 +214,10 @@ The PR #441 condense of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) moved the cut r
 
 Decision (maintainer 2026-06-28, after the PR #441 condense): the keep-and-condense method is documented as pack guidance ([`guidance-claude-md-optimization.md`](dev-security/claude-rules/guidance-claude-md-optimization.md), shipped 2026-06-28); a full optimization skill was declined as too judgment-heavy to mechanize (the keep-versus-cut call is exactly the part a skill cannot do). The tractable mechanical aid is a NARROW read-only diagnostic, a `/claude-md-audit`-style reporter over a target rules file that surfaces file length, section count, an actionable-token-density heuristic (ratio of greppable rule tokens such as commands, paths, gate numbers, and thresholds to total prose), and a "no removal ledger referenced" flag. Advisory output only, never a gate (the keep/cut decision stays the maintainer's). Low priority: build only if the guidance doc proves insufficient on its own. Pairs with the §3.12 ledger-review cadence.
 
+### 3.14 Gate-2 coverage of generator emitted-prose strings (L, S) — surfaced 2026-06-30 (Sweep 78 B-1)
+
+Sweep 78 found a Commonwealth `customised` hard-coded in a [`tools/build-portal.py`](tools/build-portal.py) emitted-prose string (rendered into the `GENERATED_DOCS`-exempt [`docs/portal.md`](docs/portal.md)), doubly blind to gate 2 ([`tools/lint-language.py`](tools/lint-language.py)): the gate scans only `.md` files (so the `.py` generator source is never seen) and excludes the generated output. The `-ize`/dash/house-style house rules therefore do not reach the adopter-facing prose the `tools/build-*.py` generators emit. Candidate: extend gate 2 (or add a narrow sibling check) to scan the emitted-prose string literals in the `tools/build-*.py` generators, so a house-style violation in generator-authored prose is caught at gate time rather than at the next corpus-wide `/validate`. Low priority (the generators are few and their prose is small); pairs with the §1.4 audit-gate work. The companion non-tooling residual (gate-exempt `.claude/` forward `§`-pointers left stale by a TODO renumber) needs no new rule, it is the existing section-close cross-FILE cleanup close-out-checklist line, to be reinforced to span gate-exempt forward pointers when that line is next edited.
+
 
 ---
 
@@ -372,7 +375,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **After completing a merge, list the upcoming next 5 planned PRs from TODO** — operationalised in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section and the same pack rule.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5** — the 5-PR cadence is default; the batch boundary is chosen at the natural seam.
 - **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)` so the two ledgers are scannable in the same shape. Harmonised in PR #163.
-- **Compute-don't-ask** (maintainer-flagged 2026-06-23) — before surfacing a question, apply a "can I compute/verify this myself?" gate; surface the result, not the raw question. (Pending codification into the `clarify-before-acting` rule — see §1.3.)
+- **Compute-don't-ask** (maintainer-flagged 2026-06-23) — before surfacing a question, apply a "can I compute/verify this myself?" gate; surface the result, not the raw question. (Codified 2026-06-30 into the `clarify-before-acting` rule's compute-first gate, #504.)
 
 ---
 
@@ -382,7 +385,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and renumber (t
 
 - **P1 (fix errors and prevent recurrence)**: 5 items (1.1 FR-48, 1.2 Per-document ISO, 1.3 retro guard rails, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
-- **P3 (clean up and tooling)**: 13 items (3.1-3.13).
+- **P3 (clean up and tooling)**: 14 items (3.1-3.14).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
