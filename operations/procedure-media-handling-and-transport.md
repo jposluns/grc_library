@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.1\
-**Date:** 2026-05-28\
+**Version:** 1.3.2\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -164,11 +164,11 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 
 ### 7.1 Sanitization before reuse
 
-Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with NIST SP 800-88 guidelines:
+Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization-technique categories of IEEE 2883 (NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard):
 
 | Media Type | Required Sanitization Method |
 | --- | --- |
-| Hard disk drives (HDD) | NIST SP 800-88 Clear (overwrite) for Internal and below; Purge (verified overwrite or degauss) for Confidential and above. |
+| Hard disk drives (HDD) | IEEE 2883 Clear (overwrite) for Internal and below; Purge (verified overwrite or degauss) for Confidential and above. |
 | Solid-state drives (SSD) and flash media | Cryptographic erasure using ATA Secure Erase, Sanitize (Block Erase), or equivalent. |
 | Magnetic tapes | Degaussing followed by label removal and overwrite verification. |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by the device OS. |
@@ -282,14 +282,14 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 ## 11. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 | CSA CCM v4.1 | COBIT 2019 |
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 Rev. 2 / IEEE 2883 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
-| Media handling and classification | A.8.10 | §2: Overview | DSP-07 | DSS05.06 |
-| Physical transport and chain of custody | A.8.10, A.7.10 | §4.2: Clear | DSP-07 | DSS05.06 |
+| Media handling and classification | A.8.10 | 800-88 Rev. 2: programme scope | DSP-07 | DSS05.06 |
+| Physical transport and chain of custody | A.8.10, A.7.10 | IEEE 2883: Clear | DSP-07 | DSS05.06 |
 | Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-07, CEK-14 | DSS05.02 |
-| Media storage | A.8.10, A.7.9 | §4.1: Sanitization | DSP-07 | DSS05.01 |
-| Sanitization and destruction | A.8.10 | §4.3, Purge, §4.4, Destroy | DSP-07 | DSS05.06 |
-| Certificate of Destruction and records | A.5.33 | §4.5: Documentation | DSP-07 | DSS05.06 |
+| Media storage | A.8.10, A.7.9 | 800-88 Rev. 2: programme | DSP-07 | DSS05.01 |
+| Sanitization and destruction | A.8.10 | IEEE 2883: Purge / Destruct | DSP-07 | DSS05.06 |
+| Certificate of Destruction and records | A.5.33 | 800-88 Rev. 2: documentation | DSP-07 | DSS05.06 |
 
 ---
 

@@ -46,6 +46,7 @@ URL_RE = re.compile(r"https?://([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})(?::\d+)?(?:/[^\s)
 ALLOW_LIST = {
     # Standards publishers
     "iso.org", "iec.ch", "nist.gov", "csrc.nist.gov", "nvlpubs.nist.gov",
+    "ieee.org", "standards.ieee.org",
     "ashrae.org", "nfpa.org", "cencenelec.eu", "cen.eu", "cenelec.eu",
     "ietf.org", "rfc-editor.org", "datatracker.ietf.org",
     "w3.org", "oasis-open.org",

@@ -74,18 +74,18 @@ _94 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.6 | 2026-06-24 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.6 | 2026-06-29 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.3 | 2026-06-25 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.9 | 2026-06-30 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.10 | 2026-06-30 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.17 | 2026-06-25 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.49 | 2026-06-30 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.50 | 2026-06-30 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.5 | 2026-06-30 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.3 | 2026-06-30 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.2 | 2026-06-29 |
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.16.24 | 2026-06-30 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.3 | 2026-06-30 |
-| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.6 | 2026-06-27 |
+| [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.7 | 2026-06-30 |
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.1 | 2026-06-23 |
-| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.1 | 2026-05-27 |
-| [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.1 | 2026-05-28 |
+| [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.2 | 2026-06-30 |
+| [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.2 | 2026-06-30 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.3 | 2026-06-26 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.4 | 2026-06-22 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.1 | 2026-06-29 |
@@ -326,7 +326,7 @@ _180 documents._
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.1 | 2026-06-22 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.0 | 2026-05-27 |
 | [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.2 | 2026-06-22 |
-| [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.5 | 2026-06-24 |
+| [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.6 | 2026-06-30 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.2 | 2026-06-24 |
 
 ---

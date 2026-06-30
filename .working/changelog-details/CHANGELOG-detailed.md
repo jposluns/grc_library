@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.486, PR #508
+
+NIST SP 800-88 Rev. 2 re-point and IEEE 2883 introduction, the third and last of the §1.5 version-upgrade follow-ups. Maintainer-directed shape: re-point faithfully AND introduce IEEE 2883 as a newly-cited standard (chosen over a minimal version-bump).
+
+### Added
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new `## IEEE standards` section with the row `IEEE 2883 | 2022 | 2022-08 | IEEE Standard for Sanitizing Storage (the Clear / Purge / Destruct sanitization categories and per-technology technique requirements; the technique standard NIST SP 800-88 Rev. 2 now defers to) | - | https://standards.ieee.org/ieee/2883/10277/ | verified 2026-06-30`.
+- [`tools/lint-external-link-domains.py`](../../tools/lint-external-link-domains.py): `ieee.org` and `standards.ieee.org` added to the Standards-publishers allow-list (for the new register URL).
+- [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md): an IEEE 2883 row in the framework-alignment table (Clear / Purge / Destruct techniques), beside the 800-88 Rev. 2 row (programme framing).
+
+### Changed
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.9 -> 1.5.10): NIST SP 800-88 row `Rev. 1 | 2014-12 | Media sanitization | -` upgraded to `Rev. 2 | 2025-09 | Media sanitization (Rev. 2 reframes around an enterprise media-sanitization programme and defers sanitization-technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly) | Rev. 1`, with the csrc r2 URL and `verified 2026-06-30`.
+- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md) (1.3.1 -> 1.3.2, Date 2026-05-28 -> 2026-06-30): §7.1 intro re-pointed (programme = 800-88 Rev. 2; technique categories = IEEE 2883); the HDD sanitization row now cites `IEEE 2883 Clear / Purge`; the §11 framework-alignment column header changed from `NIST SP 800-88` to `NIST SP 800-88 Rev. 2 / IEEE 2883` and its cells re-mapped from Rev. 1 section numbers (which Rev. 2 restructured away) to named concepts (`800-88 Rev. 2: programme scope/programme/documentation`, `IEEE 2883: Clear`, `IEEE 2883: Purge / Destruct`).
+- [`supply-chain/template-supplier-offboarding-evidence.md`](../../supply-chain/template-supplier-offboarding-evidence.md) (1.0.5 -> 1.0.6, Date 2026-06-30): the certificate-of-destruction method example re-attributed to the IEEE 2883 categories Rev. 2 directs to; the `NIST SP 800-88 Rev. 1` framework row upgraded to `Rev. 2`.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.49 -> 1.27.50): the offboarding-template row's related-standards summary `NIST SP 800-88r1` -> `NIST SP 800-88r2, IEEE 2883`.
+- [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md) (1.3.1 -> 1.3.2, Date 2026-05-27 -> 2026-06-30): the §9.2 HDD sanitization row `Overwrite (NIST SP 800-88 Clear)` -> `Overwrite (IEEE 2883 Clear)`, the parallel of the lead doc's HDD row (caught by the pre-push skeptical verifier; see Discipline observation).
+- [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) (1.4.6 -> 1.4.7, Date 2026-06-27 -> 2026-06-30): the destruction-methods table cell `secure overwrite per NIST SP 800-88` -> `secure overwrite (IEEE 2883 Clear)` (the same deferred-technique-attribution class, found by the full-corpus re-verification sweep).
+
+### Why
+NIST SP 800-88 Rev. 2 (final 2025-09-26) cancelled and replaced Rev. 1 (withdrawn the same day) and substantively changed the document: it reframed around establishing an enterprise media-sanitization programme and, apart from cryptographic erase, replaced the hands-on Clear/Purge/Destruct technique detail with a deferral to IEEE 2883, NSA specifications, or an organizationally-approved standard. Our media-handling procedure cited 800-88 specifically for that technique guidance (including the framework-alignment column's Rev. 1 section numbers), so a faithful re-point requires citing IEEE 2883 for the techniques and 800-88 Rev. 2 for the programme/documentation framing. The maintainer chose to introduce IEEE 2883 as a newly-cited standard (the faithful option) over a minimal version-string swap.
+
+### Verification
+- NIST SP 800-88 Rev. 2 confirmed upstream this turn via WebSearch (csrc.nist.gov/pubs/sp/800/88/r2/final; final 2025-09-26; Rev. 1 withdrawn 2025-09-26; the substantive technique-deferral-to-IEEE-2883 change corroborated).
+- IEEE 2883:2022 confirmed upstream via WebSearch (standards.ieee.org/ieee/2883/10277/; "IEEE Standard for Sanitizing Storage"; published 2022-08) AND against the authoritative IEEE Std 2883-2022 PDF the maintainer supplied: the three sanitization methods are Clear (§6.2), Purge (§6.3), Destruct (§6.4); Clear = logical/overwrite techniques, Purge = logical or physical incl. degaussing and cryptographic erase, Destruct = physical (disintegrate/incinerate/melt). The corpus attributions (Clear = overwrite; Purge = verified overwrite or degauss) match the source.
+- The framework-alignment cells avoid citing specific Rev. 2 section numbers (not independently read), citing named concepts instead, to stay evidence-grounded.
+- Corpus footprint by grep: every version-bearing `800-88 Rev. 1` / `800-88r1` citer updated; bare unversioned "NIST SP 800-88" series references left as-is (gate-6-clean). [`tools/lint-standards-currency.py`](../../tools/lint-standards-currency.py) clean (125 standards); [`tools/lint-external-link-domains.py`](../../tools/lint-external-link-domains.py) clean (standards.ieee.org allow-listed); pre-push skeptical verifier (substantive tier) on the diff; `tools/run_all_audits.sh` all 57 gates pass.
+
+### Discipline observation
+The pre-push skeptical verifier caught one Medium cross-surface inconsistency the first-pass completeness sweep missed: `operations/procedure-endpoint-management-and-device-compliance.md:259` pinned the "Clear" technique category to NIST SP 800-88, the parallel of the lead doc's HDD row this PR re-pointed. Root cause: the first sweep grepped the version-bearing `800-88 Rev. 1`/`r1` form (and the change's own input set), not the full-corpus `800-88`-paired-with-a-technique form, so a sibling document not in the diff was missed (the project's named input-set-not-full-corpus failure mode). Fix: re-ran the grep over the FULL corpus for `800-88` paired with Clear/Purge/Destruct/overwrite/degauss, which surfaced both the verifier's finding AND a second adjacent occurrence (`governance/standard-records-retention-and-destruction.md:117` "secure overwrite per NIST SP 800-88"); both re-pointed to IEEE 2883 in-window. The bare-series references and the cryptographic-erase reference (the one technique Rev. 2 keeps) were correctly left.
+
+### Closes
+- The §1.5 citation version-upgrade follow-ups (TODO §1.5): ISO/IEC 27033 (#506), ISO/IEC 27036-2 (#507), NIST SP 800-88 (#508). §1.5 fully closed.
+
+### Note (separate cross-repo task)
+- The maintainer supplied the authoritative IEEE Std 2883-2022 PDF and directed its ingestion into the scratch `ref/standards/` reference base (watermark-scrubbed: the PDF carries a per-licensee "licensed to <name>" watermark on every page, scrubbed before any extract is stored). That ingestion is a separate Mode-A scratch PR (via MCP), not part of this corpus PR.
+
 ## 2026-06-30, Library Version 2026.06.485, PR #507
 
 ISO/IEC 27036-2 citation upgrade, the second of the three §1.5 version-upgrade follow-ups (the citation-impact ones deferred from #505).

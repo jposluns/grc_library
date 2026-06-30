@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.6\
-**Date:** 2026-06-27\
+**Version:** 1.4.7\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -114,7 +114,7 @@ Upon expiration of the applicable retention period and confirmation that no acti
 | Media Type | Accepted Methods |
 |---|---|
 | **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
-| **Electronic / Digital** | Cryptographic erasure, secure overwrite per NIST SP 800-88, or physical drive destruction |
+| **Electronic / Digital** | Cryptographic erasure, secure overwrite (IEEE 2883 Clear), or physical drive destruction |
 
 ### Destruction documentation
 
