@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #492: FR-24: Control-testing procedure deepened to operational depth (2026-06-30)
+
+Deepened `compliance/procedure-control-testing.md` (153 to 235 lines) to peer operational depth: sampling methodology, working-paper/evidence standards, per-result response requirements, reporting distribution, overdue-remediation escalation chain, independent effectiveness validation, a Control Testing Register, and metrics. Via the high-assurance-tier skeptical verifier, which caught and fixed a pre-existing fabricated records-retention domain name. The result-classification-scheme reconciliation (SOX vs canonical) was deferred to the maintainer (pending-decisions), not folded in.
+
 ### PR #489: TIA cross-reference wiring (2026-06-30)
 
 Wired the new Transfer Impact Assessment template into the docs that reference a TIA: the cross-border-transfer procedure (Related Documents), the EU privacy annex, the DPIA template (which deferred TIAs to "a separate template" without linking it), the cross-border data flow register (reciprocal), and the governance glossary's TIA entry. Five versioned-body co-bumps; bookkeeping-tier discoverability wiring (lint-links + the post-merge /validate-pr as controls; no harness). Closes the queued TIA-wiring follow-up (#483); FR-74's residual is now just the Schrems II operational deepening.

@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.470, PR #492
+
+FR-24: deepened the Control Testing Procedure from a thin outline into an operable procedure, keeping the existing section model.
+
+### Changed
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) Version 1.0.3 to 1.0.4, Date to 2026-06-30, 153 to 235 lines. Deepened in place (no section renumbering of the existing §1 to §6):
+  - Roles: added an Independent reviewer and a tester-independence rule (a tester does not test a control they own or operate).
+  - §1 Planning: a frequency-by-risk table (High annual, Medium two-yearly, Low three-yearly), the test-calendar field set, and a mid-year review trigger for material control-framework change.
+  - §2 Scoping: a sampling methodology, a population-definition rule, a selection-method-by-risk table, and a requirement to record the sampling rationale.
+  - §3 Execution: working-paper standards, an interview-corroboration rule (interview evidence corroborated by inspection or re-performance), and an evidence-retention cross-reference.
+  - §4 Evaluation: a per-result response table and a classification-scheme note (see below).
+  - §5 Reporting: a results-distribution table.
+  - §6 Remediation: an escalation chain and a 90-day post-remediation effectiveness-validation step.
+  - New closing sections: §7 Control Testing Register and §8 Metrics.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first).
+
+### Verification
+- Substantive-tier change: one skeptical verifier subagent pre-push, briefed to refute, scoped to the diff.
+- The verifier found one CONFIRMED defect (Medium): the §3.5 evidence-retention sentence cited an "Audit-and-compliance-records domain" that does not exist in [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) (whose domains are Corporate Governance / Financial / HR / IT-Security / Legal-and-Compliance / Privacy-DSR / AI-Systems), so the sentence was internally self-contradicting. Fixed in-window by re-grounding the sentence on the standard's real Corporate Governance, Financial, and Legal-and-Compliance domains (each carrying a 7-year retention). The verifier's other six checks (SOX §103 attribution, the classification-scheme crosswalk, the frequency table, the sampling table, the cross-references, and the section-model integrity) were clean.
+- `tools/run_all_audits.sh` all 57 gates green after the fix and the artefact regen; existence gates and version/date co-bump confirmed.
+
+### Design note
+- The result-classification scheme (Effective / Observation / Deficiency / Material Weakness) is SOX-framed and differs from the corpus-canonical Critical / High / Moderate / Low scheme used by the Internal Audit Standard (§7) and the CAPA Procedure (§5). Rather than silently reconcile (an authorial call), the procedure carries a classification-scheme note specifying the CAPA-severity mapping (Material Weakness to Critical; Deficiency to High or Moderate by impact) so the CAPA Register stays consistent, and the reconcile-or-retain decision is recorded in [`pending-decisions.md`](../pending-decisions.md) (FR-24 Q1). FR-24 was scoped here as depth, not reclassification.
+
+### Bookkeeping
+- Batches the #491 [`/validate-pr`](../validate-pr/history.md) (0 findings) and #491 [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+- FR-24 deleted from [`TODO.md`](../../TODO.md), added to [`DONE.md`](../DONE.md).
+
 ## 2026-06-30, Library Version 2026.06.469, PR #491
 
 FR-167(b) matrix gap-fill: 7 net-new session documents added as compliance-matrix rows via the high-assurance harness.
