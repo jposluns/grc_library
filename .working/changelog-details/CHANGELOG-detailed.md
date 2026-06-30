@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.479, PR #501
+
+D5 rotation-check broadening + CLAUDE.md backlog-item-keyed reword (P1: the §1.3 rotation-prevention item, the #495/#496 miss).
+
+### Changed
+- [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py): replaced the single `CLOSURE_PATTERN` (the `clos... TODO §` form only) with `CLOSURE_PATTERNS`, a tuple of three closure-assertion detectors: (1) the canonical section form, (2) the `FR-N CLOSED` uppercase major-closure marker, and (3) the prose-named `clos... the <...> (backlog item | TODO item | directive)` form, the shape of the #495 miss. Form (3)'s run forbids a second "the" (a tempered `(?:(?!\bthe\b)[^.\n]){0,70}?`) so a prepositional "directive" ("closing the gap per the maintainer directive") is not a false positive, the closure object must be the direct object. Updated the module docstring's trigger description accordingly.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6.1 D5 prose: rewrote the trigger description from "scoped to that backlog-section form (not a bare §X or an FR-N-keyed closure)" to the three broadened forms, with the empirical false-positive-freedom rationale and the bare-`Closes FR-N`-excluded note.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (maintainer-approved protected edit): reworded the PR-workflow step-7 rotation discipline and the close-out-checklist rotation line to be **backlog-item-keyed, not FR/§-keyed**, spelling out that a prose-named or maintainer-directed item recorded in TODO rotates like any `FR-N` / `§N.M` item (the #495 reflex skipped it), and noting D5 now detects the broadened forms.
+- [`TODO.md`](../../TODO.md): rotated the §1.3 "backlog-rotation prevention for prose-named items" sub-item out (the rest of §1.3, compute-don't-ask / new-skill-drafting / count-gate remainder, stays open); collapsed the doubled `---` section separators the #500 renumber left (the #500 `/validate-pr` cosmetic non-finding).
+
+### Added
+- Positive and negative regression fixtures in [`tests/test_linters.py`](../../tests/test_linters.py) `TodoRotationOnPrTests`: positives for `FR-N CLOSED` and the prose `closes the ... directive/backlog item` forms; negatives for past-closure narration (`PR #143 closed FR-9`, `PRs #221-#228 closing FR-33/...`, `FR-37/38 closed in #224`) and the prepositional-`directive` false positives. The 208-plus-case linter-regression suite passes.
+
+### Verification
+- The broadened detection was validated empirically: the module was run over all ~14k CHANGELOG history lines and matched 29 lines, all genuine closures, zero past-closure-narration false positives; the adversarial negative fixtures (including `closing the gap per the maintainer directive`) all return no-match after the second-"the" guard. D5 is a PR-time delta check (not a numbered gate), so its surfaces are the runner [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh), the `pull_request` section of [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), and the §6.1 D5 row; the detection-logic change touched the linter, its docstring, the §6.1 prose, and the fixtures (no `WORKFLOW_DELTA_GATE_STEPS` change: no new step name). The pre-push guard is green.
+
+### Discipline observation
+- The broadening had to preserve D5's defining property, false-positive-freedom on a standing PR-time gate, so the design was driven by an empirical test against the full CHANGELOG history rather than by intuition. That test is what excluded the bare `Closes FR-N` form (95 matches, several past-closure narration) and surfaced the prepositional-`directive` false positive that the second-"the" guard then fixed. The maintainer chose the FP-free three-form design over a broader-but-guarded `Closes FR-N` detector. This is `gate-discipline` plus the high-assurance empirical-validation habit applied to a gate's own detection logic.
+
 ## 2026-06-30, Library Version 2026.06.478, PR #500
 
 TODO renumber to priority-prefixed `### N.M` headings (maintainer-directed), with uniform item formatting.

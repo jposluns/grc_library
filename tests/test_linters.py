@@ -3810,8 +3810,11 @@ class TodoRotationOnPrTests(unittest.TestCase):
     Unit-tests the false-positive-critical trigger helper
     ``asserts_todo_closure`` directly (the gate is otherwise a git-diff
     delta check verified behaviourally via run-pr-time-checks.sh). The
-    trigger must fire on the canonical "clos(e|es|ed|ing) [the] TODO §"
-    closure phrasing and NOT on incidental TODO mentions.
+    trigger (broadened 2026-06-30, the §1.3 rotation-prevention item) must
+    fire on three closure forms, the canonical "clos(e|es|ed|ing) [the]
+    TODO §", the "FR-N CLOSED" major-closure marker, and the prose-named
+    "clos... the ... (backlog item | TODO item | directive)" form, and NOT
+    on incidental TODO/FR mentions or past-closure narration.
     """
 
     @staticmethod
@@ -3830,6 +3833,13 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "closes TODO §4.14 (the matrix gap-fill).",
             "Completes the family, closing TODO §4.10.",
             "closing the TODO §4.13 item",
+            # FR-N CLOSED major-closure marker (uppercase CLOSED).
+            "FR-58 CLOSED: applied the 3-label inheritance vocabulary.",
+            "FR-167 CLOSED: matrix gap-fill for the 6 OT documents.",
+            # Prose-named / explicit backlog-item form (the #495 miss shape).
+            "closes the maintainer-directed OT post-ingestion audit/validation directive; no FR row.",
+            "Closes the P3 docs/ house-style enforcement-gap backlog item.",
+            "Closes the deferred backlog item R2 by principle.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
@@ -3844,6 +3854,17 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "the close-TODO-to-DONE rotation discipline",
             "Resolves the two pending maintainer decisions.",
             "S4 (no-bare-normative-shall) shipped in #466 (gate 56).",
+            # Past-closure narration of OTHER PRs (the FP class that kept the
+            # bare lowercase "Closes FR-N" form deliberately out of the trigger).
+            "review (PR #143 closed FR-9 + FR-10, CRO ownership).",
+            "(PRs #221-#228 closing FR-33/82/49/37/38/39/40/42) surfaced.",
+            "FR-37/38/39/40/42 closed in #224-#228.",
+            "FR-70 confirmed a significant gap, not expansion.",
+            "per the FR-154 deepen-to-operational-depth decision.",
+            # "directive" inside a prepositional phrase, not the closure object
+            # (the second-"the" guard excludes these).
+            "closing the gap per the maintainer directive about scope.",
+            "closes the loop for the maintainer directive on timing.",
         ):
             self.assertIsNone(
                 m.asserts_todo_closure([line]),

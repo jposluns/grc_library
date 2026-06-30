@@ -17,16 +17,22 @@ time: if any line ADDED to the CHANGELOG (root or detailed mirror) asserts a
 TODO-item closure, the PR's changed-file set must include BOTH `TODO.md` and
 `.working/DONE.md`.
 
-Trigger (deliberately precise, to stay false-positive-free): an added CHANGELOG
-line matching the canonical closure phrasing ``clos(e|es|ed|ing) [the] TODO §``.
-This matches "closing TODO §4.5 S4" (the genuine-closure convention) and not
-incidental mentions such as "closing the #466 finding" (no ``TODO §`` adjacency)
-or "TODO §4.10 updated" (no closure verb). A closure phrased WITHOUT the
-``TODO §`` form (a bare ``§X`` or an ``FR-N``-keyed closure) is out of the
-trigger's scope by design: broadening to those would false-fire on the many
-CHANGELOG entries that merely mention an FR or a section, and the cost of a
-standing PR-time gate that false-fails real PRs is high. The static marked-done
-gate and the close-out-checklist convention cover the residual.
+Trigger (broadened 2026-06-30 to three forms, each chosen to stay
+false-positive-free; see ``CLOSURE_PATTERNS``): an added CHANGELOG line matching
+any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO §`` (e.g.
+"closing TODO §4.5 S4"); (2) the major-closure marker ``FR-N CLOSED`` with
+uppercase CLOSED (e.g. "FR-58 CLOSED"); or (3) the explicit backlog-item form
+``clos(e|es|ed|ing) the <...> (backlog item | TODO item | directive)`` (e.g.
+"closes the maintainer-directed ... validation directive", the #495 prose-named
+shape). It does NOT match incidental mentions ("closing the #466 finding",
+"TODO §4.10 updated", "per FR-154"), and it deliberately does NOT match bare
+lowercase ``Closes FR-N``: that form matched ~95 historical CHANGELOG lines
+including past-closure narration ("PR #143 closed FR-9", "PRs #221-#228 closing
+FR-33/82/..."), which would false-fail a standing PR-time gate; the
+close-out-checklist convention and the static marked-done gate cover that
+residual. The 2026-06-30 broadening was driven by the #495 miss (a prose-named
+"OT post-ingestion validation" item closed without rotation, invisible to the
+old ``TODO §``-only trigger).
 
 Opt-out / exemption: any commit in the PR range carrying a
 
@@ -65,12 +71,36 @@ CHANGELOG_PATHS = ("CHANGELOG.md", ".working/changelog-details/CHANGELOG-detaile
 TODO_PATH = "TODO.md"
 DONE_PATH = ".working/DONE.md"
 
-# Canonical TODO-item closure phrasing: a closure verb, an optional "the", then
-# "TODO §". Case-insensitive on the verb; "TODO" is the established uppercase
-# token but IGNORECASE keeps it robust.
-CLOSURE_PATTERN = re.compile(
-    r"\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+§",
-    re.IGNORECASE,
+# Closure-assertion phrasings, broadened 2026-06-30 (the §1.3 / former-§4.8
+# rotation-prevention item) beyond the original `TODO §` form to also catch the
+# prose-named and FR-N closures the #495 miss exposed, while staying
+# false-positive-free. The three forms below were chosen empirically: tested
+# against the entire CHANGELOG history (root + detailed mirror, ~14k lines),
+# each matched only genuine current-PR closures with ZERO past-closure-narration
+# false positives. A bare lowercase `Closes FR-N` was deliberately NOT added: it
+# matched ~95 lines including past-closure narration ("PR #143 closed FR-9",
+# "PRs #221-#228 closing FR-33/82/..."), exactly the standing-gate false-fire the
+# original narrow design avoided; the close-out-checklist convention covers that
+# residual (maintainer decision 2026-06-30).
+CLOSURE_PATTERNS = (
+    # (1) the canonical section form: a closure verb, optional "the", then "TODO §".
+    re.compile(r"\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+§", re.IGNORECASE),
+    # (2) the distinctive major-closure marker "FR-N CLOSED" (uppercase CLOSED is
+    # the project's deliberate this-PR-closure flag; case-sensitive so lowercase
+    # "closed FR-N" narration does not match).
+    re.compile(r"\bFR-\d+\s+CLOSED\b"),
+    # (3) the prose-named / explicit backlog-item form: a closure verb, "the",
+    # then (within one clause) "backlog item" / "TODO item" / "directive". This
+    # catches "closes the maintainer-directed ... validation directive" (the #495
+    # prose-named miss) and "closes the ... backlog item".
+    # The tempered run forbids a SECOND "the": a second "the" signals a new noun
+    # phrase or a prepositional object ("closing the gap per the maintainer
+    # directive"), where the trailing item/directive word is NOT the closure's
+    # direct object, so it is excluded as a false positive.
+    re.compile(
+        r"\bclos(?:e|es|ed|ing)\b\s+the\s+(?:(?!\bthe\b)[^.\n]){0,70}?\b(?:backlog item|TODO item|directive)\b",
+        re.IGNORECASE,
+    ),
 )
 
 TRAILER_PATTERN = re.compile(
@@ -86,7 +116,7 @@ def asserts_todo_closure(added_lines: list[str]) -> str | None:
     critical part of the gate.
     """
     for line in added_lines:
-        if CLOSURE_PATTERN.search(line):
+        if any(pat.search(line) for pat in CLOSURE_PATTERNS):
             return line
     return None
 
