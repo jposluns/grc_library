@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.473, PR #495
+
+OT post-ingestion validation: the maintainer-directed audit of the OT corpus against the NIST SP 800-82 Rev. 3 and ISO/IEC 27019:2024 sources newly ingested into scratch. Verdict: OT work sound; one low finding applied in-window (GAP-1, safety-as-overarching note), one assessed immaterial (GAP-2, A>I ordering nuance).
+
+### Changed
+- [`operations/ot/annex-ot-security-overview.md`](../../operations/ot/annex-ot-security-overview.md) Version 1.0.2 to 1.0.3, Date to 2026-06-30: added a clarifying sentence in §2.2 (after the OT-versus-IT differences table) that the reversed CIA triad is itself subordinate to a higher objective, namely that per NIST SP 800-82 Rev. 3 human safety is paramount ahead of protection of the process, so where safety and availability conflict, safety governs. Grounded in the held 800-82r3 extract lines 2146-2147 ("Human safety is paramount, followed by protection of the process").
+- [`.working/high-assurance/register.md`](high-assurance/register.md) 1.0.10 to 1.0.11: added the OT post-ingestion validation row (verification tier, status `verified`).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the annex Version bump ([`docs/portal.md`](../../docs/portal.md) unchanged, no portal-affecting metadata changed).
+
+### Verification
+- The audit was a single deeply-contextualized subagent reading the 6 `operations/ot/` docs in full plus the 6 PR-#494 OT matrix rows, checking each technical claim against the held 800-82r3 sections (zone-and-conduit / Purdue, Security Levels attributed to IEC 62443, segmentation / DMZ, active-scanning caution, outage-aligned patching, safety-first IR, asset management) and the ISO 27019:2024 scope.
+- **Verdict: OT work sound.** No contradictions of 800-82r3; IEC 62443 correctly primary, 800-82r3 secondary; the 6 matrix-row NIST CSF choices align; ISO 27019 correctly energy-sector-scoped (BMS overlay correctly does not cite it).
+- **GAP-1 (low, applied):** the §2.2 CIA-priority table omitted safety from the ordering. Orchestrator apply-time verification independently confirmed the source claim by reading 800-82r3 lines 2146-2147 before authoring the note.
+- **GAP-2 (low, no action):** the table ranks Availability above Integrity where 800-82r3 line 986 lists "integrity and availability" together; assessed immaterial because IEC 62443 (the docs' primary framework) puts availability first and the docs are internally consistent. Declining to reorder the triad is the correct call (the audit itself recommended no action).
+- All 57 audit gates green on the post-edit state (pre-push guard).
+
+### Discipline observation
+- This is the *verification* tier of the high-assurance discipline (an audit against newly-held ground truth), not a 5-stage apply harness; the register row records it as such. The maintainer's directive ("ingest the SP 800 documents, then follow up with an audit/validation") is closed by this PR: the ingestion prerequisite is complete in the scratch reference base, and the OT corpus is confirmed sound against it.
+
+---
+
 ## 2026-06-30, Library Version 2026.06.472, PR #494
 
 FR-167 CLOSED: compliance-matrix gap-fill for the 6 OT documents and the AI Security Tooling Landscape register, via the high-assurance dual-verifier harness.
