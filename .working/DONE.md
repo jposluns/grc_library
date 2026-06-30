@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #506: ISO/IEC 27033 -> 27033-1:2015 citation correction (§1.5 follow-up, P1) (2026-06-30)
+
+Corrected the non-existent `ISO/IEC 27033:2020` to `ISO/IEC 27033-1:2015` (Part 1, Overview and concepts; current 2nd ed., confirmed unchanged 2021) across the register row and the 2 corpus framework-alignment tables that inherited the phantom year. Upstream-confirmed via WebSearch (iso.org 63461). First of the 3 §1.5 citation-impact version-upgrades; 27036-2 and 800-88 remain.
+
 ### PR #505: §1.5 reference version-currency register (P1) (2026-06-30)
 
 Added `Upstream check location` + `Last verified (UTC)` columns to all 16 tables of the canonical-citations register (100 rows upstream-verified 2026-06-30, 51 `needs-reconfirm`), wired the advisory staleness cadence + scratch-is-storage principle into the citation-verification spec (§12.3, §7 allow-list), and applied 7 upstream-confirmed register corrections; built under the high-assurance harness (deterministic apply + re-parse + dual adversarial verifiers, one finding fixed). Three citation-impacting version-upgrades (27033, 27036-2, 800-88) and the ATLAS scratch-archival deferred as follow-ups (new §1.5 / pending-decisions).

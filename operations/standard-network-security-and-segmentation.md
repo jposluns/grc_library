@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.1\
-**Date:** 2026-06-24\
+**Version:** 1.4.2\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -169,7 +169,7 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 | Framework | Reference |
 |---|---|
 | ISO/IEC 27001:2022 | A.8.20, A.8.21, A.8.22: Network Controls |
-| ISO/IEC 27033:2020 | Network Security Architecture and Segmentation |
+| ISO/IEC 27033-1:2015 | Network Security Architecture and Segmentation |
 | NIST SP 800-53 | SC-7: Boundary Protection |
 | NIST SP 800-207 | Zero Trust Architecture |
 | COBIT 2019 | DSS05: Manage Security Services |

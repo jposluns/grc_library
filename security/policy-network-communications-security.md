@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.2\
-**Date:** 2026-06-29\
+**Version:** 1.1.3\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -144,7 +144,7 @@ Where the organisation participates in a sector programme that imposes additiona
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27033:2020 | Network Security Architecture | Network architecture, segmentation, secure connectivity |
+| ISO/IEC 27033-1:2015 | Network Security Architecture | Network architecture, segmentation, secure connectivity |
 | ISO/IEC 27001:2022 | A.8.20 to 21: Network security, network segmentation | Network security policy obligations |
 | COBIT 2019 | DSS05: Managed Security Services | Network security governance and service management |
 | NIST SP 800-207 | Zero Trust Architecture | ZTNA principles, continuous validation |
