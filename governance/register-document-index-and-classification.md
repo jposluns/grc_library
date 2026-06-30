@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.40\
-**Date:** 2026-06-27\
+**Version:** 1.27.41\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -118,6 +118,7 @@ All active repository documents should be Public.
 | Privacy | Template | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | Data Protection Officer | Annual | GDPR Arts 12 to 14, UK GDPR, LGPD Arts 6/9/18, PIPL Arts 17 to 21, CCPA/CPRA, ISO/IEC 29184 |
 | Privacy | Template | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | Data Protection Officer | Annual | GDPR Arts 12 to 23, LGPD Arts 17 to 22, PIPL Arts 44 to 50, CCPA/CPRA, ISO 27701 §7.3 |
 | Privacy | Template | Data Protection Impact Assessment Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | Data Protection Officer | Annual | GDPR Art 35, EDPB WP248, UK GDPR Art 35, LGPD Art 38, PIPL Art 55, EU AI Act Art 27, ISO/IEC 29134:2017, ISO/IEC 27701:2025 |
+| Privacy | Template | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | Data Protection Officer | Annual | GDPR Art 6(1)(f), GDPR Recital 47, UK GDPR Art 6(1)(f), EDPB Opinion 28/2024, ISO/IEC 27701:2025 |
 | Privacy | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | Data Protection Officer | Annual | GDPR Art 26, UK GDPR Art 26, LGPD Art 5(VI), PIPL Art 20, India DPDP 2023 §2(i), EDPB Guidelines 07/2020 |
 | Privacy | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](../privacy/template-dpa-article-28.md) | Data Protection Officer | Annual | GDPR Art 28, UK GDPR Art 28, LGPD Arts 39/42, PIPL Art 21, PIPEDA Principle 4.1.3, ISO 27001 A.5.20, ISO/IEC 27701:2025 |
 | Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Data Protection Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 |
