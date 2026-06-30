@@ -293,6 +293,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md)
 - [Internal Audit Standard](../compliance/standard-internal-audit.md)
 - [Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md)
+- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md)
 - [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md)
 
 ### Template
@@ -523,6 +524,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 ### Standard
 
 - [Internal Audit Standard](../compliance/standard-internal-audit.md)
+- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md)
 
 ### Template
 

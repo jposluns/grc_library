@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.4\
+**Version:** 1.4.5\
 **Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,6 +43,7 @@ Cross-sector horizontal regulations that span multiple industries (for example, 
 | Register | Compliance Obligations Register Template | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) |
 | Matrix | GRC Library Compliance Alignment | [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md) |
 | Standard | Internal Audit Standard | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
+| Standard | Sanctions and Export-Control Screening Standard | [`compliance/standard-sanctions-and-export-control-screening.md`](standard-sanctions-and-export-control-screening.md) |
 | Procedure | Audit Planning Procedure | [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) |
 | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](procedure-capa.md) |
 | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) |

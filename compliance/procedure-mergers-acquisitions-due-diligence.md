@@ -2,7 +2,7 @@
 
 **Document Title:** Mergers and Acquisitions Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ For each dimension, the assigned owner assesses the target against the data room
 | Security posture and incident history | Control maturity, known vulnerabilities, and the history and handling of security incidents and breaches. | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
 | Compliance obligations and findings | The target's obligation inventory and any open corrective actions or audit findings. | [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md) |
 | Contracts and third-party risk | Material contracts, change-of-control clauses, and inherited supplier and third-party risk. | [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) |
-| Financial-crime and sanctions exposure | Sanctions, export-control, anti-bribery, and money-laundering exposure of the target, its owners, and its counterparties. | [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) (a dedicated sanctions and export-control screening standard is planned) |
+| Financial-crime and sanctions exposure | Sanctions, export-control, anti-bribery, and money-laundering exposure of the target, its owners, and its counterparties. | [`compliance/standard-sanctions-and-export-control-screening.md`](standard-sanctions-and-export-control-screening.md); [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) for supplier-tier exposure |
 | Intellectual property and data assets | Ownership and encumbrance of IP and key data assets, including AI models and training data where relevant. | [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) (and adopter IP records) |
 | Human capital and conduct | Key-person dependency, conduct and ethics matters, and culture-integration risk. | [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md) |
 | Technology and integration | Architecture compatibility, technical debt, and the effort and risk of integration. | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) |
@@ -142,7 +142,7 @@ The due-diligence checklist outcomes, the red-flag and deal-breaker register, th
 
 ## 12. Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. It is not legal, financial, or tax advice, and it does not replace the transaction-specific due diligence performed by the deal team and external advisers. Adopting organisations must populate the materiality and approval thresholds, the regulatory-clearance list, and the timelines marked *[adopter-defined]*, and must extend the intellectual-property and litigation dimensions with their own records where this library has no dedicated instrument. The financial-crime and sanctions dimension (the lead deal-breaker in Phase 1) currently routes to the fourth-party and nth-party risk procedure as the closest existing instrument; a dedicated sanctions and export-control screening standard is planned and will become the governing instrument for that dimension when it ships.
+This procedure is a CC BY-SA 4.0 baseline. It is not legal, financial, or tax advice, and it does not replace the transaction-specific due diligence performed by the deal team and external advisers. Adopting organisations must populate the materiality and approval thresholds, the regulatory-clearance list, and the timelines marked *[adopter-defined]*, and must extend the intellectual-property and litigation dimensions with their own records where this library has no dedicated instrument. The financial-crime and sanctions dimension (the lead deal-breaker in Phase 1) is governed by the [sanctions and export-control screening standard](standard-sanctions-and-export-control-screening.md), with the fourth-party and nth-party risk procedure covering supplier-tier exposure.
 
 ---
 

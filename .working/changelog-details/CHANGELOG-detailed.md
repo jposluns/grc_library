@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.463, PR #485
+
+FR-72 for local project: a new sanctions and export-control screening Standard, authored via the high-assurance harness, closing the dedicated-screening-method gap.
+
+### Added
+
+- [`compliance/standard-sanctions-and-export-control-screening.md`](../../compliance/standard-sanctions-and-export-control-screening.md) (Standard, Version 1.0.0, Owner Chief Compliance Officer, Category Compliance Management, Classification Public). Ten numbered sections: (1) Purpose and scope, with a not-legal-advice disclaimer, an AML/CFT scope-fence, and a jurisdiction-applicability note marking the binding regimes adopter-defined; (2) Governance and roles (CCO, screening operations, sanctions/export-control Legal Counsel, CRO, business and transaction owners); (3) sanctions regimes named structurally (US OFAC including SDN and sectoral lists, UN, EU, UK OFSI, adopter-extensible); (4) export-control regimes (US EAR/BIS, US ITAR/DDTC, EU dual-use, Wassenaar context); (5) denied-party and restricted-party screening (onboarding, periodic re-screen against current lists, event-driven re-screen, transaction screening, match disposition, block-on-true-match); (6) beneficial-ownership / UBO verification including the OFAC 50% aggregate-ownership rule (attributed to OFAC guidance, the 25% identification threshold marked adopter-defined); (7) a screening-workflow table (submission, match review, segregation of duties, escalation, blocking/freezing/rejecting, licensing, reporting); (8) recordkeeping and retention; (9) framework alignment (ISO 37301:2021, ISO 31000:2018, COBIT 2019 APO12, NIST CSF 2.0 GV, plus a structural regulatory-regimes row); (10) Limitations. No pinned list version, regulation edition, CFR section, or ECCN anywhere (the reference base holds no sanctions/export-control source, so any pinned specific would be ungroundable).
+- Listing-surface rows for the new Standard in [`compliance/README.md`](../../compliance/README.md) (Version 1.4.4 to 1.4.5) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version 1.27.44 to 1.27.45).
+- Generated artefacts regenerated to carry the new Standard: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Changed
+
+- [`compliance/procedure-mergers-acquisitions-due-diligence.md`](../../compliance/procedure-mergers-acquisitions-due-diligence.md) (Version 1.0.0 to 1.0.1, Date 2026-06-30): re-wired the financial-crime and sanctions dimension (the lead Phase-1 deal-breaker) from the "is planned" placeholder to the now-existing standard, in both the §5 due-diligence-checklist sanctions row and the §12 Limitations paragraph. Body change, co-bumped Version and Date in the same commit.
+- [`README.md`](../../README.md): Library CalVer 2026.06.462 to 2026.06.463; README Version 1.9.333 to 1.9.334.
+
+### Verification
+
+- All 57 audit gates green on the committed state (pre-push guard: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)).
+- High-assurance harness (net-new authoring, maintainer-directed): two independent adversarial verifiers, blind to each other. The false-positive (high-stakes-legal) lens found 0 defects: no pinned version/CFR/ECCN; the OFAC 50% rule attributed to OFAC guidance, unpinned, accurately worded, and fenced from other regimes; all four authority names correct (OFAC, BIS, DDTC, OFSI); ISO 37301:2021, ISO 31000:2018, COBIT 2019 APO12, NIST CSF 2.0 GV all registered in the canonical-citations register; the not-legal-advice disclaimer and AML/CFT scope-fence accurate; the 25% UBO threshold marked adopter-defined; the paired M&A update complete with no "is planned" residual. The false-negative (operability) lens found 0 error-level gaps and 4 warning-level operability refinements, all folded in in-window.
+- Generated-artefact `--check` clean ([`tools/build-taxonomy.py`](../../tools/build-taxonomy.py), [`tools/build-portal.py`](../../tools/build-portal.py)).
+
+### Discipline observation
+
+The four false-negative operability refinements were genuine improvements applied in-window rather than deferred, consistent with Quality > Speed: a segregation-of-duties (four-eyes) requirement on match clearance (§7), an explicit list-currency control (§5.2), an entity-level event-driven re-screen trigger distinct from the owner-level re-verification (§5.3), and a reporting-timeline-recording requirement (§7). Each is a well-established baseline screening control (not a jurisdiction-specific value), so folding it in introduced no ungroundable assertion. The standard is the governing instrument the FR-71 M&A procedure's sanctions dimension was authored to point at; this PR closes that forward reference.
+
 ## 2026-06-30, Library Version 2026.06.462, PR #484
 
 FR-71 for local project: a new GRC M&A due-diligence procedure, authored via the high-assurance harness.
