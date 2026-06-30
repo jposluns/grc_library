@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.474, PR #496
+
+TODO/DONE rotation correction for local project: the #495 close-out closed the "OT post-ingestion validation" P1 item but omitted its TODO-to-DONE rotation, and the already-complete "NIST SP 800 ingestion" item (done in `grc_library_scratch`) had likewise never rotated; the maintainer flagged both still sitting in [`TODO.md`](../../TODO.md). This PR deletes both items from [`TODO.md`](../../TODO.md), updates the running-order note, and adds their [`.working/DONE.md`](DONE.md) entries (the OT row keyed to #495 where the work happened, with the late-rotation noted; the NIST row noting the work landed in scratch). The root cause, recorded in the batched #495 [`/retro`](improvement-log.md) row, is that descriptively-named TODO items (not FR-N-keyed) evade both the FR-keyed close-out-checklist mental model and the D5 PR-time closure-assertion check; the proposed fix (extend D5 / the checklist to detect prose-named closures) is filed for the integrity-tooling phase. Batches the #495 [`/validate-pr`](validate-pr/history.md) (0 findings) row. No corpus document changed; working-state and TODO bookkeeping only.
+
 ## 2026-06-30, Library Version 2026.06.473, PR #495
 
 OT post-ingestion validation: the maintainer-directed audit of the OT corpus against the NIST SP 800-82 Rev. 3 and ISO/IEC 27019:2024 sources newly ingested into scratch. Verdict: OT work sound; one low finding applied in-window (GAP-1, safety-as-overarching note), one assessed immaterial (GAP-2, A>I ordering nuance).
