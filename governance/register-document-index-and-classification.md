@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.45\
+**Version:** 1.27.46\
 **Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -254,6 +254,7 @@ All active repository documents should be Public.
 | Operations | Register | OT Asset Inventory and Lifecycle Register | [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | Chief Information Security Officer | Annual | IEC 62443-2-1, IEC 62443-3-2, IEC 62443-3-3, NIST SP 800-82 Rev. 3, ISO/IEC 27001 Annex A.5.9, ISO/IEC 27019:2024, NERC CIP-002, NERC CIP-010, IEC 61511, EU NIS 2, TSA Pipeline |
 | Operations | Annex | Building Management Systems (BMS) Overlay Annex | [`operations/ot/annex-bms-overlay.md`](../operations/ot/annex-bms-overlay.md) | Chief Information Security Officer | Annual | IEC 62443 family, NIST SP 800-82 Rev. 3, ISO 16484, ASHRAE 135 (BACnet incl. BACnet/SC), NIST SP 1900 series, NFPA 72, EN 54, ISO/IEC 27001, ISO/IEC 27018/27701, GDPR / UK GDPR / CCPA |
 | AI | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | Chief Information Officer | Annual | ISO 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles |
+| AI | Charter | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](../ai/charter-ai-ethics-review-panel.md) | Chief Risk Officer | Annual | ISO 42001 §5, EU AI Act Chapter III, NIST AI RMF GOVERN, OECD AI Principles |
 | AI | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md) | Chief Information Officer | Annual | ISO 42001 §8, ISO/IEC 42005:2025, EU AI Act Annex IV, NIST AI RMF, OWASP LLM Top 10 |
 | AI | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | Chief Information Officer | Annual | ISO 42001 §8.4, EU AI Act Annex IV, NIST AI RMF, OECD AI Principles, GDPR Art 22 |
 | AI | Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md) | Chief Information Officer | Annual | ISO 42001 §9.2, ISO 19011:2018, EU AI Act Art 43, NIST AI RMF MEASURE |

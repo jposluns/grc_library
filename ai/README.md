@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-06-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -45,6 +45,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md) |
 | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md) |
 | Charter | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md) |
+| Charter | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md) |
 | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) |
 | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) |
 | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) |

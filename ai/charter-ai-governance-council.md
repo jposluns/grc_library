@@ -2,11 +2,11 @@
 
 **Document Title:** AI Governance Council Charter\
 **Document Type:** Charter\
-**Version:** 1.2.2\
-**Date:** 2026-06-22\
+**Version:** 1.2.3\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
+**Related Documents:** [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Annual and upon material organisational or regulatory change\
@@ -22,9 +22,11 @@
 
 ## Purpose
 
-This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the ethical, risk, and compliance governance of all artificial intelligence systems deployed or developed by the organisation.
+This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the risk and compliance governance of all artificial intelligence systems deployed or developed by the organisation, working with the independent AI Ethics Review Panel on the ethics dimension (see below).
 
 The AIGC ensures that AI use aligns with the organisation's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
+
+Independent ethical review of AI systems is performed by the [AI Ethics Review Panel](charter-ai-ethics-review-panel.md), a separate body that applies the [Ethical AI Use Guideline](guideline-ethical-ai-use.md) and can challenge a Council decision on ethical grounds through the Panel's independent challenge mechanism. The Council retains AI risk and compliance governance and deployment-approval authority; it considers the Panel's ethical opinions and reconsiders and responds to the Panel's challenges. The separation exists so that ethical review is independent of the body whose decisions it reviews.
 
 ---
 
@@ -32,7 +34,7 @@ The AIGC ensures that AI use aligns with the organisation's values, applicable l
 
 The AI Governance Council is mandated to:
 
-1. Provide independent oversight of AI system risk, ethics, and compliance.
+1. Provide oversight of AI system risk and compliance, and act on the independent ethical review and challenges provided by the AI Ethics Review Panel.
 2. Approve high-risk AI system deployments and significant AI lifecycle changes.
 3. Review and approve AI governance policies, standards, and frameworks.
 4. Monitor AI maturity, bias, explainability, and safety performance indicators.
@@ -47,9 +49,10 @@ The AIGC has authority to:
 
 - Approve or reject high-risk AI system deployments.
 - Require remediation or decommissioning of AI systems that fail governance standards.
-- Commission AI audits and independent ethical reviews.
+- Commission AI audits; refer AI systems to the AI Ethics Review Panel for independent ethical review.
+- Reconsider and respond to ethical challenges raised by the AI Ethics Review Panel.
 - Escalate critical AI risks to the ERC and Board.
-- Issue binding guidance on AI ethics, risk, and compliance.
+- Issue binding guidance on AI risk and compliance, informed by the AI Ethics Review Panel's ethical opinions.
 
 ---
 
@@ -89,11 +92,11 @@ Charter administrative ownership rests with the Chief Information Officer (the c
 
 ## Responsibilities
 
-### 1. AI risk and ethics oversight
+### 1. AI risk oversight
 
 - Review AI Impact Assessments for all high-risk AI systems.
 - Assess AI systems against the organisational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
-- Evaluate fairness, bias mitigation, transparency, and explainability evidence.
+- Consider the AI Ethics Review Panel's independent ethical opinion (fairness, bias mitigation, transparency, explainability, human oversight, and impact on affected individuals and groups) alongside the risk and compliance review.
 - Monitor outcomes of deployed AI systems against defined performance thresholds.
 
 ### 2. Policy and standards governance
