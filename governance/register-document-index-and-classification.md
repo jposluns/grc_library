@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.41\
+**Version:** 1.27.42\
 **Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -126,6 +126,7 @@ All active repository documents should be Public.
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA |
 | Privacy | Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 |
 | Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Data Protection Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 |
+| Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2017 |
 | Privacy | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | Data Protection Officer | Annual | GDPR, EU AI Act, UK GDPR, CCPA/CPRA, LGPD, PIPL, PDPA, POPIA, UAE PDPL, DPDPA, APEC CBPR 2.0 |
 | Privacy | Annex | EU Privacy Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | Data Protection Officer | Annual | GDPR, EU AI Act |
 | Privacy | Annex | UK Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | Data Protection Officer | Annual | UK GDPR, DPA 2018 |

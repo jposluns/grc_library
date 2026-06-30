@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #482: FR-31 (high[critical]): Privacy by Design Framework (GDPR Article 25) (2026-06-30)
+
+Shipped `privacy/framework-privacy-by-design.md`: operationalizes GDPR Art 25 (by design, by default, certification) by mapping the seven foundational privacy-by-design principles (attributed to Cavoukian, distinguished from the Art 25 legal duty) to architecture and dev-security workflows, with the four Art 25(2) by-default dimensions as testable defaults and a supporting-instruments map (DPIA, LIA, pseudonymisation, data classification). Authored via the high-assurance harness; the dual verifiers caught an orchestrator-introduced `ISO/IEC 29134:2023` hallucination (recurrence of a logged class) and it was fixed to `:2017` pre-merge. Listed in privacy/README and the document-index register.
+
 ### PR #481: FR-145 (high): AI security standards scope/precedence note + crosswalk (2026-06-30)
 
 Resolved the overlapping-scope-with-no-precedence gap between `ai/standard-ai-security-and-risk.md` (governance baseline) and `ai/standard-ai-and-agentic-development-security.md` (technical implementation): added a "Relationship" section + 12-row crosswalk to the former and a prose back-reference to the latter, with a cumulative altitude-based precedence note (both apply; the more-specific technical control governs implementation; neither relaxes the other). Verified by a refute-briefed skeptical verifier (0 substantive defects). No hard seniority or ownership change asserted (the two retain distinct Owners). Also bundled the #480 /validate-pr fix (LIA `recognises`->`recognizes`).

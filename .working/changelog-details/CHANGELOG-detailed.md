@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.460, PR #482
+
+FR-31 for local project: a new Privacy by Design Framework operationalizing GDPR Article 25, authored via the high-assurance harness.
+
+### Added
+
+- [`privacy/framework-privacy-by-design.md`](../../privacy/framework-privacy-by-design.md) (new, Version 1.0.0): a Framework-type document. It states the legal basis (GDPR Article 25(1) by design, 25(2) by default, 25(3) certification, plus Recital 78), presents the seven foundational privacy-by-design principles (attributed to Cavoukian as a conceptual model, explicitly NOT GDPR text and carrying no independent legal force), maps each principle to architecture-review and development-security/SDLC control points (two tables), sets the four Article 25(2) by-default dimensions (amount, extent, storage period, accessibility) as testable defaults, lists the supporting instruments (DPIA, LIA, pseudonymisation standard, data classification standard), and carries Operating expectations, Metrics, Framework alignment, and Limitations. Mirrors the [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md) 13-field metadata block and section spine; carries the DPO/CPO role-name blockquote. GDPR Article 25(1)/(2)/(3) quoted phrases verified verbatim against the held GDPR full text.
+
+### Changed
+
+- [`privacy/README.md`](../../privacy/README.md) (1.2.3 to 1.2.4): added the Privacy by Design Framework row to the active-documents table after the Children's Data Framework.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.41 to 1.27.42): added the Privacy by Design Framework Privacy/Framework row after the Children's Data Framework row.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first) to include the new document.
+- [`README.md`](../../README.md): Library Version 2026.06.459 to 2026.06.460; README Version 1.9.330 to 1.9.331.
+
+### Verification
+
+- High-assurance harness (maintainer directed net-new authoring through it). Research authored against the held GDPR full text and the consent-framework structural sibling; two independent adversarial verifiers, blind to each other and to the authoring rationale. **Both verifiers independently caught the same real defect**: the framework-alignment table cited `ISO/IEC 29134:2023`, a hallucinated edition (the verifiable edition is 2017; this is a logged recurrence of the #162 hallucination corrected in #167, recorded in [`.working/hallucination-metrics.md`](../hallucination-metrics.md), and gate-blind because 29134 is absent from the canonical-citations register so the denylist currency gate cannot catch it). It was orchestrator-introduced during authoring (the FR-31 research proposed `ISO/IEC 29134` with no year) and had propagated to the document-index register row. Fixed to `:2017` in both places pre-merge. Beyond that defect, both verifiers confirmed clean: all GDPR Article 25(1)/(2)/(3) quotes verbatim-accurate; Recital 78 correctly characterized as ENCOURAGING (not binding) producers; the seven principles correctly attributed to Cavoukian and not over-claimed as legal force; all four by-default dimensions present and testable; both workflow mappings cover all seven principles; the 13-field metadata block and section spine match the sibling; ISO/IEC 27701:2025 and UK GDPR citations correct.
+- All 57 audit gates pass on the final state.
+
+### Discipline observation
+
+The harness earned its cost on net-new authoring. The defect was NOT in the research (which proposed the standard without a year) but in the orchestrator's own generation of the edition year, and it was gate-blind (29134 is unregistered). Neither the mechanical gates nor the worker-brief guard rail (which targets worker drafts) would have caught it; the two independent adversarial verifiers did, pre-merge. This is direct evidence that the pre-push verifier / harness, not the gate layer or worker-side guards, is the operative control for citation-edition accuracy in net-new authored content, and that orchestrator-introduced hallucinations are a live failure mode the harness specifically backstops.
+
 ## 2026-06-30, Library Version 2026.06.459, PR #481
 
 FR-145 for local project: a scope/precedence note + crosswalk reconciling the two overlapping AI security standards, plus the bundled #480 /validate-pr fix.

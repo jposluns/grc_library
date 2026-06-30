@@ -437,6 +437,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 - [Children's Data Framework](../privacy/framework-childrens-data.md)
 - [Consent Management Framework](../privacy/framework-consent-management.md)
+- [Privacy by Design Framework](../privacy/framework-privacy-by-design.md)
 
 ### Policy
 
