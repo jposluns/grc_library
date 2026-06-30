@@ -40,7 +40,6 @@ A review of [`.working/improvement-log.md`](.working/improvement-log.md) found t
 - **Codify compute-don't-ask** (#269) into the `clarify-before-acting` rule's "ask vs default" test (a pack-rule edit + its `.claude/` mirror + pack version bump, distinct from the CLAUDE.md-checklist work above) — it currently distinguishes ask-vs-sensible-default but not ask-vs-self-compute.
 - **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling).
 - **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules"). This one is a gate change, not a checklist line.
-- **Backlog-rotation prevention for prose-named items (S, S) — surfaced #495/#496, 2026-06-30**: the #495 close-out left the prose-named "OT post-ingestion validation" and "NIST SP 800 ingestion" P1 items un-rotated (work done, item never deleted from TODO, no DONE entry), because both the close-out-checklist reflex and the D5 PR-time check ([`tools/check-todo-rotation-on-pr.py`](tools/check-todo-rotation-on-pr.py)) are keyed to the `FR-N` / `TODO §` closure forms, leaving prose-named items in a convention-only residual that failed. **Maintainer-approved 2026-06-30 (do both; not critical, small):** (a) broaden D5's closure detection to also require rotation on a prose-named or `FR-N` backlog-closure assertion in the added CHANGELOG lines (keep the existing past-closure guard and opt-out trailer; add positive and negative regression fixtures; full audit-gate-change completeness per the close-out checklist); and (b) reword the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) close-out-checklist rotation line to be backlog-item-keyed, not FR/§-keyed (a maintainer directive recorded in TODO IS a TODO item). The CLAUDE.md half is a protected-pack edit (approved). Its own small focused PR (a gate change should not bundle into a content PR), sequenced near-term after FR-58.
 
 ### 1.4 Audit-gate candidates from the 2026-06-22 review (M, S each) (was 4.5)
 
@@ -58,8 +57,6 @@ Maintainer-directed: a fork-friendly mechanism so the project never relies on a 
 
 **Validated 2026-06-28 (upstream-checked at the handoff-staleness resume): the ATLAS target above is CORRECTED.** Upstream authority (mitre-atlas/atlas-data releases) shows current = **v2026.05** (2026-05-27, YAML format v6.0.0); the **v5.6.0** the assessment line cites is the DEPRECATED old-scheme line (the `ATLAS.yaml` header self-declares it deprecated) and is what scratch currently holds. ATT&CK **v19.1** is confirmed current and matches scratch. So the register's ATLAS row must move to **v2026.05**, NOT v5.6.0, and scratch needs the superseded-archival update (move v5.6.0 into scratch's `ref/.superseded/` store, download v2026.05). That scratch update is egress / maintainer-download-gated and is logged as a **pending decision** in [`pending-decisions.md`](../.working/pending-decisions.md); per the `## Reference-version currency` SOP, do NOT write the superseded v5.6.0 anywhere, and keep the register row and the scratch base coherent (fix them together).
 
-
----
 
 ---
 
@@ -126,8 +123,6 @@ with the §3.6 multi-session track (the scratch ref base is part of that capabil
 the existing `governance/` trust disciplines. Honest-backstop framing: the process raises
 the bar against poisoned reference input; it does not by itself guarantee detection.
 
-
----
 
 ---
 
@@ -223,8 +218,6 @@ Decision (maintainer 2026-06-28, after the PR #441 condense): the keep-and-conde
 
 ---
 
----
-
 ## Priority 4 — Adopter experience
 
 Capability and guidance for organisations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
@@ -276,8 +269,6 @@ Low urgency (maintainer flagged it as deferred, "a priority 5 item"); it is file
 
 ---
 
----
-
 ## Priority 5 — Expand: country / regulator / programme overlays
 
 Adding new coverage to existing domains. Each subitem is a separate small or medium PR; the maintainer schedules deliberately.
@@ -321,8 +312,6 @@ The library cites EU AI Act extensively but lacks a dedicated `ai/jurisdictions/
 
 ---
 
----
-
 ## Priority 6 — Expand: new domains
 
 Entirely new domains, multi-week scope each. The maintainer schedules deliberately. Ordered lowest-effort-first.
@@ -347,8 +336,6 @@ Per maintainer direction 2026-06-22 (low priority, after the FR backlog complete
 
 Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. The remaining gap is multi-cloud governance (cross-cloud risk taxonomy, cross-cloud incident coordination, cloud-portfolio-level controls). Could live in `operations/` or warrant a new `cloud/` domain.
 
-
----
 
 ---
 

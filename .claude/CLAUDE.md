@@ -206,7 +206,14 @@ drive end-to-end on the maintainer's behalf:
    TODO in the same PR and an entry is added to [`.working/DONE.md`](../.working/DONE.md)
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The rotation lives in the same commit. TODO holds only
-   forward-looking content; historical lists belong in DONE, not in TODO.
+   forward-looking content; historical lists belong in DONE, not in TODO. **"TODO item"
+   is backlog-item-keyed, not FR/§-keyed**: a `FR-N` item, a numbered `§N.M` subsection,
+   AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
+   validation", a maintainer directive captured as a backlog line) all rotate the same way.
+   The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
+   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects the
+   `FR-N CLOSED` and prose `clos... the ... item/directive` closure forms too, not only
+   `clos... TODO §`.
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR
@@ -237,7 +244,10 @@ is external. Two mechanisms:
    - The prior merged PR's `/validate-pr` history row AND its `/retro` row are both
      present (they batch into this PR per recursion-avoidance).
    - Every TODO item this PR closes is deleted from TODO and added to
-     [`.working/DONE.md`](../.working/DONE.md) in the same diff.
+     [`.working/DONE.md`](../.working/DONE.md) in the same diff. **Backlog-item-keyed, not
+     FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
+     numbered `§N.M`) is a TODO item that rotates the same way (the #495 miss; see
+     PR-workflow step 7).
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
      prose count of that collection was checked for staleness (prose counts are not
      gated).

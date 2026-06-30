@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #501: §1.3 backlog-rotation prevention for prose-named items (P1) (2026-06-30)
+
+Closed the §1.3 rotation-prevention sub-item (the #495/#496 miss): broadened the D5 PR-time rotation check to detect `FR-N CLOSED` and prose `clos... the ... item/directive` closures (not only `clos... TODO §`), chosen empirically for zero historical false-positives, and reworded the protected `.claude/CLAUDE.md` rotation lines to be backlog-item-keyed (a prose-named or maintainer-directed item rotates like any TODO item). Bare lowercase `Closes FR-N` deliberately left undetected (narration false-positives); maintainer decision. The rest of §1.3 (compute-don't-ask, new-skill-drafting checklist, count-gate remainder) stays open.
+
 ### PR #499: lint-language `-ises` inflection gap closed (P1) (2026-06-30)
 
 Closed the P1 lint-language `-ises` item: widened gate 2's `ISE_PATTERN` so each Commonwealth `-ise` verb stem carries all four inflections (it had missed the third-person `-ises`, so `recognises` / `operationalises` passed unflagged). Canadianized the 24 occurrences the widened gate surfaced (across 23 files: 16 corpus/project docs, one with two, plus 7 `dev-security/claude-rules/` pack files, the pack edits maintainer-approved as mechanical spelling-only), added a regression fixture. The gate-widening and the cleanup shipped coupled (the gate is red without the fixes).
