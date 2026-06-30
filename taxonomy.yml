@@ -2341,7 +2341,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Document Index and Classification Register"
-  version: "1.27.48"
+  version: "1.27.49"
   date: "2026-06-30"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
