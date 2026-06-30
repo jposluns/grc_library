@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.0\
-**Date:** 2026-06-22\
+**Version:** 1.1.1\
+**Date:** 2026-06-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -54,7 +54,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Cross-border transfer mechanisms
 
 - **Adequacy decisions (Article 45):** Transfers to countries with an EU adequacy decision require no additional safeguards. Current adequacy decisions (as of 2025) include: Andorra, Argentina, Canada (commercial, PIPEDA), Faroe Islands, Guernsey, Israel, Isle of Man, Japan, Jersey, New Zealand, Republic of Korea, Switzerland, United Kingdom, United States (EU-US Data Privacy Framework), and Uruguay.
-- **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA).
+- **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA); see the [TIA template](../template-transfer-impact-assessment.md).
 - **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
 - **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
 

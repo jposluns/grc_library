@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.4\
-**Date:** 2026-06-29\
+**Version:** 1.4.5\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -299,7 +299,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **TIA** | Transfer Impact Assessment (GDPR cross-border transfers post-Schrems II). |
+| **TIA** | Transfer Impact Assessment (GDPR cross-border transfers post-Schrems II); see the [TIA template](../privacy/template-transfer-impact-assessment.md). |
 | **TLS** | Transport Layer Security. |
 | **TMS** | Transportation Management System. |
 | **TPRM** | Third-Party Risk Management. |
