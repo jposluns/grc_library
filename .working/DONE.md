@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #480: FR-32 (high[critical]): Legitimate Interest Assessment (LIA) template (2026-06-30)
+
+Shipped `privacy/template-legitimate-interest-assessment.md`: the GDPR Article 6(1)(f) three-part test (purpose, necessity, balancing) as adopter-fillable tables, plus the public-authority threshold exclusion, the Article 9 special-category caveat, the Article 21 right-to-object handling (with the Article 21(4) prominence prompt), and the Article 5(2) accountability link. Authored via the high-assurance harness (two independent adversarial verifiers); listed in privacy/README and the document-index register.
+
 ### PR #477: ERC acronym residual (P3): lowercase-drift fix + tier-table reconcile (2026-06-30)
 
 Closed the P3 ERC residual: fixed the 3 lowercase "executive risk committee" occurrences Sweep 77 (B-1/2/3) found (#456's title-case reconcile had missed them) in the DLP standard and the board-risk-report template, and applied the maintainer-answered tier-table reconcile to the minimum-viable-governance guideline (collapse the Tier-1 duplicate row, drop the Tier-2 stray). Canonical body is "Enterprise Risk Committee (ERC)" per the role-authority register; no distinct "Executive Risk Committee" body exists. Corpus-wide grep confirms 0 residual.
