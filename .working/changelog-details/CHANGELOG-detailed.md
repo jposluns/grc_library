@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.459, PR #481
+
+FR-145 for local project: a scope/precedence note + crosswalk reconciling the two overlapping AI security standards, plus the bundled #480 /validate-pr fix.
+
+### Changed
+
+- [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md) (1.0.0 to 1.1.0, Date 2026-05-27 to 2026-06-30): added a new `## Relationship to the AI and Agentic Development Security Standard` section between Applicability and Minimum requirements. It states the scope boundary (this standard = governance-level baseline / outcome obligations; the other = technical and agentic-runtime implementation), a cumulative altitude-based precedence note (both apply; where both address a topic the more specific technical control governs the implementation while this standard's requirement remains the minimum; neither relaxes the other; cites the other standard's OFFAI-SEC-02 as corpus precedent for "more specific governs"), and a 12-row crosswalk mapping this standard's §1-§11 + Evidence to the other standard's sections (cited by name, since they belong to that document, so the intra-doc-ref gate is not tripped and the references survive that standard's future renumbering). Minor bump (a new section).
+- [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) (1.8.3 to 1.8.4, Date 2026-06-24 to 2026-06-30): appended a reciprocal prose back-reference inside its `## 1. Scope` section (NOT as a new numbered section, to avoid renumbering its dense internal `§N` cross-references), pointing to the Security and Risk Standard as the governance baseline and stating the same cumulative precedence. Patch bump.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the two version bumps (the scorecard moves the Security and Risk Standard from Baseline to Mature consistent with the 1.1.0 bump).
+- [`README.md`](../../README.md): Library Version 2026.06.458 to 2026.06.459; README Version 1.9.329 to 1.9.330.
+
+### Fixed (batched from the #480 /validate-pr, recursion-avoidance)
+
+- [`privacy/template-legitimate-interest-assessment.md`](../../privacy/template-legitimate-interest-assessment.md):74 (1.0.0 to 1.0.1, Date co-bumped 2026-06-30): British `recognises` (in the same sentence as Canadian `recognized`) corrected to `recognizes` per the `-ize` convention. A gate-blind slip (gate-2 `ISE_PATTERN` lacks the `-ises` inflection; both #480 harness verifiers also passed over it), surfaced by the #480 `/validate-pr` Subagent A; recorded in [`2026-06-30-PR-480.md`](../validate-pr/2026-06-30-PR-480.md). The linter pattern gap is queued as a tooling follow-up in [`TODO.md`](../../TODO.md).
+
+### Verification
+
+- Skeptical pre-push verifier (substantive tier: a multi-surface change to two versioned standards with a gate-blind crosswalk), refute-briefed. It read both standards in full and refuted nothing of substance: all 12 crosswalk rows cite real, on-topic sections of the other standard; Decommissioning is genuinely this-standard-only (no Decommissioning section exists in the other standard, confirmed across its §1-§35); the no-counterpart list is accurate (the two strongest missed-counterpart candidates, context isolation and prohibited patterns, are already captured by existing crosswalk rows so no dedicated counterpart is missed); the precedence note over-claims nothing (no hard seniority, no ownership change; Owners remain distinct); the OFFAI-SEC-02 quote it leans on exists verbatim; the two back-references are mutually consistent and correctly named/linked. One note-level readability item (the section "Memory security requirements" appeared both as a Decommissioning "closest control" and in the no-counterpart list, not contradictory but a potential reader stumble) was clarified in-window (the Decommissioning cell now describes the closest controls functionally without re-naming the no-counterpart section).
+- All 57 audit gates pass on the final state. One intra-doc-ref gate failure during authoring (the crosswalk's bare `§N` references to the other standard's sections read as unresolved Security-and-Risk-Standard intra-doc refs) was fixed by citing the other standard's sections by name, which is also more correct (its `§3` is "Trust zones", which would mis-resolve to this standard's `§3` "Identity and access control").
+
+### Discipline observation
+
+The "issues first, then new content" overnight ordering placed FR-145 (an overlap/precedence *issue*) ahead of the remaining net-new P1 templates. The precedence call that the FR-145 research flagged as possibly-maintainer-gated (a hard seniority in a true conflict) dissolved on inspection: the verifier confirmed there is no value conflict between the two standards, only duplication, so the documents-grounded cumulative note resolves the actual issue without an authorial ranking, keeping FR-145 off the deferral list.
+
 ## 2026-06-30, Library Version 2026.06.458, PR #480
 
 FR-32 for local project: shipped the Legitimate Interest Assessment (LIA) template for GDPR Article 6(1)(f), authored via the high-assurance verification harness.

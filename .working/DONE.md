@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #481: FR-145 (high): AI security standards scope/precedence note + crosswalk (2026-06-30)
+
+Resolved the overlapping-scope-with-no-precedence gap between `ai/standard-ai-security-and-risk.md` (governance baseline) and `ai/standard-ai-and-agentic-development-security.md` (technical implementation): added a "Relationship" section + 12-row crosswalk to the former and a prose back-reference to the latter, with a cumulative altitude-based precedence note (both apply; the more-specific technical control governs implementation; neither relaxes the other). Verified by a refute-briefed skeptical verifier (0 substantive defects). No hard seniority or ownership change asserted (the two retain distinct Owners). Also bundled the #480 /validate-pr fix (LIA `recognises`->`recognizes`).
+
 ### PR #480: FR-32 (high[critical]): Legitimate Interest Assessment (LIA) template (2026-06-30)
 
 Shipped `privacy/template-legitimate-interest-assessment.md`: the GDPR Article 6(1)(f) three-part test (purpose, necessity, balancing) as adopter-fillable tables, plus the public-authority threshold exclusion, the Article 9 special-category caveat, the Article 21 right-to-object handling (with the Article 21(4) prominence prompt), and the Article 5(2) accountability link. Authored via the high-assurance harness (two independent adversarial verifiers); listed in privacy/README and the document-index register.
