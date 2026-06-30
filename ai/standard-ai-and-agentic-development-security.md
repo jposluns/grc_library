@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.3\
-**Date:** 2026-06-24\
+**Version:** 1.8.4\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -32,6 +32,8 @@ This standard applies to any system that incorporates:
 - Claude Code, GitHub Copilot, or equivalent AI coding tools used in development
 
 This standard does not apply to deterministic rule-based automation without LLM or ML inference.
+
+This standard is the technical and agentic-runtime implementation layer for AI security. The governance-level minimum requirements (inventory, ownership, data governance, risk treatment, decommissioning) are set by the [`AI Security and Risk Standard`](standard-ai-security-and-risk.md). Both apply cumulatively to a system in scope of both: where both address the same topic, this standard's more specific technical control governs the implementation, while the AI Security and Risk Standard's requirement remains the minimum that implementation must satisfy. The scope boundary and a section-level crosswalk between the two standards are recorded in that standard's "Relationship to the AI and Agentic Development Security Standard" section.
 
 ---
 

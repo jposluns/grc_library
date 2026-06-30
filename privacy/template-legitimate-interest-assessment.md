@@ -2,7 +2,7 @@
 
 **Document Title:** Legitimate Interest Assessment (LIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-06-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ The three parts are cumulative: the basis is available only where all three pass
 | The interest is **real and present** (not speculative or remote). | | |
 | State the specific interest and who pursues it (controller or named third party). | | |
 
-Recital 47 recognises certain interests as capable of being legitimate, including fraud prevention, direct marketing, and (Recital 48) intra-group administrative transfers; naming the interest within a recognized category strengthens the analysis but does not by itself satisfy the necessity and balancing tests.
+Recital 47 recognizes certain interests as capable of being legitimate, including fraud prevention, direct marketing, and (Recital 48) intra-group administrative transfers; naming the interest within a recognized category strengthens the analysis but does not by itself satisfy the necessity and balancing tests.
 
 ### 2.2 Necessity test (is the processing necessary?)
 
