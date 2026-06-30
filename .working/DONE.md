@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #505: §1.5 reference version-currency register (P1) (2026-06-30)
+
+Added `Upstream check location` + `Last verified (UTC)` columns to all 16 tables of the canonical-citations register (100 rows upstream-verified 2026-06-30, 51 `needs-reconfirm`), wired the advisory staleness cadence + scratch-is-storage principle into the citation-verification spec (§12.3, §7 allow-list), and applied 7 upstream-confirmed register corrections; built under the high-assurance harness (deterministic apply + re-parse + dual adversarial verifiers, one finding fixed). Three citation-impacting version-upgrades (27033, 27036-2, 800-88) and the ATLAS scratch-archival deferred as follow-ups (new §1.5 / pending-decisions).
+
 ### PR #504: §1.3 compute-don't-ask codified into clarify-before-acting (P1) (2026-06-30)
 
 Closed the §1.3 compute-don't-ask residual (#269): added a **compute-first gate** to the `clarify-before-acting` pack rule (and its byte-identical `.claude/` mirror) so a findable fact is retrieved, not asked; updated the paired skill for parity. The other two §1.3 residuals (new-skill-drafting checklist #213, count-gate remainder) stay open.

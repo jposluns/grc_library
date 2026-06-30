@@ -81,11 +81,20 @@ def parse_canonical_register() -> list[dict[str, object]]:
     text = CANONICAL_REGISTER.read_text(encoding="utf-8")
     entries: list[dict[str, object]] = []
 
-    # Each table row of the form:
+    # Each standard-table row is of the form:
     # | <id> | <current> | <date> | <topic> | <superseded comma-list> |
-    # We extract id, current, and superseded.
+    # As of register v1.5.7 the five-column tables also carry two trailing
+    # columns (| <upstream check location> | <last verified (UTC)> |) added by
+    # the version-currency cadence. We extract id (1), current (2), and
+    # superseded (5); the optional non-capturing trailing group consumes those
+    # two new columns when present. The optional group matches EITHER zero or
+    # EXACTLY two trailing columns, so a 5-column row (the legacy form, still
+    # used by the regression fixtures) and a 7-column row (the current register)
+    # both match, while the 6-/8-column AI-security-tooling table (which is not a
+    # standards-currency source and was never parsed here) is still excluded.
     row_re = re.compile(
-        r"^\|\s+([^|]+?)\s+\|\s+([^|]+?)\s+\|\s+[^|]+?\s+\|\s+[^|]+?\s+\|\s+([^|]+?)\s+\|$"
+        r"^\|\s+([^|]+?)\s+\|\s+([^|]+?)\s+\|\s+[^|]+?\s+\|\s+[^|]+?\s+\|\s+([^|]+?)\s+\|"
+        r"(?:\s+[^|]+?\s+\|\s+[^|]+?\s+\|)?$"
     )
 
     for raw in text.splitlines():
