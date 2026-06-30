@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #487: FR-144 (high): Breach Notification Regulator Register Template (2026-06-30)
+
+Shipped `privacy/template-breach-notification-regulator-register.md`: an adopter-fillable register (one row per applicable regulator) with the six §6.2 columns plus the missing internal-target deadline (the "no internal clock" gap), and a strictest-applicable-requirement rule (earliest deadline + broadest individual-notification obligation when multiple regimes engage). Wired into the breach-response procedure §6.2 (the fixed table framed as illustrative; the adopter register is authoritative; co-bump 1.4.16 -> 1.4.17). Closes FR-144. Authored via the high-assurance harness; both verifiers clean (FP 0 defects, illustrative rows non-authoritative, no over-claim; FN 0 content gaps, one metadata field-order warning fixed). Also fixed the #486 /validate-pr finding (stale AIGC ethics-review KPI in `governance/framework-continuous-assurance-and-improvement.md` reattributed to the Panel; 1.0.4 -> 1.0.5). Listed in privacy/README and the document-index register.
+
 ### PR #486: FR-73 (high[critical]): AI Ethics Review Panel Charter (2026-06-30)
 
 Split AI ethics review out of the AI Governance Council into a new independent `ai/charter-ai-ethics-review-panel.md` with a structured five-step challenge-and-escalation mechanism (the Panel can challenge an AIGC decision on ethical grounds, forcing documented reconsideration, and escalate an unresolved objection to the Board above the AIGC). Panel owned by the CRO (independent of the AIGC's CIO/CISO line); chair + voting majority outside the AIGC; challenge-not-veto (approval stays with the AIGC). Edited the AIGC charter (1.2.2 -> 1.2.3) to cede independent ethical review to the Panel and remove its residual ethics-review self-claim. Closes FR-73. Authored via the high-assurance harness; both verifiers clean (FN completeness/independence 0 gaps; FP citation/authority/contradiction 0 defects). Listed in ai/README and the document-index register.
