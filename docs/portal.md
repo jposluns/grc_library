@@ -463,6 +463,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ### Template
 
+- [Breach Notification Regulator Register Template](../privacy/template-breach-notification-regulator-register.md)
 - [DPIA (Data Protection Impact Assessment) Template](../privacy/template-dpia.md)
 - [Data Processing Agreement Template (GDPR Article 28)](../privacy/template-dpa-article-28.md)
 - [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md)
