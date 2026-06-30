@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.469, PR #491
+
+FR-167(b) matrix gap-fill: 7 net-new session documents added as compliance-matrix rows via the high-assurance harness.
+
+### Added
+- 7 rows in [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md), each inserted at a thematic anchor in its domain section:
+  - Privacy: Legitimate Interest Assessment (LIA) Template (`DSP-12, DSP-01, GRC-02` | ISO `A.5.34, §6.1` | `GV.PO, ID.RA, PR.DS`); Privacy by Design Framework (`DSP-07, DSP-08, DSP-01` | `A.5.34, A.8.25, A.8.27` | `GV.PO, PR.DS, PR.PS`); Transfer Impact Assessment (TIA) Template (`DSP-10, DSP-19, GRC-02` | `A.5.34, A.5.31` | `GV.OC, ID.RA, PR.DS`); Breach Notification Regulator Register Template (`SEF-08, DSP-18, GRC-07` | `A.5.34, A.6.8` | `RS.CO, GV.OC`).
+  - Compliance: Procedure: Mergers and Acquisitions Due Diligence (`GRC-02, GRC-07, A&A-03` | `§6.1, A.5.31` | `GV.OC, GV.RM, ID.RA`); Standard: Sanctions and Export-Control Screening (`GRC-07, STA-13, IAM-04` | `§4.1, A.5.31, A.5.33` | `GV.OC, ID.RA, GV.RM`).
+  - AI: AI Ethics Review Panel Charter (`GRC-06, A&A-02, GRC-01` | AICM `GRC-12, GRC-11, GRC-15, GRC-13` | `§5.3, A.5.4` | `GV.RR, GV.OV, GV.OC`).
+  - All seven set the five customs/trade columns (CTPAT/PIP/BASC/WCO SAFE/AEO) to `N/A`; only the AI-panel row populates the AICM column (the six non-AI docs have no AI-control subject).
+
+### Changed
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Version 1.11.3 to 1.11.4, Date to 2026-06-30.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first).
+
+### Verification
+- High-assurance harness (sensitive change: gate-blind control-mapping fit, delicate single-artefact reshape, cited artefact). Recorded in [`high-assurance/register.md`](../high-assurance/register.md).
+  - Stage 1: 3 research workers (privacy x4, compliance x2, ai x1) proposed per-doc candidate mappings with quoted evidence.
+  - Stage 2/floor: all proposed CCM/AICM/CSF codes confirmed present in [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) / [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); GRC-12/15/11/13 confirmed AICM-only.
+  - Stage 3: two independent adversarial verifiers, blind to each other and to the research rationale. False-negative verifier (re-read each doc, challenged every `N/A`) found one genuine miss: AICM `GRC-13` (Explainability) was omitted on the AI-panel row while its mandate-sentence neighbours `GRC-11` (bias/fairness) and `GRC-15` (human oversight) were mapped, so it was added. False-positive verifier (judged every assigned code vs source title; confirmed all 13 ISO clause titles vs the scratch ISO/IEC 27001:2022 full-text; attempted upstream confirmation of the sanctions customs columns via WebSearch) found 0 hard mismatches and 7 loose-supporting flags, and confirmed the sanctions customs columns should remain `N/A` (CTPAT/AEO/PIP require business-partner-security and AML/TF screening, not sanctions/denied-party screening; asserting a customs mapping would equate distinct requirement sets).
+  - Orchestrator synthesis: added GRC-13; trimmed three genuine stretches (ISO `A.5.26` + CSF `RS.MA` on the breach REGISTER, since it is an obligations reference not the response activity, where `A.6.8`/`RS.CO` fit better and are retained; ISO `§4.2` on the sanctions row, weaker than the co-cited `§4.1`/`A.5.31`; ISO `A.5.36` on the AI-panel row, an information-security-compliance control that is a stretch for an AI-ethics body); kept defensible supporting codes (`DSP-01`, `§6.1`, `GRC-02`, `GRC-07`, `IAM-04`).
+  - Stage 5 (apply + re-parse): 7 rows hand-applied at thematic anchors (modest 7-row scale across 3 domain sections), then re-parsed: each new row confirmed 12 fields / 13 pipes; existence gates 48/49/54 green; `tools/run_all_audits.sh` all 57 gates green.
+  - The 2-verifier adversarial pass serves as this batch's `/matrix-fit` semantic-fit check (equivalent-or-stronger than the worklist tool, per the 2026-06-28 AICM-column precedent); recorded in [`matrix-fit/history.md`](../matrix-fit/history.md).
+
+### Bookkeeping
+- Batches the #490 [`/validate-pr`](../validate-pr/history.md) (0 findings) and #490 [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+- OT-document block + library-meta / glossary / crosswalk docs are NOT rowed; their IN/OUT scope is deferred to the maintainer ([`pending-decisions.md`](../pending-decisions.md) FR-167(b) entry). FR-167 stays OPEN.
+
 ## 2026-06-30, Library Version 2026.06.468, PR #490
 
 FR-167 closing whole-matrix `/matrix-fit` (closure item (a)) plus the one mismatch it found and fixed.
