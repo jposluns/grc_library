@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.484, PR #506
+
+ISO/IEC 27033 citation correction, the first of the three §1.5 version-upgrade follow-ups (the citation-impact ones deferred from #505 because they ripple into corpus documents).
+
+### Changed
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.8): the `ISO/IEC 27033 | 2020 | 2020` row corrected to `ISO/IEC 27033-1 | 2015 | 2015`, topic expanded to "Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series ...; confirmed unchanged 2021)", superseded set to `2009` (the genuine prior edition of Part 1), `Upstream check location` set to the iso.org catalogue page (63461) with `Last verified 2026-06-30`.
+- [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md) (1.4.1 -> 1.4.2): framework-alignment row `ISO/IEC 27033:2020` -> `ISO/IEC 27033-1:2015`.
+- [`security/policy-network-communications-security.md`](../../security/policy-network-communications-security.md) (1.1.2 -> 1.1.3): framework-alignment row `ISO/IEC 27033:2020` -> `ISO/IEC 27033-1:2015`.
+
+### Why
+There is no ISO/IEC 27033 edition dated 2020. The register carried a phantom "2020" year (a register error, not a real superseded version), and the two framework-alignment tables inherited the wrong `27033:2020` citation. The corpus references the standard for "network security architecture and segmentation"; the correct anchor is Part 1 (Overview and concepts), the 2015 second edition (confirmed unchanged 2021), which is the series roadmap. Deferred from #505 to its own PR because, unlike the #505 0-impact corrections, this one changes citations in corpus document bodies (gate-6 surface) and so needs the coordinated per-document Version/Date bumps.
+
+### Verification
+- Upstream re-confirmed this turn: WebSearch surfaced the iso.org catalogue page for ISO/IEC 27033-1:2015 (`/standard/63461.html`) and confirmed it is the current 2nd edition, "confirmed unchanged 2021". iso.org wholesale-403s automated WebFetch from this environment, so the catalogue URL is WebSearch-confirmed (a tool-returned, corroborated source: it also matches the project's own citation-verification worklist), recorded with `Last verified 2026-06-30`.
+- Corpus footprint confirmed by grep: exactly two version-bearing `27033:2020` citers (both fixed); the only other reference is the bare unversioned "ISO 27033" series name in [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (not a version-bearing citation, gate-6-clean, left as-is).
+- Pre-push skeptical verifier (substantive tier, refute-briefed) on the diff; `tools/run_all_audits.sh` all 57 gates pass (gate 6 standards-currency clean: no corpus doc now cites a superseded 27033 version).
+
+### Deferred (remaining §1.5 follow-ups)
+- ISO/IEC 27036-2:2014 -> 2022 (1 doc); NIST SP 800-88 Rev.1 -> Rev.2 (1 doc, substantive re-point). New TODO §1.5.
+
 ## 2026-06-30, Library Version 2026.06.483, PR #505
 
 Reference version-currency register (TODO §1.5): two new columns on the canonical-citations register plus the advisory staleness cadence, built under the high-assurance harness.
