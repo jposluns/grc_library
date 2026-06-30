@@ -468,6 +468,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Legitimate Interest Assessment (LIA) Template](../privacy/template-legitimate-interest-assessment.md)
 - [Privacy Notice Template](../privacy/template-privacy-notice.md)
 - [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md)
+- [Transfer Impact Assessment (TIA) Template](../privacy/template-transfer-impact-assessment.md)
 
 ---
 
