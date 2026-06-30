@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-06-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -30,7 +30,7 @@ This template defines the structure of a Data Protection Impact Assessment (DPIA
 
 A populated DPIA is operationally sensitive material and must not be published in this public CC BY-SA 4.0 repository. Adopting organisations populate the template internally, classify it under the organisation's information classification scheme, and retain it per the retention requirements of the operative procedure.
 
-This template addresses Data Protection Impact Assessments only. Assessments of cross-border data transfers (Transfer Impact Assessments, TIAs) are out of scope and are addressed by a separate template; see [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) Step 4 for the controlling procedure.
+This template addresses Data Protection Impact Assessments only. Assessments of cross-border data transfers (Transfer Impact Assessments, TIAs) are out of scope and are addressed by a separate template ([`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md)); see [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) Step 4 for the controlling procedure.
 
 ---
 
