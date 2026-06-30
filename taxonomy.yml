@@ -1390,7 +1390,7 @@ documents:
   domain: "compliance"
   type: "Procedure"
   title: "Control Testing Procedure"
-  version: "1.0.4"
+  version: "1.0.5"
   date: "2026-06-30"
   owner: "Chief Compliance Officer"
   approving_authority: "Chief Information Officer"

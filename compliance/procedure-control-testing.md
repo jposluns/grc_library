@@ -2,7 +2,7 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -159,7 +159,7 @@ The tester records, in the evidence package, the population definition, the samp
 
 4.4 Control owners receive testing results within 5 business days of testing completion. A Deficiency or Material Weakness result is confirmed by the independent reviewer (see Roles and responsibilities) before it is finalized and notified.
 
-> **Classification-scheme note.** This procedure's result categories (Effective / Observation / Deficiency / Material Weakness) carry a Sarbanes-Oxley framing (the "material weakness" concept of SOX §103). The organisation's canonical finding-classification scheme, used by the Internal Audit Standard ([`compliance/standard-internal-audit.md`](standard-internal-audit.md) §7) and the CAPA Procedure ([`compliance/procedure-capa.md`](procedure-capa.md) §5), is Critical / High / Moderate / Low / Observation. When a control-testing Deficiency or Material Weakness is routed into the CAPA Register, it is assigned the CAPA scheme's severity (broadly, a Material Weakness maps to Critical, and a Deficiency to High or Moderate by impact) so that the register remains internally consistent. Whether to replace this procedure's SOX-framed scheme with the canonical scheme outright, or to retain it with this crosswalk, is a maintainer decision recorded in the project's pending-decisions queue.
+> **Classification-scheme note.** This procedure's result categories (Effective / Observation / Deficiency / Material Weakness) carry a Sarbanes-Oxley framing (the "material weakness" concept of SOX §404, the internal-control-over-financial-reporting provision). The organisation's canonical finding-classification scheme, used by the Internal Audit Standard ([`compliance/standard-internal-audit.md`](standard-internal-audit.md) §7) and the CAPA Procedure ([`compliance/procedure-capa.md`](procedure-capa.md) §5), is Critical / High / Moderate / Low / Observation. When a control-testing Deficiency or Material Weakness is routed into the CAPA Register, it is assigned the CAPA scheme's severity (broadly, a Material Weakness maps to Critical, and a Deficiency to High or Moderate by impact) so that the register remains internally consistent. Whether to replace this procedure's SOX-framed scheme with the canonical scheme outright, or to retain it with this crosswalk, is a maintainer decision recorded in the project's pending-decisions queue.
 
 ---
 
