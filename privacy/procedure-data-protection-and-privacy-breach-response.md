@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.16\
-**Date:** 2026-06-28\
+**Version:** 1.4.17\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -178,6 +178,8 @@ The notification assessment is documented in the breach record and approved by t
 | **United States** | State breach notification laws (varies) | Varies by state (e.g., State Attorney General) | Personal information of state residents exposed | Varies by state; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) for current state-level mapping | Varies by state; generally without unreasonable delay |
 
 > **Note:** The 72-hour GDPR clock starts from the moment the controller becomes aware that a breach of personal data has occurred: not from the moment the breach occurred. "Becoming aware" is interpreted as when the controller has a reasonable degree of certainty that a security incident has taken place that has led to personal data being compromised.
+
+> **Adopter register and internal target.** The table above is illustrative. The organisation maintains its own applicable regulators, their current deadlines and triggers, and an **internal target** set tighter than each regulatory deadline, in the [breach-notification regulator register](template-breach-notification-regulator-register.md). This notification assessment consults that register to identify the controlling (strictest) regulatory deadline and the internal target the incident team runs to; where a breach engages more than one regime, the organisation acts within the strictest applicable requirement (the earliest deadline and the broadest individual-notification obligation).
 
 ### 6.3 Supplier notification
 

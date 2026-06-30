@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-06-29\
+**Version:** 1.0.5\
+**Date:** 2026-06-30\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -104,7 +104,7 @@ The organisation must track and improve:
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.
-- Frequency of ethics reviews completed by the AI Governance Council.
+- Frequency of ethics reviews completed by the AI Ethics Review Panel.
 - AI retraining and lifecycle compliance metrics.
 
 ### 4.3 BASC and regional assurance metrics

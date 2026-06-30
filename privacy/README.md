@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,6 +45,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Template | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](template-dpia.md) |
 | Template | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md) |
 | Template | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md) |
+| Template | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](template-breach-notification-regulator-register.md) |
 | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md) |
 | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](template-dpa-article-28.md) |
 

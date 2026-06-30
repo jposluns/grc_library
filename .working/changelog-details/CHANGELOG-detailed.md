@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.465, PR #487
+
+FR-144 for local project: a new adopter-fillable breach-notification regulator register template with an internal-target clock, authored via the high-assurance harness; also fixes the #486 /validate-pr finding.
+
+### Added
+
+- [`privacy/template-breach-notification-regulator-register.md`](../../privacy/template-breach-notification-regulator-register.md) (Template, Version 1.0.0, Owner Data Protection Officer, Category Privacy, Classification Public). An adopter-fillable register, one row per applicable regulator, carrying the six columns of the breach procedure's §6.2 table (jurisdiction, governing law, regulatory authority, notification trigger, regulatory deadline, individual-notification requirement) plus an internal-target column (the "no internal clock" gap the finding named): an internal deadline set tighter than the regulatory one. Sections: Purpose, Scope, How to use this register, the register fill-table (illustrative rows marked non-authoritative + blank adopter rows), the internal-target and strictest-applicable-requirement rule (controlling deadline = earliest, controlling individual-notification = broadest), Maintenance and review, Limitations. Not legal advice; the adopter populates from the current authoritative source per regime.
+- Listing-surface rows in [`privacy/README.md`](../../privacy/README.md) (Version 1.2.5 to 1.2.6) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version 1.27.46 to 1.27.47).
+- Generated artefacts regenerated: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Changed
+
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (Version 1.4.16 to 1.4.17, Date 2026-06-28 to 2026-06-30): §6.2 wire-in note framing the fixed jurisdiction table as illustrative and directing the notification assessment to consult the adopter register for the controlling (strictest) deadline and the internal target.
+- [`README.md`](../../README.md): Library CalVer 2026.06.464 to 2026.06.465; README Version 1.9.335 to 1.9.336.
+
+### Fixed
+
+- [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md) (Version 1.0.4 to 1.0.5, Date 2026-06-29 to 2026-06-30): the #486 /validate-pr finding. A KPI line read "Frequency of ethics reviews completed by the AI Governance Council", a stale attribution after the FR-73 split reassigned independent ethics review to the AI Ethics Review Panel; reattributed to the Panel. A corpus-wide grep for parallel AIGC + ethics-review carriers found six more lines, all triaged as retained AIGC functions (metrics monitoring, report contents, compliance oversight, vendor due-diligence, acceptance-gate review), not the independent-review activity, so only this one was stale.
+
+### Verification
+
+- All 57 audit gates green on the committed state (pre-push guard: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)).
+- High-assurance harness (net-new authoring): two independent adversarial verifiers, blind to each other. The false-positive lens found 0 defects (illustrative deadline rows correctly framed non-authoritative and adopter-confirmable; the register-index citations mirror the existing §6.2 / breach-procedure row, none invented; not-legal-advice disclaimer present; no contradiction with the existing §6.2 table or the §6.1 / §6.3 framing; links resolve; house style clean; the procedure Version+Date co-bumped). The false-negative lens found 0 content gaps (six columns + internal target present and explained; the internal-clock gap closed; the strictest-applicable rule operable; adopter-fillable; wire-in complete) and one warning-level metadata field-order deviation, fixed in-window.
+- Generated-artefact `--check` clean ([`tools/build-taxonomy.py`](../../tools/build-taxonomy.py), [`tools/build-portal.py`](../../tools/build-portal.py)).
+
+### Discipline observation
+
+The false-negative verifier caught a gate-blind metadata field-order deviation: the new template ordered the tail fields Confidentiality, License, Repository Path, where the corpus convention (and [`tools/lint-metadata.py`](../../tools/lint-metadata.py) REQUIRED_FIELDS) orders Repository Path, Confidentiality, License. The metadata gate checks field presence, not order, so it ships green; the verifier's structural-bar check against the sibling caught it. Reordered in-window. The #486 /validate-pr fix (the stale ethics-review KPI) is bundled here per recursion-avoidance; its /retro lesson (a function/responsibility reassignment needs a corpus-wide grep for stale attributions of the moved function, the same class as a §N-section close) is logged in the improvement log, with codification deferred (it is a `.claude/` close-out-checklist change, held under the overnight protected-file directive).
+
 ## 2026-06-30, Library Version 2026.06.464, PR #486
 
 FR-73 for local project: split AI ethics review out of the AI Governance Council into a new independent AI Ethics Review Panel charter with a challenge mechanism, authored via the high-assurance harness.
