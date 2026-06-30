@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-06-24\
+**Version:** 1.0.5\
+**Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -73,9 +73,27 @@ This annex applies where an organisation:
 | **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter |
 | **FFIEC IT Examination Handbook** | FFIEC | US banks and credit unions |
 | **FFIEC Cybersecurity Assessment Tool (CAT)** | FFIEC | US depository institutions |
+| **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
 | **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
 | **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |
 | **PCI DSS v4.0** | PCI SSC | Any organisation storing, processing, or transmitting payment card data |
+
+### Asia-pacific
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **Technology Risk Management (TRM) Guidelines; Notice on Cyber Hygiene** | Monetary Authority of Singapore (MAS) | Financial institutions regulated in Singapore; technology and cyber risk management |
+| **Prudential Standard CPS 234 (Information Security); CPS 230 (Operational Risk Management)** | Australian Prudential Regulation Authority (APRA) | APRA-regulated entities (banks, insurers, superannuation); information security and operational resilience |
+| **Supervisory Policy Manual: technology and operational risk modules** | Hong Kong Monetary Authority (HKMA) | Authorized institutions in Hong Kong; technology risk and operational resilience |
+| **Guidelines on system risk and cybersecurity for financial institutions** | Japan Financial Services Agency (JFSA / FSA) | Financial institutions supervised in Japan; system risk and cybersecurity |
+
+### Switzerland
+
+| Regulation / Guidance | Authority | Scope |
+|---|---|---|
+| **Circular on operational risks and resilience** | Swiss Financial Market Supervisory Authority (FINMA) | FINMA-supervised banks, insurers, and financial institutions; operational risk and resilience |
+
+> **Note:** The instruments named in the Asia-Pacific and Switzerland subsections are named structurally to map the regulators and their supervisory domains. The specific current instrument titles, versions, and effective dates change over time and are confirmed by the adopting organisation against each regulator's current published requirements; this annex does not pin or reproduce them.
 
 ### Global / cross-jurisdictional
 

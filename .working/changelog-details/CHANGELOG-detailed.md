@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.466, PR #488
+
+FR-61 for local project: extended the financial-services sector annex's regulatory-landscape overview with the prudential regulators it lacked, authored by strict structural naming (no held source) and harness-verified with upstream confirmation.
+
+### Changed
+
+- [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../../compliance/financial-services/annex-financial-services-sector-requirements.md) (Version 1.0.4 to 1.0.5, Date 2026-06-24 to 2026-06-30): added to the "Regulatory landscape overview" a new Asia-pacific subsection (MAS Singapore, APRA Australia, HKMA Hong Kong, JFSA/FSA Japan), a Switzerland subsection (FINMA), an explicit US federal-banking-regulators row (OCC, FRB, FDIC), and an adopter-confirm note. Each regulator is named with its supervisory domain and iconic, stable instruments only; no version, year, or circular number is pinned. Closes FR-61 (UK PRA/FCA and Canada OSFI were already present; the six new regulator groups complete the FR-61 list).
+- [`README.md`](../../README.md): Library CalVer 2026.06.465 to 2026.06.466; README Version 1.9.336 to 1.9.337.
+- Generated artefacts regenerated ([`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)) for the annex Version bump.
+
+### Verification
+
+- All 57 audit gates green on the committed state (pre-push guard: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)); lint-citations, lint-language, lint-links exit 0.
+- High-assurance harness (no-held-source citation-accuracy case): two independent adversarial verifiers, blind to each other. The false-positive (citation-accuracy) lens, invited to confirm upstream, found 0 defects and confirmed all six named instruments via WebSearch against the regulators' authoritative sources (MAS TRM Guidelines + Notice on Cyber Hygiene; APRA CPS 234 Information Security + CPS 230 Operational Risk Management; HKMA Supervisory Policy Manual TM-G-1 / OR-2; the Japan FSA cybersecurity guidelines; FINMA Circular 2023/1 Operational Risks and Resilience; the OCC/FRB/FDIC 2023 interagency third-party guidance and the GLBA information-security guidelines), with all eight regulator names/acronyms correct and no ungroundable pinned specifics. The false-negative (coverage/consistency) lens found 0 content gaps (all nine FR-61 regulators represented, no duplication) and one warning-level heading-case deviation.
+- Generated-artefact `--check` clean.
+
+### Discipline observation
+
+This is the no-held-source case (the reference base holds no financial-services prudential source), so the discipline is the sanctions-standard precedent: name regulators and domains structurally, pin nothing, add an adopter-confirm note, and let the false-positive verifier (here invited to confirm upstream via WebSearch) be the control. The verifier's upstream confirmation of all six instruments is the evidence the structural names are accurate. One apply-time fix: the false-negative verifier flagged the new `### Asia-Pacific` heading against the section's sentence-case convention (`### European union`, `### United kingdom`); reworded to `### Asia-pacific` (gate-blind, since lint-language's heading-case rule checks only the first character). Bundles the #487 /validate-pr (0 findings) and #487 QA rows.
+
 ## 2026-06-30, Library Version 2026.06.465, PR #487
 
 FR-144 for local project: a new adopter-fillable breach-notification regulator register template with an internal-target clock, authored via the high-assurance harness; also fixes the #486 /validate-pr finding.
