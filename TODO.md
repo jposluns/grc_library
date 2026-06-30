@@ -14,8 +14,8 @@ This file is informational and is not subject to the library's metadata-block, a
 - **1-8 PRs per batch** (logical grouping); `/validate` after each batch.
 - Maintainer direction supersedes the orchestrator's pick at any time.
 - Lower priorities (P3-P7) are picked deliberately, not from the routine batch queue, unless the maintainer triggers them.
-- **Maintainer-directed running order (2026-06-30 work-type re-tier)**: work the tiers in order. **P1** first (the cheap fix/prevent items: FR-48 and the Per-document-ISO gate-fix, then the §1.3 / §1.4 / §1.5 integrity tooling); then **P2** gaps (FR-59 and FR-60 deepenings and the deepen-baselines cluster first, then **FR-70**, the XL crypto-asset domain, last); then **P3** clean-up-and-tooling; then **P4** adopter experience. **P5 / P6 expansion waits** (maintainer: expansion can wait). The standing **fix-issues-first** directive (2026-06-27) governs within each tier, and the routine `/validate`, `/validate-pr`, and `/matrix-fit` cadences are the reactive half of P1. FR-167, the NIST SP 800 ingestion, and the OT post-ingestion validation are COMPLETE (2026-06-30; ingestion in `grc_library_scratch`, validation in #495).
-- **Integrity-tooling items** (the former "guard-rails phase"): the queued retro guard rails (§1.3), the citation-precision gate (§1.4 S3), and the reference version-currency register (§1.5) live in **P1** (fix errors and prevent recurrence); the QA-cadence and TODO/DONE-rotation surfaces are already covered by the bookkeeping-parity gate family (gates 50 and 57, plus the D5 PR-time check). Research fan-out (workers produce verified research from [`.working/worker-brief-template.md`](.working/worker-brief-template.md); the orchestrator re-verifies every claim at apply-time and authors all final prose) is the standing method for partitionable batches.
+- **Maintainer-directed running order (2026-06-30 work-type re-tier)**: work the tiers in order. **P1** first (the cheap fix/prevent items: FR-48 and the §1.4 / §1.5 integrity tooling); then **P2** gaps (FR-59 and FR-60 deepenings and the deepen-baselines cluster first, then **FR-70**, the XL crypto-asset domain, last); then **P3** clean-up-and-tooling; then **P4** adopter experience. **P5 / P6 expansion waits** (maintainer: expansion can wait). The standing **fix-issues-first** directive (2026-06-27) governs within each tier, and the routine `/validate`, `/validate-pr`, and `/matrix-fit` cadences are the reactive half of P1. FR-167, the NIST SP 800 ingestion, and the OT post-ingestion validation are COMPLETE (2026-06-30; ingestion in `grc_library_scratch`, validation in #495).
+- **Integrity-tooling items** (the former "guard-rails phase"): the citation-precision gate (§1.4 S3) and the reference version-currency residuals (§1.5) live in **P1** (fix errors and prevent recurrence); the QA-cadence and TODO/DONE-rotation surfaces are already covered by the bookkeeping-parity gate family (gates 50 and 57, plus the D5 PR-time check), and the retro guard rails (the former retro-log consolidation item) closed across #510 (the new-skill-drafting checklist) and #511 (the word-form count gate). Research fan-out (workers produce verified research from [`.working/worker-brief-template.md`](.working/worker-brief-template.md); the orchestrator re-verifies every claim at apply-time and authors all final prose) is the standing method for partitionable batches.
 
 ---
 
@@ -26,14 +26,6 @@ Correctness fixes and the **error-prevention tooling** that keeps the corpus fro
 ### 1.1 H2 numbering-pattern drift (FR-48, M, L)
 
 H2 numbering patterns drift — multi-doctype structural rename. Deferred until a dedicated session is scheduled.
-
-### 1.3 Retro-log open-loop consolidation (S, S) — surfaced 2026-06-23 (was 4.8)
-
-A review of [`.working/improvement-log.md`](.working/improvement-log.md) found that the **convention/checklist layer** absorbs retro candidates well (lint-language pre-flight, grep-after-convention-change, CHANGELOG-link front-loading are codified in the CLAUDE.md close-out checklist and holding), but the **mechanical-gate and rule-codification layers** accumulate "queued, apply next time" candidates that do not self-clear. Still open (action deliberately, not at a long-turn tail):
-
-**The close-out-checklist apply-time disciplines were codified in #478** (three CLAUDE.md `## Session migration and PR close-out checklist` bullets): **audit-gate change completeness** (the audit-programme spec's detailed-prose enumeration, its per-gate narrative, the grouped-list, the module docstring, and the regression fixture are parallel surfaces no parity gate inspects, folding in #312 gate-behaviour-changed paired-surfaces and the Sweep-77-A1 gate-57 detailed-prose miss, plus the `WORKFLOW_DELTA_GATE_STEPS` note); **full-file-grep and parallel-case re-verification for prose corrections** (folding in #271 parallel-case verification, #340 full-file-grep for prose-fact corrections, and #320 corpus-wide-scrub narrative-surface scope); and **generated-artefact regen order** (#323, taxonomy first then portal/scorecard). The bare-token contradiction search (#261/#262) was already codified in the earlier close-out-checklist bullet. **Residual (still open):**
-
-- **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules"). This one is a gate change, not a checklist line.
 
 ### 1.4 Audit-gate candidates from the 2026-06-22 review (M, S each) (was 4.5)
 
@@ -187,7 +179,7 @@ The scratch `grc_library_scratch/ref/` base is now the maintainer's standing ref
 
 ### 3.10 TODO-hygiene completion pass + accretion guard (S, S) — surfaced 2026-06-27 (was 4.23)
 
-The maintainer flagged (2026-06-27) that shipped/historical content had accreted in TODO instead of rotating out. Parts (a) and (b) shipped in the TODO-hygiene PR: (a) §3.6 (multi-session orchestration) trimmed to its residue (deliverable 4, the worker-provenance gate; deliverables 1-3 shipped) after verifying against the gate inventory of the time; (b) the unambiguous shipped/closed clauses deleted (the Queueing-rules "FR-166/DD-1/DD-9 already shipped" note, the P3-intro "B2 closed #408 / DD-12 closed" parenthetical, the §1.3 "actioned in #275" line, the §3.7 "D4 shipped in #366" clause, the Backlog-totals "closed in #N" clauses).
+The maintainer flagged (2026-06-27) that shipped/historical content had accreted in TODO instead of rotating out. Parts (a) and (b) shipped in the TODO-hygiene PR: (a) §3.6 (multi-session orchestration) trimmed to its residue (deliverable 4, the worker-provenance gate; deliverables 1-3 shipped) after verifying against the gate inventory of the time; (b) the unambiguous shipped/closed clauses deleted (the Queueing-rules "FR-166/DD-1/DD-9 already shipped" note, the P3-intro "B2 closed #408 / DD-12 closed" parenthetical, the retro-log section's "actioned in #275" line, the §3.7 "D4 shipped in #366" clause, the Backlog-totals "closed in #N" clauses).
 
 **Remaining (open):** (c) **whether the `## Standing conventions`, `## Backlog totals`, and `## Priority 7` (audit-trail-only) sections belong in TODO at all** or in a conventions / design-decisions doc. This is a **maintainer call** (they are non-forward-looking but appear intentionally retained); filed for decision in `## Priority 7`. The **accretion guard** is the TODO/DONE-rotation gate family, now shipped (gate 57 catches in-place self-marking; the D5 PR-time check catches a wholesale-forgotten rotation when a PR's CHANGELOG asserts a backlog-item closure). A possible extension (consider) is teaching gate 45 to flag shipped-PR-number history accreting inside an open TODO item, so accretion is mechanically prompted rather than convention-only.
 
@@ -375,7 +367,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 Approximate active counts after the 2026-06-30 work-type re-tier and renumber (the priority sections themselves are the source of truth; these drift).
 
-- **P1 (fix errors and prevent recurrence)**: 4 items (1.1 FR-48, 1.3 retro guard rails, 1.4 audit-gate candidates, 1.5 reference version-currency).
+- **P1 (fix errors and prevent recurrence)**: 3 items (1.1 FR-48, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
 - **P3 (clean up and tooling)**: 14 items (3.1-3.14).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).
