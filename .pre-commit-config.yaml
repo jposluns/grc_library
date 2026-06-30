@@ -421,3 +421,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-document-iso-annex-a
+        name: Per-document ISO Annex A validity audit
+        entry: python3 tools/lint-document-iso-annex-a.py
+        language: system
+        pass_filenames: false
+        always_run: true

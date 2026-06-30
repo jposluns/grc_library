@@ -6,6 +6,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.487, PR #509
+
+Per-document ISO/IEC 27001:2022 Annex A validity audit (gate 58), closing TODO §1.2. Maintainer-approved design: a separate new gate (not folded into gate 54) that accepts theme-only references (`A.5`-`A.8`) as valid.
+
+### Added
+- [`tools/lint-document-iso-annex-a.py`](../../tools/lint-document-iso-annex-a.py) (gate 58): the per-document ISO Annex A validator. The ISO-column sibling of gate 54 (per-document NIST CSF 2.0) and the per-document counterpart of gate 49 (the central matrix's ISO column). It validates ISO/IEC 27001:2022 Annex A control codes and management-system clauses inside ISO 27001:2022-labelled framework/crosswalk table cells (framework-as-column and framework-as-row shapes, mirroring gate 54), catching a non-existent control (`A.8.99`), a non-2022 theme (`A.9.2`), an out-of-range or cross-theme or inverted range, and an out-of-range clause (`§12`). Precision-first: validation is edition-pinned (fires only under an explicit `ISO/IEC 27001:2022` / `ISO 27001:2022` label) and table-scoped (a bare `§6` in document prose, the document's own section, is never scanned). It recognizes single codes, theme-only refs (accepted as valid), same-theme ranges (`A.8.20 to A.8.21`, including the `to 21` short form), clauses, and comma/semicolon lists; excludes the central matrix (gate 49's target) and the `dev-security/claude-rules/` pack subtree; derives its scan set from `AUDITED_DOMAIN_DIRS`.
+- [`tools/iso_27001_reference.py`](../../tools/iso_27001_reference.py): a new shared single-source-of-truth module for ISO/IEC 27001:2022 structural facts (Annex A theme counts `{5: 37, 6: 8, 7: 14, 8: 34}` = 93; clause range §4-§10) and the `check_iso_token` single-token validator, mirroring [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py)'s role for the two NIST CSF gates. Gates 49 and 58 both import from it so the two ISO validators cannot drift.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a 9-test `DocumentIsoAnnexATests` regression class (corpus smoke; out-of-range / non-2022-theme / out-of-range-clause / inverted-range positives; valid-range / theme-only-and-valid-codes / prose-section-number / non-ISO-row negatives).
+
+### Changed
+- [`tools/lint-matrix-control-codes.py`](../../tools/lint-matrix-control-codes.py) (gate 49): refactored to `from iso_27001_reference import check_iso_token` (and `ISO_ANNEX_A_RANGES` etc.), removing the inline ISO reference data and validator now living in the shared module. Behaviour-preserving (gate 49 exit 0; full regression suite green).
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml): gate 58 wired as `[58] Per-document ISO Annex A validity audit` after gate 57, in the same order on all three runtime surfaces.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.24 -> 1.16.25, Date 2026-06-30): §6 inventory row 58 added; the §6 detailed-prose pair (`Gate 58 is a ...` description + `Gate 58 is appended at the tail ...`); the §5 grouped-list category 3 (Content drift defence) parenthetical extended to `(gates 5, 6, 25, 48, 49, 54, 58)` with a gate-58 description clause.
+- [`README.md`](../../README.md): Library CalVer 2026.06.486 -> 2026.06.487; README Version 1.9.357 -> 1.9.358.
+- [`TODO.md`](../../TODO.md): §1.2 deleted (rotated to DONE); the P1 summary `5 items (... 1.2 Per-document ISO ...)` -> `4 items` with 1.2 dropped (sections left non-contiguous per the stable-identifier convention; the two surviving non-TODO `§1.2` references are other documents' own sections, unrelated, left as-is).
+- [`.working/DONE.md`](../DONE.md): a `### PR #509` entry recording the gate-58 close of §1.2.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first, then portal/scorecard, per the documented regen order) to carry the audit-programme spec's `1.16.25` version.
+
+### Why
+TODO §1.2 (a maintainer-confirmed deferred follow-up) asked for per-document ISO Annex A validation: gate 49 covers only the central matrix's ISO column, and gate 54 (per-document) covers only NIST CSF, so an invalid ISO Annex A code in any other document's framework table was gate-blind. The work was deferred from the gate-54 build because per-document ISO is higher-false-positive (clause refs, ranges, the `§N`/document-section collision); a corpus survey confirmed the corpus is uniformly 2022 edition, which (with edition-pinned labelling and table-scoping) removes the mixed-edition and prose-`§N` false-positive risks. The maintainer chose a separate gate over folding into gate 54, and chose to accept theme-only `A.5` references as valid.
+
+### Verification
+- `tools/run_all_audits.sh`: **all 58 gates pass** on the working tree. Gate 35 (four-surface parity) confirms 58 gates across all four audit-programme surfaces; gate 39 (count consistency) confirms 58 across 469 scanned files; gate 58 clean over 318 corpus documents; gate 49 exit 0 after the refactor.
+- Linter regression suite ([`tools/run-linter-regression.py`](../../tools/run-linter-regression.py)): 217 tests pass (208 prior + 9 new gate-58 tests); the new linter is covered.
+- Gate-58 detection re-verified on the regression fixtures (positives flag, negatives pass) and the live corpus is clean (no document carries an invalid ISO Annex A code in an ISO-labelled table today).
+- Pre-push skeptical verifier (substantive tier, refute-briefed) on the diff.
+
+### Batched (recursion-avoidance)
+- The #508 [`/validate-pr`](../validate-pr/history.md) (0 findings) and [`/retro`](../improvement-log.md) rows, plus the prior session-handoff refresh, committed on the branch (commit `3265216`).
+- The IEEE-2883-ingestion-complete bookkeeping (scratch PR #46 merged; IEEE residual rotated out of TODO §1.5; handoff updated), committed on the branch (commit `193d598`).
+
+### Discipline observation
+The pre-push skeptical verifier caught one CRITICAL defect the orchestrator's "all 58 gates pass" claim missed: the spec `Version` bump (1.16.24 -> 1.16.25) was applied during the bookkeeping batch AFTER the full audit sweep had run, so the generated taxonomy and maturity-scorecard artefacts (which record that version) went stale and gates 33/34 failed at committed HEAD. Root cause: the "all 58 gates pass" claim relied on a prior-run sweep (the project's named *relying-on-prior-runs* / *generated-artefact regen-order false-clean* failure class, the #318/#323 amend-loop). Fix: regenerated taxonomy then portal/scorecard (the documented order), amended into the commit, and re-ran the full pre-push guard on committed HEAD (both runners green, all 58 gates from HEAD) as the re-verify step. The lesson is already codified in the CLAUDE.md close-out checklist (the *generated-artefact regen order* bullet); this is a recurrence the verifier caught pre-push rather than a new class.
+
+### Closes
+- TODO §1.2 (per-document ISO Annex A code validation), the last open P1 follow-up of the gate-49-extension track.
+
 ## 2026-06-30, Library Version 2026.06.486, PR #508
 
 NIST SP 800-88 Rev. 2 re-point and IEEE 2883 introduction, the third and last of the §1.5 version-upgrade follow-ups. Maintainer-directed shape: re-point faithfully AND introduce IEEE 2883 as a newly-cited standard (chosen over a minimal version-bump).
