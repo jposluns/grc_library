@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.3\
-**Date:** 2026-06-20\
+**Version:** 1.4.4\
+**Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -46,6 +46,7 @@ Cross-sector horizontal regulations that span multiple industries (for example, 
 | Procedure | Audit Planning Procedure | [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) |
 | Procedure | Corrective and Preventive Action (CAPA) Procedure | [`compliance/procedure-capa.md`](procedure-capa.md) |
 | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) |
+| Procedure | Mergers and Acquisitions Due Diligence Procedure | [`compliance/procedure-mergers-acquisitions-due-diligence.md`](procedure-mergers-acquisitions-due-diligence.md) |
 | Template | Regulator Interaction Templates | [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) |
 | Template | Audit Evidence Package Template | [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md) |
 | Annex | NIS 2 Implementation Annex (cross-sector EU) | [`compliance/annex-nis-2-implementation.md`](annex-nis-2-implementation.md) |

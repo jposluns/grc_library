@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.462, PR #484
+
+FR-71 for local project: a new GRC M&A due-diligence procedure, authored via the high-assurance harness.
+
+### Added
+
+- [`compliance/procedure-mergers-acquisitions-due-diligence.md`](../../compliance/procedure-mergers-acquisitions-due-diligence.md) (new, Version 1.0.0): a Procedure-type document (Owner Chief Compliance Officer, Category Compliance Management). Four transaction phases with decision gates (screening/pre-LOI; pre-close due diligence; signing-to-close; post-close integration); a roles-and-responsibilities table (sponsor, CCO, GRC Programme Manager, CISO, DPO, CRO, Legal Counsel, ERC); a 13-dimension GRC due-diligence checklist (governance/legal-entity, regulatory/licensing, privacy incl. consent inheritance, cross-border transfers, security posture/incident history, compliance obligations/findings, contracts/third-party, financial-crime/sanctions, IP/data assets, human capital/conduct, technology/integration, litigation/liabilities, data-room handling), each cross-referenced to its governing corpus instrument; a red-flag and deal-breaker register; signing-to-close conditions; a post-close hand-off into the governance triggered review, the internal-audit post-close audit, and the risk register, with a TIA re-trigger for inherited restricted transfers; evidence/records; Framework alignment; Limitations. Mirrors a compliance-domain Procedure sibling's 13-field metadata block and numbered-section shape.
+
+### Changed
+
+- [`compliance/README.md`](../../compliance/README.md) (1.4.3 to 1.4.4): added the M&A Due Diligence Procedure row.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.43 to 1.27.44): added the compliance/Procedure row.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first).
+- [`README.md`](../../README.md): Library Version 2026.06.461 to 2026.06.462; README Version 1.9.332 to 1.9.333.
+- [`TODO.md`](../../TODO.md): FR-71 rotated to DONE.
+
+### Domain decision
+
+Placed in the compliance domain per the originating fitness-review **Rec-14** plan ([`.working/fitness-reviews/2026-06-21-r1.md`](../fitness-reviews/2026-06-21-r1.md):423, which named [`compliance/procedure-mergers-acquisitions-due-diligence.md`](../../compliance/procedure-mergers-acquisitions-due-diligence.md) as closing FR-71). The session's task framing had inferred the governance domain from the trigger doc's location; the recorded plan (the maintainer's own originating artefact) governs over that inference. Rec-14 likewise pre-resolves the next two net-new items: FR-72 as a sanctions and export-control screening standard in the compliance domain, and FR-73 as an AI ethics review panel charter in the ai domain (split from the AI governance council with an independent challenge mechanism), both recorded in the handoff next-actions.
+
+### Verification
+
+- High-assurance harness (maintainer directed net-new authoring through it). Two independent adversarial verifiers, blind to each other. **Verifier B (false-positive): 0 defects** (ISO 31000:2018, ISO 37301:2021, COBIT 2019 EDM03/APO12/BAI05 with correct objective titles, and NIST CSF 2.0 GV all verified against the canonical-citations register and corpus usage; COSO ERM correctly omitted as unregistered; no phantom link to the not-yet-existing sanctions standard; no invented threshold (all marked adopter-defined); all seven named roles verified real against the role-authority register; all 20 cross-references resolve with accurate relationships). **Verifier A (false-negative): 0 error-level gaps**, two warning-level completeness improvements applied in-window: (1) the "divestiture where noted" scope promise was unfulfilled by the inbound-only phase model, so divestiture was scoped out explicitly (run through the triggered review with adapted dimensions); (2) the financial-crime/sanctions dimension (the lead Phase-1 deal-breaker) routes to a "planned" standard, so the coverage gap is now named in Limitations. A third warning (litigation/IP dimensions hand off only to adopter records) was already disclaimed in Limitations; no change.
+- Apply-time gate-2 catch before the verifiers: a bare `ensures` corrected to `ensures that` (house style).
+- All 57 audit gates pass on the final state.
+
+### Discipline observation
+
+The domain question (governance/ vs compliance/) looked like a clarify-before-acting fork, but resolved on inspection to executing the maintainer's recorded Rec-14 plan rather than a guess, so it did not require deferral. The harness again earned its place: the FP lens confirmed the citation-dense framework-alignment table and the role names against ground truth, and the FN lens caught a real internal-consistency gap (a scope promise the body did not fulfil) that a citation pass would miss.
+
 ## 2026-06-30, Library Version 2026.06.461, PR #483
 
 FR-34 for local project: a new Transfer Impact Assessment (TIA) template operationalizing the EDPB Recommendations 01/2020 six-step methodology, authored via the high-assurance harness.
