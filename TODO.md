@@ -215,6 +215,10 @@ The PR #441 condense of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) moved the cut r
 
 Decision (maintainer 2026-06-28, after the PR #441 condense): the keep-and-condense method is documented as pack guidance ([`guidance-claude-md-optimization.md`](dev-security/claude-rules/guidance-claude-md-optimization.md), shipped 2026-06-28); a full optimization skill was declined as too judgment-heavy to mechanize (the keep-versus-cut call is exactly the part a skill cannot do). The tractable mechanical aid is a NARROW read-only diagnostic, a `/claude-md-audit`-style reporter over a target rules file that surfaces file length, section count, an actionable-token-density heuristic (ratio of greppable rule tokens such as commands, paths, gate numbers, and thresholds to total prose), and a "no removal ledger referenced" flag. Advisory output only, never a gate (the keep/cut decision stays the maintainer's). Low priority: build only if the guidance doc proves insufficient on its own. Pairs with the §3.12 ledger-review cadence.
 
+### 3.14 Gate-2 coverage of generator emitted-prose strings (L, S) — surfaced 2026-06-30 (Sweep 78 B-1)
+
+Sweep 78 found a Commonwealth `customised` hard-coded in a [`tools/build-portal.py`](tools/build-portal.py) emitted-prose string (rendered into the `GENERATED_DOCS`-exempt [`docs/portal.md`](docs/portal.md)), doubly blind to gate 2 ([`tools/lint-language.py`](tools/lint-language.py)): the gate scans only `.md` files (so the `.py` generator source is never seen) and excludes the generated output. The `-ize`/dash/house-style house rules therefore do not reach the adopter-facing prose the `tools/build-*.py` generators emit. Candidate: extend gate 2 (or add a narrow sibling check) to scan the emitted-prose string literals in the `tools/build-*.py` generators, so a house-style violation in generator-authored prose is caught at gate time rather than at the next corpus-wide `/validate`. Low priority (the generators are few and their prose is small); pairs with the §1.4 audit-gate work. The companion non-tooling residual (gate-exempt `.claude/` forward `§`-pointers left stale by a TODO renumber) needs no new rule, it is the existing section-close cross-FILE cleanup close-out-checklist line, to be reinforced to span gate-exempt forward pointers when that line is next edited.
+
 
 ---
 
@@ -382,7 +386,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and renumber (t
 
 - **P1 (fix errors and prevent recurrence)**: 5 items (1.1 FR-48, 1.2 Per-document ISO, 1.3 retro guard rails, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
-- **P3 (clean up and tooling)**: 13 items (3.1-3.13).
+- **P3 (clean up and tooling)**: 14 items (3.1-3.14).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
