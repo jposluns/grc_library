@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-24\
+**Version:** 1.0.6\
+**Date:** 2026-06-30\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -81,7 +81,7 @@ Access revocation target: within 24 hours of the formal offboarding declaration.
 | Logs and monitoring data | Retention per contract; destruction at end of retention | Supplier attestation | |
 | Documentation and configuration | Return or destruction | As above | |
 
-The certificate of destruction states: the items destroyed, the method (e.g. NIST SP 800-88 Clear / Purge / Destroy), the date, and the signing authority on the supplier side. For personal data, the certificate cites the GDPR Article 28(3)(g) obligation (or jurisdictional equivalent).
+The certificate of destruction states: the items destroyed, the method (e.g. the IEEE 2883 Clear / Purge / Destruct categories that NIST SP 800-88 Rev. 2 directs technique detail to), the date, and the signing authority on the supplier side. For personal data, the certificate cites the GDPR Article 28(3)(g) obligation (or jurisdictional equivalent).
 
 ### Section 4: Service-continuity handover
 
@@ -166,7 +166,8 @@ The approval set confirms that the offboarding evidence record is complete, veri
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 | Exit strategy detail |
 | ISO/IEC 27036 | Information security for supplier relationships | Termination |
 | ISO 28000 | Security management for supply chains | Termination |
-| NIST SP 800-88 Rev. 1 | Guidelines for Media Sanitization | Destruction method |
+| NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization | Destruction method (programme framing) |
+| IEEE 2883 | IEEE Standard for Sanitizing Storage | Destruction method (Clear / Purge / Destruct techniques) |
 | CSA CCM v4.1 | IPY-04 (data portability contractual obligations) | Exit assistance |
 | ISO/IEC 27001:2022 | A.5.22 (information security in supplier relationships) | Closure |
 

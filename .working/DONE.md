@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #508: NIST SP 800-88 Rev. 2 re-point + IEEE 2883 introduction (§1.5 follow-up #3, P1) (2026-06-30)
+
+Re-pointed media sanitization to NIST SP 800-88 Rev. 2 (final 2025-09-26; Rev. 1 withdrawn) and introduced IEEE 2883:2022 as a newly-cited standard (new register `## IEEE standards` section + allow-list domain) for the Clear/Purge/Destruct techniques Rev. 2 now defers to; updated 4 corpus surfaces + the lead doc's framework-alignment column. Maintainer-chosen faithful+IEEE option; verified against the maintainer-supplied IEEE 2883 PDF. **Closes the §1.5 version-upgrade follow-ups** (27033/27036-2/800-88 all shipped).
+
 ### PR #507: ISO/IEC 27036-2 2014 -> 2022 citation upgrade (§1.5 follow-up #2, P1) (2026-06-30)
 
 Upgraded the superseded `ISO/IEC 27036-2:2014` to the current `ISO/IEC 27036-2:2022` (Cybersecurity, Supplier relationships, Part 2: Requirements; Edition 2 cancels and replaces the 2014 first edition) in the register row and the 1 version-bearing corpus citer (`supply-chain/procedure-supplier-due-diligence.md`). Upstream-confirmed via WebSearch (iso.org 82060). Second of the 3 §1.5 version-upgrades; only NIST SP 800-88 Rev.2 remains.
