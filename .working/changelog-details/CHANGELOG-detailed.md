@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.485, PR #507
+
+ISO/IEC 27036-2 citation upgrade, the second of the three §1.5 version-upgrade follow-ups (the citation-impact ones deferred from #505).
+
+### Changed
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.8 -> 1.5.9): the `ISO/IEC 27036-2 | 2014 | 2014-08 | Information security for supplier relationships` row upgraded to `ISO/IEC 27036-2 | 2022 | 2022-06 | Cybersecurity - Supplier relationships - Part 2: Requirements (Edition 2; cancels and replaces the 2014 first edition)`, superseded set to `2014`, `Upstream check location` set to the iso.org catalogue page (82060) with `Last verified 2026-06-30`.
+- [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md) (1.1.3 -> 1.1.4): the References-section entry `ISO/IEC 27036-2:2014: Information security for supplier relationships: Requirements.` -> `ISO/IEC 27036-2:2022: Cybersecurity - Supplier relationships - Part 2: Requirements.`. The doc's other 27036-2 mention (the alignment-summary sentence) is a bare unversioned series reference and is left as-is.
+
+### Why
+ISO/IEC 27036-2:2022 (Edition 2, 2022-06) cancels and replaces the 2014 first edition and retitled the series from "Information security for supplier relationships" to "Cybersecurity - Supplier relationships". The register and the one corpus citer carried the superseded 2014 edition. Deferred from #505 to its own PR because, unlike the #505 0-impact corrections, this changes a citation in a corpus document body (gate-6 surface) and so needs the coordinated per-document Version/Date bump.
+
+### Verification
+- Upstream re-confirmed this turn: WebSearch surfaced the iso.org catalogue page for ISO/IEC 27036-2:2022 (`/standard/82060.html`) and corroborating retailers, confirming it is the current 2nd edition (published 2022-06) that cancels and replaces the 2014 first edition. iso.org wholesale-403s automated WebFetch, so the catalogue URL is WebSearch-confirmed (a tool-returned, corroborated source), recorded with `Last verified 2026-06-30`.
+- Corpus footprint confirmed by grep: exactly one version-bearing `27036-2:2014` citer (fixed); the doc's other 27036-2 mention is a bare unversioned series name (gate-6-clean, left as-is); the only remaining `27036-2:2014` in the repo is the TODO §1.5 backlog bullet, rotated out in this PR.
+- Pre-push skeptical verifier (substantive tier, refute-briefed) on the diff; `tools/run_all_audits.sh` all 57 gates pass (gate 6 standards-currency clean: no corpus doc now cites the superseded 2014 edition).
+
+### Deferred (remaining §1.5 follow-up)
+- NIST SP 800-88 Rev.1 -> Rev.2 (a substantive re-point; Rev.1 withdrawn 2025-09-26). TODO §1.5.
+
 ## 2026-06-30, Library Version 2026.06.484, PR #506
 
 ISO/IEC 27033 citation correction, the first of the three §1.5 version-upgrade follow-ups (the citation-impact ones deferred from #505 because they ripple into corpus documents).
