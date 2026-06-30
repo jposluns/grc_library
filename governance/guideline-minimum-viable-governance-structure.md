@@ -2,8 +2,8 @@
 
 **Document Title:** Minimum Viable Governance Structure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md)\
@@ -55,8 +55,7 @@ A small organisation can implement the library's governance content with two nam
 | Library forum | Tier-1 home |
 | --- | --- |
 | Governing Body / Board | Founder, CEO, or equivalent decision-maker |
-| Executive Risk Committee | Combined executive forum (whatever cross-functional senior meeting already runs weekly or fortnightly) |
-| Enterprise Risk Committee | Same as above |
+| Enterprise Risk Committee | Combined executive forum (whatever cross-functional senior meeting already runs weekly or fortnightly) |
 | AI Governance Council | Same as above (with AI-specific items as standing agenda when an AI item exists) |
 | Architecture Review Board | Same as above (as standing agenda) |
 | Change Advisory Board | Same as above (as standing agenda) or delegated to the IT Operations Lead |
@@ -77,7 +76,7 @@ A mid-sized organisation typically instantiates four to six discrete bodies.
 | Body | Library forums combined |
 | --- | --- |
 | Board (or equivalent) | Governing Body |
-| Executive Committee | Executive Management, Executive Risk Committee, Audit Committee (where the board does not have a separate audit committee) |
+| Executive Committee | Executive Management, Audit Committee (where the board does not have a separate audit committee) |
 | Enterprise Risk Committee | Enterprise Risk Committee, Risk Committee, Insider Risk Steering Committee |
 | Technology / Architecture Council | Architecture Review Board, Technology Council, Data Council, AI Governance Council (with AI-specific working groups as needed), Reliability Council, Capacity Council |
 | Change Advisory Board | Change Advisory Board (often the only purely operational body separate from technology council) |

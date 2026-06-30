@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #477: ERC acronym residual (P3): lowercase-drift fix + tier-table reconcile (2026-06-30)
+
+Closed the P3 ERC residual: fixed the 3 lowercase "executive risk committee" occurrences Sweep 77 (B-1/2/3) found (#456's title-case reconcile had missed them) in the DLP standard and the board-risk-report template, and applied the maintainer-answered tier-table reconcile to the minimum-viable-governance guideline (collapse the Tier-1 duplicate row, drop the Tier-2 stray). Canonical body is "Enterprise Risk Committee (ERC)" per the role-authority register; no distinct "Executive Risk Committee" body exists. Corpus-wide grep confirms 0 residual.
+
 ### PR #471: §4.6 (P4): QA-cadence mechanical enforcement closed as satisfied (2026-06-29)
 
 Closed §4.6 as substantially-satisfied by the existing gate 50 Check 1 (`lint-bookkeeping-parity.py`), which already enforces §4.6's mechanically-valuable missing-row half corpus-wide (every in-window PR needs a `validate-pr` + `/retro` row, with the handoff/subsumption exemptions). The residual abbreviated-marker half is not FP-free-mechanizable on the free-prose row schema (the S3-shaped finding), so it stays the CLAUDE.md "Throughput pressure does not authorise QA abbreviation" convention. Maintainer-decided "close 4.6 as satisfied". No new gate.

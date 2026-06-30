@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.455, PR #477
+
+ERC-acronym canonicalization: the three lowercase-drift findings from Sweep 77 (B-1/2/3, out-of-window) plus the maintainer-answered Q3 tier-table reconcile, closing the TODO Priority-3 ERC residual.
+
+### Fixed
+- Sweep 77 finding B-1: [`security/standard-data-loss-prevention.md`](../../security/standard-data-loss-prevention.md):111 "presented to the executive risk committee (ERC)" to "presented to the Enterprise Risk Committee (ERC)" (the line self-tagged "(ERC)", so the canonical name and the acronym now agree).
+- Sweep 77 findings B-2/B-3: [`risk/template-board-risk-report.md`](../../risk/template-board-risk-report.md):212 (cadence-table audience cell) and :224 (preparation-process "Executive review" cell) "executive risk committee" to "Enterprise Risk Committee (ERC)" / "Enterprise Risk Committee".
+- All three are lowercase occurrences PR #456's title-case "Executive Risk Committee" to "Enterprise Risk Committee" reconcile missed; the canonical executive-level risk forum per [`governance/register-role-authority.md`](../../governance/register-role-authority.md):32 is "Enterprise Risk Committee (ERC)" and no distinct "Executive Risk Committee" body exists, so the canonical-internal-source rule resolves them without a maintainer decision (fixed under the overnight "correct any errors as you discover them" directive).
+
+### Changed
+- [`governance/guideline-minimum-viable-governance-structure.md`](../../governance/guideline-minimum-viable-governance-structure.md), the maintainer-answered Q3 reconcile (collapse Tier-1 dup, drop Tier-2 stray): Tier-1 deleted the duplicate "Executive Risk Committee" row and moved its descriptive cell ("Combined executive forum ...") onto the retained "Enterprise Risk Committee" row, so the "Same as above" chain below it still resolves correctly; Tier-2 removed "Executive Risk Committee" from the "Executive Committee" combined-forums list (line 80), since the Enterprise Risk Committee is its own Tier-2 body at the next row (avoiding the duplicate/contradiction a blind canonicalization would have created, which is why #456 deferred this doc).
+- Closed the TODO Priority-3 "ERC acronym expansion inconsistency, RESIDUAL" item (deleted from [`TODO.md`](../../TODO.md), rotated to [`.working/DONE.md`](../DONE.md); P3 backlog total ~19 to ~18) and regenerated [`taxonomy.yml`](../../taxonomy.yml) / [`docs/portal.md`](../../docs/portal.md) / [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the three Version/Date bumps.
+
+### Verification
+- Corpus-wide completion grep (`grep -rniE "executive risk committee"` over the full corpus excluding the frozen `.working/`/`.claude/`/CHANGELOG surfaces) returns 0 residual after the fixes (the only prior remaining mention was the TODO item's own description, removed by the rotation).
+- `tools/run_all_audits.sh` = **All 57 gates pass** on the committed ERC-fix state. Per-document Version+Date co-bumps verified (gate 40/31): DLP 1.3.1 to 1.3.2, board-risk-report 1.0.1 to 1.0.2, guideline 1.0.2 to 1.0.3, all Date to 2026-06-30. Generated-artefact `--check` clean.
+- Batches the #476 [`/validate-pr`](../validate-pr/history.md) (0 findings; Subagent A confirmed the gate-57 §6 prose accurate against the linter and all #476 surfaces consistent) and [`/retro`](../improvement-log.md) rows.
+
+### Discipline observation
+- B-1/2/3 confirm a completion-claim scoping lesson: #456 asserted the ERC reconcile complete from a title-case sweep, missing the lowercase forms; the corpus-wide `/validate` (Sweep 77) caught the residue, exactly the scope-width companion the close-out checklist's "completion-verification grep over the full corpus file set" line targets. This PR's own completion grep was run corpus-wide (not over its input set) per that line.
+
+Library `2026.06.454` to `2026.06.455`; README `1.9.325` to `1.9.326`. Three corpus-document bodies changed (each Version+Date co-bumped); no gate, rule, skill, or command count changed.
+
 ## 2026-06-30, Library Version 2026.06.454, PR #476
 
 Sweep 77 close-out plus the one in-window finding it surfaced, the first substantive PR of the resumed overnight session (resumed from session-closing handoff #475; entered overnight mode by maintainer direction).
