@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.476, PR #498
+
+TODO re-tier to work-type priorities (maintainer-directed) for local project, plus a note-level #497 `/validate-pr` wording fix.
+
+### Changed
+- [`TODO.md`](../../TODO.md): reorganized from severity-based P1-P7 to the maintainer's five work-type tiers across 7 levels (P1 fix-errors-and-prevent-recurrence, P2 fill-significant-gaps, P3 clean-up-and-tooling, P4 adopter-experience, P5 expand-overlays, P6 expand-new-domains, P7 awaiting-decision). The preamble, queueing-rules running-order note, and Backlog-totals were rewritten to the new tier names and counts (6 / 11 / 13 / 5 / 9 / 5 / 3).
+- Relocations: FR-48 + the two gate-fix bullets (lint-`-ises`, per-doc ISO-code) + §4.8 / §4.5 / §4.26 to P1; FR-59 / FR-60 / FR-70 + the deepen-baselines + §4.12 to P2; the 3 cleanup bullets + §4.2 / 4.3 / 4.11 / 4.18 / 4.19 / 4.22 / 4.23 / 4.25 / 4.27 / 4.28 to P3; §4.1 / 4.4 / 4.7 / 4.16 / 4.21 to P4; FR-62 to P5. Stable ids preserved (an item keeps its `4.N` id across tiers).
+- Maintainer-decided boundary placements: §4.26 to P1, §4.3 to P3, §4.12 to P2, §4.11 + §4.18 to P3; FR-70 confirmed a P2 significant gap (not P5 expansion).
+- Note-level #497 `/validate-pr` fix: reworded "all four framework-alignment matrices" to "the four that were labelled `reference`" (the table holds five Matrix rows; the fifth, the AI model-risk mapping, was already `template`) in [`CHANGELOG.md`](../../CHANGELOG.md), this mirror, and [`.working/DONE.md`](DONE.md).
+
+### Verification
+- Applied by a deterministic relocation script that extracts each item block (FR/prose bullets at the `##` level; `### N.N` subsections) verbatim and re-emits under new tier headers per an explicit ordered map; the script asserts every extracted block is placed exactly once (52 blocks: 20 bullets + 32 subsections; none dropped, none duplicated). The §4.8 and §4.11 sub-bullets correctly stayed inside their subsections; the pre-existing line-53 concatenated double-bullet split cleanly.
+- All 57 audit gates green. One in-window catch: the new preamble's `§4.N` / `§5.N` / `§6.N` pattern notation tripped gate 18 (intra-doc-ref parsed `§4`/`§5`/`§6` as section refs); reworded to drop the `§` from the pattern notation (the real `§4.8` etc. resolve to their `### 4.8` headings and were unaffected).
+
+### Discipline observation
+- A pipe-masked failure during the build: the first re-apply was run through `| head -2`, whose SIGPIPE killed the script before its `write()`, leaving the file unchanged while the truncated output still showed the success line. Caught by verifying the new headers were actually present (not trusting the "WRITTEN" print through a truncating pipe). The same pipe-masked-exit-code class the evidence-grounded-completion rule names; re-ran without the pipe.
+- Batches the #497 `/validate-pr` (1 note, fixed here) and `/retro` rows.
+
 ## 2026-06-30, Library Version 2026.06.475, PR #497
 
 FR-58 CLOSED: applied the maintainer-decided 3-label inheritance vocabulary (Adoption Disposition) corpus-wide, as a per-document column in the index register (the maintainer-chosen locus; no change to the gated 13-field metadata block).
@@ -23,7 +41,7 @@ FR-58 CLOSED: applied the maintainer-decided 3-label inheritance vocabulary (Ado
 ### Verification
 - Rubric grounded in the original fitness finding's own framing (`library-internal`=delete/scaffolding, `template`=customise, `reference`=keep-verbatim). The 245 deliverable-Type and 31 literal-template docs default to `template`; a research fan-out (2 workers) classified the ~47 Register/Matrix/Specification/Guide boundary docs plus the governance meta-docs against the rubric, each verdict grounded in a quoted Purpose phrase.
 - Applied by a deterministic script (Type-rule default + an explicit verified non-template override map), then re-parsed: all 294 table rows (header + separator + 292 data) confirmed uniform 8 columns; final counts 8 / 2 / 282.
-- A pre-push skeptical verifier (false-negative + false-positive lenses) drove three corrections, each re-verified against the source Purpose before applying: (1) [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) template to `library-internal` (a genuine Type-rule miss: it governs "this CC BY-SA 4.0 governance library", library-maintenance machinery); (2) [`governance/template-library-health-report.md`](../../governance/template-library-health-report.md) template to `library-internal` (the cadence procedure's output report about the library); (3) all four framework-alignment matrices `reference` to `template` (maintainer decision: they are library-authored mappings of the library's own documents, contradicting the `reference`="not authored" definition).
+- A pre-push skeptical verifier (false-negative + false-positive lenses) drove three corrections, each re-verified against the source Purpose before applying: (1) [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) template to `library-internal` (a genuine Type-rule miss: it governs "this CC BY-SA 4.0 governance library", library-maintenance machinery); (2) [`governance/template-library-health-report.md`](../../governance/template-library-health-report.md) template to `library-internal` (the cadence procedure's output report about the library); (3) the four `reference`-labelled framework-alignment matrices to `template` (maintainer decision: they are library-authored mappings of the library's own documents, contradicting the `reference`="not authored" definition; the fifth matrix, the AI model-risk mapping, was already `template`).
 - All 57 audit gates green on the final state.
 
 ### Discipline observation
