@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.475, PR #497
+
+FR-58 CLOSED: applied the maintainer-decided 3-label inheritance vocabulary (Adoption Disposition) corpus-wide, as a per-document column in the index register (the maintainer-chosen locus; no change to the gated 13-field metadata block).
+
+### Added
+- An **Adoption Disposition** column to the active-document table in [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md), one label per all 292 active documents: `library-internal` (8), `reference` (2), `template` (282, the default).
+- An `## Adoption disposition model` section to the index register explaining the three labels, and maintenance rule 9 requiring the disposition on every entry.
+- An "Adoption Disposition" definition to [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md).
+
+### Changed
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) Version 1.27.47 to 1.27.49, Date to 2026-06-30.
+- [`governance/register-key-terms-and-definitions.md`](../../governance/register-key-terms-and-definitions.md) Version 1.1.2 to 1.1.3, Date 2026-06-23 to 2026-06-30.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Verification
+- Rubric grounded in the original fitness finding's own framing (`library-internal`=delete/scaffolding, `template`=customise, `reference`=keep-verbatim). The 245 deliverable-Type and 31 literal-template docs default to `template`; a research fan-out (2 workers) classified the ~47 Register/Matrix/Specification/Guide boundary docs plus the governance meta-docs against the rubric, each verdict grounded in a quoted Purpose phrase.
+- Applied by a deterministic script (Type-rule default + an explicit verified non-template override map), then re-parsed: all 294 table rows (header + separator + 292 data) confirmed uniform 8 columns; final counts 8 / 2 / 282.
+- A pre-push skeptical verifier (false-negative + false-positive lenses) drove three corrections, each re-verified against the source Purpose before applying: (1) [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) template to `library-internal` (a genuine Type-rule miss: it governs "this CC BY-SA 4.0 governance library", library-maintenance machinery); (2) [`governance/template-library-health-report.md`](../../governance/template-library-health-report.md) template to `library-internal` (the cadence procedure's output report about the library); (3) all four framework-alignment matrices `reference` to `template` (maintainer decision: they are library-authored mappings of the library's own documents, contradicting the `reference`="not authored" definition).
+- All 57 audit gates green on the final state.
+
+### Discipline observation
+- Apply-time orchestrator catches before the verifier: a cross-worker inconsistency (the 3 terminology/definitions registers were split `library-internal` vs `template` by the two workers; reconciled to `template` for consistency), a deterministic-apply separator-row bug (the script dropped a pipe; fixed and re-parsed), and two of my own slips (a bare-filename link the structural-index gate caught, an em-dash the prose-hygiene gate caught). The verifier then caught what the orchestrator pass and the Type-rule default missed (the cadence-procedure miss and the reference-definition conflict), which is the substantive-tier verifier earning its cost on a gate-blind semantic classification.
+- Batches the #496 [`/validate-pr`](validate-pr/history.md) (0 findings) and [`/retro`](improvement-log.md) rows, a quote-precision fix to the #495 retro row, and the new TODO §4.8 prevention item.
+
 ## 2026-06-30, Library Version 2026.06.474, PR #496
 
 TODO/DONE rotation correction for local project: the #495 close-out closed the "OT post-ingestion validation" P1 item but omitted its TODO-to-DONE rotation, and the already-complete "NIST SP 800 ingestion" item (done in `grc_library_scratch`) had likewise never rotated; the maintainer flagged both still sitting in [`TODO.md`](../../TODO.md). This PR deletes both items from [`TODO.md`](../../TODO.md), updates the running-order note, and adds their [`.working/DONE.md`](DONE.md) entries (the OT row keyed to #495 where the work happened, with the late-rotation noted; the NIST row noting the work landed in scratch). The root cause, recorded in the batched #495 [`/retro`](improvement-log.md) row, is that descriptively-named TODO items (not FR-N-keyed) evade both the FR-keyed close-out-checklist mental model and the D5 PR-time closure-assertion check; the proposed fix (extend D5 / the checklist to detect prose-named closures) is filed for the integrity-tooling phase. Batches the #495 [`/validate-pr`](validate-pr/history.md) (0 findings) row. No corpus document changed; working-state and TODO bookkeeping only.

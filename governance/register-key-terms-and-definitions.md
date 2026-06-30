@@ -2,8 +2,8 @@
 
 **Document Title:** Key Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-06-23\
+**Version:** 1.1.3\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-glossary.md`](register-glossary.md)\
@@ -34,6 +34,7 @@ When in doubt: external term or acronym → the glossary. Internal governance co
 | Term | Definition |
 | --- | --- |
 | Accountability | The assigned obligation to own, decide, maintain, evidence, or accept risk for a governance outcome. |
+| Adoption Disposition | The per-document classification that records how an organisation cloning this library should treat the document, expressed as one of three inheritance labels: `library-internal` (library scaffolding, index, or build-and-governance machinery the adopter treats as internal reference or deletes, not an adopter deliverable), `template` (adopter-fillable or adopter-customisable governance content the adopter adapts to its organisation, the default for the corpus), or `reference` (external-standard or source content cited and kept as cited, not authored by the adopter). Recorded in the Adoption Disposition column of the [Document Index and Classification Register](register-document-index-and-classification.md). |
 | AI Agent | An autonomous actor implemented on top of one or more AI models that invokes tools, makes decisions, and carries out multi-step tasks on behalf of a user or service. An agent has its own identity, an explicit capability scope, and a defined human-in-the-loop posture. |
 | AI Capability | The specific task or function an AI system or AI service performs (for example, summarisation, classification, retrieval-augmented generation, tool invocation). Several capabilities may be combined inside one AI system. |
 | AI Service | An externally-provided AI capability consumed by the organisation (typically a provider-hosted API or managed service). The contractual relationship and supplier governance apply at the service level. |
