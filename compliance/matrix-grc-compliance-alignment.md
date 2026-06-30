@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.4\
+**Version:** 1.11.5\
 **Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -67,6 +67,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Governance | Register: Data Retention Schedule | [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md) | DSP-16, DSP-02 | MDS-03, DSP-20 | A.5.33, A.8.10 | PR.DS, GV.OC | Documentation and record-keeping | Record retention | §3 | Pillar II (Customs-to-Business) | Documentation security; Trade records retention |
 | Governance | Register: Digital Trust and Assurance Metrics | [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md) | A&A-02, A&A-03, GRC-02 | DSP-20, MDS-06, MDS-03 | §9.1, A.5.35 | GV.OV, ID.IM, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Governance | Register: Role Authority | [`governance/register-role-authority.md`](../governance/register-role-authority.md) | GRC-06, HRS-09, IAM-04 | N/A | A.5.2, A.5.3, §5.3 | GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| Governance | Register: AI Security Tooling Landscape | [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md) | TVM-04, TVM-01 | MDS-06, TVM-13 | A.5.7 | ID.RA | N/A | N/A | N/A | N/A | N/A |
 
 ---
 
@@ -198,6 +199,12 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Operations | Register: Asset Inventory | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | DCS-06, DCS-07, UEM-04 | N/A | A.5.9, A.5.10, A.8.1 | ID.AM | N/A | N/A | §8.1 | N/A | IT systems protection |
 | Operations | Register: IT Operations KPIs | [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) | GRC-02, A&A-03, SEF-05 | N/A | §6.1, §9.1 | GV.OV, ID.IM | N/A | N/A | §9.1 | N/A | IT controls review and testing |
 | Operations | Register: IT Security Operations | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | SEF-01, LOG-03, A&A-03 | N/A | §9.1, A.8.8 | DE.CM, ID.IM | N/A | N/A | §8.4, §9.1 | N/A | IT security incident detection and response |
+| Operations | Standard: OT/ICS Security | [`operations/ot/standard-ot-ics-security.md`](../operations/ot/standard-ot-ics-security.md) | I&S-03, I&S-06, IAM-13, TVM-01, DCS-01, LOG-03, BCR-08 | N/A | A.8.20, A.8.22, A.8.7, A.8.8, A.7.4 | PR.IR, PR.AA, DE.CM, RC.RP | N/A | N/A | N/A | N/A | N/A |
+| Operations | Annex: OT Security Overview | [`operations/ot/annex-ot-security-overview.md`](../operations/ot/annex-ot-security-overview.md) | I&S-06, I&S-01 | N/A | A.8.22 | ID.AM, PR.IR, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Operations | Annex: BMS Overlay | [`operations/ot/annex-bms-overlay.md`](../operations/ot/annex-bms-overlay.md) | DCS-01, I&S-06, DSP-03, STA-01 | N/A | A.7.4, A.8.22, A.5.34 | PR.IR, GV.SC, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Operations | Procedure: OT Change Management | [`operations/ot/procedure-ot-change-management.md`](../operations/ot/procedure-ot-change-management.md) | CCC-01, CCC-02, CCC-04, CCC-05, CCC-06 | N/A | A.8.32, A.8.9, A.5.37 | PR.PS, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Operations | Procedure: OT Incident Response | [`operations/ot/procedure-ot-incident-response.md`](../operations/ot/procedure-ot-incident-response.md) | SEF-01, SEF-03, SEF-06, SEF-07, SEF-08 | N/A | A.5.24, A.5.25, A.5.26, A.5.27, A.5.28 | RS.MA, RS.AN, RS.CO, RS.MI, RC.RP | N/A | N/A | N/A | N/A | N/A |
+| Operations | Register: OT Asset Inventory and Lifecycle | [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | DCS-06, DCS-07, UEM-04, TVM-03, STA-08 | N/A | A.5.9 | ID.AM, ID.RA | N/A | N/A | N/A | N/A | N/A |
 
 ---
 

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #494: FR-167 CLOSED: compliance-matrix gap-fill (6 OT docs + AI Security Tooling Landscape register) (2026-06-30)
+
+Added the final 7 matrix rows via the high-assurance dual-verifier harness, closing FR-167 (item (a) closing `/matrix-fit` #490; item (b) net-new docs #491, OT + AI register #494). The FP verifier fixed 6 control-code mis-fits, the FN verifier added 3 grounded codes and confirmed the customs columns are correctly N/A; the deprecated `annex-regional-privacy-requirements.md` stub was excluded (maintainer decision). Carries the #493 `/validate-pr` + `/retro` rows.
+
 ### PR #492: FR-24: Control-testing procedure deepened to operational depth (2026-06-30)
 
 Deepened `compliance/procedure-control-testing.md` (153 to 235 lines) to peer operational depth: sampling methodology, working-paper/evidence standards, per-result response requirements, reporting distribution, overdue-remediation escalation chain, independent effectiveness validation, a Control Testing Register, and metrics. Via the high-assurance-tier skeptical verifier, which caught and fixed a pre-existing fabricated records-retention domain name. The result-classification-scheme reconciliation (SOX vs canonical) was deferred to the maintainer (pending-decisions), not folded in.
