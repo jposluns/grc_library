@@ -45,7 +45,11 @@ This skill is a checklist + a validation step. The checklist confirms structural
    - **Boundary cases**: prompts in the grey zone between this skill and a sibling skill.
    - If any positive case is missed or any negative case is triggered, rewrite the description.
 6. **Cross-reference bidirectionally**. Add `## See Also` entries pointing to: the parent governance rule; sibling skills that should be invoked alongside (e.g., before, after, as fallback). Then update those sibling skills' `## See Also` sections to point back at the new skill (uni-directional cross-references rot; bi-directional ones survive maintenance).
-7. **Update the pack README's skills tree**. Add the new skill to the `├── skills/` tree section in `dev-security/claude-rules/README.md`. Gate 41 (Collection-enumeration consistency audit) enforces this.
+7. **Wire the skill into every parallel surface.** A new skill crosses several surfaces beyond its own file; missing any one leaves a gate red or a latent inconsistency, so confirm each:
+   - **Pack README skills tree**: add the new skill to the `├── skills/` tree section in [`../../README.md`](../../README.md). Gate 41 (collection-enumeration consistency audit) enforces this.
+   - **Repository-internal link depth**: a SKILL.md sits at `dev-security/claude-rules/skills/<name>/SKILL.md`, so its relative links resolve from that depth: a pack governance rule is `../../governance/<rule>.md`, a sibling skill is `../<name>/SKILL.md`, and a repository-root tool or document is `../../../../<path>` (for example [`../../../../tools/run_all_audits.sh`](../../../../tools/run_all_audits.sh)). Gate 3 (broken-link) catches a wrong depth, but author it correctly the first time rather than relying on the gate.
+   - **Slash-command sibling and PAIRS registry (paired skills only)**: if the skill is invoked by a `/<name>` slash command, create the sibling `.claude/commands/<name>.md` summary file, AND register the `(skill_path, command_path)` pair in the `PAIRS` list of [`../../../../tools/lint-paired-skill-step-parity.py`](../../../../tools/lint-paired-skill-step-parity.py) so gate 44 (paired-skill step-parity) verifies that the two files use the same step identifiers. A paired skill that is not registered in PAIRS inherits no parity check: that silent drift is the failure mode the registry exists to prevent.
+   - **Language pre-flight**: run [`../../../../tools/lint-language.py`](../../../../tools/lint-language.py) on the new SKILL.md before the first commit. Freshly authored pack prose recurrently reintroduces em-dashes and British `-ise` spellings that gate 2 will block; catching them pre-commit avoids a fix-up commit (this is the close-out checklist's new-pack-prose rule applied at skill-authoring time).
 8. **Verify against the audit programme**. After the SKILL.md is committed, run `tools/run_all_audits.sh`. Gate 32 verifies the `derives_from` field resolves. Gate 41 verifies the README tree is in sync.
 
 ## Red Flags
@@ -65,8 +69,9 @@ This skill is complete when:
 - The frontmatter has `name`, `description`, and `derives_from` fields; `derives_from` points at an existing governance rule.
 - Trigger-accuracy validation has been performed with at least 5 representative prompts (positive + negative + boundary cases) and the description rewritten if needed.
 - Bidirectional `## See Also` cross-references are in place between the new skill and its siblings.
-- The pack README's skills tree has been updated to include the new skill.
-- The full audit programme passes standalone after the SKILL.md is committed (gates 32 and 41 in particular).
+- Every parallel surface is wired (step 7): the pack README skills tree includes the new skill; the repository-internal links resolve at the correct depth; and, for a slash-command-paired skill, the `.claude/commands/<name>.md` sibling exists AND the pair is registered in the `PAIRS` list of `tools/lint-paired-skill-step-parity.py`.
+- `lint-language.py` was run on the new SKILL.md before the first commit (no em-dashes, no British `-ise`).
+- The full audit programme passes standalone after the SKILL.md is committed (gates 32, 41, 44, 3, and 2 in particular).
 
 ## Common Rationalizations
 
@@ -77,6 +82,7 @@ This skill is complete when:
 | "The trigger description is fine; the user will figure out when to call it." | Skill discovery in Claude Code reads the description. If the description is vague, the skill never triggers when it should. |
 | "Cross-references are tedious; I'll add them later." | Later does not come. Add them now. |
 | "Common Rationalizations table is filler." | The table is the author's commitment to think one move ahead of the next maintainer. If the table is empty, the skill's discipline is not yet fully understood. |
+| "I added the SKILL and the README tree; the slash-command wiring can come later." | A paired skill not registered in the `PAIRS` list (and missing its `.claude/commands/` sibling) inherits no step-parity check, the exact silent drift gate 44 exists to catch. Wire all of step 7's surfaces in the same change, not "later". |
 
 ## See Also
 

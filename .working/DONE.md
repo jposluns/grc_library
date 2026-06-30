@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #510: TODO §1.3-A new-skill-drafting checklist (completed skill-authoring-discipline, P1) (2026-06-30)
+
+Completed the `skill-authoring-discipline` skill's Process with the four parallel new-skill surfaces it left implicit (repository-internal link depth, the slash-command sibling, the PAIRS registry for gate-44 step-parity, and the `lint-language` pre-flight), with matching Verification and a Common Rationalizations row. Placed in skill-authoring-discipline (its owner) rather than the worker-brief template the #213 retro had guessed, per the maintainer's 2026-06-30 decision. Also advanced the gate-39-blind word-form gate count in guardrail-review ("fifty-seven" to "fifty-eight", stale since gate 58 landed in #509). Pack 1.53.7 to 1.53.8. §1.3-B (broaden the count gate) remains open.
+
 ### PR #509: TODO §1.2 Per-document ISO Annex A validity audit (gate 58, P1) (2026-06-30)
 
 Shipped gate 58 (`lint-document-iso-annex-a.py`), the ISO-column sibling of gate 54 and per-document counterpart of gate 49's ISO column: validates ISO/IEC 27001:2022 Annex A codes, theme-only refs, same-theme ranges, and clauses in ISO-labelled per-document framework tables (matrix and pack excluded), edition-pinned and table-scoped so a bare prose `§N` is never mis-read. Extracted the shared `iso_27001_reference` module (gate 49 refactored to import it so the two ISO gates cannot drift); wired all four surfaces + a 9-test regression fixture. Maintainer-chosen separate-gate, theme-only-valid design.

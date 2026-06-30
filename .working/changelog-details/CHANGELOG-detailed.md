@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.488, PR #510
+
+Completed the `skill-authoring-discipline` skill with the four parallel new-skill surfaces it left implicit (TODO §1.3-A, the #213 retro), plus an in-window stale word-form gate-count fix from #509. Maintainer-decided home: skill-authoring-discipline, not the worker-brief template the #213 row had guessed.
+
+### Changed
+- [`dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md`](../../dev-security/claude-rules/skills/skill-authoring-discipline/SKILL.md): the Process step 7 ("Update the pack README's skills tree") was rewritten as "Wire the skill into every parallel surface", a four-part enumeration: (a) the pack README skills tree (gate 41, unchanged from the prior step 7); (b) repository-internal link depth (a SKILL.md at `dev-security/claude-rules/skills/<name>/` links a pack rule at `../../governance/`, a sibling skill at `../<name>/`, a repo-root path at `../../../../`; gate 3 as backstop); (c) the slash-command sibling file under the commands directory plus the `(skill_path, command_path)` registration in the `PAIRS` list of [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py) (gate 44); (d) the `lint-language` pre-flight on the new skill prose before first commit. The Verification section gained matching bullets (parallel surfaces wired, lint-language pre-flight run, audit gates 32/41/44/3/2), and a Common Rationalizations row was added ("I added the SKILL and the README tree; the slash-command wiring can come later").
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the growth-narrative word-form gate count "a dozen gates to fifty-seven" advanced to "fifty-eight".
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (Version 1.53.7 -> 1.53.8): a `## Version history` row recording both changes.
+- [`README.md`](../../README.md): Library CalVer 2026.06.487 -> 2026.06.488; README Version 1.9.358 -> 1.9.359.
+- [`TODO.md`](../../TODO.md): the §1.3-A new-skill-drafting-checklist bullet deleted (§1.3-B remains).
+- [`.working/DONE.md`](../DONE.md): a `### PR #510` entry.
+
+### Why
+TODO §1.3-A (the #213 retro) asked for a new-skill-drafting checklist enumerating five parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling). A `skill-authoring-discipline` skill already existed and already covered the README-tree surface (step 7) and the structural/cross-reference surfaces, but left the other four implicit. Rather than create a second checklist, the missing surfaces were folded into the existing skill (its actual owner). The #213 row had proposed the worker-brief template; that was corrected because research workers produce candidate diffs, not pack skill definitions, so the guidance would have sat where it is never applied. The guardrail-review count was a genuine in-window stale value: #509 took the gate count 57 to 58, and this word-form narrative count is gate-39-blind (the digit-form gate 39 caught nothing), so it had to be advanced by hand, the same way #466 and #468 advanced it for fifty-five/fifty-six and fifty-six/fifty-seven.
+
+### Verification
+- `tools/run_all_audits.sh`: all 58 gates pass on the committed state (pre-push guard, both runners). [`tools/lint-language.py`](../../tools/lint-language.py) run on the edited skill-authoring-discipline skill before commit (0 findings); gate 3 (broken-link) confirms the new repo-root-tool and pack-README links resolve at the correct depth; gate 41 (collection enumeration) and gate 50 check 4 (version-history parity, pack README 1.53.8 has its matching row) green.
+- The change is pack prose only; no corpus document body changed, so no per-document Version/Date co-bump applies (the spec/matrix were untouched). The generated artefacts are unaffected (no taxonomy-bearing metadata changed).
+- Pre-push skeptical verifier (substantive tier, refute-briefed) on the diff.
+
+### Batched (recursion-avoidance)
+- The #509 [`/validate-pr`](../validate-pr/history.md) (0 findings) + [`/retro`](../improvement-log.md) rows and the #509 handoff refresh, committed on the branch (commit `ca3e858`).
+
+### Closes
+- TODO §1.3-A (new-skill-drafting checklist), folded into skill-authoring-discipline. §1.3-B (broaden the count gate to word-form counts + the free-prose rule-count) remains the open §1.3 residual.
+
 ## 2026-06-30, Library Version 2026.06.487, PR #509
 
 Per-document ISO/IEC 27001:2022 Annex A validity audit (gate 58), closing TODO §1.2. Maintainer-approved design: a separate new gate (not folded into gate 54) that accepts theme-only references (`A.5`-`A.8`) as valid.
