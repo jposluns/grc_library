@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.478, PR #500
+
+TODO renumber to priority-prefixed `### N.M` headings (maintainer-directed), with uniform item formatting.
+
+### Changed
+- [`TODO.md`](../../TODO.md): every backlog item is now a `### N.M` subsection whose **leading digit equals its priority** (P1 `1.1-1.5`, P2 `2.1-2.11`, P3 `3.1-3.13`, P4 `4.1-4.5`, P5 `5.1-5.9`, P6 `6.1-6.5`, P7 `7.1-7.3`), within-section lowest-effort-first. The legacy `4.N` ids that the #498 re-tier left scattered across P1-P4 are gone; the former bullet items (FR-48, the P2 FR deepenings, the P3 cleanup bullets, FR-62, the P7 entries) are now headings in the same shape as the rest.
+- The `N.M` number is now an explicit POSITION, not a permanent id. The **stable id is the `FR-N` / descriptive identifier** carried in each heading's `(id, severity, effort)` metadata. Each renumbered item carries a `(was X.Y)` tag (no `§`, so gate 18 does not parse it as a reference) preserving its prior number for one cycle, so existing external references (frozen CHANGELOG/DONE history, the handoff, the retro log, tool docstrings, and the protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `TODO §4.26` line) remain human-resolvable WITHOUT editing those surfaces (the cross-ref fan-out the prior "stable id" convention was meant to avoid is absorbed by the tag instead).
+- The preamble's "stable id" paragraph was rewritten to describe the priority-prefixed scheme and the position-vs-id distinction; the queueing-rules running order and the integrity-tooling bullet were re-expressed with the new `§1.3 / §1.4 / §1.5` numbers; the Backlog-totals were re-expressed by the new numbering.
+- Internal `§`-cross-references throughout the file were remapped to the new numbers (for example the old `§4.11` multi-session references became `§3.6`); gate 18 confirms every intra-document `§`-reference resolves to a heading.
+
+### Verification
+- The reconstruction was script-driven (each item body pulled verbatim, no transcription). A body-preservation diff of every substantive original sentence against the new file caught one defect: the substring matcher had mis-assigned FR-154's heading because FR-74's bullet text contains the string "FR-154", so FR-154's body was displaced by FR-74's; corrected by restoring FR-154's real body (the operational-vagueness cluster). Re-run after the fix: every original item body is present, FR-74's and FR-154's headings each carry their own subject.
+- Gate 18 (intra-doc refs) and gate 45 (TODO staleness) pass on the new file; the full pre-push guard is green. No corpus document bodies were touched, so no per-document Version bumps and no generated-artefact regeneration were required.
+
+### Discipline observation
+- This is the maintainer's 2026-06-30 "15-second-readable, format all items the same way" directive applied to the backlog. It deliberately reverses the #498 "the `N.M` number is a stable id" note (readability over numeric stability); the `(was X.Y)` tag is the compensating control that keeps older references resolvable. The body-preservation diff (a re-parse of the reconstructed file against the original) is what caught the FR-154/FR-74 mis-assignment that a hand-review of a 50-item reformat could easily have missed: the deterministic-apply discipline's re-parse step earning its cost.
+
 ## 2026-06-30, Library Version 2026.06.477, PR #499
 
 lint-language `-ises` inflection fix (P1: fix errors and prevent recurrence), plus a corpus-wide Canadian-spelling cleanup of the occurrences the widened gate surfaced.
