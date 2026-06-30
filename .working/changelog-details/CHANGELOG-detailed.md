@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.472, PR #494
+
+FR-167 CLOSED: compliance-matrix gap-fill for the 6 OT documents and the AI Security Tooling Landscape register, via the high-assurance dual-verifier harness.
+
+### Added
+- 7 rows in [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (6 at the end of the Operations block, 1 in the Governance block):
+  - Operations: `Standard: OT/ICS Security` (`I&S-03, I&S-06, IAM-13, TVM-01, DCS-01, LOG-03, BCR-08` | ISO `A.8.20, A.8.22, A.8.7, A.8.8, A.7.4` | `PR.IR, PR.AA, DE.CM, RC.RP`); `Annex: OT Security Overview` (`I&S-06, I&S-01` | `A.8.22` | `ID.AM, PR.IR, ID.RA`); `Annex: BMS Overlay` (`DCS-01, I&S-06, DSP-03, STA-01` | `A.7.4, A.8.22, A.5.34` | `PR.IR, GV.SC, PR.DS`); `Procedure: OT Change Management` (`CCC-01, CCC-02, CCC-04, CCC-05, CCC-06` | `A.8.32, A.8.9, A.5.37` | `PR.PS, ID.IM`); `Procedure: OT Incident Response` (`SEF-01, SEF-03, SEF-06, SEF-07, SEF-08` | `A.5.24, A.5.25, A.5.26, A.5.27, A.5.28` | `RS.MA, RS.AN, RS.CO, RS.MI, RC.RP`); `Register: OT Asset Inventory and Lifecycle` (`DCS-06, DCS-07, UEM-04, TVM-03, STA-08` | `A.5.9` | `ID.AM, ID.RA`).
+  - Governance: `Register: AI Security Tooling Landscape` (`TVM-04, TVM-01` | AICM `MDS-06, TVM-13` | `A.5.7` | `ID.RA`).
+  - All 7 set the five customs/trade columns to `N/A`; only the AI register populates the AICM column (the 6 OT docs have no AI dimension).
+
+### Changed
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) Version 1.11.4 to 1.11.5, Date to 2026-06-30.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first).
+- [`TODO.md`](../../TODO.md): FR-167 deleted (closed); the stale 2026-06-23 running-order line updated (FR-167 marked complete, superseded by the current order); added two concise sequenced items (NIST SP 800-series ingestion into scratch; OT post-ingestion validation).
+
+### Verification
+- High-assurance harness (sensitive change: gate-blind control-mapping fit, delicate 7-row reshape, cited artefact). Recorded in [`high-assurance/register.md`](../high-assurance/register.md).
+  - Stage 1: 3 research workers (OT standards/overviews; OT procedures/register; the 2 substantive docs).
+  - Stage 2/floor: every CCM/AICM/CSF code confirmed in [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) / [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py); every ISO Annex A title confirmed against the scratch ISO 27001:2022 full-text.
+  - Stage 3: two independent adversarial verifiers, blind to each other and to the research rationale. **False-positive** found 6 genuine mis-fits (row 1 `A.7.2`->`A.7.4` physical-monitoring; row 3 `STA-08`->`STA-01` vendor-RM-not-inventory and `DSP-04`->`DSP-03` inventory-not-classification; row 6 removed `A.5.10` acceptable-use and `A.8.1` endpoint-protection; row 7 removed `GV.OC` org-context), and cleared the DE.CM / GV.SC / SEF-06-07-08 pre-flags. **False-negative** confirmed the customs-column `N/A` is correct for all 7 (OT is plant-process security routed to the logistics annex, not customs/cargo) and added `LOG-03`/`BCR-08`/`RC.RP` (row 1 monitoring + recovery), `TVM-03`/`STA-08` (row 6 vuln + vendor lifecycle), AICM `TVM-13` (row 7 guardrails), correctly refuting `GRC-10` on row 7. The two are consistent (STA-08 is a mismatch on row 3's vendor-governance but a fit on row 6's vendor-inventory).
+  - Stage 5 (apply + re-parse): 7 rows hand-applied at thematic anchors, then re-parsed (each 12 fields / 13 pipes); existence gates 48/49/54 green; all 57 gates green.
+  - The 2-verifier pass IS this batch's [`/matrix-fit`](../matrix-fit/history.md) (the AICM-column precedent).
+
+### Design note
+- The deprecated stub [`privacy/annex-regional-privacy-requirements.md`](../../privacy/annex-regional-privacy-requirements.md) (`Classification: Deprecated`, a superseded pointer-stub whose live replacement [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) is already rowed) was EXCLUDED on maintainer decision: rowing a deprecated doc would imply it carries current controls. Out-of-window note for a future `/matrix-fit`: the general [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md) row carries the same `A.5.10`/`A.8.1` the FP verifier judged mis-fits for the OT register; pre-existing, not touched here.
+
+### Bookkeeping
+- Batches the #493 [`/validate-pr`](../validate-pr/history.md) (0 findings) and #493 [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+- FR-167 rotated from [`TODO.md`](../../TODO.md) to [`DONE.md`](../DONE.md).
+
 ## 2026-06-30, Library Version 2026.06.471, PR #493
 
 Correctness fix: corrected a Sarbanes-Oxley section mis-attribution in the Control Testing Procedure, caught by the #492 post-merge `/validate-pr`.
