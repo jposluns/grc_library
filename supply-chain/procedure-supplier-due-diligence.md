@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.3\
-**Date:** 2026-06-24\
+**Version:** 1.1.4\
+**Date:** 2026-06-30\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -155,7 +155,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 
 ## References
 
-- ISO/IEC 27036-2:2014: Information security for supplier relationships: Requirements.
+- ISO/IEC 27036-2:2022: Cybersecurity - Supplier relationships - Part 2: Requirements.
 - COBIT 2019 BAI05: Managed Organizational Change.
 - CSA Cloud Controls Matrix v4.1, STA-01: Supply Chain Management, Transparency, and Accountability.
 - WCO SAFE Framework of Standards 2021: World Customs Organization.

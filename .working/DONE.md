@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #507: ISO/IEC 27036-2 2014 -> 2022 citation upgrade (§1.5 follow-up #2, P1) (2026-06-30)
+
+Upgraded the superseded `ISO/IEC 27036-2:2014` to the current `ISO/IEC 27036-2:2022` (Cybersecurity, Supplier relationships, Part 2: Requirements; Edition 2 cancels and replaces the 2014 first edition) in the register row and the 1 version-bearing corpus citer (`supply-chain/procedure-supplier-due-diligence.md`). Upstream-confirmed via WebSearch (iso.org 82060). Second of the 3 §1.5 version-upgrades; only NIST SP 800-88 Rev.2 remains.
+
 ### PR #506: ISO/IEC 27033 -> 27033-1:2015 citation correction (§1.5 follow-up, P1) (2026-06-30)
 
 Corrected the non-existent `ISO/IEC 27033:2020` to `ISO/IEC 27033-1:2015` (Part 1, Overview and concepts; current 2nd ed., confirmed unchanged 2021) across the register row and the 2 corpus framework-alignment tables that inherited the phantom year. Upstream-confirmed via WebSearch (iso.org 63461). First of the 3 §1.5 citation-impact version-upgrades; 27036-2 and 800-88 remain.
