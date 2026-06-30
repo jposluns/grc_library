@@ -2,8 +2,8 @@
 
 **Document Title:** Board Risk Report Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-30\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md)\
@@ -209,7 +209,7 @@ For each of the top enterprise risks (typically five to ten):
 | Cadence | Audience | Content |
 | --- | --- | --- |
 | Quarterly | Board or board risk committee | Full template |
-| Monthly | Executive risk committee | Operational and material-change summary |
+| Monthly | Enterprise Risk Committee (ERC) | Operational and material-change summary |
 | Ad-hoc | Board chair, audit chair | Material event reporting |
 | Annual | Board | Annual risk statement combining the four quarters |
 
@@ -221,7 +221,7 @@ For each of the top enterprise risks (typically five to ten):
 | --- | --- |
 | Data collection | Risk officer aggregates from registers, incident logs, exercise results, audit findings |
 | First draft | Drafted by the risk function |
-| Executive review | Reviewed and adjusted by the executive risk committee |
+| Executive review | Reviewed and adjusted by the Enterprise Risk Committee |
 | Approver sign-off | Signed off by the Chief Risk Officer (or equivalent) |
 | Board pack inclusion | Submitted per the board secretary's pack process |
 | Verbal presentation | Risk officer presents and takes questions |
