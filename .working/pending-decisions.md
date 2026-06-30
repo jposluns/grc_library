@@ -14,7 +14,11 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-_None open. The 2026-06-29 and 2026-06-30 entries below are RESOLVED (retained for the audit trail)._
+### FR-58 inheritance-vocabulary 3-label scheme: mechanism fork (deferred-blocked 2026-06-30, overnight; needs maintainer)
+
+A research scope of FR-58 (P1) this session found its premise does not hold as a mechanical prose conflict: the three target words each appear in the corpus in a **settled, locally-consistent sense that is NOT the FR-58 content-disposition sense** (`library-internal` = a GRC-term class at [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md):21 / [`register-glossary.md`](../governance/register-glossary.md):28; "reference content" = adopter-facing register classification at [`governance/specification-project-governance-separation.md`](../governance/specification-project-governance-separation.md):119-124; "template content" = a `.working/`-only governance-vs-project framing). No document defines an inheritance/disposition vocabulary and the 13-field metadata block has no disposition field, so there are **zero clean mechanical edits**; rewording the overloaded lines to the FR-58 labels would introduce error. The maintainer's 2026-06-25 decision ("apply the 3-label scheme corpus-wide, per-document apply-time verification; surface any document that does not fit cleanly") is **silent on mechanism**, and the originating fitness Rec-9 proposed a 4-value `Adoption Disposition` metadata field the decision did not adopt. **Authorial fork; deferred per the overnight "defer anything needing maintainer input" directive.** Options for the maintainer (recommended first): **(A)** add a defining glossary / document-architecture entry for the 3 labels and disambiguate the 3 existing overloaded usages (smallest faithful reading, additive); **(B)** add a per-document `Adoption Disposition` metadata field + presence gate (the Rec-9 shape, a 13->14-field corpus-wide metadata-model migration, single-session, large); **(C)** confirm there is no live prose inconsistency and reframe/close FR-58. NON-partitionable single-session whichever is chosen; do NOT apply until the maintainer picks the mechanism.
+
+_The 2026-06-29 and 2026-06-30 entries below are RESOLVED (retained for the audit trail)._
 
 ## Resolved overnight directives (maintainer-answered 2026-06-30, `/resume` into overnight mode; standing for this run)
 
