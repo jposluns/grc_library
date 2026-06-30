@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #483: FR-34 (high[critical]): Transfer Impact Assessment (TIA) template (2026-06-30)
+
+Shipped `privacy/template-transfer-impact-assessment.md`: the EDPB Recommendations 01/2020 six-step methodology (map, identify tool, assess effectiveness/Schrems II, supplementary measures, procedural steps, re-evaluate) as adopter-fillable fill-tables, grounded in GDPR Chapter V (Arts 44 to 49, held and quotable) with the methodology attributed to the EDPB Recommendation (not held, framed in own prose) and SCCs referenced generically (no unverified version pinned). Authored via the high-assurance harness; both verifiers clean on citations (0 false positives), two FN completeness improvements applied in-window (Art 46(2)(e)/(f) tool routes; Art 48 foreign-disclosure-order assessment). FR-74 consolidates: its instrument half is delivered, residual is the annex/procedure deepening (left open). Listed in privacy/README and the document-index register; TIA cross-ref wiring queued as a follow-up.
+
 ### PR #482: FR-31 (high[critical]): Privacy by Design Framework (GDPR Article 25) (2026-06-30)
 
 Shipped `privacy/framework-privacy-by-design.md`: operationalizes GDPR Art 25 (by design, by default, certification) by mapping the seven foundational privacy-by-design principles (attributed to Cavoukian, distinguished from the Art 25 legal duty) to architecture and dev-security workflows, with the four Art 25(2) by-default dimensions as testable defaults and a supporting-instruments map (DPIA, LIA, pseudonymisation, data classification). Authored via the high-assurance harness; the dual verifiers caught an orchestrator-introduced `ISO/IEC 29134:2023` hallucination (recurrence of a logged class) and it was fixed to `:2017` pre-merge. Listed in privacy/README and the document-index register.

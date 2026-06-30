@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.461, PR #483
+
+FR-34 for local project: a new Transfer Impact Assessment (TIA) template operationalizing the EDPB Recommendations 01/2020 six-step methodology, authored via the high-assurance harness.
+
+### Added
+
+- [`privacy/template-transfer-impact-assessment.md`](../../privacy/template-transfer-impact-assessment.md) (new, Version 1.0.0): a Template-type document. Records the EDPB Recommendations 01/2020 six-step methodology as fill-tables (Section 1 map the transfer; Section 2 identify the Article 45/46/49 tool; Section 3 assess effectiveness in light of destination-country law, the Schrems II government-access assessment, including an Article 48 foreign-disclosure-order row; Section 4 supplementary measures, technical/contractual/organisational; Section 5 procedural steps; Section 6 re-evaluation; Section 7 outcome + discrete sign-off). Grounded in GDPR Chapter V (Articles 44 to 49, quoted/located from the held ref full text); the EDPB methodology is attributed (not held in the ref base, framed in the library's own prose, not reproduced verbatim); SCCs referenced generically as the Article 46(2)(c) tool with no specific decision version pinned (the reference-version-currency rule, since 2021/914 was not confirmable upstream this turn). Mirrors the LIA/DPIA 13-field metadata block and template section spine; carries the DPO role-name blockquote.
+
+### Changed
+
+- [`privacy/README.md`](../../privacy/README.md) (1.2.4 to 1.2.5): added the TIA Template row after the LIA row.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.42 to 1.27.43): added the TIA Privacy/Template row after the LIA row.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first) to include the new document.
+- [`README.md`](../../README.md): Library Version 2026.06.460 to 2026.06.461; README Version 1.9.331 to 1.9.332.
+- [`TODO.md`](../../TODO.md): FR-34 rotated to DONE; the FR-74 entry annotated (instrument half delivered, residual is the annex/procedure Schrems II deepening); a TIA cross-reference wiring follow-up added (P3); the §4.22 "FR-31/32/34" example refreshed (now-shipped, cosmetic, surfaced by the #482 /validate-pr).
+
+### Verification
+
+- High-assurance harness (maintainer directed net-new authoring through it). Research authored against the held GDPR Chapter V full text and the LIA/DPIA structural siblings. Two independent adversarial verifiers, blind to each other. **Verifier B (false-positive): zero defects** (every GDPR Chapter V article number/function matches the ref full text; the Article 46(1) "enforceable rights and effective remedies" hinge near-verbatim; SCCs never pinned to 2021/914 or "2021 SCCs"; the EDPB Recommendation attributed with explicit "not reproduced verbatim" disclaimers; Schrems II used as a concept not a cited judgment; the TIA's effect correctly under-claimed (a TIA does not make an unlawful transfer lawful; pause/suspend on failure); ISO/IEC 27701:2025 correct). **Verifier A (false-negative): no error-level gaps**, two warning-level completeness improvements applied in-window: (1) Section 2 now enumerates the Article 46(2)(e) code-of-conduct and 46(2)(f) certification tool routes and the 46(3) authorisation-required set (each carrying a different Step-3 effectiveness analysis), not just SCCs/BCRs + a catch-all; (2) Article 48 (a third-country authority's disclosure order is recognisable only on an international-agreement basis) added as a Step-3 factor row and a framework-alignment row, since it is the legal core of the government-access assessment. Both verified against the held GDPR text (Art 46(2) at source lines 3899-3912; Art 48 at 4016-4021).
+- All 57 audit gates pass on the final state.
+
+### Discipline observation
+
+The harness's two lenses were complementary here: the false-positive lens confirmed the riskiest items (no pinned SCC version, no verbatim EDPB over-claim) were handled correctly, while the false-negative lens caught two genuine completeness gaps (the narrower Article 46(2) tool set and the missing Article 48 hook) that a citation-accuracy pass would not surface. Neither was an error-level blocker, but both materially improve the instrument; applying them in-window is the harness verify-then-improve loop. FR-34's "consolidates with FR-74" was resolved by closing FR-34 (the instrument shipped) and leaving FR-74 open with a note narrowing its residual to the annex/procedure deepening, a stricter-safe reading that avoids over-claiming closure.
+
 ## 2026-06-30, Library Version 2026.06.460, PR #482
 
 FR-31 for local project: a new Privacy by Design Framework operationalizing GDPR Article 25, authored via the high-assurance harness.
