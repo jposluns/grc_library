@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.3\
-**Date:** 2026-06-28\
+**Version:** 1.11.4\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -106,6 +106,8 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Compliance | Procedure: Audit Planning | [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) | A&A-01, A&A-02 | N/A | §9.2 | ID.IM | N/A | N/A | §9.2 | N/A | IT controls review and testing |
 | Compliance | Procedure: Corrective and Preventive Action (CAPA) | [`compliance/procedure-capa.md`](procedure-capa.md) | A&A-06 | N/A | §10.1, §10.2 | ID.IM | N/A | N/A | §10 | N/A | N/A |
 | Compliance | Procedure: Control Testing | [`compliance/procedure-control-testing.md`](procedure-control-testing.md) | A&A-02, A&A-05 | N/A | §9.1 | DE.CM, ID.IM | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Procedure: Mergers and Acquisitions Due Diligence | [`compliance/procedure-mergers-acquisitions-due-diligence.md`](procedure-mergers-acquisitions-due-diligence.md) | GRC-02, GRC-07, A&A-03 | N/A | §6.1, A.5.31 | GV.OC, GV.RM, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Compliance | Standard: Sanctions and Export-Control Screening | [`compliance/standard-sanctions-and-export-control-screening.md`](standard-sanctions-and-export-control-screening.md) | GRC-07, STA-13, IAM-04 | N/A | §4.1, A.5.31, A.5.33 | GV.OC, ID.RA, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Register: Compliance Obligations Template | [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md) | GRC-01, GRC-06 | N/A | §4.1, §4.2, A.5.31 | GV.OC, GV.RM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Template: Audit Evidence Package | [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md) | A&A-01, A&A-02, GRC-06 | N/A | §9.2, A.5.35 | GV.OV, ID.IM | N/A | N/A | N/A | N/A | N/A |
 | Compliance | Template: Regulator Interaction | [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) | GRC-06, SEF-03 | N/A | A.5.5, A.5.24 | RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
@@ -261,14 +263,18 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | GRC-01, DSP-01, GRC-06 | N/A | A.5.34, A.5.31, §5.3 | GV.PO, GV.RR, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | GRC-10, GRC-15 | A.5.34, A.8.12 | GV.PO, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | N/A | A.5.34 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | DSP-07, DSP-08, DSP-01 | N/A | A.5.34, A.8.25, A.8.27 | GV.PO, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | DSP-07, DSP-17, DSP-16 | DSP-22 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | GRC-11, GRC-13, GRC-15 | A.5.34 | GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | N/A | A.5.34 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | N/A | A.5.34, A.5.31 | GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Transfer Impact Assessment (TIA) Template | [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md) | DSP-10, DSP-19, GRC-02 | N/A | A.5.34, A.5.31 | GV.OC, ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | GRC-01, DSP-19, GRC-03 | N/A | A.5.31, A.5.34 | GV.OC, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | SEF-08, SEF-03, SEF-06 | N/A | A.5.34, A.5.26, A.6.8 | RS.MA, RS.CO, RC.RP | N/A | N/A | Trade-data breach response | N/A | N/A |
+| Privacy | Breach Notification Regulator Register Template | [`privacy/template-breach-notification-regulator-register.md`](../privacy/template-breach-notification-regulator-register.md) | SEF-08, DSP-18, GRC-07 | N/A | A.5.34, A.6.8 | RS.CO, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | DPIA (Data Protection Impact Assessment) Template | [`privacy/template-dpia.md`](../privacy/template-dpia.md) | DSP-07, DSP-08, DSP-01 | GRC-10, GRC-11 | A.5.34, §6.1 | ID.RA, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Legitimate Interest Assessment (LIA) Template | [`privacy/template-legitimate-interest-assessment.md`](../privacy/template-legitimate-interest-assessment.md) | DSP-12, DSP-01, GRC-02 | N/A | A.5.34, §6.1 | GV.PO, ID.RA, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Data Subject Access Request Workflow Template | [`privacy/template-dsar-workflow.md`](../privacy/template-dsar-workflow.md) | DSP-11, DSP-01, DSP-06 | N/A | A.5.34, A.5.33 | GV.PO, PR.DS, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](../privacy/template-joint-controller-arrangement.md) | DSP-13, DSP-06, DSP-01 | N/A | A.5.34, A.5.19 | GV.OC, GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy Notice Template | [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md) | DSP-01, DSP-08, DSP-05 | N/A | A.5.34, §7.4 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
@@ -346,6 +352,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AI | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | GRC-01, GRC-06, A&A-02 | GRC-12, GRC-15, GRC-10 | §5.1, §5.3, A.5.2 | GV.RR, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](../ai/charter-ai-ethics-review-panel.md) | GRC-06, A&A-02, GRC-01 | GRC-12, GRC-11, GRC-15, GRC-13 | §5.3, A.5.4 | GV.RR, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | GRC-02, A&A-02, AIS-05 | GRC-10, GRC-11, GRC-13 | A.5.36, A.8.29, A.8.34 | GV.RM, ID.RA, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | GRC-02, DSP-05, STA-01 | GRC-10, GRC-15, DSP-20 | §6.1, A.5.9, A.5.19 | GV.RM, ID.RA, GV.SC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md) | GRC-01, DSP-03, GRC-07 | MDS-03, MDS-04, GRC-13 | §7.5, A.5.37, A.5.34 | ID.AM, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
