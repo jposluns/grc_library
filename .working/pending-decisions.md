@@ -14,7 +14,17 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-_None open. The 2026-06-29 entries below are RESOLVED (retained for the audit trail)._
+_None open. The 2026-06-29 and 2026-06-30 entries below are RESOLVED (retained for the audit trail)._
+
+## Resolved overnight directives (maintainer-answered 2026-06-30, `/resume` into overnight mode; standing for this run)
+
+The `/resume` put the session into **overnight mode** (maintainer asleep; a mid-night prompt does NOT exit overnight mode; anything needing maintainer input is deferred). Three authorial decisions were surfaced up front (via `AskUserQuestion`, then confirmed by maintainer screenshot, both agreeing) so items would not defer:
+
+1. **Net-new authority = self-merge green + harness.** Author AND self-merge green P1/P2 net-new content PRs; run the high-assurance adversarial-verification harness (independent false-negative + false-positive verifiers, deterministic apply, re-parse) on EACH net-new standalone document BEFORE merge; record each in [`high-assurance/register.md`](high-assurance/register.md). (Same as the prior run's directive 1, re-confirmed for this run.)
+2. **Missing sources = attempt download, then defer.** Deepen ref-covered jurisdictions now; for each primary source the scratch `ref/` base lacks (APAC privacy beyond Japan; non-EU/US financial regulators for FR-61), attempt to download the primary-source legislation into scratch via the MCP-PR ingestion workflow (egress permitting per DD-10); defer only the truly-unavailable, recording it.
+3. **ERC tier-table reconcile (TODO P3) = collapse dup; drop Tier-2 stray.** In [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md): Tier-1 delete the duplicate "Executive Risk Committee" row (line 58), keep "Enterprise Risk Committee" (line 59); Tier-2 remove "Executive Risk Committee" from the Executive Committee combined-forums list (line 80), since the risk committee is its own Tier-2 body (line 81). Treats both residuals as drift/duplication. Closes the ERC residual P3 item.
+
+**Overall directive (maintainer `/resume` args):** work Priority 1, 2, and 3 items to reduce the list as much as possible overnight; **fix-issues-first, new-content-second**; correct any errors discovered; continue (do not wind down) absent evidence of hallucination/drift.
 
 ### §4.6 QA-cadence mechanical enforcement: close as satisfied (surfaced 2026-06-29; RESOLVED 2026-06-29, maintainer chose close-as-satisfied)
 
