@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.468, PR #490
+
+FR-167 closing whole-matrix `/matrix-fit` (closure item (a)) plus the one mismatch it found and fixed.
+
+### Changed
+- [`operations/register-asset-inventory.md`](../../operations/register-asset-inventory.md):125 framework-alignment table: corrected the CSA CCM v4.1 cell from `AIS-01 / HRS-01` to `DCS-06 / DCS-07`. `AIS-01` ("Application and Interface Security Policy and Procedures") and `HRS-01` ("Background Screening Policy and Procedures") are unrelated to the row's "Cloud asset inventory and management" relevance; `DCS-06` ("Assets Classification") and `DCS-07` ("Assets Cataloguing and Tracking") are the correct CCM v4.1 asset-inventory controls (peer to the row's ISO A.5.9 / NIST CM-8 / COBIT BAI09), and are exactly the codes the compliance matrix's own row for this document ([`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md):196, `DCS-06, DCS-07, UEM-04`) already carries. Document Version 1.0.4 to 1.0.5, Date to 2026-06-30.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the register's version bump (taxonomy first, then the scorecard).
+
+### Verification
+- The closing `/matrix-fit` ran the formal tool-driven worklist via [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py) (AICM-scoped since #449): 62 compliance-matrix rows plus 16 per-document framework-table rows. Five independent judge subagents judged every cited CSA CCM v4.1 / AICM v1.1 / NIST CSF 2.0 code against its source control title (titles authoritative from [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) / [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py)).
+- Result: the compliance matrix proper is clean (0 mismatches across all 62 worklisted rows). The 16 per-document tables surfaced exactly one confirmed mismatch (the asset-inventory cell above). Apply-time verification confirmed the mismatch against both the reference-base titles and the matrix's own authoritative row for the same document.
+- Loose-supporting flags raised by the judges (for example A&A-01 on the ESG disclosure row, MDS-03 on the ADR standard, DSP-07 used as a blanket data-protection code on media-handling rows, I&S-09 on the logging standard) are defensible supporting mappings, not mismatches; recorded for awareness, not changed.
+- `tools/run_all_audits.sh`: all 57 gates pass on the fixed state.
+- Detail file: [`.working/matrix-fit/2026-06-30-closing-whole-matrix.md`](../matrix-fit/2026-06-30-closing-whole-matrix.md).
+
+### Bookkeeping
+- Batches the #489 [`/validate-pr`](../validate-pr/history.md) (0 findings) and #489 [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+- FR-167 stays open: closure item (b), matrix gap-fill of substantive documents not yet rowed, remains.
+
 ## 2026-06-30, Library Version 2026.06.467, PR #489
 
 Working-state and discoverability for local project: TIA cross-reference wiring (the queued #483 follow-up).
