@@ -253,6 +253,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
 - [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md)
 - [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md)
+- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md)
 - [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md)
 - [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md)
 - [Risk Register Procedure](../risk/procedure-risk-register.md)
@@ -506,6 +507,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md)
 - [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
+- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md)
 - [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
 
 ### Register
