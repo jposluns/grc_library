@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.480, PR #502
+
+Session-closing handoff PR for the 2026-06-30 session (the 26-PR run #476-#501 that closed FR-167 and FR-58). `.working/` records + version surfaces only; no corpus document body touched.
+
+### Changed
+- [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md): added the #501 row (0 findings, all 7 classes clean) and the #502 handoff-exempt row (the `SKIPPED` + `handoff` marker in the Findings cell, which gate 50 reads to classify the row as handoff-exempt); Version 1.2.282 to 1.2.283.
+- [`.working/improvement-log.md`](../../.working/improvement-log.md): added the #501 [`/retro`](../../.working/improvement-log.md) row (the pattern: editing a gate-SCANNED versioned spec's body to DESCRIBE a detection rule triggers the very gates it describes, plus the spec-bump + artefact-regen cascade); Version 1.0.230 to 1.0.231.
+- [`.working/session-metrics.md`](../../.working/session-metrics.md): added the 2026-06-30 session row (measured floor at least 1,287,292 tokens across the six post-compaction subagent returns; the high-assurance-harness and per-PR-QA layer dominated, but most returns fell in pre-compaction windows and are not re-retrievable, so the figure is a floor not a session total; orchestrator main-loop tokens not instrumented); Version 1.0.26 to 1.0.27.
+- [`.working/pending-decisions.md`](../../.working/pending-decisions.md): moved the FR-58 inheritance-vocabulary mechanism-fork entry to resolved (FR-58 shipped in #497 via the index-register-column locus the maintainer chose); Status from 2 pending to 1 pending (FR-24 result-classification reconcile-vs-keep remains, PROCEEDED stricter-safe).
+- [`.working/session-handoff.md`](../../.working/session-handoff.md): added the SESSION-CLOSING UPDATE block, a new State snapshot (green-at-`d86f90b` 57/57), and a new Asserted-expectations block scoped to this session's verified surfaces (FR-167 + FR-58 gate-greenness, the `-ises` and D5 fixes, the TODO renumber, the nine net-new documents' surface-completeness); relabeled the prior two stacks for the next-resume keep-current+1-prior prune.
+- [`README.md`](../../README.md): Library Version 2026.06.479 to 2026.06.480; README Version 1.9.350 to 1.9.351.
+
+### Verification
+- The handoff-PR exception applies: this PR skips its own trailing `/validate-pr` and `/retro` (loop-break, per PR-workflow step 5a and the `ai-assistant-workflow-disciplines` pack rule). The compensating control is stronger: the next `/resume` runs a full corpus-wide `/validate` (Sweep 78 over the #476 to #501 deltas) FIRST, cross-checked against the Asserted-expectations block.
+- The pre-push guard (`tools/run_all_audits.sh` 57/57 at the #501 base + `tools/run-pr-time-checks.sh` D1-D5 and the history-aware trio) is the gate this PR passes; D5 sees no closure assertion in the added CHANGELOG lines (this PR touches neither the backlog file nor the DONE ledger, and the entry phrasings avoid the closure-assertion triggers).
+
 ## 2026-06-30, Library Version 2026.06.479, PR #501
 
 D5 rotation-check broadening + CLAUDE.md backlog-item-keyed reword (P1: the §1.3 rotation-prevention item, the #495/#496 miss).
