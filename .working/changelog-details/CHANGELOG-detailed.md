@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.471, PR #493
+
+Correctness fix: corrected a Sarbanes-Oxley section mis-attribution in the Control Testing Procedure, caught by the #492 post-merge `/validate-pr`.
+
+### Fixed
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) Version 1.0.4 to 1.0.5, Date to 2026-06-30: the §4 classification-scheme note (added in #492) attributed the "material weakness" concept to SOX "§103". "Material weakness" is a SOX **§404** internal-control-over-financial-reporting construct; SOX **§103** is the PCAOB provision directing audit-workpaper retention (the 7-year evidence-retention floor the same document correctly cites in §3.5, which is unchanged). Corrected the parenthetical to "SOX §404, the internal-control-over-financial-reporting provision".
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first).
+
+### Verification
+- Apply-time-verified against the sibling [`compliance/financial-services/annex-sox-itgc.md`](../../compliance/financial-services/annex-sox-itgc.md): line 121 ties the deficiency / significant-deficiency / material-weakness classification to management's deficiency assessment, line 124 to the §404(a) annual ICFR assessment, and line 157 lists the SOX sections as "302, 404, 906" (never §103). The §3.5 §103 retention citation is correct and unchanged.
+- Quick-fix tier (a one-token citation correction grounded in a sibling source); no standing verifier. `tools/run_all_audits.sh` all 57 gates green; pre-push guard green.
+
+### Bookkeeping
+- Batches the #492 [`/validate-pr`](../validate-pr/history.md) (1 in-window finding, fixed here; record [`2026-06-30-PR-492.md`](../validate-pr/2026-06-30-PR-492.md)) and #492 [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
 ## 2026-06-30, Library Version 2026.06.470, PR #492
 
 FR-24: deepened the Control Testing Procedure from a thin outline into an operable procedure, keeping the existing section model.
