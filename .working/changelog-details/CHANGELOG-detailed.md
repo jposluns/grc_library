@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.483, PR #505
+
+Reference version-currency register (TODO §1.5): two new columns on the canonical-citations register plus the advisory staleness cadence, built under the high-assurance harness.
+
+### Added
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): `Upstream check location` and `Last verified (UTC)` columns on all 16 tables (151 data rows). 100 rows carry a fetch-confirmed upstream URL dated `2026-06-30`; 51 carry `-` / `needs-reconfirm` because their upstream (iso.org, the IEC webstore, and government sources such as hhs.gov / nerc.com / tsa.gov / planalto.gov.br / wcoomd.org) returned HTTP 403 / JS-gated responses to automated fetch this cycle (recorded, not a defect; no URL was guessed). Conventions section documents both columns and the advisory cadence; Maintenance section adds the refresh-on-new-version and load-bearing-re-check bullets.
+- [`governance/specification-citation-verification.md`](../../governance/specification-citation-verification.md): new §12.3 (load-bearing version-currency re-check, advisory and column-driven) codifying the upstream-is-only-authority principle, the find-then-verify-then-act order, the over-one-week / `needs-reconfirm` trigger, the advisory-not-a-gate rationale, and the scratch superseded-archival pointer. §7.1 publisher allow-list extended with `govinfo.gov`, `ilga.gov`, `leg.colorado.gov`, `cac.gov.cn`, `legislation.gov.au`, `pdp.gov.my`, `linddun.org`, `ukgovernmentbeis.github.io`.
+
+### Changed
+- 7 upstream-confirmed register corrections: ISO/IEC 27018 `2019`->`2025` (2025-08, +2019 superseded); BASC `v6 (2023)`->`v6 (2022)`; IMO MSC-FAL.1/Circ.3 `Rev. 2`->`Rev. 3` (2025-04, +Rev. 2 superseded); Colorado AI Act cell to SB 26-189 (signed May 2026, repeals/re-enacts SB 24-205, eff. 1 Jan 2027); awesome-ai-security "21 categories"->"approximately 20 categories"; ClawGuard registration `2025`->`2026` (V1.0 May 2026); Vigil-LLM `archived`->`continuous` (GitHub repo not archived; dormant since 2024-01).
+- [`tools/lint-standards-currency.py`](../../tools/lint-standards-currency.py): register-row regex adapted to capture superseded as the 5th column and optionally consume the 2 new trailing columns, matching both the 7-column register and the 5-column regression fixtures while still excluding the 8-column tooling table. Gate-discipline: the parser adapts to the legitimately-changed format; the gate is not weakened.
+- [`tools/lint-external-link-domains.py`](../../tools/lint-external-link-domains.py): `ALLOW_LIST` extended with the 8 authoritative domains the new URL column introduces.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the register (1.5.6->1.5.7) and spec (1.2.2->1.2.3) Version bumps.
+
+### Verification
+- High-assurance harness (the change met all three sensitivity conditions). **Stage 1**: 4 parallel research workers produced the per-row upstream-URL map, no-fabrication brief. **Stage 5**: deterministic scripted apply keyed on the explicit map. **Stage 4**: programmatic re-parse confirmed 16 tables / 151 rows / correct column counts / valid tail-markers / all confirmed keys matched. **Stage 3**: two independent adversarial verifiers (blind). False-negative/structural: 0 misses (14 high-profile standards confirmed current), 0 structural defects. False-positive: 6 of 7 corrections upstream-confirmed and all 10 sampled URLs correctly matched; 1 finding (awesome-ai-security category count had been corrected the wrong direction to ~17) validated against the verifier's direct count and fixed to ~20 before commit.
+- `tools/run_all_audits.sh`: all 57 gates pass after the parser and allow-list updates (gate 6 parses 124 standards; gate 24 clean; gates 33/34 in sync).
+- Recorded in [`.working/high-assurance/register.md`](../high-assurance/register.md) (status `verified`).
+
+### Deferred (follow-ups)
+- Three citation-impacting version-upgrades, one PR each (gate-6 + per-doc bump): ISO/IEC 27033->27033-1:2015 (2 corpus citers of `27033:2020`), ISO/IEC 27036-2:2014->2022 (1 doc), NIST SP 800-88 Rev.1->Rev.2 (1 doc). Captured in the new TODO §1.5.
+- MITRE ATLAS scratch superseded-archival (MCP / maintainer-download-gated); register row already correct at v2026.05. Logged in [`pending-decisions.md`](../pending-decisions.md).
+- 51 `needs-reconfirm` rows await a browser / different-egress reconfirm pass.
+
+### Discipline observation
+The build is itself an instance of the cadence it codifies: the two factual corrections that assert a state (Colorado SB 26-189 enacted, IMO Rev. 3) were re-confirmed upstream this turn before being written, not taken from the worker research alone, per the upstream-is-only-authority principle.
+
 ## 2026-06-30, Library Version 2026.06.482, PR #504
 
 Codified the project-local **compute-don't-ask** convention (#269, the open §1.3 residual) into the `clarify-before-acting` governance pack rule as a **compute-first gate**, with its paired skill and the byte-identical `.claude/` mirror updated in lock-step.
