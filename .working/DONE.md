@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #486: FR-73 (high[critical]): AI Ethics Review Panel Charter (2026-06-30)
+
+Split AI ethics review out of the AI Governance Council into a new independent `ai/charter-ai-ethics-review-panel.md` with a structured five-step challenge-and-escalation mechanism (the Panel can challenge an AIGC decision on ethical grounds, forcing documented reconsideration, and escalate an unresolved objection to the Board above the AIGC). Panel owned by the CRO (independent of the AIGC's CIO/CISO line); chair + voting majority outside the AIGC; challenge-not-veto (approval stays with the AIGC). Edited the AIGC charter (1.2.2 -> 1.2.3) to cede independent ethical review to the Panel and remove its residual ethics-review self-claim. Closes FR-73. Authored via the high-assurance harness; both verifiers clean (FN completeness/independence 0 gaps; FP citation/authority/contradiction 0 defects). Listed in ai/README and the document-index register.
+
 ### PR #485: FR-72 (high[critical]): Sanctions and Export-Control Screening Standard (2026-06-30)
 
 Shipped `compliance/standard-sanctions-and-export-control-screening.md`: a dedicated sanctions / OFAC / export-control screening Standard with denied-party / restricted-party screening (onboarding, periodic, event-driven, transaction), beneficial-ownership / UBO verification (incl. the OFAC 50% aggregate-ownership rule, attributed), and export-control regime coverage (EAR/BIS, ITAR/DDTC, EU dual-use, Wassenaar), all named structurally with no pinned list versions. Closes FR-72 (sanctions treatment was previously incidental). Placed in `compliance/` as a Standard per fitness-review Rec-14. Authored via the high-assurance harness: both adversarial verifiers clean (FP 0 defects, no pinned versions, OFAC 50% rule attributed/unpinned, AML scope-fenced; FN 0 error-level gaps + 4 operability refinements folded in). Re-wired the M&A procedure's financial-crime/sanctions dimension to this standard (replacing "is planned"). Listed in compliance/README and the document-index register.

@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.464, PR #486
+
+FR-73 for local project: split AI ethics review out of the AI Governance Council into a new independent AI Ethics Review Panel charter with a challenge mechanism, authored via the high-assurance harness.
+
+### Added
+
+- [`ai/charter-ai-ethics-review-panel.md`](../../ai/charter-ai-ethics-review-panel.md) (Charter, Version 1.0.0, Owner Chief Risk Officer, Approving Authority Chief Risk Officer, Category AI Governance, Classification Public). A standalone charter for an AI Ethics Review Panel that is structurally independent of the AI Governance Council (AIGC): its chair (an Independent Ethics Adviser) and a majority of its voting seats are not AIGC voting members, and it is owned by, and reports to, the Chief Risk Officer and the Board, outside the AIGC's reporting line to the Enterprise Risk Committee. Sections: Purpose, Mandate, Scope of authority, Composition (with quorum and the independence requirement), Responsibilities, an "Independent challenge mechanism" section, Operating procedures, Reporting, Framework alignment (ISO/IEC 42001:2023, EU AI Act (2024), NIST AI RMF (2023), OECD AI Principles (2023), cited as the AIGC sibling cites them), and Limitations-equivalent scoping. The challenge mechanism is a documented five-step control (trigger, written reconsideration by the AIGC within an adopter-defined period, hold-pending-reconsideration for irreversible actions, escalation of an unresolved objection to the Board above the AIGC, recordkeeping). It is explicitly a challenge-and-escalation control, not a veto: deployment-approval, remediation, and decommissioning authority stay with the AIGC.
+- Listing-surface rows for the new Charter in [`ai/README.md`](../../ai/README.md) (Version 1.1.0 to 1.1.1, Date to 2026-06-30) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version 1.27.45 to 1.27.46).
+- Generated artefacts regenerated to carry the new Charter: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Changed
+
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md) (Version 1.2.2 to 1.2.3, Date 2026-06-22 to 2026-06-30): ceded independent ethical review to the new Panel and removed the AIGC's residual self-claim to perform it. The Purpose now states the AIGC oversees risk and compliance governance and works with the independent Panel on the ethics dimension; Mandate item 1, the Scope-of-authority bullets, and Responsibilities section 1 (retitled "AI risk oversight") were reworded to refer ethical review to the Panel, to add a reconsider-and-respond obligation for Panel challenges, and to "consider the Panel's independent ethical opinion" alongside the risk and compliance review. A reference to the Panel and the challenge relationship was added to the Purpose and the Related Documents.
+- [`README.md`](../../README.md): Library CalVer 2026.06.463 to 2026.06.464; README Version 1.9.334 to 1.9.335.
+
+### Verification
+
+- All 57 audit gates green on the committed state (pre-push guard: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh)).
+- High-assurance harness (net-new authoring, maintainer-directed): two independent adversarial verifiers, blind to each other. The false-negative (completeness / independence / split-completeness) lens found 0 error/warning gaps: independence is structural (chair + a 4-of-7 voting majority outside the AIGC; CRO/Board reporting line vs the AIGC's ERC line), not merely asserted; the five-step challenge mechanism reaches a body above the AIGC; the AIGC side is fully de-claimed (no residual self-claim to perform the independent review); the Charter structural bar and all six ethics dimensions are met. The false-positive (citation / authority / contradiction) lens found 0 defects: all four frameworks registered and cited as the sibling does; the Panel correctly bounded as challenge-not-veto and not under-claimed; new seats hedged as adopter-mapped; no contradiction introduced; reporting lines consistent and non-circular; links resolve; house style clean; the AIGC Version+Date co-bumped.
+- Generated-artefact `--check` clean ([`tools/build-taxonomy.py`](../../tools/build-taxonomy.py), [`tools/build-portal.py`](../../tools/build-portal.py)).
+
+### Discipline observation
+
+One apply-time orchestrator catch, pre-verifier: the AIGC Purpose retained a residual "overseeing the ethical, risk, and compliance governance" self-claim after the first pass of edits; the orchestrator's own re-read (a grep of every "ethic" hit in the edited charter) caught it and reworded the line to drop the ethics-governance claim and reference the Panel, before the verifiers ran. The false-negative verifier independently judged even the unfixed line acceptable, so the fix was a strengthening, not a correction of a defect. Two items the false-positive verifier flagged as NOT introduced here (the "General Counsel" role name, where the role authority register's legal lead is "Legal Counsel", and the OECD "(2023)" citation form) are pre-existing corpus conventions shared with the AIGC sibling charter; the new charter mirrors the sibling rather than diverging, so they were left as-is.
+
 ## 2026-06-30, Library Version 2026.06.463, PR #485
 
 FR-72 for local project: a new sanctions and export-control screening Standard, authored via the high-assurance harness, closing the dedicated-screening-method gap.
