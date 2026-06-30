@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #489: TIA cross-reference wiring (2026-06-30)
+
+Wired the new Transfer Impact Assessment template into the docs that reference a TIA: the cross-border-transfer procedure (Related Documents), the EU privacy annex, the DPIA template (which deferred TIAs to "a separate template" without linking it), the cross-border data flow register (reciprocal), and the governance glossary's TIA entry. Five versioned-body co-bumps; bookkeeping-tier discoverability wiring (lint-links + the post-merge /validate-pr as controls; no harness). Closes the queued TIA-wiring follow-up (#483); FR-74's residual is now just the Schrems II operational deepening.
+
 ### PR #488: FR-61 (high): Financial-services prudential regulators outside EU/US (2026-06-30)
 
 Extended the financial-services sector annex's regulatory-landscape overview with the missing prudential regulators: a new Asia-Pacific subsection (MAS Singapore, APRA Australia, HKMA Hong Kong, JFSA/FSA Japan), a Switzerland subsection (FINMA), and an explicit US federal-banking-regulators row (OCC/FRB/FDIC). Named structurally (regulator + supervisory domain + iconic instruments, no pinned versions) with an adopter-confirm note, since the ref base holds no financial-services prudential source. Closes FR-61 (all nine listed regulators now mapped; PRA/FCA + OSFI were pre-existing). Authored via the high-assurance harness; FP verifier 0 defects with all six instruments upstream-confirmed via WebSearch, FN verifier 0 content gaps + 1 heading-case warning fixed. Annex co-bumped 1.0.4 -> 1.0.5.

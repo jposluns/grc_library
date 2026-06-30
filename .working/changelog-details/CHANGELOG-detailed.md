@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.467, PR #489
+
+Working-state and discoverability for local project: TIA cross-reference wiring (the queued #483 follow-up).
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md) (1.1.0 to 1.1.1): linked the TIA template from the "SCCs must be supplemented by a Transfer Impact Assessment (TIA)" statement.
+- [`privacy/template-dpia.md`](../../privacy/template-dpia.md) (1.0.3 to 1.0.4): linked the TIA template where the DPIA template defers TIAs to "a separate template".
+- [`privacy/register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md) (1.0.4 to 1.0.5): linked the TIA template from the "Transfer Impact Assessment (TIA)" field (reciprocal to the template's own link to this register).
+- [`governance/register-glossary.md`](../../governance/register-glossary.md) (1.4.4 to 1.4.5): linked the TIA template from the glossary's TIA entry.
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (1.5.2 to 1.5.3): added the TIA template to Related Documents (the procedure is the controlling transfer process the instrument serves; it has no textual TIA mention, so Related-Documents is the appropriate link site).
+- [`README.md`](../../README.md): Library CalVer 2026.06.466 to 2026.06.467; README Version 1.9.337 to 1.9.338.
+- Generated artefacts regenerated for the five Version bumps ([`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)).
+
+### Verification
+
+- All 57 audit gates green (pre-push guard); `lint-links` exit 0 (the five new links resolve); `lint-language` exit 0; each touched document co-bumped Version AND Date.
+- This is bookkeeping-tier link-wiring (no content authoring, no new citations): the link-resolution gate plus the post-merge `/validate-pr` are the controls, so no standing harness verifier was run (a verifier would be net-negative for gate-verified link insertion).
+
+### Discipline observation
+
+The queued follow-up named four target docs; on inspection the fourth (the cross-border procedure) has no textual "TIA" mention (the DPIA template's "see [procedure] Step 4" pointer notwithstanding), so the link was placed in its Related Documents rather than forced into a step that lacks TIA-specific text. The glossary TIA entry was wired as a sensible addition beyond the four. Incidental TIA mentions (framework-crosswalk and risk-register example cells, the Malaysia annex's own cross-border guidelines) were judged not to warrant a link to the EU-Chapter-V template. Closing the wiring item also required updating FR-74's "(queued below)" cross-reference in TODO (the §N-orphan cross-reference-cleanup discipline applied to a closed TODO item).
+
 ## 2026-06-30, Library Version 2026.06.466, PR #488
 
 FR-61 for local project: extended the financial-services sector annex's regulatory-landscape overview with the prudential regulators it lacked, authored by strict structural naming (no held source) and harness-verified with upstream confirmation.

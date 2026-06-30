@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-24\
+**Version:** 1.0.5\
+**Date:** 2026-06-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -86,7 +86,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | **Mechanism Reference** | Document reference for the specific instrument (e.g., SCC execution date; IDTA reference) |
 | **Adequacy Status** | If relying on adequacy: confirm adequacy decision remains in force |
 | **SCCs / IDTA Version** | If using SCCs or IDTA: version / module used |
-| **Transfer Impact Assessment (TIA)** | Completed / Not Required: and date |
+| **[Transfer Impact Assessment (TIA)](template-transfer-impact-assessment.md)** | Completed / Not Required: and date |
 | **TIA Reference** | File reference for TIA documentation |
 | **UK Assessment** | For UK GDPR: Transfer Risk Assessment (TRA) completed? |
 | **PIPL Assessment** | For China PIPL transfers: CAC assessment / standard contract filed? |
