@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.482, PR #504
+
+Codified the project-local **compute-don't-ask** convention (#269, the open §1.3 residual) into the `clarify-before-acting` governance pack rule as a **compute-first gate**, with its paired skill and the byte-identical `.claude/` mirror updated in lock-step.
+
+### Changed
+- [`dev-security/claude-rules/governance/clarify-before-acting.md`](../../dev-security/claude-rules/governance/clarify-before-acting.md): added the **compute-first gate** paragraph to the `## When to ask vs when to use sensible defaults` section (retrieve a findable fact before asking; the ask-vs-default test governs only what survives the gate) and the action-side-companion tie to `validate-inference-before-action`; added the `Asking for a findable fact` anti-pattern to the `## Prohibited anti-patterns` list.
+- [`.claude/rules/governance/clarify-before-acting.md`](../../.claude/rules/governance/clarify-before-acting.md): the byte-identical mirror, same two edits ([`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) confirms sync).
+- [`dev-security/claude-rules/skills/clarify-before-acting/SKILL.md`](../../dev-security/claude-rules/skills/clarify-before-acting/SKILL.md): the workflow wrapper gained a compute-first sentence before its ask-vs-default paragraph and a paired Red Flag, for rule-skill parity.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack `Version` 1.53.6 to 1.53.7 and the paired `## Version history` row.
+- [`TODO.md`](../../TODO.md): struck the closed compute-don't-ask §1.3 residual bullet and updated the `## Standing conventions` compute-don't-ask entry from "pending codification" to "codified".
+- [`.working/DONE.md`](../DONE.md): added the #504 closed-item row.
+
+### Verification
+- [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py): OK, the rule mirror is in sync.
+- [`tools/lint-language.py`](../../tools/lint-language.py) on the edited rule and skill: no findings (new-pack-prose pre-commit discipline).
+- Full pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green before push.
+
+### Discipline observation
+The change is itself an instance of the gate it codifies: the maintainer's "where is this mentioned?" questions were answerable by a corpus `grep` the assistant should have run before asking, and once run it both located the citations and disproved the worker flags.
+
 ## 2026-06-30, Library Version 2026.06.481, PR #503
 
 The `/resume` Sweep-78 close-out: the loop-break corpus-wide `/validate` over the #476-#501 deltas (the compensating control for the #502 session-closing handoff PR, which skipped its trailing `/validate-pr` + `/retro`), plus the fixes for its findings, the FR-24 pending-decision resolution, and the handoff prune. No corpus document body touched; all surfaces are tooling, generated output, or `.working/` / `.claude/` working state.

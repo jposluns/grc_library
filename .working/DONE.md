@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #504: §1.3 compute-don't-ask codified into clarify-before-acting (P1) (2026-06-30)
+
+Closed the §1.3 compute-don't-ask residual (#269): added a **compute-first gate** to the `clarify-before-acting` pack rule (and its byte-identical `.claude/` mirror) so a findable fact is retrieved, not asked; updated the paired skill for parity. The other two §1.3 residuals (new-skill-drafting checklist #213, count-gate remainder) stay open.
+
 ### PR #501: §1.3 backlog-rotation prevention for prose-named items (P1) (2026-06-30)
 
 Closed the §1.3 rotation-prevention sub-item (the #495/#496 miss): broadened the D5 PR-time rotation check to detect `FR-N CLOSED` and prose `clos... the ... item/directive` closures (not only `clos... TODO §`), chosen empirically for zero historical false-positives, and reworded the protected `.claude/CLAUDE.md` rotation lines to be backlog-item-keyed (a prose-named or maintainer-directed item rotates like any TODO item). Bare lowercase `Closes FR-N` deliberately left undetected (narration false-positives); maintainer decision. The rest of §1.3 (compute-don't-ask, new-skill-drafting checklist, count-gate remainder) stays open.
