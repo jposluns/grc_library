@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #497: FR-58: inheritance-vocabulary Adoption Disposition column added corpus-wide (2026-06-30)
+
+Closed FR-58 (the maintainer-decided 3-label inheritance vocabulary): added an Adoption Disposition column to the Document Index and Classification Register classifying all 292 active documents as `library-internal` (8), `template` (282, the default), or `reference` (2), defined the vocabulary in the Key Terms register, and added the disposition-model section + a maintenance rule. Locus chosen by the maintainer (index-register column, no metadata-block change). A pre-push skeptical verifier drove three corrections: the library quality-cadence procedure and its health-report template reclassified to `library-internal` (library-maintenance machinery, not adopter deliverables), and (maintainer decision) all 4 framework-alignment matrices from `reference` to `template` (they are library-authored mappings of the library's own documents, not external content kept as-cited), leaving `reference` = the 2 external-citation/tool catalogue registers. Non-template docs were individually apply-time-verified; the template defaults were classified by Type-rule.
+
 ### PR #495: OT post-ingestion validation: OT corpus confirmed sound vs NIST SP 800-82r3 + ISO 27019 (2026-06-30)
 
 Closed the maintainer-directed "ingest the SP 800 documents, then follow up with an audit/validation" P1 item: an audit subagent read the 6 `operations/ot/*` docs and the 6 PR-#494 OT matrix rows against the held NIST SP 800-82r3 + ISO/IEC 27019:2024 and found the OT work sound (IEC 62443 correctly primary, CSF choices aligned, ISO 27019 correctly energy-scoped). Applied the one low finding (GAP-1, safety-as-overarching note in `annex-ot-security-overview.md`); GAP-2 assessed immaterial. Rotation completed late in the following PR (the #495 close-out omitted the TODO-to-DONE rotation; maintainer-flagged).
