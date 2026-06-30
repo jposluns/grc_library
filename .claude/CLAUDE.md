@@ -313,6 +313,38 @@ is external. Two mechanisms:
      `.working/` are in gate 39's exempt set (`EXEMPT_FILES` plus `DEFAULT_EXEMPT_DIRS`),
      so the trap does NOT fire there; it is the SCANNED surfaces above that the phrasing
      rule protects (the earlier worry that a CHANGELOG entry could trip it was mistaken).
+   - **Audit-gate change completeness** (the gate multi-surface guard): when a PR adds,
+     renumbers, or changes the detection logic of an audit gate, every parallel surface is
+     updated in the same PR. The four runtime surfaces gate 35 checks (the workflow, the
+     runner, the pre-commit config, and the
+     [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md)
+     §6 inventory table) are the gated half; the recurring misses are the FREE-PROSE
+     surfaces no parity gate inspects: the §6 *detailed-prose* enumeration (the `Gate N is
+     a ...` description plus the `Gate N is appended ...` sentence every gate carries), the
+     §5 grouped-list, and, when the detection logic changes, the §6 narrative for that gate,
+     plus the module docstring and the regression fixture. Gate 35 checks the §6 table and
+     gate 39 counts its rows; neither reads the §6 detailed-prose paragraph or the per-gate
+     narrative, so those slip (Sweep 77 found gate 57's detailed-prose pair absent after the
+     gate shipped in #468; Sweep 38 found gate 48's §6 narrative stale after its logic
+     changed in #308 and #309). A PR-only delta check Dn also needs its step name added to
+     `WORKFLOW_DELTA_GATE_STEPS`.
+   - **Full-file-grep and parallel-case re-verification for prose corrections** (the
+     prose-fact completeness guard): when a PR corrects a fact, a count, an overstatement,
+     or a stale claim, or rewrites a clause that enumerates parallel cases, grep the FULL
+     touched file (every line and string: comments, docstrings, assertion messages, and the
+     narrative and currency-summary surfaces, not only the first list or table edited) for
+     the offending phrase with zero residual confirmed before commit, and re-verify EVERY
+     enumerated parallel case rather than only the one named. This extends the bare-token
+     line above from convention and count changes to prose-fact corrections (#340 missed a
+     fourth carrier in an assertion-message string) and the corpus-wide-scrub scope to every
+     surface of a touched file (#320 edited a framework-list row but missed the same file's
+     update-summary narrative bullet; Sweep 41 then found a third carrier in a
+     cross-jurisdiction summary row).
+   - **Generated-artefact regen order** (the false-clean guard): after any per-document
+     `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
+     `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
+     --check` taken before the taxonomy regen completes returns a false-clean against the
+     stale taxonomy (the #318 and #323 gate-33 and gate-34 amend loops).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
