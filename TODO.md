@@ -37,7 +37,6 @@ A review of [`.working/improvement-log.md`](.working/improvement-log.md) found t
 
 **The close-out-checklist apply-time disciplines were codified in #478** (three CLAUDE.md `## Session migration and PR close-out checklist` bullets): **audit-gate change completeness** (the audit-programme spec's detailed-prose enumeration, its per-gate narrative, the grouped-list, the module docstring, and the regression fixture are parallel surfaces no parity gate inspects, folding in #312 gate-behaviour-changed paired-surfaces and the Sweep-77-A1 gate-57 detailed-prose miss, plus the `WORKFLOW_DELTA_GATE_STEPS` note); **full-file-grep and parallel-case re-verification for prose corrections** (folding in #271 parallel-case verification, #340 full-file-grep for prose-fact corrections, and #320 corpus-wide-scrub narrative-surface scope); and **generated-artefact regen order** (#323, taxonomy first then portal/scorecard). The bare-token contradiction search (#261/#262) was already codified in the earlier close-out-checklist bullet. **Residual (still open):**
 
-- **Codify compute-don't-ask** (#269) into the `clarify-before-acting` rule's "ask vs default" test (a pack-rule edit + its `.claude/` mirror + pack version bump, distinct from the CLAUDE.md-checklist work above) — it currently distinguishes ask-vs-sensible-default but not ask-vs-self-compute.
 - **New-skill-drafting checklist** (#213) — enumerate the parallel surfaces (link depths, pack-README skills-table row, PAIRS registry, language pre-flight, slash-command sibling).
 - **Broaden the count gate (remainder)**: gate 39 P8 closed "N automated audits" (#273); still open are word-form counts ("forty-six") via a word→number map and the free-prose rule-count gate (gate 41 can't parse "the N governance rules"). This one is a gate change, not a checklist line.
 
@@ -376,7 +375,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **After completing a merge, list the upcoming next 5 planned PRs from TODO** — operationalised in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section and the same pack rule.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5** — the 5-PR cadence is default; the batch boundary is chosen at the natural seam.
 - **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)` so the two ledgers are scannable in the same shape. Harmonised in PR #163.
-- **Compute-don't-ask** (maintainer-flagged 2026-06-23) — before surfacing a question, apply a "can I compute/verify this myself?" gate; surface the result, not the raw question. (Pending codification into the `clarify-before-acting` rule — see §1.3.)
+- **Compute-don't-ask** (maintainer-flagged 2026-06-23) — before surfacing a question, apply a "can I compute/verify this myself?" gate; surface the result, not the raw question. (Codified 2026-06-30 into the `clarify-before-acting` rule's compute-first gate, #504.)
 
 ---
 

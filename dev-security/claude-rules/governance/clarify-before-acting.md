@@ -26,7 +26,13 @@ Ambiguity is not always present. A request with one clear interpretation, no mis
 
 ## When to ask vs when to use sensible defaults
 
-Asking the user about every micro-decision is itself a failure mode (the over-ask anti-pattern). The rule is not "ask about everything"; the rule is "ask when the ambiguity matters". A useful test:
+Asking the user about every micro-decision is itself a failure mode (the over-ask anti-pattern). The rule is not "ask about everything"; the rule is "ask when the ambiguity matters".
+
+**The compute-first gate (check before asking when the answer is findable).** Before surfacing a question at all, apply one prior test: is the answer a findable fact the assistant can retrieve itself? A file location, a citation, a count, a version string, where a term is used in the corpus, whether a path exists, or what a document currently says are not ambiguities for the requestor to resolve; they are facts, retrievable with a `grep`, a file read, or a status call. When the answer is findable, neither ask nor guess: run the search or the read, and surface the answer (or a now-narrower question grounded in what was found), not the raw question. Asking the requestor for a fact the assistant could have computed spends their attention on work that was the assistant's to do, and it is the inverse of silent-picking: silent-picking takes a decision that was the requestor's, while asking-the-findable hands back a retrieval that was the assistant's. Both are discipline failures; the ask-vs-default test below governs only what survives this gate, the genuine ambiguities and authorial choices, never findable facts.
+
+This is the action-side companion to the `validate-inference-before-action` rule: that rule says validate a state claim before acting on it; this gate says retrieve a findable fact before asking about it. Both substitute a cheap, concrete observation (a `grep`, a read, a status call) for an unnecessary step, a wrong guess in the one case, an unnecessary question in the other.
+
+A useful test:
 
 - **Ask** when the wrong choice would produce work the requestor would want to unwind, or when the choice has consequences beyond this PR (target branch, public API shape, dependency choice, security-sensitive default).
 - **Default** when a sensible convention exists in the project, the language community, or the immediate context, and the cost of guessing wrong is bounded to a quick edit. Document the default in the response so the requestor can override it.
@@ -72,6 +78,7 @@ When the toolchain offers a structured prompt (`AskUserQuestion`, an IDE picker,
 - **Treating a previously-given answer as durable when the scope has changed**. The user approved Option A for last week's task; that does not authorise Option A for this week's different task. Authorisation stands for the scope specified, not beyond.
 - **Combining a clarification with a leading recommendation that hides the trade-off**. "Should I do X (which is obviously what you want) or Y (which makes no sense)?" is not a clarification; it is theatre. Name the real alternatives honestly.
 - **Asking a question that the user cannot answer without reading more than the question**. If the question requires the user to scroll back to context, you have failed to make it self-contained; restate the relevant context inline.
+- **Asking for a findable fact**. Surfacing a question whose answer the assistant could retrieve itself (a file location, a citation, a count, a version, where a term appears in the corpus, what a document currently says) instead of running the `grep` or read and surfacing the answer. This spends the requestor's attention on the assistant's own retrieval work; it is the inverse of silent-picking and equally a discipline failure. Run the compute-first gate before forming any question.
 
 ---
 
