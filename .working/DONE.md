@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #488: FR-61 (high): Financial-services prudential regulators outside EU/US (2026-06-30)
+
+Extended the financial-services sector annex's regulatory-landscape overview with the missing prudential regulators: a new Asia-Pacific subsection (MAS Singapore, APRA Australia, HKMA Hong Kong, JFSA/FSA Japan), a Switzerland subsection (FINMA), and an explicit US federal-banking-regulators row (OCC/FRB/FDIC). Named structurally (regulator + supervisory domain + iconic instruments, no pinned versions) with an adopter-confirm note, since the ref base holds no financial-services prudential source. Closes FR-61 (all nine listed regulators now mapped; PRA/FCA + OSFI were pre-existing). Authored via the high-assurance harness; FP verifier 0 defects with all six instruments upstream-confirmed via WebSearch, FN verifier 0 content gaps + 1 heading-case warning fixed. Annex co-bumped 1.0.4 -> 1.0.5.
+
 ### PR #487: FR-144 (high): Breach Notification Regulator Register Template (2026-06-30)
 
 Shipped `privacy/template-breach-notification-regulator-register.md`: an adopter-fillable register (one row per applicable regulator) with the six §6.2 columns plus the missing internal-target deadline (the "no internal clock" gap), and a strictest-applicable-requirement rule (earliest deadline + broadest individual-notification obligation when multiple regimes engage). Wired into the breach-response procedure §6.2 (the fixed table framed as illustrative; the adopter register is authoritative; co-bump 1.4.16 -> 1.4.17). Closes FR-144. Authored via the high-assurance harness; both verifiers clean (FP 0 defects, illustrative rows non-authoritative, no over-claim; FN 0 content gaps, one metadata field-order warning fixed). Also fixed the #486 /validate-pr finding (stale AIGC ethics-review KPI in `governance/framework-continuous-assurance-and-improvement.md` reattributed to the Panel; 1.0.4 -> 1.0.5). Listed in privacy/README and the document-index register.
