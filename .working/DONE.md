@@ -30,6 +30,14 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #495: OT post-ingestion validation: OT corpus confirmed sound vs NIST SP 800-82r3 + ISO 27019 (2026-06-30)
+
+Closed the maintainer-directed "ingest the SP 800 documents, then follow up with an audit/validation" P1 item: an audit subagent read the 6 `operations/ot/*` docs and the 6 PR-#494 OT matrix rows against the held NIST SP 800-82r3 + ISO/IEC 27019:2024 and found the OT work sound (IEC 62443 correctly primary, CSF choices aligned, ISO 27019 correctly energy-scoped). Applied the one low finding (GAP-1, safety-as-overarching note in `annex-ot-security-overview.md`); GAP-2 assessed immaterial. Rotation completed late in the following PR (the #495 close-out omitted the TODO-to-DONE rotation; maintainer-flagged).
+
+### NIST SP 800 ingestion (completed in grc_library_scratch; rotated 2026-06-30)
+
+Closed the maintainer-prioritized "ingest all the SP 800-series documents that could ever be relevant" P1 item: ~38 NIST SP 800-series full-text extracts (800-82r3 first, plus 800-53r5 as OSCAL, 800-37, 800-39, 800-61r3, 800-137/137A, 800-161r1-upd1, and the wider relevant set) were ingested into `grc_library_scratch/ref/standards/NIST/` via Mode A scratch curation across scratch PRs. The work is in the scratch repo (not grc_library); this row rotates the grc_library tracking item out of TODO. The paid ISO/IEC standards (IEC 62443 the key OT gap) remain a maintainer acquisition, separate.
+
 ### PR #494: FR-167 CLOSED: compliance-matrix gap-fill (6 OT docs + AI Security Tooling Landscape register) (2026-06-30)
 
 Added the final 7 matrix rows via the high-assurance dual-verifier harness, closing FR-167 (item (a) closing `/matrix-fit` #490; item (b) net-new docs #491, OT + AI register #494). The FP verifier fixed 6 control-code mis-fits, the FN verifier added 3 grounded codes and confirmed the customs columns are correctly N/A; the deprecated `annex-regional-privacy-requirements.md` stub was excluded (maintainer decision). Carries the #493 `/validate-pr` + `/retro` rows.
