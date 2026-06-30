@@ -46,7 +46,7 @@ The portal is the canonical front door. The following adopter-facing documents a
 | "In what order should I read the documents that apply to me?" | [`docs/decision-tree.md`](decision-tree.md) | A dimensional questionnaire (size, sector, jurisdiction, regulated activities, technology footprint) and a sequenced reading path conditional on the answers. |
 | "Over what calendar should I roll the programme out?" | [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) | Phase 1 (floor, Days 1-90), Phase 2 (operational, 91-180), and Phase 3 (Year-1 close, 181-365), pace-adjusted by GRC capacity tier. |
 
-The four deeper-dive paths are designed to be used together: the quickstart composes a starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how the artefacts are forked and customised. Each refers to the others where the workflow crosses between them.
+The four deeper-dive paths are designed to be used together: the quickstart composes a starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how the artefacts are forked and customized. Each refers to the others where the workflow crosses between them.
 
 For full document discovery (every artefact, machine-readable metadata, type / domain / status / related artefacts), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.
 

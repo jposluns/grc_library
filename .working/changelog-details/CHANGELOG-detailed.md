@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.481, PR #503
+
+The `/resume` Sweep-78 close-out: the loop-break corpus-wide `/validate` over the #476-#501 deltas (the compensating control for the #502 session-closing handoff PR, which skipped its trailing `/validate-pr` + `/retro`), plus the fixes for its findings, the FR-24 pending-decision resolution, and the handoff prune. No corpus document body touched; all surfaces are tooling, generated output, or `.working/` / `.claude/` working state.
+
+### Verification
+- Mechanical baseline: `tools/run_all_audits.sh` -> All 57 audit gates passed at HEAD `fe88442`/#502 (= `origin/main`), matching the #502 green-at-`d86f90b` 57/57 baseline (no close-vs-start drift). Clone unshallowed before the history-aware gates.
+- Sweep 78 full three-subagent dispatch (A recent-PR, B stale-reference, C audit-programme integrity). Pre-flight scanner: 392 files, 25 suppressed, 11 candidates (all comparative/growth prose; all dismissed).
+- Re-ran `tools/run_all_audits.sh` after the fixes (post-commit, on committed state).
+
+### Fixed
+- [`tools/build-portal.py`](../../tools/build-portal.py):343 and its regenerated output [`docs/portal.md`](../../docs/portal.md):49: `customised` to `customized` (Subagent B B-1). An enumerated `-ize` verb in the [`tools/lint-language.py`](../../tools/lint-language.py) gate-2 `ISE_PATTERN`, doubly blind to gate 2 (the generator source is a `.py` file, not `.md`-scanned; the rendered portal is a generated-doc exemption), so it survived the #499 `-ises` widening; the residual class #499 targeted. Regenerated the portal (taxonomy and scorecard `--check` clean, only the one prose line changed).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md):468 (B-2): the version-currency-register pointer `TODO §4.26` to `§1.5` (the post-#500-renumber number; the item is `### 1.5 ... (was 4.26)`).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md):430 (B-3): the `/matrix-fit` cadence sentence "This is the PR B half of TODO §4.20; the PR A advisory tool shipped in #394" reworded to "This cadence shipped across two PRs: the PR A advisory tool in #394 and the PR B skill in #399" (the dangling §4.20 had no `(was)` tag and the item shipped #399).
+- [`TODO.md`](../../TODO.md):252 (B-4): §4.4's partitionability exemplar list dropped the now-closed FR-58 and FR-167 and cites the still-open FR-59 / FR-60 deepenings plus a generic single-session caveat.
+- [`tools/lint-todo-marked-done.py`](../../tools/lint-todo-marked-done.py):31 (B-5, note): the FR-167 docstring illustration recast from present-tense "stays open" to "was still open" (FR-167 now complete).
+
+### Changed
+- [`.working/pending-decisions.md`](../../.working/pending-decisions.md): the FR-24 control-testing result-classification entry moved from Pending to Resolved (maintainer confirmed at the `/resume`: keep the SOX-framed scheme + the §4.2 CAPA crosswalk as shipped in #492; no corpus change). Pending queue now 0 open.
+- [`.working/session-handoff.md`](../../.working/session-handoff.md): pruned per the keep-current-plus-1-prior discipline (kept the #502 and #475 session blocks across the Next-actions / State-snapshot / Asserted-expectations stacks; removed the #464 set; collapsed the superseded in-flight #502 progress/continuation blocks into the #502 session-closing update). Resume cursor advanced to Sweep 78; a current-resume marker added with the next P1 queue (S3 parked, lead falls to §1.5).
+- [`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md): added the Sweep 78 iter 1 row; Version 2.0.70 to 2.0.71.
+
+### Added
+- [`.working/validate-sweeps/2026-06-30-sweep78-iter1.md`](../../.working/validate-sweeps/2026-06-30-sweep78-iter1.md): the per-iteration detail file (the three subagent returns, the A-1 apply-time refutation, the orchestrator synthesis, and the resulting PR).
+
+### Discipline observation
+- The apply-time-verification-before-routing discipline worked as designed: Subagent A's 292-vs-275 count finding would have contradicted an asserted-clean surface (a would-be escalation), but a one-command orchestrator recount refuted it (the register holds 292, matching the published count). A subagent finding is research, not a finding, until the orchestrator re-reads the source; this one was a false positive and was not routed.
+
 ## 2026-06-30, Library Version 2026.06.480, PR #502
 
 Session-closing handoff PR for the 2026-06-30 session (the 26-PR run #476-#501 that closed FR-167 and FR-58). `.working/` records + version surfaces only; no corpus document body touched.

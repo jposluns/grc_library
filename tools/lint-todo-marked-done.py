@@ -29,7 +29,7 @@ in legitimate open-item prose, so the gate is false-positive-free):
 Deliberately NOT detected: a bare ``SHIPPED`` word. ``SHIPPED`` appears
 legitimately in open-item prose describing shipped SUB-parts of a
 still-open multi-part item (e.g. FR-167's "the ... column SHIPPED in
-PR-B" while FR-167 itself stays open), which is exactly the multi-part
+PR-B" while FR-167 itself was still open), which is exactly the multi-part
 false-positive class that rejected the id-cross-check design. The
 shipped-but-unrotated case is covered instead by the companion
 CHANGELOG-asserts-closure PR-time check, which keys on the closure

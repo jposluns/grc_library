@@ -426,8 +426,8 @@ Run `/matrix-fit` on this cadence:
 
 It is NOT a gate and NOT a substitute for gates 48/49/54; it is the semantic layer on top
 of them (a row must pass the existence gates first). Findings are fixed in-window or routed
-under the normal triage; a zero-finding run still gets a history row. This is the PR B half
-of TODO §4.20; the PR A advisory tool shipped in #394.
+under the normal triage; a zero-finding run still gets a history row. This cadence shipped
+across two PRs: the PR A advisory tool in #394 and the PR B skill in #399.
 
 ## Reference-version currency (scratch `ref/` is storage, upstream is the authority)
 
@@ -465,7 +465,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 
 Scratch writes go via MCP PR (the local git proxy 403s direct scratch pushes, per
 [`third-party-issues.md`](../.working/third-party-issues.md)), so the scratch half of any
-update is a separate cross-repo step. The version-currency register is TODO §4.26.
+update is a separate cross-repo step. The version-currency register is TODO §1.5.
 
 ## Attended-autonomous operating mode
 
