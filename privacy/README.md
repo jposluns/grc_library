@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.3\
+**Version:** 1.2.4\
 **Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,6 +35,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Register | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md) |
 | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](framework-consent-management.md) |
 | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](framework-childrens-data.md) |
+| Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](framework-privacy-by-design.md) |
 | Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](standard-pseudonymisation-and-anonymisation.md) |
 | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md) |
 | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md) |
