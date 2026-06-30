@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.2\
-**Date:** 2026-06-25\
+**Version:** 1.2.3\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -171,7 +171,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | ISACA | `isaca.org` | COBIT. |
 | MITRE | `attack.mitre.org`, `cve.mitre.org`, `cwe.mitre.org` | ATT&CK, CVE, CWE. |
 | NIST FedRAMP | `fedramp.gov` | FedRAMP. |
-| US Federal | `federalregister.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov` | US federal regulation and directives. |
+| US Federal | `federalregister.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX). |
 | EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu` | EU regulations, directives, ENISA. |
 | UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk` | UK regulation and ICO/NCSC. |
 | Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca` | Canadian federal regulation and OPC. |
@@ -184,10 +184,14 @@ The verification process operates against an explicit allow-list of publisher ca
 | AICPA | `aicpa.org`, `aicpa-cima.com` | SOC reporting standards. |
 | Brazil | `gov.br`, `planalto.gov.br` | Brazilian federal regulation (LGPD). |
 | Singapore | `pdpc.gov.sg` | Singapore PDPA. |
-| Australia | `oaic.gov.au` | Australian privacy. |
+| Australia | `oaic.gov.au`, `legislation.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act). |
 | Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
-| China | `npc.gov.cn` | Chinese regulation (PIPL). |
+| China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
 | Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
+| US States | `ilga.gov`, `leg.colorado.gov` | US state legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly). |
+| Malaysia | `pdp.gov.my` | Malaysia PDPA (Personal Data Protection Department). |
+| LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
+| UK AISI | `ukgovernmentbeis.github.io` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages). |
 | Wayback Machine | `web.archive.org` | Third-party snapshot capture (not a primary source; an evidence anchor). |
 
 The allow-list itself is subject to the same verification discipline as register entries: each domain mapping ("publisher P is hosted at domain D") becomes a verifiable claim. Allow-list verifications use the same workflow as standard verifications and are recorded in the Citation Verifications Register with `Standard ID` set to the publisher name and `Verified Field` set to "allow-list domain mapping."
@@ -315,6 +319,16 @@ Provenance entries in the AI Security Tooling Landscape Register ([`register-ai-
 - **Triggering events forcing immediate re-verification**: project archival, license change, vendor acquisition, major version release with material capability change.
 
 The linter [`tools/lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) (shipped as gate 28 of the audit programme per [`governance/specification-audit-programme.md`](specification-audit-programme.md) §6) reads the tooling register's per-entry Provenance block and flags entries whose latest `Date assessed` is past the cadence above.
+
+### 12.3 Load-bearing version-currency re-check (advisory, column-driven)
+
+The Canonical Citations Register ([`register-canonical-citations.md`](register-canonical-citations.md)) carries two currency columns, `Upstream check location` (the authoritative upstream page where the current version is published) and `Last verified (UTC)` (the date that location was last fetch-confirmed, or `needs-reconfirm`). They support a faster, task-cued re-check that sits alongside the periodic §12.1 cadence:
+
+- **The upstream source is the only version authority.** This operationalizes the `evidence-grounded-completion` rule's external-version-currency corollary. A stored note, a cached copy, or a scratch `ref/` holding is believed-current STORAGE, never the authority on whether a version is current. The authoritative answer to "is this current?" is the `Upstream check location`, verified in the current turn.
+- **The check order whenever a row is load-bearing for a task**: (1) find what is held, via the register and the scratch `ref/` index, not a guess; (2) verify the current version at the `Upstream check location` this turn; (3) act only after both.
+- **The trigger**: when a load-bearing row's `Last verified (UTC)` is `needs-reconfirm` or older than **one week**, re-check before relying on it, and refresh `Last verified (UTC)` (and the version columns, if upstream has moved) in that PR.
+- **Advisory, not a CI gate.** A hard gate would fail whenever egress is blocked (an environment condition, not a defect; as of the 2026-06-30 population, `iso.org`, the IEC webstore, and several government sources block automated fetch, so their rows carry `needs-reconfirm`). The check is cued by the column and this cadence, in the same advisory spirit as the matrix-fit worklist, not enforced by a build gate.
+- **Superseded-archival for scratch `ref/`.** On discovering upstream is newer than a scratch `ref/` holding, follow the superseded-archival workflow (download the new version into scratch if egress allows; move the old version's files into the retained-version store `ref/.superseded/`; update the catalogue and indexes). When the update needs a license or a maintainer download, or egress is blocked, pause and surface to the maintainer, and never write or rely on a superseded version without explicit authorization. The full workflow lives in the multi-session-orchestration runbook; the scratch repository is the believed-current store, this register plus the upstream link are the currency authority.
 
 ---
 

@@ -117,6 +117,15 @@ ALLOW_LIST = {
     "pcisecuritystandards.org",  # PCI Security Standards Council
     "oecd.ai", "oecd.org",  # OECD
     "wto.org",  # World Trade Organization
+    # Canonical-citations register Upstream check location URLs (register v1.5.7)
+    "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
+    "ilga.gov",  # Illinois General Assembly (BIPA)
+    "leg.colorado.gov",  # Colorado General Assembly (Colorado AI Act / SB 24-205 / SB 26-189)
+    "cac.gov.cn",  # Cyberspace Administration of China (cross-border data provisions)
+    "legislation.gov.au",  # Australian Federal Register of Legislation (Privacy Act)
+    "pdp.gov.my",  # Malaysia Personal Data Protection Department (PDPA)
+    "linddun.org",  # LINDDUN privacy threat-modelling (KU Leuven imec-DistriNet)
+    "ukgovernmentbeis.github.io",  # UK AISI inspect_evals catalogue (GitHub Pages)
 }
 
 
