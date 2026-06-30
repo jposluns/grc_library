@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.5\
-**Date:** 2026-06-24\
+**Version:** 0.0.6\
+**Date:** 2026-06-30\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -157,7 +157,7 @@ Token format defaults to JWT with signature verification per RFC 7519 and JWT BC
 
 ### 4.4 Human-in-the-loop confirmation
 
-Sensitive or destructive actions require explicit human confirmation. The standard recognises three confirmation modes:
+Sensitive or destructive actions require explicit human confirmation. The standard recognizes three confirmation modes:
 
 | Mode | Use case | Requirement |
 | --- | --- | --- |

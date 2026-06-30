@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-06-30\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -78,7 +78,7 @@ The ceilings are configured per the cost-tier classification and reviewed at min
 
 ### 3.1 Enforcement architecture
 
-Cost ceilings are enforced at the most reliable point available; reliance on provider-side billing alone is not sufficient because billing data typically lags by hours to days. The standard recognises four enforcement layers in decreasing reliability and ordering preference:
+Cost ceilings are enforced at the most reliable point available; reliance on provider-side billing alone is not sufficient because billing data typically lags by hours to days. The standard recognizes four enforcement layers in decreasing reliability and ordering preference:
 
 | Layer | Description | Notes |
 | --- | --- | --- |

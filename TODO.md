@@ -25,8 +25,6 @@ Correctness fixes and the **error-prevention tooling** that keeps the corpus fro
 
 - **FR-48 (M, L)**: H2 numbering patterns drift — multi-doctype structural rename. Deferred until a dedicated session is scheduled.
 
-- **lint-language `-ises` inflection gap (L, S) — surfaced 2026-06-30 (#480 /validate-pr)**: [`tools/lint-language.py`](tools/lint-language.py) `ISE_PATTERN` lists `recognise|recognised|recognising` but not the third-person `-ises` inflection, so `recognises` (and similar `-ises` verb forms) pass gate 2. Widen the pattern to include the `-ises` inflection (and audit the verb-stem list for other missing inflections), with a regression fixture. A gate-logic change: its own focused PR (workflow/runner/pre-commit/spec parity per the audit-gate-change-completeness checklist if the change touches detection wiring; here it is a pattern-list widening within an existing gate, so the fixture + the four-surface no-op confirmation suffice).
-
 - **Per-document ISO Annex A code validation (L, M) — deferred follow-up to the gate-49-extension track (maintainer-confirmed 2026-06-26)**: extend [`tools/lint-document-control-codes.py`](tools/lint-document-control-codes.py) (gate 54, NIST CSF 2.0 only) to also validate ISO/IEC 27001:2022 Annex A codes (and clause refs) where they appear in per-document framework-reference / crosswalk tables, reusing gate 49's `check_iso_token` logic. Deferred from the gate-54 build because per-document ISO codes are higher-false-positive (clause refs `§10.2`, ranges `A.5.19 to A.5.22`, mixed editions) and the matrix's ISO column is already covered by gate 49; scope a precision-first design before building. **Reference-base aid (2026-06-27 scratch-review S-4)**: the chief blocker the matrix-fit aid records ([`tools/audit-matrix-semantic-fit.py`](tools/audit-matrix-semantic-fit.py):54 "ISO 27001:2022 codes are not assessed (no title source in the repo)") is now addressable: `grc_library_scratch/ref/standards/ISO/` holds the ISO/IEC 27001:2022 Annex A + 27002:2022 control-title extracts. A maintainer-local ISO Annex A title map (proprietary: cite by clause, do not commit the verbatim titles if licence-sensitive) would let both gate 54 and `/matrix-fit` assess ISO-column rows. Licence-handling of the proprietary titles is a maintainer decision.
 
 ### 4.8 Retro-log open-loop consolidation (S, S) — surfaced 2026-06-23
@@ -371,7 +369,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 Approximate active counts after the 2026-06-30 work-type re-tier (the priority sections themselves are the source of truth; these drift):
 
-- **P1 (fix errors and prevent recurrence)**: 6 items (FR-48 + the two gate-fix bullets + §4.8 / §4.5 / §4.26).
+- **P1 (fix errors and prevent recurrence)**: 5 items (FR-48 + the Per-document ISO Annex A gate-fix bullet + §4.8 / §4.5 / §4.26).
 - **P2 (fill significant gaps)**: 11 items (FR-59 / FR-60 / FR-70 + the 7 deepen-baselines FR-15 / 23 / 41 / 63 / 74 / 99 / 154 + §4.12).
 - **P3 (clean up and tooling)**: 13 items (3 cleanup bullets + §4.2 / 4.3 / 4.11 / 4.18 / 4.19 / 4.22 / 4.23 / 4.25 / 4.27 / 4.28).
 - **P4 (adopter experience)**: 5 subsections (§4.1 / 4.4 / 4.7 / 4.16 / 4.21).

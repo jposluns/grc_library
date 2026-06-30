@@ -23,7 +23,7 @@ This skill is a checklist + a validation step. The checklist confirms structural
 ## Process
 
 1. **Confirm the skill is needed**. Audit the existing pack skills against the proposed skill's brief. If the proposed skill's process is already covered (or could be covered) by composing two existing skills, drop the proposal. Skill count is not a virtue; coverage of failure modes is.
-2. **Identify the parent governance rule**. Every pack skill derives from one of the governance rules under `dev-security/claude-rules/governance/`. Pick the rule whose discipline the proposed skill operationalises. Multiple skills may derive from the same rule (the validation-sweep + evidence-grounded-completion + citation-quote-verification + fresh-reader-validation triple all derive from evidence-grounded-completion; that is fine).
+2. **Identify the parent governance rule**. Every pack skill derives from one of the governance rules under `dev-security/claude-rules/governance/`. Pick the rule whose discipline the proposed skill operationalizes. Multiple skills may derive from the same rule (the validation-sweep + evidence-grounded-completion + citation-quote-verification + fresh-reader-validation triple all derive from evidence-grounded-completion; that is fine).
 3. **Apply the structural template**. The proposed SKILL.md must contain, in order:
    - YAML frontmatter with `name`, `description`, `derives_from`.
    - `# <Title>` H1 (single, matching `name`).

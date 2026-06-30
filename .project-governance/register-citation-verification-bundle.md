@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-25\
+**Version:** 1.0.5\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
@@ -39,7 +39,7 @@ The bundle covers everything in the library that requires human-verifier confirm
 
 ## 3. Recommended execution order
 
-The order minimises context-switching between publisher types and lets the human verifier build momentum on similar sources before moving to the next category.
+The order minimizes context-switching between publisher types and lets the human verifier build momentum on similar sources before moving to the next category.
 
 1. **Day 1 - Q2 ISO/IEC** (24 entries). All entries share the `iso.org` publisher; the URL pattern is consistent. The human verifier learns the ISO catalogue navigation pattern once and reuses it across all 24 rows.
 2. **Day 2 - Q3.1 truly new citations** (6 entries). Small batch; covers AVID, MLCommons, OWASP, NIST. Different publishers per entry but each is straightforward.

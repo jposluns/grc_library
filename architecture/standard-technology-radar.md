@@ -2,8 +2,8 @@
 
 **Document Title:** Technology Radar Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-06-30\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
@@ -70,7 +70,7 @@ A placement at Hold does not mean a technology is wrong; it means the organisati
 
 ## Section 3: quadrants
 
-The radar organises entries into quadrants:
+The radar organizes entries into quadrants:
 
 | Quadrant | Examples |
 | --- | --- |

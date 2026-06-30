@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-06-30\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -70,7 +70,7 @@ The IT-OT boundary is the defining technical risk of the sector. The library pro
 | OT monitoring and anomaly detection | Library logging and monitoring extended with OT-specific protocols (Modbus, DNP3, IEC 61850, BACnet, ICCP, OPC UA) |
 | Backup and restore of PLC and HMI configurations | [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) extended for OT configuration backup |
 | Vendor remote access to OT systems | [`security/standard-remote-working-security.md`](../../security/standard-remote-working-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md); OT vendor access typically requires escorted, time-boxed, recorded sessions |
-| OT incident response with safety-first decision rules | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) extended; OT incident response prioritises safety and continuity over technical containment |
+| OT incident response with safety-first decision rules | [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) extended; OT incident response prioritizes safety and continuity over technical containment |
 
 ---
 

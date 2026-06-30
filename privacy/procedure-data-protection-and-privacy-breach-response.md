@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.17\
+**Version:** 1.4.18\
 **Date:** 2026-06-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -189,7 +189,7 @@ Where a processor or sub-processor is involved, the organisation:
 - Coordinates to ensure that the processor preserves evidence and supports the impact assessment.
 - Confirms contractual notification obligations have been met and documents the confirmation.
 
-> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalises that "without undue delay" for the organisation's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
+> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalizes that "without undue delay" for the organisation's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
 
 ---
 

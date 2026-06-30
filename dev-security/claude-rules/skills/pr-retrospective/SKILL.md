@@ -140,4 +140,4 @@ The retrospective is complete when:
 - Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): the broader corpus-wide validation cycle.
 - Worker-brief template at `.working/worker-brief-template.md` (project-local): codifies worker-side guard rails that `/retro` patterns may surface as additions.
 - [`hallucination-metrics.md`](../../../../.working/hallucination-metrics.md) (project-local): tracks apply-time worker corrections that `/retro` may surface as pattern candidates.
-- Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the five disciplines this skill operationalises (specifically: the research-assistant discipline's hallucination-assessment update protocol).
+- Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the five disciplines this skill operationalizes (specifically: the research-assistant discipline's hallucination-assessment update protocol).

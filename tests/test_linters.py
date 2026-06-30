@@ -213,6 +213,18 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "ise")
 
+    def test_ise_third_person_inflection_flagged(self) -> None:
+        # Regression for the #480 /validate-pr finding: the third-person
+        # singular `-ises` inflection (e.g. "recognises") must be flagged.
+        # Before the ISE_PATTERN widening it listed only -ise / -ised / -ising
+        # and let the -ises form through.
+        fixture = self.make_fixture(
+            "standard-ises.md",
+            VALID_METADATA + "\n\nThe procedure recognises three modes.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "ise")
+
     def test_bare_ensure_flagged(self) -> None:
         # The 'ensure' rule requires 'that' after 'ensure'/'ensures'.
         fixture = self.make_fixture(

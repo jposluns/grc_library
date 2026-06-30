@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.5\
-**Date:** 2026-06-29\
+**Version:** 1.3.6\
+**Date:** 2026-06-30\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -114,7 +114,7 @@ Most adopting organisations cannot operate all of the library's controls on day 
 
 If your organisation is small (under approximately 200 staff, low regulatory exposure, no high-risk AI in production), start with these 17 documents and operate them well before adding more. This Tier 1 set is a strict superset of the six-artefact Day-1 floor named in [`docs/template-quickstart.md`](template-quickstart.md): it contains all six floor artefacts, including the acceptable-use and identity-and-access-management policies. Tier 1 in turn sits within the larger sector-conditional sets the [`docs/decision-tree.md`](decision-tree.md) builds (for example about 25 documents for an EU-fintech path). The three sizes are progressively-nested, complementary starting points rather than competing ones.
 
-**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalises.
+**Approximate reading time**: 5 to 7 hours to read all 17 documents once at a moderate pace; substantially longer to internalise. **If you only read three** to get an immediate orientation, pick the three Governance documents in the table below (Charter + Framework + Role Authority Register); they ground the structure that the rest of Tier 1 operationalizes.
 
 | Type | Document |
 | --- | --- |

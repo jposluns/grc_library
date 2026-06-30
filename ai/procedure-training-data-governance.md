@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.4\
-**Date:** 2026-06-22\
+**Version:** 0.0.5\
+**Date:** 2026-06-30\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -114,7 +114,7 @@ When a data subject exercises a right to deletion, or when a corpus is retired u
 | 5 | Confirm deletion to the subject through the DSAR workflow | Within the subject-rights regulatory window |
 | 6 | Update the AI risk register where derived-artefact retention is risk-accepted | Same cycle as step 4 |
 
-The procedure recognises that derived models often cannot be perfectly "unlearned" today. Where retraining is not feasible, the residual exposure is documented and the risk acceptance is reviewed at every model lifecycle event.
+The procedure recognizes that derived models often cannot be perfectly "unlearned" today. Where retraining is not feasible, the residual exposure is documented and the risk acceptance is reviewed at every model lifecycle event.
 
 #### Limits of deletion propagation (honest scope)
 
@@ -216,7 +216,7 @@ Where a retrieval index materially shapes model output:
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Training-data governance is an evolving area; specific obligations under the EU AI Act, sector regulations, and emerging litigation (notably copyright) change frequently. Adopting organisations consult specialist counsel at each material decision. The procedure recognises that some technical mitigations (e.g. machine unlearning at scale) remain immature; the exception process captures unavoidable residual exposure.
+This procedure is a CC BY-SA 4.0 baseline. Training-data governance is an evolving area; specific obligations under the EU AI Act, sector regulations, and emerging litigation (notably copyright) change frequently. Adopting organisations consult specialist counsel at each material decision. The procedure recognizes that some technical mitigations (e.g. machine unlearning at scale) remain immature; the exception process captures unavoidable residual exposure.
 
 ---
 

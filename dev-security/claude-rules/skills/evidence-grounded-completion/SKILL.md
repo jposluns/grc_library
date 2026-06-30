@@ -71,6 +71,6 @@ If any of these is missing, the protocol is incomplete and the completion vocabu
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): handles ambiguity before action. This skill handles verification after action.
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): handles gate failures. When a gate fails, fix the artefact and then run this skill to verify the fix actually closed the underlying issue.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): applies this skill's per-claim verification protocol at corpus scope. After any issue identified and corrected, the sweep confirms no sibling issue remains.
-- Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): specialises this skill's protocol to citation-bearing content (quote-to-source correspondence).
+- Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): specializes this skill's protocol to citation-bearing content (quote-to-source correspondence).
 - Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): complements step 2 (re-read each file in full) with an outside reader for new or substantively-revised documents.
 - Related skill [`skill-authoring-discipline`](../skill-authoring-discipline/SKILL.md): applies this skill's verification discipline to authoring new pack skills (trigger-accuracy validation, structural-template compliance).

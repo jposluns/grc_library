@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #499: lint-language `-ises` inflection gap closed (P1) (2026-06-30)
+
+Closed the P1 lint-language `-ises` item: widened gate 2's `ISE_PATTERN` so each Commonwealth `-ise` verb stem carries all four inflections (it had missed the third-person `-ises`, so `recognises` / `operationalises` passed unflagged). Canadianized the 24 occurrences the widened gate surfaced (across 23 files: 16 corpus/project docs, one with two, plus 7 `dev-security/claude-rules/` pack files, the pack edits maintainer-approved as mechanical spelling-only), added a regression fixture. The gate-widening and the cleanup shipped coupled (the gate is red without the fixes).
+
 ### PR #497: FR-58: inheritance-vocabulary Adoption Disposition column added corpus-wide (2026-06-30)
 
 Closed FR-58 (the maintainer-decided 3-label inheritance vocabulary): added an Adoption Disposition column to the Document Index and Classification Register classifying all 292 active documents as `library-internal` (8), `template` (282, the default), or `reference` (2), defined the vocabulary in the Key Terms register, and added the disposition-model section + a maintenance rule. Locus chosen by the maintainer (index-register column, no metadata-block change). A pre-push skeptical verifier drove three corrections: the library quality-cadence procedure and its health-report template reclassified to `library-internal` (library-maintenance machinery, not adopter deliverables), and (maintainer decision) the four framework-alignment matrices that were labelled `reference` to `template` (they are library-authored mappings of the library's own documents, not external content kept as-cited; the fifth matrix was already `template`), leaving `reference` = the 2 external-citation/tool catalogue registers. Non-template docs were individually apply-time-verified; the template defaults were classified by Type-rule.

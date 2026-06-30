@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-06-19\
+**Version:** 1.0.1\
+**Date:** 2026-06-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -127,7 +127,7 @@ The artefact is version-controlled with the system's design documentation and re
 
 ### Web applications and APIs
 
-The web-stack OWASP Top 10 categorises common findings, but it does not substitute for STRIDE-per-boundary analysis. A web application has an HTTP-ingress boundary that must be analysed for all six STRIDE categories; the OWASP findings populate the threat list but do not define the boundaries. The [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) controls implement the Mandatory-tier responses for the HTTP-ingress boundary by default.
+The web-stack OWASP Top 10 categorizes common findings, but it does not substitute for STRIDE-per-boundary analysis. A web application has an HTTP-ingress boundary that must be analysed for all six STRIDE categories; the OWASP findings populate the threat list but do not define the boundaries. The [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) controls implement the Mandatory-tier responses for the HTTP-ingress boundary by default.
 
 ### AI / agentic systems
 
