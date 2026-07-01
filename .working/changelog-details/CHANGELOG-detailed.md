@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.13, PR #525
+
+TODO §1.1: FR-48 entangled-residual, second single-document batch. Renumbered [`ai/standard-ai-testing-validation-and-documentation.md`](../../ai/standard-ai-testing-validation-and-documentation.md) from a hybrid numbering scheme to the canonical fully-numbered model; no citer remap needed (zero references depend on the old numbers). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, exhaustive corpus-wide reference-completeness scan, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`ai/standard-ai-testing-validation-and-documentation.md`](../../ai/standard-ai-testing-validation-and-documentation.md) (Version 1.0.1 to 1.0.2, Date to 2026-07-01): 14 headings renumbered (asserted 14/14 by the script's guards). This was a HYBRID doc (unnumbered `## Purpose`/`## Scope`/`## Governance and accountability` and a trailing unnumbered `## Framework alignment`, around a numbered `## 1.` to `## 5.` requirements block), so the numbers SHIFT rather than merely gain a prefix: the 9 H2s become `## 1.` to `## 9.` in document order (old `## 1.` documentation-requirements -> `## 4.`, `## 2.` -> `## 5.`, `## 3.` -> `## 6.`, `## 4.` -> `## 7.`, `## 5.` -> `## 8.`, Framework alignment -> `## 9.`), and the pre-deployment-testing H3 children move `### 2.1` to `### 2.5` -> `### 5.1` to `### 5.5`. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (full-line matching means the number-shift causes no collision), pre-apply guard (each OLD present exactly once, each NEW absent), asserted 14/14 replacements, then the resulting heading tree re-parsed against the target.
+- Reference completeness (corpus-wide, full file set): a line-level inbound grep for every reference form, an anchor-link grep, and, because the numbers SHIFT, an exhaustive bare-numeric cross-reference scan (`N.M`, "requirement/section/tier N") all returned nothing that depends on the old numbers. The document's two `§8` mentions are external `ISO/IEC 42001 §8` citations (the standard's section, not this doc's). Zero inbound section citations, zero intra-doc numeric cross-refs, zero anchor links to the doc.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+### Discipline observation
+- Folds the #524 retrospective's proposed improvement into the [`FR-48 deferred worklist`](../fr48-deferred-worklist.md) build-time discipline: the inbound-citer discovery step is now specified as a LINE-LEVEL grep (`grep -rnE '<basename>' *.md | grep -E '§|Section [0-9]'`) plus a separate anchor grep, never a proximity-bounded (character-window) pattern, because a narrow window returned a false-negative on #524 (missed `register-coverage-gaps §5`). The recipe also flags the external-vs-target `§N` distinction and the shifting-number bare-numeric scan (both exercised on this document).
+
+Batches the #524 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.12 to 2026.07.13; README 1.9.373 to 1.9.374.
+
 ## 2026-07-01, Library Version 2026.07.12, PR #524
 
 TODO §1.1: FR-48 entangled-residual, first single-document batch. Renumbered [`ai/standard-ai-model-risk.md`](../../ai/standard-ai-model-risk.md) to the canonical fully-numbered section model and remapped its one inbound section-number citation. Worked one document per PR per the maintainer's FR-48 directive (maximal QA; no mass change until certain of zero broken references). Structural renumber applied by a deterministic exact-line-match script (harness deterministic-apply) plus re-parse, corpus-wide reference-completeness verification, and a refute-briefed skeptical verifier.
