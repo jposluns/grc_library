@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.19, PR #531
+
+TODO §1.1: FR-48 entangled-residual, eighth single-document batch. Renumbered [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) to the canonical fully-numbered model (option B); a hybrid-shift with the first genuine intra-document self-reference remap of the FR-48 effort. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) (Version 1.0.4 to 1.0.5, Date to 2026-07-01): 26 headings renumbered (asserted 26/26 by the script's guards) plus one body reference remapped. The `## Purpose` and `## Framework alignment` H2s were unnumbered while `## 1.` to `## 11.` were numbered, so all H2s were numbered in document order, shifting the numbered ones by one: `## Purpose` to `## 1.`, old `## 1. CI/CD pipeline security` to `## 2.`, through old `## 11.` to `## 12.`, and `## Framework alignment` to `## 13.`. The 6 CI/CD H3s `### 1.1`-`### 1.6` shifted to `### 2.1`-`### 2.6`; the 7 descriptive H3s were numbered under their shifted parents (`### 3.1`-`### 3.2` under IaC, `### 4.1`-`### 4.2` under Environment, `### 8.1`-`### 8.3` under Automation platform). The one intra-document self-reference `per §1.2` (body: "Pipelines block deployment to EOL runtimes per §1.2") was remapped to `per §2.2` in lockstep with CI/CD shifting from §1 to §2, so it still resolves to the same "Mandatory pipeline security gates" subsection. No other body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map for all 26 headings (each OLD present once, each NEW absent), plus a guarded single-occurrence body-token remap (`§1.2` present exactly once, `§2.2` absent, before the substitution), asserted 26/26 headings + 1 body ref, then the heading tree re-parsed (gapless H2 1-13; H3 2.1-2.6 under §2, 3.1-3.2 under §3, 4.1-4.2 under §4, 8.1-8.3 under §8) and the intra-document-reference gate confirmed `§2.2` resolves to the new `### 2.2` heading.
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan, and bare-external-§ scan. The only intra-document `§`-reference is the one remapped in lockstep; there are no external bare-§ cells and no inbound citers of this document's section numbers or anchors.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #530 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.18 to 2026.07.19; README 1.9.379 to 1.9.380.
+
 ## 2026-07-01, Library Version 2026.07.18, PR #530
 
 TODO §1.1: FR-48 entangled-residual, seventh single-document batch. Renumbered [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md) to the canonical fully-numbered model (option B); no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier. Also retagged the IAM policy on the worklist (inline-clause hard class).
