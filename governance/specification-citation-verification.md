@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.3\
-**Date:** 2026-06-30\
+**Version:** 1.2.4\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -147,6 +147,22 @@ The verifier does not ask another LLM, does not consult AI-generated summaries, 
 ### 6.5 Domain match
 
 For each verification, the live URL must match the publisher's known canonical domain (per §7 allow-list). TLS connection state is recorded. Lookalike domains are flagged and not used.
+
+### 6.6 Local reference base (the scratch `ref/` tree)
+
+The maintainer keeps the source texts that verification and authoring draw on (the publisher standards, laws, and framework catalogues cited across the corpus) in the separate `grc_library_scratch` repository's `ref/` tree, so an AI verifier can read them locally rather than re-fetching paywalled or egress-blocked upstream pages each turn. The base is trust-bucketed, mirroring the §6.1 tiers:
+
+- `ref/standards/` (ISO/IEC, NIST, ETSI, IEEE) and `ref/legislation/` (statutes by jurisdiction): **authoritative ground truth**, corresponding to Tier 1. Legislation is version-sensitive; confirm the in-force consolidated version.
+- `ref/frameworks/` (MITRE, OWASP, CSA CCM/AICM, COBIT) and `ref/programs/`: **trusted, sub-formal**; for a normative claim prefer a formal standard or law.
+- `ref/publications/` (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `ref/standards/` or `ref/legislation/` source before relying on it (per the publications-assessment process, TODO §2.11).
+- `ref/templates/`: trusted-issuer scaffolding to adapt, not to cite (for example, the ISACA policy templates are usable as structural scaffolding, adapt-do-not-copy).
+
+Two constraints govern its use:
+
+- **The base is believed-current STORAGE, not the version authority.** Confirm a load-bearing version against the upstream `Upstream check location` per §12.3; the local holding records only what was believed current when it was ingested. Consult the scratch `ref/INDEX.md` (not a guessed path) for what is held and where.
+- **The source texts are proprietary or licence-restricted and are NOT redistributed in this corpus.** The scratch base is the maintainer's own licensed holding; do not copy source text into corpus documents (cite the metadata and the requirement, not the copyrighted body).
+
+For the `/matrix-fit` semantic-fit audit, the control-title reference base is the scratch `ref/` CCM/AICM catalogue CSVs and the NIST CSF OSCAL, so the cadence is reproducible against held ground truth rather than memory; an ISO/IEC 27001 Annex A title map would extend it once a title-map extract is built (that extract is not yet available, so the ISO column is not yet in the matrix-fit reference base). The in-repo validator modules ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py), [`tools/iso_27001_reference.py`](../tools/iso_27001_reference.py)) that gates 48/49/54/58 build on encode the control codes (and, for CCM/AICM and CSF, their titles); the `ref/` extracts carry the full specification text.
 
 ---
 
