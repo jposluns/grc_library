@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-06-22\
+**Version:** 1.1.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the requirements for Software Composition Analysis (SCA) across all software development, evaluation, and procurement activities. SCA identifies, tracks, and manages the security and licensing risks introduced by open-source components, third-party libraries, and their transitive dependencies.
 
@@ -24,7 +24,7 @@ Software supply chain attacks, including dependency confusion, typosquatting, an
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 - All internally developed software that includes open-source or third-party library dependencies
@@ -37,7 +37,7 @@ This standard applies to all languages and package ecosystems in use across the 
 
 ---
 
-## Definitions
+## 3. Definitions
 
 | Term | Definition |
 |---|---|
@@ -53,9 +53,9 @@ This standard applies to all languages and package ecosystems in use across the 
 
 ---
 
-## SCA requirements
+## 4. SCA requirements
 
-### 1. Tool integration
+### 4.1 Tool integration
 
 SCA tools must be integrated at multiple points in the software development lifecycle:
 
@@ -68,7 +68,7 @@ SCA tools must be integrated at multiple points in the software development life
 | **Scheduled background scan** | All active repositories and deployed artefacts scanned weekly for newly disclosed vulnerabilities in existing dependencies | Weekly |
 | **SBOM generation** | SBOM generated as an artefact of every production build in CycloneDX or SPDX format | Every production build |
 
-### 2. Vulnerability remediation slas
+### 4.2 Vulnerability remediation slas
 
 | CVSS Score | Severity | Maximum Age in Production | Escalation on Breach |
 |---|---|---|---|
@@ -84,7 +84,7 @@ Where a fix is not available (no patched version exists), the following actions 
 3. Obtain formal risk acceptance from the CISO if the vulnerability will remain open beyond the SLA
 4. Monitor for patch availability daily for Critical, weekly for High
 
-### 3. Licence compliance
+### 4.3 Licence compliance
 
 All open-source licences in use must be reviewed and approved before use in the organisation's products or services.
 
@@ -103,9 +103,9 @@ All open-source licences in use must be reviewed and approved before use in the 
 - SCA tooling must produce a licence inventory as part of the SBOM
 - Legal must be consulted before introducing any Strong Copyleft or Unknown licence dependency
 
-### 4. Software bill of materials (SBOM)
+### 4.4 Software bill of materials (SBOM)
 
-#### Minimum SBOM content
+#### 4.4.1 Minimum SBOM content
 
 SBOMs must comply with the NTIA Minimum Elements for a Software Bill of Materials and must include:
 
@@ -119,13 +119,13 @@ SBOMs must comply with the NTIA Minimum Elements for a Software Bill of Material
 | Author of SBOM data | Tool or person that generated this SBOM entry |
 | Timestamp | Date and time the SBOM was generated |
 
-#### SBOM format
+#### 4.4.2 SBOM format
 
 SBOMs must be produced in at least one of:
 - **CycloneDX** (preferred): XML or JSON; supports VEX (Vulnerability Exploitability eXchange)
 - **SPDX**: tag-value, JSON, or RDF; widely adopted in open-source tooling
 
-#### SBOM retention and distribution
+#### 4.4.3 SBOM retention and distribution
 
 | Use Case | Requirement |
 |---|---|
@@ -134,9 +134,9 @@ SBOMs must be produced in at least one of:
 | Regulatory requests | SBOM must be provided to regulatory authorities on lawful request |
 | Incident response | SBOM must be immediately accessible to incident responders to assess blast radius of disclosed CVE |
 
-### 5. Supply chain attack mitigations
+### 4.5 Supply chain attack mitigations
 
-#### Dependency confusion and package integrity
+#### 4.5.1 Dependency confusion and package integrity
 
 | Control | Requirement |
 |---|---|
@@ -147,7 +147,7 @@ SBOMs must be produced in at least one of:
 | **Package hash verification** | CI/CD pipelines must verify package integrity using cryptographic hashes at install time. |
 | **Subresource Integrity (SRI)** | For web applications loading third-party scripts via CDN, SRI hashes must be included in HTML `<script>` and `<link>` tags. |
 
-#### Source and build integrity (SLSA alignment)
+#### 4.5.2 Source and build integrity (SLSA alignment)
 
 The organisation targets the following SLSA levels by system type:
 
@@ -162,7 +162,7 @@ SLSA Level 2 minimum requirements:
 - Build platform generates signed provenance (build inputs, outputs, timestamps)
 - Provenance verified before artefacts are deployed
 
-### 6. Triaging and exceptions
+### 4.6 Triaging and exceptions
 
 Not all CVEs require immediate remediation. Developers must triage each finding using the following criteria:
 
@@ -177,7 +177,7 @@ Findings assessed as not exploitable in context must be documented using a **VEX
 
 Formal exceptions to SLA timelines must be approved by the CISO and documented in the risk register.
 
-### 7. AI and machine learning dependencies
+### 4.7 AI and machine learning dependencies
 SCA controls apply to all ML and AI codebases with the following additional requirements:
 
 | Requirement | Description |
@@ -189,7 +189,7 @@ SCA controls apply to all ML and AI codebases with the following additional requ
 
 ---
 
-### 8. Tool acceptance criteria
+### 4.8 Tool acceptance criteria
 
 The SCA programme is tool-agnostic; the requirements above govern what every tool must produce, not which tool to use. When evaluating, selecting, or replacing a tool, apply the following acceptance criteria. The criteria are listed in priority order; a tool that fails a higher-priority criterion is rejected regardless of how well it satisfies lower-priority criteria.
 
@@ -210,7 +210,7 @@ A tool that passes the criteria is documented in the security architecture regis
 
 ---
 
-## Roles and responsibilities
+## 5. Roles and responsibilities
 
 | Role | Responsibilities |
 |---|---|
@@ -223,7 +223,7 @@ A tool that passes the criteria is documented in the security architecture regis
 
 ---
 
-## Metrics
+## 6. Metrics
 
 | Metric | Target | Reporting Frequency |
 |---|---|---|
@@ -236,7 +236,7 @@ A tool that passes the criteria is documented in the security architecture regis
 
 ---
 
-## Framework and regulatory alignment
+## 7. Framework and regulatory alignment
 
 | Framework / Requirement | Relevance |
 |---|---|
