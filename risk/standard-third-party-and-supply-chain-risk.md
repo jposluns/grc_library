@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-06-26\
+**Version:** 1.1.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the framework, methodology, and control requirements for identifying, assessing, treating, and monitoring risks arising from third-party relationships and supply chain dependencies. It is the master third-party and supply-chain risk standard for the library: the enterprise risk-management lens, the lifecycle expectations, and the contracting controls are all defined here. Operational procedures in the supply-chain domain implement the lifecycle steps; this standard governs them.
 
@@ -24,7 +24,7 @@ This standard supersedes the prior `supply-chain/standard-third-party-risk.md` (
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to all third-party relationships involving access to the organisation's data, systems, networks, facilities, or operational continuity, including:
 
@@ -43,7 +43,7 @@ The standard applies globally across all business units and regional operations 
 
 ---
 
-## Risk classification
+## 3. Risk classification
 
 All third-party relationships must be classified into one of the following tiers at onboarding and reassessed at least annually.
 
@@ -56,9 +56,9 @@ All third-party relationships must be classified into one of the following tiers
 
 ---
 
-## Risk assessment requirements
+## 4. Risk assessment requirements
 
-### 1. Due diligence assessment
+### 4.1 Due diligence assessment
 
 All Tier 1 and Tier 2 third parties must complete a due diligence assessment before onboarding. Due diligence must evaluate the following risk domains:
 
@@ -75,7 +75,7 @@ All Tier 1 and Tier 2 third parties must complete a due diligence assessment bef
 
 Operational procedures: [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)
 
-### 2. Risk scoring
+### 4.2 Risk scoring
 
 Third-party risks are scored using the same 5×5 likelihood × impact matrix as enterprise risks. See [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md).
 
@@ -84,13 +84,13 @@ In addition to inherent and residual scores, third-party risk assessments must c
 - **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organisation
 - **Substitutability:** Estimated time and cost to replace the supplier if the relationship fails
 
-### 3. Risk register integration
+### 4.3 Risk register integration
 
 All Tier 1 third-party risks rated High or Critical must be entered into the enterprise risk register ([`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)) under the Supplier risk category. Tier 2 risks rated High should be entered. Lower-rated risks may be tracked in the operational supplier risk register ([`supply-chain/register-supplier-risk-template.md`](../supply-chain/register-supplier-risk-template.md)).
 
 ---
 
-## Contract requirements
+## 5. Contract requirements
 
 All contracts with third parties must include risk-aligned provisions. Minimum contract clauses by tier:
 
@@ -106,7 +106,7 @@ All contracts with third parties must include risk-aligned provisions. Minimum c
 | Right to terminate for cause | Mandatory | Mandatory | Mandatory | Standard |
 | Liability and indemnification | Negotiated; minimum defined | Negotiated; minimum defined | Standard | Standard |
 
-### AI service-provider contract requirements
+### 5.1 AI service-provider contract requirements
 
 For third parties providing AI models, inference services, training data, or other AI capabilities, contracts must additionally require:
 
@@ -121,9 +121,9 @@ See [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor
 
 ---
 
-## Ongoing monitoring
+## 6. Ongoing monitoring
 
-### Tier 1 and tier 2 monitoring requirements
+### 6.1 Tier 1 and tier 2 monitoring requirements
 
 Continuous or periodic monitoring activities for critical and high-tier third parties:
 
@@ -146,7 +146,7 @@ Monitoring is supported by:
 - SLA compliance tracking and incident-reporting metrics.
 - Vulnerability scanning results and audit attestation reviews.
 
-### Concentration risk monitoring
+### 6.2 Concentration risk monitoring
 
 The Chief Risk Officer must maintain visibility of concentration risk across the supplier portfolio:
 
@@ -156,7 +156,7 @@ The Chief Risk Officer must maintain visibility of concentration risk across the
 
 ---
 
-## Supply chain continuity risk
+## 7. Supply chain continuity risk
 
 For all Tier 1 suppliers and critical trade lanes, a supply chain continuity risk assessment must be completed as part of the business impact analysis process:
 
@@ -172,9 +172,9 @@ Reference: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](
 
 ---
 
-## Incident and breach management
+## 8. Incident and breach management
 
-### Supplier security incident response
+### 8.1 Supplier security incident response
 
 When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organisation:
 
@@ -185,13 +185,13 @@ When a Tier 1 or Tier 2 supplier experiences a security incident or data breach 
 5. Document the incident in the supplier's risk record; reassess residual risk rating
 6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
-### Supplier exit triggered by incident or performance failure
+### 8.2 Supplier exit triggered by incident or performance failure
 
 Where an incident or performance failure necessitates terminating a supplier relationship, initiate the supplier exit procedure: [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md).
 
 ---
 
-## Offboarding and contract termination
+## 9. Offboarding and contract termination
 
 Upon contract termination or expiry, the third party must:
 
@@ -206,7 +206,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 
 ---
 
-## Reporting
+## 10. Reporting
 
 | Report | Frequency | Audience |
 |---|---|---|
@@ -218,7 +218,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 
 ---
 
-## Framework alignment
+## 11. Framework alignment
 
 | Framework | Relevant Section |
 |---|---|
