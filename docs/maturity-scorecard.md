@@ -199,7 +199,7 @@ _181 documents._
 | [dev-security/policy-secure-development-and-engineering.md](../dev-security/policy-secure-development-and-engineering.md) | Secure Development and Engineering Policy | Policy | 1.0.3 | 2026-06-29 |
 | [dev-security/register-compliance-controls-and-gap-register.md](../dev-security/register-compliance-controls-and-gap-register.md) | Compliance Controls and Gap Register Template | Register | 1.0.3 | 2026-06-24 |
 | [dev-security/standard-container-and-image-security.md](../dev-security/standard-container-and-image-security.md) | Container and Image Security Standard | Standard | 1.0.2 | 2026-07-01 |
-| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.4 | 2026-06-24 |
+| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.5 | 2026-07-01 |
 | [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.1 | 2026-07-01 |
 | [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.3 | 2026-07-01 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.0.5 | 2026-06-30 |

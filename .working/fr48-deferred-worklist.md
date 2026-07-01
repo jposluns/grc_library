@@ -28,7 +28,7 @@ The 38 policy/standard documents that FR-48's safe-subset pass (PR #520) deferre
 - [ ] `compliance/standard-internal-audit.md` -- inbound §N, intra "Section N", intra §N
 - [ ] `dev-security/standard-api-security.md` -- intra §N, uses "## Section N:" labels
 - [ ] `dev-security/standard-developer-security-requirements.md` -- inbound §N, intra §N
-- [ ] `dev-security/standard-devops-security-requirements.md` -- intra §N
+- [x] `dev-security/standard-devops-security-requirements.md` -- intra §N (DONE: renumbered to canonical fully-numbered per option B; hybrid-SHIFT (Purpose/Framework were unnumbered while `## 1.`-`## 11.` were numbered), so all H2s shifted into document order `## 1.`-`## 13.` (Purpose->1, old 1->2 ... old 11->12, Framework->13); 6 `### 1.x` H3s -> `### 2.x`, 7 descriptive H3s numbered `### 3.1`-`### 3.2`, `### 4.1`-`### 4.2`, `### 8.1`-`### 8.3`; the one intra self-reference `per §1.2` (body) was remapped to `per §2.2` in lockstep with CI/CD shifting §1->§2; zero inbound section citations, zero anchors, so no citer remap)
 - [ ] `dev-security/standard-mobile-application-security.md` -- inbound "Section N", intra "Section N", uses "## Section N:" labels
 - [x] `dev-security/standard-quality-assurance-and-testing.md` -- intra §N (DONE: renumbered to canonical fully-numbered, 8 unnumbered H2s -> `## 1.`-`## 8.` + 3 descriptive H3s under `## 6.` -> `### 6.1`-`### 6.3` per the option-B H3 convention; the "intra §N" tag was conservative, the only §-ref is external `ISO 9001:2015 §8.6` in the framework-alignment table (standard named on the row, no bare-§ collision); zero inbound section citations, zero self-refs, zero anchors, so no citer remap)
 - [ ] `dev-security/standard-software-composition-analysis.md` -- inbound §N
