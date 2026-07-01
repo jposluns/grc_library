@@ -2,8 +2,8 @@
 
 **Document Title:** Reference Architecture Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs how reference architectures are commissioned, authored, reviewed, published, consumed, and kept current. A reference architecture is a documented, recommended pattern for solving a recurring class of problem; consuming teams adopt it directly or justify a deviation.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -34,7 +34,7 @@ It does not apply to per-product solution architecture documents (which are gove
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -48,7 +48,7 @@ It does not apply to per-product solution architecture documents (which are gove
 
 ---
 
-## Section 2: classes of reference architecture
+## 4. Classes of reference architecture
 
 | Class | Description |
 | --- | --- |
@@ -62,7 +62,7 @@ It does not apply to per-product solution architecture documents (which are gove
 
 ---
 
-## Section 3: structure of a reference architecture
+## 5. Structure of a reference architecture
 
 Each reference architecture document contains:
 
@@ -89,7 +89,7 @@ Each reference architecture document contains:
 
 ---
 
-## Section 4: maturity scale
+## 6. Maturity scale
 
 | Level | Description |
 | --- | --- |
@@ -104,7 +104,7 @@ The maturity level is a deliberate choice; not all reference architectures need 
 
 ---
 
-## Section 5: authoring
+## 7. Authoring
 
 | Activity | Description |
 | --- | --- |
@@ -118,7 +118,7 @@ The maturity level is a deliberate choice; not all reference architectures need 
 
 ---
 
-## Section 6: consumption
+## 8. Consumption
 
 | Activity | Description |
 | --- | --- |
@@ -131,7 +131,7 @@ The maturity level is a deliberate choice; not all reference architectures need 
 
 ---
 
-## Section 7: deviation handling
+## 9. Deviation handling
 
 | Step | Action |
 | --- | --- |
@@ -145,7 +145,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Section 8: maintenance
+## 10. Maintenance
 
 | Activity | Description |
 | --- | --- |
@@ -159,7 +159,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Section 9: governance integration
+## 11. Governance integration
 
 | Programme | Integration |
 | --- | --- |
@@ -173,7 +173,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Section 10: quality expectations
+## 12. Quality expectations
 
 | Quality | Indicator |
 | --- | --- |
@@ -185,7 +185,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Operating expectations
+## 13. Operating expectations
 
 1. Each active reference architecture has a named owner, a review cadence, and a current review date.
 2. Outdated reference architectures are marked Sunsetting or Retired; they are not silently abandoned.
@@ -195,7 +195,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -208,7 +208,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. The notation, repository tooling, and indexing approach are organisation-specific. Reference architectures themselves are organisation-specific; this standard governs how they are produced, not their content.
 

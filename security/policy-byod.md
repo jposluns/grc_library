@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.1\
-**Date:** 2026-06-27\
+**Version:** 1.1.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organisation's access to the device.
 
@@ -24,7 +24,7 @@ This policy supports two BYOD deployment models, mobile application management (
 
 ---
 
-## BYOD deployment models
+## 2. BYOD deployment models
 
 The organisation may operate either model below, or both (different models for different device classes or data sensitivities). The choice is a risk decision the organisation records in its control baseline.
 
@@ -35,7 +35,7 @@ An organisation choosing MDM must obtain and record the device owner's explicit 
 
 ---
 
-## Scope
+## 3. Scope
 
 1. Applies to all employees, contractors, and consultants who choose to access corporate applications or data using a personally owned device.
 2. Covers smartphones, tablets, and any other personal device used to access the cloud productivity platform (email, collaboration, file storage) or other corporate applications.
@@ -43,7 +43,7 @@ An organisation choosing MDM must obtain and record the device owner's explicit 
 
 ---
 
-## Governance and accountability
+## 4. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -53,7 +53,7 @@ An organisation choosing MDM must obtain and record the device owner's explicit 
 
 ---
 
-## Approved access model
+## 5. Approved access model
 
 Under the MAM model, personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer. Under the MDM model the organisation enforces these and additionally applies the device-level policies named in the BYOD deployment models section:
 
@@ -72,7 +72,7 @@ Under the MAM model, personal devices may access corporate applications through 
 
 ---
 
-## What the organisation does not do
+## 6. What the organisation does not do
 
 Under the MAM model, the organisation does not enrol personal devices into MDM, and the following actions are explicitly not taken:
 
@@ -86,13 +86,13 @@ These boundaries are properties of the MAM model. Under the MDM model the organi
 
 ---
 
-## Data classification restriction
+## 7. Data classification restriction
 
 Personal devices may only be used to access Internal and lower data classifications (Public, Controlled, and Internal per the [Data Classification and Handling Standard](standard-data-classification-and-handling.md)). Access to data classified as Confidential or Restricted from a personal device is not permitted. Personnel with regular access requirements for Confidential data must use a company-managed device. Where a specific business need requires Confidential access from a personal device, written CISO approval is required and a compensating control plan must be documented.
 
 ---
 
-## Acceptable use on personal devices
+## 8. Acceptable use on personal devices
 
 When accessing corporate applications on a personal device, the Acceptable Use Policy applies in full to all corporate application activity. In particular:
 
@@ -102,31 +102,31 @@ When accessing corporate applications on a personal device, the Acceptable Use P
 
 ---
 
-## Incident and loss reporting
+## 9. Incident and loss reporting
 
 If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations will initiate the model-appropriate wipe within 1 hour of notification: a selective wipe of corporate application data under the MAM model, or a full-device wipe under the MDM model where the device is enrolled. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
 
 ---
 
-## Termination and offboarding
+## 10. Termination and offboarding
 
 Upon departure, corporate access is removed from personal devices as part of the standard offboarding process. Under the MAM model, corporate application data is selectively wiped and personal data is unaffected; under the MDM model, the device is unenrolled and, where required by the enrolment consent terms, a full-device wipe is performed. The individual does not need to surrender the device.
 
 ---
 
-## Policy violations
+## 11. Policy violations
 
 Violations of this policy, including attempts to circumvent MAM or MDM controls, deliberate data exfiltration to personal applications, or use of jailbroken devices, are subject to disciplinary action under the Acceptable Use Policy.
 
 ---
 
-## Exceptions
+## 12. Exceptions
 
 Exceptions to this policy require CISO approval, documented business justification, a compensating control plan, and a defined expiry date not exceeding 90 days. Exception records are retained for 7 years.
 
 ---
 
-## Framework alignment
+## 13. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

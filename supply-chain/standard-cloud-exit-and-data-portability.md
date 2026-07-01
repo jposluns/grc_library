@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
-**Date:** 2026-06-24\
+**Version:** 1.1.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the requirements for planning, managing, and executing the exit from any cloud service provider or SaaS platform, and for ensuring portability of organisational data and workloads between platforms. It ensures that the organisation is not locked into any single cloud provider without a documented exit path, and that all cloud contracts include minimum data portability and deletion rights.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all cloud services, SaaS platforms, and managed services hosting organisational data or running organisational workloads.
 2. Covers data portability requirements, exit planning obligations for new and existing contracts, and the process for executing a planned or emergency exit.
@@ -30,7 +30,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -41,7 +41,7 @@ This standard defines the requirements for planning, managing, and executing the
 
 ---
 
-## 1. Contract requirements
+## 4. Contract requirements
 
 All new cloud and SaaS contracts must include the following provisions before signature. Procurement must confirm their presence; contracts without these provisions require CISO approval before execution.
 
@@ -55,7 +55,7 @@ All new cloud and SaaS contracts must include the following provisions before si
 
 ---
 
-## 2. Cloud exit plan requirements
+## 5. Cloud exit plan requirements
 
 An exit plan must exist for every cloud service hosting Tier 1 or Tier 2 assets. Exit plans are maintained by IT Operations and reviewed annually.
 
@@ -71,7 +71,7 @@ Exit plans for Tier 3 and Tier 4 services are recommended but not mandatory. New
 
 ---
 
-## 3. Data portability standards
+## 6. Data portability standards
 
 Data stored in cloud platforms must be exportable in open or widely supported formats:
 
@@ -85,7 +85,7 @@ Data stored in cloud platforms must be exportable in open or widely supported fo
 
 ---
 
-## 4. Exit triggers
+## 7. Exit triggers
 
 An exit plan must be activated when any of the following occur:
 
@@ -99,13 +99,13 @@ Emergency exits follow the Incident Response and Crisis Management escalation pa
 
 ---
 
-## 5. Exceptions
+## 8. Exceptions
 
 Where a cloud provider cannot meet the contract requirements in this standard, for example, a commodity SaaS tool with no data export capability, the service may still be used for non-Confidential, non-Restricted data with CISO approval and a documented risk acceptance in the Exception Register.
 
 ---
 
-## Framework alignment
+## 9. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

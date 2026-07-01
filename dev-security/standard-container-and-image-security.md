@@ -2,8 +2,8 @@
 
 **Document Title:** Container and Image Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`supply-chain/register-sbom.md`](../supply-chain/register-sbom.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the security controls applied to container images, container runtimes, image registries, and the supply chain that produces and distributes images. It covers Linux containers (Docker, OCI), Windows containers, Kubernetes and equivalent orchestrators, serverless container platforms, and the secure-build pipelines that produce images.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to every container image built, stored, distributed, or executed by the organisation, in any environment from developer workstations through production. It applies regardless of whether the orchestrator is self-managed, managed by a cloud provider, or operated by a third party.
 
 ---
 
-## Section 1: image build
+## 3. Image build
 
 | Control area | Requirement |
 | --- | --- |
@@ -47,7 +47,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 2: image registry
+## 4. Image registry
 
 | Control area | Requirement |
 | --- | --- |
@@ -62,7 +62,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 3: runtime
+## 5. Runtime
 
 | Control area | Requirement |
 | --- | --- |
@@ -81,7 +81,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 4: orchestrator security
+## 6. Orchestrator security
 
 | Control area | Requirement |
 | --- | --- |
@@ -96,7 +96,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 5: developer workflow
+## 7. Developer workflow
 
 | Control area | Requirement |
 | --- | --- |
@@ -108,7 +108,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 6: serverless container platforms
+## 8. Serverless container platforms
 
 | Control area | Requirement |
 | --- | --- |
@@ -120,7 +120,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 7: supply-chain integrity
+## 9. Supply-chain integrity
 
 | Control area | Requirement |
 | --- | --- |
@@ -134,7 +134,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 8: vulnerability management
+## 10. Vulnerability management
 
 | Control area | Requirement |
 | --- | --- |
@@ -147,7 +147,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 9: data handling in containers
+## 11. Data handling in containers
 
 | Control area | Requirement |
 | --- | --- |
@@ -158,7 +158,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Section 10: incident response readiness
+## 12. Incident response readiness
 
 | Control area | Requirement |
 | --- | --- |
@@ -170,7 +170,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Operating expectations
+## 13. Operating expectations
 
 1. New container workloads accept this standard as a gating criterion before production deployment.
 2. The container platform is treated as production infrastructure; cluster upgrades, add-on changes, and policy changes follow the change management procedure.
@@ -179,7 +179,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -197,7 +197,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Specific orchestrator and platform configurations evolve rapidly; the standard expresses requirements rather than vendor-specific settings. Adopting organisations select the appropriate CIS Benchmark profile (Level 1 typical, Level 2 high-security) and tune to their workload.
 

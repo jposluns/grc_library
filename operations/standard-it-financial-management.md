@@ -2,8 +2,8 @@
 
 **Document Title:** IT Financial Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md), [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines how IT expenditure is planned, allocated, monitored, attributed, and optimized. It expresses outcomes and governance expectations, not a specific accounting policy. The standard supports the capacity and performance management standard, the AI inference cost governance standard, and the supplier and third-party risk management policy by providing the financial discipline within which those operate.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -37,7 +37,7 @@ It does not cover external customer pricing of products (which is a commercial t
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -52,7 +52,7 @@ It does not cover external customer pricing of products (which is a commercial t
 
 ---
 
-## Section 2: cost taxonomy
+## 4. Cost taxonomy
 
 | Cost category | Description |
 | --- | --- |
@@ -72,7 +72,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 3: attribution
+## 5. Attribution
 
 | Element | Description |
 | --- | --- |
@@ -85,7 +85,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 4: budgeting
+## 6. Budgeting
 
 | Activity | Description |
 | --- | --- |
@@ -98,7 +98,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 5: monitoring and forecasting
+## 7. Monitoring and forecasting
 
 | Activity | Description |
 | --- | --- |
@@ -111,7 +111,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 6: optimisation
+## 8. Optimisation
 
 | Practice | Description |
 | --- | --- |
@@ -128,7 +128,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 7: vendor commitment management
+## 9. Vendor commitment management
 
 | Practice | Description |
 | --- | --- |
@@ -141,7 +141,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 8: AI cost governance
+## 10. AI cost governance
 
 | Practice | Description |
 | --- | --- |
@@ -155,7 +155,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 9: green and sustainability considerations
+## 11. Green and sustainability considerations
 
 | Practice | Description |
 | --- | --- |
@@ -167,7 +167,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 10: governance
+## 12. Governance
 
 | Element | Description |
 | --- | --- |
@@ -180,7 +180,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 11: integration with related programmes
+## 13. Integration with related programmes
 
 | Programme | Integration point |
 | --- | --- |
@@ -194,7 +194,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Section 12: financial reporting and compliance
+## 14. Financial reporting and compliance
 
 | Element | Description |
 | --- | --- |
@@ -207,7 +207,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Operating expectations
+## 15. Operating expectations
 
 1. Annual budget, quarterly re-forecast, and continuous cost telemetry are the baseline cadence.
 2. Cost optimisation is a continuous engineering and operations practice, not an annual project.
@@ -217,7 +217,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Framework alignment
+## 16. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -231,7 +231,7 @@ Each category has a documented definition and an owner.
 
 ---
 
-## Limitations
+## 17. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. IT financial practice is highly organisation-specific and depends on the accounting policy in force. The standard expresses outcomes and governance expectations rather than specific accounting treatments. Adopting organisations confirm current accounting policy and select tooling and allocation methods consistent with that policy.
 

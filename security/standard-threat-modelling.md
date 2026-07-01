@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-30\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines how the organisation conducts threat modelling: the structured analysis that identifies what an attacker could do to a system, where, and how, before that system is built or substantially changed. Threat modelling complements the Penetration Testing Standard (which validates controls in practice) and the Vulnerability Management Procedure (which addresses present, known weaknesses) by surfacing the design-level attack surface that those activities cannot reach.
 
@@ -24,7 +24,7 @@ The standard implements the STRIDE methodology applied per trust boundary, suppl
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -37,7 +37,7 @@ It does not duplicate the operational threat-actor profiling that the security o
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -49,9 +49,9 @@ It does not duplicate the operational threat-actor profiling that the security o
 
 ---
 
-## Methodology
+## 4. Methodology
 
-### Step 1: Map the trust boundaries
+### 4.1 Step 1: Map the trust boundaries
 
 A trust boundary is any place where data crosses between zones whose levels of trust are not the same. The standard requires that the threat-modelling activity catalogue every boundary in scope for the system, at minimum:
 
@@ -68,14 +68,14 @@ A trust boundary is any place where data crosses between zones whose levels of t
 
 Each boundary is recorded with the classification of the data crossing it, the trust differential between the two sides, and the control responsible for mediating the boundary.
 
-### Step 2: Name the assets and the actors
+### 4.2 Step 2: Name the assets and the actors
 
 For each system, the threat model names:
 
 - **Assets worth protecting**: credentials, payment data, personal data, regulated data (per [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md) classifications), trade secrets, signing keys, the integrity of administrative operations, the availability of the service.
 - **Threat actors in scope**: external attackers (unauthenticated, authenticated low-privilege, supply-chain), internal authorised users (curious, malicious, coerced), automated agents (LLM output that the system trusts), platform actors (the cloud provider, the operating system, the runtime). The standard does not require modelling every conceivable actor; it requires that the actor list is justified for the system's risk profile.
 
-### Step 3: Apply STRIDE per boundary
+### 4.3 Step 3: Apply STRIDE per boundary
 
 For each boundary identified in Step 1, the workshop walks through the six STRIDE categories and records which are credible for that boundary, what the corresponding threat is, and what the response posture is.
 
@@ -90,13 +90,13 @@ For each boundary identified in Step 1, the workshop walks through the six STRID
 
 For systems consuming LLM output (per [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)), STRIDE is applied to the LLM-output boundary explicitly: the model is the spoofer, the tamperer, and the elevation-of-privilege actor. LLM output that flows into SQL, shell commands, file paths, HTML rendering, or evaluator functions is a STRIDE T (tampering) and E (elevation of privilege) candidate that the system designer cannot dismiss.
 
-### Step 4: Write abuse cases alongside use cases
+### 4.4 Step 4: Write abuse cases alongside use cases
 
 Every use case in the requirements has a corresponding abuse case: the description of how an attacker would attempt to defeat or weaponise that use case. The abuse case is recorded in the same artefact as the use case, with the same identifier scheme (UC-001 has an accompanying ABC-001).
 
 This step is the principal contribution that threat modelling makes to the development lifecycle: it forces the design phase to consider the adversarial perspective alongside the functional one.
 
-### Step 5: Disposition each identified threat
+### 4.5 Step 5: Disposition each identified threat
 
 Each identified threat is assigned a disposition by the application owner with security-architect concurrence. The standard defines three response tiers:
 
@@ -108,7 +108,7 @@ Each identified threat is assigned a disposition by the application owner with s
 
 The tier names are deliberately neutral: the standard does not negotiate the Mandatory tier per project, and the Prohibited tier is not subject to per-project waiver under the secure-development policy.
 
-### Step 6: Record the artefact
+### 4.6 Step 6: Record the artefact
 
 The threat model is recorded as a stand-alone artefact attached to the system's design documentation. The artefact includes:
 
@@ -123,31 +123,31 @@ The artefact is version-controlled with the system's design documentation and re
 
 ---
 
-## Application to specific system types
+## 5. Application to specific system types
 
-### Web applications and APIs
+### 5.1 Web applications and APIs
 
 The web-stack OWASP Top 10 categorizes common findings, but it does not substitute for STRIDE-per-boundary analysis. A web application has an HTTP-ingress boundary that must be analysed for all six STRIDE categories; the OWASP findings populate the threat list but do not define the boundaries. The [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) controls implement the Mandatory-tier responses for the HTTP-ingress boundary by default.
 
-### AI / agentic systems
+### 5.2 AI / agentic systems
 
 LLM output is a trust boundary. The agent's planner, executor, or tool-call mechanism that consumes model output must analyse the boundary for all six STRIDE categories. The model is the spoofing actor (prompt injection makes the model speak as if it were a different principal); the tampering actor (the model can rewrite the planner's intent); the elevation-of-privilege actor (the model can request capabilities the user did not authorise). Storage and retrieval boundaries for retrieval-augmented generation (RAG) are likewise in scope: the vector store is a boundary; poisoning is a tampering threat; cross-tenant retrieval is an information-disclosure threat. See [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) for the AI-specific control taxonomy.
 
-### Multi-tenant systems
+### 5.3 Multi-tenant systems
 
 Multi-tenancy introduces a within-system trust boundary between tenants. Cross-tenant data access through a shared service is an information-disclosure threat that requires explicit modelling; "the application checks tenant ID on every query" is the Mandatory-tier control but is not self-evidently true and must be evidenced.
 
-### Privileged operations and administrative paths
+### 5.4 Privileged operations and administrative paths
 
 Administrative APIs and privileged operations sit behind an internal trust boundary. STRIDE applied to that boundary surfaces the elevation-of-privilege paths that an attacker who has already authenticated as a low-privilege user might exploit. The [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md) controls implement the Mandatory-tier responses.
 
-### Privacy-sensitive systems
+### 5.5 Privacy-sensitive systems
 
 Where the threat being modelled is privacy harm rather than (or as well as) security harm, the threat-modelling activity is supplemented by the LINDDUN methodology (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure of information, Unawareness, Non-compliance). The disposition tier model in Step 5 applies to LINDDUN findings as well.
 
 ---
 
-## Triggers for re-modelling
+## 6. Triggers for re-modelling
 
 A system's threat model is refreshed when any of the following occurs:
 
@@ -160,7 +160,7 @@ A system's threat model is refreshed when any of the following occurs:
 
 ---
 
-## Programme metrics
+## 7. Programme metrics
 
 | Metric | Target |
 | --- | --- |
@@ -172,7 +172,7 @@ A system's threat model is refreshed when any of the following occurs:
 
 ---
 
-## Framework alignment
+## 8. Framework alignment
 
 | Requirement | NIST SSDF | NIST SP 800-53 | ISO/IEC 27001 | OWASP ASVS | CSA CCM |
 | --- | --- | --- | --- | --- | --- |
@@ -185,7 +185,7 @@ A system's threat model is refreshed when any of the following occurs:
 
 ---
 
-## References
+## 9. References
 
 The methodology rests on two long-standing public taxonomies:
 

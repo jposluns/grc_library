@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-06-23\
+**Version:** 1.1.4\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## How to use this document
+## 1. How to use this document
 
 If you are unsure whether something is allowed, check this guide first. If the answer is not here, check the relevant standard: Developer Security Requirements (for developers), DevOps Security Requirements (for pipeline/platform engineers), or the Production Security Requirements Standard (for operations). If still unclear, ask the security team before proceeding.
 
@@ -24,7 +24,7 @@ If you are unsure whether something is allowed, check this guide first. If the a
 
 ---
 
-## NEVER do these things
+## 2. NEVER do these things
 
 Absolute prohibitions. No exception exists without written CIO or CISO approval, and most have no exception path at all.
 
@@ -62,7 +62,7 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 
 ---
 
-## Authentication decision tree
+## 3. Authentication decision tree
 
 **Human user accessing the system?** 
 Use the enterprise IdP. MFA is mandatory. No bypass permitted. 
@@ -81,7 +81,7 @@ OAuth 2.0 client credentials flow validated by IdP token validation policy at th
 
 ---
 
-## Data classification: what to do
+## 4. Data classification: what to do
 
 | Classification | Encryption at Rest | Encryption in Transit | Who Can Access | Can It Leave the Primary Region? |
 | --- | --- | --- | --- | --- |
@@ -95,7 +95,7 @@ If you are unsure what classification applies, classify one level higher until c
 
 ---
 
-## Secrets management reference
+## 5. Secrets management reference
 
 | Where Are You Working? | Approved Store |
 | --- | --- |
@@ -111,7 +111,7 @@ Secret rotation must work without a code deployment. If rotating requires a depl
 
 ---
 
-## Environment rules
+## 6. Environment rules
 
 | Transition | Allowed? | Gate |
 | --- | --- | --- |
@@ -127,7 +127,7 @@ Access in Prod: PAM only. Time-bound. Session recorded. Alert fires.
 
 ---
 
-## CI/CD pipeline gate summary
+## 7. CI/CD pipeline gate summary
 
 Every pipeline touching Test or Production must include these checks in order. Pipeline fails on Critical findings unless a tracked exception exists.
 
@@ -143,7 +143,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 
 ---
 
-## Change management: quick reference
+## 8. Change management: quick reference
 
 | Change Type | Approval | CAB Review |
 | --- | --- | --- |
@@ -156,7 +156,7 @@ Every CAB-reviewed change must include a tested rollback plan. Emergency changes
 
 ---
 
-## Patch and vulnerability SLA: quick reference
+## 9. Patch and vulnerability SLA: quick reference
 
 | Severity | SLA |
 | --- | --- |
@@ -169,7 +169,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 
 ---
 
-## Encryption algorithm cheatsheet
+## 10. Encryption algorithm cheatsheet
 
 | Use Case | Use This | Not This |
 | --- | --- | --- |
@@ -183,7 +183,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 
 ---
 
-## Application production onboarding checklist
+## 11. Application production onboarding checklist
 
 All of the following must be confirmed before any application onboards to a production environment.
 
@@ -201,7 +201,7 @@ All of the following must be confirmed before any application onboards to a prod
 
 ---
 
-## Production go-live security checklist
+## 12. Production go-live security checklist
 
 Evidence required for all of the following before any system promotes to production.
 
@@ -216,7 +216,7 @@ Evidence required for all of the following before any system promotes to product
 
 ---
 
-## AI development minimum checklist
+## 13. AI development minimum checklist
 
 Before building any AI or ML feature:
 
@@ -235,7 +235,7 @@ Before building any AI or ML feature:
 
 ---
 
-## Automation workflow deployment checklist
+## 14. Automation workflow deployment checklist
 
 Before any automation workflow deploys to production:
 
@@ -250,7 +250,7 @@ Before any automation workflow deploys to production:
 
 ---
 
-## Customer-facing and AI feature security checklist
+## 15. Customer-facing and AI feature security checklist
 
 Before any customer-facing portal, external user interface, or AI-enabled feature goes to production:
 
@@ -268,7 +268,7 @@ Before any customer-facing portal, external user interface, or AI-enabled featur
 
 ---
 
-## Incident response: what to do
+## 16. Incident response: what to do
 
 1. Do not try to fix it quietly. Silent remediation of a security incident is a serious policy violation.
 2. Do not reimage, restart, or modify the affected system.
@@ -281,7 +281,7 @@ Personal data breach? CIO must be notified immediately. Quebec Law 25 requires n
 
 ---
 
-## Key reference areas
+## 17. Key reference areas
 
 | Need | Reference |
 | --- | --- |

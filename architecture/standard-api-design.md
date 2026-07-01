@@ -2,8 +2,8 @@
 
 **Document Title:** API Design Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs the design of application programming interfaces (APIs) produced by the organisation. It complements the API security standard (which governs the security controls on APIs) by addressing the design choices that determine usability, longevity, and correctness.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -34,7 +34,7 @@ This standard applies to:
 
 It does not govern private interfaces wholly within a single deployable unit.
 
-### Relationship to the API security standard and approval sequence
+### 2.1 Relationship to the API security standard and approval sequence
 
 This standard (CTO-owned) covers API design choices. The dev-security API security standard ([`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md)) (CISO-owned) covers API security controls (authentication, authorisation, input validation, transport, rate limiting, observability).
 
@@ -48,7 +48,7 @@ A security-gate finding that implies a design change returns the proposal to ste
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -65,7 +65,7 @@ A security-gate finding that implies a design change returns the proposal to ste
 
 ---
 
-## Section 2: style choice
+## 4. Style choice
 
 | Style | When appropriate |
 | --- | --- |
@@ -80,7 +80,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 3: REST design conventions
+## 5. REST design conventions
 
 | Element | Convention |
 | --- | --- |
@@ -98,7 +98,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 4: contract and schema
+## 6. Contract and schema
 
 | Element | Convention |
 | --- | --- |
@@ -111,7 +111,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 5: identifiers
+## 7. Identifiers
 
 | Element | Convention |
 | --- | --- |
@@ -125,7 +125,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 6: errors
+## 8. Errors
 
 | Element | Convention |
 | --- | --- |
@@ -140,7 +140,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 7: versioning
+## 9. Versioning
 
 | Element | Convention |
 | --- | --- |
@@ -154,7 +154,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 8: time, units, and locale
+## 10. Time, units, and locale
 
 | Element | Convention |
 | --- | --- |
@@ -167,7 +167,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 9: documentation
+## 11. Documentation
 
 | Element | Convention |
 | --- | --- |
@@ -183,7 +183,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 10: pagination, filtering, and search
+## 12. Pagination, filtering, and search
 
 | Element | Convention |
 | --- | --- |
@@ -195,7 +195,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 11: idempotency and consistency
+## 13. Idempotency and consistency
 
 | Element | Convention |
 | --- | --- |
@@ -207,7 +207,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 12: AI and agent-callable APIs
+## 14. AI and agent-callable APIs
 
 | Concern | Convention |
 | --- | --- |
@@ -221,7 +221,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 13: customer-facing APIs
+## 15. Customer-facing APIs
 
 | Concern | Convention |
 | --- | --- |
@@ -236,7 +236,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Section 14: governance
+## 16. Governance
 
 | Element | Description |
 | --- | --- |
@@ -250,7 +250,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. Material new APIs are reviewed for design before commitment.
 2. The schema is the source of truth; documentation is generated.
@@ -260,7 +260,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -277,7 +277,7 @@ The choice is recorded as an ADR for material APIs.
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. The specific URI conventions, error model, schema registry, and tooling are organisation-specific. The standard expresses design principles and outcomes, not a single canonical layout.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Email Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the minimum email security controls operated by the organisation. It covers email authentication (SPF, DKIM, DMARC, BIMI), inbound anti-phishing and anti-malware controls, outbound controls, business email compromise (BEC) mitigations, user reporting, secure email gateway requirements, and the supplementary controls applicable to high-risk roles.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to every email domain operated by the organisation, every mailbox provisioned to a human or non-human identity, and every email path that originates from or terminates at the organisation. It applies regardless of whether email is hosted on an internal platform or a cloud email service.
 
@@ -30,7 +30,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 1: outbound authentication
+## 3. Outbound authentication
 
 | Control area | Requirement |
 | --- | --- |
@@ -45,7 +45,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 2: inbound controls
+## 4. Inbound controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -61,7 +61,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 3: anti-phishing and BEC controls
+## 5. Anti-phishing and BEC controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -75,7 +75,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 4: outbound controls
+## 6. Outbound controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -89,7 +89,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 5: user-facing controls
+## 7. User-facing controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -101,7 +101,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 6: secure-email-gateway and platform controls
+## 8. Secure-email-gateway and platform controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -115,7 +115,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 7: AI-generated and AI-processed email considerations
+## 9. AI-generated and AI-processed email considerations
 
 | Control area | Requirement |
 | --- | --- |
@@ -126,7 +126,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Section 8: incident response
+## 10. Incident response
 
 | Trigger | Response |
 | --- | --- |
@@ -137,7 +137,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Operating expectations
+## 11. Operating expectations
 
 1. SPF, DKIM, DMARC posture audited at least quarterly; movement towards `p=reject` tracked as a security metric.
 2. Phishing-simulation programme runs continuously with quarterly review of click and report rates.
@@ -146,7 +146,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Framework alignment
+## 12. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -163,7 +163,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 ---
 
-## Limitations
+## 13. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Specific platform configuration (cloud email service, secure-email-gateway, sandboxing provider) varies by deployment; the standard expresses the control requirements rather than product-specific settings. AI-enabled threats evolve rapidly; the standard expects an annual refresh against current threat-actor tactics.
 

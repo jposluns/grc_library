@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the hardening baseline for endpoints used in the organisation's environment. It covers managed workstations and laptops on all major operating systems, mobile devices, and the BYOD posture for unmanaged personal devices that access organisational resources. The standard is the technical companion to the endpoint management procedure (which governs operations) and the BYOD policy (which governs scope).
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -36,7 +36,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 1: identity and authentication
+## 3. Identity and authentication
 
 | Control area | Requirement |
 | --- | --- |
@@ -50,7 +50,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 2: device integrity
+## 4. Device integrity
 
 | Control area | Requirement |
 | --- | --- |
@@ -64,7 +64,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 3: software and configuration
+## 5. Software and configuration
 
 | Control area | Requirement |
 | --- | --- |
@@ -81,7 +81,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 4: endpoint detection and response
+## 6. Endpoint detection and response
 
 | Control area | Requirement |
 | --- | --- |
@@ -94,7 +94,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 5: data protection
+## 7. Data protection
 
 | Control area | Requirement |
 | --- | --- |
@@ -107,7 +107,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 6: network and connectivity
+## 8. Network and connectivity
 
 | Control area | Requirement |
 | --- | --- |
@@ -120,7 +120,7 @@ It does not cover servers, network appliances, IoT or OT devices, or container h
 
 ---
 
-## Section 7: privileged access workstations (PAW)
+## 9. Privileged access workstations (PAW)
 
 Devices used to administer production environments meet a stricter baseline.
 
@@ -136,7 +136,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Section 8: developer workstations
+## 10. Developer workstations
 
 | Control area | Requirement |
 | --- | --- |
@@ -150,7 +150,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Section 9: BYOD and unmanaged devices
+## 11. BYOD and unmanaged devices
 
 | Control area | Requirement |
 | --- | --- |
@@ -163,7 +163,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Section 10: mobile devices
+## 12. Mobile devices
 
 | Control area | Requirement |
 | --- | --- |
@@ -179,7 +179,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Section 11: kiosks and shared devices
+## 13. Kiosks and shared devices
 
 | Control area | Requirement |
 | --- | --- |
@@ -191,7 +191,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Section 12: lifecycle and disposal
+## 14. Lifecycle and disposal
 
 | Stage | Required action |
 | --- | --- |
@@ -205,7 +205,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Operating expectations
+## 15. Operating expectations
 
 1. The endpoint baseline is documented per OS platform and per role tier (general, developer, PAW, mobile, shared).
 2. Posture is verified continuously through the endpoint management platform; deviations trigger conditional access enforcement.
@@ -214,7 +214,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Framework alignment
+## 16. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -229,7 +229,7 @@ Devices used to administer production environments meet a stricter baseline.
 
 ---
 
-## Limitations
+## 17. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Specific OS, hardware, and management-platform configurations vary; the standard expresses the control requirements rather than vendor-specific settings. Adopting organisations select the appropriate CIS Benchmark level (Level 1 for typical use; Level 2 for high-sensitivity environments) and document any deviations as exceptions.
 

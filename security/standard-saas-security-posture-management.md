@@ -2,8 +2,8 @@
 
 **Document Title:** SaaS Security Posture Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the security posture management of the organisation's SaaS portfolio: inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, and offboarding. It complements the supplier programme (which addresses contractual and assurance posture) with the technical and configuration posture of SaaS in use.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to every SaaS application used by the organisation, regardless of:
 
@@ -35,7 +35,7 @@ It does not duplicate the cloud security configuration baseline standard (which 
 
 ---
 
-## Section 1: SaaS inventory
+## 3. SaaS inventory
 
 | Control area | Requirement |
 | --- | --- |
@@ -48,7 +48,7 @@ It does not duplicate the cloud security configuration baseline standard (which 
 
 ---
 
-## Section 2: configuration baselines
+## 4. Configuration baselines
 
 Each Tier 1 (mission critical) and Tier 2 (important) SaaS application has a documented configuration baseline. The baseline covers, at minimum:
 
@@ -72,7 +72,7 @@ The configuration baseline is captured per application; deviation requires risk 
 
 ---
 
-## Section 3: continuous posture monitoring
+## 5. Continuous posture monitoring
 
 | Control area | Requirement |
 | --- | --- |
@@ -85,7 +85,7 @@ The configuration baseline is captured per application; deviation requires risk 
 
 ---
 
-## Section 4: SaaS-to-SaaS integration risk
+## 6. SaaS-to-SaaS integration risk
 
 OAuth-grant-based SaaS-to-SaaS integrations expand the trust boundary. The standard applies the following controls.
 
@@ -102,7 +102,7 @@ OAuth-grant-based SaaS-to-SaaS integrations expand the trust boundary. The stand
 
 ---
 
-## Section 5: third-party application access
+## 7. Third-party application access
 
 Where employees, contractors, or partners use third-party applications to access organisational SaaS data:
 
@@ -116,7 +116,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Section 6: shadow-SaaS detection and management
+## 8. Shadow-SaaS detection and management
 
 | Control area | Requirement |
 | --- | --- |
@@ -129,7 +129,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Section 7: SaaS-to-SaaS supplier risk
+## 9. SaaS-to-SaaS supplier risk
 
 | Control area | Requirement |
 | --- | --- |
@@ -142,7 +142,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Section 8: data protection within SaaS
+## 10. Data protection within SaaS
 
 | Control area | Requirement |
 | --- | --- |
@@ -154,7 +154,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Section 9: incident readiness
+## 11. Incident readiness
 
 | Control area | Requirement |
 | --- | --- |
@@ -166,7 +166,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Section 10: lifecycle
+## 12. Lifecycle
 
 | Stage | Required action |
 | --- | --- |
@@ -179,7 +179,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Operating expectations
+## 13. Operating expectations
 
 1. SaaS application onboarding requires both procurement and security gates before sanctioning.
 2. The Tier 1 and Tier 2 baseline catalogue is reviewed annually for currency.
@@ -188,7 +188,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -202,7 +202,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. SaaS portfolios and platform-native controls evolve rapidly; configuration baselines are continuously updated. Tooling specifically labelled SSPM is one implementation; the standard's requirements can also be met through a combination of CASB, native cloud controls, and bespoke automation. Adopting organisations select tooling per the tool acceptance criteria.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Site Reliability Engineering Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the site reliability engineering (SRE) practice for services operated by the organisation. It expresses outcomes and operating principles for reliability, not vendor-specific tooling. The standard complements the service-level management standard (which formalises the contract with the customer) and the observability and telemetry standard (which provides the measurement substrate).
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -35,7 +35,7 @@ Services that have not been classified as production are out of scope until acce
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -49,7 +49,7 @@ Services that have not been classified as production are out of scope until acce
 
 ---
 
-## Section 2: service-level objectives and indicators
+## 4. Service-level objectives and indicators
 
 | Concept | Requirement |
 | --- | --- |
@@ -63,7 +63,7 @@ Services that have not been classified as production are out of scope until acce
 
 ---
 
-## Section 3: error budget policy
+## 5. Error budget policy
 
 | Trigger | Action |
 | --- | --- |
@@ -77,7 +77,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 4: reliability practices
+## 6. Reliability practices
 
 | Practice | Description |
 | --- | --- |
@@ -93,7 +93,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 5: change-related risk
+## 7. Change-related risk
 
 | Practice | Description |
 | --- | --- |
@@ -106,7 +106,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 6: incident management
+## 8. Incident management
 
 | Practice | Description |
 | --- | --- |
@@ -121,7 +121,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 7: on-call
+## 9. On-call
 
 | Practice | Description |
 | --- | --- |
@@ -136,7 +136,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 8: toil management
+## 10. Toil management
 
 | Practice | Description |
 | --- | --- |
@@ -148,7 +148,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 9: runbooks and operational documentation
+## 11. Runbooks and operational documentation
 
 | Practice | Description |
 | --- | --- |
@@ -161,7 +161,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 10: reliability engineering practices for AI services
+## 12. Reliability engineering practices for AI services
 
 | Practice | Description |
 | --- | --- |
@@ -174,7 +174,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 11: tooling and platform
+## 13. Tooling and platform
 
 | Element | Description |
 | --- | --- |
@@ -187,7 +187,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Section 12: governance
+## 14. Governance
 
 | Element | Description |
 | --- | --- |
@@ -199,7 +199,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Operating expectations
+## 15. Operating expectations
 
 1. SLOs are published, monitored, and reviewed at least annually.
 2. The error budget policy is enforced consistently across services.
@@ -209,7 +209,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Framework alignment
+## 16. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -224,7 +224,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ---
 
-## Limitations
+## 17. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Reliability practice is rapidly evolving; specific tooling, SLO targets, and error-budget policies are organisation-specific. Adopting organisations confirm current practice with subject-matter experts and tune targets to their customer and regulatory profile.
 

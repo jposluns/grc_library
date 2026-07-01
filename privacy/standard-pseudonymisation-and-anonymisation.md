@@ -2,8 +2,8 @@
 
 **Document Title:** Pseudonymisation and Anonymisation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-07-01\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -20,13 +20,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines pseudonymisation and anonymisation techniques permitted in the organisation, the requirements for each technique, and the re-identification risk assessment that determines whether a data set has crossed from pseudonymous (still personal data) to anonymous (no longer personal data). It supports lawful data minimisation, secure analytics, AI training data preparation, research, and cross-border transfer scenarios.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies whenever personal data is transformed to reduce identifiability for any of the following purposes:
 
@@ -38,7 +38,7 @@ This standard applies whenever personal data is transformed to reduce identifiab
 
 ---
 
-## Definitions
+## 3. Definitions
 
 | Term | Definition |
 | --- | --- |
@@ -54,7 +54,7 @@ This standard applies whenever personal data is transformed to reduce identifiab
 
 ---
 
-## Permitted techniques
+## 4. Permitted techniques
 
 | Technique | Category | Description | Typical use case |
 | --- | --- | --- | --- |
@@ -74,47 +74,47 @@ Hashing without a secret key (plain SHA-256 of an identifier) is not pseudonymis
 
 ---
 
-## Requirements
+## 5. Requirements
 
-### 1. Selection of technique
+### 5.1 Selection of technique
 
 1. Each transformation use case has an owner role and a documented purpose.
 2. Selection of pseudonymisation or anonymisation is recorded with the rationale; downgrading from anonymisation to pseudonymisation requires explicit Data Protection Officer approval.
 3. The technique combination is chosen by the Data Protection Officer with cryptographic input from the CISO where keys are involved.
 
-### 2. Separation of mapping data
+### 5.2 Separation of mapping data
 
 1. For pseudonymisation, the mapping table or key is held in a different system with different access control from the pseudonymised data.
 2. The mapping system is logged; mapping access is reviewed quarterly.
 3. The mapping is retained only as long as re-identification is operationally required.
 
-### 3. Re-identification risk assessment
+### 5.3 Re-identification risk assessment
 
 1. For any release outside the original processing boundary, the Data Protection Officer commissions a re-identification risk assessment.
 2. The assessment considers linkage attacks against publicly available data sets, inference attacks against known sensitive attributes, and singling-out attacks based on uniqueness of quasi-identifier combinations.
 3. The assessment classifies the residual risk as Negligible, Low, Moderate, High, or Unacceptable.
 4. Releases at Moderate or higher residual risk require additional controls (contractual restriction, recipient assurance, time-limited access, secure enclave) or rejection.
 
-### 4. Documentation
+### 5.4 Documentation
 
 1. Each transformation use case is documented with: data source, technique, parameters (k, l, t, epsilon), residual risk assessment outcome, controls, owner, last review.
 2. The documentation is part of the system's privacy assurance evidence.
 3. Material changes to the source data or the technique trigger a re-assessment.
 
-### 5. AI training data
+### 5.5 AI training data
 
 1. AI training data sourced from personal data is pseudonymised or anonymised before training unless the lawful basis explicitly permits training on identifiable data and the data minimisation principle has been applied.
 2. Where models are released, the Data Protection Officer assesses model-inversion and membership-inference risk; release is conditional on the assessment outcome.
 3. Synthetic data and differential-privacy training are preferred for high-risk personal data categories.
 
-### 6. Test and staging environments
+### 5.6 Test and staging environments
 
 1. Production personal data must not flow to test or staging environments. Use tokenised, format-preserving-encrypted, or fully synthetic data.
 2. Where production-equivalent data is required (e.g. for performance testing), the transformation must produce data with k-anonymity at minimum 5 across quasi-identifiers and apply suppression or generalisation as needed.
 
 ---
 
-## Risk classification thresholds (default)
+## 6. Risk classification thresholds (default)
 
 | Residual risk | Definition | Permitted use |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ The percentages above are default thresholds. Adopting organisations may tighten
 
 ---
 
-## Operating expectations
+## 7. Operating expectations
 
 1. The Data Protection Officer maintains a register of pseudonymisation and anonymisation use cases with their technique, parameters, residual risk classification, and last review date.
 2. Re-identification attempts (internal red-team exercises) are conducted at minimum annually against active anonymisation outputs.
@@ -137,7 +137,7 @@ The percentages above are default thresholds. Adopting organisations may tighten
 
 ---
 
-## Framework alignment
+## 8. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -152,7 +152,7 @@ The percentages above are default thresholds. Adopting organisations may tighten
 
 ---
 
-## Limitations
+## 9. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Adopting organisations must validate technique selection against their data, jurisdictional rules, and risk appetite. Quantitative thresholds are defaults; specific contexts (low-population groups, sensitive attribute distributions) may require stricter parameters. The standard is not a substitute for a privacy impact assessment when one is otherwise required.
 
