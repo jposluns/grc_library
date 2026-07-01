@@ -311,6 +311,12 @@ is external. Two mechanisms:
      `/validate-pr`. (#469's §4.10 close left the `tools/lint-bookkeeping-parity.py`
      docstring stale; #471's §4.6 close left it and a CLAUDE.md line stale; #472 fixed
      both. The intra-TODO-only cleanup of #469 is the evidence the grep must span files.)
+     This explicitly includes gate-exempt files carrying a FORWARD `§N` / `PN.M` pointer
+     (this file and anything under `.claude/`, plus a tool docstring): a TODO renumber or
+     section-close can leave a stale forward pointer in a gate-exempt file, and the
+     intra-doc-ref gate does not scan the gate-exempt trees at all, so such a pointer is
+     invisible to every gate and is caught only by this whole-repo grep, not by CI
+     (Sweep 78 B-1).
    - **Gate-39 count-phrasing** (the P7 trap): when prose in a gate-39-SCANNED surface (a
      tool docstring, a `governance/` spec, `TODO.md`, `README.md`, or any other corpus
      `.md`) cites a gate by its number, phrase it as `gates N and M` (the digits AFTER
@@ -529,7 +535,16 @@ keeps working through them, sustaining quality with skeptical verifier subagents
 note in the trigger section) rather than reaching for a handoff. The maintainer is welcome
 to be offered a handoff to consider before a substantial, critical, or long piece of work
 begins, but that is a non-default SUGGESTION for the maintainer's choice, never the
-assistant's default, and absent the maintainer's decision the assistant continues. On the
+assistant's default, and absent the maintainer's decision the assistant continues. The one
+narrow evidence-grounded exception to "heavy context is never a trigger" is a
+run of *expected chained large PRs* for which the project's OWN historical metrics (the
+[`hallucination-metrics.md`](../.working/hallucination-metrics.md) and
+[`session-metrics.md`](../.working/session-metrics.md) ledgers) show a measured quality
+decline on comparable prior runs: that is a NAMED, externally-observable signal (the
+metrics), not the un-instrumented "I feel degraded", and it warrants OFFERING the handoff
+as a suggestion before the run begins (still the maintainer's choice, still never an
+auto-handoff). Context-heaviness with no such metric behind it is not a quasi-trigger; the
+assistant keeps working and sustains quality with skeptical verifier subagents. On the
 rare occasion a handoff IS warranted (genuine evidence of degradation), taking it silently
 is the same failure the `clarify-before-acting` and `action-before-explanation-of-inaction`
 rules forbid: narrating an inaction (the handoff) as if forced, without surfacing the
@@ -585,6 +600,15 @@ wind-down decision. (This timeout is reached only once a handoff has been legiti
 triggered by degradation evidence; it is not the session-level default, which is to
 continue.) A no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an
 overnight run the overnight conflict rules govern instead.
+
+**Turning overnight mode OFF is never a no-answer default.** Do NOT end
+overnight mode unless the maintainer explicitly says so; if unsure, pause and ask. If the
+roughly-2-minute window fires with no answer, **MAINTAIN overnight mode** and re-ask the
+next time the maintainer messages. A session-closing handoff silently ends an overnight
+run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
+default above: it requires an explicit maintainer signal, never a timeout (the recurrence
+the maintainer flagged after the #425 wind-down default ended an overnight run while they
+were briefly up).
 
 **Quality > Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
 relax any discipline: each additional PR still gets its full per-PR `/validate-pr` +

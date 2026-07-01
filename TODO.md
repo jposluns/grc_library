@@ -155,24 +155,9 @@ The maintainer flagged (2026-06-27) that shipped/historical content had accreted
 
 **Remaining (open):** (c) **whether the `## Standing conventions`, `## Backlog totals`, and `## Priority 7` (audit-trail-only) sections belong in TODO at all** or in a conventions / design-decisions doc. This is a **maintainer call** (they are non-forward-looking but appear intentionally retained); filed for decision in `## Priority 7`. The **accretion guard** is the TODO/DONE-rotation gate family, now shipped (gate 57 catches in-place self-marking; the D5 PR-time check catches a wholesale-forgotten rotation when a PR's CHANGELOG asserts a backlog-item closure). A possible extension (consider) is teaching gate 45 to flag shipped-PR-number history accreting inside an open TODO item, so accretion is mechanically prompted rather than convention-only.
 
-### 3.11 Wind-down / overnight-mode SOP refinements (S, S) — maintainer-directed 2026-06-28 (was 4.25)
-
-Two maintainer-directed refinements to codify in the `## Wind-down decision framework`, `## Attended-autonomous operating mode`, and overnight-protocol sections of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (a focused PR; flagged "not urgent, handle later today"). Effective behaviorally on direction; codification queued here.
-
-1. **Overnight-mode toggle is not a no-answer default.** Do NOT decide to turn off overnight mode unless the maintainer explicitly says so, or (if unsure) pause and ask. If no answer arrives in the ~2-minute graceful-degradation window, **MAINTAIN overnight mode** and re-ask the next time the maintainer messages. This carves the overnight-OFF decision out of the general wind-down no-answer-to-handoff default (a handoff silently ends overnight mode, the recurrence the maintainer flagged after the #425 wind-down default ended the overnight run while they were briefly up).
-2. **Continue-as-default while quality holds, even when context is heavy.** Heavy context alone is NOT a wind-down trigger; the decision is evidence-based, not inference. The only exception is a run of expected chained large PRs where historical metrics show quality is likely to suffer very soon. Adjust the self-assessment SOP so context-heaviness is not treated as a quasi-trigger.
-
 ### 3.12 CLAUDE.md removal-ledger review cadence (standing) — added 2026-06-28, PR #441 (was 4.27)
 
 The PR #441 condense of [`.claude/CLAUDE.md`](.claude/CLAUDE.md) moved the cut rationale, war-stories, and provenance into [`.working/claude-md-considerations.md`](.working/claude-md-considerations.md) (the removal ledger), each entry carrying an "evidence the removal was wrong" signal. Standing activity (not a one-time task): each `/retro` does a quick scan of the ledger's open RM entries and the periodic hallucination-metrics pass does a deeper one; if an entry's signal appears, advise the maintainer to restore the cut text or make a new CLAUDE.md change, and record the disposition in that entry's Status. Wired into [`.working/improvement-log.md`](.working/improvement-log.md)'s Convention section. This item is the durable tracker so the cadence is not lost; it stays open by design.
-
-### 3.13 CLAUDE.md-optimization diagnostic skill (L, S) — maintainer-directed 2026-06-28, low priority (was 4.28)
-
-Decision (maintainer 2026-06-28, after the PR #441 condense): the keep-and-condense method is documented as pack guidance ([`guidance-claude-md-optimization.md`](dev-security/claude-rules/guidance-claude-md-optimization.md), shipped 2026-06-28); a full optimization skill was declined as too judgment-heavy to mechanize (the keep-versus-cut call is exactly the part a skill cannot do). The tractable mechanical aid is a NARROW read-only diagnostic, a `/claude-md-audit`-style reporter over a target rules file that surfaces file length, section count, an actionable-token-density heuristic (ratio of greppable rule tokens such as commands, paths, gate numbers, and thresholds to total prose), and a "no removal ledger referenced" flag. Advisory output only, never a gate (the keep/cut decision stays the maintainer's). Low priority: build only if the guidance doc proves insufficient on its own. Pairs with the §3.12 ledger-review cadence.
-
-### 3.14 Reinforce the section-close cross-FILE cleanup checklist line to span gate-exempt forward pointers (L, FYI) — surfaced 2026-06-30 (Sweep 78 B-1)
-
-The companion non-tooling residual of the Sweep 78 B-1 finding, remaining after its gate-2 generator-emitted-prose coverage half. The section-close cross-FILE cleanup line in the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) close-out checklist covers live (non-frozen) `§N` / `PN.M` citers, but a TODO renumber can leave a gate-exempt `.claude/` forward `§`-pointer stale, and the intra-doc-ref gate does not reach a gate-exempt file. Reinforce that checklist line to explicitly span gate-exempt forward pointers, folded in when the line is next edited. Needs no new rule. Protected-file edit ([`.claude/CLAUDE.md`](.claude/CLAUDE.md)): maintainer-gated.
 
 
 ---
@@ -341,7 +326,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and renumber (t
 
 - **P1 (fix errors and prevent recurrence)**: 3 items (1.1 FR-48, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
-- **P3 (clean up and tooling)**: 12 items (3.1-3.4, 3.6-3.8, 3.10-3.14).
+- **P3 (clean up and tooling)**: 7 items (3.1, 3.4, 3.6-3.8, 3.10, 3.12).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
