@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.4\
-**Date:** 2026-06-22\
+**Version:** 1.3.5\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -127,7 +127,7 @@ All SIEM correlation rules must:
 3. Specify expected data sources, log types, and field dependencies.
 4. Include a defined alert severity (Critical / High / Medium / Low) consistent with the incident severity framework in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md).
 5. Be tested against historical log data or a representative test dataset before deployment to production.
-6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1: all required alert categories must be configured and verified before any system enters production.
+6. Comply with the pre-go-live SIEM validation requirements in [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §4.1: all required alert categories must be configured and verified before any system enters production.
 
 ### 5.2 MITRE ATT&CK tactic coverage
 
@@ -332,7 +332,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Threat hunting | MITRE ATT&CK; NIST CSF Detect (DE.AE); ISO/IEC 27002:2022 §8.16 |
 | Intelligence sharing | NIST SP 800-150 §4; CSA CCM TVM domain controls covering intelligence sharing; CISA TLP Policy |
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-04 to SEF-05 |
-| Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §3.1 to §3.2 |
+| Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §4.1 to §4.2 |
 | AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9; NIST AI RMF |
 | Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.28 |
 
