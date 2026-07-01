@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.7\
-**Date:** 2026-06-30\
+**Version:** 1.4.8\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard establishes controls, retention schedules, destruction methods, and documentation requirements for managing information and records throughout their lifecycle. It ensures that records, both physical and digital, are retained, secured, and disposed of in compliance with legal, regulatory, contractual, and operational requirements, including those governing privacy, AI governance, supply-chain trade compliance (BASC), and data protection.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all organisational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
 2. Covers all systems, storage media, and cloud environments that hold information subject to regulatory, audit, or contractual retention obligations.
@@ -31,7 +31,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 |---|---|
@@ -46,7 +46,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer where 
 
 ---
 
-## Records classification
+## 4. Records classification
 
 | Classification | Examples | Minimum Retention |
 |---|---|---|
@@ -58,7 +58,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer where 
 
 ---
 
-## Section 1: records retention schedule
+## 5. Records retention schedule
 
 The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
@@ -67,7 +67,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 - Business or audit requirements.
 - Data protection laws including GDPR, PIPEDA, and LGPD.
 
-### Domain-specific minimum retention periods
+### 5.1 Domain-specific minimum retention periods
 
 | Domain | Minimum Retention |
 |---|---|
@@ -85,7 +85,7 @@ Sector-specific retention categories (for example, trade and customs records und
 
 ---
 
-## Section 2: secure storage and access
+## 6. Secure storage and access
 
 Records must be stored in secure, access-controlled systems with encryption applied at rest and in transit. Requirements include:
 
@@ -95,7 +95,7 @@ Records must be stored in secure, access-controlled systems with encryption appl
 
 ---
 
-## Section 3: retention hold and litigation freeze
+## 7. Retention hold and litigation freeze
 
 When a record is subject to audit, investigation, or litigation, a retention hold must be applied immediately. The following controls apply:
 
@@ -105,18 +105,18 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ---
 
-## Section 4: secure destruction
+## 8. Secure destruction
 
 Upon expiration of the applicable retention period and confirmation that no active hold exists, records must be securely destroyed using an approved method.
 
-### Acceptable destruction methods
+### 8.1 Acceptable destruction methods
 
 | Media Type | Accepted Methods |
 |---|---|
 | **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
 | **Electronic / Digital** | Cryptographic erasure, secure overwrite (IEEE 2883 Clear), or physical drive destruction |
 
-### Destruction documentation
+### 8.2 Destruction documentation
 
 All destruction actions must be logged in the Destruction Register. Each entry must include:
 
@@ -130,7 +130,7 @@ Certificates of Destruction must be retained for a minimum of 7 years.
 
 ---
 
-## Section 5: AI dataset and model record retention
+## 9. AI dataset and model record retention
 
 All AI training datasets, test results, and model versions must be retained to support audit and reproducibility obligations per ISO/IEC 42001 §9. Required records include:
 
@@ -143,7 +143,7 @@ Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles
 
 ---
 
-## Section 6: sector-specific retention overlays
+## 10. Sector-specific retention overlays
 
 Where the organisation participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`compliance/`](../compliance/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
 
@@ -151,9 +151,9 @@ Sector overlays extend (do not contradict) the retention requirements defined el
 
 ---
 
-## Section 7: monitoring and compliance
+## 11. Monitoring and compliance
 
-### Quarterly reviews
+### 11.1 Quarterly reviews
 
 Quarterly reviews confirm:
 
@@ -163,7 +163,7 @@ Quarterly reviews confirm:
 
 Non-compliance identified during reviews triggers investigation under the Corrective and Preventive Action (CAPA) Procedure.
 
-### Annual audit
+### 11.2 Annual audit
 
 Annual audits verify:
 
@@ -173,7 +173,7 @@ Annual audits verify:
 
 ---
 
-## Framework alignment
+## 12. Framework alignment
 
 | Framework | Relevance |
 |---|---|
