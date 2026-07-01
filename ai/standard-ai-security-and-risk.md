@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security and Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-06-30\
+**Version:** 1.1.1\
+**Date:** 2026-07-01\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines minimum security and risk requirements for AI systems. It is original repository content informed by common AI, cloud, privacy, and security assurance practices and does not reproduce restricted third-party control or questionnaire text.
 
 ---
 
-## Applicability
+## 2. Applicability
 
 This standard applies to AI systems that create, process, retrieve, infer, classify, generate, recommend, automate, summarize, translate, code, reason, or trigger actions using organisational or user-provided data.
 
@@ -30,7 +30,7 @@ The standard applies regardless of whether the AI system is internally developed
 
 ---
 
-## Relationship to the AI and Agentic Development Security Standard
+## 3. Relationship to the AI and Agentic Development Security Standard
 
 This standard and the [`AI and Agentic Development Security Standard`](standard-ai-and-agentic-development-security.md) both govern AI security, at different altitudes, and they apply cumulatively.
 
@@ -43,32 +43,32 @@ This standard and the [`AI and Agentic Development Security Standard`](standard-
 
 | Topic area | This standard (governance baseline) | AI and Agentic Development Security Standard (technical implementation) |
 | --- | --- | --- |
-| Inventory and ownership | §1 Inventory and ownership | Model governance requirements; Agent production authority, reversibility, and recovery |
-| Data governance | §2 Data governance | Data security requirements |
-| Identity and access control | §3 Identity and access control | Agent security requirements; Secret handling requirements |
-| Prompt, retrieval, and tool security | §4 Prompt, retrieval, and tool security | Mandatory input and output controls; RAG security requirements; MCP security requirements; Prompt security requirements |
-| Model and data attack resistance | §5 Model and data attack resistance | Threat model; Threat classes |
-| Testing and validation | §6 Testing and validation | Security testing requirements; Adversarial testing requirements; Red team requirements |
-| Monitoring and logging | §7 Monitoring and logging | AI observability and telemetry; Logging and audit requirements |
-| Human oversight | §8 Human oversight | Human approval boundaries; Autonomous action constraints |
-| Supplier and external service controls | §9 Supplier and external service controls | AI supply chain security |
-| Incident and exception management | §10 Incident and exception management | Incident detection and response |
-| Decommissioning | §11 Decommissioning | No dedicated counterpart; the closest are data-retention and memory-purge controls found elsewhere in that standard, which do not amount to a dedicated decommissioning counterpart. This area is governed by this standard. |
+| Inventory and ownership | §4.1 Inventory and ownership | Model governance requirements; Agent production authority, reversibility, and recovery |
+| Data governance | §4.2 Data governance | Data security requirements |
+| Identity and access control | §4.3 Identity and access control | Agent security requirements; Secret handling requirements |
+| Prompt, retrieval, and tool security | §4.4 Prompt, retrieval, and tool security | Mandatory input and output controls; RAG security requirements; MCP security requirements; Prompt security requirements |
+| Model and data attack resistance | §4.5 Model and data attack resistance | Threat model; Threat classes |
+| Testing and validation | §4.6 Testing and validation | Security testing requirements; Adversarial testing requirements; Red team requirements |
+| Monitoring and logging | §4.7 Monitoring and logging | AI observability and telemetry; Logging and audit requirements |
+| Human oversight | §4.8 Human oversight | Human approval boundaries; Autonomous action constraints |
+| Supplier and external service controls | §4.9 Supplier and external service controls | AI supply chain security |
+| Incident and exception management | §4.10 Incident and exception management | Incident detection and response |
+| Decommissioning | §4.11 Decommissioning | No dedicated counterpart; the closest are data-retention and memory-purge controls found elsewhere in that standard, which do not amount to a dedicated decommissioning counterpart. This area is governed by this standard. |
 | Evidence | Evidence requirements | Verification and enforcement |
 
 Sections of the AI and Agentic Development Security Standard with no counterpart here (technical and agentic-runtime controls beyond this baseline's scope) include its trust zones, security architecture principles, secure-by-default requirements, prohibited engineering patterns, AI-assisted development controls, context isolation, memory security, runtime enforcement, infrastructure security, CI/CD pipeline controls, secure agent orchestration, sandbox and isolation, and AI-driven offensive security tooling governance; they apply on their own terms to systems in their scope.
 
 ---
 
-## Minimum requirements
+## 4. Minimum requirements
 
-### 1. Inventory and ownership
+### 4.1 Inventory and ownership
 
 1. Each AI system must be recorded in the AI System Register before production use.
 2. Each AI system must have an assigned AI System Owner, Data Owner, Control Owner, and Supplier Owner where applicable.
 3. Each AI system must have a documented business purpose, approved use case, prohibited use conditions, lifecycle status, and review date.
 
-### 2. Data governance
+### 4.2 Data governance
 
 1. Data used by the AI system must be classified before use.
 2. Data provenance must be documented for training, fine-tuning, retrieval, prompt, inference, monitoring, and evaluation data.
@@ -77,14 +77,14 @@ Sections of the AI and Agentic Development Security Standard with no counterpart
 5. Data used in prompts, files, retrieval stores, vector databases, logs, model evaluations, and monitoring must follow retention and deletion rules.
 6. The system must not use organisational data for external model training or provider improvement unless explicitly approved and documented.
 
-### 3. Identity and access control
+### 4.3 Identity and access control
 
 1. Access to AI systems must use approved identity and access management processes.
 2. Privileged administrative access must be restricted, logged, and reviewed.
 3. API keys, tokens, service accounts, plugins, agents, and tool permissions must be inventoried and rotated according to risk.
 4. Access to prompts, outputs, logs, retrieval stores, model endpoints, datasets, and evaluation records must be restricted by need to know.
 
-### 4. Prompt, retrieval, and tool security
+### 4.4 Prompt, retrieval, and tool security
 
 1. Systems using user prompts, retrieved content, documents, browser data, email, tickets, repositories, or web content must be assessed for prompt injection exposure.
 2. Systems with tool use, code execution, workflow execution, transaction initiation, or external API access must define allowed actions and denial conditions.
@@ -92,7 +92,7 @@ Sections of the AI and Agentic Development Security Standard with no counterpart
 4. Retrieval content must be permission-filtered and must not expose data across users, roles, tenants, customers, or business contexts.
 5. System prompts, policy prompts, guardrail instructions, and tool schemas must be protected from unauthorized disclosure and modification.
 
-### 5. Model and data attack resistance
+### 4.5 Model and data attack resistance
 
 Controls must address, proportionate to risk:
 
@@ -109,7 +109,7 @@ Controls must address, proportionate to risk:
 - Unauthorized model extraction.
 - Evaluation data contamination.
 
-### 6. Testing and validation
+### 4.6 Testing and validation
 
 1. AI systems must be tested before release and after material change. "Material" is defined by the Material change thresholds table in [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md).
 2. Test coverage must include intended use, prohibited use, security boundaries, data leakage, access control, prompt injection, unsafe outputs, failure modes, and monitoring triggers.
@@ -118,21 +118,21 @@ Controls must address, proportionate to risk:
 5. Known limitations must be documented and communicated to users and control owners.
 6. Testing and validation documentation requirements are governed by [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md).
 
-### 7. Monitoring and logging
+### 4.7 Monitoring and logging
 
 1. AI system usage must be logged according to risk, privacy, and retention requirements.
 2. Logs must support investigation of misuse, leakage, unauthorized access, system drift, unexpected tool execution, and incident response.
 3. Monitoring must include anomaly detection or review processes for high-risk systems.
 4. Monitoring must not create unnecessary sensitive data retention.
 
-### 8. Human oversight
+### 4.8 Human oversight
 
 1. Human review is required where AI outputs may materially affect rights, eligibility, access, employment, finances, safety, regulatory reporting, or critical business operations.
 2. Human reviewers must receive enough context to challenge, override, or reject outputs.
 3. Automation boundaries must be documented.
 4. Users must not be led to treat probabilistic outputs as authoritative evidence without verification.
 
-### 9. Supplier and external service controls
+### 4.9 Supplier and external service controls
 
 External AI services must be assessed for:
 
@@ -149,14 +149,14 @@ External AI services must be assessed for:
 - Exit support.
 - Contractual control commitments.
 
-### 10. Incident and exception management
+### 4.10 Incident and exception management
 
 1. AI incidents must be classified and escalated through incident management.
 2. AI-specific incidents include unauthorized disclosure, unexpected data retention, prompt injection success, unsafe tool execution, unauthorized model use, data poisoning, material output failure, and policy bypass.
 3. Exceptions must have owner, risk level, justification, compensating controls, expiry, and approval.
 4. High-risk exceptions must require independent review.
 
-### 11. Decommissioning
+### 4.11 Decommissioning
 
 AI systems must be retired with controls for:
 
@@ -172,7 +172,7 @@ AI systems must be retired with controls for:
 
 ---
 
-## Evidence requirements
+## 5. Evidence requirements
 
 At minimum, each AI system should maintain:
 
@@ -189,7 +189,7 @@ At minimum, each AI system should maintain:
 
 ---
 
-## Compliance notes
+## 6. Compliance notes
 
 This standard does not establish legal compliance or certification. It defines a reusable security and risk baseline. Adopting organisations must validate requirements against applicable laws, sector obligations, contracts, deployment architecture, data categories, and risk appetite.
 
