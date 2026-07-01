@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organisation are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
@@ -24,13 +24,13 @@ The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42005:2025 (AI system impact
 
 ---
 
-## Scope
+## 2. Scope
 
 Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organisation. Includes both internally developed and third-party AI systems integrated into operational workflows.
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ Applies to all AI systems, machine learning models, generative AI tools, and aut
 
 ---
 
-## 1. AI system documentation requirements
+## 4. AI system documentation requirements
 
 All AI systems must maintain current documentation covering:
 
@@ -59,36 +59,36 @@ High-risk AI systems (EU AI Act Annex III) must maintain technical documentation
 
 ---
 
-## 2. Pre-deployment testing requirements
+## 5. Pre-deployment testing requirements
 
 All AI systems must pass the following testing gates before production deployment:
 
-### 2.1 Functional validation
+### 5.1 Functional validation
 
 - Accuracy, precision, recall, and F1 score meet defined acceptance thresholds.
 - Output consistency verified across representative input distributions.
 - Edge case and adversarial input handling documented and tested.
 
-### 2.2 Bias and fairness testing
+### 5.2 Bias and fairness testing
 
 - Demographic parity and equalized odds evaluated across protected groups.
 - Bias mitigation techniques documented and validated.
 - Residual bias below defined acceptable thresholds; residual risk documented.
 
-### 2.3 Explainability validation
+### 5.3 Explainability validation
 
 - Explanations generated for representative model decisions.
 - Explainability method appropriate to deployment context (SHAP, LIME, or equivalent).
 - Output interpretable by the intended decision-making audience.
 
-### 2.4 Security testing
+### 5.4 Security testing
 
 - Adversarial robustness testing performed (evasion, poisoning, extraction attacks).
 - AI system tested against OWASP LLM Top 10 where applicable.
 - Prompt injection and data leakage risks assessed for generative AI systems.
 - Model outputs do not expose training data or confidential system information.
 
-### 2.5 Privacy testing
+### 5.5 Privacy testing
 
 - Personal data processing confirmed within declared scope.
 - Data minimization and purpose limitation validated.
@@ -96,7 +96,7 @@ All AI systems must pass the following testing gates before production deploymen
 
 ---
 
-## 3. Post-deployment monitoring requirements
+## 6. Post-deployment monitoring requirements
 
 Deployed AI systems must be monitored continuously for:
 
@@ -112,7 +112,7 @@ Material performance degradation triggers model review and potential retraining 
 
 ---
 
-## 4. Retraining and update validation
+## 7. Retraining and update validation
 
 AI models undergoing retraining or significant update must complete:
 
@@ -123,7 +123,7 @@ AI models undergoing retraining or significant update must complete:
 
 ---
 
-## 5. Risk tier testing requirements
+## 8. Risk tier testing requirements
 
 | Risk Tier | Additional Testing Requirements |
 | --- | --- |
@@ -134,7 +134,7 @@ AI models undergoing retraining or significant update must complete:
 
 ---
 
-## Framework alignment
+## 9. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
