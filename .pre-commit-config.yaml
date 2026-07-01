@@ -428,3 +428,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-changelog-mirror-header-parity
+        name: CHANGELOG mirror header-parity audit
+        entry: python3 tools/lint-changelog-mirror-header-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true

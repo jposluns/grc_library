@@ -116,10 +116,6 @@ Cross-document consistency cleanup and routine development / quality tooling: lo
 
 Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep closes the open items meanwhile.
 
-### 3.2 CHANGELOG detailed-mirror per-PR-header parity check (Low, S) — surfaced 2026-06-27 (`/full-qa` F-1)
-
-The detailed CHANGELOG mirror can lose a per-PR `##` header when a later PR's commit overwrites the prior header in place (PR #388 orphaned the #386 and #387 bodies under #388; fixed in PR #392). Delta gate D1 checks per-commit root+detailed lock-step *presence*, not cross-commit header integrity, so the class is gate-blind. Consider a mechanical check asserting the detailed mirror's per-PR `##`-header set equals the root [`CHANGELOG.md`](CHANGELOG.md)'s. Low; pairs with the next CHANGELOG-gate edit.
-
 ### 3.3 Citation-verification pass against the scratch `ref/` base (Low, M) — surfaced 2026-06-27 (scratch-review S-2/S-3/S-9)
 
 The scratch `ref/standards/` (ISO/IEC, NIST, ETSI) and `ref/frameworks/` (COBIT 19 docs, CSA CCM/AICM CSVs, MITRE, OWASP) now hold full-text / control-catalogue extracts for many [`register-canonical-citations.md`](governance/register-canonical-citations.md) rows. Run a verification pass confirming the register's ISO / NIST / CSA / COBIT version+date rows against the now-held local extracts (per [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md)), recording results in the Citation Verifications Register. This is a local-ground-truth substitute for the previously egress-blocked verification. Sub-decision: whether to add ETSI rows to the register (EN 303 645 consumer IoT, EN 319 401 trust services, held in `ref/standards/ETSI/`) — the register currently lists no ETSI; maintainer call on scope.
