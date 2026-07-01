@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-19\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the governance, evaluation, and control requirements for acquiring, testing, approving, deploying, maintaining, and retiring software across the organisation. It ensures that all software introduced into the environment is secure, licensed, compliant, and operationally validated before enterprise use, in accordance with the organisation's risk, compliance, and change management framework.
 
 ---
 
-## Scope
+## 2. Scope
 
 Applies to:
 
@@ -33,7 +33,7 @@ Applies to:
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ Applies to:
 
 ---
 
-## 1. Evaluation and testing
+## 4. Evaluation and testing
 
 All new or replacement software must undergo structured evaluation and pre-deployment testing including:
 
@@ -59,7 +59,7 @@ Evaluation environments must be isolated from production systems. Test results a
 
 ---
 
-## 2. Security and compliance review
+## 5. Security and compliance review
 
 Before approval, all software must undergo a security and compliance review validating:
 
@@ -72,7 +72,7 @@ CSA CCM AIS, SEF, and TVM domains apply to all evaluations.
 
 ---
 
-## 3. Acceptance and approval for use
+## 6. Acceptance and approval for use
 
 Software is formally approved through the Acceptance Into Service Policy and process. The AIS checklist must include:
 
@@ -86,7 +86,7 @@ Formal sign-off is required by the CIO or delegated authority before enterprise 
 
 ---
 
-## 4. Deployment and configuration control
+## 7. Deployment and configuration control
 
 All deployment activities must comply with the Change Management and Configuration Control Procedure. Requirements include:
 
@@ -96,7 +96,7 @@ All deployment activities must comply with the Change Management and Configurati
 
 ---
 
-## 5. Patch and update management
+## 8. Patch and update management
 
 Software patching and updates follow the Vulnerability and Patch Management Standard. Key requirements:
 
@@ -106,7 +106,7 @@ Software patching and updates follow the Vulnerability and Patch Management Stan
 
 ---
 
-## 6. Software inventory and version control
+## 9. Software inventory and version control
 
 All approved software must be registered in the Asset Inventory Register. Inventory records include:
 
@@ -118,7 +118,7 @@ Unauthorized software detected via automated compliance tools must be removed or
 
 ---
 
-## 7. Ongoing review and retirement
+## 10. Ongoing review and retirement
 
 Each software product must undergo annual operational and compliance review. Evaluation includes:
 
@@ -130,7 +130,7 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 
 ---
 
-## Framework alignment
+## 11. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

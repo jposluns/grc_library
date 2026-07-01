@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Decision Records Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines how significant architecture decisions are recorded. Architecture decision records (ADRs) capture the context, the decision, the alternatives considered, the trade-offs accepted, and the consequences expected. They are the durable, searchable record of architecture practice.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -36,7 +36,7 @@ It does not apply to routine implementation choices within an existing reference
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -50,7 +50,7 @@ It does not apply to routine implementation choices within an existing reference
 
 ---
 
-## Section 2: when to write an ADR
+## 4. When to write an ADR
 
 An ADR is written when a decision:
 
@@ -69,7 +69,7 @@ When in doubt, write an ADR; the cost of writing one is low compared to the cost
 
 ---
 
-## Section 3: ADR template
+## 5. ADR template
 
 The minimum structure is:
 
@@ -99,7 +99,7 @@ Optional additional sections:
 
 ---
 
-## Section 4: status lifecycle
+## 6. Status lifecycle
 
 | Status | Meaning |
 | --- | --- |
@@ -113,7 +113,7 @@ Status changes are appended to the status section with a date; the body of the A
 
 ---
 
-## Section 5: review and approval
+## 7. Review and approval
 
 | Decision type | Review required |
 | --- | --- |
@@ -128,7 +128,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Section 6: storage and discoverability
+## 8. Storage and discoverability
 
 | Element | Requirement |
 | --- | --- |
@@ -141,7 +141,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Section 7: integration with adjacent processes
+## 9. Integration with adjacent processes
 
 | Process | Integration |
 | --- | --- |
@@ -154,7 +154,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Section 8: AI-aware ADR practice
+## 10. AI-aware ADR practice
 
 | Concern | Practice |
 | --- | --- |
@@ -167,7 +167,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Section 9: quality expectations
+## 11. Quality expectations
 
 | Quality | Indicator |
 | --- | --- |
@@ -179,7 +179,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Section 10: anti-patterns
+## 12. Anti-patterns
 
 | Anti-pattern | Why it harms |
 | --- | --- |
@@ -192,7 +192,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Operating expectations
+## 13. Operating expectations
 
 1. Significant architecture decisions are recorded; absence of an ADR for a contested decision is itself a finding.
 2. ADRs are written close to the time the decision is made, not months later.
@@ -201,7 +201,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. The specific template, storage tooling, indexing approach, and approval forum are organisation-specific. The standard expresses what an ADR is and what makes it useful, not a specific tool or layout.
 

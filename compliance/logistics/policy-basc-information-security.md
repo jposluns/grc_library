@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.0\
-**Date:** 2026-06-21\
+**Version:** 1.2.1\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy establishes the framework for managing and protecting the organisation's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data across all BASC-certified operations.
 
 ---
 
-## Scope
+## 2. Scope
 
 Applies to all employees, contractors, and third parties accessing the organisation's information systems, data, and technology resources.
 
 ---
 
-## Definitions
+## 3. Definitions
 
 | Term | Definition |
 | --- | --- |
@@ -41,7 +41,7 @@ Applies to all employees, contractors, and third parties accessing the organisat
 
 ---
 
-## Roles and responsibilities
+## 4. Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -54,7 +54,7 @@ Applies to all employees, contractors, and third parties accessing the organisat
 
 ---
 
-## BASC information security requirements
+## 5. BASC information security requirements
 
 All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organisation's control areas.
 
@@ -88,9 +88,9 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 
 ---
 
-## Information security controls
+## 6. Information security controls
 
-### Governance
+### 6.1 Governance
 
 An Information Security Manager is formally appointed and assigned responsibility for information security.
 
@@ -102,7 +102,7 @@ Mandatory annual security awareness training is required for all personnel, cove
 
 *Requirement IDs: 6.1.b, 6.2.d, 6.2.o*
 
-### Access management
+### 6.2 Access management
 
 Access rights are granted based on the principle of least privilege.
 
@@ -118,7 +118,7 @@ Access is revoked immediately upon termination or contract conclusion.
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.c, 6.2.e, 6.2.f, 6.2.g, 6.2.k, 6.2.p, 6.2.s, 6.2.v*
 
-### Asset and media management
+### 6.3 Asset and media management
 
 All IT equipment and storage media are inventoried and tracked.
 
@@ -132,7 +132,7 @@ Physical and virtual backups are maintained securely offsite and tested regularl
 
 *Requirement IDs: 6.1.a, 6.1.b, 6.1.c, 6.2.j, 6.2.l, 6.2.r*
 
-### System integrity
+### 6.4 System integrity
 
 Only licensed and updated software is permitted.
 
@@ -144,7 +144,7 @@ Personal device connections to internal systems are restricted unless explicitly
 
 *Requirement IDs: 6.1.b, 6.1.c, 6.2.h, 6.2.i, 6.2.q, 6.2.s, 6.2.t*
 
-### Threat response
+### 6.5 Threat response
 
 Cybersecurity incidents are documented, analyzed, and communicated according to the established incident response process.
 
@@ -160,30 +160,30 @@ Compliance is monitored through logs, reports, and audits.
 
 ---
 
-## Exception process
+## 7. Exception process
 
-### Submission
+### 7.1 Submission
 
 Any employee may submit an exception request via the ITSM portal or designated collaboration platform channel. The request must include: justification; duration; mitigation measures; impact assessment.
 
-### Evaluation
+### 7.2 Evaluation
 
 - The CISO assesses information security and privacy impact.
 - The CIO evaluates business implications.
 - Legal is consulted when the deviation involves contractual or regulatory risk.
 
-### Approval
+### 7.3 Approval
 
 - Temporary exceptions (less than 90 days): approved by CISO and CIO.
 - Long-term exceptions: reviewed by the Change Control Board and require a risk acceptance memo signed by executive leadership.
 
-### Documentation and monitoring
+### 7.4 Documentation and monitoring
 
 All exceptions are logged and assigned an expiry or review date. Owners are responsible for implementing compensating controls and tracking progress.
 
 ---
 
-## Information security audit checklist
+## 8. Information security audit checklist
 
 | Area | Evidence Required |
 | --- | --- |
@@ -195,7 +195,7 @@ All exceptions are logged and assigned an expiry or review date. Owners are resp
 
 ---
 
-## Framework alignment
+## 9. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

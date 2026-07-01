@@ -2,8 +2,8 @@
 
 **Document Title:** Privileged Access Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -18,13 +18,13 @@ This standard defines the requirements for managing privileged access across sys
 
 ---
 
-## Purpose
+## 1. Purpose
 
 To ensure that privileged accounts are managed, monitored, and revoked according to a documented, auditable process that reduces the attack surface available to insider threats and external adversaries.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all accounts with elevated privileges including domain administrators, local administrators, service accounts, cloud management identities, and database administrator accounts.
 2. Covers on-premises directory services, enterprise identity provider (cloud and hybrid), productivity platform, cloud resources, and any other platform granting privileged access.
@@ -32,7 +32,7 @@ To ensure that privileged accounts are managed, monitored, and revoked according
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -44,15 +44,15 @@ To ensure that privileged accounts are managed, monitored, and revoked according
 
 ---
 
-## PAM approach
+## 4. PAM approach
 
-### Primary tool: privileged identity management (PIM)
+### 4.1 Primary tool: privileged identity management (PIM)
 
 The primary PAM approach uses Privileged Identity Management (PIM), which provides just-in-time (JIT) privileged access, time-bound role activation, approval workflows, and audit logging for cloud and productivity platform roles. PIM is the default implementation for all cloud directory and platform privileged roles.
 
 Third-party PAM solutions remain available for extended use cases including on-premises systems and external vendor access management.
 
-### Key PAM controls
+### 4.2 Key PAM controls
 
 | Control | Requirement |
 | --- | --- |
@@ -67,7 +67,7 @@ Third-party PAM solutions remain available for extended use cases including on-p
 
 ---
 
-## Privileged account lifecycle
+## 5. Privileged account lifecycle
 
 **Provisioning:** All privileged account requests must be approved by the account owner's manager and the CISO or delegate. Requests must include business justification and expected duration. Accounts are created following the principle of least privilege.
 
@@ -79,13 +79,13 @@ Third-party PAM solutions remain available for extended use cases including on-p
 
 ---
 
-## Incident response
+## 6. Incident response
 
 Suspected compromise of a privileged account constitutes a P1 security incident. The IAM Team must immediately disable the account, revoke active sessions, and notify the CISO. All privileged credential compromises follow the Incident Response Procedure.
 
 ---
 
-## Framework alignment
+## 7. Framework alignment
 
 | Control | ISO/IEC 27001 | NIST SP 800-53 | COBIT 2019 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- | --- |

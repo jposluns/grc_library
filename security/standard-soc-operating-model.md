@@ -2,8 +2,8 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the operating model for the security operations centre (SOC). It covers capability tiers, staffing model, tool stack, coverage hours, detection engineering, threat hunting, intelligence integration, on-call governance, shift handover, MTTD and MTTR targets, and the supplier-managed-SOC model where one is used.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to the team or function (internal, hybrid, or supplier-managed) that performs security monitoring, alert triage, incident response coordination, threat hunting, and security telemetry engineering. It does not duplicate the security incident response procedure or the logging and monitoring standard; it defines the operating model that runs them.
 
 ---
 
-## Section 1: capability tiers
+## 3. Capability tiers
 
 The SOC operates a tiered capability model. Adopting organisations select the tier appropriate to their risk appetite, complexity, and budget; the standard defines what each tier minimally provides.
 
@@ -43,7 +43,7 @@ Adopting organisations document the current tier and the target tier in the secu
 
 ---
 
-## Section 2: staffing model
+## 4. Staffing model
 
 | Role | Responsibilities |
 | --- | --- |
@@ -61,7 +61,7 @@ Smaller SOCs combine roles. Larger SOCs additionally include red team, purple te
 
 ---
 
-## Section 3: tool stack
+## 5. Tool stack
 
 | Capability | Tool category |
 | --- | --- |
@@ -84,7 +84,7 @@ Tools support open standards (STIX, TAXII, SCAP, OpenC2, MITRE ATT&CK mapping). 
 
 ---
 
-## Section 4: coverage hours
+## 6. Coverage hours
 
 | Posture | Description | Use case |
 | --- | --- | --- |
@@ -97,7 +97,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 5: detection engineering
+## 7. Detection engineering
 
 | Practice | Requirement |
 | --- | --- |
@@ -112,7 +112,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 6: threat hunting
+## 8. Threat hunting
 
 | Practice | Requirement |
 | --- | --- |
@@ -124,7 +124,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 7: intelligence integration
+## 9. Intelligence integration
 
 | Practice | Requirement |
 | --- | --- |
@@ -137,7 +137,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 8: on-call and shift governance
+## 10. On-call and shift governance
 
 | Practice | Requirement |
 | --- | --- |
@@ -150,7 +150,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 9: metrics and SLAs
+## 11. Metrics and SLAs
 
 | Metric | Definition | Target by tier |
 | --- | --- | --- |
@@ -167,7 +167,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 ---
 
-## Section 10: supplier-managed-SOC
+## 12. Supplier-managed-SOC
 
 Where the SOC is supplier-managed in whole or in part:
 
@@ -184,7 +184,7 @@ Where the SOC is supplier-managed in whole or in part:
 
 ---
 
-## Section 11: continuous improvement
+## 13. Continuous improvement
 
 | Practice | Cadence |
 | --- | --- |
@@ -197,7 +197,7 @@ Where the SOC is supplier-managed in whole or in part:
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ Where the SOC is supplier-managed in whole or in part:
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. SOC operations are highly variable across organisations and across maturity tiers. Adopting organisations select the appropriate tier and adapt the staffing, tooling, and SLA targets to their risk profile and budget. The standard is not a SOC-platform mandate; it expresses operating-model requirements rather than product-specific configuration.
 
