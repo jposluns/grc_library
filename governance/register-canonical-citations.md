@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.10\
-**Date:** 2026-06-30\
+**Version:** 1.5.11\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -176,7 +176,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | MITRE ATT&CK | v19.1 | 2026-05 | Adversary Tactics, Techniques, and Common Knowledge | v15 | https://attack.mitre.org/resources/updates/ | 2026-06-30 |
-| MITRE ATLAS | v2026.05 | 2026-05 | Adversarial Threat Landscape for AI Systems | v4.7 | https://github.com/mitre-atlas/atlas-data | 2026-06-30 |
+| MITRE ATLAS | v2026.06 | 2026-06 | Adversarial Threat Landscape for AI Systems | v2026.05 | https://github.com/mitre-atlas/atlas-data | 2026-07-01 |
 | STRIDE | continuous | 1999 | Six-category threat taxonomy (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) introduced by Kohnfelder and Garg at Microsoft; integrated into the Microsoft Security Development Lifecycle (SDL) Threat Modeling Tool | - | https://owasp.org/www-community/Threat_Modeling_Process | 2026-06-30 |
 | LINDDUN | v3.0 | 2023 | Seven-category privacy threat taxonomy (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure of information, Unawareness, Non-compliance) maintained by KU Leuven imec-DistriNet | v2.0 (2015) | https://linddun.org/ | 2026-06-30 |
 | AVID | continuous | 2023 | AI Vulnerability Database, an open knowledge base of AI failure modes and harms (avidml.org) | - | https://avidml.org/ | 2026-06-30 |
