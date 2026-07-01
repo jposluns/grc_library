@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §3.11 + §3.13 + §3.14: protected `.claude/CLAUDE.md` wind-down / checklist cleanup (closed by PR #523, 2026-07-01)
+
+Maintainer-authorized protected-file batch. §3.11: codified two wind-down SOP refinements into `.claude/CLAUDE.md` (overnight-mode-OFF is never a no-answer default, requiring an explicit maintainer signal; and a narrow metrics-grounded exception to "heavy context is never a trigger"). §3.14: reinforced the section-close cross-FILE cleanup checklist line to explicitly span gate-exempt forward `§`/`P` pointers (`.claude/` and tool docstrings). §3.13: closed as decided (the CLAUDE.md-optimization skill was declined 2026-06-28; the guidance doc shipped, the narrow diagnostic stays build-only-if-needed), no edit required.
+
 ### §3.3: Citation-verification consistency cross-check vs the scratch `ref/` base (closed by PR #522, 2026-07-01)
 
 Ran the resume-resolved model-B consistency cross-check (register version+date vs the held scratch `ref/` extract, no register row): 33 ISO/IEC, NIST, CSA, COBIT, and MITRE citations held in both `governance/register-canonical-citations.md` and `grc_library_scratch/ref/catalogue.yml` compared, **0 version mismatches**, so no register change. ETSI-scope sub-decision moot under model B (register-recording dropped).

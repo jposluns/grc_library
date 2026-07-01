@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.11, PR #523
+
+TODO §3.11 + §3.13 + §3.14: maintainer-authorized protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) wind-down / checklist SOP cleanup. Substantive tier (prose that governs assistant behaviour in the primordial rules file); a pre-push refute-briefed skeptical verifier was run on the three edits.
+
+### Changed
+- **§3.11, two wind-down SOP refinements in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md):** (1) added a "Turning overnight mode OFF is never a no-answer default" paragraph to the wind-down timeout section, carving the overnight-OFF decision out of the no-answer-to-handoff default (it requires an explicit maintainer signal; on no answer, maintain overnight mode and re-ask the next message); (2) added to the wind-down intro a narrow, metrics-grounded exception to "heavy context is never a trigger" (a run of expected chained large PRs for which the hallucination-metrics and session-metrics ledgers show a measured quality decline on comparable runs is a NAMED externally-observable signal that warrants OFFERING a handoff as a suggestion, still never an auto-handoff).
+- **§3.14, section-close cross-FILE cleanup checklist reinforcement:** extended the §N-orphan-guard checklist line to state explicitly that the whole-repo grep must span gate-exempt files carrying a FORWARD `§`/`P` pointer (`.claude/` and tool docstrings), since the intra-doc-ref gate does not scan gate-exempt trees at all, so such a pointer is caught only by the grep, not by CI (Sweep 78 B-1).
+- **§3.13 closed as decided:** no edit; the CLAUDE.md-optimization skill was declined 2026-06-28, the guidance doc is the shipped answer, and the narrow read-only diagnostic stays build-only-if-needed. Rotated to DONE with the decision recorded.
+- Rotated TODO §3.11, §3.13, and §3.14 out of [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md); the standing §3.12 was kept.
+
+### Verification
+- The three new CLAUDE.md clauses were checked for em/en dashes (none; `.claude/` is gate-exempt but the house style applies) and for the very trap they concern: the provenance `(TODO §3.11)` / `(TODO §3.14)` tags first added were dropped, because those sections close in this PR and a gate-exempt forward pointer to a deleted section is exactly the §3.14 defect class (durable provenance stays via the Sweep 78 B-1 and #425 references).
+- A whole-repo grep confirmed no live citer of §3.11 / §3.13 / §3.14 as backlog items remains outside [`TODO.md`](../../TODO.md).
+- `tools/run_all_audits.sh`: all 59 gates pass. A pre-push refute-briefed skeptical verifier was run on the diff.
+- Batches the #522 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
+Library 2026.07.10 to 2026.07.11; README 1.9.371 to 1.9.372.
+
 ## 2026-07-01, Library Version 2026.07.10, PR #522
 
 TODO §3.3: citation-verification consistency cross-check vs the scratch reference base (model B, no register row). Quick-fix / bookkeeping tier: the cross-check found the register and scratch already consistent, so the diff is pure bookkeeping (no corpus artefact changed); no standing pre-push verifier (the post-merge `/validate-pr` is the backstop), and the cross-check itself was the substance, whose high-risk rows the orchestrator independently spot-verified at apply-time.
