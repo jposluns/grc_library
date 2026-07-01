@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.9, PR #521
+
+TODO §3.2: add gate 59 (CHANGELOG mirror header-parity audit). Substantive-tier change (a new audit gate plus linter wired across the four parity surfaces); a pre-push refute-briefed skeptical verifier was run on the gate logic, the wiring, and the cutoff rationale. Not sensitive-tier: the gate is a mechanical presence/parity check with no gate-blind semantic-fit dimension, so the substantive tier is proportionate and no high-assurance register row was opened.
+
+### Added
+- **Gate 59, CHANGELOG mirror header-parity audit** ([`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py)): parses the per-PR entry-header multiset (the `## <date>, Library Version <v>, PR #<n>` header shape) from the root [`CHANGELOG.md`](../../CHANGELOG.md) and the detailed mirror [`CHANGELOG-detailed.md`](CHANGELOG-detailed.md) and fails on any PR number missing from one side, extra on one side, or duplicated within a side. Cutoff-scoped at `CUTOFF_PR = 463`: the three pre-split-era root headers with no mirror counterpart (#268, #353, #462) are an accepted historical exemption (retroactive reconstruction is disallowed by the change-tracking rule), and scoping forward is false-positive-free by construction while preventing all future drift, since sub-cutoff history is immutable. Supports a `--root` override for testability.
+- **Regression fixture** in [`tests/test_linters.py`](../../tests/test_linters.py) (`ChangelogMirrorHeaderParityTests`, four cases): a HEAD smoke test, a post-cutoff header present in root but missing from the mirror (flagged), a matching pair (passes), and a pre-cutoff one-sided header (not flagged, exercising the cutoff exemption).
+
+### Changed
+- Wired gate 59 into the four parity surfaces gate 35 checks: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory table, plus the free-prose surfaces no parity gate inspects: the §6 detailed-prose pair (the "Gate 59 is a ... audit" description and the "Gate 59 is appended at the tail" sentence) and the §5 category-5 grouped list. Spec Version 1.16.27 to 1.16.28.
+- Advanced the [`guardrail-review`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) growth-narrative word-form count "a dozen gates to fifty-eight" to "fifty-nine" (the gate-39-blind word-form count, stale the moment gate 59's §6 row landed), and bumped the pack README ([`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)) 1.53.8 to 1.53.9 with a matching version-history row.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the spec's Version and Date bump; [`docs/portal.md`](../../docs/portal.md) was re-run and verified unchanged (the bump did not alter portal-derived content, so it is not in this diff).
+- Rotated TODO §3.2 out of [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md).
+
+### Verification
+- `tools/run_all_audits.sh`: **all 59 gates pass**. Gate 35 (four-surface parity) and gate 39 (gate-count consistency, which read the new §6 row as canonical count 59) are both green; gates 33 and 34 (generated-artefact drift) are green after regeneration.
+- The `ChangelogMirrorHeaderParityTests` class (four tests) passes; gate 36 runs the full suite.
+- `lint-language` run clean on the edited guardrail-review SKILL prose before commit.
+- Batches the #520 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
+Library 2026.07.8 to 2026.07.9; README 1.9.369 to 1.9.370.
+
 ## 2026-07-01, Library Version 2026.07.8, PR #520
 
 FR-48 safe subset: normalize 28 policy/standard docs to the fully-numbered section model. Substantive-tier change (28 corpus-document bodies); a deterministic scripted apply + re-parse and a pre-push refute-briefed skeptical verifier were run. Not the full sensitive-tier harness: only the delicate-scale condition holds strongly (the safe subset was defined to exclude the cited/entangled docs, so gate-blind-correctness and escaped-cost are weak), so per the high-assurance rule's "only 1-2 conditions" guidance the substantive tier + deterministic apply is proportionate; no high-assurance register row. The verifier proved its worth: it caught a systematic safe-subset-detection gap mid-PR (see Verification), which reduced the shipped set from 33 to 28.

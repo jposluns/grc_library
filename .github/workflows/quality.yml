@@ -195,6 +195,9 @@ jobs:
       - name: Per-document ISO Annex A validity audit
         run: python3 tools/lint-document-iso-annex-a.py
 
+      - name: CHANGELOG mirror header-parity audit
+        run: python3 tools/lint-changelog-mirror-header-parity.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

@@ -154,6 +154,7 @@ run_gate "Cross-document retention-consistency audit"    python3 tools/lint-rete
 run_gate "Bare-normative-shall audit"                    python3 tools/lint-bare-normative-shall.py
 run_gate "Backlog marked-done audit"                        python3 tools/lint-todo-marked-done.py
 run_gate "Per-document ISO Annex A validity audit"       python3 tools/lint-document-iso-annex-a.py
+run_gate "CHANGELOG mirror header-parity audit"          python3 tools/lint-changelog-mirror-header-parity.py
 
 # ----------------------------------------------------------------------
 # Summary

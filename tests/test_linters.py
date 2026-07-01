@@ -1355,6 +1355,75 @@ class ListingSurfaceCompletenessTests(LinterTestCase):
         )
 
 
+class ChangelogMirrorHeaderParityTests(LinterTestCase):
+    """tools/lint-changelog-mirror-header-parity.py"""
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the root CHANGELOG and its detailed mirror carry the
+        # same per-PR header set (at or above the cutoff) at HEAD.
+        result = run_linter("tools/lint-changelog-mirror-header-parity.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; the root CHANGELOG "
+            f"and its detailed mirror should carry the same per-PR headers.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _write_pair(self, root: Path, root_headers: str, mirror_headers: str) -> None:
+        (root / "CHANGELOG.md").write_text(root_headers, encoding="utf-8")
+        mirror_dir = root / ".working" / "changelog-details"
+        mirror_dir.mkdir(parents=True, exist_ok=True)
+        (mirror_dir / "CHANGELOG-detailed.md").write_text(mirror_headers, encoding="utf-8")
+
+    def test_header_missing_from_mirror_flagged(self) -> None:
+        # A post-cutoff PR header present in root but absent from the mirror
+        # (the #388 orphaned-header defect class) must be flagged.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlead.\n"
+                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nlead.\n",
+                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nfull.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("#521", result.stdout)
+
+    def test_matching_pair_passes(self) -> None:
+        # When both surfaces carry the same post-cutoff header set the gate
+        # passes.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_pre_cutoff_mismatch_not_flagged(self) -> None:
+        # A header below the cutoff present on only one side is an accepted
+        # historical exemption, not a violation.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "## 2026-05-01, Library Version 2026.05.1, PR #462\n\nlead.\n"
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlead.\n",
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nfull.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""
 

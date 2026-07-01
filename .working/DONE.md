@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §3.2: CHANGELOG detailed-mirror per-PR-header parity check (gate 59, closed by PR #521, 2026-07-01)
+
+Added gate 59 (CHANGELOG mirror header-parity audit), a cutoff-scoped (PR >= #463) check that the root CHANGELOG and its detailed mirror carry the same per-PR entry-header set, closing the cross-commit orphaned-header gap (the #388 defect) that per-commit delta check D1 is blind to. Wired across all four parity surfaces with a four-case regression fixture; the guardrail-review growth-narrative count advanced to fifty-nine.
+
 ### §3.5 (was 4.3): Standard Version Upgrade Procedure (2026-07-01)
 
 Authored `governance/procedure-standard-version-upgrade.md` (Procedure, 1.0.0), the seven-step corpus-wide edition-transition process (authoritative diff, corpus-wide sweep, positional-vs-substantive classification, per-classification apply, register + verifications-register supersession, gate-6 confirmation, campaign CHANGELOG) with roles, framework alignment, and a limitations baseline. Registered in `governance/README.md` and the document-index register (gate 47/38); regenerated taxonomy/portal/scorecard.
