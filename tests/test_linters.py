@@ -255,6 +255,44 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "sanitisation")
 
+    def test_generator_emitted_prose_ise_flagged(self) -> None:
+        # Gate 2 also scans the build-*.py generators' emitted-prose string
+        # literals (TODO 3.14 / Sweep 78 B-1): the generated docs/ output is
+        # excluded from the .md scan and the .py source is never scanned as
+        # markdown, so a Commonwealth -ise spelling in a generator's emitted
+        # prose (not a docstring) was doubly blind. It must now be flagged.
+        fixture = self.make_fixture(
+            "build-gen-ise.py",
+            '"""Module docstring: finalised (docstring, must be ignored)."""\n'
+            "out = []\n"
+            'out.append("This audience blurb was finalised by the team.")\n',
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "ise")
+
+    def test_generator_docstring_prose_not_flagged(self) -> None:
+        # Docstrings in a generator are developer documentation, not prose
+        # emitted into the corpus, so a Commonwealth -ise spelling inside a
+        # module or function docstring must NOT be flagged; only non-docstring
+        # string literals are scanned. The one emitted string reads cleanly,
+        # so the file must scan clean.
+        fixture = self.make_fixture(
+            "build-gen-docstring-ok.py",
+            '"""Generator docstring describing how output is finalised."""\n'
+            "def build():\n"
+            '    """Build docstring: recognised behaviour."""\n'
+            "    out = []\n"
+            '    out.append("This audience blurb reads cleanly.")\n'
+            "    return out\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        if result.returncode != 0:
+            self.fail(
+                "generator docstring -ise should be exempt (docstrings are not "
+                "emitted prose) but lint-language failed.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
+
     def test_worked_example_meta_tutorial_exempt(self) -> None:
         # docs/worked-example.md is the meta-tutorial that demonstrates the
         # document-creation process, so it deliberately contains lowercase

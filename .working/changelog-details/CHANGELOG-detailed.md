@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.4, PR #516
+
+TODO §3.14 (tooling half): gate-2 coverage of generator emitted-prose strings. Substantive-tier change (an audit-gate logic change); a pre-push skeptical verifier ran on the diff.
+
+### Added
+- [`tools/lint-language.py`](../../tools/lint-language.py): a `GENERATOR_SOURCES` constant (the two generators [`tools/build-portal.py`](../../tools/build-portal.py) and [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py)), a `_docstring_constant_ids` helper, and a `check_generator_source` function that `ast`-parses each generator and runs the three prose house-style patterns (`EM_DASH_PATTERN`, `ISE_PATTERN`, `ENSURE_PATTERN`) over every non-docstring string-constant literal. `main` now routes `.py` inputs to the generator check and `.md` inputs to the markdown check, and the default run scans both the markdown set and the two generators. Docstrings are excluded (developer documentation, not emitted corpus prose); the markdown-only checks (heading-case, sanitisation) are not applied to generator sources.
+- [`tests/test_linters.py`](../../tests/test_linters.py): two regression cases in `LanguageLinterTests`, `test_generator_emitted_prose_ise_flagged` (a `-ise` in an emitted `out.append(...)` string is flagged) and `test_generator_docstring_prose_not_flagged` (a `-ise` in a module or function docstring is exempt, locking in the docstring-exclusion design). Suite 222 -> 224.
+
+### Changed
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (Version 1.16.26 -> 1.16.27, Date -> 2026-07-01): the gate-2 §6 narrative gains a sentence recording that gate 2 additionally scans the two generators' emitted-prose string literals (via `ast`, docstrings excluded) for the dash / `-ise` / `ensure that` rules, closing the double-blind gap. No §6 table row, §5 grouped-list membership, or gate count changed (gate 2 is extended, not added or renumbered).
+- [`TODO.md`](../../TODO.md): §3.14 retitled and trimmed to its companion non-tooling residual (reinforce the section-close cross-FILE cleanup close-out-checklist line in the protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) to span gate-exempt forward pointers; maintainer-gated), the tooling half being delivered here. This PR also completes the §3.9 TODO/DONE rotation that #515 closed but did not rotate (§3.9 deleted from TODO, added to DONE; committed earlier on the branch), leaving the P3 count at 13.
+- [`.working/DONE.md`](../DONE.md): added the §3.14 tooling-half entry and (earlier on the branch) the §3.9 rotation entry.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the audit-programme Version bump (taxonomy first, then the portal family).
+- [`.working/pending-decisions.md`](../pending-decisions.md): recorded the §3.2 detailed-CHANGELOG-mirror header-parity gap as a deferred-blocked pending decision, Status now **1 pending** (committed earlier on the branch).
+
+### Verification
+- Gate 2 is green on the current corpus (0 findings), including the new generator-source scan. A pre-audit over both generators' string literals returned 0 house-style findings, so the gate ships purely preventive; the Sweep 78 `customised` was already hand-fixed to `customized` in [`tools/build-portal.py`](../../tools/build-portal.py).
+- The two new regression cases pass; the full 224-test suite passes via [`tools/run-linter-regression.py`](../../tools/run-linter-regression.py).
+- Gates 39 (collection-count), 50 (bookkeeping-parity), and 52 (scan-scope parity) confirmed green after the edits: the `GENERATOR_SOURCES` string literals are not audited-domain-dir literals, so gate 52's enumeration detector does not trip.
+- Carries the batched #515 [`/validate-pr`](../validate-pr/history.md) (0 findings) and [`/retro`](../improvement-log.md) rows.
+
+### Discipline observation
+- The §3.9 rotation initially annotated the P3 Backlog-totals line with "§3.9 rotated to DONE in #515", which gate 50 correctly flagged as an in-place self-completion marker; the annotation was removed before push so the totals line states only the position ranges (the DONE ledger, not TODO, carries the rotation record). Confirms the no-in-place-completion-marker rule reaches even an approximate totals line.
+
 ## 2026-07-01, Library Version 2026.07.3, PR #515
 
 TODO §3.9: document the scratch `ref/` base as the standing citation ground-truth. Substantive-tier change (one corpus governance-doc body change); a pre-push skeptical verifier ran on the diff.
