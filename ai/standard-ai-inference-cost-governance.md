@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-06-30\
+**Version:** 0.0.4\
+**Date:** 2026-07-01\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines how the organisation governs the cost of AI inference and training: budgeting, allocation, ceiling enforcement, model-choice criteria, monitoring, anomaly response, and reporting. AI costs are volatile and easily exceed forecasts; this standard ensures that AI use is economically rational and that runaway spend cannot occur silently.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -37,7 +37,7 @@ It does not duplicate the broader IT financial management standard; it overlays 
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Statement |
 | --- | --- |
@@ -50,7 +50,7 @@ It does not duplicate the broader IT financial management standard; it overlays 
 
 ---
 
-## Section 2: budgeting and allocation
+## 4. Budgeting and allocation
 
 | Control area | Requirement |
 | --- | --- |
@@ -62,7 +62,7 @@ It does not duplicate the broader IT financial management standard; it overlays 
 
 ---
 
-## Section 3: cost ceilings and rate limits
+## 5. Cost ceilings and rate limits
 
 Every production AI feature enforces:
 
@@ -76,7 +76,7 @@ Every production AI feature enforces:
 
 The ceilings are configured per the cost-tier classification and reviewed at minimum quarterly.
 
-### 3.1 Enforcement architecture
+### 5.1 Enforcement architecture
 
 Cost ceilings are enforced at the most reliable point available; reliance on provider-side billing alone is not sufficient because billing data typically lags by hours to days. The standard recognizes four enforcement layers in decreasing reliability and ordering preference:
 
@@ -91,7 +91,7 @@ The hard kill switch is implemented in the application middleware (the same laye
 
 ---
 
-## Section 4: model-choice criteria
+## 6. Model-choice criteria
 
 When selecting a model for a use case, the model registry entry documents the rationale across these criteria:
 
@@ -110,7 +110,7 @@ The standard prefers the smallest, fastest, cheapest model that meets the requir
 
 ---
 
-## Section 5: monitoring and anomaly response
+## 7. Monitoring and anomaly response
 
 | Monitoring area | Requirement |
 | --- | --- |
@@ -131,7 +131,7 @@ Cost anomalies are dual-routed:
 
 ---
 
-## Section 6: feature lifecycle controls
+## 8. Feature lifecycle controls
 
 | Lifecycle stage | Cost control |
 | --- | --- |
@@ -139,13 +139,13 @@ Cost anomalies are dual-routed:
 | Build | Cost telemetry instrumented from the first integration |
 | Pre-production | Load-test results include cost projection at expected production volume |
 | Acceptance into service | Cost ceiling, kill switch, and dashboard verified before go-live |
-| Production | Monitored per Section 5; ceilings enforced |
+| Production | Monitored per §7; ceilings enforced |
 | Material change | Cost-impact assessment for any change projected to alter per-unit or aggregate cost by 20% or more |
 | Retirement | Final cost reconciliation; supplier obligations closed; cost attribution archived |
 
 ---
 
-## Section 7: agent and autonomous workflow controls
+## 9. Agent and autonomous workflow controls
 
 Agentic and autonomous workflows have outsized cost-runaway potential.
 
@@ -159,7 +159,7 @@ Agentic and autonomous workflows have outsized cost-runaway potential.
 
 ---
 
-## Section 8: customer-facing cost transparency
+## 10. Customer-facing cost transparency
 
 Where the AI feature is customer-facing and the cost is passed through or otherwise relevant to the customer:
 
@@ -172,7 +172,7 @@ Where the AI feature is customer-facing and the cost is passed through or otherw
 
 ---
 
-## Section 9: provider-side cost-management
+## 11. Provider-side cost-management
 
 For external providers:
 
@@ -186,7 +186,7 @@ For external providers:
 
 ---
 
-## Section 10: reporting
+## 12. Reporting
 
 | Report | Cadence | Audience |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ For external providers:
 
 ---
 
-## Framework alignment
+## 13. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -213,7 +213,7 @@ For external providers:
 
 ---
 
-## Limitations
+## 14. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. AI provider pricing models, capability tiers, and platform features change frequently; specific commercial decisions belong to the procurement and finance functions. The standard provides the governance overlay; it does not substitute for FinOps practice, capacity planning, or specialist cost-engineering work.
 
