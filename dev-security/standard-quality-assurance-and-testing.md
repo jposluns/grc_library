@@ -2,8 +2,8 @@
 
 **Document Title:** Quality Assurance and Testing Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all software, infrastructure, data pipeline, and AI system development and deployment activities.
 2. Covers code quality validation, performance testing, security testing, and user acceptance testing (UAT).
@@ -31,7 +31,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -46,7 +46,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## QA and testing lifecycle
+## 4. QA and testing lifecycle
 
 | Stage | Objective | Responsible Party |
 | --- | --- | --- |
@@ -59,7 +59,7 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 
 ---
 
-## Quality gates and release criteria
+## 5. Quality gates and release criteria
 
 No release may proceed without documented approval of quality gate checkpoints:
 
@@ -80,9 +80,9 @@ No release may proceed without documented approval of quality gate checkpoints:
 
 ---
 
-## Testing types and requirements
+## 6. Testing types and requirements
 
-### Security and vulnerability testing
+### 6.1 Security and vulnerability testing
 
 Security testing must align with the Vulnerability and Patch Management Standard and the Secure Development and Engineering Policy, including:
 
@@ -92,7 +92,7 @@ Security testing must align with the Vulnerability and Patch Management Standard
 - Penetration testing for major releases and annually.
 - All critical vulnerabilities must be remediated before release.
 
-### AI model testing
+### 6.2 AI model testing
 
 AI model testing is governed by the AI Testing, Validation and Documentation Standard and must include:
 
@@ -102,7 +102,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 - Adversarial input resilience testing.
 - AIGC review for High-risk AI systems.
 
-### Performance testing
+### 6.3 Performance testing
 
 - Load and stress testing must be conducted for all Tier 1 and Tier 2 systems before production deployment.
 - Performance benchmarks are defined in test plans and compared against actual results.
@@ -110,7 +110,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 
 ---
 
-## Test environment requirements
+## 7. Test environment requirements
 
 - Test environments must be logically isolated from production.
 - Production data must not be used in non-production environments unless it has been fully anonymized.
@@ -118,7 +118,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 
 ---
 
-## Framework alignment
+## 8. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
