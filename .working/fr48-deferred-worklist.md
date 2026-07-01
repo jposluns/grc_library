@@ -13,14 +13,14 @@ The 38 policy/standard documents that FR-48's safe-subset pass (PR #520) deferre
 - **inline clause numbering**: the doc's body carries numbered prose clauses (`3.1 Internal Audit must...`, `4.3 CAPA effectiveness must be validated...`) keyed to the OLD local H3 numbering; renumbering the headings without realigning these inline clauses (and any external citation of them, e.g. `procedure-capa.md` -> `policy-compliance-and-audit-management.md §4.3`) breaks the heading<->clause correspondence. The remap must renumber the inline clauses in lockstep with the headings.
 - **uses "## Section N:" labels**: the doc's H2s are `## Section N: title`; the strip-and-renumber changes the section number the "Section N" scheme exposes, so it is unsafe wherever that doc is also cited or self-references.
 
-**Build-time discipline.** Recompute the inbound citers at build time (they drift as the corpus changes); for each doc, produce the old-section-number to new-`§N` map and apply it to every citer (corpus-wide grep, not the doc's own input set) in the same PR, then re-parse. Recommended shape: one domain-batch per PR, deterministic apply + citation remap + re-parse. The numbering itself is gate-blind (gate 38 strips numbering when matching), so this is editorial consistency, not error-prevention.
+**Build-time discipline.** Recompute the inbound citers at build time (they drift as the corpus changes); for each doc, produce the old-section-number to new-`§N` map and apply it to every citer (corpus-wide grep, not the doc's own input set) in the same PR, then re-parse. Shape (maintainer directive 2026-07-01, supersedes the earlier "one domain-batch per PR" framing): **one document per PR** with maximal QA, no mass change until certain the renumber leaves zero broken links or references anywhere; each PR renumbers exactly one deferred document plus the citer files its inbound section-number references require. The numbering itself is gate-blind (gate 38 strips numbering when matching), so this is editorial consistency, not error-prevention.
 
 ## Deferred documents (recompute reasons at build time)
 
 - [ ] `ai/standard-ai-access-and-agent-permissions.md` -- intra §N, uses "## Section N:" labels
 - [ ] `ai/standard-ai-and-agentic-development-security.md` -- inbound §N, intra §N
 - [ ] `ai/standard-ai-inference-cost-governance.md` -- intra "Section N", intra §N, uses "## Section N:" labels
-- [ ] `ai/standard-ai-model-risk.md` -- inbound §N
+- [x] `ai/standard-ai-model-risk.md` -- inbound §N (DONE: renumbered to canonical fully-numbered; inbound `register-coverage-gaps.md` §5 -> §3.5 remapped)
 - [ ] `ai/standard-ai-security-and-risk.md` -- intra §N
 - [ ] `ai/standard-ai-testing-validation-and-documentation.md` -- intra §N
 - [ ] `architecture/standard-integration-architecture.md` -- intra "Section N", uses "## Section N:" labels
