@@ -1177,6 +1177,72 @@ class GateCountConsistencyTests(LinterTestCase):
         result = run_linter("tools/lint-gate-count-consistency.py", fixture)
         self.assertLinterFails(result)
 
+    def test_stale_wordform_audit_gates_flagged(self) -> None:
+        # P9 (word-form): "ninety-nine audit gates" can never match the
+        # canonical gate count (58), so the word-form gate-count check must
+        # flag it. (TODO §1.3-B: the gate-39-blind word-form class.)
+        fixture = self.make_fixture(
+            "standard-bad-wordform-gates.md",
+            "# X\n\nThis stub mentions the ninety-nine audit gates in the suite.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+    def test_stale_wordform_growth_narrative_flagged(self) -> None:
+        # P12 (growth-narrative): "gates to ninety-nine" resolves the
+        # collection keyword (gates) and the TO-target word-number; 99 never
+        # matches the canonical 58, so it is flagged. The rounded FROM value
+        # ("a dozen gates") is deliberately NOT matched.
+        fixture = self.make_fixture(
+            "standard-bad-wordform-growth.md",
+            "# X\n\nThe machinery grew from a dozen gates to ninety-nine over time.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+    def test_stale_wordform_governance_rules_flagged(self) -> None:
+        # P11 (word-form): the qualified "ninety-nine governance rules" can
+        # never match the canonical rule count (12), so it is flagged.
+        fixture = self.make_fixture(
+            "standard-bad-wordform-rules.md",
+            "# X\n\nThe pack ships ninety-nine governance rules today.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+    def test_wordform_pervasive_small_numbers_not_flagged(self) -> None:
+        # False-positive guard: the bare small-word-number prose that recurs
+        # throughout the corpus must NEVER be flagged (the precision-first
+        # constraint the narrow anchoring exists to honour).
+        fixture = self.make_fixture(
+            "standard-wordform-bare-ok.md",
+            "# X\n\nOne gate, one concern. Two rules overlap; do two rules, "
+            "two skills, or two gates cover the same ground? Six rules, no "
+            "ceremony. The two skills run as a suite. Five gate violations.\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"bare small-word-number prose must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_version_history_section_not_scanned(self) -> None:
+        # A "## Version history" section is a frozen change log: a stale
+        # word-form count quoted in a historical row must NOT be flagged
+        # (the in-document analogue of the CHANGELOG.md file exemption).
+        fixture = self.make_fixture(
+            "standard-wordform-history-ok.md",
+            "# X\n\n## Version history\n\n| 1.0.0 | the prior ninety-nine "
+            "audit gates were corrected | 2026-06-30 |\n",
+        )
+        result = run_linter("tools/lint-gate-count-consistency.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a stale count inside a Version history section must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 class ListingSurfaceCompletenessTests(LinterTestCase):
     """tools/lint-listing-surface-completeness.py"""

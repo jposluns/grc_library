@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #511: TODO §1.3-B word-form count gate (broadened gate 39, closes §1.3, P1) (2026-06-30)
+
+Broadened gate 39 (`lint-gate-count-consistency.py`) with a word->number map (1-99) and narrow, anchored word-form patterns (P9-P12), closing the gate-39-blind word-form class that let a stale "fifty-seven" survive until #510 fixed it by hand. Detects word-form gate counts ("<word> audit gates", "<word>-gate"), the qualified rule count ("<word> governance rules"), and the growth-narrative "rules/skills/gates to <word>" (the only skill-count check); pervasive bare small-numbers ("two rules", "one gate") never match, and `## Version history` sections are skipped as frozen logs. Maintainer-chose the narrow precision-first design (over full coverage or won't-fix). Closes TODO §1.3 entirely (§1.3-A closed in #510). 222 regression tests (217 + 5). Spec 1.16.25 to 1.16.26.
+
 ### PR #510: TODO §1.3-A new-skill-drafting checklist (completed skill-authoring-discipline, P1) (2026-06-30)
 
 Completed the `skill-authoring-discipline` skill's Process with the four parallel new-skill surfaces it left implicit (repository-internal link depth, the slash-command sibling, the PAIRS registry for gate-44 step-parity, and the `lint-language` pre-flight), with matching Verification and a Common Rationalizations row. Placed in skill-authoring-discipline (its owner) rather than the worker-brief template the #213 retro had guessed, per the maintainer's 2026-06-30 decision. Also advanced the gate-39-blind word-form gate count in guardrail-review ("fifty-seven" to "fifty-eight", stale since gate 58 landed in #509). Pack 1.53.7 to 1.53.8. §1.3-B (broaden the count gate) remains open.
