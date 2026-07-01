@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §1.5 residual: MITRE ATLAS scratch superseded-archival (closed by scratch PR #47, 2026-07-01)
+
+Brought the `grc_library_scratch` MITRE ATLAS reference current: archived the deprecated v5.6.0 (legacy data-format) set to `ref/.superseded/frameworks/MITRE/` and installed v2026.06 (the current v6.0.0-format release, upstream-verified 2026-07-01) with re-extracted tactics/techniques/mitigations CSVs, catalogue/README/index/REGISTER updates, and `validate.py` OK. The corpus register was already at v2026.06 from #512, so register and scratch are now coherent. The 51 `needs-reconfirm` register rows remain the standing §1.5 residual (awaiting a browser-egress reconfirm pass).
+
 ### PR #511: TODO §1.3-B word-form count gate (broadened gate 39, closes §1.3, P1) (2026-06-30)
 
 Broadened gate 39 (`lint-gate-count-consistency.py`) with a word->number map (1-99) and narrow, anchored word-form patterns (P9-P12), closing the gate-39-blind word-form class that let a stale "fifty-seven" survive until #510 fixed it by hand. Detects word-form gate counts ("<word> audit gates", "<word>-gate"), the qualified rule count ("<word> governance rules"), and the growth-narrative "rules/skills/gates to <word>" (the only skill-count check); pervasive bare small-numbers ("two rules", "one gate") never match, and `## Version history` sections are skipped as frozen logs. Maintainer-chose the narrow precision-first design (over full coverage or won't-fix). Closes TODO §1.3 entirely (§1.3-A closed in #510). 222 regression tests (217 + 5). Spec 1.16.25 to 1.16.26.

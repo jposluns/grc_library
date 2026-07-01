@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.3, PR #515
+
+TODO §3.9: document the scratch `ref/` base as the standing citation ground-truth. Substantive-tier change (one corpus governance-doc body change); a pre-push skeptical verifier ran on the diff.
+
+### Added
+- [`governance/specification-citation-verification.md`](../../governance/specification-citation-verification.md) (Version 1.2.3 -> 1.2.4, Date -> 2026-07-01): new **§6.6 Local reference base (the scratch `ref/` tree)**. Describes the `grc_library_scratch` `ref/` tree as the local source an AI verifier reads a citation against (rather than re-fetching paywalled or egress-blocked upstream pages each turn), trust-bucketed to mirror the §6.1 tiers: `standards/`+`legislation/` authoritative ground truth (Tier 1; legislation version-sensitive); `frameworks/`+`programs/` trusted sub-formal; `publications/` untrusted-screen-first (per the §2.11 publications-assessment process); `templates/` adapt-not-cite scaffolding. Two constraints: the base is believed-current STORAGE not the version authority (confirm load-bearing versions upstream per §12.3; consult the scratch reference index, not a guessed path); the source texts are proprietary / licence-restricted and NOT redistributed (cite metadata and the requirement, not the copyrighted body). Records the `/matrix-fit` control-title reference base (the `ref/` CCM/AICM CSVs + NIST CSF OSCAL; an ISO/IEC 27001 Annex A title map extends it once that extract is built, not yet available) and the in-repo validator modules ([`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py), [`tools/iso_27001_reference.py`](../../tools/iso_27001_reference.py)) gates 48/49/54/58 build on. Closes TODO §3.9 (S-11 pointer + S-5 matrix-fit reference base + the S-12 ISACA-templates FYI folded into the `templates/` bullet).
+
+### Changed
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the §6.6 Version bump (taxonomy first, then the portal family).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the MITRE ATLAS scratch superseded-archival marked RESOLVED (scratch PR #47 merged 2026-07-01); Status now **0 pending**. Also removed an em-dash from the resolved heading (house style; gate 51 caught it pre-push).
+- [`TODO.md`](../../TODO.md) §1.5: the ATLAS-scratch-archival residual bullet rotated out (the 51 `needs-reconfirm` rows remain the standing §1.5 residual).
+- [`.working/DONE.md`](../DONE.md): added the §1.5 ATLAS-scratch-archival closure entry (closed by scratch PR #47).
+
+### Batched (recursion-avoidance)
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.294 -> 1.2.295): the #514 `/validate-pr` row (Subagent A, 0 findings).
+- [`.working/improvement-log.md`](../improvement-log.md) (1.0.241 -> 1.0.242): the #514 `/retro` row (the #512 multi-surface-incompleteness pattern recurred at #508's 800-88 worklist row, caught by Sweep 79).
+
+### Verification
+- `tools/run_all_audits.sh`: all 58 gates pass on the committed state (gate 51 flagged the pending-decisions em-dash on the first run; fixed and re-run clean). Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green.
+- Gate 2 ([`tools/lint-language.py`](../../tools/lint-language.py)) run on the changed spec doc before commit: no findings.
+- Substantive-tier skeptical verifier run pre-push on the §6.6 addition (accuracy of the trust-tier mapping, the module-and-gate references, and the `/matrix-fit` reference-base claim against source).
+
 ## 2026-07-01, Library Version 2026.07.2, PR #514
 
 Sweep 79 corpus-wide `/validate` close-out (loop-break compensating control for session-closing handoff PR #513), covering the #504 to #512 deltas. Full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity); mechanical baseline 58/58 at HEAD `01cb622`/#513, matching the #513 green-at-`df15510` baseline (no close-vs-start drift). Two findings, both on `.project-governance/` citation-verification worklists; C returned 0 findings; no #513 asserted-clean surface contradicted.
