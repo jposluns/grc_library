@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.5\
-**Date:** 2026-06-28\
+**Version:** 1.0.6\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -45,7 +45,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 - **OWASP MCP Top 10 2025**: confirm published.
 - **Meta CyberSecEval v4**: confirm v4 is current (v3 was earlier).
 - **MITRE ATT&CK v19.1**: verified current 2026-06-28 against the upstream authority (was v15; attack-stix-data release v19.1, 2026-05-12).
-- **MITRE ATLAS v2026.05**: verified current 2026-06-28 against the upstream authority (was v4.7; atlas-data release v2026.05, 2026-05-27, new YAML format v6.0.0).
+- **MITRE ATLAS v2026.06**: re-verified current 2026-07-01 (#512) against the upstream authority; the 2026-06-28 batch check had found v2026.05 current (was v4.7; atlas-data new YAML/CalVer format v6.0.0), and the v2026.06 monthly content update published 2026-06-30 superseded it.
 - **CSA AICM v1.1**: verify current version.
 - **Basel III**: multiple amendments since 2017; verify current state.
 - **NFPA 72 2025**: confirm 2025 edition published.
