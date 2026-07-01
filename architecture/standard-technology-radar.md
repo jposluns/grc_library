@@ -2,8 +2,8 @@
 
 **Document Title:** Technology Radar Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-30\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs how the organisation curates its technology choices over time. The technology radar is a structured way to evaluate, classify, and communicate the organisation's stance on specific technologies, techniques, platforms, languages, and tools.
 
@@ -24,7 +24,7 @@ The radar supports deliberate, accountable technology selection and avoids both 
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -39,7 +39,7 @@ It does not govern routine library choice within a programming-language ecosyste
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -53,7 +53,7 @@ It does not govern routine library choice within a programming-language ecosyste
 
 ---
 
-## Section 2: rings
+## 4. Rings
 
 The radar uses four rings, consistent with the public ThoughtWorks radar convention used as a vendor-neutral reference.
 
@@ -68,7 +68,7 @@ A placement at Hold does not mean a technology is wrong; it means the organisati
 
 ---
 
-## Section 3: quadrants
+## 5. Quadrants
 
 The radar organizes entries into quadrants:
 
@@ -83,15 +83,15 @@ Adopting organisations may add quadrants as warranted.
 
 ---
 
-## Section 4: blip structure
+## 6. Blip structure
 
 Each entry (blip) on the radar has:
 
 | Field | Description |
 | --- | --- |
 | Title | Specific technology, technique, or platform |
-| Quadrant | Per Section 3 |
-| Ring | Per Section 2 |
+| Quadrant | Per §5 |
+| Ring | Per §4 |
 | Direction | Moving toward Adopt, stable, moving toward Hold |
 | Owner | Named person or function accountable for the placement |
 | Rationale | Why the placement is what it is |
@@ -105,7 +105,7 @@ Each entry (blip) on the radar has:
 
 ---
 
-## Section 5: lifecycle
+## 7. Lifecycle
 
 | Stage | Trigger | Action |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ Movement between rings is a deliberate decision documented as an ADR.
 
 ---
 
-## Section 6: governance
+## 8. Governance
 
 | Element | Description |
 | --- | --- |
@@ -134,7 +134,7 @@ Movement between rings is a deliberate decision documented as an ADR.
 
 ---
 
-## Section 7: criteria
+## 9. Criteria
 
 The council uses the criteria below when placing a blip. Not every criterion is decisive in every case.
 
@@ -155,7 +155,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Section 8: relationship to other governance artefacts
+## 10. Relationship to other governance artefacts
 
 | Artefact | Relationship |
 | --- | --- |
@@ -169,7 +169,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Section 9: AI and the radar
+## 11. AI and the radar
 
 | Concern | Practice |
 | --- | --- |
@@ -182,7 +182,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Section 10: handling exceptions
+## 12. Handling exceptions
 
 | Situation | Handling |
 | --- | --- |
@@ -193,7 +193,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Operating expectations
+## 13. Operating expectations
 
 1. The radar is reviewed at least quarterly; the AI quadrant more frequently.
 2. Each blip has a named owner and a next-review date; expired placements lose visibility.
@@ -203,7 +203,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Framework alignment
+## 14. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -216,7 +216,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ---
 
-## Limitations
+## 15. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. The radar's specific entries and their placements are organisation-specific and time-specific. The radar tooling and publication mechanism are organisation choices. The standard expresses how the radar operates, not the entries themselves.
 
