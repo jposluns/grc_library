@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.29, PR #541
+
+TODO §1.1: FR-48 entangled-residual, eighteenth single-document batch. Renumbered [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md) to the canonical fully-numbered model (a fully-unnumbered doc, the simplest class: pure H2 prefix-add plus option-B H3 numbering). This PR also retags two worklist entries that a pre-renumber body scan found were misclassified "intra §N" but are actually the inline-clause hard class. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md) (Version 1.0.1 to 1.0.2, Date to 2026-07-01): 11 headings renumbered (asserted 11/11 by the script's guards). The 9 H2s were prefix-numbered in document order (`## 1. Purpose` through `## 9. Framework alignment`); the 2 descriptive H3s under Mandatory training requirements (`## 4.`) were numbered per option B (`### 4.1 All personnel`, `### 4.2 Role-based supplemental training`). No H4, no inline clauses, no document body prose changed.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md) retags (working-state classification correction, no renumber): [`operations/standard-service-level-management.md`](../../operations/standard-service-level-management.md) and [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md) were carried as "intra §N" but a pre-renumber body scan (`grep -nE '^\*?\*?[0-9]+\.[0-9]'`) found 32 and 22 inline prose clauses respectively, keyed to their numbered H3 headings. They are the inline-clause hard class (a canonical renumber must realign every inline clause in lockstep with the headings), so both are retagged and remain deferred, joining the existing inline-clause set.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 11/11, then re-parsed (gapless H2 1-9; H3 4.1/4.2 under `## 4.`).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan, and bare-external-§ scan. The only body `§` is the external `BASC v6 §7.2` (named on its framework-alignment row). The inbound `§7.2` hits (compliance matrix row, BASC-responsibilities register row) are ISO/IEC 27001 clause 7.2 / BASC v6 §7.2, external-standard clauses (the matrix ISO column keys to Annex A + §6-§10 clauses; this document has no `§7.2` subsection), with the remaining references path-only. There are zero live inbound section citations, zero anchor links, no bare-§ collision. The intra-document-reference gate passes.
+- The two retagged docs were confirmed inline-clause by the `^\*?\*?[0-9]+\.[0-9]` scan (32 and 22 hits); they are not renumbered in this PR.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #540 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.28 to 2026.07.29; README 1.9.389 to 1.9.390.
+
 ## 2026-07-01, Library Version 2026.07.28, PR #540
 
 TODO §1.1: FR-48 entangled-residual, seventeenth single-document batch. Renumbered [`architecture/standard-technology-radar.md`](../../architecture/standard-technology-radar.md) to the canonical fully-numbered model; the eighth Section-N-label doc, and the second carrying two intra-document "Section N" self-references (both lockstep-remapped). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
