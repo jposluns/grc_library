@@ -2,8 +2,8 @@
 
 **Document Title:** Integration Architecture Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs the architecture of system-to-system integration: the patterns used, the transports selected, the contracts established, and the operational characteristics required. It complements the API design standard (which governs synchronous request-response contracts) and the data architecture standard (which governs data flow) by addressing the architectural choices that determine how systems communicate over time.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -36,7 +36,7 @@ It does not govern intra-process communication within a single deployable unit.
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -53,7 +53,7 @@ It does not govern intra-process communication within a single deployable unit.
 
 ---
 
-## Section 2: pattern selection
+## 4. Pattern selection
 
 | Pattern | When appropriate |
 | --- | --- |
@@ -69,11 +69,11 @@ It does not govern intra-process communication within a single deployable unit.
 | File exchange | Document or dataset exchange where the consumer or producer requires it |
 | Streaming | Continuous flow consumed in order |
 
-The choice is recorded as an ADR for material integrations and informed by the integration class (Section 3).
+The choice is recorded as an ADR for material integrations and informed by the integration class (§5).
 
 ---
 
-## Section 3: integration classes
+## 5. Integration classes
 
 | Class | Description |
 | --- | --- |
@@ -89,7 +89,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 4: contracts
+## 6. Contracts
 
 | Element | Description |
 | --- | --- |
@@ -104,7 +104,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 5: event-driven integration
+## 7. Event-driven integration
 
 | Element | Description |
 | --- | --- |
@@ -121,7 +121,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 6: synchronous integration
+## 8. Synchronous integration
 
 | Element | Description |
 | --- | --- |
@@ -135,7 +135,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 7: batch and file exchange
+## 9. Batch and file exchange
 
 | Element | Description |
 | --- | --- |
@@ -150,7 +150,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 8: webhooks
+## 10. Webhooks
 
 | Element | Description |
 | --- | --- |
@@ -164,7 +164,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 9: integration with AI providers
+## 11. Integration with AI providers
 
 | Concern | Practice |
 | --- | --- |
@@ -179,7 +179,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 10: observability
+## 12. Observability
 
 | Element | Description |
 | --- | --- |
@@ -192,7 +192,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 11: reliability patterns
+## 13. Reliability patterns
 
 | Pattern | Description |
 | --- | --- |
@@ -208,7 +208,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 12: security overlay
+## 14. Security overlay
 
 | Element | Description |
 | --- | --- |
@@ -218,12 +218,12 @@ The choice is recorded as an ADR for material integrations and informed by the i
 | Encryption at rest in queues and topics | Per the encryption policy |
 | Tenant isolation | Multi-tenant integrations isolate tenants in transport and storage |
 | Sensitive content | Sensitive content is classified, controlled, and minimized on integration paths |
-| Webhook signing | Per Section 8 |
+| Webhook signing | Per §10 |
 | Provider authentication | Outbound provider integrations authenticate per the supplier security and privacy assurance standard |
 
 ---
 
-## Section 13: governance
+## 15. Governance
 
 | Element | Description |
 | --- | --- |
@@ -236,7 +236,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Section 14: anti-patterns
+## 16. Anti-patterns
 
 | Anti-pattern | Why it harms |
 | --- | --- |
@@ -252,7 +252,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. Material integrations are reviewed and recorded per the architecture review procedure and the ADR standard.
 2. The integration catalogue is current; orphan integrations are not allowed to accrete.
@@ -262,7 +262,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -277,7 +277,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Integration platform choices and per-pattern implementation details are organisation-specific. The standard expresses outcomes and pattern selection criteria, not specific commercial products.
 
