@@ -2,8 +2,8 @@
 
 **Document Title:** Security Awareness and Training Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-27\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -18,13 +18,13 @@ This standard defines the requirements for a security awareness and training pro
 
 ---
 
-## Purpose
+## 1. Purpose
 
 To ensure that all personnel understand their security obligations, can recognize common attack vectors, and know how to respond. Supports the Information Security Policy and applicable human capital governance.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all employees, contractors, and third-party personnel with access to company systems or data.
 2. Covers general security awareness, role-based supplemental training, and mandatory regulatory and compliance training.
@@ -32,7 +32,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -44,9 +44,9 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Mandatory training requirements
+## 4. Mandatory training requirements
 
-### All personnel
+### 4.1 All personnel
 
 | Training Module | Frequency | Completion Deadline |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ To ensure that all personnel understand their security obligations, can recogniz
 | Privacy and data protection basics (applicable legislation, personal data handling) | Annual | Within 30 days of hire; annually thereafter |
 | Incident reporting (how to recognize and report a suspected security incident) | Annual | Within 30 days of hire; annually thereafter |
 
-### Role-based supplemental training
+### 4.2 Role-based supplemental training
 
 | Role | Additional Training Required | Frequency |
 | --- | --- | --- |
@@ -67,31 +67,31 @@ To ensure that all personnel understand their security obligations, can recogniz
 
 ---
 
-## Collaboration platform social engineering awareness
+## 5. Collaboration platform social engineering awareness
 
 All employees must complete awareness training on collaboration platform-based social engineering attacks. This module covers: how attackers use external or spoofed tenant invitations; indicators of impersonation; the correct procedure for verifying IT requests; and how to report a suspicious interaction. This module is mandatory for all personnel and is included in the annual curriculum.
 
 ---
 
-## Phishing simulations
+## 6. Phishing simulations
 
 IT Operations conducts simulated phishing campaigns at minimum quarterly. Results are reported to the CISO and used to identify training gaps. Employees who repeatedly fail simulations are required to complete targeted remediation training within 10 business days. Simulation results are not used for disciplinary purposes unless repeated failure follows remediation training.
 
 ---
 
-## Training completion tracking
+## 7. Training completion tracking
 
 Training completion is tracked in the Learning Management System (LMS) or equivalent. HR reports monthly completion rates to the CISO. Completion rates below 90% by the required deadline are escalated to the relevant manager. Non-completion beyond 30 days past deadline is treated as a policy violation and escalated to the CISO and HR for disciplinary consideration per the Security Disciplinary Process.
 
 ---
 
-## Programme effectiveness
+## 8. Programme effectiveness
 
 The CISO reviews programme effectiveness annually using: training completion rates; phishing simulation click rates and trends; volume and quality of employee-reported incidents; and post-incident analysis where human behaviour was a contributing factor. Results are incorporated into the annual GRC programme review and reported to the Enterprise Risk Committee.
 
 ---
 
-## Framework alignment
+## 9. Framework alignment
 
 | Control | ISO/IEC 27001 | NIST SP 800-53 | CSA CCM v4.1 | Trade Compliance |
 | --- | --- | --- | --- | --- |
