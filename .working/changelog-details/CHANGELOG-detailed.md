@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.12, PR #524
+
+TODO §1.1: FR-48 entangled-residual, first single-document batch. Renumbered [`ai/standard-ai-model-risk.md`](../../ai/standard-ai-model-risk.md) to the canonical fully-numbered section model and remapped its one inbound section-number citation. Worked one document per PR per the maintainer's FR-48 directive (maximal QA; no mass change until certain of zero broken references). Structural renumber applied by a deterministic exact-line-match script (harness deterministic-apply) plus re-parse, corpus-wide reference-completeness verification, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`ai/standard-ai-model-risk.md`](../../ai/standard-ai-model-risk.md) (Version 1.1.0 to 1.1.1, Date to 2026-07-01): 20 headings renumbered (asserted 20/20 by the script's pre-apply and count guards): 5 H2 (`## Purpose` to `## 1. Purpose` through `## Limitations` to `## 5. Limitations`), 9 H3 under Requirements (`### 1.` to `### 9.` become `### 3.1` to `### 3.9`), and 6 H4 under Robustness (`#### 5.1` to `#### 5.6` become `#### 3.5.1` to `#### 3.5.6`). No document body prose changed: the doc has zero intra-document numeric cross-references, so only heading lines were rewritten.
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (Version 1.1.17 to 1.1.18, Date to 2026-07-01): the one inbound section-number citation of model-risk, `§5`, remapped to `§3.5` (line 209; the "restructured into 6 subsections" description stays accurate because §3.5 carries §3.5.1 to §3.5.6).
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): the model-risk row checked off (1 of 38 deferred documents complete; FR-48 §1.1 stays open).
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD form present exactly once, each NEW form absent), asserted 20/20 replacements, then the resulting heading tree re-parsed against the target.
+- Reference completeness (corpus-wide, full file set, not the change's own input set): the only live section-number reference to model-risk is now `§3.5` in [`register-coverage-gaps.md`](../../governance/register-coverage-gaps.md); zero anchor-style links target model-risk (none broke); zero intra-document numeric cross-references exist in model-risk. The `#### N.M.K` H4 convention matches existing fully-numbered corpus documents.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green. A refute-briefed skeptical verifier reviewed the diff.
+
+### Discipline observation
+- FR-48 residual is worked one target document per PR (maintainer directive 2026-07-01), overriding the [`FR-48 deferred worklist`](../fr48-deferred-worklist.md)'s earlier "one domain-batch per PR" shape. Each PR renumbers exactly one deferred document plus the citer files its inbound section-number references require, so the per-PR blast radius is minimal and fully verifiable, which is why the inbound-reference grep is exhaustive (every form: markdown-link, bare-parenthetical, "Section N", anchor, intra-doc numeric) before any edit.
+
+Batches the #523 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.11 to 2026.07.12; README 1.9.372 to 1.9.373.
+
 ## 2026-07-01, Library Version 2026.07.11, PR #523
 
 TODO §3.11 + §3.13 + §3.14: maintainer-authorized protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) wind-down / checklist SOP cleanup. Substantive tier (prose that governs assistant behaviour in the primordial rules file); a pre-push refute-briefed skeptical verifier was run on the three edits.
