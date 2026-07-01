@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.31, PR #543
+
+TODO §1.1: FR-48 entangled-residual, twentieth single-document batch. Renumbered [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md) to the canonical fully-numbered model; a hybrid doc whose OWN crosswalk table cites its `### 1.`-`### 11.` H3s as `§1`-`§11` (the intra "sibling-crosswalk" self-reference class). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md) (Version 1.1.0 to 1.1.1, Date to 2026-07-01): 17 headings renumbered plus 11 intra-document crosswalk references remapped (asserted 28 total by the script's guards). The 6 H2s were prefix-numbered in document order (`## 1. Purpose` through `## 6. Compliance notes`); Minimum requirements is the 4th H2, so it became `## 4.` and its 11 locally-numbered H3s `### 1.` through `### 11.` became `### 4.1` (Inventory and ownership) through `### 4.11` (Decommissioning). The crosswalk table under `## 3. Relationship to the AI and Agentic Development Security Standard` cites this document's own requirement areas by section number (per its own line 42); its 11 cells `§1` through `§11` were remapped in lockstep to `§4.1` through `§4.11`. The Evidence crosswalk row cites the counterpart by name (no `§`) and was unchanged; the generic line-42 prose carries no specific `§` and was unchanged. Those are the only body-prose changes.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 6 H2 + 11 H3 + 11 crosswalk = 28, then re-parsed (gapless H2 1-6; H3 4.1-4.11 under `## 4.`; crosswalk cells now `§4.1`-`§4.11`); a residual grep confirmed no bare single-level `§N` reference remains (every `§` is now `§4.N`).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, and intra-self-reference scan. The 11 intra crosswalk self-references were remapped above. No other corpus document cites this document's section numbers: the [`privacy breach-response procedure`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) reference is a path-only link accompanied by an external `ISO/IEC 27701 §8.9` (not this document's section), and the only other corpus mentions are frozen-historical `.working/` records. There are zero live inbound section citations, zero anchor links. The intra-document-reference gate passes (every `§4.N` resolves to the renumbered H3s).
+- Semantic confirmation: each crosswalk cell's section name matches its H3 title (e.g. `§4.1 Inventory and ownership` targets `### 4.1 Inventory and ownership`; `§4.11 Decommissioning` targets `### 4.11 Decommissioning`), so the 1:1 §N-to-§4.N remap preserves every mapping.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff, focused on the 11-way crosswalk remap's completeness and the H3 local-to-hierarchical shift.
+
+Batches the #542 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.30 to 2026.07.31; README 1.9.391 to 1.9.392.
+
 ## 2026-07-01, Library Version 2026.07.30, PR #542
 
 TODO §1.1: FR-48 entangled-residual, nineteenth single-document batch. Renumbered [`supply-chain/standard-supplier-resilience-monitoring.md`](../../supply-chain/standard-supplier-resilience-monitoring.md) to the canonical fully-numbered model. This doc raised a new convention case (enumerated `### Category N:` H3 labels cross-referenced in the body), resolved by a maintainer decision (Option 1). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
