@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.1\
-**Date:** 2026-06-24\
+**Version:** 1.3.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -212,7 +212,7 @@ AI-generated code committed to a repository should be automatically scanned, in 
 
 - **Suspicious URLs**: tracker domains, image-tracker hosts, URL-shortener domains, paste-site hosts, low-reputation domains.
 - **Hardcoded credentials or secret patterns**: scoped beyond the standard secret scanner to include LLM-API key patterns (vendor token shapes), model-provider tokens, AI-platform credentials.
-- **Hallucinated import paths**: package names not present in approved registries (per [`standard-developer-security-requirements.md`](standard-developer-security-requirements.md) §9 and [`standard-software-composition-analysis.md`](standard-software-composition-analysis.md) §5).
+- **Hallucinated import paths**: package names not present in approved registries (per [`standard-developer-security-requirements.md`](standard-developer-security-requirements.md) §9 and [`standard-software-composition-analysis.md`](standard-software-composition-analysis.md) §4.5).
 - **Insecure code patterns characteristic of AI generation**: hallucinated security controls (HMAC verification missing signature check; JWT validation missing expiry check; sanitisation routines that escape only one of several attack classes); deprecated cryptography; missing input validation on apparent endpoints.
 - **Exfiltration-style egress in generated code**: outbound HTTP calls to unexpected hosts, embedded analytics or telemetry calls to unrecognised endpoints, base64-encoded payloads in string literals.
 - **Comment-embedded instructions**: AI-generated comments containing instruction-like content that could influence a future AI session reading the file.

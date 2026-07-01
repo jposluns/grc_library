@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.20, PR #532
+
+TODO §1.1: FR-48 entangled-residual, ninth single-document batch. Renumbered [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) to the canonical fully-numbered model (option B + H4 numbering); the first FR-48 doc to exercise both the H4-numbering decision and an inbound citer remap in the same PR. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) (Version 1.1.2 to 1.1.3, Date to 2026-07-01): 20 headings renumbered (asserted 20/20 by the script's guards). The 7 H2s were unnumbered, so they gained a sequential prefix in document order (`## Purpose` to `## 1.` through `## Framework and regulatory alignment` to `## 7.`); the 8 H3s under `## 4. SCA requirements` (`### 1.` to `### 8.`) became `### 4.1` to `### 4.8`; the 5 descriptive H4s were numbered hierarchically per the H4-numbering decision (`#### 4.4.1` to `#### 4.4.3` under `### 4.4` Software bill of materials, `#### 4.5.1` to `#### 4.5.2` under `### 4.5` Supply chain attack mitigations). No document body prose changed.
+- [`dev-security/guideline-ai-coding-assistant-security.md`](../../dev-security/guideline-ai-coding-assistant-security.md) (Version 1.3.1 to 1.3.2, Date to 2026-07-01): one inbound citer remapped. The line citing this SCA doc's `§5` (Supply chain attack mitigations, old `### 5.`) was updated to `§4.5`, since that section is now `### 4.5`. The reference to the developer-security-requirements standard's `§9` earlier on the same line is a different document (itself deferred) and was left unchanged.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): checked off the SCA row and recorded two resolved conventions in the build-time-discipline recipe: the H4-numbering decision (number all H4s hierarchically) and the Section-N-label decision (convert `## Section N: lowercase title` to `## M. Title` at the H2's document-order position M, capitalizing the stripped title to Sentence-case).
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD present once, each NEW absent), asserted 20/20, then the heading tree re-parsed (gapless H2 1-7; H3 4.1-4.8 under §4; H4 4.4.1-4.4.3 under §4.4 and 4.5.1-4.5.2 under §4.5).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: a line-level inbound grep, an anchor-link grep, an intra-self-reference scan, and the bare-external-§ scan. The one inbound section-number citer (the guideline's `§5`) was remapped to `§4.5` in lockstep; the SCA body carries no `§`-references of its own, no bare-external-§ cells, and no anchor citers. The intra-document-reference gate passes on the renumbered SCA doc.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #531 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.19 to 2026.07.20; README 1.9.380 to 1.9.381.
+
 ## 2026-07-01, Library Version 2026.07.19, PR #531
 
 TODO §1.1: FR-48 entangled-residual, eighth single-document batch. Renumbered [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) to the canonical fully-numbered model (option B); a hybrid-shift with the first genuine intra-document self-reference remap of the FR-48 effort. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
