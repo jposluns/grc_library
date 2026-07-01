@@ -14,7 +14,7 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-### MITRE ATLAS scratch superseded-archival — RESOLVED 2026-07-01 (scratch PR #47 merged)
+### MITRE ATLAS scratch superseded-archival: RESOLVED 2026-07-01 (scratch PR #47 merged)
 
 **RESOLVED 2026-07-01 (this resumed session, scratch PR #47 `018b9aa`):** the scratch-side archival is done. `grc_library_scratch` `ref/frameworks/MITRE/` now holds `ATLAS-2026.06.yaml` (upstream `dist/v6/ATLAS-2026.06.yaml`, data-format 6.0.0) plus re-extracted `ATLAS-2026.06--{tactics,techniques,mitigations}.csv` (16/173/35; technique->tactic derived from the v6 `achieves` relationship); the deprecated `v5.6.0` set is archived to `ref/.superseded/frameworks/MITRE/` with the first `REGISTER.md` row; `catalogue.yml`, `MITRE/README.md`, and the regenerated `INDEX.md`/`SECTION-INDEX.md` all reflect v2026.06; `tools/validate.py` returned `validation OK`. Upstream re-verified v2026.06 (2026-06-30 release) this turn. The corpus register was already correct at v2026.06 from #512, so scratch and register are now coherent. ATT&CK v19.1 unchanged. **This closes the last open pending decision.** The original deferred-state analysis is retained below for the record.
 
