@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.0, PR #512
+
+MITRE ATLAS citation-currency correction (TODO §1.5 residual). A fresh upstream re-verification found ATLAS advanced to v2026.06 (2026-06-30), superseding the v2026.05 #505 recorded; the register was brought current.
+
+### Changed
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.10 -> 1.5.11, Date 2026-06-30 -> 2026-07-01): the `MITRE ATLAS` row's Current version `v2026.05` -> `v2026.06`, Publication date `2026-05` -> `2026-06`, Superseded versions `v4.7` -> `v2026.05` (the immediately-prior release, matching the column's one-representative convention), Last verified `2026-06-30` -> `2026-07-01`.
+- [`TODO.md`](../../TODO.md): the §1.5 MITRE ATLAS residual bullet updated (corpus side now current at v2026.06; the scratch archival remains and is auto-fetchable, egress confirmed, not maintainer-download-gated).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the ATLAS entry and the Status line updated to the v2026.06 re-verification and the retired download-gated framing.
+- [`README.md`](../../README.md): Library CalVer `2026.06.489` -> `2026.07.0` (month rollover; patch resets to 0 per the §4.5 CalVer scheme, the 2026.05.144 -> 2026.06.0 precedent); README Version `1.9.360` -> `1.9.361`.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the register 1.5.11 bump.
+
+### Why
+The reference-version-currency SOP requires confirming an externally-versioned reference against the upstream primary source, not a stored note. Re-verifying MITRE ATLAS this turn (2026-07-01) via WebFetch of the atlas-data releases page and the distributed data file found v2026.06 is the current release (published 2026-06-30 23:20 UTC, commit `651dad9`), one monthly release past the v2026.05 that #505 recorded on 2026-06-30 (v2026.06 was published later that same UTC day). Per the SOP ("a citation must carry the upstream-confirmed current version, or the item waits"), the register was corrected. The corpus footprint was a single live versioned citation (the register row); a corpus grep confirmed the other ATLAS mentions are unversioned framework-list entries and the `.project-governance/` worklist note is a frozen point-in-time verification record (left as-is).
+
+### Verification
+- Upstream re-confirmed this turn: WebFetch of `github.com/mitre-atlas/atlas-data/releases` (latest tag `v2026.06`, 2026-06-30) and the `releases/tag/v2026.06` page (content-update description, commit `651dad9`); the distributed ATLAS data file on the repository `main` branch still carries the deprecated semver `5.6.0` line (the old-format distribution), consistent with the CalVer/format split the release scheme documents.
+- `tools/run_all_audits.sh`: all 58 gates pass on the committed state (pre-push guard, both runners); generated-artefact `--check` clean after regen. The register is the only corpus body changed (Version + Date co-bumped).
+- Egress availability confirmed (the two WebFetch calls succeeded), retiring the scratch residual's prior "MCP / maintainer-download-gated" framing.
+- Substantive-tier skeptical verifier (citation/version change) on the diff.
+
+### Batched (recursion-avoidance)
+- The #511 [`/validate-pr`](../validate-pr/history.md) (0 findings) + [`/retro`](../improvement-log.md) rows and the #511 handoff refresh, committed on the branch (commit `31f1654`).
+
+### Note (open §1.5 residual, not closed here)
+- The scratch `ref/frameworks/MITRE/` superseded-archival (archive the deprecated `v5.6.0`, fetch `v2026.06`) remains open as a separate `grc_library_scratch` task. TODO §1.5 is NOT rotated to DONE (the ATLAS residual and the 51 needs-reconfirm rows remain).
+
 ## 2026-06-30, Library Version 2026.06.489, PR #511
 
 Word-form collection-count detection in gate 39 (TODO §1.3-B), closing TODO §1.3 entirely. Maintainer-chosen narrow precision-first design (over full word-form coverage or a won't-fix), after a corpus scope showed bare small-word-numbers before gates/rules/skills are pervasive in legitimate prose.
