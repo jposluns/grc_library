@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.1, PR #513
+
+Session-closing handoff PR: fixes the 1 Low in-window finding the #512 `/validate-pr` surfaced (a worklist same-file inconsistency plus a self-contradicting #512 CHANGELOG "left as-is" claim), batches the #512 QA rows, and refreshes the session close-out artefacts. Skips its own trailing `/validate-pr` and `/retro` per the handoff-PR exception (loop-break).
+
+### Fixed
+- [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](../../.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md) (Version 1.0.6 -> 1.0.7): line 128's batch-capture ATLAS row annotated `v2026.05, 2026-05 (verified current 2026-06-28; superseded 2026-06-30 by v2026.06, re-verified 2026-07-01 per #512; was v4.7, 2024)`. #512 had updated the file's gate-6-live currency flag (line 48) to v2026.06 but left this sibling batch-capture row at v2026.05, a same-file inconsistency. The annotation resolves the inconsistency while preserving the historically-accurate 2026-06-28 batch-capture value (the value WAS v2026.05 on the 2026-06-28 batch date; gate 6 reads only the live flag, not this historical table).
+
+### Changed
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md) and [`CHANGELOG.md`](../../CHANGELOG.md): this #513 entry records that the #512 root-CHANGELOG characterization of the worklist as "a frozen point-in-time record (left as-is)" was inaccurate: the #512 diff shows the worklist WAS edited (line 48 and its Version/Date). The #512 detailed-mirror "### Changed" list also omitted the worklist. This entry is the audit-trail correction of that mischaracterization.
+- [`README.md`](../../README.md): Library CalVer `2026.07.0` -> `2026.07.1`; README Version `1.9.361` -> `1.9.362`.
+
+### Verification
+- The worklist edit is to a non-gate-blocking historical row (gate 6 reads the live currency flag on line 48, already correct at v2026.06 from #512; it does not read the line-128 batch-capture table), so no gate state changed; the pre-push guard (`tools/run_all_audits.sh` then `tools/run-pr-time-checks.sh`) re-confirms the full baseline green at the #513 branch tip. Gate count 58; four-surface parity (gate 35) and count consistency (gate 39) green at 58.
+- No corpus-document body changed, so no per-document Version/Date bump is due; the only versioned surfaces are the worklist (1.0.6 -> 1.0.7, co-bumped Date already 2026-07-01) and the `.working/` ledgers whose own Versions are bumped in this commit (validate-pr/history 1.2.293, improvement-log 1.0.241, session-metrics 1.0.28).
+
+### Discipline observation
+The #512 finding is a recurrence of the multi-surface-incompleteness class on a non-gated surface, compounded by an evidence-grounded-completion lapse: when a currency correction touches a file carrying BOTH a live/current row and a historical batch-capture row of the same value, updating only the live row leaves the historical row inconsistent unless it is explicitly annotated with the supersession; and a CHANGELOG must not call a file "left as-is / frozen" when that file's own diff is non-empty. Both halves are logged in the #512 `/retro` row ([`.working/improvement-log.md`](../improvement-log.md), 1.0.241) with the self-reminder: annotate the historical row (do not leave stale, do not silently rewrite), and re-read a file's own diff before writing "left as-is" about it. The live-row half was gate-6-caught; the historical-row half and the CHANGELOG claim are gate-blind, which is why they reached `/validate-pr`.
+
+### Handoff-PR exception
+This is the session-closing handoff PR. Per the PR-workflow step 5a handoff-PR exception (loop-break), it runs NO trailing `/validate-pr` or `/retro`: doing so would start a post-merge validate-then-PR loop with no terminating next substantive PR at the session boundary. The compensating control is stronger, the next `/resume`'s corpus-wide `/validate` (Sweep 79) over the #503 to #512 deltas, cross-checked against the `## Asserted expectations` block this PR writes into [`.working/session-handoff.md`](../session-handoff.md). The exemption is recorded with the gate-50-recognized marker (`SKIPPED` with `handoff`) in the #513 [`validate-pr/history.md`](../validate-pr/history.md) row's Findings cell.
+
 ## 2026-07-01, Library Version 2026.07.0, PR #512
 
 MITRE ATLAS citation-currency correction (TODO §1.5 residual). A fresh upstream re-verification found ATLAS advanced to v2026.06 (2026-06-30), superseding the v2026.05 #505 recorded; the register was brought current.
