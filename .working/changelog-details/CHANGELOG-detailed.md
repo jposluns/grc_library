@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.17, PR #529
+
+TODO §1.1: FR-48 entangled-residual, sixth single-document batch. Renumbered [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md) to the canonical fully-numbered model; no citer remap needed. First document to apply the maintainer's option-B H3-numbering decision (number all H3s hierarchically). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md) (Version 1.0.0 to 1.0.1, Date to 2026-07-01): 11 headings renumbered (asserted 11/11 by the script's guards). The 8 H2s were unnumbered, so they gained a sequential prefix in document order (`## Purpose` to `## 1. Purpose` through `## Framework alignment` to `## 8. Framework alignment`); the 3 descriptive H3s under `## 6. Testing types and requirements` were numbered hierarchically to `### 6.1`, `### 6.2`, `### 6.3` per option B. No document body prose changed.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): checked off the QA-testing row and recorded the resolved H3-numbering convention (option B, maintainer decision 2026-07-01) in the build-time-discipline recipe, closing the open A/B question. The 5 docs merged before the decision already comply (H3s numbered or absent), so no retrofit is required.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD present once, each NEW absent), asserted 11/11, then the heading tree re-parsed against the target (gapless H2 1-8, H3 6.1-6.3 under §6).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: a line-level inbound grep, an anchor-link grep, an intra-self-reference scan, and the bare-external-§ scan all found zero references that depend on this document's section numbers. The only `§`-reference the document carries is the external `ISO 9001:2015 §8.6` in its framework-alignment table, with the standard named on the same row (so it does not collide with the new numbering and the intra-document-reference gate passes). Zero inbound section citations, zero intra-doc self-refs, zero anchor links.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #528 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.16 to 2026.07.17; README 1.9.377 to 1.9.378.
+
 ## 2026-07-01, Library Version 2026.07.16, PR #528
 
 TODO §1.1: FR-48 entangled-residual, fifth single-document batch. Renumbered [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe (now including the inline-clause-detection step), and a refute-briefed skeptical verifier.
