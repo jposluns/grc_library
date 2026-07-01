@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.23, PR #535
+
+TODO §1.1: FR-48 entangled-residual, twelfth single-document batch. Renumbered [`operations/standard-observability-and-telemetry.md`](../../operations/standard-observability-and-telemetry.md) to the canonical fully-numbered model; the third Section-N-label doc. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`operations/standard-observability-and-telemetry.md`](../../operations/standard-observability-and-telemetry.md) (Version 0.0.3 to 0.0.4, Date to 2026-07-01): 20 headings renumbered (asserted 20/20 by the script's guards). The 19 H2s were numbered in document order: `## Purpose`/`## Scope` gained a prefix (`## 1.`/`## 2.`); the one descriptive H3 under Scope (`### Scope boundary with the security logging and monitoring standard`) became `### 2.1`; the 14 `## Section 1:` to `## Section 14:` labels had the "Section N:" prefix stripped, titles capitalized to Sentence-case, and were renumbered to document-order positions `## 3.` (Principles) to `## 16.` (Testing); `## Operating expectations`/`## Framework alignment`/`## Limitations` became `## 17.` to `## 19.`. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 20/20, then re-parsed (gapless H2 1-19; H3 2.1 under §2); a residual-prefix grep confirmed no `## Section N:` label remains.
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan, and bare-external-§ scan all found zero references that depend on this document's section numbers. There are no live inbound section citations and no anchor links; the document's only `§`-reference is the external `ISO/IEC 20000-1 §8.6`. The intra-document-reference gate passes.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #534 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.22 to 2026.07.23; README 1.9.383 to 1.9.384.
+
 ## 2026-07-01, Library Version 2026.07.22, PR #534
 
 TODO §1.1: FR-48 entangled-residual, eleventh single-document batch. Renumbered [`operations/standard-capacity-and-performance-management.md`](../../operations/standard-capacity-and-performance-management.md) to the canonical fully-numbered model; the second Section-N-label doc, applying the strip/capitalize/document-order convention. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
