@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.16, PR #528
+
+TODO §1.1: FR-48 entangled-residual, fifth single-document batch. Renumbered [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe (now including the inline-clause-detection step), and a refute-briefed skeptical verifier.
+
+### Changed
+- [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) (Version 1.0.4 to 1.0.5, Date to 2026-07-01): 9 headings renumbered (asserted 9/9 by the script's guards). All H2s were unnumbered, so this is a prefix-add (`## Purpose` to `## 1. Purpose` through `## Framework alignment` to `## 9. Framework alignment`); the document has no H3/H4 and no inline prose clauses, so no cascade and no number shift.
+- Framework-alignment table (same file), three cells disambiguated: giving the doc numbered sections made its three bare NIST section-number cells (`§5.1.1`, `§6.3`, `§7.1`, whose standard name lived only in the column header) collide with the new intra-document numbering and fail the intra-document-reference gate (gate skips docs with no numbered headings, so pre-renumber these were never resolved). Fixed by naming the standard inline in each cell (`SP 800-63B §5.1.1`, `§6.3`, `§7.1`), matching the corpus convention for external framework section refs in tables (e.g. the logging-and-monitoring standard's `SP 800-92 §4.2` cell). No normative content changed; the refs point to the same external NIST clauses.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD present once, each NEW absent), asserted 9/9, then the heading tree re-parsed against the target (gapless H2 1-9).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: a line-level inbound grep, an anchor-link grep, and an intra-self-reference scan all found zero references that depend on this document's section numbers. Every `§`-reference the document carries is an external `NIST SP 800-63B` citation (`§5.1.1`, `§6.3`, `§7.1` in the framework-alignment table); the inbound citers reference it by path or title only, or by external `BASC v6 §8.3`/`§8.5` clause labels (the compliance matrix and the BASC IT-responsibilities register). Zero inbound section citations, zero intra-doc self-refs, zero anchor links.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #527 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.15 to 2026.07.16; README 1.9.376 to 1.9.377.
+
 ## 2026-07-01, Library Version 2026.07.15, PR #527
 
 TODO §1.1: FR-48 entangled-residual, fourth single-document batch. Renumbered [`governance/policy-digital-twin-and-simulation-governance.md`](../../governance/policy-digital-twin-and-simulation-governance.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier. Also retagged the data-classification standard on the worklist (inline-clause hard class) and extended the worklist recipe with an inline-clause-detection triage step.
