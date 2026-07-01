@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.6\
-**Date:** 2026-06-28\
+**Version:** 1.4.7\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -20,7 +20,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy defines principles, governance structure, and control framework for managing personal data and organisational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organisation's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
@@ -28,7 +28,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organisational or personal data.
 2. Covers all forms of data, including structured, unstructured, derived, anonymized, synthetic, and AI training datasets.
@@ -37,21 +37,21 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
-### Accountable roles
+### 3.1 Accountable roles
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
 3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.).
 
-### Governance committees
+### 3.2 Governance committees
 
 - **Data Governance Council (DGC):** Sets strategic data management objectives.
 - **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation.
 
-### Roles and responsibilities
+### 3.3 Roles and responsibilities
 
 | Role | Responsibilities |
 |---|---|
@@ -67,69 +67,69 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Policy requirements
+## 4. Policy requirements
 
-### 1. Lawful and fair processing
+### 4.1 Lawful and fair processing
 
 - Personal data must be collected and processed only for legitimate business purposes in compliance with applicable laws.
 - Individuals must be informed about data collection, use, retention, and transfer through transparent notices.
 - Consent, where required, must be specific, informed, and revocable.
 
-### 2. Data classification and handling
+### 4.2 Data classification and handling
 
 - All data assets must be classified based on sensitivity: Public, Controlled, Internal, Confidential, and Restricted, per the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
 - Handling procedures for each classification level must be documented and enforced through technical and organisational controls.
 - Sensitive personal data and AI datasets must be encrypted at rest and in transit.
 
-### 3. Data quality and accuracy
+### 4.3 Data quality and accuracy
 
 - Data must be accurate, complete, and kept up to date in accordance with ISO 8000-8.
 - Periodic validation processes must verify data integrity, detect anomalies, and prevent unauthorized modification.
 
-### 4. Records and retention management
+### 4.4 Records and retention management
 
 - Records must be maintained according to approved retention schedules and applicable legal or regulatory timeframes.
 - Destruction or anonymization of records must be conducted securely and verifiably.
 - Retention schedules must cover both structured data and AI training artifacts.
 
-### 5. Privacy by design and default
+### 4.5 Privacy by design and default
 
 - Systems and processes must embed privacy principles from inception, including data minimization and pseudonymization.
 - Privacy Impact Assessments (PIAs) must be conducted for new systems, major changes, and AI model training activities.
 - PIAs must assess lawful basis, consent management, cross-border data transfer, and model explainability impacts.
 
-### 6. Cross-border data transfers
+### 4.6 Cross-border data transfers
 
 - All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
 - The organisation must maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
-### 7. AI training data governance
+### 4.7 AI training data governance
 
 - AI models must only be trained on datasets that comply with privacy, consent, and licensing obligations.
 - Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
 - Disclosure of training dataset categories must be documented for transparency and compliance with the EU Data Act (Regulation (EU) 2023/2854).
 - Synthetic and anonymized data used for AI training must undergo reidentification risk assessments.
 
-### 8. Data subject rights
+### 4.8 Data subject rights
 
 - Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
 - Requests must be processed within legal timeframes (typically 30 days).
 - Denials must be justified in writing and reviewed by the CIO (acting DPO).
 
-### 9. Third-party and supplier governance
+### 4.9 Third-party and supplier governance
 
 - All vendors processing personal or regulated data must be assessed for privacy and security compliance before engagement.
 - Data processing agreements must include breach notification, audit rights, and cross-border data protection clauses.
 - Supplier performance must be monitored and reviewed annually.
 
-### 10. Incident response and breach management
+### 4.10 Incident response and breach management
 
 - Data breaches must be reported immediately to the CISO and CIO (acting DPO).
 - Regulatory notifications must be issued within 72 hours (GDPR standard) or as required by local laws.
 - Post-incident reviews must determine root cause, impact, and mitigation actions.
 
-### 11. Monitoring and continual improvement
+### 4.11 Monitoring and continual improvement
 
 - Compliance must be monitored through audits, metrics, and incident trends.
 - Lessons learned from data breaches or privacy complaints must be integrated into training and control design.
@@ -137,7 +137,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ---
 
-## Framework alignment
+## 5. Framework alignment
 
 | Policy Area | ISO/IEC 27701 | COBIT 2019 | CSA CCM v4.1 | Regulatory References |
 |---|---|---|---|---|
