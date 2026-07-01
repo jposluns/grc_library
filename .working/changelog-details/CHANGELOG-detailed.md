@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.21, PR #533
+
+TODO §1.1: FR-48 entangled-residual, tenth single-document batch. Renumbered [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) to the canonical fully-numbered model; the first document to apply the Section-N-label convention (strip `## Section N:`, capitalize the title, renumber to document-order position). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) (Version 1.4.7 to 1.4.8, Date to 2026-07-01): 17 headings renumbered (asserted 17/17 by the script's guards). The 4 leading unnumbered H2s gained a prefix in document order (`## Purpose` to `## 1.` through `## Records classification` to `## 4.`); the 7 `## Section 1:` to `## Section 7:` labels had the "Section N:" prefix stripped, their lowercase titles capitalized to Sentence-case, and were renumbered to their document-order positions `## 5.` (Records retention schedule) through `## 11.` (Monitoring and compliance), so the new number is the position, not the old Section number; `## Framework alignment` became `## 12.`. The 5 descriptive H3s were numbered hierarchically: `### 5.1` under Records retention schedule, `### 8.1`/`### 8.2` under Secure destruction, `### 11.1`/`### 11.2` under Monitoring and compliance. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 17/17, then the heading tree re-parsed (gapless H2 1-12; H3 5.1 under §5, 8.1-8.2 under §8, 11.1-11.2 under §11).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan, and bare-external-§ scan. The live inbound citers (the compliance matrix, the control-testing procedure, the privacy-breach procedure) reference the document by path plus an external `§` only (`BASC §7.5`, `Sarbanes-Oxley §103`, `ISO/IEC 27701 §8.9`); the two CHANGELOG references are frozen historical entries citing line numbers (`:77`, `:79`), unaffected by heading-text renumbering and gate-exempt. The document's only `§`-references are the external `ISO/IEC 42001 §9`; no intra self-reference, no anchor citers, no bare-external-§ collision. The intra-document-reference gate passes.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #532 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.20 to 2026.07.21; README 1.9.381 to 1.9.382.
+
 ## 2026-07-01, Library Version 2026.07.20, PR #532
 
 TODO §1.1: FR-48 entangled-residual, ninth single-document batch. Renumbered [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) to the canonical fully-numbered model (option B + H4 numbering); the first FR-48 doc to exercise both the H4-numbering decision and an inbound citer remap in the same PR. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
