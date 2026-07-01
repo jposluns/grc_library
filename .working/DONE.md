@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §3.3: Citation-verification consistency cross-check vs the scratch `ref/` base (closed by PR #522, 2026-07-01)
+
+Ran the resume-resolved model-B consistency cross-check (register version+date vs the held scratch `ref/` extract, no register row): 33 ISO/IEC, NIST, CSA, COBIT, and MITRE citations held in both `governance/register-canonical-citations.md` and `grc_library_scratch/ref/catalogue.yml` compared, **0 version mismatches**, so no register change. ETSI-scope sub-decision moot under model B (register-recording dropped).
+
 ### §3.2: CHANGELOG detailed-mirror per-PR-header parity check (gate 59, closed by PR #521, 2026-07-01)
 
 Added gate 59 (CHANGELOG mirror header-parity audit), a cutoff-scoped (PR >= #463) check that the root CHANGELOG and its detailed mirror carry the same per-PR entry-header set, closing the cross-commit orphaned-header gap (the #388 defect) that per-commit delta check D1 is blind to. Wired across all four parity surfaces with a four-case regression fixture; the guardrail-review growth-narrative count advanced to fifty-nine.
