@@ -138,21 +138,6 @@ Backlog items now carry `(severity, effort)`; this item formalises the conventio
 
 **Surfaces to update when the convention formally lands**: `library-fitness-review/SKILL.md`; `validation-sweep/SKILL.md`; this file (already in use); `.working/DONE.md` heading shape; future fitness-review templates and sweep detail files. Schedule: after the current FR backlog closes.
 
-### 3.5 Standard-version-upgrade process (M, M) (was 4.3)
-
-When an external standard the corpus cites is republished (e.g., `ISO/IEC 27001:2013` → `2022`; future COBIT release), the library needs a documented transition process. Sweep 15's `ISO/IEC 29134:2023` hallucination plus the FR-21 `ISO/IEC 27701:2019 → 2025` catch show ad-hoc updates produce drift.
-
-The seven-step process:
-1. Diff old and new version; use the publisher's transition guide as authoritative input.
-2. Sweep the corpus (grep + canonical-citations register) for every cited location.
-3. Classify each citation as positional-only or substantive.
-4. Apply updates per classification (positional: year bump; substantive: rewrite with per-document version bump).
-5. Update [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md) and the verifications register; mark the old version superseded with effective-date.
-6. Confirm gate 6 (`tools/lint-standards-currency.py`) flags the supersession.
-7. CHANGELOG entry covering the upgrade campaign (often multi-PR); TODO row if substantive rewrites span multiple PRs.
-
-**Deliverable**: `governance/procedure-standard-version-upgrade.md` documenting the process with worked examples. **Side benefit**: documents the canonical-citations register discipline.
-
 ### 3.6 Multi-session / multi-worker orchestration codification (M, L) — track; maintainer-scheduled (was 4.11)
 
 Stand up the parallel-worker capability per the **"Multi-session / multi-worker orchestration model"** entry in [`.working/design-decisions.md`](.working/design-decisions.md) (the authoritative design; recovered to `main` in #316). A deliberately-scheduled meta/process track, not a routine backlog fix.
@@ -364,7 +349,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and renumber (t
 
 - **P1 (fix errors and prevent recurrence)**: 3 items (1.1 FR-48, 1.4 audit-gate candidates, 1.5 reference version-currency).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment).
-- **P3 (clean up and tooling)**: 13 items (3.1-3.8, 3.10-3.14).
+- **P3 (clean up and tooling)**: 12 items (3.1-3.4, 3.6-3.8, 3.10-3.14).
 - **P4 (adopter experience)**: 5 items (4.1-4.5).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).

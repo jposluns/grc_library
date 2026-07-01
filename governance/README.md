@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.10.8\
-**Date:** 2026-06-26\
+**Version:** 1.10.9\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md)\
@@ -56,6 +56,7 @@ This directory contains the enterprise-wide governance foundation of the GRC Doc
 | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) |
 | Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](guideline-minimum-viable-governance-structure.md) |
 | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) |
+| Procedure | Standard Version Upgrade Procedure | [`governance/procedure-standard-version-upgrade.md`](procedure-standard-version-upgrade.md) |
 | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) |
 | Template | Library Health Report Template | [`governance/template-library-health-report.md`](template-library-health-report.md) |
 | Specification | Project Governance Separation Specification | [`governance/specification-project-governance-separation.md`](specification-project-governance-separation.md) |

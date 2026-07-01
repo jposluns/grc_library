@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §3.5 (was 4.3): Standard Version Upgrade Procedure (2026-07-01)
+
+Authored `governance/procedure-standard-version-upgrade.md` (Procedure, 1.0.0), the seven-step corpus-wide edition-transition process (authoritative diff, corpus-wide sweep, positional-vs-substantive classification, per-classification apply, register + verifications-register supersession, gate-6 confirmation, campaign CHANGELOG) with roles, framework alignment, and a limitations baseline. Registered in `governance/README.md` and the document-index register (gate 47/38); regenerated taxonomy/portal/scorecard.
+
 ### §3.14 (tooling half): gate-2 coverage of generator emitted-prose strings (2026-07-01)
 
 Extended gate 2 (`tools/lint-language.py`) to scan the `tools/build-portal.py` and `tools/build-taxonomy.py` generators' non-docstring string literals (parsed via `ast`) for the three prose house-style rules (dash, `-ise`, `ensure that`), closing the double-blind gap where the generated `docs/` output is excluded and the `.py` source was never scanned as markdown. Two regression tests added (emitted-prose flagged; docstring exempt). §3.14 trimmed to its companion non-tooling residual (a maintainer-gated close-out-checklist reinforcement).

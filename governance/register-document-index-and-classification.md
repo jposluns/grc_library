@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.50\
-**Date:** 2026-06-30\
+**Version:** 1.27.51\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -229,6 +229,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Governance | Guideline | ESG and AI Ethics Disclosure Guideline | [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md) | Chief Information Officer | Annual | GRI Standards, TCFD, OECD AI Principles, ISO 42001 §9, EU AI Act Arts 13/50 | template |
 | Governance | Guideline | Minimum Viable Governance Structure Guideline | [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md) | Governance Library Maintainer | Annual | ISO 37000:2021, ISO 27001 Annex A.5.2, ISO 42001 §5, COBIT 2019 EDM, OECD G20 Corporate Governance, IIA Three Lines Model | template |
 | Governance | Procedure | Library Quality and Review Cadence Procedure | [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md) | Governance Library Maintainer | Annual | ISO 27001 Annex A.5.36/A.5.37, ISO 9001 §7.5/§9, COBIT 2019 APO01, ITIL 4 continual improvement, ISO 42001 §9/§10, NIST CSF 2.0 | library-internal |
+| Governance | Procedure | Standard Version Upgrade Procedure | [`governance/procedure-standard-version-upgrade.md`](procedure-standard-version-upgrade.md) | Governance Library Maintainer | Annual | ISO 27001 Annex A.5.36/A.5.37, ISO 9001 §7.5/§8.5.6/§9.1, COBIT 2019 APO01/BAI06/BAI08/MEA01, NIST CSF 2.0 | library-internal |
 | Governance | Template | Document Review Record Template | [`governance/template-document-review-record.md`](template-document-review-record.md) | Governance Library Maintainer | Annual | ISO 9001 §7.5/§9.3, ISO 27001 Annex A.5.35/A.5.36/A.5.37, ISO 19011:2018, ISO 30301, ISO 42001 §9.3, COBIT 2019 MEA02, ITIL 4 | template |
 | Governance | Template | Library Health Report Template | [`governance/template-library-health-report.md`](../governance/template-library-health-report.md) | Governance Library Maintainer | Annual | ISO 9001 §9, ISO 27001 §9.3, ISO 42001 §9.3, COBIT 2019 MEA01, ITIL 4 continual improvement | library-internal |
 | Risk | Procedure | Risk Assessment Methodology Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC Programme Manager | Annual | ISO 31000:2018, ISO 27005:2022, ISO 42001 §6, NIST SP 800-30r1, COBIT APO12 | template |
