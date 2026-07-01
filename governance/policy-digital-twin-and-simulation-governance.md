@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Twin and Simulation Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -20,7 +20,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy establishes the governance requirements for the development, deployment, and operation of digital twins, simulation environments, and virtual replicas of physical systems, processes, or organisations. It ensures that these technologies are governed with appropriate oversight of data use, AI integration, security, and operational risk.
 
@@ -28,7 +28,7 @@ A digital twin is a real-time or near-real-time digital representation of a phys
 
 ---
 
-## Scope
+## 2. Scope
 
 Applies to all digital twin and simulation initiatives including:
 - Digital twins of operational infrastructure, logistics systems, or supply chain networks.
@@ -39,7 +39,7 @@ Excludes development and test environments that replicate production for softwar
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -51,13 +51,13 @@ Excludes development and test environments that replicate production for softwar
 
 ---
 
-## Policy statements
+## 4. Policy statements
 
-### 1. Approval and acceptance
+### 4.1 Approval and acceptance
 
 All digital twin systems must complete the Acceptance Into Service process before production deployment. Digital twins incorporating AI require AIGC review and an AI Impact Assessment.
 
-### 2. Data governance
+### 4.2 Data governance
 
 Data used in digital twin systems must be:
 - Sourced from authorized data feeds with documented provenance.
@@ -67,7 +67,7 @@ Data used in digital twin systems must be:
 
 Real-time data feeds into digital twins must be validated for accuracy and integrity before use in decision-making.
 
-### 3. Security requirements
+### 4.3 Security requirements
 
 Digital twin systems must meet the same security baseline requirements as production systems at the equivalent classification tier. Key requirements include:
 - Access controls limiting digital twin access to authorized users.
@@ -75,24 +75,24 @@ Digital twin systems must meet the same security baseline requirements as produc
 - Encryption of data in transit and at rest.
 - Network isolation from production operational technology (OT) systems where applicable.
 
-### 4. AI-enabled digital twins
+### 4.4 AI-enabled digital twins
 
 Digital twins incorporating AI or machine learning components are subject to the AI Governance and Risk Framework and the AI Testing, Validation and Documentation Standard. Requirements include:
 - AI risk tier classification before deployment.
 - Explainability validation for AI-driven predictions or recommendations.
 - Human oversight for AI outputs used in material operational decisions.
 
-### 5. Operational integrity
+### 4.5 Operational integrity
 
 Digital twins must not be modified in ways that could introduce inaccurate operational data or decisions. Changes to digital twin configuration or data models follow the Change Management process. Accuracy of digital twin representations is validated against physical system state at defined intervals.
 
-### 6. Continual review
+### 4.6 Continual review
 
 Digital twin systems are reviewed annually by the system owner to confirm: continued business need, data accuracy, security posture, and AI governance compliance (where applicable).
 
 ---
 
-## Framework alignment
+## 5. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |

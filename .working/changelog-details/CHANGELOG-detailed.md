@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.15, PR #527
+
+TODO §1.1: FR-48 entangled-residual, fourth single-document batch. Renumbered [`governance/policy-digital-twin-and-simulation-governance.md`](../../governance/policy-digital-twin-and-simulation-governance.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier. Also retagged the data-classification standard on the worklist (inline-clause hard class) and extended the worklist recipe with an inline-clause-detection triage step.
+
+### Changed
+- [`governance/policy-digital-twin-and-simulation-governance.md`](../../governance/policy-digital-twin-and-simulation-governance.md) (Version 1.0.3 to 1.0.4, Date to 2026-07-01): 11 headings renumbered (asserted 11/11 by the script's guards). The 5 H2s were unnumbered, so they gained a sequential prefix in document order (`## Purpose` to `## 1. Purpose` through `## Framework alignment` to `## 5. Framework alignment`); the 6 H3s under Policy statements, already locally numbered `### 1.` to `### 6.`, were converted to hierarchical `### 4.1` to `### 4.6`. No document body prose changed. This is the all-enumerated-H3 case, where the open A/B H3-numbering convention question does not apply because both options convert already-enumerated H3s to `N.M` identically.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): checked off the digital-twin row; retagged [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md) from "intra §N" to the inline-clause hard class (kept deferred), and extended the build-time recipe with an inline-clause-detection triage step (the #527 near-catch: a pre-renumber body scan found plain-text clauses `1.1` to `7.4` keyed to a hybrid H2 scheme).
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD present once, each NEW absent), asserted 11/11, then the heading tree re-parsed against the target (H2 1-5 gapless, H3 4.1-4.6 gapless under §4).
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: a line-level inbound grep, an anchor-link grep, and a bare-numeric scan all found zero references that depend on this document's section numbers. The only `§`-reference the document carries is the external `ISO/IEC 42001:2023 §8` citation in its framework-alignment table. Zero inbound section citations, zero intra-doc self-refs, zero anchor links to the doc.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #526 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.14 to 2026.07.15; README 1.9.375 to 1.9.376.
+
 ## 2026-07-01, Library Version 2026.07.14, PR #526
 
 TODO §1.1: FR-48 entangled-residual, third single-document batch. Renumbered [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
