@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.14, PR #526
+
+TODO §1.1: FR-48 entangled-residual, third single-document batch. Renumbered [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md) to the canonical fully-numbered model; no citer remap needed. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`security/standard-personnel-security-screening.md`](../../security/standard-personnel-security-screening.md) (Version 1.0.1 to 1.0.2, Date to 2026-07-01): 10 headings renumbered (asserted 10/10 by the script's guards). All H2s were unnumbered, so this is a prefix-add (`## Purpose` to `## 1. Purpose` through `## Framework alignment` to `## 10. Framework alignment`); the document has no H3/H4, so no cascade and no number shift. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map, pre-apply guard (each OLD present once, each NEW absent), asserted 10/10, then the heading tree re-parsed against the target.
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: a line-level inbound grep, an anchor-link grep, and a bare-numeric scan all found zero references that depend on this document's section numbers. The only `§`-reference the document carries is the external `BASC v6 §8.3` citation in its framework-alignment table; the compliance-matrix `§8.3` cell for this document's row is that same external BASC reference (the document has no `§8.3` and no subsections, so no ambiguity is introduced). Zero inbound section citations, zero intra-doc self-refs, zero anchor links to the doc.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #525 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.13 to 2026.07.14; README 1.9.374 to 1.9.375.
+
 ## 2026-07-01, Library Version 2026.07.13, PR #525
 
 TODO §1.1: FR-48 entangled-residual, second single-document batch. Renumbered [`ai/standard-ai-testing-validation-and-documentation.md`](../../ai/standard-ai-testing-validation-and-documentation.md) from a hybrid numbering scheme to the canonical fully-numbered model; no citer remap needed (zero references depend on the old numbers). Worked one document per PR (maintainer directive); deterministic script apply + re-parse, exhaustive corpus-wide reference-completeness scan, and a refute-briefed skeptical verifier.

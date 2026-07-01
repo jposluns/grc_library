@@ -47,7 +47,7 @@ The 38 policy/standard documents that FR-48's safe-subset pass (PR #520) deferre
 - [ ] `security/standard-authentication-and-password-management.md` -- intra §N
 - [ ] `security/standard-data-classification-and-handling.md` -- intra §N
 - [ ] `security/standard-logging-and-monitoring.md` -- inbound §N, intra §N
-- [ ] `security/standard-personnel-security-screening.md` -- intra §N
+- [x] `security/standard-personnel-security-screening.md` -- intra §N (DONE: renumbered to canonical fully-numbered, 10 unnumbered H2s -> `## 1.`-`## 10.` prefix-add, no H3/H4; the "intra §N" tag was conservative, the only §-hits are external `BASC v6 §8.3` in the framework-alignment table; zero inbound section citations, zero self-refs, so no citer remap)
 - [ ] `security/standard-security-awareness-and-training.md` -- intra §N
 - [ ] `supply-chain/standard-supplier-resilience-monitoring.md` -- intra §N
 - [ ] `compliance/policy-compliance-and-audit-management.md` -- inbound §N (bare-parenthetical, `procedure-capa.md` §4.3), inline clause numbering (reverted from PR #520)
