@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-06-27\
+**Version:** 1.0.5\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -18,13 +18,13 @@ This standard defines authentication and password management requirements across
 
 ---
 
-## Purpose
+## 1. Purpose
 
 To establish consistent, risk-proportionate authentication controls that reduce the risk of credential theft, brute force, and account takeover.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all user accounts, service accounts, and system accounts across on-premises and cloud environments.
 2. Covers password construction, MFA requirements, session management, and authentication exception handling.
@@ -32,7 +32,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -42,7 +42,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Password requirements
+## 4. Password requirements
 
 | Parameter | Requirement |
 | --- | --- |
@@ -55,7 +55,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ---
 
-## Multi-factor authentication (MFA)
+## 5. Multi-factor authentication (MFA)
 
 MFA is mandatory for all accounts without exception. There are no circumstances under which a user account may access company resources without MFA enrolled.
 
@@ -69,7 +69,7 @@ MFA is enforced at the enterprise identity provider Conditional Access layer.
 
 ---
 
-## Session management
+## 6. Session management
 
 Sessions on cloud and productivity platforms are governed by Conditional Access sign-in frequency policies:
 - Maximum session lifetime before re-authentication: 8 hours for standard users; 1 hour for privileged role activations.
@@ -78,7 +78,7 @@ Sessions on cloud and productivity platforms are governed by Conditional Access 
 
 ---
 
-## Service account authentication
+## 7. Service account authentication
 
 Service accounts must use managed identities, workload identities, or certificate-based authentication wherever technically feasible.
 
@@ -86,19 +86,19 @@ Password-based service account authentication is only permitted where no alterna
 
 ---
 
-## Exceptions
+## 8. Exceptions
 
 Exceptions to any requirement in this standard require CISO approval and must be documented with a compensating control and a remediation target date. No exception may remain open beyond 12 months without re-approval.
 
 ---
 
-## Framework alignment
+## 9. Framework alignment
 
 | Control | NIST SP 800-63B | ISO/IEC 27001 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
-| Password requirements | §5.1.1 | A.8.5 | IAM-06 | Control 5 |
-| MFA | §6.3 | A.8.5 | IAM-08 | Control 6 |
-| Session management | §7.1 | A.8.5 | IAM-09 | Control 5 |
+| Password requirements | SP 800-63B §5.1.1 | A.8.5 | IAM-06 | Control 5 |
+| MFA | SP 800-63B §6.3 | A.8.5 | IAM-08 | Control 6 |
+| Session management | SP 800-63B §7.1 | A.8.5 | IAM-09 | Control 5 |
 | Service account auth | N/A | A.8.2 | IAM-02 | Control 5 |
 
 
