@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -125,7 +125,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | MITRE ATT&CK | https://attack.mitre.org/ | all | v19.1, 2026-05 (verified current 2026-06-28; was v15, 2024-10) |  |  |  |  |  |  |
-| MITRE ATLAS | https://atlas.mitre.org/ | all | v2026.05, 2026-05 (verified current 2026-06-28; was v4.7, 2024) |  |  |  |  |  |  |
+| MITRE ATLAS | https://atlas.mitre.org/ | all | v2026.05, 2026-05 (verified current 2026-06-28; superseded 2026-06-30 by v2026.06, re-verified 2026-07-01 per #512; was v4.7, 2024) |  |  |  |  |  |  |
 | AVID | https://avidml.org/ | all | continuous, 2023, AI Vulnerability Database |  |  |  |  |  |  |
 | MLCommons AILuminate | https://mlcommons.org/benchmarks/ailuminate/ | all | v1.0, 2024, AI risk taxonomy and benchmark with 14-category hazard taxonomy |  |  |  |  |  |  |
 | HarmBench | https://www.harmbench.org/ | all | continuous, 2024-02, Standardized evaluation framework |  |  |  |  |  |  |
