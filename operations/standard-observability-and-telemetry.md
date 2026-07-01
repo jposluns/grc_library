@@ -2,8 +2,8 @@
 
 **Document Title:** Observability and Telemetry Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-05-28\
+**Version:** 0.0.4\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines minimum observability and telemetry requirements for services operated by the organisation. It complements the security logging and monitoring standard (which focuses on security-relevant events) and the [`AI evaluation procedure`](../ai/procedure-ai-evaluation.md) (which focuses on model behaviour) by covering operational health, performance, reliability, and customer-experience signals.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -34,13 +34,13 @@ This standard applies to:
 
 It does not cover individual workstation telemetry (governed by the endpoint hardening standard) or experimental sandboxes that produce no organisational outcome.
 
-### Scope boundary with the security logging and monitoring standard
+### 2.1 Scope boundary with the security logging and monitoring standard
 
 This standard governs operational health signals (metrics, traces, logs of operational events, real-user monitoring, synthetic checks). Security-relevant logging, monitoring, and SIEM operations are governed by [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md). See that standard's scope-boundary table for the per-event-class routing rule. The short version: security-relevant events go to the SIEM, operational signals go to the observability platform, and dual-purpose events are emitted to both with shared trace identifiers.
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -55,7 +55,7 @@ This standard governs operational health signals (metrics, traces, logs of opera
 
 ---
 
-## Section 2: service-level signals
+## 4. Service-level signals
 
 Every customer-facing service publishes:
 
@@ -72,7 +72,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 3: metrics
+## 5. Metrics
 
 | Control area | Requirement |
 | --- | --- |
@@ -87,7 +87,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 4: logs
+## 6. Logs
 
 | Control area | Requirement |
 | --- | --- |
@@ -102,7 +102,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 5: distributed tracing
+## 7. Distributed tracing
 
 | Control area | Requirement |
 | --- | --- |
@@ -115,7 +115,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 6: error and exception telemetry
+## 8. Error and exception telemetry
 
 | Control area | Requirement |
 | --- | --- |
@@ -127,7 +127,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 7: events
+## 9. Events
 
 | Control area | Requirement |
 | --- | --- |
@@ -138,7 +138,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 8: synthetic monitoring and real-user monitoring
+## 10. Synthetic monitoring and real-user monitoring
 
 | Control area | Requirement |
 | --- | --- |
@@ -149,7 +149,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 9: dashboards and alerting
+## 11. Dashboards and alerting
 
 | Control area | Requirement |
 | --- | --- |
@@ -162,7 +162,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 10: privacy and data classification
+## 12. Privacy and data classification
 
 | Control area | Requirement |
 | --- | --- |
@@ -174,7 +174,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 11: cost governance
+## 13. Cost governance
 
 | Control area | Requirement |
 | --- | --- |
@@ -186,7 +186,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 12: AI and ML telemetry
+## 14. AI and ML telemetry
 
 | Control area | Requirement |
 | --- | --- |
@@ -199,7 +199,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 13: tooling and platform
+## 15. Tooling and platform
 
 | Control area | Requirement |
 | --- | --- |
@@ -211,7 +211,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Section 14: testing
+## 16. Testing
 
 | Control area | Requirement |
 | --- | --- |
@@ -222,7 +222,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. Each service onboards to this standard before acceptance into service.
 2. Telemetry gaps surface in post-incident reviews and feed back to the service team.
@@ -231,7 +231,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -245,7 +245,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Telemetry tooling and vendor capabilities change; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations select tooling consistent with their cost, scale, and platform diversity.
 
