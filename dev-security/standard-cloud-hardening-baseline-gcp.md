@@ -2,8 +2,8 @@
 
 **Document Title:** Google Cloud Platform Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-06-24\
+**Version:** 0.0.7\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the hardening baseline for Google Cloud Platform environments operated by or on behalf of the organisation. It expresses outcomes and control intent in vendor-neutral language and references GCP service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -33,19 +33,19 @@ This standard applies to:
 
 It does not cover the contractual relationship with the provider, which is governed by the supplier security and privacy assurance standard.
 
-### Scope boundary with the operations cloud configuration baseline
+### 2.1 Scope boundary with the operations cloud configuration baseline
 
 This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organisation/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
 
 ---
 
-## Baseline alignment
+## 3. Baseline alignment
 
 The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and to the Google Cloud Architecture Framework security pillar without reproducing benchmark content verbatim. Adopting organisations confirm current versions of those baselines at each review.
 
 ---
 
-## Section 1: organisation, folder, and identity
+## 4. Organisation, folder, and identity
 
 | Control area | Requirement |
 | --- | --- |
@@ -60,7 +60,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 2: detective controls and logging
+## 5. Detective controls and logging
 
 | Control area | Requirement |
 | --- | --- |
@@ -74,7 +74,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 3: preventive controls
+## 6. Preventive controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -88,7 +88,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 4: network
+## 7. Network
 
 | Control area | Requirement |
 | --- | --- |
@@ -103,7 +103,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 5: data protection
+## 8. Data protection
 
 | Control area | Requirement |
 | --- | --- |
@@ -119,7 +119,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 6: compute
+## 9. Compute
 
 | Control area | Requirement |
 | --- | --- |
@@ -134,7 +134,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 7: storage
+## 10. Storage
 
 | Control area | Requirement |
 | --- | --- |
@@ -146,7 +146,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 8: secrets and credentials
+## 11. Secrets and credentials
 
 | Control area | Requirement |
 | --- | --- |
@@ -158,7 +158,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 9: monitoring, detection, and response
+## 12. Monitoring, detection, and response
 
 | Control area | Requirement |
 | --- | --- |
@@ -170,7 +170,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 10: supplementary services
+## 13. Supplementary services
 
 | Service class | Requirement |
 | --- | --- |
@@ -184,7 +184,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 11: labelling and inventory
+## 14. Labelling and inventory
 
 | Control area | Requirement |
 | --- | --- |
@@ -195,7 +195,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 12: provisioning and change
+## 15. Provisioning and change
 
 | Control area | Requirement |
 | --- | --- |
@@ -207,7 +207,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Section 13: incident readiness
+## 16. Incident readiness
 
 | Control area | Requirement |
 | --- | --- |
@@ -218,7 +218,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. Baseline coverage is verified continuously through Organisation Policy compliance and Security Command Center posture signals.
 2. Deviations are tracked as exceptions with risk acceptance recorded per the security exceptions process.
@@ -227,7 +227,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -242,7 +242,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline expressed in vendor-neutral terms. GCP service names, console paths, and configuration parameters change frequently; specific implementation details are confirmed against current vendor documentation by the implementing engineer. The standard expresses outcomes and control intent, not provider-specific commands.
 

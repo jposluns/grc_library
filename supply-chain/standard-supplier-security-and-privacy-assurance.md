@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-06-29\
+**Version:** 1.1.4\
+**Date:** 2026-07-01\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the minimum information security and privacy assurance requirements that suppliers, processors, and other third-party service providers must meet as a condition of doing business with the organisation. It establishes the evidence and contractual obligations the organisation requires, and the assessment methods used to verify compliance.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to all third-party relationships where the supplier:
 - Accesses, processes, stores, or transmits the organisation's data or systems
@@ -34,9 +34,9 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 
 ---
 
-## Minimum security requirements by tier
+## 3. Minimum security requirements by tier
 
-### Tier 1: critical suppliers
+### 3.1 Tier 1: critical suppliers
 
 | Requirement | Standard | Evidence Required |
 |---|---|---|
@@ -51,7 +51,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 | Sub-contractor security: flow-down of requirements | Written requirements for material sub-contractors | Sub-contractor policy; attestation of flow-down |
 | Data classification and handling | Documented data classification policy | Classification policy; handling procedure evidence |
 
-### Tier 2: high suppliers
+### 3.2 Tier 2: high suppliers
 
 | Requirement | Standard | Evidence Required |
 |---|---|---|
@@ -64,7 +64,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 | Business continuity plan | Documented | BCP document |
 | Sub-contractor disclosure | Notify organisation of material sub-contractors | Notification commitment |
 
-### Tier 3: moderate suppliers (where data access exists)
+### 3.3 Tier 3: moderate suppliers (where data access exists)
 
 | Requirement | Standard | Evidence Required |
 |---|---|---|
@@ -75,11 +75,11 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 
 ---
 
-## Privacy assurance requirements
+## 4. Privacy assurance requirements
 
 For any supplier that processes personal data on behalf of the organisation, the following privacy assurance requirements apply in addition to security requirements.
 
-### All data processors
+### 4.1 All data processors
 
 | Requirement | Legal Basis | Evidence |
 |---|---|---|
@@ -92,7 +92,7 @@ For any supplier that processes personal data on behalf of the organisation, the
 | Data return or secure deletion on contract end | GDPR Article 28(3)(g); UK GDPR | DPA termination clause; deletion certificate capability |
 | Compliance audit support | GDPR Article 28(3)(h); UK GDPR | Audit rights clause in DPA |
 
-### Cross-border transfer suppliers
+### 4.2 Cross-border transfer suppliers
 
 Where the supplier transfers personal data outside the EEA or UK:
 
@@ -104,7 +104,7 @@ Where the supplier transfers personal data outside the EEA or UK:
 
 ---
 
-## Assurance evidence hierarchy
+## 5. Assurance evidence hierarchy
 
 The organisation accepts supplier security assurance in the following priority order. Higher-tier evidence is preferred.
 
@@ -118,7 +118,7 @@ The organisation accepts supplier security assurance in the following priority o
 
 ---
 
-## Minimum contract clauses
+## 6. Minimum contract clauses
 
 Contracts with suppliers in scope of this standard must include the following minimum security and privacy clauses.
 
@@ -136,7 +136,7 @@ Contracts with suppliers in scope of this standard must include the following mi
 
 ---
 
-## Ongoing assurance activities
+## 7. Ongoing assurance activities
 
 | Activity | Tier 1 | Tier 2 | Tier 3 | Responsible |
 |---|---|---|---|---|
@@ -150,7 +150,7 @@ See [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier
 
 ---
 
-## Non-compliance and escalation
+## 8. Non-compliance and escalation
 
 Where a supplier fails to meet the requirements of this standard:
 
@@ -162,7 +162,7 @@ Where a supplier fails to meet the requirements of this standard:
 
 ---
 
-## Metrics
+## 9. Metrics
 
 The following metrics must be tracked and reported to the CISO at least quarterly:
 
@@ -180,7 +180,7 @@ Metric definitions and supporting data collection are operationalized in [`suppl
 
 ---
 
-## Framework alignment
+## 10. Framework alignment
 
 | Framework | Alignment |
 |---|---|

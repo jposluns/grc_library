@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.3\
-**Date:** 2026-06-24\
+**Version:** 1.3.4\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-## Scope boundary
+## 1. Scope boundary
 
 Covers physical security controls for IT infrastructure owned and operated by the CIO's office. Covers server rooms, network closets, camera and NVR systems, and IT equipment. Broader facility physical security, building access systems, perimeter fencing, guard services, visitor management, is outside IT scope and governed by Facilities and Operations.
 
 ---
 
-## Purpose
+## 2. Purpose
 
 Defines minimum physical security requirements for IT infrastructure areas under direct control of the CIO. Ensures that hardware, cabling, and IT equipment are protected from unauthorized physical access, tampering, environmental hazards, and theft. Supports the Information Security Policy and the Standard: Cloud Security Configuration Baseline (which governs logical controls). Aligns to ISO/IEC 27001:2022 Annex A.7 (Physical Controls) within IT scope.
 
 ---
 
-## Scope
+## 3. Scope
 
 1. Applies to all IT infrastructure areas under CIO management including the primary data centre server room, network closets, UPS and power distribution equipment, and IT equipment rooms at all office locations.
 2. Covers access control to IT rooms, camera surveillance systems and NVR infrastructure, environmental monitoring, equipment handling, and clean desk requirements for IT operations areas.
@@ -36,7 +36,7 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 ---
 
-## Governance and accountability
+## 4. Governance and accountability
 
 | Role | Responsibility |
 |---|---|
@@ -47,7 +47,7 @@ Defines minimum physical security requirements for IT infrastructure areas under
 
 ---
 
-## 1. Server room and data centre physical access
+## 5. Server room and data centre physical access
 
 Access to the primary data centre server room and all IT equipment rooms is restricted to authorized IT Operations personnel.
 
@@ -61,7 +61,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 
 ---
 
-## 2. Camera surveillance and NVR systems
+## 6. Camera surveillance and NVR systems
 
 The organisation operates IP camera systems at office and data centre locations under IT Operations management.
 
@@ -76,7 +76,7 @@ The organisation operates IP camera systems at office and data centre locations 
 
 ---
 
-## 3. Environmental controls
+## 7. Environmental controls
 
 IT Operations is responsible for:
 
@@ -87,19 +87,19 @@ IT Operations is responsible for:
 
 ---
 
-## 4. Equipment handling
+## 8. Equipment handling
 
 IT equipment entering or leaving an IT infrastructure area must be logged in the asset register before removal. Equipment removed without an asset register update is treated as potential theft and investigated as a P2 incident. Decommissioned equipment must be sanitized per the Media Handling and Transport Procedure before leaving IT custody.
 
 ---
 
-## 5. Clean desk and clear screen
+## 9. Clean desk and clear screen
 
 IT Operations areas and the server room must maintain a clean desk policy. Printed documents containing Confidential or Restricted data must not be left unattended on desks in shared IT areas. Workstations in IT areas lock automatically after 15 minutes of inactivity per the endpoint compliance policy. Personnel must manually lock the screen when leaving a workstation unattended.
 
 ---
 
-## Framework alignment
+## 10. Framework alignment
 
 | Framework | Reference |
 |---|---|

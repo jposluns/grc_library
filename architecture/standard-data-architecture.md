@@ -2,8 +2,8 @@
 
 **Document Title:** Data Architecture Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-01\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs the data architecture practice: how data is modelled, owned, integrated, served, and retired across the organisation. It complements the data classification and handling standard (which governs the controls applied to data) and the privacy and data governance policy (which governs the organisation's privacy posture) by addressing the architectural choices that determine how data flows and is consumed.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -37,7 +37,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -54,7 +54,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 2: data domains and ownership
+## 4. Data domains and ownership
 
 | Element | Description |
 | --- | --- |
@@ -67,7 +67,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 3: data classification and sensitivity
+## 5. Data classification and sensitivity
 
 | Element | Description |
 | --- | --- |
@@ -81,7 +81,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 4: schemas and contracts
+## 6. Schemas and contracts
 
 | Element | Description |
 | --- | --- |
@@ -95,7 +95,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 5: data integration
+## 7. Data integration
 
 | Element | Description |
 | --- | --- |
@@ -109,7 +109,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 6: data quality
+## 8. Data quality
 
 | Element | Description |
 | --- | --- |
@@ -122,7 +122,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 7: lineage and provenance
+## 9. Lineage and provenance
 
 | Element | Description |
 | --- | --- |
@@ -135,7 +135,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 8: data lifecycle
+## 10. Data lifecycle
 
 | Stage | Description |
 | --- | --- |
@@ -149,7 +149,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 9: analytical and AI data platforms
+## 11. Analytical and AI data platforms
 
 | Element | Description |
 | --- | --- |
@@ -163,7 +163,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 10: data sharing and customer-facing data
+## 12. Data sharing and customer-facing data
 
 | Element | Description |
 | --- | --- |
@@ -176,7 +176,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 11: master data and reference data
+## 13. Master data and reference data
 
 | Element | Description |
 | --- | --- |
@@ -189,7 +189,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 12: governance forum and roles
+## 14. Governance forum and roles
 
 | Role | Description |
 | --- | --- |
@@ -203,7 +203,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 13: relationship to adjacent governance artefacts
+## 15. Relationship to adjacent governance artefacts
 
 | Artefact | Relationship |
 | --- | --- |
@@ -218,7 +218,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Section 14: anti-patterns
+## 16. Anti-patterns
 
 | Anti-pattern | Why it harms |
 | --- | --- |
@@ -231,7 +231,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. Every significant data product has a named owner, a documented contract, and a current classification.
 2. Schemas are versioned and reviewed; breaking changes are deliberate.
@@ -241,7 +241,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -256,7 +256,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Data platform choices, ownership topology, and tooling are organisation-specific. The standard expresses outcomes and architectural principles, not specific platforms or commercial products.
 

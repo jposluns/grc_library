@@ -2,8 +2,8 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the requirements for the organisation's penetration testing and red team programme. It establishes the minimum scope, frequency, methodology, and reporting requirements for both internal vulnerability assessment and externally conducted penetration testing.
 
@@ -26,7 +26,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all in-scope production systems, internet-facing services, internal network infrastructure, cloud environments (cloud platform, AWS, GCP), and enterprise identity provider configurations.
 2. Covers external penetration testing (from an unauthenticated attacker perspective), internal network testing (lateral movement and privilege escalation), web and API application testing, and social engineering testing.
@@ -34,7 +34,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -45,7 +45,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Testing programme requirements
+## 4. Testing programme requirements
 
 | Test Type | Minimum Frequency | Scope |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ This standard supports the Information Security Policy and addresses NIST SP 800
 
 ---
 
-## Rules of engagement
+## 5. Rules of engagement
 
 Every engagement requires a signed Rules of Engagement (RoE) document before testing begins. The RoE must specify:
 
@@ -71,7 +71,7 @@ Testing against production systems without a signed RoE is prohibited. Discovery
 
 ---
 
-## Reporting
+## 6. Reporting
 
 All penetration test results must be reported in writing. Each report must include:
 
@@ -85,7 +85,7 @@ Reports are classified Confidential and distributed only to the CIO, CISO, and r
 
 ---
 
-## Remediation timelines
+## 7. Remediation timelines
 
 Remediation timelines for penetration test findings align with those established in the Vulnerability Management Procedure.
 
@@ -100,7 +100,7 @@ Unresolved Critical and High findings beyond their required timelines are escala
 
 ---
 
-## Vendor selection and qualification
+## 8. Vendor selection and qualification
 
 External penetration testing must be conducted by a qualified third-party vendor. Vendors must:
 
@@ -112,7 +112,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ---
 
-## Programme tracking and continuous improvement
+## 9. Programme tracking and continuous improvement
 
 1. Findings from all engagements are tracked in the organisation's vulnerability and risk management tooling.
 2. Year-over-year trend analysis (finding counts by severity, repeat findings, time-to-remediation) is presented to the CISO and CIO annually.
@@ -121,7 +121,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ---
 
-## Framework alignment
+## 10. Framework alignment
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-53 | CSA CCM v4.1 | Other |
 | --- | --- | --- | --- | --- |
