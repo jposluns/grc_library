@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the resilience signals monitored for critical suppliers, the thresholds that trigger action, the cadence of monitoring, and the escalation path. It complements ongoing supplier monitoring (which focuses on contractual and security compliance) with a specific lens on whether the supplier remains capable of delivering its service.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to all Tier 1 critical suppliers and to Tier 2 high suppliers whose service supports an organisation-essential function. Tier 3 and Tier 4 suppliers may be monitored against a subset of signals at the Supplier Risk Maintainer's discretion.
 
@@ -30,11 +30,11 @@ It applies regardless of supplier type: cloud, SaaS, managed services, logistics
 
 ---
 
-## Resilience signal taxonomy
+## 3. Resilience signal taxonomy
 
 Five categories of signal are monitored. Each category contains specific signals; for each signal the standard specifies a source, a cadence, a threshold, and the action triggered.
 
-### Category 1: Continuity testing signals
+### 3.1 Continuity testing signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | Tabletop or industry exercise participation | Supplier disclosure | Annual or per regulator | Documented participation in at least one industry-sector exercise where applicable | Note for next contract review |
 | Time-since-last-test trend | Supplier disclosure | Quarterly | No degradation in cadence | Engage |
 
-### Category 2: Incident signals
+### 3.2 Incident signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | Sector-peer incident pattern | Threat intelligence | Continuous | No pattern indicating systemic weakness | Engage; consider contractual changes |
 | Repeated SLA breaches | Service-level reporting | Monthly | Within contractual tolerance | Service credit; remediation plan |
 
-### Category 3: Financial-health signals
+### 3.3 Financial-health signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
@@ -62,7 +62,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | Days payable outstanding to sub-suppliers (signal of cash strain) | Public data; intelligence | Quarterly | No material increase | Engage |
 | Auditor change with qualified opinion | Public filings | Per event | None | Escalate to Finance and Legal |
 
-### Category 4: Control and assurance signals
+### 3.4 Control and assurance signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
@@ -72,7 +72,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | Penetration test attestation (Tier 1, Tier 2) | Direct from supplier | Annual | Independent test within 12 months | Request updated attestation |
 | Independent assessment of the supplier's own supplier programme | Direct or public | Triennial | Available for Tier 1 critical suppliers | Investigate |
 
-### Category 5: External-environment signals
+### 3.5 External-environment signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
@@ -86,18 +86,18 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ---
 
-## Monitoring posture by supplier tier
+## 4. Monitoring posture by supplier tier
 
 | Tier | Monitoring posture |
 | --- | --- |
 | Tier 1: Critical | All five signal categories; continuous external-environment monitoring; quarterly review meeting with the supplier; designated SRO with direct supplier relationship |
 | Tier 2: High | All five categories on a reduced cadence; semi-annual review meeting; SRO with supplier relationship |
-| Tier 3: Moderate | Categories 2 and 4 at minimum; annual review |
-| Tier 4: Low | Category 2 only; ad hoc review |
+| Tier 3: Moderate | §3.2 and §3.4 at minimum; annual review |
+| Tier 4: Low | §3.2 only; ad hoc review |
 
 ---
 
-## Operating expectations
+## 5. Operating expectations
 
 1. The Supplier Risk Maintainer publishes a quarterly resilience-signal summary for Tier 1 and Tier 2 suppliers. The summary identifies signals at or above threshold, actions taken, and residual risk.
 2. Signal sources are documented per supplier; over-reliance on a single source for a critical signal is itself a finding.
@@ -107,7 +107,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ---
 
-## Coordination with adjacent standards
+## 6. Coordination with adjacent standards
 
 | Source | Coordination point |
 | --- | --- |
@@ -120,7 +120,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ---
 
-## Metrics
+## 7. Metrics
 
 | Metric | Definition | Target |
 | --- | --- | --- |
@@ -132,7 +132,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ---
 
-## Framework alignment
+## 8. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -147,7 +147,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ---
 
-## Limitations
+## 9. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Effective supplier resilience monitoring depends on signal quality, source independence, and the organisation's analytic capacity to interpret signals. The standard does not predict failures; it identifies leading indicators and structures the organisational response. Adopting organisations tune thresholds to their appetite and supplier portfolio.
 
