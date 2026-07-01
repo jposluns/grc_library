@@ -257,6 +257,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md)
 - [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md)
 - [Risk Register Procedure](../risk/procedure-risk-register.md)
+- [Standard Version Upgrade Procedure](../governance/procedure-standard-version-upgrade.md)
 - [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
 - [Whistleblower and Incident Reporting Procedure](../governance/procedure-whistleblower-and-incident-reporting.md)
 
