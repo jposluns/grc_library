@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.25, PR #537
+
+TODO §1.1: FR-48 entangled-residual, fourteenth single-document batch. Renumbered [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md) to the canonical fully-numbered model; the fifth Section-N-label doc and the first whose already-hierarchical subsection tree shifted with its parent. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md) (Version 0.0.6 to 0.0.7, Date to 2026-07-01): 20 headings renumbered (asserted 20/20 by the script's guards). The 12 H2s were numbered in document order: `## Purpose`/`## Scope` gained a prefix; the 8 `## Section 1:` to `## Section 8:` labels had the "Section N:" prefix stripped, titles capitalized to Sentence-case (the "AI" acronym preserved), and were renumbered to document-order positions `## 3.` (Principles) to `## 10.` (Incident-time controls); `## Framework alignment`/`## Limitations` became `## 11.`/`## 12.`. Because "Section 4: AI-to-tool access" moved to `## 6.`, its subsection tree shifted in lockstep: the six H3s `### 4.1`-`### 4.6` became `### 6.1`-`### 6.6`, and the two H4s `#### 4.1.1` (Agent self-protection) and `#### 4.3.1` (Identity propagation mechanics) became `#### 6.1.1` and `#### 6.3.1`. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 20/20, then re-parsed (gapless H2 1-12; H3 6.1-6.6 under `## 6.`; H4 6.1.1 under `### 6.1` and 6.3.1 under `### 6.3`); a residual-prefix grep confirmed no `## Section N:` label remains.
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan (including a body-prose scan for references to the old `4.x` subsection numbers), and bare-external-§ scan. No intra-document reference to the old `4.x` numbers exists in body prose (the only `4.x` hits are the `CC BY-SA 4.0` license and the Section 4 heading itself); there are zero live inbound section citations and zero anchor links; the document's only `§`-reference is the external `ISO/IEC 42001 §8`. The intra-document-reference gate passes.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #536 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.24 to 2026.07.25; README 1.9.385 to 1.9.386.
+
 ## 2026-07-01, Library Version 2026.07.24, PR #536
 
 TODO §1.1: FR-48 entangled-residual, thirteenth single-document batch. Renumbered [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md) to the canonical fully-numbered model; the fourth Section-N-label doc. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-06-30\
+**Version:** 0.0.7\
+**Date:** 2026-07-01\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the access governance for AI systems and agents: who can use which AI capability, what an AI agent is permitted to do on the user's behalf, how identity propagates through agentic actions, and how access is reviewed. It extends the identity and access management policy to the AI-specific surface where the actor is not a person but a model invoking tools.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -36,7 +36,7 @@ It does not replace the general IAM policy and standards; it overlays them where
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Statement |
 | --- | --- |
@@ -49,7 +49,7 @@ It does not replace the general IAM policy and standards; it overlays them where
 
 ---
 
-## Section 2: human access to AI capabilities
+## 4. Human access to AI capabilities
 
 | Control area | Requirement |
 | --- | --- |
@@ -62,7 +62,7 @@ It does not replace the general IAM policy and standards; it overlays them where
 
 ---
 
-## Section 3: service-to-AI access
+## 5. Service-to-AI access
 
 Backend services that invoke a model on behalf of the organisation:
 
@@ -77,11 +77,11 @@ Backend services that invoke a model on behalf of the organisation:
 
 ---
 
-## Section 4: AI-to-tool access (agentic systems)
+## 6. AI-to-tool access (agentic systems)
 
 Agentic systems where a model invokes tools (functions, APIs, scripts) on behalf of a user or service.
 
-### 4.1 Tool allow-list
+### 6.1 Tool allow-list
 
 | Requirement |
 | --- |
@@ -91,7 +91,7 @@ Agentic systems where a model invokes tools (functions, APIs, scripts) on behalf
 | Tools rated Write Sensitive or Destructive require human confirmation per invocation by default |
 | Tool definitions explicitly document expected input schema, side effects, and a reversibility classification (Reversible, Compensable, or Irreversible) per the agentic development security standard's `AGENT-PROD-02`; Reversible and Compensable tools document their reversal or compensating mechanism |
 
-#### 4.1.1 Agent self-protection (defence in depth)
+#### 6.1.1 Agent self-protection (defence in depth)
 
 The tool allow-list is enforced outside the model, not by the model. Prompt injection can attempt to convince a model to call tools outside its declared list; the controls below assume the model may be coerced and therefore enforce the allow-list at a layer the model cannot bypass:
 
@@ -107,7 +107,7 @@ The tool allow-list is enforced outside the model, not by the model. Prompt inje
 
 See also the OWASP MCP Top 10 risk categories (tool poisoning, context contamination, permission escalation) and the AI agent threat model in the agentic development security standard.
 
-### 4.2 Agent capability scopes
+### 6.2 Agent capability scopes
 
 Each agent runs within a defined capability scope. Three levels are recognized:
 
@@ -121,7 +121,7 @@ Cross-system agents must additionally satisfy the agentic development security s
 
 Operational and Cross-system scope is granted only after the production-authority precondition (`AGENT-PROD-01` in the agentic development security standard) is satisfied and evidenced: permission boundaries, immutable auditability, tested reversibility, and named human accountability are designed, tested, and governed before autonomous or semi-autonomous production execution is authorised. Bounded (read-only) scope is exempt.
 
-### 4.3 Identity propagation
+### 6.3 Identity propagation
 
 | Control area | Requirement |
 | --- | --- |
@@ -131,7 +131,7 @@ Operational and Cross-system scope is granted only after the production-authorit
 | Token forwarding restrictions | The agent does not pass bearer tokens beyond what the downstream tool requires |
 | Sensitive credential handling | The agent does not store credentials beyond a session; secrets are retrieved from the secrets management service per invocation |
 
-#### 4.3.1 Identity propagation mechanics
+#### 6.3.1 Identity propagation mechanics
 
 The high-level requirements above are realised by one of the following patterns; each agent's choice is documented in its architecture record.
 
@@ -155,7 +155,7 @@ Validation at the tool boundary:
 
 Token format defaults to JWT with signature verification per RFC 7519 and JWT BCP per RFC 8725; alternative formats (e.g. PASETO, opaque tokens with introspection) are permitted where the platform supports them.
 
-### 4.4 Human-in-the-loop confirmation
+### 6.4 Human-in-the-loop confirmation
 
 Sensitive or destructive actions require explicit human confirmation. The standard recognizes three confirmation modes:
 
@@ -165,7 +165,7 @@ Sensitive or destructive actions require explicit human confirmation. The standa
 | Per-session confirmation | Bulk operations within a single session | The user confirms the scope at session start; the agent operates within the scope; deviations require new confirmation |
 | Asynchronous approval | Workflow actions queued for later human approval | The agent produces the action plan; a separate human approves before execution |
 
-### 4.5 Rate and chain-length limits
+### 6.5 Rate and chain-length limits
 
 | Control area | Requirement |
 | --- | --- |
@@ -174,7 +174,7 @@ Sensitive or destructive actions require explicit human confirmation. The standa
 | Cost ceiling per session | Inference and tool-execution cost capped per session; exceeded ceilings halt and report |
 | Time-out per session | Sessions that exceed a wall-clock limit halt automatically |
 
-### 4.6 Logging
+### 6.6 Logging
 
 Every agent tool invocation logs:
 
@@ -194,7 +194,7 @@ Logs are retained per the logging and monitoring standard with a minimum AI-spec
 
 ---
 
-## Section 5: AI-to-data access (retrieval and context)
+## 7. AI-to-data access (retrieval and context)
 
 Retrieval-augmented generation and other context-injection patterns:
 
@@ -209,7 +209,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ---
 
-## Section 6: AI-to-AI access
+## 8. AI-to-AI access
 
 | Control area | Requirement |
 | --- | --- |
@@ -220,7 +220,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ---
 
-## Section 7: access review
+## 9. Access review
 
 | Review type | Cadence |
 | --- | --- |
@@ -234,7 +234,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ---
 
-## Section 8: incident-time controls
+## 10. Incident-time controls
 
 | Trigger | Required action |
 | --- | --- |
@@ -246,7 +246,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ---
 
-## Framework alignment
+## 11. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -260,7 +260,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ---
 
-## Limitations
+## 12. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Agentic capability is rapidly evolving; the standard expects to be revised more frequently than mature security standards. Adopting organisations adapt the tool allow-list approach, capability scopes, and human-in-the-loop confirmation modes to their specific agent platform and use cases. The standard is not a substitute for per-system threat modelling and impact assessment.
 

@@ -17,7 +17,7 @@ The 38 policy/standard documents that FR-48's safe-subset pass (PR #520) deferre
 
 ## Deferred documents (recompute reasons at build time)
 
-- [ ] `ai/standard-ai-access-and-agent-permissions.md` -- intra §N, uses "## Section N:" labels
+- [x] `ai/standard-ai-access-and-agent-permissions.md` -- intra §N, uses "## Section N:" labels (DONE: Section-N-label doc with an already-hierarchical Section 4 that SHIFTED to document-position 6; 12 H2s -> `## 1.`-`## 12.` (Purpose/Scope 1-2, `## Section 1:`-`## Section 8:` stripped+Sentence-cased+document-order `## 3.`-`## 10.`, Framework/Limitations 11-12); Section 4 -> `## 6.` so its sub-hierarchy shifted `### 4.1`-`### 4.6` -> `### 6.1`-`### 6.6` and `#### 4.1.1`/`#### 4.3.1` -> `#### 6.1.1`/`#### 6.3.1`; verified NO intra-doc reference to the old 4.x numbers exists in body prose, so headings-only; the "intra §N" tag was conservative, only §-ref is external `ISO/IEC 42001 §8`; zero live inbound §/Section/anchor citers, so no citer remap)
 - [ ] `ai/standard-ai-and-agentic-development-security.md` -- inbound §N, intra §N
 - [ ] `ai/standard-ai-inference-cost-governance.md` -- intra "Section N", intra §N, uses "## Section N:" labels
 - [x] `ai/standard-ai-model-risk.md` -- inbound §N (DONE: renumbered to canonical fully-numbered; inbound `register-coverage-gaps.md` §5 -> §3.5 remapped)
