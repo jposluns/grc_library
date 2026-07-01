@@ -2,8 +2,8 @@
 
 **Document Title:** Capacity and Performance Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/standard-it-financial-management.md`](standard-it-financial-management.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard governs how capacity and performance are planned, measured, tested, and adjusted for services operated by the organisation. It aligns capacity to demand at acceptable cost and performance, while preserving the headroom required for failure scenarios and growth.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -35,7 +35,7 @@ It does not cover human workforce capacity (a separate governance topic).
 
 ---
 
-## Section 1: principles
+## 3. Principles
 
 | Principle | Description |
 | --- | --- |
@@ -49,7 +49,7 @@ It does not cover human workforce capacity (a separate governance topic).
 
 ---
 
-## Section 2: capacity classes
+## 4. Capacity classes
 
 | Class | Description |
 | --- | --- |
@@ -66,7 +66,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 3: demand forecasting
+## 5. Demand forecasting
 
 | Activity | Description |
 | --- | --- |
@@ -79,7 +79,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 4: capacity planning
+## 6. Capacity planning
 
 | Activity | Description |
 | --- | --- |
@@ -93,7 +93,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 5: performance objectives and measurement
+## 7. Performance objectives and measurement
 
 | Activity | Description |
 | --- | --- |
@@ -105,7 +105,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 6: performance testing
+## 8. Performance testing
 
 | Activity | Description |
 | --- | --- |
@@ -120,7 +120,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 7: scaling
+## 9. Scaling
 
 | Activity | Description |
 | --- | --- |
@@ -134,7 +134,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 8: capacity for resilience
+## 10. Capacity for resilience
 
 | Activity | Description |
 | --- | --- |
@@ -146,7 +146,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 9: third-party and vendor capacity
+## 11. Third-party and vendor capacity
 
 | Activity | Description |
 | --- | --- |
@@ -158,7 +158,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 10: cost governance
+## 12. Cost governance
 
 | Activity | Description |
 | --- | --- |
@@ -171,7 +171,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 11: governance
+## 13. Governance
 
 | Element | Description |
 | --- | --- |
@@ -183,7 +183,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Section 12: AI inference capacity
+## 14. AI inference capacity
 
 | Activity | Description |
 | --- | --- |
@@ -196,7 +196,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Operating expectations
+## 15. Operating expectations
 
 1. Capacity is reviewed at least quarterly per service; high-volatility services reviewed more frequently.
 2. Performance regressions are detected pre-release where possible; otherwise within the post-release monitoring window.
@@ -205,7 +205,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Framework alignment
+## 16. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -218,7 +218,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ---
 
-## Limitations
+## 17. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Capacity practice is highly platform-specific; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations confirm current provider quotas, tooling, and cost models with subject-matter experts.
 
