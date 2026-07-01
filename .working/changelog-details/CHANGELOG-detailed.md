@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.2, PR #514
+
+Sweep 79 corpus-wide `/validate` close-out (loop-break compensating control for session-closing handoff PR #513), covering the #504 to #512 deltas. Full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity); mechanical baseline 58/58 at HEAD `01cb622`/#513, matching the #513 green-at-`df15510` baseline (no close-vs-start drift). Two findings, both on `.project-governance/` citation-verification worklists; C returned 0 findings; no #513 asserted-clean surface contradicted.
+
+### Fixed
+- [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](../../.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md) (Version 1.0.7 -> 1.0.8): Subagent A finding (in-window). The NIST SP 800-88 Expected-value row (line 63) still read `Rev. 1, 2014-12` with the r1 URL while #508 moved the [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) row to Rev. 2; annotated to `Rev. 2, 2025-09, Media sanitization; supersedes Rev. 1, 2014-12 (per #508; defers technique detail to IEEE 2883:2022)` with the r2 URL, mirroring the ATLAS row the same session reconciled. A recurrence of the #512 `/retro` pattern (a currency correction that leaves a sibling row of the same value stale); gate-6-blind because gate 6 does not read the worklist Expected-value cell.
+- [`tools/lint_common.py`](../../tools/lint_common.py): migrate-before-delete cleanup surfaced during the handoff prune. The `DEFAULT_EXEMPT_DIRS` module docstring listed only `.git`, `node_modules`, `__pycache__` while the actual frozenset also carries `.claude` and `.working`; docstring corrected to list all five.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](history.md) (Version 2.0.71 -> 2.0.72): Sweep 79 iter 1 row prepended.
+- [`.working/session-handoff.md`](../session-handoff.md): resume cursor advanced to Sweep 79; new resumed-session Next-actions block prepended; pruned to current-plus-one-prior per the pruning discipline (the #475-session Next-actions, State-snapshot, and Asserted-expectations blocks removed; the [`tools/lint_common.py`](../../tools/lint_common.py) docstring nit that block flagged was migrated by fixing it here).
+
+### Added
+- [`.working/validate-sweeps/2026-07-01-sweep79-iter1.md`](2026-07-01-sweep79-iter1.md): the Sweep 79 per-iteration detail file (six H2 sections; the two worklist findings plus Subagent C's clean audit-programme integrity confirmation).
+
+### Surfaced (out-of-window, not edited)
+- [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](../../.project-governance/worklist-citation-verification-batch-q2-iso-iec.md):99/:100 (Subagent B, note): the Q2 (ISO/IEC) worklist labels ISO/IEC 27033 "Current: 2020" and ISO/IEC 27036-2 "Current: 2014", both since superseded (27033-1:2015 #506; 27036-2:2022 #507). Left unedited: the Q2 batch self-declares a frozen per-batch snapshot (Version 1.0.1 / 2026-06-25, "does not have a recurring review cadence"), its cells are the pre-verification to-verify state carrying explicit "Verify..." notes, and the authoritative record is the register (which is correct). The frozen-vs-track classification for completed-batch worklists is surfaced to the maintainer as an open question; a follow-up PR can annotate both Q2 rows in the ATLAS-row form if the maintainer prefers worklists track supersession.
+
+### Verification
+- `tools/run_all_audits.sh`: all 58 gates pass on the committed state. Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green.
+- Sweep 79 termination: empty-delta primary stop at iteration 1 (A-1 a deterministic single-cell fix verified by re-read; B-1 a deferred classification question, not a corpus defect; C clean).
+- Quick-fix / bookkeeping tier: no standing skeptical verifier (a single-cell worklist annotation, a docstring correction, and sweep/handoff bookkeeping); the mechanical gates and the sweep's own three-subagent dispatch are the verification.
+
 ## 2026-07-01, Library Version 2026.07.1, PR #513
 
 Session-closing handoff PR: fixes the 1 Low in-window finding the #512 `/validate-pr` surfaced (a worklist same-file inconsistency plus a self-contradicting #512 CHANGELOG "left as-is" claim), batches the #512 QA rows, and refreshes the session close-out artefacts. Skips its own trailing `/validate-pr` and `/retro` per the handoff-PR exception (loop-break).

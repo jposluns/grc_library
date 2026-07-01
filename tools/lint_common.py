@@ -19,9 +19,9 @@ Scope notes:
   ``tools/`` is the repository root. Linters that import this constant
   inherit the same value.
 - ``DEFAULT_EXEMPT_DIRS`` mirrors the set 13+ linters already defined
-  inline: ``.git``, ``node_modules``, ``__pycache__``. Linters that
-  need additional exempt directories pass them via the ``exempt_dirs``
-  argument.
+  inline: ``.git``, ``node_modules``, ``__pycache__``, ``.claude``,
+  ``.working``. Linters that need additional exempt directories pass
+  them via the ``exempt_dirs`` argument.
 - ``iter_markdown_targets`` and ``is_markdown_target`` deliberately
   accept ``Iterable[str]`` for ``exempt_files`` so callers can pass a
   ``set``, ``frozenset``, or ``list`` interchangeably.

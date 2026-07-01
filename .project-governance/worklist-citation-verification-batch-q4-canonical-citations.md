@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | NIST SP 800-34 | https://csrc.nist.gov/pubs/sp/800/34/r1/final | all | Rev. 1, 2010-05, Contingency Planning Guide for Federal Information Systems |  |  |  |  |  |  |
 | NIST SP 800-53 | https://csrc.nist.gov/pubs/sp/800/53/r5/final | all | Rev. 5, 2020-09, Security and Privacy Controls; supersedes Rev. 4 |  |  |  |  |  |  |
-| NIST SP 800-88 | https://csrc.nist.gov/pubs/sp/800/88/r1/final | all | Rev. 1, 2014-12, Media sanitization |  |  |  |  |  |  |
+| NIST SP 800-88 | https://csrc.nist.gov/pubs/sp/800/88/r2/final | all | Rev. 2, 2025-09, Media sanitization; supersedes Rev. 1, 2014-12 (per #508; defers technique detail to IEEE 2883:2022) |  |  |  |  |  |  |
 | NIST SP 800-207 | https://csrc.nist.gov/pubs/sp/800/207/final | all | 1.0, 2020-08, Zero Trust Architecture |  |  |  |  |  |  |
 | NIST CSF | https://www.nist.gov/cyberframework | all | 2.0, 2024-02, Cybersecurity Framework; supersedes 1.1 |  |  |  |  |  |  |
 | NIST AI RMF | https://www.nist.gov/itl/ai-risk-management-framework | all | 1.0, 2023-01, AI Risk Management Framework |  |  |  |  |  |  |
