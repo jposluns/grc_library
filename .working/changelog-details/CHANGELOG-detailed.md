@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.6, PR #518
+
+Session-closing handoff PR. Working-state only (no corpus body change); terse entry per the change-tracking convention. Batches the #517 `/validate-pr` (1 Low, accepted) + `/retro` rows; refreshes [`.working/session-handoff.md`](../session-handoff.md) (the #518 state snapshot, this session's `## Asserted expectations`, green-at-`ec1a822`, the 2 open pending decisions §3.2/§3.3, the FR-70 source gate) and the [`.working/session-metrics.md`](session-metrics.md) 1.0.29 row. Skips its own trailing `/validate-pr` + `/retro` per the handoff-PR exception (marker `SKIPPED (handoff-PR exception)` in its [`validate-pr/history.md`](validate-pr/history.md) Findings cell for gate 50). Compensating control: the next `/resume`'s corpus-wide Sweep 80 over the #513-#517 deltas, cross-checked against the asserted-expectations block. Library 2026.07.5 -> 2026.07.6; README 1.9.366 -> 1.9.367.
+
 ## 2026-07-01, Library Version 2026.07.5, PR #517
 
 TODO §3.5: Standard Version Upgrade Procedure. Substantive-tier change (a new adopter-facing corpus document); a pre-push skeptical verifier ran on the diff.
