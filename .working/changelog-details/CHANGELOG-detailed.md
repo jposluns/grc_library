@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.24, PR #536
+
+TODO §1.1: FR-48 entangled-residual, thirteenth single-document batch. Renumbered [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md) to the canonical fully-numbered model; the fourth Section-N-label doc. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.
+
+### Changed
+- [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md) (Version 0.0.7 to 0.0.8, Date to 2026-07-01): 18 headings renumbered (asserted 18/18 by the script's guards). The 17 H2s were numbered in document order: `## Purpose`/`## Scope` gained a prefix (`## 1.`/`## 2.`); the one descriptive H3 under Scope (`### Relationship to the API design standard and approval sequence`) became `### 2.1`; the 12 `## Section 1:` to `## Section 12:` labels had the "Section N:" prefix stripped, titles capitalized to Sentence-case (API/AI/GraphQL acronyms and the existing "Authorisation" spelling preserved), and were renumbered to document-order positions `## 3.` (Lifecycle gates) to `## 14.` (Event-driven and webhook APIs); `## Operating expectations`/`## Framework alignment`/`## Limitations` became `## 15.` to `## 17.`. No document body prose changed.
+
+### Verification
+- Deterministic renumber: exact full-line old-to-new map (each OLD present once, each NEW absent), asserted 18/18, then re-parsed (gapless H2 1-17; H3 2.1 under §2); a residual-prefix grep confirmed no `## Section N:` label remains.
+- Reference completeness (corpus-wide, full file set), via the standing inbound-discovery recipe: line-level inbound grep, anchor-link grep, intra-self-reference scan, and bare-external-§ scan all found zero references that depend on this document's section numbers. There are no live inbound section citations and no anchor links; the two `§`-references the document carries are the external `NIST SP 800-52 §3.3.1` and an OUTBOUND citation of the encryption-and-key-management policy's `§1` (another document's section, unaffected by renumbering this one, and itself a separate deferred item). The intra-document-reference gate passes.
+- All 59 audit gates pass on the post-commit branch state; the pre-push guard is green. A refute-briefed skeptical verifier reviewed the diff.
+
+Batches the #535 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows. Library 2026.07.23 to 2026.07.24; README 1.9.384 to 1.9.385.
+
 ## 2026-07-01, Library Version 2026.07.23, PR #535
 
 TODO §1.1: FR-48 entangled-residual, twelfth single-document batch. Renumbered [`operations/standard-observability-and-telemetry.md`](../../operations/standard-observability-and-telemetry.md) to the canonical fully-numbered model; the third Section-N-label doc. Worked one document per PR (maintainer directive); deterministic script apply + re-parse, the standing inbound-discovery recipe, and a refute-briefed skeptical verifier.

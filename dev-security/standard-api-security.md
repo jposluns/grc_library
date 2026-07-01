@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-06-24\
+**Version:** 0.0.8\
+**Date:** 2026-07-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the minimum security controls for every API the organisation produces, exposes, or consumes. It covers REST, GraphQL, gRPC, WebSocket, and event-driven APIs. It applies whether the API is internal, partner-facing, or public.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to every API designed, implemented, deployed, or consumed by the organisation. It does not duplicate the underlying developer security or DevOps security standards; it overlays API-specific requirements on the engineering baseline.
 
 It does not cover legacy SOAP integrations operating under a separate maintenance regime; those follow a documented exception path until retirement.
 
-### Relationship to the API design standard and approval sequence
+### 2.1 Relationship to the API design standard and approval sequence
 
 This standard (CISO-owned) covers API security controls. The architecture API design standard ([`architecture/standard-api-design.md`](../architecture/standard-api-design.md)) (CTO-owned) covers design choices: style (REST/RPC/GraphQL), versioning, identifiers, error model, schema, longevity.
 
@@ -44,7 +44,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 1: lifecycle gates
+## 3. Lifecycle gates
 
 | Stage | Required gate |
 | --- | --- |
@@ -58,7 +58,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 2: authentication
+## 4. Authentication
 
 | Control area | Requirement |
 | --- | --- |
@@ -73,7 +73,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 3: authorisation
+## 5. Authorisation
 
 | Control area | Requirement |
 | --- | --- |
@@ -87,7 +87,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 4: input validation and output handling
+## 6. Input validation and output handling
 
 | Control area | Requirement |
 | --- | --- |
@@ -102,7 +102,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 5: transport and message security
+## 7. Transport and message security
 
 | Control area | Requirement |
 | --- | --- |
@@ -115,7 +115,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 6: rate limiting, quotas, and abuse prevention
+## 8. Rate limiting, quotas, and abuse prevention
 
 | Control area | Requirement |
 | --- | --- |
@@ -129,7 +129,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 7: logging, monitoring, and observability
+## 9. Logging, monitoring, and observability
 
 | Control area | Requirement |
 | --- | --- |
@@ -143,7 +143,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 8: API gateway and management
+## 10. API gateway and management
 
 | Control area | Requirement |
 | --- | --- |
@@ -156,7 +156,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 9: third-party API consumption
+## 11. Third-party API consumption
 
 | Control area | Requirement |
 | --- | --- |
@@ -169,7 +169,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## Section 10: AI-exposed APIs
+## 12. AI-exposed APIs
 
 Where an API is exposed to AI agents (organisation-internal or third-party):
 
@@ -183,7 +183,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 ---
 
-## Section 11: GraphQL-specific controls
+## 13. GraphQL-specific controls
 
 | Control area | Requirement |
 | --- | --- |
@@ -196,7 +196,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 ---
 
-## Section 12: event-driven and webhook APIs
+## 14. Event-driven and webhook APIs
 
 | Control area | Requirement |
 | --- | --- |
@@ -209,7 +209,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 ---
 
-## Operating expectations
+## 15. Operating expectations
 
 1. Every production API has an owning role accountable for posture against this standard.
 2. The API catalogue is treated as a production artefact; drift between the catalogue and deployed reality is a defect.
@@ -218,7 +218,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 ---
 
-## Framework alignment
+## 16. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -234,7 +234,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 
 ---
 
-## Limitations
+## 17. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Specific API platform configurations vary; the standard expresses control requirements rather than vendor-specific settings. Highly-regulated APIs (open banking, healthcare interoperability, electronic identity) follow sector-specific profiles in addition to this standard.
 
