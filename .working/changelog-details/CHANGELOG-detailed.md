@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.5, PR #517
+
+TODO §3.5: Standard Version Upgrade Procedure. Substantive-tier change (a new adopter-facing corpus document); a pre-push skeptical verifier ran on the diff.
+
+### Added
+- [`governance/procedure-standard-version-upgrade.md`](../../governance/procedure-standard-version-upgrade.md) (new; Procedure, Version 1.0.0, Date 2026-07-01): the seven-step corpus-wide process for adopting a newer edition of a cited external standard. Step 1 establish the authoritative publisher diff (the transition guide as classification input; the upstream page is the version authority per [`specification-citation-verification.md`](../../governance/specification-citation-verification.md) §6); Step 2 sweep the whole corpus (grep + the canonical-citations register), corpus-wide by construction (an input-set-scoped search self-corroborates a discovery omission); Step 3 classify each citation positional-only vs substantive using the transition guide; Step 4 apply per classification (positional edition-marker bump; substantive prose rewrite with a per-document Version+Date co-bump), without silently widening scope; Step 5 update [`register-canonical-citations.md`](../../governance/register-canonical-citations.md) and the append-only Citation Verifications Register with the supersession; Step 6 confirm the standards-currency gate recognizes it (a surviving flag means Step 2 missed a location; fix, do not suppress); Step 7 record the campaign in the CHANGELOG (multi-PR when rewrites span commits, with a backlog tracker). Plus a Roles table (the human-captures / AI-prepares split per §3 of the citation-verification methodology), Operating expectations, a Framework-alignment table (ISO/IEC 27001 A.5.36/A.5.37, NIST CSF 2.0, COBIT 2019 APO01/BAI06/BAI08/MEA01, ISO 9001), and a CC BY-SA baseline Limitations note. Mirrors the section model of [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md).
+
+### Changed
+- [`governance/README.md`](../../governance/README.md) (Version 1.10.8 -> 1.10.9, Date -> 2026-07-01): added the new procedure to the governance domain listing (structure gate domain-README-membership).
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version 1.27.50 -> 1.27.51, Date -> 2026-07-01): added the new procedure's index row (Governance / Procedure / Governance Library Maintainer / Annual / framework-alignment / library-internal), satisfying the structure and listing-completeness gates.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first) for the new document and the Version bumps; the new procedure appears under the GRC-programme audience in the portal and as a Baseline (1.0.0) row in the scorecard.
+- [`TODO.md`](../../TODO.md): §3.5 rotated out (deleted, added to DONE); P3 count 13 -> 12 (3.1-3.4, 3.6-3.8, 3.10-3.14).
+- [`.working/pending-decisions.md`](../pending-decisions.md): recorded the §3.3 citation-verification recording-model conflict as a deferred pending decision, Status now **2 pending** (committed earlier on the branch).
+
+### Verification
+- Gates run standalone on the new document, all clean: metadata (gate 1), language/house-style (gate 2), citations (gate 5), standards-currency (gate 6), section-placement + index membership (gate 38). The full 58-gate sweep is green post-authoring.
+- No hallucinated citation: the framework-alignment cells cite control families (ISO/IEC 27001 Annex A, NIST CSF 2.0 functions, COBIT 2019 objectives, ISO 9001 clauses) without asserting a specific external edition year in the body, so gate 5 and gate 6 pass; the document describes the upgrade PROCESS rather than performing any specific version assertion.
+- Carries the batched #516 [`/validate-pr`](../validate-pr/history.md) (0 findings) and [`/retro`](../improvement-log.md) rows.
+
+### Design rationale
+- Started the new document at Version **1.0.0** (Baseline), matching the corpus norm for a newly-approved active procedure (every indexed procedure is 1.0.x), rather than the ingestion-spec draft-start 0.0.1: this document ships as active, indexed, taxonomy-listed content, not a draft.
+- The document deliberately does NOT record any specific standard edition as a worked example with an asserted year, to avoid introducing a citation the currency gate would later have to track; it teaches the process and points to the register as the authoritative source of current editions.
+
+### Discipline observation
+- The pre-push substantive-tier skeptical verifier earned its keep on the gate-blind surface: it caught two MEDIUM control-ID mis-maps in the Framework-alignment table that all 58 gates passed over (gates 5/6 confirm a control ID is well-formed and exists, not that it fits its row). (1) ISO/IEC 27001 **A.8.34** ("Protection of information systems during audit testing") was cited for the "Verification against an authoritative source" row; it concerns limiting audit-tooling impact, not verification, and was corrected to **A.5.36** (compliance with policies, rules and standards). (2) ISO 9001 **§8.5** ("Production and service provision") was cited for the "Controlled change" row; the on-point clause is **§8.5.6** ("Control of changes"), a truncation corrected in place. Both were mirrored into the index register row, so both surfaces were fixed together, and BAI08 was reconciled into the index alignment cell in the same edit. This is the semantic-fit class the `/matrix-fit` cadence targets for the compliance matrix; here the pre-push verifier was the backstop for a one-off new-doc alignment table.
+
 ## 2026-07-01, Library Version 2026.07.4, PR #516
 
 TODO §3.14 (tooling half): gate-2 coverage of generator emitted-prose strings. Substantive-tier change (an audit-gate logic change); a pre-push skeptical verifier ran on the diff.
