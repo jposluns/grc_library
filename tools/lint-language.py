@@ -34,6 +34,16 @@ Checks for:
 
 Fenced code blocks are skipped for every check above.
 
+The `tools/build-*.py` generators (GENERATOR_SOURCES) emit adopter-facing
+prose (audience blurbs, overview paragraphs, table cells) into the
+GENERATED_DOCS artefacts, which are doubly blind to the markdown scan above:
+the `.py` source is not a `.md` file, and the rendered output is excluded.
+The generator-source scan closes that gap by running the three prose
+house-style rules (dash, `-ise`, `ensure that`) over each generator's
+non-docstring string literals (parsed via `ast`); docstrings are developer
+documentation, not emitted corpus prose, so they are excluded, and the
+markdown-specific checks (heading-case, sanitisation) are not applied.
+
 Usage:
     python3 tools/lint-language.py [paths...]
 
@@ -42,6 +52,7 @@ Exits non-zero if any findings are reported.
 
 from __future__ import annotations
 
+import ast
 import re
 import sys
 from collections import defaultdict
@@ -57,6 +68,17 @@ INGESTION_SPEC = "specification-ingestion.md"
 # (docs/portal.md, docs/maturity-scorecard.md) are produced by build-portal.py
 # and must not be hand-edited, so they are excluded from the scan.
 GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md"})
+
+# The generators that emit adopter-facing prose into GENERATED_DOCS. Their
+# emitted-prose string literals are scanned for the three prose house-style
+# rules (dash, -ise, ensure that) so a house-style violation in
+# generator-authored prose is caught at gate time rather than only at the
+# next corpus-wide sweep (TODO 3.14 / Sweep 78 B-1: a Commonwealth
+# `customised` was hard-coded in build-portal.py, blind to the .md scan).
+GENERATOR_SOURCES = (
+    "tools/build-portal.py",
+    "tools/build-taxonomy.py",
+)
 
 # docs/worked-example.md is the meta-tutorial that demonstrates the
 # document-creation process, so it deliberately contains examples of the very
@@ -224,26 +246,99 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
     return findings
 
 
+def _docstring_constant_ids(tree: ast.AST) -> set[int]:
+    """Return the id()s of Constant nodes that are module/def/class docstrings.
+
+    A docstring is the first statement of a module, function, async
+    function, or class body when that statement is an expression wrapping a
+    string constant. Docstrings are developer documentation, not prose
+    emitted into the corpus, so the generator-source scan excludes them.
+    """
+    ids: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            body = getattr(node, "body", None)
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                ids.add(id(body[0].value))
+    return ids
+
+
+def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
+    """Scan a build-*.py generator's non-docstring string literals.
+
+    Runs the three prose house-style rules (dash, -ise, ensure that) over
+    every string-constant literal that is not a docstring. The markdown-only
+    checks (heading-case, sanitisation-terms) are not applied: generators
+    emit navigation prose and tables, not the ingested-content or
+    heading-cased forms those rules target.
+    """
+    findings: list[tuple[str, int, str]] = []
+    text = read_text_safe(path)
+    if text is None:
+        return findings
+    try:
+        tree = ast.parse(text, filename=str(path))
+    except SyntaxError as exc:
+        findings.append(("syntax", getattr(exc, "lineno", 0) or 0,
+                         f"could not parse {path.name}: {exc.msg}"))
+        return findings
+    docstring_ids = _docstring_constant_ids(tree)
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Constant) and isinstance(node.value, str)):
+            continue
+        if id(node) in docstring_ids:
+            continue
+        value = node.value
+        lineno = getattr(node, "lineno", 0)
+        if EM_DASH_PATTERN.search(value):
+            findings.append(("dash", lineno, value.strip()[:160]))
+        for m in ISE_PATTERN.finditer(value):
+            findings.append(("ise", lineno, m.group(0)))
+        if ENSURE_PATTERN.search(value):
+            findings.append(("ensure", lineno, value.strip()[:160]))
+    return findings
+
+
 def main(argv: list[str]) -> int:
-    paths = argv[1:] or [
-        "README.md",
-        "NOTICE.md",
-        "specification-master-project.md",
-        "specification-ingestion.md",
-        "instruction-ai-document-ingestion.md",
-        # Domain run splatted from lint_common (scan-scope parity gate
-        # forbids hardcoding the run).
-        *AUDITED_DOMAIN_DIRS,
-        # Authored adopter-facing guides; the two generated artefacts in docs/
-        # are filtered out in iter_markdown_files (see GENERATED_DOCS).
-        "docs",
+    explicit = argv[1:]
+    if explicit:
+        md_input = explicit
+        gen_input = explicit
+    else:
+        md_input = [
+            "README.md",
+            "NOTICE.md",
+            "specification-master-project.md",
+            "specification-ingestion.md",
+            "instruction-ai-document-ingestion.md",
+            # Domain run splatted from lint_common (scan-scope parity gate
+            # forbids hardcoding the run).
+            *AUDITED_DOMAIN_DIRS,
+            # Authored adopter-facing guides; the two generated artefacts in
+            # docs/ are filtered out in iter_markdown_files (see GENERATED_DOCS).
+            "docs",
+        ]
+        gen_input = list(GENERATOR_SOURCES)
+
+    files = iter_markdown_files(md_input)
+    # Generator sources are scanned for the emitted-prose house-style rules;
+    # routed by suffix so an explicit .py argument (a regression fixture) is
+    # checked here while an explicit .md argument is checked as markdown.
+    gen_files = [
+        f for f in sorted({(REPO_ROOT / p) for p in gen_input if (REPO_ROOT / p).suffix == ".py"})
+        if f.is_file()
     ]
 
-    files = iter_markdown_files(paths)
     grouped: dict[str, list[tuple[str, int, str]]] = defaultdict(list)
     total = 0
     for f in files:
         for finding in check_file(f):
+            grouped[f.relative_to(REPO_ROOT).as_posix()].append(finding)
+            total += 1
+    for f in gen_files:
+        for finding in check_generator_source(f):
             grouped[f.relative_to(REPO_ROOT).as_posix()].append(finding)
             total += 1
 
