@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### §3.9 (was 4.22): document the scratch `ref/` base as the standing citation ground-truth (closed by PR #515, 2026-07-01)
+
+Added §6.6 to `governance/specification-citation-verification.md` describing the scratch `ref/` tree as the local citation-verification source, its trust buckets mapped to the §6.1 tiers, the believed-current-storage / proprietary-no-redistribute constraints, and the `/matrix-fit` control-title reference base (S-11 + S-5; S-12 was FYI-only). Rotation completed 2026-07-01 after #515 closed the item without rotating it out of TODO.
+
 ### §1.5 residual: MITRE ATLAS scratch superseded-archival (closed by scratch PR #47, 2026-07-01)
 
 Brought the `grc_library_scratch` MITRE ATLAS reference current: archived the deprecated v5.6.0 (legacy data-format) set to `ref/.superseded/frameworks/MITRE/` and installed v2026.06 (the current v6.0.0-format release, upstream-verified 2026-07-01) with re-extracted tactics/techniques/mitigations CSVs, catalogue/README/index/REGISTER updates, and `validate.py` OK. The corpus register was already at v2026.06 from #512, so register and scratch are now coherent. The 51 `needs-reconfirm` register rows remain the standing §1.5 residual (awaiting a browser-egress reconfirm pass).
