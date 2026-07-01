@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-06-30, Library Version 2026.06.489, PR #511
+
+Word-form collection-count detection in gate 39 (TODO §1.3-B), closing TODO §1.3 entirely. Maintainer-chosen narrow precision-first design (over full word-form coverage or a won't-fix), after a corpus scope showed bare small-word-numbers before gates/rules/skills are pervasive in legitimate prose.
+
+### Changed
+- [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py): added a word-to-number map (1 to 99, built from units/teens/tens plus hyphenated compounds) and four word-form patterns tagged by target collection on top of the existing digit gate-count patterns (now tagged "gate_digit"): P9 "<word> audit gates" and P10 "<word>-gate" (gate count); P11 "<word> governance rules" (rule count, the qualifier prevents matching bare "<word> rules"); P12 the growth-narrative "(rules|skills|gates) to <word>" (the keyword selects the count; the only skill-count check, since a bare "<word> skills" is too FP-prone). The canonical rule and skill counts are derived from the same source directories gate 41 uses (`count_collection`). `scan_file` now skips lines inside a `## Version history` section (a frozen change log that quotes superseded counts). A latent crash in the finding-output path handling (an out-of-repo target is not relative to REPO_ROOT) was fixed defensively, mirroring `iter_targets`' guard, so the tmp-dir regression fixtures do not crash on a finding. The module docstring was rewritten to document the digit and word-form pattern sets and the version-history skip; the gate's display name is unchanged ("Cross-file gate-count consistency audit", historical, gates being the primary collection).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.25 -> 1.16.26, Date 2026-06-30): gate 39's §6 detailed-prose narrative extended to describe the word-form patterns, the rule/skill collection coverage, the precision-first anchoring, and the version-history skip; the §5 grouped-list clause for gate 39 updated to note the digit-and-word-form, gate-rule-skill scope.
+- [`tests/test_linters.py`](../../tests/test_linters.py): five regression cases added to `GateCountConsistencyTests` (three word-form positives: "ninety-nine audit gates", the growth-narrative "gates to ninety-nine", "ninety-nine governance rules"; two FP-guard negatives: the pervasive bare small-numbers, and a stale count quoted inside a `## Version history` section). Suite 217 -> 222.
+- [`README.md`](../../README.md): Library CalVer 2026.06.488 -> 2026.06.489; README Version 1.9.359 -> 1.9.360.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first, then portal/scorecard) for the spec 1.16.26 bump.
+- [`TODO.md`](../../TODO.md): §1.3 deleted entirely (its last residual, §1.3-B, closed here; §1.3-A closed in #510); the P1 summary `4 items` -> `3 items`; the two running-order lines that referenced §1.3 as queued integrity tooling reworded (the retro guard rails closed across #510/#511).
+- [`.working/DONE.md`](../DONE.md): a `### PR #511` entry.
+
+### Why
+TODO §1.3-B asked to broaden the count gate to word-form counts (the gate-39-blind class that let a stale "fifty-seven" survive until #510). A corpus scope first established the FP surface: small word-numbers before gates/rules/skills are pervasive in legitimate prose ("one gate, one concern", "two rules overlap", "Six rules", "the two skills run as a suite"), so a generic "<word> (gates|rules|skills)" pattern would false-positive heavily and erode gate-discipline. The maintainer chose the narrow precision-first design: gate only the specific high-value idioms (the growth narrative and the qualified "governance rules" / "audit gates" forms) via a word-to-number map, FP-free by anchoring on those exact shapes. The word-form rule-count (P11) subsumes the §1.3-B "free-prose rule-count" sub-part for the word-form case; the digit "<N> governance rules" via gate 41 was out of the narrow scope and not pursued.
+
+### Verification
+- `tools/run_all_audits.sh`: all 58 gates pass on the committed state (pre-push guard, both runners). Gate 39 itself runs clean over 469 files (gates 58, governance rules 12, skills 17; digit and word-form), with no false positive on the corpus's pervasive small-word-number prose. Gate 35 (four-surface parity) unaffected (no name/wiring change). Generated-artefact `--check` clean after regen.
+- Linter regression suite: 222 tests pass (217 + 5). The three word-form positives use "ninety-nine" (99, which cannot match the canonical 58/12/17 for the foreseeable future) so the tests are stable; the two negatives lock in the FP-free guarantee.
+- Detection was also verified manually pre-wiring on scratch fixtures (the growth narrative captures only the TO-target, not the rounded FROM values).
+- Pre-push skeptical verifier (substantive tier, refute-briefed) on the diff.
+
+### Batched (recursion-avoidance)
+- The #510 [`/validate-pr`](../validate-pr/history.md) (0 findings) + [`/retro`](../improvement-log.md) rows and the #510 handoff refresh, committed on the branch (commit `880a0c8`), including the two ledger Version bumps the #510 retro flagged.
+
+### Closes
+- TODO §1.3-B (broaden the count gate to word-form), and with it TODO §1.3 entirely (the retro-log open-loop consolidation: §1.3-A in #510, §1.3-B here).
+
 ## 2026-06-30, Library Version 2026.06.488, PR #510
 
 Completed the `skill-authoring-discipline` skill with the four parallel new-skill surfaces it left implicit (TODO §1.3-A, the #213 retro), plus an in-window stale word-form gate-count fix from #509. Maintainer-decided home: skill-authoring-discipline, not the worker-brief template the #213 row had guessed.
