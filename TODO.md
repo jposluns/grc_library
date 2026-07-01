@@ -116,10 +116,6 @@ Cross-document consistency cleanup and routine development / quality tooling: lo
 
 Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep closes the open items meanwhile.
 
-### 3.3 Citation-verification pass against the scratch `ref/` base (Low, M) — surfaced 2026-06-27 (scratch-review S-2/S-3/S-9)
-
-The scratch `ref/standards/` (ISO/IEC, NIST, ETSI) and `ref/frameworks/` (COBIT 19 docs, CSA CCM/AICM CSVs, MITRE, OWASP) now hold full-text / control-catalogue extracts for many [`register-canonical-citations.md`](governance/register-canonical-citations.md) rows. Run a verification pass confirming the register's ISO / NIST / CSA / COBIT version+date rows against the now-held local extracts (per [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md)), recording results in the Citation Verifications Register. This is a local-ground-truth substitute for the previously egress-blocked verification. Sub-decision: whether to add ETSI rows to the register (EN 303 645 consumer IoT, EN 319 401 trust services, held in `ref/standards/ETSI/`) — the register currently lists no ETSI; maintainer call on scope.
-
 ### 3.4 Backlog effort-sizing labels convention (M, S) (was 4.2)
 
 Backlog items now carry `(severity, effort)`; this item formalises the convention. Proposed scale:

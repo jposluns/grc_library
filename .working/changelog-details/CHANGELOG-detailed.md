@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-01, Library Version 2026.07.10, PR #522
+
+TODO §3.3: citation-verification consistency cross-check vs the scratch reference base (model B, no register row). Quick-fix / bookkeeping tier: the cross-check found the register and scratch already consistent, so the diff is pure bookkeeping (no corpus artefact changed); no standing pre-push verifier (the post-merge `/validate-pr` is the backstop), and the cross-check itself was the substance, whose high-risk rows the orchestrator independently spot-verified at apply-time.
+
+### Changed
+- Closed TODO §3.3: rotated the item out of [`TODO.md`](../../TODO.md) into [`.working/DONE.md`](../DONE.md). No corpus artefact changed (the cross-check produced no register edit; see Verification).
+
+### Verification
+- **Cross-check scope and result.** Per the resume-resolved model B (a consistency cross-check, no §9 register row), compared the "Current version" recorded in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) against the edition held in the scratch reference base's held-artefact catalogue for every externally-versioned citation present in BOTH. 33 items compared: ISO/IEC 27001, 27002, 27005, 27017, 27018, 27019, 27036-2, 27036-3, 27036-4, 27701, 38500, 23894, 42001, 42005, 42006; NIST SP 800-34, 800-53, 800-61, 800-63, 800-88, 800-207, 800-161, 800-82, 800-218, 800-218A, plus CSF 2.0, AI RMF 1.0, and AI 600-1; CSA CCM v4.1 and AICM v1.1; COBIT 2019; MITRE ATT&CK v19.1 and ATLAS v2026.06. **0 version mismatches**; register and scratch are internally consistent.
+- A research worker produced the full comparison table (33 rows, each with a register `path:line` and a catalogue `path:line` quote); the orchestrator re-verified the method and the high-risk recently-versioned rows (the 2025/2026 ISO editions, CSA v4.1 / v1.1, MITRE ATLAS v2026.06, CSF 2.0, COBIT 2019) directly against both files before accepting the zero-mismatch result.
+- **No register row recorded** (model B): the register's §9 human-primary-capture trust model is unchanged, and an AI reading a local extract cannot produce a valid §9 verification row, so a consistent cross-check records nothing there. The ETSI-scope sub-decision (whether to add EN 303 645 / EN 319 401 rows) is moot under model B.
+- Post-merge `/validate-pr` is the backstop for this bookkeeping-tier PR. Batches the #521 [`/validate-pr`](../validate-pr/history.md) (0 findings) plus [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
+Library 2026.07.9 to 2026.07.10; README 1.9.370 to 1.9.371.
+
 ## 2026-07-01, Library Version 2026.07.9, PR #521
 
 TODO §3.2: add gate 59 (CHANGELOG mirror header-parity audit). Substantive-tier change (a new audit gate plus linter wired across the four parity surfaces); a pre-push refute-briefed skeptical verifier was run on the gate logic, the wiring, and the cutoff rationale. Not sensitive-tier: the gate is a mechanical presence/parity check with no gate-blind semantic-fit dimension, so the substantive tier is proportionate and no high-assurance register row was opened.
