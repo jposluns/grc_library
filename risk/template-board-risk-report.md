@@ -2,8 +2,8 @@
 
 **Document Title:** Board Risk Report Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-30\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/register-scenario-risk-catalogue.md`](register-scenario-risk-catalogue.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/register-assurance-map.md`](register-assurance-map.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../governance/framework-metrics-monitoring-and-performance-reporting.md)\
@@ -20,7 +20,7 @@
 
 This template structures the periodic risk report delivered to the board (or its designated risk-oversight committee). It expresses what the board should see, how it should be expressed, and how it should be cross-linked to source-of-truth registers, while remaining concise enough for board consumption.
 
-The objective is informed challenge: the board can ask the right questions and form an opinion on the organisation's risk posture, appetite, and treatment.
+The objective is informed challenge: the board can ask the right questions and form an opinion on the organization's risk posture, appetite, and treatment.
 
 ---
 
@@ -30,9 +30,9 @@ The template applies to:
 
 1. Regular (typically quarterly) risk reporting to the board or a board committee.
 2. Ad-hoc reporting on material risk events between regular reports.
-3. Annual statements that summarise the organisation's risk position for governance purposes.
+3. Annual statements that summarize the organization's risk position for governance purposes.
 
-It does not replace specialist reports (information security, privacy, AI, financial risk) that have their own structures; it integrates and summarises them.
+It does not replace specialist reports (information security, privacy, AI, financial risk) that have their own structures; it integrates and summarizes them.
 
 ---
 
@@ -110,7 +110,7 @@ For each of the top enterprise risks (typically five to ten):
 | Severity 1 and 2 incidents | List, with brief narrative and status |
 | Near-misses of note | Material near-misses |
 | Loss data | Financial and operational loss in the period |
-| Customer impact | Customer-impacting incidents summarised |
+| Customer impact | Customer-impacting incidents summarized |
 | Regulatory reporting | Any regulatory notifications made in the period |
 | Lessons learned | Cross-cutting lessons highlighted |
 
@@ -257,7 +257,7 @@ For each of the top enterprise risks (typically five to ten):
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. The board's specific expectations, the regulatory environment, and the organisation's complexity drive the content depth. Adopting organisations adapt the template to their board's information appetite and to specialist reports where they exist.
+This template is a CC BY-SA 4.0 baseline. The board's specific expectations, the regulatory environment, and the organization's complexity drive the content depth. Adopting organizations adapt the template to their board's information appetite and to specialist reports where they exist.
 
 ---
 

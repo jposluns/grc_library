@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.4\
-**Date:** 2026-06-22\
+**Version:** 0.0.5\
+**Date:** 2026-07-02\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the authoritative inventory of every model used in production or pre-production by the organisation. A model is any artefact whose outputs are consumed by the organisation's products, services, internal operations, or AI systems. The register complements the AI System Register (which lists deployed AI systems and use cases) by capturing per-model technical, ownership, lineage, evaluation, and lifecycle attributes.
+This register is the authoritative inventory of every model used in production or pre-production by the organization. A model is any artefact whose outputs are consumed by the organization's products, services, internal operations, or AI systems. The register complements the AI System Register (which lists deployed AI systems and use cases) by capturing per-model technical, ownership, lineage, evaluation, and lifecycle attributes.
 
 A populated model registry identifies real systems and is sensitive operational data; populate, classify, and store internally.
 
@@ -29,7 +29,7 @@ A populated model registry identifies real systems and is sensitive operational 
 This register covers:
 
 1. **Internally trained or fine-tuned models** at every stage from research checkpoint through production.
-2. **Foundation models** consumed from a provider, recorded at the specific version and configuration the organisation depends on.
+2. **Foundation models** consumed from a provider, recorded at the specific version and configuration the organization depends on.
 3. **Open-source models** downloaded and deployed.
 4. **Embeddings models** that produce vector representations.
 5. **Classifier or scoring models** that support safety, moderation, or routing decisions.
@@ -102,7 +102,7 @@ Each model entry is one row keyed by Model ID. Mandatory fields:
 For each model, the registry records two lineage chains:
 
 1. **Backward lineage.** Base model, fine-tuning data, RL feedback data, training compute. Allows traceability to upstream inputs for incident response, supplier-incident impact, and contractual or legal claims.
-2. **Forward lineage.** Successor models, derived embeddings, distilled or quantised variants, fine-tunes by downstream teams. Allows impact analysis when a model is retired or recalled.
+2. **Forward lineage.** Successor models, derived embeddings, distilled or quantized variants, fine-tunes by downstream teams. Allows impact analysis when a model is retired or recalled.
 
 ---
 
@@ -113,7 +113,7 @@ For each model, the registry records two lineage chains:
 | AI System Register | Each system entry lists the model identifiers it depends on |
 | Dataset datasheet | Each training or fine-tuning dataset row references its datasheet |
 | Model card | Each production model has a published model card |
-| System card | Each AI system has a system card that summarises its models |
+| System card | Each AI system has a system card that summarizes its models |
 | AI risk register | High-risk models map to specific risk entries |
 | AI impact assessment | Production promotion requires a current impact assessment |
 | Third-party AI due diligence | External-provider models reference the supplier assurance evidence |

@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This policy defines the governance framework for compliance assurance, internal audit, and corrective and preventive action (CAPA) across the organisation. 
+This policy defines the governance framework for compliance assurance, internal audit, and corrective and preventive action (CAPA) across the organization. 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
@@ -28,7 +28,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ## Scope
 
-- Applies to all organisational entities, regions, and subsidiaries under operational control, including trade-security-governed operations. 
+- Applies to all organizational entities, regions, and subsidiaries under operational control, including trade-security-governed operations. 
 - Covers all compliance and audit activities including regulatory and legal reviews, internal and supplier audits, certification audits, AI system audits, and CAPA tracking. 
 - Applies to all employees, management, and third parties involved in regulated processes, data handling, customs documentation, or AI deployments supporting trade and logistics operations. 
 
@@ -65,7 +65,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ## Policy and control statements
 
 ### 1. Compliance management framework
-1.1 The organisation must operate an ISO 37301-compliant CMS integrating policies, procedures, registers, and monitoring plans. 
+1.1 The organization must operate an ISO 37301-compliant CMS integrating policies, procedures, registers, and monitoring plans. 
 1.2 Compliance obligations must be maintained in a central repository with mapped laws, standards, and contract clauses. 
 1.3 Compliance performance indicators must be reviewed quarterly and escalated where thresholds are breached.
 
@@ -137,7 +137,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ## Definitions
 
-Refer to the **Role Authority Register** for definitions of organisational roles and authorities.
+Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
 
 

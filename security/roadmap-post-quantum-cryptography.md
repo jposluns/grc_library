@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.2\
-**Date:** 2026-06-22\
+**Version:** 1.1.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This roadmap defines the organisation's strategy and phased plan for transitioning cryptographic systems to post-quantum cryptography (PQC) algorithms. It responds to the threat posed by cryptographically relevant quantum computers (CRQCs) to current public-key cryptographic algorithms, and establishes a time-bound migration plan aligned with NIST PQC standards, NIST SP 800-208, and NSA CNSA 2.0 Suite guidance.
+This roadmap defines the organization's strategy and phased plan for transitioning cryptographic systems to post-quantum cryptography (PQC) algorithms. It responds to the threat posed by cryptographically relevant quantum computers (CRQCs) to current public-key cryptographic algorithms, and establishes a time-bound migration plan aligned with NIST PQC standards, NIST SP 800-208, and NSA CNSA 2.0 Suite guidance.
 
 ---
 
@@ -36,7 +36,7 @@ Symmetric encryption (AES-256) and hash functions (SHA-256 with adequate output 
 
 ## Target PQC algorithms
 
-The organisation will adopt NIST-standardized post-quantum algorithms:
+The organization will adopt NIST-standardized post-quantum algorithms:
 
 | Algorithm | NIST Standard | Use Case |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) ar
 
 ### Phase 2: Standards and architecture (2026)
 
-- Adopt NIST FIPS 203, 204, and 205 as the organisational PQC standard.
+- Adopt NIST FIPS 203, 204, and 205 as the organizational PQC standard.
 - Define hybrid algorithm transition schemes for each cryptographic function.
 - Update the Cryptographic Key Lifecycle Management Framework with PQC requirements.
 - Evaluate and procure PQC-capable HSMs, TLS libraries, and certificate authority services.
@@ -111,7 +111,7 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) ar
 - Retire legacy RSA-2048 and ECC P-256 certificates and keys.
 - Achieve full PQC hybrid coverage across all cryptographic functions.
 
-**Deliverable:** Organisation-wide PQC transition complete; legacy algorithm retirement.
+**Deliverable:** Organization-wide PQC transition complete; legacy algorithm retirement.
 
 ### Phase 6: Pure PQC transition (2030 target, pending standards maturity)
 

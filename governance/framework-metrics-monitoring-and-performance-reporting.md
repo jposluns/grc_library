@@ -2,7 +2,7 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,7 +40,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 | Cadence | Domains |
 | --- | --- |
-| **Monthly** | Cybersecurity and AI governance KPIs; sector-programme KPIs (for example, BASC logistics) where the organisation participates in a covered programme |
+| **Monthly** | Cybersecurity and AI governance KPIs; sector-programme KPIs (for example, BASC logistics) where the organization participates in a covered programme |
 | **Quarterly** | Audit and CAPA performance indicators; sector-conditional roles (for example, a BASC Regional Compliance Officer where the sector annex defines that role) submit quarterly sector-programme performance summaries to the CISO and ERC |
 | **Annual** | Enterprise risk and digital trust maturity evaluations |
 
@@ -65,7 +65,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | Report | Audience | Frequency |
 | --- | --- | --- |
 | Cybersecurity KPI Report | CISO, Security Operations | Monthly |
-| Sector-Programme Report (for example, BASC Trade Security where the organisation participates) | CISO, sector-conditional role per the relevant annex, ERC | Quarterly |
+| Sector-Programme Report (for example, BASC Trade Security where the organization participates) | CISO, sector-conditional role per the relevant annex, ERC | Quarterly |
 | AI Governance KPI Report | AI Governance Council, CISO | Quarterly |
 | Audit and CAPA Performance Report | Chief Compliance Officer, Internal Audit, ERC | Quarterly |
 | Annual Digital Trust and Maturity Report | ERC, Board Audit and Risk Committee | Annual |

@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-06-23\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -61,7 +61,7 @@ Each entry in the assurance map has:
 | Risk area identifier | Pointer to the enterprise or operational risk |
 | Risk area title | Short descriptive title |
 | Risk owner | Per the linked risk register |
-| Linked controls | Control identifiers from the **adopter's own control register**. The library does not ship a control register because the control identifier scheme is necessarily adopter-defined (each organisation's controls catalogue reflects its specific systems, vendors, and regulatory environment). The worked example below uses placeholder IDs in the form `CTL-IAM-001` to illustrate the field shape; adopters substitute their own scheme. A typical control register has columns: control ID, control statement, owner, frequency, evidence class, framework cross-reference. Adopters who do not yet have a control register can begin by extracting controls from their normative policies and standards into a flat register before populating the Linked-controls field here. |
+| Linked controls | Control identifiers from the **adopter's own control register**. The library does not ship a control register because the control identifier scheme is necessarily adopter-defined (each organization's controls catalogue reflects its specific systems, vendors, and regulatory environment). The worked example below uses placeholder IDs in the form `CTL-IAM-001` to illustrate the field shape; adopters substitute their own scheme. A typical control register has columns: control ID, control statement, owner, frequency, evidence class, framework cross-reference. Adopters who do not yet have a control register can begin by extracting controls from their normative policies and standards into a flat register before populating the Linked-controls field here. |
 | Linked obligations | Compliance obligations from the obligations register |
 | First-line activity | What the first line does to manage the risk; cadence; evidence |
 | Second-line activity | What the second line does; cadence; evidence |
@@ -69,7 +69,7 @@ Each entry in the assurance map has:
 | External activity | External attestations, regulator examinations, certifications |
 | Customer-driven activity | Customer audits or reviews that exercise this area |
 | Assurance level | Per the rating scale (see Section 5) |
-| Coverage commentary | Brief narrative summarising how the area is covered |
+| Coverage commentary | Brief narrative summarizing how the area is covered |
 | Identified gaps | Where the rating is less than green, the gap |
 | Gap treatment | Action and owner |
 | Last assurance event | The most recent assurance activity touching this area |
@@ -115,7 +115,7 @@ To support consistency, the activities captured in each entry use the following 
 | External audit | External auditor opinion |
 | Certification | Independent certification (e.g. ISO 27001, ISO 42001, SOC 2 Type II) |
 | Regulator examination | Regulator-led examination |
-| Customer audit | Customer-led audit of the organisation |
+| Customer audit | Customer-led audit of the organization |
 | Supplier attestation | Supplier-provided attestation of their controls |
 | Threat-led testing | TIBER-EU, CBEST, or equivalent |
 | Penetration testing | Per the penetration testing standard |
@@ -234,7 +234,7 @@ The assurance plan is the prospective view; the map is the current state.
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 baseline. Adopting organisations populate it with their own risk areas, controls, and assurance activities and align it to the regulatory and sector environment in which they operate.
+This register is a CC BY-SA 4.0 baseline. Adopting organizations populate it with their own risk areas, controls, and assurance activities and align it to the regulatory and sector environment in which they operate.
 
 ---
 

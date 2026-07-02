@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.3\
-**Date:** 2026-06-24\
+**Version:** 1.4.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -77,7 +77,7 @@ Adopters can copy the pack files directly. See [`dev-security/claude-rules/READM
 
 ### AI-assisted setup (setup generator)
 
-For consumers who want to skip manual setup, an AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](claude-rules/setup-generator-prompt.md) analyses a downstream project and proposes a tailored CLAUDE.md plus rule-file selection, with approval gates before any file is written. It works whether the consumer has a local copy of the pack on disk (local mode) or fetches from the library's first-party canonical source (fetch mode). The pack README covers the three invocation forms (manual paste, `curl` one-liner, and URL-to-Claude) and the first-party trust posture.
+For consumers who want to skip manual setup, an AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](claude-rules/setup-generator-prompt.md) analyzes a downstream project and proposes a tailored CLAUDE.md plus rule-file selection, with approval gates before any file is written. It works whether the consumer has a local copy of the pack on disk (local mode) or fetches from the library's first-party canonical source (fetch mode). The pack README covers the three invocation forms (manual paste, `curl` one-liner, and URL-to-Claude) and the first-party trust posture.
 
 ### Layout
 

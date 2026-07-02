@@ -2,8 +2,8 @@
 
 **Document Title:** Security and Content Defect Reporting\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-06-02\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md), [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md)\
@@ -24,13 +24,13 @@ This repository contains documentation, not executable software, so the conventi
 
 - **Content accuracy defects.** A document overstates compliance, misattributes a regulatory citation, repeats an incorrect framework identifier, or includes guidance that is materially wrong.
 - **Licence concerns.** A document appears to reproduce restrictively-licensed third-party text without permission, or a contribution otherwise raises a licence-compatibility concern with the library's CC BY-SA 4.0 licence.
-- **Organisation or personal data leakage.** A document includes a real company name, personal name, email address, phone number, internal system name, incident detail, IP address, or other identifier that should have been substituted per [`specification-ingestion.md`](specification-ingestion.md) Appendix A.
+- **Organization or personal data leakage.** A document includes a real company name, personal name, email address, phone number, internal system name, incident detail, IP address, or other identifier that should have been substituted per [`specification-ingestion.md`](specification-ingestion.md) Appendix A.
 - **Broken or harmful external link.** An external reference in a document points to a defaced, replaced, or malicious resource.
 - **Specification or tooling defect.** A scripted audit produces false positives or false negatives that allow conformance violations to land.
 
 ## How to report
 
-Open a GitHub issue at https://github.com/jposluns/grc_library/issues. Use the issue title to summarise the concern in one sentence. Use the body to:
+Open a GitHub issue at https://github.com/jposluns/grc_library/issues. Use the issue title to summarize the concern in one sentence. Use the body to:
 
 1. Identify the file path or repository area concerned.
 2. Describe the defect, including the line number, the affected text, and the reason it is problematic.
@@ -56,4 +56,4 @@ For each accepted issue:
 
 ## Disclosure
 
-Issues filed in this repository are public by default. Do not include sensitive personal data, organisation-internal data, or third-party confidential material in an issue. If a reporter does so by accident, a maintainer will redact the affected content and request that the reporter re-file with appropriate redaction.
+Issues filed in this repository are public by default. Do not include sensitive personal data, organization-internal data, or third-party confidential material in an issue. If a reporter does so by accident, a maintainer will redact the affected content and request that the reporter re-file with appropriate redaction.

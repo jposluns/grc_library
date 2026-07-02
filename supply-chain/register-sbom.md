@@ -2,8 +2,8 @@
 
 **Document Title:** Software Bill of Materials Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register tracks Software Bill of Materials (SBOM) artefacts for the organisation's internally-built software, for purchased commercial software, and for open-source dependencies in use. The register is the navigation layer over an SBOM repository; the actual SBOM artefacts (CycloneDX, SPDX) are stored as machine-readable files referenced by the register.
+This register tracks Software Bill of Materials (SBOM) artefacts for the organization's internally-built software, for purchased commercial software, and for open-source dependencies in use. The register is the navigation layer over an SBOM repository; the actual SBOM artefacts (CycloneDX, SPDX) are stored as machine-readable files referenced by the register.
 
 A populated SBOM register identifies real products and components and is sensitive operational data; populate, classify, and store internally.
 
@@ -31,8 +31,8 @@ This register covers:
 1. **Internally built software** released or deployed to production, test, or distribution channels.
 2. **Commercial off-the-shelf software** purchased from a supplier and deployed in any tier.
 3. **Open-source software** whose components are not transitively covered by another supplier's SBOM.
-4. **Container images** built by the organisation or pulled from external registries.
-5. **Embedded software in physical products** the organisation manufactures.
+4. **Container images** built by the organization or pulled from external registries.
+5. **Embedded software in physical products** the organization manufactures.
 6. **Cloud-deployed runtime environments** to the extent the supplier discloses the SBOM.
 
 It does not cover SaaS where the supplier delivers software as a service without distribution; SaaS suppliers are governed by the broader supplier assurance standard.
@@ -63,7 +63,7 @@ Each row records one SBOM. Mandatory fields:
 | VEX statements | Vulnerability Exploitability eXchange entries that adjust the applicability of CVEs to this product |
 | Linked supplier | If supplier-provided, the supplier identifier in the supplier risk register |
 | Linked deployment | Where this product is currently deployed or distributed |
-| Distribution recipients | If the organisation provides the SBOM to customers, the recipient class |
+| Distribution recipients | If the organization provides the SBOM to customers, the recipient class |
 | Status | Active, superseded, retired |
 | Next refresh due | Per the refresh cadence |
 
@@ -71,7 +71,7 @@ Each row records one SBOM. Mandatory fields:
 
 ## SBOM acquisition
 
-The organisation obtains SBOMs through three paths.
+The organization obtains SBOMs through three paths.
 
 ### Path 1: produce at build time (internally built software)
 
@@ -127,7 +127,7 @@ Each SBOM is continuously cross-referenced against published vulnerability data:
 
 ## Linkage to customer-facing transparency
 
-Where the organisation is a software vendor or delivers software-bearing products to customers:
+Where the organization is a software vendor or delivers software-bearing products to customers:
 
 1. Customer contracts at the equivalent tier include the SBOM as a customer-deliverable obligation under EU Cyber Resilience Act, US Executive Order 14028, and applicable sector regulation.
 2. Customer-distributed SBOMs are produced from the internal SBOM with consistent format and coverage statement.
@@ -150,7 +150,7 @@ Where the organisation is a software vendor or delivers software-bearing product
 | --- | --- | --- |
 | NTIA Minimum Elements of a Software Bill of Materials | NTIA 2021 | SBOM baseline |
 | US Executive Order 14028 | EO 14028 §4 | Federal SBOM expectation |
-| CISA SBOM guidance | Multiple | SBOM operationalisation |
+| CISA SBOM guidance | Multiple | SBOM operationalization |
 | EU Cyber Resilience Act | Regulation (EU) 2024/2847 | Mandatory product-level SBOM |
 | NIST SP 800-218 | SSDF PW.4, PW.7, PW.8 | Secure software development; SBOM production |
 | NIST SP 800-161 Rev. 1 | Cybersecurity Supply Chain Risk Management | Supply chain |

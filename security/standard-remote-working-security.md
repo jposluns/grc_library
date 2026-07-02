@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-06-29\
+**Version:** 1.0.8\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md)\
@@ -26,7 +26,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ## 2. Scope
 
-2.1 This standard applies to all employees, contractors, consultants, and third-party workers who access organisational systems, applications, or data from any location outside a corporate office.
+2.1 This standard applies to all employees, contractors, consultants, and third-party workers who access organizational systems, applications, or data from any location outside a corporate office.
 
 2.2 It covers all company-owned managed devices used for remote work.
 
@@ -68,7 +68,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 4.2.1 Where a device falls out of compliance (e.g., due to a missed patch cycle or lapsed certificate), IT Operations will alert the device owner and the device will enter a compliance remediation period.
 
-4.2.2 The compliance grace period is a maximum of 24 hours from the time non-compliance is detected. If the device is not remediated within 24 hours, conditional access policy enforcement will block access to organisational systems until compliance is restored.
+4.2.2 The compliance grace period is a maximum of 24 hours from the time non-compliance is detected. If the device is not remediated within 24 hours, conditional access policy enforcement will block access to organizational systems until compliance is restored.
 
 4.2.3 During the grace period, access to Confidential and Restricted data is suspended regardless of the nature of the non-compliance.
 
@@ -84,13 +84,13 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 5.1 Public and untrusted networks
 
-5.1.1 Organisational work must not be conducted on public or untrusted Wi-Fi networks (e.g., coffee shops, hotels, airports, conference venues) without first establishing a VPN or equivalent encrypted tunnel.
+5.1.1 Organizational work must not be conducted on public or untrusted Wi-Fi networks (e.g., coffee shops, hotels, airports, conference venues) without first establishing a VPN or equivalent encrypted tunnel.
 
-5.1.2 Where a VPN connection cannot be established, personnel must use a personal mobile hotspot (mobile data connection) as an alternative to an untrusted public network before conducting any organisational work.
+5.1.2 Where a VPN connection cannot be established, personnel must use a personal mobile hotspot (mobile data connection) as an alternative to an untrusted public network before conducting any organizational work.
 
 5.1.3 The following network types require VPN regardless of the nature of work being conducted:
 
-- Public Wi-Fi (any network not under the control of the organisation or the remote worker's household)
+- Public Wi-Fi (any network not under the control of the organization or the remote worker's household)
 - Hotel or hospitality networks
 - Client site networks unless a formal network access agreement is in place
 
@@ -115,18 +115,18 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ### 5.4 Home router security
 
-5.4.1 Home networks used for remote work must use WPA3 wireless encryption. Where untrusted IoT devices cannot support WPA3, place them on a separate SSID and VLAN, or on an isolated guest network, so they do not share the WPA3 network used for organisational work. Remote workers are also expected to apply the following baseline home network security practices:
+5.4.1 Home networks used for remote work must use WPA3 wireless encryption. Where untrusted IoT devices cannot support WPA3, place them on a separate SSID and VLAN, or on an isolated guest network, so they do not share the WPA3 network used for organizational work. Remote workers are also expected to apply the following baseline home network security practices:
 
 - Change the router's default administrator credentials
 - Keep router firmware current
 
-5.4.2 Apart from the WPA3 requirement in 5.4.1, the organisation does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
+5.4.2 Apart from the WPA3 requirement in 5.4.1, the organization does not mandate home router configuration, but notes that a compromised home network increases the risk of credential interception. The VPN provides the primary compensating control for home network risks.
 
 ---
 
 ## 6. Workspace and physical security
 
-6.1 Personnel working remotely must ensure that screens displaying organisational information are not visible to others in public locations or shared living spaces.
+6.1 Personnel working remotely must ensure that screens displaying organizational information are not visible to others in public locations or shared living spaces.
 
 6.2 Devices must be locked immediately when stepping away, even briefly. Screen lock must not be disabled.
 
@@ -136,7 +136,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 6.5 Clean desk principles apply when not actively working: documents must be put away, screens locked, and physical notes containing sensitive information must be stored securely.
 
-6.6 Printed documents containing organisational information must be stored securely when not in use and disposed of via cross-cut shredding. Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
+6.6 Printed documents containing organizational information must be stored securely when not in use and disposed of via cross-cut shredding. Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
 
 ---
 
@@ -154,11 +154,11 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Confidential** | Yes, on compliant managed device; personal devices require CISO approval | Company-managed encrypted storage; personal cloud storage prohibited | Yes (on-premises access); Yes (all access from non-home networks) |
 | **Restricted** | Managed device only; CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
-7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organisation.
+7.1.2 All data must remain in company-managed storage. Data must not be saved to personal cloud storage services, personal drives, or any storage medium not under the control of the organization.
 
 ### 7.2 Collaboration and file sharing
 
-7.2.1 Files must be shared using the organisation's approved collaboration and file storage platform. Email attachments containing Confidential or Restricted data must not be sent to personal email addresses.
+7.2.1 Files must be shared using the organization's approved collaboration and file storage platform. Email attachments containing Confidential or Restricted data must not be sent to personal email addresses.
 
 7.2.2 Screen-sharing sessions via the collaboration platform must not expose Confidential or Restricted content to participants who do not have a legitimate business need.
 
@@ -166,7 +166,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 ## 8. Bring-your-own device (BYOD)
 
-8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organisational systems:
+8.1 A formal BYOD policy is pending approval. In the interim, the following requirements apply to any use of personal devices to access organizational systems:
 
 8.2 Personal devices must not be used to access data classified as Confidential or Restricted without explicit written approval from the CISO and a documented compensating control.
 
@@ -235,7 +235,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 11.2 IT Operations will monitor device compliance posture via the endpoint management platform and report non-compliance to the CISO on a monthly basis, or immediately for critical non-compliance events.
 
-11.3 Breaches of this standard will be handled in accordance with the organisation's disciplinary procedures. Repeated or wilful non-compliance may result in remote access privileges being suspended or terminated.
+11.3 Breaches of this standard will be handled in accordance with the organization's disciplinary procedures. Repeated or wilful non-compliance may result in remote access privileges being suspended or terminated.
 
 11.4 Contractors and third-party workers who breach this standard may have their access revoked immediately pending investigation.
 

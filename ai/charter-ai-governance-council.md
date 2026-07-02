@@ -2,29 +2,29 @@
 
 **Document Title:** AI Governance Council Charter\
 **Document Type:** Charter\
-**Version:** 1.2.3\
-**Date:** 2026-06-30\
+**Version:** 1.2.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
 **Classification:** Public\
 **Category:** AI Governance\
-**Review Frequency:** Annual and upon material organisational or regulatory change\
+**Review Frequency:** Annual and upon material organizational or regulatory change\
 **Repository Path:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the risk and compliance governance of all artificial intelligence systems deployed or developed by the organisation, working with the independent AI Ethics Review Panel on the ethics dimension (see below).
+This charter establishes the mandate, composition, authority, responsibilities, and operating procedures of the AI Governance Council (AIGC). The AIGC is the enterprise body responsible for overseeing the risk and compliance governance of all artificial intelligence systems deployed or developed by the organization, working with the independent AI Ethics Review Panel on the ethics dimension (see below).
 
-The AIGC ensures that AI use aligns with the organisation's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
+The AIGC ensures that AI use aligns with the organization's values, applicable law, and international standards including ISO/IEC 42001, the EU AI Act, NIST AI RMF, and OECD AI Principles.
 
 Independent ethical review of AI systems is performed by the [AI Ethics Review Panel](charter-ai-ethics-review-panel.md), a separate body that applies the [Ethical AI Use Guideline](guideline-ethical-ai-use.md) and can challenge a Council decision on ethical grounds through the Panel's independent challenge mechanism. The Council retains AI risk and compliance governance and deployment-approval authority; it considers the Panel's ethical opinions and reconsiders and responds to the Panel's challenges. The separation exists so that ethical review is independent of the body whose decisions it reviews.
 
@@ -95,7 +95,7 @@ Charter administrative ownership rests with the Chief Information Officer (the c
 ### 1. AI risk oversight
 
 - Review AI Impact Assessments for all high-risk AI systems.
-- Assess AI systems against the organisational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
+- Assess AI systems against the organizational AI risk taxonomy: Minimal, Limited, High, Unacceptable.
 - Consider the AI Ethics Review Panel's independent ethical opinion (fairness, bias mitigation, transparency, explainability, human oversight, and impact on affected individuals and groups) alongside the risk and compliance review.
 - Monitor outcomes of deployed AI systems against defined performance thresholds.
 

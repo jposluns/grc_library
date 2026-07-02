@@ -2,7 +2,7 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This annex identifies the additional GRC obligations that apply to organisations operating in or adjacent to the financial services sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+This annex identifies the additional GRC obligations that apply to organizations operating in or adjacent to the financial services sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
 
-This annex applies where an organisation:
+This annex applies where an organization:
 - Is a regulated financial institution (bank, insurer, investment firm, payment institution, e-money institution)
 - Provides technology or operational services to regulated financial institutions as a critical third party
 - Handles payment card data (triggering PCI DSS obligations regardless of sector)
@@ -62,7 +62,7 @@ This annex applies where an organisation:
 | **OSFI Guideline B-10: Third-Party Risk Management** | OSFI | FRFIs |
 | **OSFI Guideline B-7: Derivatives** | OSFI | FRFIs |
 | **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | FINTRAC | All reporting entities under the Act |
-| **PIPEDA** | OPC / Privacy Commissioner | All organisations processing Canadians' personal data |
+| **PIPEDA** | OPC / Privacy Commissioner | All organizations processing Canadians' personal data |
 | **CSA (investment) obligations** | Canadian Securities Administrators | Federally registered investment dealers |
 
 ### United states
@@ -76,7 +76,7 @@ This annex applies where an organisation:
 | **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
 | **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
 | **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |
-| **PCI DSS v4.0** | PCI SSC | Any organisation storing, processing, or transmitting payment card data |
+| **PCI DSS v4.0** | PCI SSC | Any organization storing, processing, or transmitting payment card data |
 
 ### Asia-pacific
 
@@ -93,7 +93,7 @@ This annex applies where an organisation:
 |---|---|---|
 | **Circular on operational risks and resilience** | Swiss Financial Market Supervisory Authority (FINMA) | FINMA-supervised banks, insurers, and financial institutions; operational risk and resilience |
 
-> **Note:** The instruments named in the Asia-Pacific and Switzerland subsections are named structurally to map the regulators and their supervisory domains. The specific current instrument titles, versions, and effective dates change over time and are confirmed by the adopting organisation against each regulator's current published requirements; this annex does not pin or reproduce them.
+> **Note:** The instruments named in the Asia-Pacific and Switzerland subsections are named structurally to map the regulators and their supervisory domains. The specific current instrument titles, versions, and effective dates change over time and are confirmed by the adopting organization against each regulator's current published requirements; this annex does not pin or reproduce them.
 
 ### Global / cross-jurisdictional
 
@@ -164,7 +164,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 
 ### PCI DSS v4.0
 
-PCI DSS applies to any organisation that stores, processes, or transmits payment card data. Key requirements across the 12 PCI DSS requirements:
+PCI DSS applies to any organization that stores, processes, or transmits payment card data. Key requirements across the 12 PCI DSS requirements:
 
 | PCI DSS Requirement Group | Core Obligation | GRC Library Mapping |
 |---|---|---|
@@ -185,7 +185,7 @@ PCI DSS applies to any organisation that stores, processes, or transmits payment
 
 ### AML / CFT requirements
 
-For organisations subject to AML obligations (banks, money service businesses, certain freight/customs operators under FATF Recommendation 22):
+For organizations subject to AML obligations (banks, money service businesses, certain freight/customs operators under FATF Recommendation 22):
 
 | Obligation | Requirement | GRC Library Supplement Needed |
 |---|---|---|
@@ -219,7 +219,7 @@ The following controls are required by financial services regulations but are no
 
 ## Priority implementation sequence
 
-For organisations entering the financial services sector or achieving DORA compliance:
+For organizations entering the financial services sector or achieving DORA compliance:
 
 1. **Immediate (before go-live or regulatory deadline):**
  - Establish ICT risk management framework (DORA / OSFI B-13 / GLBA baseline)

@@ -2,8 +2,8 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines an organisation-neutral process for backup, replication, recovery validation, restoration, and evidence capture for business-critical systems and data.
+This procedure defines an organization-neutral process for backup, replication, recovery validation, restoration, and evidence capture for business-critical systems and data.
 
 The procedure intentionally avoids vendor-specific implementation steps so that it can be reused across cloud, on-premises, hybrid, managed service, database, file, application, and AI system recovery scenarios.
 
@@ -113,7 +113,7 @@ Maintain evidence including backup inventory, recovery objectives, backup config
 
 ## Limitations
 
-This procedure is a reusable CC BY-SA 4.0 baseline. Adopting organisations must define specific technologies, schedules, storage locations, encryption methods, network paths, retention periods, and recovery runbooks internally.
+This procedure is a reusable CC BY-SA 4.0 baseline. Adopting organizations must define specific technologies, schedules, storage locations, encryption methods, network paths, retention periods, and recovery runbooks internally.
 
 ---
 

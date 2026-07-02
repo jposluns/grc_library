@@ -336,7 +336,7 @@ Implements these sections of [`standard-mobile-application-security.md`](../../.
 
 - Section 4 (storage): EncryptedSharedPreferences, EncryptedFile, manifest backup posture.
 - Section 5 (cryptography): Android Keystore (StrongBox-backed for Tier 1), AES-GCM, SecureRandom.
-- Section 6 (authentication and authorisation): BiometricPrompt with CryptoObject; setInvalidatedByBiometricEnrollment; Custom Tabs for OAuth.
+- Section 6 (authentication and authorization): BiometricPrompt with CryptoObject; setInvalidatedByBiometricEnrollment; Custom Tabs for OAuth.
 - Section 7 (network): Network Security Config; OkHttp CertificatePinner; Play Integrity server verification.
 - Section 8 (platform interaction): App Links over custom schemes; explicit intents for cross-app data; logging redaction.
 - Section 9 (MASVS-R): root detection as signal; R8; native anti-tamper for Tier 1.

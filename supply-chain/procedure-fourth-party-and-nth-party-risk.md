@@ -2,8 +2,8 @@
 
 **Document Title:** Fourth-Party and Nth-Party Risk Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This procedure defines how the organisation identifies, monitors, and escalates risk arising from suppliers beyond the direct third-party relationship: fourth-party (the supplier's supplier) and nth-party (any subsequent tier). It supports DORA's critical-ICT-third-party regime, GDPR Article 28 sub-processor obligations, NIS 2 supply-chain security obligations, and the organisation's broader supplier governance.
+This procedure defines how the organization identifies, monitors, and escalates risk arising from suppliers beyond the direct third-party relationship: fourth-party (the supplier's supplier) and nth-party (any subsequent tier). It supports DORA's critical-ICT-third-party regime, GDPR Article 28 sub-processor obligations, NIS 2 supply-chain security obligations, and the organization's broader supplier governance.
 
 ---
 
 ## Scope
 
-This procedure applies to all third-party relationships within scope of the supplier security and privacy assurance standard where the third party itself depends on further suppliers to deliver the service to the organisation. It applies regardless of contract type (SaaS, managed service, professional services, hardware, logistics).
+This procedure applies to all third-party relationships within scope of the supplier security and privacy assurance standard where the third party itself depends on further suppliers to deliver the service to the organization. It applies regardless of contract type (SaaS, managed service, professional services, hardware, logistics).
 
-It does not duplicate per-supplier due diligence; it overlays the existing supplier lifecycle with the multi-tier visibility actions the organisation can take.
+It does not duplicate per-supplier due diligence; it overlays the existing supplier lifecycle with the multi-tier visibility actions the organization can take.
 
 ---
 
@@ -34,11 +34,11 @@ It does not duplicate per-supplier due diligence; it overlays the existing suppl
 
 | Term | Definition |
 | --- | --- |
-| Third party | A supplier with a direct contractual relationship with the organisation |
-| Fourth party | A supplier whose service is consumed by a third party in delivering services to the organisation |
+| Third party | A supplier with a direct contractual relationship with the organization |
+| Fourth party | A supplier whose service is consumed by a third party in delivering services to the organization |
 | Nth party | Any subsequent tier in the supply chain (fifth, sixth, etc.) |
 | Sub-processor | Under GDPR / UK GDPR, a third party engaged by the controller's processor to process personal data on the controller's behalf |
-| Critical sub-tier supplier | A fourth-party or nth-party supplier whose failure would materially affect the third party's ability to deliver service to the organisation |
+| Critical sub-tier supplier | A fourth-party or nth-party supplier whose failure would materially affect the third party's ability to deliver service to the organization |
 | Concentration risk | The risk that multiple third parties share a common sub-tier dependency such that a single sub-tier failure has cross-portfolio impact |
 
 ---
@@ -50,7 +50,7 @@ Visibility into the supply chain decreases with each tier. The procedure applies
 | Supplier criticality tier | Tier visibility expectation |
 | --- | --- |
 | Tier 1: Critical | Disclosed list of all fourth parties supporting the service; contractual right to be notified of fourth-party changes; concentration analysis at the fourth-party layer; selected nth-party visibility for known systemic dependencies |
-| Tier 2: High | Disclosed list of material fourth parties (those with access to organisational data or that operate the critical infrastructure of the service); notification of material fourth-party changes |
+| Tier 2: High | Disclosed list of material fourth parties (those with access to organizational data or that operate the critical infrastructure of the service); notification of material fourth-party changes |
 | Tier 3: Moderate | Disclosed sub-processor list where personal data is processed; notification of sub-processor changes |
 | Tier 4: Low | No tier-visibility requirement beyond contractual baseline |
 
@@ -60,10 +60,10 @@ Visibility into the supply chain decreases with each tier. The procedure applies
 
 The Supplier Relationship Owner (SRO) identifies sub-tier suppliers through the following inputs:
 
-1. **Contractual disclosure.** The contract with the third party requires disclosure of fourth parties at the criticality-driven granularity. Disclosure includes name, country, service provided, and a categorisation flag (cloud platform, identity provider, payment processor, data processor, communications, etc.).
-2. **Sub-processor list.** Where the third party processes personal data on the organisation's behalf, the sub-processor register is the authoritative source.
+1. **Contractual disclosure.** The contract with the third party requires disclosure of fourth parties at the criticality-driven granularity. Disclosure includes name, country, service provided, and a categorization flag (cloud platform, identity provider, payment processor, data processor, communications, etc.).
+2. **Sub-processor list.** Where the third party processes personal data on the organization's behalf, the sub-processor register is the authoritative source.
 3. **Service architecture diagram.** The third party provides a high-level architecture that names the categories of sub-tier dependencies.
-4. **Service organisation control reports.** SOC 2, ISAE 3402, and equivalent reports name the third party's material sub-service providers and the controls relied upon.
+4. **Service organization control reports.** SOC 2, ISAE 3402, and equivalent reports name the third party's material sub-service providers and the controls relied upon.
 5. **Public attestations and registries.** Where the third party publishes a sub-processor or partner list, the SRO references the public source.
 6. **Targeted intelligence.** For Tier 1 critical suppliers, threat intelligence and open-source reporting on the third party's known dependencies.
 
@@ -90,7 +90,7 @@ The SRO maintains a per-third-party record of disclosed sub-tier suppliers. The 
 
 For each disclosed sub-tier supplier identified as critical:
 
-1. Determine whether the failure of the sub-tier supplier would interrupt the service the third party provides to the organisation.
+1. Determine whether the failure of the sub-tier supplier would interrupt the service the third party provides to the organization.
 2. Determine whether the third party has documented contingency for the sub-tier supplier's failure (alternate, manual fallback, time-bound continuity plan).
 3. Determine whether the sub-tier supplier appears in the concentration risk register (i.e. is shared across multiple third parties).
 4. Categorize the residual risk: Negligible, Low, Moderate, High, Unacceptable.
@@ -125,7 +125,7 @@ Escalation to the CISO and CIO follows for any Tier 1 critical-sub-tier event. W
 
 Treatment options, in order of preference:
 
-1. **Reduce concentration.** Request the third party adopt alternate sub-tier suppliers; diversify the organisation's own portfolio of third parties so a single sub-tier failure has less impact.
+1. **Reduce concentration.** Request the third party adopt alternate sub-tier suppliers; diversify the organization's own portfolio of third parties so a single sub-tier failure has less impact.
 2. **Strengthen contingency.** Require the third party to document and test fallback procedures for the critical sub-tier dependency.
 3. **Strengthen contractual rights.** Negotiate stronger sub-tier disclosure, audit, and notification rights at next contract renewal.
 4. **Transfer.** Use insurance or contractual indemnity where economically rational.
@@ -146,7 +146,7 @@ Sub-tier risk findings are reported to the Supplier Risk Maintainer at minimum q
 | Supplier ongoing monitoring | Periodic re-verification of disclosed sub-tier supplier list |
 | Subprocessor register | For personal-data-processing scenarios; authoritative source |
 | Concentration risk register | Cross-portfolio shared dependency analysis |
-| Cross-domain incident coordination | Sub-tier supplier incidents that affect the organisation route through the standard incident procedure |
+| Cross-domain incident coordination | Sub-tier supplier incidents that affect the organization route through the standard incident procedure |
 | Privacy breach response | Sub-tier supplier breaches involving personal data |
 
 ---
@@ -177,7 +177,7 @@ Sub-tier risk findings are reported to the Supplier Risk Maintainer at minimum q
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Effective fourth-party and nth-party risk visibility depends on the contractual rights the organisation has negotiated, the third party's willingness to disclose, the public-record availability of sub-tier information, and the maturity of the organisation's threat intelligence capability. The procedure does not guarantee visibility; it sets expectations and a treatment framework.
+This procedure is a CC BY-SA 4.0 baseline. Effective fourth-party and nth-party risk visibility depends on the contractual rights the organization has negotiated, the third party's willingness to disclose, the public-record availability of sub-tier information, and the maturity of the organization's threat intelligence capability. The procedure does not guarantee visibility; it sets expectations and a treatment framework.
 
 ---
 

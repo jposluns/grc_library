@@ -166,12 +166,12 @@ def check() -> list[Finding]:
         if actual is None:
             findings.append(
                 Finding(
-                    kind="unrecognised-license",
+                    kind="unrecognized-license",
                     location=f".claude/rules/external/{source}/LICENSE",
                     detail=(
                         f"LICENSE first non-empty line did not match any known "
                         f"prefix in LICENSE_PREFIX_TO_IDENT. Expected: {expected}. "
-                        f"Either update the LICENSE to a recognised form or add "
+                        f"Either update the LICENSE to a recognized form or add "
                         f"a new prefix to LICENSE_PREFIX_TO_IDENT."
                     ),
                 )

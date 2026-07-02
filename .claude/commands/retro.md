@@ -14,7 +14,7 @@ Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-secu
 
 **Batching into the next PR**. The register-row append is a content change; per the batching rule, the register-row commit is **batched into the next PR**, whatever its substantive purpose. The retrospective is conducted immediately after `/validate-pr`; only the register-row commit is deferred. A retrospective that surfaces a candidate improvement deserving its own PR DOES trigger that PR — but the substance of that PR is the improvement itself; the register row bundles in alongside.
 
-**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorisation.
+**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries serve as proof-of-discipline. Skipping is a policy deviation requiring maintainer authorization.
 
 Append the entry to [`.working/improvement-log.md`](../../.working/improvement-log.md) with columns `Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement`. New rows on top (reverse-chronological).
 

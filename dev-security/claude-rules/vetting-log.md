@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.3\
-**Date:** 2026-06-28\
+**Version:** 1.3.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -61,7 +61,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 | Pattern | Outcome |
 |---|---|
 | Role-override / "ignore previous instructions" | Not present. The `using-agent-skills` meta-skill enumerates "Core Operating Behaviors" but they govern the agent's own discipline (surface assumptions, manage confusion, push back, enforce simplicity, scope discipline, verify); they do not instruct the agent to override the consuming session's rules. |
-| Urgency framing or pre-authorisation language | Not present. Tone is declarative-instructional throughout. |
+| Urgency framing or pre-authorization language | Not present. Tone is declarative-instructional throughout. |
 | External URL fetch directives | Not present. The only external URLs in the fully-vetted files are `https://genai.owasp.org/llm-top-10/` (legitimate reference, not a fetch instruction) and `http://localhost:3000` (used as a sample value in an example, not a fetch target). |
 | Shell command execution beyond standard documentation | Not present. Code examples illustrate `npm install`, `bcrypt`, `helmet`, etc. as documentation of techniques to apply, not as instructions to execute on the consumer's system. |
 | Security control weakening | Not present. The `security-and-hardening` skill's Never-Do list explicitly forbids disabling security headers, using `eval()` / `innerHTML` with user data, storing auth tokens in `localStorage`, committing secrets, and exposing stack traces. Posture strengthens controls throughout. |
@@ -106,7 +106,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 | Pattern | Outcome |
 |---|---|
 | Role-override / "ignore previous instructions" | Not present. |
-| Urgency framing or pre-authorisation language | Not present. Tone is declarative and educational. |
+| Urgency framing or pre-authorization language | Not present. Tone is declarative and educational. |
 | External URL fetch directives | Not present. The `@`-syntax imports are internal to the repository (e.g., `@security-rules/core-principles.md`). |
 | Shell command execution beyond standard setup documentation | Not present. The setup section uses standard `cp -r` to copy files into the consumer's project. The `dangerous-flows.md` file *documents* dangerous shell patterns as anti-examples to detect, not as instructions to execute. |
 | Security control weakening | Not present. The rules consistently strengthen controls. `core-principles.md` Principle 7 explicitly forbids the *generation of code* that disables security checks, framed as a violation rather than a permissible action. |
@@ -153,7 +153,7 @@ The TikiTribe repository organizes 100+ rule sets across 12 language directories
 | Pattern | Outcome |
 |---|---|
 | Role-override / "ignore previous instructions" | Not present in any of the nine files. Code examples use legitimate `role: system` / `role: user` boundaries in API examples, not override directives. |
-| Urgency framing or pre-authorisation language | Not present. Severity levels (`strict`, `warning`, `advisory`) are used for risk classification, not urgency tactics. |
+| Urgency framing or pre-authorization language | Not present. Severity levels (`strict`, `warning`, `advisory`) are used for risk classification, not urgency tactics. |
 | External URL fetch directives | Not present. References to OWASP / NIST / MITRE / CWE are standard citations, not fetch directives. |
 | Shell command execution beyond standard setup documentation | Not present. The setup section uses `git clone` plus `cp -r`. Code examples show `subprocess.run()` patterns with `shell=False` and command allowlisting, framed as anti-patterns for educational contrast (not as instructions to execute). |
 | Security control weakening | Not present. Every "Don't" example flags a vulnerable pattern; every "Do" example strengthens controls. |
@@ -211,7 +211,7 @@ The Wiz repository structure: a root generator (`generate_rules.py` plus `prompt
 | Pattern | Outcome |
 |---|---|
 | Role-override / "ignore previous instructions" | Not present. Content frames secure-coding rules as guidance, not directives that override the assistant. |
-| Urgency framing or pre-authorisation language | Not present. |
+| Urgency framing or pre-authorization language | Not present. |
 | External URL fetch directives | Not present. References to OWASP / CWE are standard citations. |
 | Shell command execution beyond standard setup documentation | Not present. Code examples are secure-pattern demonstrations. |
 | Security control weakening | Not present. Every rule strengthens controls (CSRF protection, parameterized queries, secure headers, input validation, least privilege). |

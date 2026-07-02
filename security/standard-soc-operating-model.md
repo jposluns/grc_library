@@ -2,8 +2,8 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
@@ -30,16 +30,16 @@ This standard applies to the team or function (internal, hybrid, or supplier-man
 
 ## 3. Capability tiers
 
-The SOC operates a tiered capability model. Adopting organisations select the tier appropriate to their risk appetite, complexity, and budget; the standard defines what each tier minimally provides.
+The SOC operates a tiered capability model. Adopting organizations select the tier appropriate to their risk appetite, complexity, and budget; the standard defines what each tier minimally provides.
 
 | Capability tier | Description | Suitable for |
 | --- | --- | --- |
-| Tier A: Basic | Business-hour monitoring; alert triage; escalation to engineering; supplier-managed-SOC option for 24/7 watch | Small or low-risk organisations |
-| Tier B: Operational | 24/7 watch; in-house triage; defined escalation; detection engineering capacity; basic threat intelligence | Mid-sized organisations or regulated industries |
-| Tier C: Advanced | 24/7 watch; tiered analysts; detection engineering team; active threat hunting; intelligence-driven operations; metrics-driven optimisation | Large or high-risk organisations |
-| Tier D: Mature | Tier C plus deception operations; purple teaming; embedded incident response capability; threat-actor-specific hunting; intelligence sharing partnerships | High-target organisations |
+| Tier A: Basic | Business-hour monitoring; alert triage; escalation to engineering; supplier-managed-SOC option for 24/7 watch | Small or low-risk organizations |
+| Tier B: Operational | 24/7 watch; in-house triage; defined escalation; detection engineering capacity; basic threat intelligence | Mid-sized organizations or regulated industries |
+| Tier C: Advanced | 24/7 watch; tiered analysts; detection engineering team; active threat hunting; intelligence-driven operations; metrics-driven optimization | Large or high-risk organizations |
+| Tier D: Mature | Tier C plus deception operations; purple teaming; embedded incident response capability; threat-actor-specific hunting; intelligence sharing partnerships | High-target organizations |
 
-Adopting organisations document the current tier and the target tier in the security architecture roadmap.
+Adopting organizations document the current tier and the target tier in the security architecture roadmap.
 
 ---
 
@@ -65,7 +65,7 @@ Smaller SOCs combine roles. Larger SOCs additionally include red team, purple te
 
 | Capability | Tool category |
 | --- | --- |
-| Log centralisation | SIEM or log lake with searchable retention |
+| Log centralization | SIEM or log lake with searchable retention |
 | Endpoint detection | EDR with response capabilities |
 | Network detection | NDR or equivalent (NetFlow, packet capture for targeted use) |
 | Identity threat detection | ITDR or equivalent integrated with the identity provider |
@@ -128,9 +128,9 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 | Practice | Requirement |
 | --- | --- |
-| Intelligence sources | Combination of commercial feeds, open-source intelligence, industry sharing groups, and government advisories where the organisation is eligible |
-| Sector and geographic tracking | Coverage matched to the organisation's sector and operating geographies |
-| Threat actor tracking | Specific actors relevant to the organisation are tracked |
+| Intelligence sources | Combination of commercial feeds, open-source intelligence, industry sharing groups, and government advisories where the organization is eligible |
+| Sector and geographic tracking | Coverage matched to the organization's sector and operating geographies |
+| Threat actor tracking | Specific actors relevant to the organization are tracked |
 | Indicator lifecycle | Indicators ingested with provenance, confidence, and expiry |
 | Strategic intelligence | Quarterly strategic intelligence briefing to the Executive Sponsor and the AI Governance Council |
 | Information sharing | Per the threat intelligence and SIEM operations procedure |
@@ -175,8 +175,8 @@ Where the SOC is supplier-managed in whole or in part:
 | --- | --- |
 | Contract | Per the supplier security and privacy assurance standard with additional clauses specific to SOC operations |
 | Tenancy | Customer data segregated from other supplier customers; documented isolation |
-| Data residency | Telemetry and case data location aligned to the organisation's data-residency requirements |
-| Custodianship | Evidence chain of custody preserved across the supplier and organisation boundary |
+| Data residency | Telemetry and case data location aligned to the organization's data-residency requirements |
+| Custodianship | Evidence chain of custody preserved across the supplier and organization boundary |
 | Transparency | Defined access to the supplier's analyst notes and case timeline |
 | Concentration | The supplier-managed-SOC included in the concentration risk register |
 | Exit | Exit strategy documented; case data and detection content portable on exit |
@@ -216,7 +216,7 @@ Where the SOC is supplier-managed in whole or in part:
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. SOC operations are highly variable across organisations and across maturity tiers. Adopting organisations select the appropriate tier and adapt the staffing, tooling, and SLA targets to their risk profile and budget. The standard is not a SOC-platform mandate; it expresses operating-model requirements rather than product-specific configuration.
+This standard is a CC BY-SA 4.0 baseline. SOC operations are highly variable across organizations and across maturity tiers. Adopting organizations select the appropriate tier and adapt the staffing, tooling, and SLA targets to their risk profile and budget. The standard is not a SOC-platform mandate; it expresses operating-model requirements rather than product-specific configuration.
 
 ---
 

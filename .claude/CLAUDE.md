@@ -139,7 +139,7 @@ writes the UTC date into artefacts but stays aware that the maintainer's local "
 can lag by one day. Where there is potential for ambiguity, use the UTC date.
 
 ## PR workflow
-PRs in this repository follow a fixed pattern that the assistant is authorised to
+PRs in this repository follow a fixed pattern that the assistant is authorized to
 drive end-to-end on the maintainer's behalf:
 
 1. Develop on a named feature branch (never on `main`); confirm
@@ -368,7 +368,7 @@ is external. Two mechanisms:
    as satisfied in #471) is gate 50's Check 1, which fails when an in-window merged
    PR has no `/validate-pr` plus `/retro` row. The abbreviated-marker half (a row
    that exists but records a sham QA pass) is not mechanizable on free prose, so for
-   that residual this checklist plus the `## Throughput pressure does not authorise
+   that residual this checklist plus the `## Throughput pressure does not authorize
    QA abbreviation` section are the convention-level guard.
 
 3. **Closing-handoff-PR discipline (a session's last act is a green merge).** A session
@@ -482,7 +482,7 @@ each merge or decision. Its three standing rules:
 
 1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, the
    assistant merges it and proceeds to the next task WITHOUT asking the maintainer to
-   authorise the merge; the maintainer redirects by exception. It is NOT overnight mode:
+   authorize the merge; the maintainer redirects by exception. It is NOT overnight mode:
    logging stays normal (per-PR `/validate-pr` + `/retro`, CHANGELOG, handoff), and the
    autonomous-conflict "skip-to-morning" rule does not apply (the maintainer is reachable).
 
@@ -617,7 +617,7 @@ boundary, so "do N more" is really "do one more, re-assess, repeat" and self-ter
 early if quality signals turn. If a degradation signal appears mid-run, the assistant
 winds down regardless of the option chosen, surfacing why.
 
-## Throughput pressure does not authorise QA abbreviation
+## Throughput pressure does not authorize QA abbreviation
 
 When a long batch of PRs is in flight, when the session window feels tight, or when the
 queue of next-PRs is calling for progress, the assistant does NOT have discretion to
@@ -630,7 +630,7 @@ mandates, or for a corpus-wide `/validate` when the sweep cadence calls for one.
 shapes are (a) the full formal `/validate-pr` dispatch with Subagent A on the diff and a
 cross-reference check on touched files, recorded in
 [`.working/validate-pr/`](../.working/validate-pr/) and the history row, OR (b) an explicit
-maintainer-authorised exception recorded inline in the history row's Summary cell with the
+maintainer-authorized exception recorded inline in the history row's Summary cell with the
 rationale. Anything else is a discipline failure.
 
 The per-PR QA cadence IS the pace of the PR workflow. "I'll catch it on the next one" or

@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.4\
-**Date:** 2026-06-24\
+**Version:** 1.6.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -105,7 +105,7 @@ Repository infrastructure directories and files that are not used for governance
 /CONTRIBUTING.md       Contribution workflow, metadata block, style and filename rules.
 /CHANGELOG.md          Phase-level history of repository changes.
 /SECURITY.md           How to report content accuracy defects, licence concerns,
-                       organisation or personal data leakage, broken links, tooling defects.
+                       organization or personal data leakage, broken links, tooling defects.
 /.pre-commit-config.yaml  Local pre-commit hooks wiring the audit scripts.
 /.github/              GitHub Actions workflow that runs the audits on push to main
                        and on every pull request.
@@ -144,7 +144,7 @@ Documents subject to this specification are placed only in the governance-artefa
 | `dev-security/` | Secure development standards, DevOps security, software composition analysis, developer quick references, and the `claude-rules/` operational pack distilled from this library's own maintenance disciplines (usable inside the library, in a fork of the library, or as a standalone Claude Code baseline for any project) |
 | `operations/` | IT operations, asset management, change management, configuration management, and security operations registers |
 | `architecture/` | Enterprise architecture practice: framework, decision records, reference architectures, technology radar, architecture review, API design, data architecture, and integration architecture |
-| `compliance/<sector>/` | Sector-conditional sub-directories within compliance (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) hold sector-specific annexes, programme overlays (CTPAT, PIP, AEO, BASC, etc.), and sector-conditional artefacts. Organisations not participating in a covered sector or programme can ignore the corresponding sub-directory. |
+| `compliance/<sector>/` | Sector-conditional sub-directories within compliance (`logistics/`, `financial-services/`, `healthcare/`, `energy-and-utilities/`, `telecommunications/`, `public-sector/`) hold sector-specific annexes, programme overlays (CTPAT, PIP, AEO, BASC, etc.), and sector-conditional artefacts. Organizations not participating in a covered sector or programme can ignore the corresponding sub-directory. |
 
 ### 4.3 Document-type definitions
 
@@ -258,12 +258,12 @@ Rules:
 4. No wide or overflow tables in standard documents.
 5. One sentence per line recommended for policies and standards.
 6. Section order must follow the canonical order defined in the Ingestion Specification.
-7. All text must be globally reusable and must not contain organisation-specific references.
+7. All text must be globally reusable and must not contain organization-specific references.
 8. Apply the sanitization substitution table in Appendix A of the Ingestion Specification to all content.
 9. Use Oxford English with `-ize` forms where applicable.
 10. Do not use em dashes or en dashes.
 11. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
-12. Use sentence case for all section headings (H2 through H6). The first word is capitalised; subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering, not as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact (e.g. policy or standard title).
+12. Use sentence case for all section headings (H2 through H6). The first word is capitalized; subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering, not as the first word, so the word that follows must be capitalized. H1 document titles may use Title Case where they name a controlled artefact (e.g. policy or standard title).
 
 ### 6.1 Requirement-language register
 
@@ -277,7 +277,7 @@ The following rules apply:
 4. **"shall" / "shall not"** is reserved for two narrow cases: (a) direct quotation of an external standard that uses "shall" in its normative text (ISO/IEC, NIST SP, IEC, and similar standards historically use "shall" as their requirement verb); and (b) legacy content that has not yet been harmonized to "must". New normative content authored within this library uses "must"; legacy "shall" usage is converted to "must" opportunistically as documents are revised.
 5. **Verb consistency within a document** outranks cross-file uniformity. A single document should use one of "must" or "shall" throughout its normative text, not both, unless the second verb is explicitly a quotation of an external standard. Where a document mixes the two, the predominant verb is the canonical form for that document and any normative additions follow it; the minority occurrences are converted opportunistically.
 
-The convention is documented at the library level so reviewers can cite it. A future audit gate may mechanise the rule (for example, flagging "may not" used as a prohibition, or flagging new "shall" introductions outside the carve-outs above); this specification is the source of truth for that future gate's policy.
+The convention is documented at the library level so reviewers can cite it. A future audit gate may mechanize the rule (for example, flagging "may not" used as a prohibition, or flagging new "shall" introductions outside the carve-outs above); this specification is the source of truth for that future gate's policy.
 
 ---
 
@@ -356,7 +356,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ## 8. Governance document generation rules
 
-1. All content must be normalized to organisation-neutral, original-authorship language. The library does not incorporate externally licensed verbatim text.
+1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate externally licensed verbatim text.
 2. Documents must adhere to the canonical structure:
  - Metadata
  - Purpose

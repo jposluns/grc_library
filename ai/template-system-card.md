@@ -2,8 +2,8 @@
 
 **Document Title:** System Card Template\
 **Document Type:** Template\
-**Version:** 1.1.0\
-**Date:** 2026-06-19\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -171,7 +171,7 @@ Do not populate the public repository version with real system names, people nam
 
 ## Use notes
 
-A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organisations.
+A system card documents deployment context and system-level risk. Model-level details should be recorded in model cards and linked by internal reference in adopting organizations.
 
 ---
 

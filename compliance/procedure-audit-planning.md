@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-29\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -117,7 +117,7 @@ The following certification and regulatory requirements mandate minimum audit fr
 | ISO/IEC 27001 ISMS | Annual | ISMS scope |
 | SOC 2 Type II | Annual | SOC 2 Trust Services Criteria scope |
 
-Additional regulatory requirements applicable to the organisation's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
+Additional regulatory requirements applicable to the organization's jurisdictions of operation are identified in the Regulatory Applicability Register and must be reviewed during Annual Audit Plan development.
 
 ### 3.3 ERC approval
 
@@ -153,7 +153,7 @@ The Annual Audit Plan is maintained as a structured document or register contain
 
 The CAE/GRC Manager reviews and updates the Annual Audit Plan at mid-year (no later than 31 July). The mid-year review considers:
 
-- Changes in organisational risk profile;
+- Changes in organizational risk profile;
 - Material incidents or control failures that may trigger unplanned audits;
 - Significant regulatory or framework changes;
 - Resource constraints that may affect delivery.
@@ -169,7 +169,7 @@ Material changes to the plan resulting from the mid-year review are reported to 
 The lead auditor, in consultation with the CAE/GRC Manager and the auditee, formally defines:
 
 - **Audit objectives:** What the audit is intended to determine (e.g., "Determine whether access control procedures for privileged accounts conform to the Access Control Standard and are operating effectively");
-- **Audit scope:** The specific processes, systems, organisational units, locations, and time period to be covered;
+- **Audit scope:** The specific processes, systems, organizational units, locations, and time period to be covered;
 - **Audit criteria:** The policies, standards, procedures, legal requirements, and contractual obligations against which the audit will be assessed;
 - **Audit boundaries:** Explicit statement of what is out of scope, to avoid scope creep and auditee confusion.
 
@@ -223,7 +223,7 @@ The lead auditor requests a pre-audit documentation package from the auditee. Th
 - Evidence of the most recent management review or risk assessment for the domain;
 - Previous audit reports and open finding trackers for the domain;
 - Relevant records demonstrating control operation (e.g., access review logs, training completion records, change management records);
-- Organisational charts and role descriptions for key personnel in scope.
+- Organizational charts and role descriptions for key personnel in scope.
 
 The lead auditor reviews the pre-audit documentation package to:
 
@@ -450,7 +450,7 @@ Retention applies regardless of whether the audit produced findings. Working pap
 
 Evidence is stored in the designated secure audit evidence repository. Access is restricted to the audit team, CAE/GRC Manager, and authorized senior leadership. Access by external parties (e.g., regulatory inspectors, certification body auditors) requires approval from the CAE/GRC Manager and, where sensitive, the CISO.
 
-After the 7-year retention period, records are disposed of in accordance with the organisation's data retention and disposal policy.
+After the 7-year retention period, records are disposed of in accordance with the organization's data retention and disposal policy.
 
 ---
 

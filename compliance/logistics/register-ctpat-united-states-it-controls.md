@@ -2,8 +2,8 @@
 
 **Document Title:** US CTPAT IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-20\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents the organisation's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
+This register documents the organization's implementation status against the IT and cybersecurity-related minimum security criteria of the U.S. Customs-Trade Partnership Against Terrorism (CTPAT) programme. It supports CTPAT membership compliance, annual trade partner profile updates, and pre-certification readiness assessments.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP)\
 **UK parallel programme:** Authorized Economic Operator to Security and Safety (AEO-S), administered by HMRC\
@@ -39,7 +39,7 @@ Membership tiers:
 
 ## IT and cybersecurity minimum security criteria
 
-The following table maps each CTPAT IT and cybersecurity minimum security criterion (2020 revision) to the organisation's control framework and implementation status.
+The following table maps each CTPAT IT and cybersecurity minimum security criterion (2020 revision) to the organization's control framework and implementation status.
 
 | Criterion ID | CTPAT Requirement | Control Reference | Implementation Evidence | Status | Last Reviewed |
 |---|---|---|---|---|---|

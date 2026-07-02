@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.13\
-**Date:** 2026-06-29\
+**Version:** 1.3.14\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -33,7 +33,7 @@ The procedure is aligned to ISO/IEC 27035 (Information Security Incident Managem
 This procedure applies to:
 
 - All employees, contractors, and third parties who detect, respond to, or are affected by a security incident.
-- All systems, applications, endpoints, networks, cloud environments, identities, and data under organisational control. Sector-specific overlays (e.g., BASC-certified trade and customs systems, where the organisation participates in that programme; PCI DSS-scope systems; OT/ICS) apply additional requirements documented in the relevant sector annex.
+- All systems, applications, endpoints, networks, cloud environments, identities, and data under organizational control. Sector-specific overlays (e.g., BASC-certified trade and customs systems, where the organization participates in that programme; PCI DSS-scope systems; OT/ICS) apply additional requirements documented in the relevant sector annex.
 - All incident types including but not limited to: unauthorized access, malware or ransomware, data exfiltration, privilege compromise, denial of service, supply chain compromise, privacy breaches, and AI system security events.
 
 ---
@@ -49,12 +49,12 @@ This procedure applies to:
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers, partners, and regulators. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |
-| **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organisation participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
+| **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organization participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
 | **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, and PIPL. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ### 2.2 Incident commander authority
 
@@ -99,9 +99,9 @@ Security incidents may be detected from any of the following sources:
 | Vulnerability scanners | Critical vulnerability actively exploited in the environment. |
 | User reports | Employee or contractor reporting suspicious activity, phishing, unauthorized access, or missing data. |
 | Third-party or supplier notification | Supplier reporting a breach affecting shared systems or data. |
-| Threat intelligence | External notification of credentials in breach databases; indicators of compromise matching organisational assets. |
+| Threat intelligence | External notification of credentials in breach databases; indicators of compromise matching organizational assets. |
 | Audit and compliance reviews | Control failures discovered during audit that indicate an active or historical breach. |
-| Sector-programme monitoring | Anomalies flagged by sector-programme monitoring where the organisation participates (e.g., BASC for cargo, customs, and trade systems; PCI DSS file-integrity monitoring; OT historian anomalies). |
+| Sector-programme monitoring | Anomalies flagged by sector-programme monitoring where the organization participates (e.g., BASC for cargo, customs, and trade systems; PCI DSS file-integrity monitoring; OT historian anomalies). |
 
 ### 4.2 Triage process
 
@@ -177,7 +177,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 | **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | CIO (acting DPO) |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
 
-Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organisation participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
+Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organization participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
 ### 6.2 GDPR and PIPEDA notification process
 
@@ -188,7 +188,7 @@ Sector-programme notification obligations (for example, BASC requirements for tr
 
 ### 6.3 Sector-programme anomalies
 
-Where the organisation participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`compliance/`](../compliance/).
+Where the organization participates in a sector programme that defines elevated-trigger anomaly categories (for example, BASC for cargo, customs, or trade systems with a 2-hour initial response SLA for unauthorized access to shipment data, tampering with customs records, or suspected cargo integrity compromise), the corresponding sector annex states the triage timeframe, the sector-conditional role notified, and the supplementary documentation maintained. See [`compliance/`](../compliance/).
 
 ### 6.4 Notification confidentiality
 

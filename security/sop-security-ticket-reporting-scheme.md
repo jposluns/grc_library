@@ -2,8 +2,8 @@
 
 **Document Title:** Security Ticket Reporting Scheme\
 **Document Type:** SOP\
-**Version:** 1.1.1\
-**Date:** 2026-06-27\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Security Officer\
 **Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -58,7 +58,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 | Component | Description | Example |
 | --- | --- | --- |
 | **Vendor Tag** | 2 to 4 character code identifying the reporting vendor or service | `MDR`, `EDR`, `SOC` |
-| **ITSM Ticket ID** | The organisation's ITSM portal ticket number in brackets | `[IN-007456]` |
+| **ITSM Ticket ID** | The organization's ITSM portal ticket number in brackets | `[IN-007456]` |
 | **Alert Name** | Full name of the alert or finding as reported by the vendor or tool | `Unfamiliar sign-in properties involving one user` |
 | **Affected User or System** | Full name or system identifier of the affected entity | `j.smith@example.com` or `SRV-PROD-001` |
 

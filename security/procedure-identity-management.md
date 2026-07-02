@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organisation's systems is unique, accountable, appropriately privileged, and subject to regular review.
+This procedure defines the processes for managing digital identities throughout their lifecycle: creation, maintenance, authentication configuration, privileged access management, and termination. It ensures that every identity within the organization's systems is unique, accountable, appropriately privileged, and subject to regular review.
 
 ---
 
 ## Scope
 
-Applies to all user identities, service accounts, and machine identities across all organisational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
+Applies to all user identities, service accounts, and machine identities across all organizational platforms including on-premises systems, cloud platforms, applications, network devices, and development environments. Covers employees, contractors, temporary workers, and third-party service accounts.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.4\
+**Version:** 1.3.5\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,7 +45,7 @@ Effective security monitoring reduces mean time to detect (MTTD) threats, ensure
 | **IT Operations** | Ensures that log source connectivity and agent health are maintained; resolves log ingestion failures within defined SLAs; assists with infrastructure-level investigation of alerts. |
 | **Internal Audit** | Reviews SOC operational records, SLA adherence, and rule maintenance logs annually. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -196,7 +196,7 @@ In the absence of a clear indicator, the SOC lead escalates ambiguous high-sever
 
 ### 7.3 Sector-programme anomaly escalation
 
-Where the organisation participates in a sector programme that defines elevated-escalation alert categories (for example, BASC for trade and customs, healthcare-sector escalation for PHI access anomalies, financial-sector escalation for payment-rail anomalies), SIEM alerts tagged with the sector scope indicator that are triaged as true positives within the annex-defined trigger categories are escalated to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme) within the annex's stated timeframe. The sector-conditional role determines whether onward sector-authority notification is required. See [`compliance/`](../compliance/) for sector-specific escalation paths, triggers, and timeframes.
+Where the organization participates in a sector programme that defines elevated-escalation alert categories (for example, BASC for trade and customs, healthcare-sector escalation for PHI access anomalies, financial-sector escalation for payment-rail anomalies), SIEM alerts tagged with the sector scope indicator that are triaged as true positives within the annex-defined trigger categories are escalated to the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme) within the annex's stated timeframe. The sector-conditional role determines whether onward sector-authority notification is required. See [`compliance/`](../compliance/) for sector-specific escalation paths, triggers, and timeframes.
 
 ### 7.4 Identity threat escalation
 
@@ -260,7 +260,7 @@ The target false positive rate for any individual SIEM correlation rule is less 
 
 ### 9.3 MITRE ATT&CK mapping
 
-All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK technique or sub-technique. Security Engineering maintains the SIEM rule-to-MITRE mapping in the SIEM rule register. The mapping is reviewed quarterly against the current MITRE ATT&CK version to identify new technique coverage opportunities. Coverage gaps for techniques assessed as high-relevance to the organisation's threat profile are prioritized for new rule development.
+All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK technique or sub-technique. Security Engineering maintains the SIEM rule-to-MITRE mapping in the SIEM rule register. The mapping is reviewed quarterly against the current MITRE ATT&CK version to identify new technique coverage opportunities. Coverage gaps for techniques assessed as high-relevance to the organization's threat profile are prioritized for new rule development.
 
 ### 9.4 New log source onboarding
 
@@ -283,7 +283,7 @@ The SIEM operates AI-driven anomaly detection to identify threats that may not t
 - Insider threat indicators: anomalous patterns combining access, email, and file activity.
 - BASC environment anomalies: unusual cargo manifest activity or atypical customs-system access patterns.
 
-Anomaly models are trained on organisational baseline data and refreshed at minimum quarterly. The baseline period used for training must not include known compromise periods.
+Anomaly models are trained on organizational baseline data and refreshed at minimum quarterly. The baseline period used for training must not include known compromise periods.
 
 ### 10.2 Anomaly alert handling
 
@@ -319,7 +319,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 | MITRE ATT&CK coverage (% of high-relevance techniques with active rule) | Reviewed quarterly; improvement trend required |
 | Mean time to detect (MTTD): confirmed incidents | Reviewed; quarter-on-quarter improvement target |
 | AI anomaly detection false positive rate | < 10%; reviewed monthly |
-| Sector-programme environment alerts escalated to the relevant sector-conditional role within annex SLA (where the organisation participates in a covered programme) | 100% |
+| Sector-programme environment alerts escalated to the relevant sector-conditional role within annex SLA (where the organization participates in a covered programme) | 100% |
 
 ---
 

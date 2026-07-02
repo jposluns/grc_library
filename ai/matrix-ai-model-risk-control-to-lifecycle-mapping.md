@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Control to Lifecycle Mapping Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -57,7 +57,7 @@ Suggested alignment families include AI management, AI risk management, informat
 ## Maintenance rules
 
 1. Add new control areas only where they materially improve lifecycle traceability.
-2. Keep evidence classes generic and organisation-neutral.
+2. Keep evidence classes generic and organization-neutral.
 3. Do not use this matrix to imply certification, compliance, or operating effectiveness.
 4. Update related AI model risk documents when lifecycle stages or control areas change.
 

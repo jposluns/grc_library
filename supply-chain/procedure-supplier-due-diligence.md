@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,15 +20,15 @@
 
 This procedure defines the methodology for pre-qualification, risk assessment, and ongoing compliance review of suppliers, vendors, and third-party partners. It establishes a consistent, evidence-based approach to evaluating supplier fitness prior to engagement and at defined reassessment intervals throughout the supplier lifecycle.
 
-This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2022 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2022 for trade and logistics suppliers) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
 ## Scope
 
-1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organisation.
+1. Applies to all suppliers and third-party entities engaged to provide goods or services to the organization.
 2. Covers pre-engagement due diligence, contract validation, and periodic compliance reassessment.
-3. Applies globally; sector-specific overlays (for example, BASC for trade and logistics partners) apply where the organisation participates in a covered programme, per [`compliance/`](../compliance/).
+3. Applies globally; sector-specific overlays (for example, BASC for trade and logistics partners) apply where the organization participates in a covered programme, per [`compliance/`](../compliance/).
 4. Applies to suppliers providing AI systems, cloud services, logistics solutions, or data-handling activities.
 
 ---
@@ -45,7 +45,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4
 | Sustainability Officer | Reviews environmental and social responsibility disclosures submitted by suppliers. |
 | AI Governance Council | Reviews AI-enabled vendors for ethical, transparency, security, and regulatory compliance. |
 
-Sector-specific reviewer roles (for example, Regional Compliance Officers for sector-regulated operations) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific reviewer roles (for example, Regional Compliance Officers for sector-regulated operations) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -77,7 +77,7 @@ Each supplier must be assessed and assigned a risk tier based on business impact
 | --- | --- | --- | --- |
 | Tier 1 | Critical | Access to sensitive or regulated data, AI systems, or critical infrastructure. | Semi-annual. |
 | Tier 2 | High | Cloud, logistics, or key service dependencies with moderate data exposure. | Annual. |
-| Tier 3 | Moderate | Non-sensitive, indirect services with limited organisational impact. | Biennial. |
+| Tier 3 | Moderate | Non-sensitive, indirect services with limited organizational impact. | Biennial. |
 | Tier 4 | Low | Low-value, non-sensitive relationships with negligible data or system access. | Biennial or attestation. |
 
 ### Step 3: Due diligence evaluation
@@ -98,10 +98,10 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 All supplier contracts must include, at minimum:
 
 - Data protection and confidentiality clauses aligned to applicable jurisdictional requirements.
-- Right-to-audit provisions exercisable by the organisation or its appointed representative.
+- Right-to-audit provisions exercisable by the organization or its appointed representative.
 - AI ethics and transparency requirements for AI service providers.
 - Sector-specific obligations (for example, BASC, CTPAT, AEO, PIP compliance clauses) where the supplier is in scope of a covered programme; see [`compliance/`](../compliance/).
-- Environmental and sustainability obligations consistent with the organisation's ESG commitments.
+- Environmental and sustainability obligations consistent with the organization's ESG commitments.
 - Mandatory reporting timelines for security incidents, privacy breaches, or compliance failures.
 
 Legal Counsel must review and approve all third-party contracts prior to execution.
@@ -125,7 +125,7 @@ For suppliers in scope of a sector-specific programme (for example, BASC for tra
 - Sector-specific compliance requirements (per the corresponding sector annex in [`compliance/`](../compliance/) or the relevant compliance annex in [`compliance/`](../compliance/)) must be confirmed.
 - Sector-specific documentation, integrity practices, and reporting accuracy must be reviewed as part of the periodic assessment.
 
-A sector-supplier compliance log maintained by the appropriate sector-conditional role (for example, BASC Regional Compliance Officer where the sector annex defines that role) must be synchronised with the global Supplier Risk Register at least quarterly.
+A sector-supplier compliance log maintained by the appropriate sector-conditional role (for example, BASC Regional Compliance Officer where the sector annex defines that role) must be synchronized with the global Supplier Risk Register at least quarterly.
 
 ---
 
@@ -161,7 +161,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 - WCO SAFE Framework of Standards 2021: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
-Sector-specific references (for example, BASC International Standard v6 2022 for trade and logistics) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific references (for example, BASC International Standard v6 2022 for trade and logistics) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 

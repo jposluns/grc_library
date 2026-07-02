@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -24,7 +24,7 @@ This procedure defines a reusable method for assessing AI model risk. It support
 
 ## Scope
 
-This procedure applies to models and model-enabled systems developed, acquired, fine-tuned, embedded, integrated, deployed, monitored, materially changed, or retired by an adopting organisation.
+This procedure applies to models and model-enabled systems developed, acquired, fine-tuned, embedded, integrated, deployed, monitored, materially changed, or retired by an adopting organization.
 
 ---
 
@@ -97,7 +97,7 @@ The accountable approval role must decide whether the model may proceed, proceed
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Adopting organisations must define specific scoring methods, evidence repositories, approval thresholds, legal review triggers, and technical test methods internally.
+This procedure is a CC BY-SA 4.0 baseline. Adopting organizations must define specific scoring methods, evidence repositories, approval thresholds, legal review triggers, and technical test methods internally.
 
 ---
 

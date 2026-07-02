@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.1\
+**Version:** 1.6.2\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -24,13 +24,13 @@
 
 ### 1.1 Purpose
 
-This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organisation. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, PIPEDA, PIPL, and related laws is maintained, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
+This procedure defines the end-to-end process for receiving, validating, fulfilling, and documenting requests from individuals exercising their rights over personal data held by the organization. It ensures that compliance with applicable data subject rights obligations under GDPR, UK GDPR, PIPEDA, PIPL, and related laws is maintained, and establishes consistent standards for identity verification, response timelines, denial justification, and record keeping.
 
 The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section numbering changed in 2025 standalone revision), GDPR Articles 15 to 22, PIPEDA Schedule 1 (CSA Model Code fair-information principles), PIPL Articles 44 to 47, and CSA CCM v4.1 DSP-11.
 
 ### 1.2 Scope
 
-1. Applies to all personal data held by the organisation in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
+1. Applies to all personal data held by the organization in any format, structured, unstructured, digital, or physical, across all systems, applications, and third-party processors.
 2. Covers requests submitted by individuals including employees, customers, suppliers, and other data subjects regardless of jurisdiction, subject to applicable legal rights.
 3. Covers all rights categories: access (Subject Access Request / SAR), correction, deletion, data portability, restriction of processing, objection to processing, and review of automated decisions.
 4. Includes AI-derived or AI-processed personal data where the individual is the subject of that data.
@@ -44,7 +44,7 @@ The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section 
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
+| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organization in regulatory matters relating to data subject rights. |
 | **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
@@ -71,7 +71,7 @@ The following table defines the rights managed under this procedure, the applica
 | **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within 30 days | Compelling legitimate grounds overriding the individual's interests; legal claims |
 | **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22 | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
 
-**Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; it would require reintroduction in a future Parliament (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organisation processes the personal information of Quebec residents, Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
+**Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; it would require reintroduction in a future Parliament (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization processes the personal information of Quebec residents, Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
 
 ---
 
@@ -82,10 +82,10 @@ The following table defines the rights managed under this procedure, the applica
 Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
-- Written correspondence to the organisation's registered address, directed to the Data Protection Officer.
+- Written correspondence to the organization's registered address, directed to the Data Protection Officer.
 - Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer on the same business day.
 
-The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organisation's privacy notice.
+The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
 ### 4.2 Identity verification
 
@@ -228,7 +228,7 @@ A request is "manifestly excessive" when its volume or repetition is disproporti
 |---|---|---|
 | (a) Repetitive in short interval | The same subject made the same or substantially similar request within a defined short interval; the prior request was responded to in full | Prior request log; date-and-content comparison; demonstrated overlap of scope |
 | (b) Disproportionate volume | Volume of records requested exceeds what is reasonably needed for the subject to verify or act on their rights | Record-count estimate; effort estimate; subject's stated purpose where available |
-| (c) Disproportionate scope sweep | Subject requests "all records" without scope limitation despite previous specific responses | History of prior requests; categorisation of available record types |
+| (c) Disproportionate scope sweep | Subject requests "all records" without scope limitation despite previous specific responses | History of prior requests; categorization of available record types |
 | (d) Use of request as discovery vehicle | Pattern of requests calibrated to obtain materials for litigation, journalism, or competitive intelligence rather than for the subject's own data | Pattern documentation; volume trajectory |
 
 The repetitive-in-short-interval test (criterion a) is the most commonly used and the easiest to evidence. Other criteria require closer judgement; consult Legal Counsel before invoking criteria (b), (c), or (d).
@@ -254,7 +254,7 @@ Per Article 12(5) sentence 3, the controller bears the burden of demonstrating t
 4. Written communication to the subject naming: the determination, the specific Article 12(5) criterion invoked, the action taken (fee with amount and basis, OR refusal), and the subject's right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77 to 79.
 5. Entry in the DSR register linking the assessment, sign-offs, and subject communication.
 
-Records retained per the organisation's privacy retention schedule; minimum **3 years** for fee/refusal evidence (or longer where the supervisory authority has indicated a longer retention requirement).
+Records retained per the organization's privacy retention schedule; minimum **3 years** for fee/refusal evidence (or longer where the supervisory authority has indicated a longer retention requirement).
 
 #### 7.2.6 Reasonable-fee calculation
 
@@ -265,7 +265,7 @@ Where the controller elects to charge a reasonable fee (Article 12(5)(a)):
 | Cost categories | (a) staff time for retrieval, review, and redaction; (b) storage media if physical copy requested; (c) postage if physical delivery; (d) external Legal Counsel time if involved in redaction review |
 | Hourly rate | Internal staff: salary-based cost-recovery rate (NOT a punitive markup). External counsel: actual rate charged to the controller |
 | Fee cap | The fee MUST be cost-recovery only; no profit margin |
-| Itemisation | Fee communication to the subject MUST itemise the cost categories and time/rate applied |
+| Itemization | Fee communication to the subject MUST itemize the cost categories and time/rate applied |
 | Payment method | The controller may NOT require advance payment that effectively denies the right; payment-on-delivery is acceptable; instalment options should be offered for substantial fees |
 | Waiver | The controller MAY waive the fee in cases of demonstrated financial hardship without prejudice |
 

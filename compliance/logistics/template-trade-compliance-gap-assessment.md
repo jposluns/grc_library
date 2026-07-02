@@ -2,8 +2,8 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template provides a structured approach for assessing the organisation's current security controls against the requirements of one or more internationally recognized trade compliance and trusted-trader programmes. It is used for:
+This template provides a structured approach for assessing the organization's current security controls against the requirements of one or more internationally recognized trade compliance and trusted-trader programmes. It is used for:
 
 - Initial gap assessment prior to applying for a new programme certification
 - Annual readiness reviews for existing programme memberships

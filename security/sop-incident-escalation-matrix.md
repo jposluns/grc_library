@@ -2,14 +2,14 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
 **Classification:** Public\
 **Category:** Information Security\
-**Review Frequency:** Annual or following significant organisational or contact change\
+**Review Frequency:** Annual or following significant organizational or contact change\
 **Repository Path:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -68,7 +68,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
 | Threat actor in production environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |
-| Sector-programme data involved (where the organisation participates in a covered programme) | Sector-conditional role per the relevant sector annex (for example, a BASC Regional Compliance Officer for trade or customs data) notified per the annex's stated timeframe; see [`compliance/`](../compliance/) |
+| Sector-programme data involved (where the organization participates in a covered programme) | Sector-conditional role per the relevant sector annex (for example, a BASC Regional Compliance Officer for trade or customs data) notified per the annex's stated timeframe; see [`compliance/`](../compliance/) |
 | Media or external parties involved | Communications Director and CEO manage all external statements |
 
 ---

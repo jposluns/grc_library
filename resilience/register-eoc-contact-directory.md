@@ -2,8 +2,8 @@
 
 **Document Title:** Emergency Operations Contact Directory Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md)\
@@ -69,7 +69,7 @@ The template can be adapted for crisis management, emergency operations, continu
 
 ## Privacy and security notes
 
-A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC BY-SA 4.0 once populated. Adopting organisations should classify completed versions according to internal data classification and privacy requirements.
+A completed contact directory is likely to contain personal data, emergency contact details, supplier escalation paths, and sensitive operational dependencies. It should not be published under CC BY-SA 4.0 once populated. Adopting organizations should classify completed versions according to internal data classification and privacy requirements.
 
 ---
 

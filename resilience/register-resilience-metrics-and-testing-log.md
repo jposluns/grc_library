@@ -2,8 +2,8 @@
 
 **Document Title:** Resilience Metrics and Testing Log Register\
 **Document Type:** Register\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md)\
@@ -20,7 +20,7 @@
 
 This template provides a reusable structure for recording resilience metrics, continuity tests, recovery tests, crisis exercises, corrective actions, and residual risk decisions.
 
-Completed versions must not be published under CC BY-SA 4.0 unless sanitized. Real test results, service names, supplier names, system names, people names, incident details, recovery evidence, and internal metrics can reveal operational weakness and must be handled under an adopting organisation's internal classification rules.
+Completed versions must not be published under CC BY-SA 4.0 unless sanitized. Real test results, service names, supplier names, system names, people names, incident details, recovery evidence, and internal metrics can reveal operational weakness and must be handled under an adopting organization's internal classification rules.
 
 ---
 
@@ -75,13 +75,13 @@ Completed versions must not be published under CC BY-SA 4.0 unless sanitized. Re
 
 ## Evidence requirements
 
-Adopting organisations should retain test plans, execution records, restoration logs, communication logs, supplier evidence, screenshots or technical records where internally appropriate, corrective actions, risk decisions, and approval records.
+Adopting organizations should retain test plans, execution records, restoration logs, communication logs, supplier evidence, screenshots or technical records where internally appropriate, corrective actions, risk decisions, and approval records.
 
 ---
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. It does not define an adopting organisation's actual resilience thresholds, recovery objectives, supplier obligations, legal obligations, or testing cadence.
+This template is a CC BY-SA 4.0 baseline. It does not define an adopting organization's actual resilience thresholds, recovery objectives, supplier obligations, legal obligations, or testing cadence.
 
 ---
 

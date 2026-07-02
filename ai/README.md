@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-06-30\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organisation-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts released under CC BY-SA 4.0.
+This directory contains organization-neutral AI governance, AI security, AI risk, lifecycle, documentation, evaluation, assurance, and register artefacts released under CC BY-SA 4.0.
 
 AI documents in this repository treat data as the primary risk surface. They address collection, annotation, storage, processing, training, retrieval, inference, monitoring, retention, deletion, and decommissioning.
 

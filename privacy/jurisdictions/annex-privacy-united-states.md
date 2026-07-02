@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
-**Date:** 2026-06-30\
+**Version:** 1.1.5\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -45,7 +45,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 - **California CCPA/CPRA (effective 2023-01-01):** Rights to know, delete, correct, and opt out of sale or sharing. Sensitive personal information opt-out rights. California Privacy Protection Agency (CPPA) as independent enforcement agency. Automated decision-making technology (ADMT) regulations under development.
 - **Other state comprehensive privacy laws:** Virginia (VCDPA), Colorado (CPA), Connecticut (CTDPA), Utah (UCPA), Texas (TDPSA), Oregon, Montana, Iowa, Indiana, Tennessee, Florida, and others. Common elements: access, correction, deletion, opt-out from targeted advertising and profiling; DPIAs for high-risk processing; opt-in consent for sensitive data.
 - **Illinois BIPA:** Requires informed written consent before collecting biometric identifiers. Private right of action: USD 1,000 per negligent violation, USD 5,000 per intentional or reckless violation. **Illinois SB 2979 (effective 2 August 2024)** amended BIPA to limit recovery to a "single recovery" for the same biometric identifier collected from or disclosed to the same recipient using the same method, which materially reduces aggregate damages exposure relative to the Illinois Supreme Court's earlier per-scan accrual interpretation in Cothron v. White Castle. The amendment also recognizes electronic written release. A 2026 Seventh Circuit decision held that SB 2979 applies retroactively to cases pending at its effective date.
-- **Colorado AI Act (SB 24-205):** Signed by Governor Polis on 17 May 2024. The Act requires developers and deployers of high-risk AI to use reasonable care to protect consumers from algorithmic discrimination, and imposes DPIAs, transparency notices, and a right to appeal automated decisions. **Effective date is in flux:** the original effective date was 1 February 2026; Colorado SB 25B-004 (signed 28 August 2025) postponed implementation to **30 June 2026**; on 27 April 2026 the United States District Court for the District of Colorado (Magistrate Judge Cyrus Y. Chung) granted a joint motion from xAI and the Colorado Attorney General that effectively **freezes enforcement** while litigation continues (xAI filed a federal suit on 9 April 2026 on First Amendment, Dormant Commerce Clause, due process, and equal protection grounds; the U.S. Department of Justice intervened shortly after). The Governor's Working Group framework released on 17 March 2026 proposes further amendments including a 90-day cure period and a revised effective date of 1 January 2027. Adopting organisations should treat the Act as **pending in litigation** and monitor the Colorado General Assembly and the U.S. District Court for Colorado for any change of status before committing to a compliance milestone.
+- **Colorado AI Act (SB 24-205):** Signed by Governor Polis on 17 May 2024. The Act requires developers and deployers of high-risk AI to use reasonable care to protect consumers from algorithmic discrimination, and imposes DPIAs, transparency notices, and a right to appeal automated decisions. **Effective date is in flux:** the original effective date was 1 February 2026; Colorado SB 25B-004 (signed 28 August 2025) postponed implementation to **30 June 2026**; on 27 April 2026 the United States District Court for the District of Colorado (Magistrate Judge Cyrus Y. Chung) granted a joint motion from xAI and the Colorado Attorney General that effectively **freezes enforcement** while litigation continues (xAI filed a federal suit on 9 April 2026 on First Amendment, Dormant Commerce Clause, due process, and equal protection grounds; the U.S. Department of Justice intervened shortly after). The Governor's Working Group framework released on 17 March 2026 proposes further amendments including a 90-day cure period and a revised effective date of 1 January 2027. Adopting organizations should treat the Act as **pending in litigation** and monitor the Colorado General Assembly and the U.S. District Court for Colorado for any change of status before committing to a compliance milestone.
 
 ---
 
@@ -83,7 +83,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 ## Cross-border transfer mechanisms
 
 - The United States does not impose general restrictions on outbound cross-border transfers (with sector-specific exceptions such as HIPAA business associate requirements).
-- **EU-US Data Privacy Framework (DPF):** Organisations certified under the DPF can receive personal data from the EU, UK (via UK Extension), and Switzerland without additional transfer mechanisms. Administered by the International Trade Administration (ITA).
+- **EU-US Data Privacy Framework (DPF):** Organizations certified under the DPF can receive personal data from the EU, UK (via UK Extension), and Switzerland without additional transfer mechanisms. Administered by the International Trade Administration (ITA).
 - **CCPA:** Does not restrict cross-border transfers but requires contractual data protection obligations on service providers and contractors.
 - **State health data laws:** Washington My Health My Data Act and similar laws restrict sharing of consumer health data across borders.
 
@@ -117,7 +117,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

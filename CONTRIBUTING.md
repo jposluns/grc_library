@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.1\
-**Date:** 2026-06-23\
+**Version:** 1.2.2\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`CHANGELOG.md`](CHANGELOG.md)\
@@ -19,7 +19,7 @@
 Thank you for considering a contribution. This library is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). By submitting a contribution, you license your contribution to the library and downstream adopters under the same CC BY-SA 4.0 terms (see Licence section below for full details). Before submitting a change, please read the two governing specifications:
 
 - [`specification-master-project.md`](specification-master-project.md): document model, type vocabulary, metadata block, formatting rules.
-- [`specification-ingestion.md`](specification-ingestion.md): how new content is ingested, licence-compatibility checks, sanitisation substitution table, filename rules.
+- [`specification-ingestion.md`](specification-ingestion.md): how new content is ingested, licence-compatibility checks, sanitization substitution table, filename rules.
 
 ## AI-assisted authorship
 
@@ -27,7 +27,7 @@ A substantial portion of this library was authored with AI assistance and then r
 
 - The contributor remains accountable for the content as if they wrote it directly.
 - Framework citations (ISO, NIST, OWASP, COBIT, CSA, regulatory references, etc.) are verified against primary sources before submission. The [`tools/lint-citations.py`](tools/lint-citations.py) denylist prevents reintroduction of known hallucinations but is not a substitute for verification of new citations.
-- The contribution remains organisation-neutral and free of sanitisation residue.
+- The contribution remains organization-neutral and free of sanitization residue.
 - The contribution passes the local audit suite (see Workflow below).
 
 This statement is informational; contributors are not required to declare whether AI assisted their authorship.
@@ -45,9 +45,9 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
 ## What contributions are not welcome
 
 - Verbatim third-party control text, questionnaire text, audit guidance text, or metrics catalogue text whose source licence restricts modification or redistribution. See [`NOTICE.md`](NOTICE.md).
-- Organisation-specific identifiers (company names, personal names, tenant identifiers, internal system names, incident details, IP addresses, contract numbers, email addresses, phone numbers).
+- Organization-specific identifiers (company names, personal names, tenant identifiers, internal system names, incident details, IP addresses, contract numbers, email addresses, phone numbers).
 - Translations of existing English artefacts.
-- Marketing language, certification claims, or statements implying that adopting the library makes an organisation compliant with any regulation.
+- Marketing language, certification claims, or statements implying that adopting the library makes an organization compliant with any regulation.
 
 ## Workflow
 
@@ -81,12 +81,12 @@ Readers who notice issues but do not want to submit a code change can report con
 | --- | --- |
 | Factual error | A framework citation is incorrect; a control identifier doesn't exist; a regulatory reference is stale or wrong. |
 | Cross-document inconsistency | Two documents disagree about the same control, responsibility, or threshold. |
-| Sanitisation residue | A document contains a real company name, internal hostname, real IP address, customer or vendor name, or other identifying detail. |
+| Sanitization residue | A document contains a real company name, internal hostname, real IP address, customer or vendor name, or other identifying detail. |
 | Ambiguous responsibility | The library assigns a responsibility without naming a clear role, or two roles overlap in a way that creates confusion. |
 | Unsafe guidance | Guidance that, if followed literally, could create a security or operational hazard. |
 | Operational unrealism | A control or procedure that is not realistically executable. |
 
-For security-related defects (licence concerns, security flaws in code samples, leakage of organisational identifiers), use the path in [`SECURITY.md`](SECURITY.md) instead.
+For security-related defects (licence concerns, security flaws in code samples, leakage of organizational identifiers), use the path in [`SECURITY.md`](SECURITY.md) instead.
 
 ## Metadata block
 
@@ -129,7 +129,7 @@ Each value line ends with a trailing space and the line break is two spaces or a
 
 ## Review
 
-A maintainer reviews each pull request for licence compliance (original authorship; no externally-licensed verbatim text), organisation neutrality, accuracy of external framework references, and conformance to the specifications. Changes that touch core artefacts (charter, document architecture framework, document index register) or that introduce a new domain folder require explicit user approval beyond the standard review.
+A maintainer reviews each pull request for licence compliance (original authorship; no externally-licensed verbatim text), organization neutrality, accuracy of external framework references, and conformance to the specifications. Changes that touch core artefacts (charter, document architecture framework, document index register) or that introduce a new domain folder require explicit user approval beyond the standard review.
 
 ## Licence
 

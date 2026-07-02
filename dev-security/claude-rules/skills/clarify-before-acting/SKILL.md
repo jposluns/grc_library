@@ -44,7 +44,7 @@ A clarification is not a request to re-explain the original task. The requestor 
 - Asking after acting ("I went ahead and used branch X; want me to switch?" is post-hoc consent-seeking, not a clarification).
 - Asking trivia (pinging the user for every micro-decision that has a sensible default; signal-to-noise erodes and eventually the user hand-waves "do whatever", which collapses the discipline back into silent picking).
 - Hiding the ambiguity in narration ("I will pick X, but let me know if that is not right" is a silent pick with a fig leaf).
-- Treating a previously-given answer as durable when the scope has changed (last week's authorisation is for last week's scope, not this week's different task).
+- Treating a previously-given answer as durable when the scope has changed (last week's authorization is for last week's scope, not this week's different task).
 - Combining a leading recommendation with sham alternatives ("Should I do X (which is obviously what you want) or Y (which makes no sense)?" is theatre, not a real clarification).
 - Asking a question that requires the user to scroll back to context (the question should be self-contained).
 
@@ -71,7 +71,7 @@ If the structured-question primitive is in use, the same five properties apply t
 
 ## See Also
 
-- Canonical rule [`governance/clarify-before-acting.md`](../../governance/clarify-before-acting.md): the five ambiguity-detection categories (multi-interpretation requests, missing external values, project-convention choices, trade-offs, unclear world state), the ask-vs-default decision rule with concrete examples on each side, tool-specific guidance (structured-question primitives, plan mode, investigation-first, scope-creep surfacing), exception cases (pre-authorised durable instructions, emergency response, reversible exploration), and the framework-alignment table.
+- Canonical rule [`governance/clarify-before-acting.md`](../../governance/clarify-before-acting.md): the five ambiguity-detection categories (multi-interpretation requests, missing external values, project-convention choices, trade-offs, unclear world state), the ask-vs-default decision rule with concrete examples on each side, tool-specific guidance (structured-question primitives, plan mode, investigation-first, scope-creep surfacing), exception cases (pre-authorized durable instructions, emergency response, reversible exploration), and the framework-alignment table.
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): handles verification after action. This skill handles ambiguity before action; the two are complementary halves of the agent-collaboration discipline.
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): when a gate failure exposes an ambiguity in how to respond, use this skill before picking a response.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the corpus-wide sweep surfaces an out-of-window finding, use this skill to triage the ambiguous "action / defer / dismiss" choice with named alternatives rather than auto-deferring.

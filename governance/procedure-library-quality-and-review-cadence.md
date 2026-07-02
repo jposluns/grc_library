@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.14\
-**Date:** 2026-06-26\
+**Version:** 1.0.15\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -66,7 +66,7 @@ For each document under review, the responsible owner role conducts the followin
 | Re-read | The owner re-reads the document for currency, accuracy, and continued utility |
 | Framework alignment check | The framework references are verified against current public versions |
 | Cross-reference check | The Related Documents list is checked; broken or outdated cross-references are corrected |
-| Sanitisation check | The document is rechecked against the sanitisation rules; any residue is removed |
+| Sanitization check | The document is rechecked against the sanitization rules; any residue is removed |
 | Language and style check | The document is checked against the language rules (Oxford `-ize`, no em or en dashes, "ensure that", sentence-case headings) |
 | Disposition | The owner records one of: No change, Minor revision, Material revision, Supersede, Retire |
 | Date and version | Where the document is changed, Date and Version are updated per the ingestion specification |
@@ -111,7 +111,7 @@ The full audit programme (see [`governance/specification-audit-programme.md`](sp
 | Activity | Cadence |
 | --- | --- |
 | Library health report | Quarterly: a short summary of overdue reviews, audit-finding trends, content additions and retirements, drift hot-spots, and tooling status |
-| Sanitisation sweep | Quarterly: a sanitisation spot-check across documents touched in the period |
+| Sanitization sweep | Quarterly: a sanitization spot-check across documents touched in the period |
 | Framework reference refresh | Semi-annual: a spot-check that framework references are current against publishing bodies |
 | Tooling review | Annual: tooling is reviewed for currency, accuracy, and coverage |
 | Maintenance practice review | Annual: this procedure is reviewed; lessons from the period feed into changes |
@@ -152,7 +152,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 | Per-document review | Per the document's stated Review Frequency |
 | Audit suite execution | Continuous (CI and pre-commit) |
 | Quarterly library health report | Quarterly |
-| Quarterly sanitisation spot-check | Quarterly |
+| Quarterly sanitization spot-check | Quarterly |
 | Framework reference spot-check | Semi-annual |
 | Tooling review | Annual |
 | Specifications review | Annual |
@@ -168,7 +168,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 | Coherence | Cross-document references remain valid; cross-framework alignment matrices remain accurate |
 | Accuracy | Framework references are accurate against current versions |
 | Discoverability | Each domain README and the governance index remain accurate |
-| Sanitisation | No real organisation identifiers; the library remains organisation-neutral |
+| Sanitization | No real organization identifiers; the library remains organization-neutral |
 | Language quality | The audit suite remains clean |
 | Auto-generated artefacts | In sync with metadata at all times |
 | Reader feedback | Captured, considered, and closed out |
@@ -200,7 +200,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. The specific cadences, thresholds, and tooling are organisation-specific. The procedure expresses the maintenance outcomes and a workable cadence; adopting organisations select the depth that matches their library size and the maturity of their maintenance practice.
+This procedure is a CC BY-SA 4.0 baseline. The specific cadences, thresholds, and tooling are organization-specific. The procedure expresses the maintenance outcomes and a workable cadence; adopting organizations select the depth that matches their library size and the maturity of their maintenance practice.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verifications Register\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-06-25\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -92,7 +92,7 @@ When a verification produces a D rating, the resolution is recorded both in the 
 
 ## Coverage summary
 
-This section is updated at the end of each verification batch. It summarises, for the Canonical Citations Register's current contents, how many entries are verified and at what confidence.
+This section is updated at the end of each verification batch. It summarizes, for the Canonical Citations Register's current contents, how many entries are verified and at what confidence.
 
 | Metric | Count |
 | --- | --- |

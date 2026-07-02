@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.4\
-**Date:** 2026-06-23\
+**Version:** 1.7.5\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -18,12 +18,12 @@
 
 ## Purpose
 
-This specification defines how source material is converted into organisation-neutral, library-canonical governance documents for the public GRC Documentation Library. The library is released under CC BY-SA 4.0; ingestion enforces original-authorship and library-canonical structure.
+This specification defines how source material is converted into organization-neutral, library-canonical governance documents for the public GRC Documentation Library. The library is released under CC BY-SA 4.0; ingestion enforces original-authorship and library-canonical structure.
 
 It establishes rules for:
 
 - Assessing source material for licence compatibility.
-- Removing identifying and organisation-specific information.
+- Removing identifying and organization-specific information.
 - Selecting document type and canonical filename.
 - Selecting repository domain.
 - Applying metadata and document structure.
@@ -58,7 +58,7 @@ Do not copy into this repository:
 - Metrics catalogue text.
 - Tables reconstructed from restrictively licensed sources.
 - Proprietary examples.
-- Organisation-specific evidence.
+- Organization-specific evidence.
 
 Permitted use includes independent synthesis, framework name references, high-level domain alignment, original commentary, evidence category mapping, and non-verbatim applicability analysis.
 
@@ -84,7 +84,7 @@ Repository content must not include:
 - Audit evidence.
 - Screenshots or exports from internal systems.
 
-Replace organisation-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the substitution table in Appendix A to all source content before producing output.
+Replace organization-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the substitution table in Appendix A to all source content before producing output.
 
 ---
 
@@ -151,7 +151,7 @@ Filenames must:
 4. Replace ampersands with `and`.
 5. Start with the document type prefix.
 6. Avoid duplicate, trailing, or leading hyphens.
-7. Avoid organisation-specific product, vendor, system, or service names.
+7. Avoid organization-specific product, vendor, system, or service names.
 
 Examples:
 
@@ -232,7 +232,7 @@ Metadata must use role names only and must not use named individuals.
 
 Dates must use ISO 8601 format: `YYYY-MM-DD`.
 
-`Classification` and `Confidentiality` are distinct fields, not duplicates, even though every document in this corpus carries `Public` for both. `Classification` is the document's handling and lifecycle category within the library's own classification model (`Public`, `Reference Only`, or `Deprecated`; see [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)): it records whether a document is publishable, retained only for reference, or retired. `Confidentiality` is the information-sensitivity tier of the content itself (the conventional information-security confidentiality label); for this organisation-neutral, openly-licensed corpus it is always `Public`. The two coincide at `Public` here because the corpus is public on both axes, but they are conceptually independent: an adopter who forks the library may, for example, hold a document that is `Reference Only` on the lifecycle axis while being `Confidential` on the sensitivity axis. Both fields are retained so a fork inherits both axes rather than conflating them.
+`Classification` and `Confidentiality` are distinct fields, not duplicates, even though every document in this corpus carries `Public` for both. `Classification` is the document's handling and lifecycle category within the library's own classification model (`Public`, `Reference Only`, or `Deprecated`; see [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)): it records whether a document is publishable, retained only for reference, or retired. `Confidentiality` is the information-sensitivity tier of the content itself (the conventional information-security confidentiality label); for this organization-neutral, openly-licensed corpus it is always `Public`. The two coincide at `Public` here because the corpus is public on both axes, but they are conceptually independent: an adopter who forks the library may, for example, hold a document that is `Reference Only` on the lifecycle axis while being `Confidential` on the sensitivity axis. Both fields are retained so a fork inherits both axes rather than conflating them.
 
 ---
 
@@ -268,13 +268,13 @@ Documents must use `---` to separate major sections and must end with:
 
 ## Language requirements
 
-Documents must use precise, organisation-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
+Documents must use precise, organization-neutral language. They must avoid vendor-marketing language, unsupported maturity claims, and statements implying compliance, certification, regulatory approval, or operating effectiveness without implementation evidence.
 
 Use Oxford English with `-ize` forms where applicable. Do not use em dashes or en dashes. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
 
-Use sentence case for all section headings (H2 through H6). The first word of the heading text is capitalised and subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering rather than as the first word, so the word that follows must be capitalised. H1 document titles may use Title Case where they name a controlled artefact such as a policy, standard, or charter title.
+Use sentence case for all section headings (H2 through H6). The first word of the heading text is capitalized and subsequent words are lowercase except proper nouns and acronyms. Section identifiers such as `A1.`, `Step 1:`, and `Category 1:` count as numbering rather than as the first word, so the word that follows must be capitalized. H1 document titles may use Title Case where they name a controlled artefact such as a policy, standard, or charter title.
 
-Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organisations must validate.
+Do not state that a document ensures that compliance. State that it provides a baseline, structure, evidence class, or control model that adopting organizations must validate.
 
 ---
 
@@ -336,11 +336,11 @@ Before committing a document, validate that:
 
 Apply all substitutions below before producing any output. Substitution is case-insensitive. Apply the longer or more specific form first where multiple entries could match.
 
-### Organisation-specific terms
+### Organization-specific terms
 
 | Source Term | Replacement |
 |---|---|
-| Traffic Tech | the organisation |
+| Traffic Tech | the organization |
 | Mississauga data centre | primary data centre |
 | MissDC | primary data centre |
 | Greenfield | infrastructure programme |

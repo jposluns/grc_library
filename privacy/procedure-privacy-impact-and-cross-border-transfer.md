@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.4\
+**Version:** 1.5.5\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -30,7 +30,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 1. Applies to all projects, systems, products, and services that process personal data, sensitive data, or AI-related datasets.
 2. Covers new or modified processing activities; AI model development, training, or inference affecting individuals' rights; and any transfer of data across national or regional boundaries.
-3. Includes data from all regions where the organisation operates (EU, Canada, US, China, Brazil, and APAC).
+3. Includes data from all regions where the organization operates (EU, Canada, US, China, Brazil, and APAC).
 
 ---
 
@@ -39,7 +39,7 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 | Role | Responsibility |
 |---|---|
 | CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
-| CISO | Ensures that technical and organisational measures are implemented to mitigate identified risks. |
+| CISO | Ensures that technical and organizational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
 | Enterprise Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
 
@@ -170,19 +170,19 @@ For EU transfers involving AI systems:
 
 This step has **two distinct pathways**: an internal governance pathway and a regulatory pathway. The pathways may apply independently or in combination; the regulatory pathway is mandatory when its trigger criteria are met and is NOT substituted by the internal pathway.
 
-#### Step 5.1: Internal escalation pathway (organisation governance)
+#### Step 5.1: Internal escalation pathway (organization governance)
 
 - The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO/IEC 42005:2025 and EU AI Act Annex IV.
 - If residual risk remains **high**, executive sign-off by the ERC and Legal Counsel is required before go-live.
 
-This is the organisation's internal governance check. It is necessary but not sufficient where the Article 36 regulatory pathway in Step 5.2 also applies.
+This is the organization's internal governance check. It is necessary but not sufficient where the Article 36 regulatory pathway in Step 5.2 also applies.
 
 #### Step 5.2: GDPR Article 36 prior consultation with the supervisory authority (regulatory)
 
 **Trigger.** Article 36(1) requires the controller to consult the supervisory authority prior to processing where a DPIA conducted under Article 35 indicates that the processing would result in a **high risk to the rights and freedoms of natural persons in the absence of measures taken by the controller to mitigate the risk**. In operational terms, if the DPIA's *residual* risk after the controller's planned mitigations remains **high**, Article 36 prior consultation is mandatory before processing begins.
 
-The Article 36 trigger is distinct from the internal Step 5.1 trigger. The internal trigger is the organisation's risk-appetite threshold for executive escalation; the Article 36 trigger is the regulatory threshold for supervisory-authority consultation. A processing activity may trigger one, the other, or both.
+The Article 36 trigger is distinct from the internal Step 5.1 trigger. The internal trigger is the organization's risk-appetite threshold for executive escalation; the Article 36 trigger is the regulatory threshold for supervisory-authority consultation. A processing activity may trigger one, the other, or both.
 
 **Consultation content (Article 36(3)).** The consultation packet provided to the supervisory authority must include:
 

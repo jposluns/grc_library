@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This directory contains the logistics-sector compliance content of the library: sector-wide requirements that apply to organisations operating in transportation, warehousing, freight forwarding, customs brokerage, and supply-chain logistics, plus the trusted-trader programme overlays that such organisations may participate in.
+This directory contains the logistics-sector compliance content of the library: sector-wide requirements that apply to organizations operating in transportation, warehousing, freight forwarding, customs brokerage, and supply-chain logistics, plus the trusted-trader programme overlays that such organizations may participate in.
 
-Content here is sector-conditional. Organisations outside the logistics sector can omit this directory entirely without affecting the rest of the library's coherence.
+Content here is sector-conditional. Organizations outside the logistics sector can omit this directory entirely without affecting the rest of the library's coherence.
 
 ---
 
 ## Applicability
 
-This directory applies to organisations operating in any of the following capacities:
+This directory applies to organizations operating in any of the following capacities:
 
 - Freight forwarders, customs brokers, third-party logistics providers (3PL), fourth-party logistics providers (4PL).
 - Road, rail, air, or maritime transportation services.
@@ -48,7 +48,7 @@ This directory applies to organisations operating in any of the following capaci
 
 ## Trusted-trader programmes covered
 
-Each programme below has its own artefacts in this directory. Organisations adopt the programmes relevant to the jurisdictions in which they operate.
+Each programme below has its own artefacts in this directory. Organizations adopt the programmes relevant to the jurisdictions in which they operate.
 
 ### BASC (Business Alliance for Secure Commerce)
 
@@ -91,19 +91,19 @@ HMRC and Border Force trusted-trader programme, AEO-S security and safety strand
 
 ## Future-coverage placeholders
 
-The WCO AEO Compendium lists approximately 94 operational or under-development AEO and equivalent trusted-trader programmes globally. The library presently covers four of them (BASC multi-country, CTPAT-US, PIP-Canada, AEO-UK). Future additions follow the same naming convention (`<doctype>-<programme>-<jurisdiction>-<scope>.md`). Candidates for future addition include AEO European Union, NEEC and OEA Mexico, Australian Trusted Trader (ATT), Secure Trade Partnership (STP) Singapore, AEO Japan, AEO Korea, Secure Exports Scheme (SES) New Zealand, and others as adopting organisations require.
+The WCO AEO Compendium lists approximately 94 operational or under-development AEO and equivalent trusted-trader programmes globally. The library presently covers four of them (BASC multi-country, CTPAT-US, PIP-Canada, AEO-UK). Future additions follow the same naming convention (`<doctype>-<programme>-<jurisdiction>-<scope>.md`). Candidates for future addition include AEO European Union, NEEC and OEA Mexico, Australian Trusted Trader (ATT), Secure Trade Partnership (STP) Singapore, AEO Japan, AEO Korea, Secure Exports Scheme (SES) New Zealand, and others as adopting organizations require.
 
 ---
 
 ## Relationship to the main library
 
-The main library is sector-agnostic and applies to all adopting organisations. This directory's content extends but does not contradict the main library. Where a programme requires specific control language, evidence formats, or operating cadences, the programme's artefacts state those requirements explicitly. Where a programme's controls coincide with main-library controls (access management, logging, incident response), the main-library control remains the implementation; the programme artefact documents how the implementation maps to the programme's expectations.
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a programme requires specific control language, evidence formats, or operating cadences, the programme's artefacts state those requirements explicitly. Where a programme's controls coincide with main-library controls (access management, logging, incident response), the main-library control remains the implementation; the programme artefact documents how the implementation maps to the programme's expectations.
 
-Adopting organisations operating in the logistics sector consume:
+Adopting organizations operating in the logistics sector consume:
 
 1. The main library as the baseline.
 2. The logistics sector overview annex ([`annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md)) for sector-wide requirements.
-3. The programme-specific artefacts for the programmes the organisation participates in.
+3. The programme-specific artefacts for the programmes the organization participates in.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This directory contains financial-services-sector compliance content of the library: sector-wide regulatory requirements and jurisdiction-specific regulation overlays that apply to organisations operating as regulated financial-services entities, financial-market infrastructures, or service providers to regulated financial-services entities.
+This directory contains financial-services-sector compliance content of the library: sector-wide regulatory requirements and jurisdiction-specific regulation overlays that apply to organizations operating as regulated financial-services entities, financial-market infrastructures, or service providers to regulated financial-services entities.
 
-Content here is sector-conditional. Organisations outside the financial-services sector can omit this directory entirely without affecting the rest of the library's coherence.
+Content here is sector-conditional. Organizations outside the financial-services sector can omit this directory entirely without affecting the rest of the library's coherence.
 
 ---
 
 ## Applicability
 
-This directory applies to organisations operating as any of the following:
+This directory applies to organizations operating as any of the following:
 
 - Banks, building societies, credit unions, and other deposit-taking institutions.
 - Investment firms, broker-dealers, asset managers, fund administrators, and custodians.
@@ -49,19 +49,19 @@ This directory applies to organisations operating as any of the following:
 
 ## Future-coverage placeholders
 
-Country-level financial-regulator overlays for jurisdictions where the organisation operates. Candidates for future addition include UK PRA/FCA, EU EBA/ESMA/EIOPA per-jurisdiction implementations, US OCC/FRB/FDIC/SEC/FINRA, Canada OSFI, Australia APRA, Singapore MAS, Japan FSA, and others as adopting organisations require.
+Country-level financial-regulator overlays for jurisdictions where the organization operates. Candidates for future addition include UK PRA/FCA, EU EBA/ESMA/EIOPA per-jurisdiction implementations, US OCC/FRB/FDIC/SEC/FINRA, Canada OSFI, Australia APRA, Singapore MAS, Japan FSA, and others as adopting organizations require.
 
 ---
 
 ## Relationship to the main library
 
-The main library is sector-agnostic and applies to all adopting organisations. This directory's content extends but does not contradict the main library. Where a financial-services regulation requires specific control language, evidence formats, or operating cadences, the relevant annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls (access management, logging, incident response), the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a financial-services regulation requires specific control language, evidence formats, or operating cadences, the relevant annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls (access management, logging, incident response), the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
 
-Adopting organisations operating as regulated financial-services entities consume:
+Adopting organizations operating as regulated financial-services entities consume:
 
 1. The main library as the baseline.
 2. The financial-services sector overview annex ([`annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md)) for sector-wide requirements.
-3. The regulation-specific annexes for the regulations the organisation is in scope for.
+3. The regulation-specific annexes for the regulations the organization is in scope for.
 
 ---
 

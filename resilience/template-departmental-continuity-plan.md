@@ -2,8 +2,8 @@
 
 **Document Title:** Departmental Continuity Plan Template\
 **Document Type:** Template\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template provides a reusable structure for documenting departmental or function-level continuity plans. It must be adapted by adopting organisations and must not be populated in the public repository with real department names, people names, contact details, system names, supplier names, locations, customer names, or recovery evidence.
+This template provides a reusable structure for documenting departmental or function-level continuity plans. It must be adapted by adopting organizations and must not be populated in the public repository with real department names, people names, contact details, system names, supplier names, locations, customer names, or recovery evidence.
 
 ---
 

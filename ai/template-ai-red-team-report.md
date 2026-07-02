@@ -2,8 +2,8 @@
 
 **Document Title:** AI Red Team Report Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the format of a structured AI red team engagement report. It is used for both internally-run engagements and externally-commissioned engagements against the organisation's AI systems. The output is the durable record of the engagement, the findings, the recommendations, and the corrective actions tracked to closure.
+This template defines the format of a structured AI red team engagement report. It is used for both internally-run engagements and externally-commissioned engagements against the organization's AI systems. The output is the durable record of the engagement, the findings, the recommendations, and the corrective actions tracked to closure.
 
 A populated AI red team report identifies real systems and the specific weaknesses found and is highly sensitive operational material. This CC BY-SA 4.0 template contains no example values.
 
@@ -26,12 +26,12 @@ A populated AI red team report identifies real systems and the specific weakness
 
 ## Scope
 
-This template applies to all adversarial-testing engagements against the organisation's AI systems including:
+This template applies to all adversarial-testing engagements against the organization's AI systems including:
 
 1. Pre-release red team for new AI features.
 2. Annual red team for production Tier 1 AI systems.
 3. Ad-hoc red team after material model, prompt, retrieval, or agent-capability changes.
-4. Supplier-commissioned third-party red team against the organisation's customer-facing AI.
+4. Supplier-commissioned third-party red team against the organization's customer-facing AI.
 5. Bug-bounty submissions consolidated into a red team report where the volume justifies.
 
 ---
@@ -48,7 +48,7 @@ This template applies to all adversarial-testing engagements against the organis
 | Out of scope | Explicit exclusions |
 | Engagement window | Start and end dates |
 | Engagement team | Internal red team or external provider; team size; lead identity (role in public version) |
-| Authorisation | Approving role; documented authorisation per the penetration testing standard |
+| Authorization | Approving role; documented authorization per the penetration testing standard |
 | Rules of engagement | Documented rules: production vs staging; what evidence may be exfiltrated to demonstrate impact; safety guardrails; communications channel |
 | Coordination | The Incident Coordinator who manages any unintended impact |
 
@@ -85,7 +85,7 @@ Each finding is recorded as a standalone subsection with the following structure
 | Likelihood | Estimated likelihood under the threat model |
 | Recommended remediation | Specific actions; the recommended owner role |
 | Compensating controls | Where remediation will take time, the interim mitigation |
-| Detection improvements | How the organisation could detect this in production |
+| Detection improvements | How the organization could detect this in production |
 | Linked corrective action | Cross-reference to the corrective action register |
 
 ### Severity criteria
@@ -180,7 +180,7 @@ The completed red team report is classified Restricted by default. Distribution 
 | System owners affected | Per-finding distribution to the responsible role |
 | Internal Audit | On request |
 | External regulator | Where regulatory obligation requires |
-| External customer | Sanitised summary only where the contract requires |
+| External customer | Sanitized summary only where the contract requires |
 
 A summary of findings (without exploit detail) feeds the AI risk register and the resilience metrics register.
 
@@ -224,7 +224,7 @@ A summary of findings (without exploit detail) feeds the AI risk register and th
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. AI red team methodology is evolving rapidly; new attack categories and new evaluation techniques emerge frequently. Adopting organisations populate the template with engagement-specific findings, integrate the corrective action tracking with their existing CAPA workflow, and adapt the severity criteria to their risk appetite. The template is not a substitute for the red team engagement itself or for the underlying security and AI testing standards.
+This template is a CC BY-SA 4.0 baseline. AI red team methodology is evolving rapidly; new attack categories and new evaluation techniques emerge frequently. Adopting organizations populate the template with engagement-specific findings, integrate the corrective action tracking with their existing CAPA workflow, and adapt the severity criteria to their risk appetite. The template is not a substitute for the red team engagement itself or for the underlying security and AI testing standards.
 
 ---
 

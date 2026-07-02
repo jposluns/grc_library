@@ -239,7 +239,7 @@ Universal Links inside WKWebView: handle via `navigationAction.navigationType ==
 let dialog = ATTrackingManager.requestTrackingAuthorization { ... }
 
 // CORRECT: prompt copy describes the actual data use; permission is optional
-// to the core experience; the feature must function without tracking authorisation
+// to the core experience; the feature must function without tracking authorization
 ```
 
 `NSUserTrackingUsageDescription` text is reviewed and matches actual data flow. Do not request tracking from a deceptive context (e.g. immediately after a different security prompt).
@@ -292,7 +292,7 @@ Implements these sections of [`standard-mobile-application-security.md`](../../.
 
 - Section 4 (storage): Keychain accessibility classes; data protection classes; backup exclusion.
 - Section 5 (cryptography): CryptoKit; Secure Enclave; `SecRandomCopyBytes`.
-- Section 6 (authentication and authorisation): biometry as step-up; ASWebAuthenticationSession; biometry-current-set binding.
+- Section 6 (authentication and authorization): biometry as step-up; ASWebAuthenticationSession; biometry-current-set binding.
 - Section 7 (network): ATS scoped exceptions; certificate pinning; App Attest server verification.
 - Section 8 (platform interaction): Universal Links over custom schemes; deep-link validation; OSLog privacy markers.
 - Section 9 (MASVS-R): Tier 1 / Tier 2 hardening defaults.

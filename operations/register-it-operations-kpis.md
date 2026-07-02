@@ -2,8 +2,8 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register\
 **Document Type:** Register\
-**Version:** 1.1.1\
-**Date:** 2026-06-29\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md)\
@@ -20,13 +20,13 @@
 
 This register defines the key performance indicators (KPIs) used to measure IT operations effectiveness across availability, incident management, change management, problem management, patch and vulnerability management, capacity, service desk, and security operations. KPIs support governance reporting to the CIO and Enterprise Risk Committee (ERC) and align with ISO/IEC 20000-1:2018, ITIL 4, COBIT 2019, and EU NIS 2 Directive obligations.
 
-This register is a CC BY-SA 4.0 baseline. Adopting organisations must populate target values, reporting owners, and evidence sources that match their own service catalogue, risk appetite, contractual obligations, and regulatory requirements.
+This register is a CC BY-SA 4.0 baseline. Adopting organizations must populate target values, reporting owners, and evidence sources that match their own service catalogue, risk appetite, contractual obligations, and regulatory requirements.
 
 ---
 
 ## Scope
 
-This register applies to all IT services, infrastructure, cloud environments, and operational functions managed by or on behalf of the organisation.
+This register applies to all IT services, infrastructure, cloud environments, and operational functions managed by or on behalf of the organization.
 
 ---
 
@@ -152,7 +152,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ## Evidence requirements
 
-Adopting organisations must retain the following to substantiate KPI results:
+Adopting organizations must retain the following to substantiate KPI results:
 
 - Monitoring platform availability exports and capacity dashboards.
 - Incident register extracts and SLA compliance reports.
@@ -168,7 +168,7 @@ Adopting organisations must retain the following to substantiate KPI results:
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 baseline. It does not define an adopting organisation's actual service targets, risk appetite, contractual SLAs, or regulatory thresholds. Targets in this document are illustrative. Adopting organisations must substitute values consistent with their service model, customer contracts, regulatory obligations, and risk acceptance decisions.
+This register is a CC BY-SA 4.0 baseline. It does not define an adopting organization's actual service targets, risk appetite, contractual SLAs, or regulatory thresholds. Targets in this document are illustrative. Adopting organizations must substitute values consistent with their service model, customer contracts, regulatory obligations, and risk acceptance decisions.
 
 ---
 

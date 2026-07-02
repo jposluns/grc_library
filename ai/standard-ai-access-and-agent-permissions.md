@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-07-01\
+**Version:** 0.0.8\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -64,7 +64,7 @@ It does not replace the general IAM policy and standards; it overlays them where
 
 ## 5. Service-to-AI access
 
-Backend services that invoke a model on behalf of the organisation:
+Backend services that invoke a model on behalf of the organization:
 
 | Control area | Requirement |
 | --- | --- |
@@ -119,27 +119,27 @@ Each agent runs within a defined capability scope. Three levels are recognized:
 
 Cross-system agents must additionally satisfy the agentic development security standard's separation-of-duty controls.
 
-Operational and Cross-system scope is granted only after the production-authority precondition (`AGENT-PROD-01` in the agentic development security standard) is satisfied and evidenced: permission boundaries, immutable auditability, tested reversibility, and named human accountability are designed, tested, and governed before autonomous or semi-autonomous production execution is authorised. Bounded (read-only) scope is exempt.
+Operational and Cross-system scope is granted only after the production-authority precondition (`AGENT-PROD-01` in the agentic development security standard) is satisfied and evidenced: permission boundaries, immutable auditability, tested reversibility, and named human accountability are designed, tested, and governed before autonomous or semi-autonomous production execution is authorized. Bounded (read-only) scope is exempt.
 
 ### 6.3 Identity propagation
 
 | Control area | Requirement |
 | --- | --- |
 | User on whose behalf the agent acts | Identity captured at session start; propagated to every downstream call |
-| Authorisation check at the tool boundary | The downstream tool authorises against the user's identity, not the agent's; the agent is the channel, not the principal |
+| Authorization check at the tool boundary | The downstream tool authorizes against the user's identity, not the agent's; the agent is the channel, not the principal |
 | Agent identity for unauthenticated paths | Where the agent acts without a user (scheduled tasks, autonomous workflows), the agent has its own service identity scoped per the operational or cross-system rules above |
 | Token forwarding restrictions | The agent does not pass bearer tokens beyond what the downstream tool requires |
 | Sensitive credential handling | The agent does not store credentials beyond a session; secrets are retrieved from the secrets management service per invocation |
 
 #### 6.3.1 Identity propagation mechanics
 
-The high-level requirements above are realised by one of the following patterns; each agent's choice is documented in its architecture record.
+The high-level requirements above are realized by one of the following patterns; each agent's choice is documented in its architecture record.
 
 | Mechanism | Description | When appropriate |
 | --- | --- | --- |
-| Token exchange (OAuth 2.0 Token Exchange, RFC 8693) | The agent exchanges its own credential for a downscoped, user-bound token at the tool boundary | The downstream tool supports token exchange and the user's authentication context is rich enough to authorise the downscoped token |
+| Token exchange (OAuth 2.0 Token Exchange, RFC 8693) | The agent exchanges its own credential for a downscoped, user-bound token at the tool boundary | The downstream tool supports token exchange and the user's authentication context is rich enough to authorize the downscoped token |
 | On-behalf-of (OBO) | The agent forwards a user-authenticated token (with the agent as the OBO principal) to the downstream tool | The downstream tool authenticates against the same identity provider as the user |
-| Workload-identity-with-claim-propagation | The agent authenticates as itself; the user identity is carried as a verified claim in a service-mesh header or signed envelope; the downstream tool re-authorises against that claim | High-throughput internal service-mesh deployments |
+| Workload-identity-with-claim-propagation | The agent authenticates as itself; the user identity is carried as a verified claim in a service-mesh header or signed envelope; the downstream tool re-authorizes against that claim | High-throughput internal service-mesh deployments |
 | Step-up at the boundary | The downstream tool challenges for a fresh user authentication; the agent does not propagate identity at all | Highly sensitive actions where the cost of an explicit user prompt is acceptable |
 
 Validation at the tool boundary:
@@ -184,7 +184,7 @@ Every agent tool invocation logs:
 | Agent identity | The agent's service identity |
 | User identity | The user on whose behalf the agent acts; null for autonomous agents |
 | Tool name | The invoked tool |
-| Tool arguments | Sanitised arguments where the arguments may contain sensitive data |
+| Tool arguments | Sanitized arguments where the arguments may contain sensitive data |
 | Tool outcome | Success, failure with reason, partial |
 | Confirmation evidence | Where applicable; the user identity that confirmed |
 | Timestamp | UTC |
@@ -200,7 +200,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 | Control area | Requirement |
 | --- | --- |
-| Retrieval scope binding | The retrieval scope is bound to the user's identity; users cannot retrieve documents they would not otherwise be authorised to read |
+| Retrieval scope binding | The retrieval scope is bound to the user's identity; users cannot retrieve documents they would not otherwise be authorized to read |
 | Embedding-store access control | The embedding store applies the same access control as the source documents; deleted or restricted documents propagate to embeddings within a defined window |
 | Indirect prompt injection mitigations | Retrieved content is delimited and identified as untrusted in the prompt template |
 | Personal data in retrieval | Personal data presence is detected; redaction or refusal applies per the consent management framework |
@@ -262,7 +262,7 @@ Retrieval-augmented generation and other context-injection patterns:
 
 ## 12. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Agentic capability is rapidly evolving; the standard expects to be revised more frequently than mature security standards. Adopting organisations adapt the tool allow-list approach, capability scopes, and human-in-the-loop confirmation modes to their specific agent platform and use cases. The standard is not a substitute for per-system threat modelling and impact assessment.
+This standard is a CC BY-SA 4.0 baseline. Agentic capability is rapidly evolving; the standard expects to be revised more frequently than mature security standards. Adopting organizations adapt the tool allow-list approach, capability scopes, and human-in-the-loop confirmation modes to their specific agent platform and use cases. The standard is not a substitute for per-system threat modelling and impact assessment.
 
 ---
 

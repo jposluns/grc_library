@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -58,7 +58,7 @@ Each registered ADM activity is one row. Mandatory fields:
 | ADM ID | Unique identifier |
 | System name | Internal name; not vendor name |
 | Owning business function | Role that owns the decision outcome |
-| Privacy contact | Data Protection Officer (organisation-wide) or a domain privacy lead assigned to this activity |
+| Privacy contact | Data Protection Officer (organization-wide) or a domain privacy lead assigned to this activity |
 | Decision category | Underwriting, employment, fraud, access, pricing, moderation, clinical, safety, other |
 | Description of the decision | Plain-language summary of what the system decides |
 | Legal or similarly significant effect | Statement of why the threshold is met (or that it is not met and the system is registered voluntarily) |
@@ -138,7 +138,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. Adopting organisations must populate the schema with real systems, validate Article 22 threshold determinations with legal counsel, and integrate the register with the AI System Register and the DPIA workflow. The register is not legal advice.
+This register is a CC BY-SA 4.0 structural baseline. Adopting organizations must populate the schema with real systems, validate Article 22 threshold determinations with legal counsel, and integrate the register with the AI System Register and the DPIA workflow. The register is not legal advice.
 
 ---
 

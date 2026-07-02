@@ -2,8 +2,8 @@
 
 **Document Title:** US CTPAT Full Minimum Security Criteria Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-20\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register documents the organisation's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
+This register documents the organization's implementation status against the full set of CTPAT Minimum Security Criteria (2020 revision) across all security domains: physical security, personnel security, cargo security, conveyance security, business partner security, information technology, and procedural controls. It complements [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), which focuses specifically on IT and cybersecurity criteria.
 
 **Programme authority:** U.S. Customs and Border Protection (CBP)\
 **UK equivalent:** Authorized Economic Operator to Security and Safety (AEO-S): see [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md)\
@@ -29,10 +29,10 @@ This register documents the organisation's implementation status against the ful
 
 ## Programme overview
 
-CTPAT membership requires organisations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
+CTPAT membership requires organizations to meet Minimum Security Criteria (MSC) across all applicable supply chain security domains. The 2020 MSC apply to all CTPAT entity types. This register is structured around the seven MSC security domains.
 
-**Organisation CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]*\
-**CTPAT membership number:** *[Complete with organisation's CBP-assigned number]*\
+**Organization CTPAT entity type:** *[Select: Importer; Exporter; Customs Broker; Freight Forwarder; Air, Sea, or Land Carrier; Contract Logistics Provider; Other]*\
+**CTPAT membership number:** *[Complete with organization's CBP-assigned number]*\
 **Current tier:** Certified / Validated / Status Member\
 **Last CBP SCSS validation:** *[Date]*\
 **Next annual profile update due:** *[Date]*

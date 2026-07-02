@@ -2,8 +2,8 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-07-01\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -18,9 +18,9 @@
 
 ## 1. Purpose
 
-This standard defines the requirements for the organisation's penetration testing and red team programme. It establishes the minimum scope, frequency, methodology, and reporting requirements for both internal vulnerability assessment and externally conducted penetration testing.
+This standard defines the requirements for the organization's penetration testing and red team programme. It establishes the minimum scope, frequency, methodology, and reporting requirements for both internal vulnerability assessment and externally conducted penetration testing.
 
-The programme complements the Vulnerability Management Procedure and the Logging and Monitoring Standard by validating that controls are effective in practice, not merely in configuration. Vulnerability scanning identifies what is present; penetration testing determines what is exploitable. Together they provide assurance that the organisation's defensive posture reflects its intended security architecture.
+The programme complements the Vulnerability Management Procedure and the Logging and Monitoring Standard by validating that controls are effective in practice, not merely in configuration. Vulnerability scanning identifies what is present; penetration testing determines what is exploitable. Together they provide assurance that the organization's defensive posture reflects its intended security architecture.
 
 This standard supports the Information Security Policy and addresses NIST SP 800-53 SA-11.
 
@@ -114,7 +114,7 @@ The CISO retains final approval authority over vendor selection for all penetrat
 
 ## 9. Programme tracking and continuous improvement
 
-1. Findings from all engagements are tracked in the organisation's vulnerability and risk management tooling.
+1. Findings from all engagements are tracked in the organization's vulnerability and risk management tooling.
 2. Year-over-year trend analysis (finding counts by severity, repeat findings, time-to-remediation) is presented to the CISO and CIO annually.
 3. Repeat findings, vulnerabilities identified in a prior engagement that remain unremediated or have recurred, are escalated to the CIO and treated as High-priority regardless of their CVSS score.
 4. The CISO reviews the programme scope annually to ensure that emerging attack surfaces (new services, acquired systems, cloud workload growth) are incorporated.

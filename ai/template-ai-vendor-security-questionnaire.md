@@ -2,8 +2,8 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This questionnaire extends the general supplier security questionnaire with AI-specific items. Use this template for any supplier providing a foundation model, AI platform, AI service, or AI-enabled product that materially shapes the organisation's AI behaviour or processes the organisation's data through AI.
+This questionnaire extends the general supplier security questionnaire with AI-specific items. Use this template for any supplier providing a foundation model, AI platform, AI service, or AI-enabled product that materially shapes the organization's AI behaviour or processes the organization's data through AI.
 
 The general supplier security questionnaire is the baseline; this template adds the AI-specific sections. Provide both to AI suppliers.
 
@@ -31,7 +31,7 @@ This template covers:
 1. Foundation-model providers (LLM, vision, audio, multimodal).
 2. AI platform providers offering hosted training, fine-tuning, or serving infrastructure.
 3. AI-enabled SaaS where AI materially shapes the customer-facing function.
-4. AI safety and evaluation tooling providers whose outputs are relied upon for the organisation's AI assurance.
+4. AI safety and evaluation tooling providers whose outputs are relied upon for the organization's AI assurance.
 5. Vector store, embedding pipeline, retrieval, or AI orchestration providers.
 6. AI agent or assistant providers.
 
@@ -74,7 +74,7 @@ It is not a substitute for the general supplier security questionnaire. Submit b
 | Question | Expected response |
 | --- | --- |
 | Does the provider train on customer prompts, completions, fine-tuning data, or any derived content by default | Yes / No / Configurable |
-| If configurable, is the opt-out the default in the contractual offering for the organisation | Yes / No |
+| If configurable, is the opt-out the default in the contractual offering for the organization | Yes / No |
 | What is the provider's retention period for prompts, completions, telemetry, and other customer-generated content | Per category |
 | Are customer prompts and completions used to produce evaluation datasets shared with other customers | Yes / No |
 | Does the provider use customer data for safety classifier development | Yes / No / Configurable |
@@ -111,10 +111,10 @@ This section applies where the provider offers agentic or tool-using capabilitie
 | Question | Expected response |
 | --- | --- |
 | Does the provider's offering invoke external tools on behalf of users | Yes / No |
-| What is the tool authorisation model | Per-tool, per-session, per-agent |
+| What is the tool authorization model | Per-tool, per-session, per-agent |
 | Can customers restrict the tool list per deployment | Yes / No |
 | Are dangerous actions (e.g. payments, deletions, cross-tenant access) protected by human-in-the-loop confirmation | Yes / No / Configurable |
-| How does the provider prevent prompt injection from causing unauthorised tool invocation | Mitigations description |
+| How does the provider prevent prompt injection from causing unauthorized tool invocation | Mitigations description |
 | What rate and chain-length limits apply to agent operations | Limits |
 | What audit log is produced per tool invocation | Log content |
 | Can customers integrate the provider's agents with the customer's own tools via Model Context Protocol or equivalent | Integration model |
@@ -203,7 +203,7 @@ This section applies where the provider offers agentic or tool-using capabilitie
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. AI provider questionnaires evolve quickly; new threat vectors and regulatory expectations may require additional sections. Adopting organisations adapt the template to their procurement workflow and the specific provider category.
+This template is a CC BY-SA 4.0 baseline. AI provider questionnaires evolve quickly; new threat vectors and regulatory expectations may require additional sections. Adopting organizations adapt the template to their procurement workflow and the specific provider category.
 
 ---
 

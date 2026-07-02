@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -20,7 +20,7 @@
 
 This register is the primary traceability artefact for audit, insurance, board reporting, and regulatory purposes. It maps security and compliance controls to CSA CCM v4.1, AICM v1.1, and COBIT 2019 process identifiers, and records implementation status, evidence type, and responsible party for each control.
 
-Organisations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
+Organizations should populate this template with their specific implementation status, evidence references, and responsible parties. The register must be updated when implementation status changes and reviewed quarterly at minimum.
 
 ---
 
@@ -40,7 +40,7 @@ Organisations should populate this template with their specific implementation s
 
 ## How to use this register
 
-1. Copy this template into your organisation's documentation system.
+1. Copy this template into your organization's documentation system.
 2. For each control row, set the Status field using the definitions above.
 3. Record the Evidence Reference (document title, system configuration, test result, or other artefact).
 4. Assign a Responsible party (role title, not personal name).

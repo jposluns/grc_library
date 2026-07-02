@@ -2,7 +2,7 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the security controls applied to mobile applications the organisation develops, publishes, or significantly customizes. It covers iOS and Android applications; mobile-web is governed by the API security standard plus the web-application standards in the dev-security domain.
+This standard defines the security controls applied to mobile applications the organization develops, publishes, or significantly customizes. It covers iOS and Android applications; mobile-web is governed by the API security standard plus the web-application standards in the dev-security domain.
 
 ---
 
@@ -26,12 +26,12 @@ This standard defines the security controls applied to mobile applications the o
 
 This standard applies to:
 
-1. Native and cross-platform mobile applications published by the organisation to public application stores.
+1. Native and cross-platform mobile applications published by the organization to public application stores.
 2. Enterprise (in-house distributed) mobile applications.
-3. Embedded SDKs distributed to other organisations for inclusion in their applications.
+3. Embedded SDKs distributed to other organizations for inclusion in their applications.
 4. Mobile clients of internally-built backend services.
 
-It does not cover the device-management posture for organisationally-issued devices (governed by the endpoint hardening standard) or BYOD posture (governed by the BYOD policy).
+It does not cover the device-management posture for organizationally-issued devices (governed by the endpoint hardening standard) or BYOD posture (governed by the BYOD policy).
 
 ---
 
@@ -44,7 +44,7 @@ The standard aligns to the OWASP Mobile Application Security Verification Standa
 | MASVS-L2 | Defence-in-depth |
 | MASVS-R | Resilience against reverse engineering |
 
-Note on MASVS v2 structure: MASVS v2 reorganised the operational test groupings into MAS Testing Profiles in the Mobile Application Security Testing Guide (MASTG). The L1, L2, and R concepts remain as verification-level shorthand; this standard uses them as such while pointing implementers to MASTG for the concrete test catalogue.
+Note on MASVS v2 structure: MASVS v2 reorganized the operational test groupings into MAS Testing Profiles in the Mobile Application Security Testing Guide (MASTG). The L1, L2, and R concepts remain as verification-level shorthand; this standard uses them as such while pointing implementers to MASTG for the concrete test catalogue.
 
 Applications classified by sensitivity tier determine the verification level applied.
 
@@ -85,7 +85,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## 6. Authentication and authorisation
+## 6. Authentication and authorization
 
 | Control area | Requirement |
 | --- | --- |
@@ -117,7 +117,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 | Control area | Requirement |
 | --- | --- |
-| Inter-application communication | Deep links validated; URL schemes authenticated; data shared via intents and extensions sanitised |
+| Inter-application communication | Deep links validated; URL schemes authenticated; data shared via intents and extensions sanitized |
 | Custom URL schemes and universal links | Authenticated where they trigger sensitive actions; replay-protected |
 | App permissions | Minimum required; rationale shown to the user; never-asks-twice respected |
 | Background execution | Sensitive operations not performed in the background without justification |
@@ -169,7 +169,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 | Enterprise distribution | Enterprise certificates managed with the same rigour as code-signing root keys |
 | Update mechanism | Updates delivered via the store; no side-channel updates that bypass store review |
 | Forced upgrade | Tier 1 apps support forced upgrade for security-critical releases |
-| Beta and TestFlight | Beta builds excluded from production data; testers are organisation-managed |
+| Beta and TestFlight | Beta builds excluded from production data; testers are organization-managed |
 
 ---
 
@@ -276,7 +276,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Mobile platforms and store policies change frequently; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations select the appropriate MASVS verification level per application tier and confirm current platform-store policy at each release.
+This standard is a CC BY-SA 4.0 baseline. Mobile platforms and store policies change frequently; the standard expresses requirements rather than vendor-specific implementations. Adopting organizations select the appropriate MASVS verification level per application tier and confirm current platform-store policy at each release.
 
 ---
 

@@ -264,13 +264,13 @@ const div = document.getElementById('feed');
 div!.innerHTML = userSuppliedHtml;  // XSS
 
 // CORRECT: rely on the framework's default escaping (Angular interpolation,
-// React JSX, Vue mustaches all escape by default); use a sanitiser when
+// React JSX, Vue mustaches all escape by default); use a sanitizer when
 // raw HTML is unavoidable
 // Angular: bypassSecurityTrustHtml only with explicit DomSanitizer review
 // React: use a vetted library like DOMPurify before dangerouslySetInnerHTML
 ```
 
-The Ionic framework's components are XSS-safe when used with the framework's idiomatic data binding; raw `[innerHTML]` / `dangerouslySetInnerHTML` patterns require an explicit sanitisation step.
+The Ionic framework's components are XSS-safe when used with the framework's idiomatic data binding; raw `[innerHTML]` / `dangerouslySetInnerHTML` patterns require an explicit sanitization step.
 
 ---
 

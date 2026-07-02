@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Improvement Register Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organisation's central record of proactive improvement actions, distinct from reactive CAPA actions, and supports the PDCA (Plan-Do-Check-Act) continual improvement cycle across GRC, security, compliance, and operational domains.
+This procedure defines the process for capturing, tracking, and managing improvement initiatives across all governance domains through the Continuous Improvement Register (CIR). The CIR is the organization's central record of proactive improvement actions, distinct from reactive CAPA actions, and supports the PDCA (Plan-Do-Check-Act) continual improvement cycle across GRC, security, compliance, and operational domains.
 
 ---
 

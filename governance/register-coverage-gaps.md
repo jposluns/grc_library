@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.20\
+**Version:** 1.1.21\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register is the library's honest disclosure of what it does **not** yet cover. It exists so that adopting organisations can determine whether the library addresses their domain, sector, jurisdiction, or regulatory regime before they invest in adoption, and so contributors know where additions would have the most impact.
+This register is the library's honest disclosure of what it does **not** yet cover. It exists so that adopting organizations can determine whether the library addresses their domain, sector, jurisdiction, or regulatory regime before they invest in adoption, and so contributors know where additions would have the most impact.
 
 Coverage is recorded along five dimensions:
 
@@ -102,7 +102,7 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | Canada PIP | Substantive | In library | n/a | IT controls register |
 | EU AEO (27 member states) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; covers all EU |
 | Mexico NEEC / OEA | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; NAFTA/USMCA partner |
-| Australia ATT (Authorised Trusted Trader) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
+| Australia ATT (Australian Trusted Trader) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
 | Singapore STP / STP-Plus | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
 | Japan AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
 | Korea AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
@@ -209,7 +209,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Classical ML adversarial taxonomy (evasion, poisoning, extraction, inference) | Substantive | In library | n/a | [`standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) §3.5 restructured into 6 subsections covering ART/AIJack/HEART-equivalent threats |
 | Citation verification methodology and freshness governance | Substantive | In library | n/a | [`specification-citation-verification.md`](specification-citation-verification.md); [`register-canonical-citations.md`](register-canonical-citations.md); [`lint-citation-verification-freshness.py`](../tools/lint-citation-verification-freshness.py); [`lint-tooling-provenance-freshness.py`](../tools/lint-tooling-provenance-freshness.py) |
 | AI security tooling landscape (curated index) | Substantive | In library | n/a | [`register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md) with 55 entries across 9 categories, per-entry Provenance blocks |
-| Audit programme (automated linting and conformance) | Substantive | In library | n/a | Audit programme running in CI on every PR (see [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorisation and §6 for the per-gate detail) |
+| Audit programme (automated linting and conformance) | Substantive | In library | n/a | Audit programme running in CI on every PR (see [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md) §6 for the canonical gate inventory and current gate count); coverage spans metadata integrity, language and style, reference integrity, content-drift defence, programme and index integrity, security and privacy, and freshness and lifecycle (see specification §5 for the functional categorization and §6 for the per-gate detail) |
 | MCP server security | Substantive | In library | n/a | Throughout AI domain; MCP-SEC-01 to 10 in agentic standard; [`register-mcp-server.md`](../ai/register-mcp-server.md); Lasso MCP Gateway pattern referenced |
 | Generative AI specifically | Substantive | In library | n/a | Heavy coverage in AI domain |
 | Synthetic data governance | Referenced | Deferred | n/a | Touched in AI data governance; could be dedicated |
@@ -231,7 +231,7 @@ Within the library's doctype vocabulary, some types are under-represented relati
 | Interactive maturity assessment | None | Planned | Backlog candidate: interactive maturity assessment (not currently scheduled in TODO; the current scorecard is static) |
 | Implementation roadmap templates | None | Planned | Backlog candidate: further roadmap templates (not currently scheduled in TODO; the implementation and startup roadmaps shipped, see docs/) |
 | Decision-tree adopter navigator | Substantive | In library | [`docs/decision-tree.md`](../docs/decision-tree.md) |
-| Worked examples / case studies | None | Out of scope | The library is organisation-neutral; case studies would conflict with that posture |
+| Worked examples / case studies | None | Out of scope | The library is organization-neutral; case studies would conflict with that posture |
 | Regulator interaction templates (notification, attestation, response) | Substantive | In library | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) |
 | Audit evidence package templates | Substantive | In library | [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) |
 
@@ -241,7 +241,7 @@ Within the library's doctype vocabulary, some types are under-represented relati
 
 For adopters:
 
-1. Search for the sector, jurisdiction, or regulation relevant to your organisation.
+1. Search for the sector, jurisdiction, or regulation relevant to your organization.
 2. Read the **Coverage** and **Status** columns to set expectations.
 3. Where coverage is *Substantive*, follow the link to the relevant library documents.
 4. Where coverage is *None* or *Deferred*, check the **Planned target** column for the relevant TODO priority and consult [`TODO.md`](../TODO.md) for context.

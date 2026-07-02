@@ -2,8 +2,8 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.3\
-**Date:** 2026-06-22\
+**Version:** 1.4.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
@@ -86,13 +86,13 @@ External references should be expressed as framework families or public identifi
 
 ---
 
-## Personal and organisation data exclusion
+## Personal and organization data exclusion
 
 Repository content must not include:
 
 - Real company names.
 - Real personal names.
-- Internal titles tied to a specific organisation.
+- Internal titles tied to a specific organization.
 - Email addresses.
 - Phone numbers.
 - Physical addresses.

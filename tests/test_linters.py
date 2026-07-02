@@ -225,6 +225,79 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "ise")
 
+    def test_isation_noun_flagged(self) -> None:
+        # The 2026-07-02 spelling-coverage extension: Commonwealth -isation
+        # noun and adjective forms are flagged (the harmonization sweep
+        # flipped the corpus to -ization in the same PR).
+        fixture = self.make_fixture(
+            "standard-isation.md",
+            VALID_METADATA + "\n\nThe organization reviews authorisation and organizational controls.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "isation")
+
+    def test_isation_allowed_word_passes(self) -> None:
+        # Words that are -isation in every dialect (ISATION_ALLOWED_WORDS)
+        # are not flagged.
+        fixture = self.make_fixture(
+            "standard-improvisation.md",
+            VALID_METADATA + "\n\nThe exercise rewards improvisation under pressure.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_yse_verb_flagged_analyses_passes(self) -> None:
+        # The -yse family: 'analysed' is flagged; the noun plural 'analyses'
+        # (correct in every dialect) is deliberately not matched.
+        flagged = self.make_fixture(
+            "standard-yse.md",
+            VALID_METADATA + "\n\nThe team analysed the results.\n",
+        )
+        result = run_linter("tools/lint-language.py", flagged)
+        self.assertLinterFails(result, "yse")
+        passing = self.make_fixture(
+            "standard-analyses.md",
+            VALID_METADATA + "\n\nThe risk analyses are reviewed annually.\n",
+        )
+        result = run_linter("tools/lint-language.py", passing)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_derivational_ise_forms_flagged(self) -> None:
+        # The -isable adjective and -iser agent-noun derivations of covered
+        # stems are flagged (the FN-verifier catch on the harmonization
+        # sweep: localisable, customisable, sanitiser, analyser escaped the
+        # inflection-only pattern).
+        fixture = self.make_fixture(
+            "standard-isable.md",
+            VALID_METADATA + "\n\nStrings are localisable; run the sanitiser and the analyser.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "ise")
+
+    def test_prefixed_ise_derivative_flagged(self) -> None:
+        # Prefixed derivatives are enumerated as their own stems; the bare
+        # \b(...)  construction does not match a stem inside a prefixed word.
+        fixture = self.make_fixture(
+            "standard-unauthorised.md",
+            VALID_METADATA + "\n\nBlock unauthorised access attempts.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "ise")
+
+    def test_allowed_commonwealth_span_masked(self) -> None:
+        # A verbatim external-instrument quote in ALLOWED_COMMONWEALTH_SPANS
+        # is masked out of the spelling checks (the GDPR Article 25(1)
+        # official English text spells 'organizational').
+        fixture = self.make_fixture(
+            "standard-verbatim-quote.md",
+            VALID_METADATA + "\n\nThe controller must \"implement appropriate technical and "
+            "organisational measures, such as pseudonymisation, which are designed to "
+            "implement data-protection principles, such as data minimisation, in an "
+            "effective manner\" per Article 25(1).\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
     def test_bare_ensure_flagged(self) -> None:
         # The 'ensure' rule requires 'that' after 'ensure'/'ensures'.
         fixture = self.make_fixture(
@@ -245,7 +318,7 @@ class LanguageLinterTests(LinterTestCase):
 
     def test_sanitisation_term_flagged(self) -> None:
         # SANITISATION_TERMS catches specific company/product names that
-        # should never appear in organisation-neutral library content. The
+        # should never appear in organization-neutral library content. The
         # first term in the list is "Traffic Tech" — using it triggers
         # the rule.
         fixture = self.make_fixture(
@@ -404,7 +477,7 @@ class StandardsCurrencyTests(LinterTestCase):
     def test_superseded_iso_27001_2013_flagged(self) -> None:
         fixture = self.make_fixture(
             "standard-iso-superseded.md",
-            VALID_METADATA + "\n\nThe organisation is aligned with ISO/IEC 27001:2013.\n",
+            VALID_METADATA + "\n\nThe organization is aligned with ISO/IEC 27001:2013.\n",
         )
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "2013")
@@ -491,7 +564,7 @@ class ShallNearUncertaintyTests(LinterTestCase):
     def test_shall_near_unverified_flagged(self) -> None:
         fixture = self.make_fixture(
             "standard-shall-unverified.md",
-            VALID_METADATA + "\n\n[Unverified] The organisation shall implement controls.\n",
+            VALID_METADATA + "\n\n[Unverified] The organization shall implement controls.\n",
         )
         result = run_linter("tools/lint-shall-near-uncertainty.py", fixture)
         self.assertLinterFails(result)
@@ -501,7 +574,7 @@ class ShallNearUncertaintyTests(LinterTestCase):
         # markers exercise a different code path through the rule set.
         fixture = self.make_fixture(
             "standard-must-tbd.md",
-            VALID_METADATA + "\n\nTBD: define the threshold; the organisation must enforce it.\n",
+            VALID_METADATA + "\n\nTBD: define the threshold; the organization must enforce it.\n",
         )
         result = run_linter("tools/lint-shall-near-uncertainty.py", fixture)
         self.assertLinterFails(result)
@@ -548,7 +621,7 @@ class PlaceholderLeakageTests(LinterTestCase):
         self.assertLinterFails(result, "<YYYY-MM-DD>")
 
     def test_yourcompany_dot_com_placeholder_flagged_in_non_template(self) -> None:
-        # Phase 23.63: template-placeholder organisation domains must
+        # Phase 23.63: template-placeholder organization domains must
         # be flagged when they appear in a non-template file. The PII
         # linter intentionally exempts them as EXAMPLE_DOMAINS (they
         # are not real PII) but the placeholder linter catches them as

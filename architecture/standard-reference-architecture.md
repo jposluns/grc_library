@@ -2,8 +2,8 @@
 
 **Document Title:** Reference Architecture Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md)\
@@ -79,7 +79,7 @@ Each reference architecture document contains:
 | Patterns and anti-patterns | The patterns the reference architecture endorses and the anti-patterns it rejects |
 | Technology choices | The technologies the reference architecture uses; alignment with the technology radar |
 | Reference implementation | Pointer to a reference implementation (scaffold, module, example) where available |
-| Customisation guidance | How consumers tailor the reference architecture |
+| Customization guidance | How consumers tailor the reference architecture |
 | Compliance considerations | Regulatory, security, privacy, AI implications |
 | Deviation handling | When and how to deviate from the reference architecture |
 | Linked ADRs | Architecture decision records that motivated the reference architecture |
@@ -124,7 +124,7 @@ The maturity level is a deliberate choice; not all reference architectures need 
 | --- | --- |
 | Discovery | Engineers can find the right reference architecture through a searchable index, recommendation engine, or guidance |
 | Bootstrap | A reference implementation or scaffold allows quick adoption |
-| Customisation | Consumers may customize within the boundaries the reference architecture states |
+| Customization | Consumers may customize within the boundaries the reference architecture states |
 | Deviation | Consumers may deviate with documented rationale (an ADR) |
 | Feedback | Consumers feed back issues, gaps, and successes to the reference-architecture owner |
 | Telemetry | Where feasible, adoption is measured (number of consuming systems, deviation count) |
@@ -210,7 +210,7 @@ Mandatory reference architectures require formal exception handling per the secu
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. The notation, repository tooling, and indexing approach are organisation-specific. Reference architectures themselves are organisation-specific; this standard governs how they are produced, not their content.
+This standard is a CC BY-SA 4.0 baseline. The notation, repository tooling, and indexing approach are organization-specific. Reference architectures themselves are organization-specific; this standard governs how they are produced, not their content.
 
 ---
 

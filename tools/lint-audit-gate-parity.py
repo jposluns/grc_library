@@ -140,7 +140,7 @@ def parse_spec_inventory(path: Path) -> list[tuple[int, int, str, str]]:
             if not script_match:
                 raise ParseError(
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: "
-                    f"inventory row for gate {gate_num} has no recognisable "
+                    f"inventory row for gate {gate_num} has no recognizable "
                     f"`tools/X.py` script link"
                 )
             rows.append((lineno, gate_num, gate_name, script_match.group(1)))

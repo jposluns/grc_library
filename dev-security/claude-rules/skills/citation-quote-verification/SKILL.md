@@ -66,6 +66,6 @@ If any of these is missing, the skill is incomplete and a completion claim that 
 ## See Also
 
 - Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the per-claim verification protocol this skill applies to citations specifically.
-- Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the generic verification protocol. This skill is its citation-specific specialisation.
+- Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the generic verification protocol. This skill is its citation-specific specialization.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the sweep surfaces a citation finding, this skill is the targeted follow-up.
 - Mechanical gates that operate at a different layer: `tools/lint-citations.py` (citation format), `tools/lint-standards-currency.py` (citation currency). Together with this skill, the three cover citation format, currency, and correspondence.

@@ -2,11 +2,11 @@
 
 **Document Title:** Privacy by Design Framework\
 **Document Type:** Framework\
-**Version:** 1.0.0\
-**Date:** 2026-06-30\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](standard-pseudonymisation-and-anonymisation.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
 **Classification:** Public\
 **Category:** Privacy\
 **Review Frequency:** Annual and upon material regulatory, jurisdictional, or product change\
@@ -16,23 +16,23 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This framework operationalizes the **data protection by design and by default** obligation in **GDPR Article 25** (Regulation (EU) 2016/679). It does so by mapping the seven foundational principles of privacy by design to the organisation's architecture and development-security workflows, so that data-protection measures are built into systems at the design stage rather than retrofitted.
+This framework operationalizes the **data protection by design and by default** obligation in **GDPR Article 25** (Regulation (EU) 2016/679). It does so by mapping the seven foundational principles of privacy by design to the organization's architecture and development-security workflows, so that data-protection measures are built into systems at the design stage rather than retrofitted.
 
-The framework distinguishes two things that are often conflated. **GDPR Article 25 is the legal obligation**: a binding, risk-calibrated duty on the controller to implement appropriate technical and organisational measures both when the means of processing are determined and during the processing itself. **The seven foundational principles are a conceptual model** (articulated by Ann Cavoukian as "Privacy by Design") that predates the Regulation and informs how the Article 25 obligation is met in practice. The principles are not GDPR text and carry no independent legal force; they are the design philosophy this framework uses to make the Article 25 duty actionable for architects and engineers.
+The framework distinguishes two things that are often conflated. **GDPR Article 25 is the legal obligation**: a binding, risk-calibrated duty on the controller to implement appropriate technical and organizational measures both when the means of processing are determined and during the processing itself. **The seven foundational principles are a conceptual model** (articulated by Ann Cavoukian as "Privacy by Design") that predates the Regulation and informs how the Article 25 obligation is met in practice. The principles are not GDPR text and carry no independent legal force; they are the design philosophy this framework uses to make the Article 25 duty actionable for architects and engineers.
 
 ---
 
 ## Scope
 
-This framework applies to the design, build, procurement, material change, and decommissioning of any system, product, service, or process that processes personal data, across all channels and jurisdictions in which the organisation operates. It applies to internally developed systems, externally hosted services, embedded or third-party components, and AI systems that process personal data.
+This framework applies to the design, build, procurement, material change, and decommissioning of any system, product, service, or process that processes personal data, across all channels and jurisdictions in which the organization operates. It applies to internally developed systems, externally hosted services, embedded or third-party components, and AI systems that process personal data.
 
-The legal duty in Article 25 falls on the **controller**. Where the organisation acts as a processor, or procures a product or service, it applies this framework to its own design decisions and uses contractual and supplier-assessment controls to obtain equivalent assurance from producers and processors, which Recital 78 encourages but does not directly bind. This framework does not displace the lawful-basis analysis (consent, legitimate interests, contract, and the rest); it governs how, once a basis is established, the processing is designed to protect data subjects.
+The legal duty in Article 25 falls on the **controller**. Where the organization acts as a processor, or procures a product or service, it applies this framework to its own design decisions and uses contractual and supplier-assessment controls to obtain equivalent assurance from producers and processors, which Recital 78 encourages but does not directly bind. This framework does not displace the lawful-basis analysis (consent, legitimate interests, contract, and the rest); it governs how, once a basis is established, the processing is designed to protect data subjects.
 
 ---
 
@@ -87,7 +87,7 @@ The principles are embedded into the secure-development lifecycle so that by-des
 | Proactive, not reactive | Privacy requirements are captured as acceptance criteria at the start of the build, per [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md). |
 | Privacy as the default | Default-deny accessibility, minimal-scope data collection, and conservative retention defaults are implemented and tested, not left to configuration. |
 | Privacy embedded into design | Privacy and security requirements are part of the developer security requirements ([`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md)), reviewed in code review. |
-| Full functionality | Privacy-preserving techniques (pseudonymization per [`privacy/standard-pseudonymisation-and-anonymisation.md`](standard-pseudonymisation-and-anonymisation.md), field-level encryption, data masking in non-production) are available as reusable components. |
+| Full functionality | Privacy-preserving techniques (pseudonymization per [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), field-level encryption, data masking in non-production) are available as reusable components. |
 | End-to-end security | Secure handling spans build, test, deployment, and decommissioning; test and non-production environments must not expose production personal data. |
 | Visibility and transparency | Processing and access are logged so the system's behaviour can be audited against its declared purpose. |
 | Respect for user privacy | Data-subject-rights endpoints and consent or objection signals are implemented and tested against the validity standard. |
@@ -113,7 +113,7 @@ This framework is operationalized through existing instruments rather than dupli
 
 - The **[DPIA template](template-dpia.md)** is the instrument for the Article 25(1) risk assessment where processing is likely to be high-risk.
 - The **[Legitimate Interest Assessment template](template-legitimate-interest-assessment.md)** is the design-stage lawful-basis assessment where Article 6(1)(f) is relied on; data minimization tested there feeds the by-default analysis.
-- The **[pseudonymisation and anonymisation standard](standard-pseudonymisation-and-anonymisation.md)** specifies the named Article 25(1) example measure.
+- The **[pseudonymization and anonymization standard](standard-pseudonymization-and-anonymization.md)** specifies the named Article 25(1) example measure.
 - The **[data classification and handling standard](../security/standard-data-classification-and-handling.md)** drives the lifecycle controls behind end-to-end security.
 - The **[privacy and data governance policy](policy-privacy-and-data-governance.md)** is the parent policy whose privacy-by-design-and-default commitment this framework operationalizes, and the **[privacy management programme charter](charter-privacy-management-programme.md)** is the accountability anchor.
 
@@ -126,7 +126,7 @@ This framework is operationalized through existing instruments rather than dupli
 3. Default configurations are evidenced against the four Article 25(2) dimensions before release, and the evidence is retained.
 4. Material changes to an existing system re-trigger the privacy-by-design checkpoint scoped to the change.
 5. The DPO reviews privacy-by-design outcomes for high-risk systems and is consulted on the design where the residual risk is material.
-6. Certification under Article 42, where the organisation holds it, is recorded as supporting (not conclusive) evidence of Article 25 compliance.
+6. Certification under Article 42, where the organization holds it, is recorded as supporting (not conclusive) evidence of Article 25 compliance.
 
 ---
 
@@ -156,7 +156,7 @@ This framework is operationalized through existing instruments rather than dupli
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. Adopting organisations must integrate the architecture-review and secure-development control points with their own lifecycle tooling, calibrate the risk thresholds that trigger a DPIA, and validate the requirements against the obligations of their applicable jurisdictions and sectoral regulators. The seven foundational principles are attributed to Ann Cavoukian's published framework and are paraphrased here; an organisation quoting them should cite that work directly. This framework is not a substitute for legal advice, and the certification mechanism in Article 25(3) is available only where an approved Article 42 scheme exists for the processing in question.
+This framework is a CC BY-SA 4.0 baseline. Adopting organizations must integrate the architecture-review and secure-development control points with their own lifecycle tooling, calibrate the risk thresholds that trigger a DPIA, and validate the requirements against the obligations of their applicable jurisdictions and sectoral regulators. The seven foundational principles are attributed to Ann Cavoukian's published framework and are paraphrased here; an organization quoting them should cite that work directly. This framework is not a substitute for legal advice, and the certification mechanism in Article 25(3) is available only where an approved Article 42 scheme exists for the processing in question.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Email Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`privacy/template-privacy-notice.md`](../privacy/template-privacy-notice.md)\
@@ -18,13 +18,13 @@
 
 ## 1. Purpose
 
-This standard defines the minimum email security controls operated by the organisation. It covers email authentication (SPF, DKIM, DMARC, BIMI), inbound anti-phishing and anti-malware controls, outbound controls, business email compromise (BEC) mitigations, user reporting, secure email gateway requirements, and the supplementary controls applicable to high-risk roles.
+This standard defines the minimum email security controls operated by the organization. It covers email authentication (SPF, DKIM, DMARC, BIMI), inbound anti-phishing and anti-malware controls, outbound controls, business email compromise (BEC) mitigations, user reporting, secure email gateway requirements, and the supplementary controls applicable to high-risk roles.
 
 ---
 
 ## 2. Scope
 
-This standard applies to every email domain operated by the organisation, every mailbox provisioned to a human or non-human identity, and every email path that originates from or terminates at the organisation. It applies regardless of whether email is hosted on an internal platform or a cloud email service.
+This standard applies to every email domain operated by the organization, every mailbox provisioned to a human or non-human identity, and every email path that originates from or terminates at the organization. It applies regardless of whether email is hosted on an internal platform or a cloud email service.
 
 It does not cover messaging platforms other than email (chat, SMS, in-product messaging); those are governed by the network communications security policy.
 
@@ -34,7 +34,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 
 | Control area | Requirement |
 | --- | --- |
-| SPF | A SPF record published for every domain capable of sending email; the record enumerates authorised senders and ends with `-all` (or `~all` only during a documented transition window) |
+| SPF | A SPF record published for every domain capable of sending email; the record enumerates authorized senders and ends with `-all` (or `~all` only during a documented transition window) |
 | DKIM | DKIM signing enabled on every sending domain; key length at minimum 2048 bits; keys rotated at minimum annually |
 | DMARC | DMARC record published for every domain with policy at minimum `p=quarantine` for primary domains and `p=reject` as the target state; aggregate and forensic reports collected and reviewed |
 | BIMI | BIMI deployed where DMARC `p=reject` is in force and brand-protection benefits the deployment |
@@ -106,7 +106,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | Control area | Requirement |
 | --- | --- |
 | Gateway tenancy | Dedicated secure-email-gateway functionality applies to all inbound and outbound mail; cloud-platform-native controls used where they meet or exceed the gateway baseline |
-| Sandboxing tenancy | Attachment sandboxing isolated per tenant or per organisation; cross-tenant detonation results not used |
+| Sandboxing tenancy | Attachment sandboxing isolated per tenant or per organization; cross-tenant detonation results not used |
 | Log integration | Secure-email-gateway and platform mail logs centralized in the SIEM; retention per the logging standard |
 | Mailbox audit logging | Mailbox-level auditing (sign-in, rule changes, mailbox permission changes) enabled |
 | Access to mailbox content | Privileged access to user mailbox content restricted, logged, and subject to approval per the privileged access standard |
@@ -120,7 +120,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | Control area | Requirement |
 | --- | --- |
 | AI-generated phishing | Detection content tuned to AI-generated phishing patterns (sophisticated grammar, brand mimicry, lack of typographic tells) |
-| AI assistants drafting outbound mail | Drafts containing organisation-confidential material processed only by AI systems compliant with the AI access and agent permissions standard |
+| AI assistants drafting outbound mail | Drafts containing organization-confidential material processed only by AI systems compliant with the AI access and agent permissions standard |
 | Indirect prompt injection via email | Where email content is consumed by an AI assistant, embedded prompt-injection patterns are mitigated per the AI security technical implementation guide |
 | Mailbox automation | AI agents acting on a mailbox use the agent-permissions framework; no shared mailbox impersonation |
 
@@ -132,7 +132,7 @@ It does not cover messaging platforms other than email (chat, SMS, in-product me
 | --- | --- |
 | Confirmed phishing successful (credential theft) | Per the security incident response procedure; credential reset; session revocation; investigation of downstream access |
 | Confirmed BEC successful (payment fraud) | Per the security incident response procedure with finance and legal engagement; banking partner notification; law enforcement notification per local statute |
-| Mass-phishing campaign targeting the organisation | Inbound filters tuned; user communication; reporting threshold lowered; coordination with peer organisations where appropriate |
+| Mass-phishing campaign targeting the organization | Inbound filters tuned; user communication; reporting threshold lowered; coordination with peer organizations where appropriate |
 | Outbound mail abuse (compromised account sending mass mail) | Affected account isolated; rate limits engaged; reputation remediation; cause analysis |
 
 ---
