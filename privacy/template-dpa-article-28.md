@@ -2,8 +2,8 @@
 
 **Document Title:** Data Processing Agreement Template (GDPR Article 28)\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-06-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -24,7 +24,7 @@
 
 This template defines the structure of a **data processing agreement (DPA)** sufficient to satisfy the controller-to-processor contract that **GDPR Article 28(3)** requires whenever a controller engages a processor to process personal data on its behalf. It collects, into one populatable instrument, the eight mandatory processor obligations of Article 28(3)(a) to (h) plus the sub-processor conditions of Article 28(2) and (4) and the written-form requirement of Article 28(9). It also accommodates the equivalent processor-contract obligation under UK GDPR Article 28 and the analogous operator or processor obligations under LGPD (Brazil), PIPL (China), and PIPEDA (Canada, accountability for transfers to third parties for processing).
 
-A populated DPA is a binding contractual instrument between a controller and a processor. It must be in writing (including electronic form, per Article 28(9)), signed by authorised representatives of each party, and retained as a legal record per the organisation's retention schedule. The populated agreement is sensitive contractual data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
+A populated DPA is a binding contractual instrument between a controller and a processor. It must be in writing (including electronic form, per Article 28(9)), signed by authorized representatives of each party, and retained as a legal record per the organization's retention schedule. The populated agreement is sensitive contractual data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
 
 Before this template existed, the controller-processor obligations were distributed across the privacy policy, the supplier-assurance standard, the sub-processor register, and several procedures (see Related Documents). This template consolidates the Article 28(3) clause set into a single instrument; the related documents remain the home of the surrounding programme controls (supplier due diligence, the sub-processor list, breach-response assistance, retention of the executed DPA).
 
@@ -60,8 +60,8 @@ Article 28(3) requires the contract to set out the subject-matter and duration o
 
 | Field | Description |
 | --- | --- |
-| Controller | Legal name, registered address, and authorised contact of the controller. |
-| Processor | Legal name, registered address, and authorised contact of the processor. |
+| Controller | Legal name, registered address, and authorized contact of the controller. |
+| Processor | Legal name, registered address, and authorized contact of the processor. |
 | Subject-matter of the processing | What the processing is for, in one sentence. |
 | Duration of the processing | The term, tied to the underlying service agreement and the retention obligation in Section 8. |
 | Nature and purpose of the processing | The operations performed (for example storage, hosting, support, analytics) and the controller's purpose. |
@@ -73,7 +73,7 @@ Article 28(3) requires the contract to set out the subject-matter and duration o
 
 | Field | Requirement |
 | --- | --- |
-| Documented-instructions clause | The processor processes the personal data only on the controller's documented instructions, including for any transfer to a third country or international organisation, unless required to process by Union or Member State law. |
+| Documented-instructions clause | The processor processes the personal data only on the controller's documented instructions, including for any transfer to a third country or international organization, unless required to process by Union or Member State law. |
 | Legal-requirement notification | Where law compels processing beyond the instructions, the processor informs the controller of that legal requirement before processing, unless the law prohibits such notification on important grounds of public interest. |
 | Record of instructions | Where the controller records its instructions (the engagement contract, the configured service scope, this DPA's annexes). |
 
@@ -81,29 +81,29 @@ Article 28(3) requires the contract to set out the subject-matter and duration o
 
 | Field | Requirement |
 | --- | --- |
-| Confidentiality commitment | The processor requires that persons authorised to process the personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality. |
+| Confidentiality commitment | The processor requires that persons authorized to process the personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality. |
 
 ### Section 4: Security of processing (Article 28(3)(c), Article 32)
 
 | Field | Requirement |
 | --- | --- |
-| Technical and organisational measures | The processor takes all measures required under Article 32 (appropriate technical and organisational measures to provide a level of security appropriate to the risk). |
+| Technical and organizational measures | The processor takes all measures required under Article 32 (appropriate technical and organizational measures to provide a level of security appropriate to the risk). |
 | Measures reference | Where the agreed measures are specified (a security annex, the processor's certifications, the controller's security requirements). |
 
 ### Section 5: Sub-processors (Article 28(2), Article 28(3)(d), Article 28(4))
 
 | Field | Requirement |
 | --- | --- |
-| Sub-processor authorisation | The processor does not engage another processor without the controller's prior specific or general written authorisation (Article 28(2)). |
-| Change notification | Under a general authorisation, the processor informs the controller of intended additions or replacements of sub-processors, giving the controller the opportunity to object. |
-| Sub-processor list | A reference to the maintained list of authorised sub-processors; use [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md). |
+| Sub-processor authorization | The processor does not engage another processor without the controller's prior specific or general written authorization (Article 28(2)). |
+| Change notification | Under a general authorization, the processor informs the controller of intended additions or replacements of sub-processors, giving the controller the opportunity to object. |
+| Sub-processor list | A reference to the maintained list of authorized sub-processors; use [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md). |
 | Flow-down of obligations | The same data-protection obligations as in this DPA are imposed on each sub-processor by contract (Article 28(4)); the initial processor remains fully liable to the controller for a sub-processor's failure. |
 
 ### Section 6: Assistance with data-subject rights (Article 28(3)(e))
 
 | Field | Requirement |
 | --- | --- |
-| Data-subject-rights assistance | Taking into account the nature of the processing, the processor assists the controller by appropriate technical and organisational measures, insofar as possible, in responding to requests to exercise the data subject's rights under Chapter III. |
+| Data-subject-rights assistance | Taking into account the nature of the processing, the processor assists the controller by appropriate technical and organizational measures, insofar as possible, in responding to requests to exercise the data subject's rights under Chapter III. |
 | Procedure reference | The controller fulfils requests using [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md); the DPA records how the processor supports each request type. |
 
 ### Section 7: Assistance with controller obligations (Article 28(3)(f), Articles 32 to 36)
@@ -140,14 +140,14 @@ Article 28(3) requires the contract to set out the subject-matter and duration o
 | Field | Requirement |
 | --- | --- |
 | Written form | The agreement is in writing, including electronic form. |
-| Authorised signatures | Signed by authorised representatives of the controller and the processor; record the signatory, role, and date for each party. |
+| Authorized signatures | Signed by authorized representatives of the controller and the processor; record the signatory, role, and date for each party. |
 | Standard contractual clauses | Where the parties rely on Commission or supervisory-authority standard contractual clauses to form the contract in whole or part (Article 28(6) to (8)), record the SCC set and version used. |
 
 ---
 
 ## Use guidance
 
-Adopters populate this template before the processor begins processing. The completed DPA is signed by authorised representatives of both parties and retained per Section 8.
+Adopters populate this template before the processor begins processing. The completed DPA is signed by authorized representatives of both parties and retained per Section 8.
 
 The sub-processor list referenced in Section 5 is maintained separately in [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md); the processor-view record of processing required by Article 30(2) is maintained using [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md). Supplier-side due diligence on the processor's Article 28(1) sufficient guarantees is performed under [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
 

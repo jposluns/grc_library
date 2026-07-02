@@ -2,8 +2,8 @@
 
 **Document Title:** SOX IT General Controls Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](../standard-internal-audit.md), [`compliance/procedure-control-testing.md`](../procedure-control-testing.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex describes how organisations subject to the Sarbanes-Oxley Act (SOX) sections 302 and 404, or equivalent financial-reporting integrity regimes elsewhere (J-SOX in Japan, C-SOX in Canada, equivalents), can use the core GRC library to demonstrate IT General Controls (ITGC) supporting Internal Control over Financial Reporting (ICFR). The annex maps the library to the four ITGC domains, identifies the auditor expectations, and lists the artefacts that adopting entities must produce alongside the library to evidence operating effectiveness.
+This annex describes how organizations subject to the Sarbanes-Oxley Act (SOX) sections 302 and 404, or equivalent financial-reporting integrity regimes elsewhere (J-SOX in Japan, C-SOX in Canada, equivalents), can use the core GRC library to demonstrate IT General Controls (ITGC) supporting Internal Control over Financial Reporting (ICFR). The annex maps the library to the four ITGC domains, identifies the auditor expectations, and lists the artefacts that adopting entities must produce alongside the library to evidence operating effectiveness.
 
 This annex does not reproduce PCAOB Auditing Standard 2201, COSO Internal Control Integrated Framework, or auditor-specific testing procedures. Adopting entities consume those from the official source and their external auditor.
 
@@ -26,7 +26,7 @@ This annex does not reproduce PCAOB Auditing Standard 2201, COSO Internal Contro
 
 ## Applicability triggers
 
-This annex applies where the organisation is:
+This annex applies where the organization is:
 
 1. A US-listed company subject to SOX 302 and 404.
 2. A foreign private issuer with US listings subject to SOX 404(a).
@@ -57,7 +57,7 @@ ITGC are organized in four domains. Each domain has a stable set of control obje
 
 | Control objective | Library artefact |
 | --- | --- |
-| Access provisioning is authorised | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`security/procedure-access-control.md`](../../security/procedure-access-control.md) |
+| Access provisioning is authorized | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`security/procedure-access-control.md`](../../security/procedure-access-control.md) |
 | Access deprovisioning is timely on termination or transfer | [`security/procedure-onboarding-and-offboarding.md`](../../security/procedure-onboarding-and-offboarding.md) |
 | Privileged access is restricted, monitored, and recertified | [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
 | Segregation of duties between conflicting roles | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md); entity-specific SoD ruleset |
@@ -72,9 +72,9 @@ Typical auditor evidence: ticketed access requests with approvals, ticketed depr
 
 | Control objective | Library artefact |
 | --- | --- |
-| Changes are authorised before development | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
+| Changes are authorized before development | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) |
 | Changes are tested before production deployment | [`dev-security/standard-quality-assurance-and-testing.md`](../../dev-security/standard-quality-assurance-and-testing.md) |
-| Changes are approved by an authorised role before production deployment | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
+| Changes are approved by an authorized role before production deployment | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
 | Developers cannot deploy to production unsupervised | [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |
 | Emergency change procedure exists with post-implementation approval | [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) |
 | Source-control history is the system of record for code changes | [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md) |

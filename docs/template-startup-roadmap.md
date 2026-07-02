@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.5\
+**Version:** 2.2.6\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template helps an adopter compose a starting set of library artefacts from a small core baseline plus stacking modules. The composition matches what the organisation actually does (its activities, data scope, audience, regulatory exposure, and GRC team capacity), rather than a pre-set profile by company size or sector.
+This template helps an adopter compose a starting set of library artefacts from a small core baseline plus stacking modules. The composition matches what the organization actually does (its activities, data scope, audience, regulatory exposure, and GRC team capacity), rather than a pre-set profile by company size or sector.
 
 This is the long-form composition workbook. Readers who want a 10-minute on-ramp first should start with [`docs/template-quickstart.md`](template-quickstart.md); this roadmap is the next step after the quickstart, for adopters ready to work through the full module catalogue.
 
@@ -26,7 +26,7 @@ This is the long-form composition workbook. Readers who want a 10-minute on-ramp
 
 The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of five deeper-dive paths that branch off the portal; it answers "how do I compose the full starting set across activity, data, audience, regulatory exposure, and capacity?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1; the 10-minute on-ramp version of this workbook), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
-The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organisation. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
+The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organization. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
 
 A composition is a starting point, not a final scope. Adopters typically grow into adjacent modules as the programme matures; the [`docs/adopter-guide.md`](adopter-guide.md) section "Maturity progression" describes the standard growth path.
 
@@ -34,9 +34,9 @@ A composition is a starting point, not a final scope. Adopters typically grow in
 
 ## Scope
 
-This template applies to organisations adopting the library for the first time and to organisations consolidating an existing adoption against this library's structure.
+This template applies to organizations adopting the library for the first time and to organizations consolidating an existing adoption against this library's structure.
 
-The composition shape (core baseline plus stacking modules) replaces the earlier per-profile categorisation. Categorical profiles (small business, mid-market, multi-national, etc.) were tested against real adopter shapes and found too rigid: real organisations sit across categories, and the same category contains very different operational realities. Activities, data, audience, regulatory exposure, and team capacity are the dimensions that actually drive what an organisation needs from the library.
+The composition shape (core baseline plus stacking modules) replaces the earlier per-profile categorization. Categorical profiles (small business, mid-market, multi-national, etc.) were tested against real adopter shapes and found too rigid: real organizations sit across categories, and the same category contains very different operational realities. Activities, data, audience, regulatory exposure, and team capacity are the dimensions that actually drive what an organization needs from the library.
 
 Out of scope: bespoke profile shapes marked Out of scope in [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) §1 (defence and aerospace, mining, agriculture, etc.). Adopters whose shape is materially different from anything composable here should consult the decision tree directly.
 
@@ -44,22 +44,22 @@ Out of scope: bespoke profile shapes marked Out of scope in [`governance/registe
 
 ## The core baseline
 
-Every adopter copies this set on Day 1, regardless of size, sector, or maturity. The reasoning: every organisation has staff data, IT, vendors, and the possibility of an incident. The baseline is the floor below which the programme cannot be defended.
+Every adopter copies this set on Day 1, regardless of size, sector, or maturity. The reasoning: every organization has staff data, IT, vendors, and the possibility of an incident. The baseline is the floor below which the programme cannot be defended.
 
 | Domain | Artefact | Why it is in the baseline |
 | --- | --- | --- |
-| `governance/` | one foundational policy (e.g. [`security/policy-information-security.md`](../security/policy-information-security.md) or equivalent) | A single overarching policy that names the organisation's posture and the owner of that posture. |
+| `governance/` | one foundational policy (e.g. [`security/policy-information-security.md`](../security/policy-information-security.md) or equivalent) | A single overarching policy that names the organization's posture and the owner of that posture. |
 | `security/` | [`policy-acceptable-use.md`](../security/policy-acceptable-use.md), [`policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) | The three documents that the largest share of incidents touch. |
-| `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organisation that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
-| `risk/` | [`policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | The posture-setting enterprise risk governance policy: it names the organisation's risk appetite and who owns it, and it is the same risk artefact named in the quickstart Day-1 floor and the adopter-guide Tier 1 set. Populating [`procedure-risk-register.md`](../risk/procedure-risk-register.md) with the actual top 10 risks is the recommended early follow-on (a short, real register beats a long imagined one), not a separate Day-1 floor artefact. |
+| `privacy/` | [`policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the home-jurisdiction annex from [`privacy/jurisdictions/`](../privacy/jurisdictions/) | Even an organization that does not collect customer data has staff data; the home-jurisdiction privacy law is the floor. |
+| `risk/` | [`policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | The posture-setting enterprise risk governance policy: it names the organization's risk appetite and who owns it, and it is the same risk artefact named in the quickstart Day-1 floor and the adopter-guide Tier 1 set. Populating [`procedure-risk-register.md`](../risk/procedure-risk-register.md) with the actual top 10 risks is the recommended early follow-on (a short, real register beats a long imagined one), not a separate Day-1 floor artefact. |
 
-The baseline is six artefacts. An organisation that has copied and customized these six has a defensible floor. Layer modules on top.
+The baseline is six artefacts. An organization that has copied and customized these six has a defensible floor. Layer modules on top.
 
 ---
 
 ## How to use the modules
 
-Modules are organized in five dimensions. For each dimension, identify which modules apply to your organisation and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
+Modules are organized in five dimensions. For each dimension, identify which modules apply to your organization and copy the artefacts each module names. Modules are additive (you can pick more than one in each dimension); they are also independent (you can pick A2 without A1 if you ship external-facing SaaS but do not build it in-house).
 
 | Dimension | Question to ask |
 | --- | --- |
@@ -69,7 +69,7 @@ Modules are organized in five dimensions. For each dimension, identify which mod
 | D. Regulatory exposure | Who regulates us? |
 | E. GRC team capacity | How much can we maintain? |
 
-Dimension E (capacity) scales every other module: an organisation with a one-person GRC function copies the minimum viable subset of each chosen module; an organisation with a department copies the full set plus measurement infrastructure.
+Dimension E (capacity) scales every other module: an organization with a one-person GRC function copies the minimum viable subset of each chosen module; an organization with a department copies the full set plus measurement infrastructure.
 
 ---
 
@@ -79,7 +79,7 @@ Dimension E (capacity) scales every other module: an organisation with a one-per
 
 #### A1: We build software in-house (custom internal development)
 
-Triggered by any in-house software development, including internal tools, automation, scripting, infrastructure-as-code, and customisation of off-the-shelf platforms.
+Triggered by any in-house software development, including internal tools, automation, scripting, infrastructure-as-code, and customization of off-the-shelf platforms.
 
 Adopt:
 - [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md): the floor for any internal development.
@@ -98,7 +98,7 @@ Adopt the A1 set plus:
 
 #### A3: We use AI in operations (any AI deployment)
 
-Triggered by use of AI in customer-facing or internal workflows: chat assistants, document summarisation, decision support, content generation, recommendation systems, etc.
+Triggered by use of AI in customer-facing or internal workflows: chat assistants, document summarization, decision support, content generation, recommendation systems, etc.
 
 Adopt:
 - [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md): the AI policy floor.
@@ -138,7 +138,7 @@ Adopt:
 
 #### B1: Customer or external personal data
 
-Triggered by any processing of personal data belonging to people outside the organisation (customers, prospects, members, patients, etc.). Most organisations trigger this.
+Triggered by any processing of personal data belonging to people outside the organization (customers, prospects, members, patients, etc.). Most organizations trigger this.
 
 Adopt:
 - [`privacy/`](../privacy/) core: policy, jurisdiction annex(es), [`template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md), [`procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md).
@@ -149,7 +149,7 @@ Adopt:
 Triggered by processing data classified as special-category under GDPR or equivalent regimes.
 
 Adopt the B1 set plus:
-- [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md).
+- [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md).
 - The relevant framework documents (e.g. [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md)).
 - Stricter retention controls per the data type.
 
@@ -196,7 +196,7 @@ Adopt:
 - B1 with consumer-facing emphasis: cookies and tracker register, privacy notice, consent management.
 - Breach-notification procedure tuned to consumer-notification timelines (often regulated; e.g. 72 hours under GDPR; specific state laws in the US).
 
-#### C2: Businesses (B2B; your customers are other organisations)
+#### C2: Businesses (B2B; your customers are other organizations)
 
 Adopt:
 - [`supply-chain/`](../supply-chain/) (you ARE someone's vendor): vendor security questionnaire, attestation patterns, contract security terms.
@@ -256,7 +256,7 @@ Copy the full set of each module plus measurement infrastructure (metrics, dashb
 
 ### Example 1: Mid-size SaaS with EU customers and AI features
 
-A 60-person SaaS company. Customers across EU, UK, and US. Custom internal development, external-facing SaaS. Uses AI for feature delivery (text summarisation, recommendation). Lightly regulated (general privacy law only). One-person privacy function plus part-time engineering-security lead (E2-bordering-E3).
+A 60-person SaaS company. Customers across EU, UK, and US. Custom internal development, external-facing SaaS. Uses AI for feature delivery (text summarization, recommendation). Lightly regulated (general privacy law only). One-person privacy function plus part-time engineering-security lead (E2-bordering-E3).
 
 Composition:
 - Core baseline (mandatory).

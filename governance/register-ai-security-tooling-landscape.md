@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.4\
-**Date:** 2026-07-01\
+**Version:** 1.1.5\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -22,11 +22,11 @@ This register documents the AI security tooling landscape originally surveyed in
 
 Unlike the Canonical Citations Register, which records citations that library content uses authoritatively, this register is a landscape catalogue. It serves three purposes:
 
-- **Adopter orientation**: organisations adopting library content can use this register to find concrete tooling choices that implement the abstract controls in the library standards.
+- **Adopter orientation**: organizations adopting library content can use this register to find concrete tooling choices that implement the abstract controls in the library standards.
 - **Future-content backing**: as the library expands its AI security coverage, this register identifies the tools and threat-class definitions that converge across multiple independent projects.
 - **GRC gap traceability**: each entry records the specific concern or gap the project surfaced, providing an audit trail back to why a given control or threat class exists in the library.
 
-This register is **not** a recommendation list or an endorsement. Inclusion does not imply suitability, fitness, or adoption. Adopting organisations perform their own evaluation against the criteria in the relevant library standards.
+This register is **not** a recommendation list or an endorsement. Inclusion does not imply suitability, fitness, or adoption. Adopting organizations perform their own evaluation against the criteria in the relevant library standards.
 
 ---
 
@@ -97,14 +97,14 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **License**: MIT (SDK and model weights); training-corpus licenses tracked in `training/CORPUS_LICENSES.json`.
 - **Library reference status**: Referenced as exemplar (Phase 23.1 controls reflect its structural firewall pattern).
 - **Key capabilities**:
-  - Unicode normalisation: zero-width strip, BIDI smuggling defence, NFKC fold, homoglyph fold, combining-mark collapse, regional-indicator stego decode, per-sink length cap.
+  - Unicode normalization: zero-width strip, BIDI smuggling defence, NFKC fold, homoglyph fold, combining-mark collapse, regional-indicator stego decode, per-sink length cap.
   - Per-call nonce fence around each untrusted input.
-  - Forged chat-template token neutralisation (`<|im_start|>`, `[INST]`, `<<SYS>>`, etc.).
+  - Forged chat-template token neutralization (`<|im_start|>`, `[INST]`, `<<SYS>>`, etc.).
   - Sink-based policy: distinct rules per input class (trusted instructions, user messages, tool outputs, RAG chunks).
   - Tripwire regex flag-only layer.
   - L5e ML classifier (ONNX, ~14 MB, INT8, single-digit ms CPU inference).
   - Output guard removing markdown image URLs and tracking links to non-allow-listed domains.
-- **GRC concern surfaced**: Library codified AI content safety filter mandates at high level but did not require Unicode normalisation, per-call nonces, forged-token neutralisation, sink-policy framework, or output-side silent-exfil defences. Phase 23.1 closed these gaps.
+- **GRC concern surfaced**: Library codified AI content safety filter mandates at high level but did not require Unicode normalization, per-call nonces, forged-token neutralization, sink-policy framework, or output-side silent-exfil defences. Phase 23.1 closed these gaps.
 - **Status notes**: Signed npm provenance, Sigstore cosign signatures, SLSA provenance, CycloneDX SBOM. Live adversarial challenge at anton.securelayer7.net.
 - **Provenance**:
   - Source URL: `https://github.com/securelayer7/PROMPTPurify`
@@ -116,7 +116,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 #### 5.1.2 Protect AI llm-guard
 
-- **Scope**: Comprehensive Python toolkit for sanitisation, harmful-language detection, data-leak prevention, and prompt-injection defence on LLM prompts and completions.
+- **Scope**: Comprehensive Python toolkit for sanitization, harmful-language detection, data-leak prevention, and prompt-injection defence on LLM prompts and completions.
 - **License**: MIT.
 - **Library reference status**: Cited in Phase 23.6 register; referenced as exemplar for input/output scanner inventory in Phase 23.1.
 - **Key capabilities**:
@@ -130,7 +130,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - URLReachability (output): network-fetch check of LLM-emitted URLs.
   - Deanonymize: PII placeholder re-injection paired with Anonymize.
 - **GRC concern surfaced**: Demonstrates that input/output scanner inventory should be enumerated as discrete control categories rather than abstract "content safety filter". OWASP LLM Top 10 per-scanner mapping pattern.
-- **Status notes**: Ships as Python library and `llm_guard_api` HTTP service. ONNX optimisation supported.
+- **Status notes**: Ships as Python library and `llm_guard_api` HTTP service. ONNX optimization supported.
 - **Provenance**:
   - Source URL: `https://github.com/protectai/llm-guard`
   - Version at assessment: default branch HEAD
@@ -172,7 +172,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Layer 4: Audit log: SQLite, 500 MB cap, 90-day retention.
   - Policy modes: strict / supervised / permissive.
   - Web dashboard for approval queue, timeline, rule editing, audit export.
-- **GRC concern surfaced**: Library covered tool-call schema validation but did not articulate a sidecar/proxy interception pattern with bidirectional tool I/O sanitisation. Pattern reflected in MCP-SEC-08 (tool description scanning at load time).
+- **GRC concern surfaced**: Library covered tool-call schema validation but did not articulate a sidecar/proxy interception pattern with bidirectional tool I/O sanitization. Pattern reflected in MCP-SEC-08 (tool description scanning at load time).
 - **Status notes**: Active. Two plugin variants for OpenClaw API breakage.
 - **Provenance**:
   - Source URL: `https://github.com/Claw-Guard/ClawGuard`
@@ -190,7 +190,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**:
   - Parallel defence and prosecution agents constructing arguments for/against injection classification.
   - Judge model rendering verdict.
-  - Dedicated extractor model normalising judge output (motivated by Gemma lack of structured output).
+  - Dedicated extractor model normalizing judge output (motivated by Gemma lack of structured output).
   - Reference wiring with Gemma-3-12b, Llama-3-8b, Phi-4-mini.
 - **GRC concern surfaced**: None requiring library change. Pattern is novel but not yet production-credible.
 - **Status notes**: Research artefact; sparse README.
@@ -275,7 +275,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **License**: Apache 2.0.
 - **Library reference status**: Cited in Phase 23.6 register; archive flagged.
 - **Key capabilities**:
-  - Secrets redaction (pre-flight) with post-response unredaction (reversible pseudonymisation).
+  - Secrets redaction (pre-flight) with post-response unredaction (reversible pseudonymization).
   - PII redaction: credit cards, SSNs, generic PII.
   - Dependency-risk scanning: vulnerable packages, outdated packages, hallucinated/non-existent package recommendations.
   - Malicious-package detection.
@@ -283,7 +283,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Workspace management and model muxing.
   - Centralized credential vault.
 - **Supported clients**: GitHub Copilot, Cline, Continue, Aider, Open Interpreter.
-- **GRC concern surfaced**: Library covered prohibited data categories for AI coding assistants but did not articulate the reversible-pseudonymisation pattern that lets developers benefit from AI on sensitive data with reduced leakage. Phase 23.2 referenced this pattern.
+- **GRC concern surfaced**: Library covered prohibited data categories for AI coding assistants but did not articulate the reversible-pseudonymization pattern that lets developers benefit from AI on sensitive data with reduced leakage. Phase 23.2 referenced this pattern.
 - **Status notes**: Archived June 2025.
 - **Provenance**:
   - Source URL: `https://github.com/stacklok/codegate`
@@ -384,7 +384,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - packagehallucination: slopsquatting bait.
   - visual_jailbreak: multimodal.
   - ANSI-escape terminal-injection probe.
-  - leakreplay for training-data memorisation.
+  - leakreplay for training-data memorization.
 - **GRC concern surfaced**: packagehallucination probe reinforces dev-security DEVSEC-AI-04 (already in library) and standard-developer-security-requirements §10 hallucinated-package coverage. ansiescape and visual_jailbreak surface multimodal and out-of-band-channel threats addressed in Phase 23.4 RUNTIME-SEC-07.
 - **Status notes**: Active. CI matrix Linux/Windows/macOS.
 - **Provenance**:
@@ -585,7 +585,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Multi-turn challenger-target conversations.
   - Vendor-agnostic across OpenAI/Anthropic/Bedrock/Vertex/Azure/HF/vLLM/Ollama.
   - Q&A quality, brand-value alignment, demographic bias, safety, security (system-prompt extraction), equivalence/regression testing.
-- **GRC concern surfaced**: None requiring library change. Promotes programmable-pipeline pattern (vs config-YAML) for organisations with research-style testing teams.
+- **GRC concern surfaced**: None requiring library change. Promotes programmable-pipeline pattern (vs config-YAML) for organizations with research-style testing teams.
 - **Status notes**: Active.
 - **Provenance**:
   - Source URL: `https://github.com/BCG-X-Official/artkit`
@@ -624,7 +624,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Attackers: ArtPrompt, Taxonomy/persuasion, PAIR, ManyShot, ASCII Smuggling (Unicode tags), Genetic, Hallucinations (RLHF bypass), DAN, WordGame, Crescendo, ActorAttack (semantic-network multi-turn), Best-of-N, SI-Attack (shuffle inconsistency), Back-To-The-Past, History/Academic Framing, Please-prefix/suffix, Thought Experiment.
   - Plug-in classifier system.
   - Enterprise-style logging.
-- **GRC concern surfaced**: ASCII smuggling and Unicode-tag attacks reinforce Phase 23.1 Unicode normalisation requirement.
+- **GRC concern surfaced**: ASCII smuggling and Unicode-tag attacks reinforce Phase 23.1 Unicode normalization requirement.
 - **Status notes**: Active.
 - **Provenance**:
   - Source URL: `https://github.com/cyberark/FuzzyAI`
@@ -725,7 +725,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**:
   - Supported formats: pickle, _pickle, cloudpickle, dill, joblib, H5/HDF5, Keras V3, TensorFlow SavedModel.
   - Severity model: Critical / High / Medium / Low.
-  - Critical detections: Python builtins (eval, exec, compile, open, breakpoint, __import__, getattr, apply); OS/process (os, nt, posix, sys, subprocess, socket, shutil); debug/runtime (pdb, bdb, pty); serialisation (pickle, _pickle); async/runtime (asyncio, runpy); reflection (operator.attrgetter).
+  - Critical detections: Python builtins (eval, exec, compile, open, breakpoint, __import__, getattr, apply); OS/process (os, nt, posix, sys, subprocess, socket, shutil); debug/runtime (pdb, bdb, pty); serialization (pickle, _pickle); async/runtime (asyncio, runpy); reflection (operator.attrgetter).
   - High: network/HTTP (webbrowser, httplib, requests.api, aiohttp.client); TF ops (ReadFile, WriteFile, io.MatchingFiles).
   - Medium: Keras Lambda layers, unknown/custom operators.
 - **GRC concern surfaced**: Library covered model provenance and trust_remote_code=False but did not mandate scanning. Drove Phase 23.3 SUPPLY-SEC-07.
@@ -760,12 +760,12 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 #### 5.3.3 Trail of Bits fickling
 
-- **Scope**: Pickle decompiler, static analyser, taint-aware tracer, and bytecode rewriter by Trail of Bits.
+- **Scope**: Pickle decompiler, static analyzer, taint-aware tracer, and bytecode rewriter by Trail of Bits.
 - **License**: LGPL-3.0.
 - **Library reference status**: Cited in Phase 23.6 register with copyleft-caution flag.
 - **Key capabilities**:
   - Decompiles pickle to Python AST for analyst review.
-  - Static analyser with severity tiers: LIKELY_SAFE, SUSPICIOUS, LIKELY_UNSAFE, OVERTLY_BAD.
+  - Static analyzer with severity tiers: LIKELY_SAFE, SUSPICIOUS, LIKELY_UNSAFE, OVERTLY_BAD.
   - Analyses: UnsafeImports, OvertlyBadEvals, NonStandardImports, UnusedVariables, BadCalls.
   - Tracing: prints opcodes and stack effects symbolically.
   - Injection: rewrites pickle to additionally execute attacker code (red-team testing).
@@ -1031,7 +1031,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Scope**: Burp Suite extension submitting HTTP traffic to OpenAI GPT models for passive vulnerability analysis.
 - **License**: Apache-2.0.
 - **Library reference status**: Surveyed only.
-- **Key capabilities**: Passive scan check; placeholder-based dynamic prompt customisation; multi-model OpenAI support.
+- **Key capabilities**: Passive scan check; placeholder-based dynamic prompt customization; multi-model OpenAI support.
 - **GRC concern surfaced**: Explicit data-privacy caveat (traffic sent to OpenAI for analysis): relevant to vendor-telemetry control in dev-security guideline.
 - **Status notes**: Active.
 - **Provenance**:
@@ -1119,7 +1119,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Scope**: LLM security gateway / moderation.
 - **License**: Commercial SaaS.
 - **Library reference status**: Surveyed only.
-- **Key capabilities**: DLP (PII, code, IP); malicious-code/malware detection; full auditability; customisable scanners; ML + rule-based; adversarial simulation; RL-driven red teaming; model-agnostic.
+- **Key capabilities**: DLP (PII, code, IP); malicious-code/malware detection; full auditability; customizable scanners; ML + rule-based; adversarial simulation; RL-driven red teaming; model-agnostic.
 - **Provenance**:
   - Source URL: `https://moderator.calypsoai.com/solutions`
   - Version at assessment: product page content at assessment
@@ -1186,8 +1186,8 @@ The following table cross-references the gaps surfaced by projects in this regis
 
 | GRC gap | Closed by | Projects surfacing |
 | --- | --- | --- |
-| Unicode normalisation as proactive control | Phase 23.1 AI-SEC-INP-06 | PROMPTPurify, llm-guard, ClawGuard |
-| Forged chat-template token neutralisation | Phase 23.1 AI-SEC-INP-07 | PROMPTPurify, promptfoo |
+| Unicode normalization as proactive control | Phase 23.1 AI-SEC-INP-06 | PROMPTPurify, llm-guard, ClawGuard |
+| Forged chat-template token neutralization | Phase 23.1 AI-SEC-INP-07 | PROMPTPurify, promptfoo |
 | Per-call nonce fences | Phase 23.1 AI-SEC-INP-08 | PROMPTPurify |
 | Flag-only tripwire regex layer | Phase 23.1 AI-SEC-INP-09 | PROMPTPurify, NeMo Guardrails, Vigil-LLM |
 | Output URL allow-list (silent-exfil defence) | Phase 23.1 AI-SEC-OUT-05 | llm-guard, ClawGuard, PROMPTPurify |

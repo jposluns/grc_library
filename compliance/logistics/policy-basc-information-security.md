@@ -2,7 +2,7 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.3\
+**Version:** 1.2.4\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,13 +18,13 @@
 
 ## 1. Purpose
 
-This policy establishes the framework for managing and protecting the organisation's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
+This policy establishes the framework for managing and protecting the organization's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
 
 ---
 
 ## 2. Scope
 
-Applies to all employees, contractors, and third parties accessing the organisation's information systems, data, and technology resources.
+Applies to all employees, contractors, and third parties accessing the organization's information systems, data, and technology resources.
 
 ---
 
@@ -56,7 +56,7 @@ Applies to all employees, contractors, and third parties accessing the organisat
 
 ## 5. BASC information security requirements
 
-All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organisation's control areas.
+All requirements identified in Chapter 6 of the BASC International Security Standard are mapped below to the organization's control areas.
 
 | ID | Description | Control Area |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 
 An Information Security Manager is formally appointed and assigned responsibility for information security.
 
-This policy is reviewed at least annually, or following any significant changes to the organisation's environment, with all revisions documented and approved by the CIO.
+This policy is reviewed at least annually, or following any significant changes to the organization's environment, with all revisions documented and approved by the CIO.
 
 Information assets are classified by sensitivity per the canonical [Data Classification and Handling Standard](../../security/standard-data-classification-and-handling.md): Public, Controlled, Internal, Confidential, Restricted.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-06-30\
+**Version:** 0.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex describes how organisations operating in energy generation, transmission, distribution, supply, oil and gas, drinking water, waste water, and district heating can use the core library while satisfying the overlay obligations imposed by sector-specific regulators and standards. It covers operational technology (OT) and industrial control system (ICS) cybersecurity, critical-infrastructure-protection standards, sector incident reporting, physical-cyber convergence, and supplier and component security particular to energy and utilities.
+This annex describes how organizations operating in energy generation, transmission, distribution, supply, oil and gas, drinking water, waste water, and district heating can use the core library while satisfying the overlay obligations imposed by sector-specific regulators and standards. It covers operational technology (OT) and industrial control system (ICS) cybersecurity, critical-infrastructure-protection standards, sector incident reporting, physical-cyber convergence, and supplier and component security particular to energy and utilities.
 
 This annex does not reproduce the text of NERC CIP, IEC 62443, ENTSO-E network codes, or national sector law. Adopting entities consume those from the official source.
 
@@ -26,7 +26,7 @@ This annex does not reproduce the text of NERC CIP, IEC 62443, ENTSO-E network c
 
 ## Applicability triggers
 
-This annex applies where the organisation operates or supports:
+This annex applies where the organization operates or supports:
 
 1. Electricity generation, transmission, or distribution above any nationally defined threshold.
 2. Natural gas, LNG, or hydrogen transmission, distribution, or storage.
@@ -45,7 +45,7 @@ Subsector-specific obligations vary materially. The annex identifies overlay are
 
 | Regime | Applicability | Library support |
 | --- | --- | --- |
-| NERC CIP (CIP-002 through CIP-014) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorisation |
+| NERC CIP (CIP-002 through CIP-014) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorization |
 | EU NIS 2 | Energy and water sectors as Essential entities | See [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) |
 | US TSA Pipeline Security Directives and Rail Cybersecurity Directives | Critical pipelines and rail | Library supports; entities follow the directive's specific identification of measures and reporting |
 | IEC 62443 series | ICS / OT cybersecurity | Architectural alignment in library; per-zone and per-conduit requirements layered |

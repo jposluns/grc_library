@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology (OT) Sub-Directory README\
 **Document Type:** Register\
-**Version:** 1.5.2\
-**Date:** 2026-06-22\
+**Version:** 1.5.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/README.md`](../README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md), [`compliance/energy-and-utilities/`](../../compliance/energy-and-utilities/), [`compliance/logistics/`](../../compliance/logistics/)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This sub-directory contains the library's Operational Technology (OT) security content: governance, standards, and procedures for organisations that operate Industrial Control Systems (ICS), SCADA systems, Distributed Control Systems (DCS), Programmable Logic Controllers (PLCs), Building Management Systems (BMS), or other OT environments.
+This sub-directory contains the library's Operational Technology (OT) security content: governance, standards, and procedures for organizations that operate Industrial Control Systems (ICS), SCADA systems, Distributed Control Systems (DCS), Programmable Logic Controllers (PLCs), Building Management Systems (BMS), or other OT environments.
 
 OT differs from IT in three operationally significant ways:
 
@@ -101,7 +101,7 @@ If you operate OT environments, read in this order:
 3. The OT-specific standard, procedures, and registers in this sub-directory: [`standard-ot-ics-security.md`](standard-ot-ics-security.md), [`procedure-ot-change-management.md`](procedure-ot-change-management.md), [`procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md), and the [`BMS overlay annex`](annex-bms-overlay.md) if you operate building-management systems.
 4. Your relevant sector-compliance annex (energy-and-utilities, logistics, healthcare).
 
-Organisations without OT environments can skip this sub-directory entirely.
+Organizations without OT environments can skip this sub-directory entirely.
 
 ---
 

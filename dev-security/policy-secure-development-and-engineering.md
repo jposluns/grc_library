@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.3\
-**Date:** 2026-06-29\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -30,7 +30,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 ## Scope
 
-1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organisation.
+1. Applies to all software, scripts, infrastructure-as-code, AI models, APIs, and automation developed, maintained, or integrated by the organization.
 2. Covers both internal and outsourced development, including open-source and third-party components.
 3. Applies to all personnel involved in software design, coding, testing, deployment, and maintenance.
 4. Encompasses both traditional and AI-assisted development environments.
@@ -68,7 +68,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 1.2 Security requirements must be defined at the design stage and traceable through release and deployment.
 
-1.3 Project plans must include threat modelling, risk assessments, and secure design reviews. The organisation's threat-modelling methodology, including the STRIDE-per-trust-boundary analysis, the abuse-case-alongside-use-case authoring, and the Mandatory / Approval-Gated / Prohibited disposition tiers, is defined in [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md).
+1.3 Project plans must include threat modelling, risk assessments, and secure design reviews. The organization's threat-modelling methodology, including the STRIDE-per-trust-boundary analysis, the abuse-case-alongside-use-case authoring, and the Mandatory / Approval-Gated / Prohibited disposition tiers, is defined in [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md).
 
 ### 2. Code management and version control
 

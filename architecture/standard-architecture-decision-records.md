@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Decision Records Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md)\
@@ -133,7 +133,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 | Element | Requirement |
 | --- | --- |
 | Storage location | Co-located with the system the ADR governs; cross-cutting ADRs in an architecture repository |
-| File format | Markdown preferred; consistent across the organisation |
+| File format | Markdown preferred; consistent across the organization |
 | Naming | Sequential identifier and short title (e.g. ADR-0042-single-customer-identifier.md) |
 | Index | A searchable index across systems lists ADRs by title, status, and tag |
 | Tags | Domain tags (security, data, AI, integration, etc.) support discovery |
@@ -216,7 +216,7 @@ Approval is recorded in the ADR; the approver's role (not name only) is included
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. The specific template, storage tooling, indexing approach, and approval forum are organisation-specific. The standard expresses what an ADR is and what makes it useful, not a specific tool or layout.
+This standard is a CC BY-SA 4.0 baseline. The specific template, storage tooling, indexing approach, and approval forum are organization-specific. The standard expresses what an ADR is and what makes it useful, not a specific tool or layout.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines how proposed architectures are reviewed before commitment. It expresses outcomes and operating expectations for the architecture review board (ARB) and for ad-hoc review.
 
-The objective is informed challenge: the proposer leaves the review with a stronger architecture, and the organisation with a recorded decision.
+The objective is informed challenge: the proposer leaves the review with a stronger architecture, and the organization with a recorded decision.
 
 ---
 
@@ -214,7 +214,7 @@ A block can only be issued for substantive reasons recorded in writing; the prop
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. The specific forum cadence, reviewer pool, and recording tooling are organisation-specific. The procedure expresses outcomes, not a vendor-specific implementation.
+This procedure is a CC BY-SA 4.0 baseline. The specific forum cadence, reviewer pool, and recording tooling are organization-specific. The procedure expresses outcomes, not a vendor-specific implementation.
 
 ---
 

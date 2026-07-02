@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,13 +20,13 @@
 
 This procedure defines the process for conducting periodic audits of suppliers, vendors, and third-party service providers to verify adherence to contractual obligations, security standards, regulatory requirements, and ethical conduct principles.
 
-It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-05, BASC International Standard v6 2022, and ENISA's ongoing AI cybersecurity work (feasibility studies and standardisation gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-05, BASC International Standard v6 2022, and ENISA's ongoing AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 
 ---
 
 ## Scope
 
-1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organisation.
+1. Applies to all suppliers, vendors, contractors, logistics partners, and service providers engaged by the organization.
 2. Covers both IT and non-IT suppliers, including logistics, customs, AI, and cloud service providers.
 3. Applies globally, with additional regional audit requirements for BASC-certified operations in Latin America.
 
@@ -171,7 +171,7 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 - ISO/IEC 27036-4:2016: Information security for supplier relationships - Part 4: Guidelines for security of cloud services (first edition, October 2016; the "2013" date previously used in this document was incorrect).
 - COBIT 2019 BAI05.02: Manage Organizational Change.
 - CSA Cloud Controls Matrix v4.1, STA-05: Supply Chain Management, Transparency, and Accountability.
-- ENISA AI cybersecurity work (feasibility studies and standardisation gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
+- ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 - BASC International Standard v6 2022: Business Alliance for Secure Commerce.
 - WCO SAFE Framework of Standards 2021: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.

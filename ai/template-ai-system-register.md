@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Register Template\
 **Document Type:** Template\
-**Version:** 1.1.0\
-**Date:** 2026-06-19\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines a reusable structure for recording AI systems, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organisations before use in an internal environment.
+This template defines a reusable structure for recording AI systems, owners, risk tiering, lifecycle status, data categories, suppliers, controls, approvals, and evidence. It must be adapted by adopting organizations before use in an internal environment.
 
 Do not populate this public template with real systems, company names, personal names, customer names, suppliers, internal identifiers, data samples, or incident details.
 
@@ -28,7 +28,7 @@ Do not populate this public template with real systems, company names, personal 
 
 | Field | Description | Required |
 | --- | --- | --- |
-| System ID | Organisation-defined identifier. Use a non-sensitive identifier. | Yes |
+| System ID | Organization-defined identifier. Use a non-sensitive identifier. | Yes |
 | System Name | Name of the AI system. Avoid sensitive naming in public artefacts. | Yes |
 | Business Purpose | Approved purpose and business process. | Yes |
 | Lifecycle Status | Proposed, pilot, production, suspended, retired. | Yes |

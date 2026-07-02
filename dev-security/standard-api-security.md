@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.8\
-**Date:** 2026-07-01\
+**Version:** 0.0.9\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -18,13 +18,13 @@
 
 ## 1. Purpose
 
-This standard defines the minimum security controls for every API the organisation produces, exposes, or consumes. It covers REST, GraphQL, gRPC, WebSocket, and event-driven APIs. It applies whether the API is internal, partner-facing, or public.
+This standard defines the minimum security controls for every API the organization produces, exposes, or consumes. It covers REST, GraphQL, gRPC, WebSocket, and event-driven APIs. It applies whether the API is internal, partner-facing, or public.
 
 ---
 
 ## 2. Scope
 
-This standard applies to every API designed, implemented, deployed, or consumed by the organisation. It does not duplicate the underlying developer security or DevOps security standards; it overlays API-specific requirements on the engineering baseline.
+This standard applies to every API designed, implemented, deployed, or consumed by the organization. It does not duplicate the underlying developer security or DevOps security standards; it overlays API-specific requirements on the engineering baseline.
 
 It does not cover legacy SOAP integrations operating under a separate maintenance regime; those follow a documented exception path until retirement.
 
@@ -51,7 +51,7 @@ For routine changes within an existing API contract, the security controls in th
 | Design | Threat model produced; data classification of inputs and outputs; lawful basis confirmed where personal data flows; ADM register entry if the API drives an automated decision |
 | API specification | OpenAPI, GraphQL schema, or Protobuf definition under version control; security schemes documented; deprecation policy stated |
 | Build | Static analysis runs include API-specific rules; secret detection runs |
-| Test | API-specific security tests including authentication, authorisation, input fuzzing, business-logic abuse |
+| Test | API-specific security tests including authentication, authorization, input fuzzing, business-logic abuse |
 | Pre-deployment | Gateway configuration review; rate-limit and quota review; observability verified |
 | Production | Continuous monitoring; anomaly detection; per-API SLO including error rate and latency |
 | Deprecation | Public notice period; sunset header in production; migration path documented |
@@ -65,7 +65,7 @@ For routine changes within an existing API contract, the security controls in th
 | No anonymous APIs | Every API requires authentication; anonymous-access exceptions require CISO approval and are public-only by data classification |
 | Federated identity | Human-driven APIs authenticate via the enterprise identity provider with OAuth 2.0 / OpenID Connect |
 | Service-to-service | mTLS for service-to-service where the network allows; workload identity where the platform supports it |
-| Token formats | JWT or platform-native; encrypted JWTs (JWE) where the token transits networks the organisation does not control |
+| Token formats | JWT or platform-native; encrypted JWTs (JWE) where the token transits networks the organization does not control |
 | Token validation | Signature, issuer, audience, expiry, and nonce validated; algorithm whitelist enforced; `none` algorithm rejected. **Algorithm-key-type binding** required per RFC 8725 (BCP 225, the JSON Web Token Best Current Practices): validators must verify that the JWT `alg` header value is consistent with the key type used (e.g., RS256 with an RSA public key, HS256 with the corresponding shared secret); a single key MUST NOT accept multiple algorithm families. This prevents the RSA-public-key-as-HMAC-secret confusion attack. |
 | Refresh tokens | Bound to client and device; rotated on use; revocable centrally |
 | API keys | Permitted only for low-trust scenarios; rate-limited; rotated; bound to source |
@@ -73,13 +73,13 @@ For routine changes within an existing API contract, the security controls in th
 
 ---
 
-## 5. Authorisation
+## 5. Authorization
 
 | Control area | Requirement |
 | --- | --- |
 | Least privilege | Each operation declares the scope or permission it requires; the gateway and the application both enforce |
-| Object-level authorisation | Per-object authorisation checks on every request that accesses or modifies a resource (mitigates BOLA / IDOR) |
-| Function-level authorisation | Sensitive operations checked against the caller's role and the operation's required permission |
+| Object-level authorization | Per-object authorization checks on every request that accesses or modifies a resource (mitigates BOLA / IDOR) |
+| Function-level authorization | Sensitive operations checked against the caller's role and the operation's required permission |
 | Attribute-based access | Where the use case warrants, ABAC policy evaluated alongside role-based checks |
 | Tenant isolation | Multi-tenant APIs enforce tenant boundaries server-side; client-supplied tenant identifiers are not trusted |
 | Privilege escalation prevention | The API rejects operations that would assign privileges higher than the caller's |
@@ -94,8 +94,8 @@ For routine changes within an existing API contract, the security controls in th
 | Schema validation | Every request validated against the published schema; unknown fields rejected by default |
 | Type and range validation | All numeric, string, and enumerated values validated against expected types and ranges |
 | Mass-assignment prevention | The API binds only explicitly-allowed fields; bulk binding from request body to model object prohibited |
-| Injection prevention | Parameterised queries for SQL and NoSQL; sanitisation for shell, LDAP, XPath, header, log, and template contexts |
-| Output minimisation | Responses include only fields necessary for the caller's role; sensitive fields suppressed for lower-trust callers |
+| Injection prevention | Parameterized queries for SQL and NoSQL; sanitization for shell, LDAP, XPath, header, log, and template contexts |
+| Output minimization | Responses include only fields necessary for the caller's role; sensitive fields suppressed for lower-trust callers |
 | Content type enforcement | Content-Type header validated; mismatches rejected |
 | Body size limits | Per-endpoint maximum body size; oversize requests rejected before parsing |
 | File uploads | File type, size, and scanning per the data classification; uploads stored in dedicated storage; never executed |
@@ -110,7 +110,7 @@ For routine changes within an existing API contract, the security controls in th
 | Cipher suite | TLS 1.3 AEAD cipher suites per NIST SP 800-52 Rev. 2 §3.3.1: `TLS_AES_256_GCM_SHA384` (recommended), `TLS_AES_128_GCM_SHA256`, `TLS_CHACHA20_POLY1305_SHA256`. Older cipher suites (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH) rejected. |
 | Certificate management | Per the cryptographic key lifecycle framework |
 | mTLS | For service-to-service and high-sensitivity partner integrations |
-| WebSocket | Same authentication and authorisation as the equivalent REST endpoint; ping-pong heartbeats with idle timeout |
+| WebSocket | Same authentication and authorization as the equivalent REST endpoint; ping-pong heartbeats with idle timeout |
 | Message integrity | Where the API supports signed message payloads, signatures are validated; replay attacks are mitigated via nonce or timestamp |
 
 ---
@@ -134,7 +134,7 @@ For routine changes within an existing API contract, the security controls in th
 | Control area | Requirement |
 | --- | --- |
 | Request and response logging | Logged at a level appropriate to the data classification; sensitive content masked |
-| Authentication and authorisation events | Logged: success, failure, step-up, denial reasons |
+| Authentication and authorization events | Logged: success, failure, step-up, denial reasons |
 | Errors | Structured error logs; stack traces never returned to clients in production |
 | Correlation | Correlation IDs propagated across calls |
 | SIEM integration | Logs forwarded per the logging standard |
@@ -152,7 +152,7 @@ For routine changes within an existing API contract, the security controls in th
 | Versioning | Semantic versioning of public APIs; deprecation through sunset headers; version EOL documented |
 | Documentation | Up-to-date documentation generated from the schema; security scheme documented |
 | Discoverability | Internal discoverability through the catalogue; public discoverability limited per the publishing policy |
-| Developer portal | Where the organisation operates a developer portal, the portal enforces the same authentication and authorisation as the runtime |
+| Developer portal | Where the organization operates a developer portal, the portal enforces the same authentication and authorization as the runtime |
 
 ---
 
@@ -163,7 +163,7 @@ For routine changes within an existing API contract, the security controls in th
 | Third-party API inventory | All consumed third-party APIs inventoried with owner, supplier, scope, data exchanged |
 | Credential storage | Third-party credentials in the secrets management service; per-environment isolation |
 | Resilience | Timeouts, retries, and circuit breakers configured per the resilience programme |
-| Data minimisation | Only the data necessary for the use case is sent to the third party |
+| Data minimization | Only the data necessary for the use case is sent to the third party |
 | Personal data handling | DPIA and ROPA updated where personal data is sent to a third-party API |
 | Cost monitoring | Per the AI inference cost governance standard where the third party is an AI provider |
 
@@ -171,7 +171,7 @@ For routine changes within an existing API contract, the security controls in th
 
 ## 12. AI-exposed APIs
 
-Where an API is exposed to AI agents (organisation-internal or third-party):
+Where an API is exposed to AI agents (organization-internal or third-party):
 
 | Control area | Requirement |
 | --- | --- |
@@ -192,7 +192,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 | Query complexity scoring | Enforced; expensive queries rejected |
 | Persisted queries | Preferred for public clients; ad-hoc queries restricted |
 | Batching limits | Per-batch maximum enforced |
-| Field-level authorisation | Per the authorisation requirements above; per-field checks where roles differ |
+| Field-level authorization | Per the authorization requirements above; per-field checks where roles differ |
 
 ---
 
@@ -203,7 +203,7 @@ Where an API is exposed to AI agents (organisation-internal or third-party):
 | Webhook signing | Webhooks signed with a shared secret or asymmetric key; recipients validate signatures. **Canonical string** for signing defined per signature scheme (typical: HTTP method + canonical URL path + canonical query string + canonical headers + body hash); both sender and receiver derive the same canonical string from the request before signing / verifying. **Constant-time comparison** required for signature verification (e.g., `hmac.compare_digest` in Python; `crypto.timingSafeEqual` in Node) to prevent timing-attack key recovery. |
 | Replay prevention | Timestamp plus nonce; recipients enforce freshness. **Replay window** explicit and bounded: receivers reject requests whose timestamp is more than 5 minutes (or a documented service-specific value) outside the receiver's current time, accounting for clock skew. Receivers maintain a short-lived seen-nonce cache for the duration of the replay window. |
 | Idempotency | Receivers handle duplicate delivery without side effects |
-| Authentication on subscribe | Subscriptions to event streams authenticated and authorised |
+| Authentication on subscribe | Subscriptions to event streams authenticated and authorized |
 | Topic isolation | Multi-tenant event systems enforce per-tenant topic isolation |
 | Dead-letter handling | Failed messages routed to a dead-letter queue with monitoring |
 

@@ -14,7 +14,7 @@ Invoke the `deep-qa-review` skill defined in this project's pack at [`dev-securi
 
 6. **Termination is maintainer sign-off, not empty-delta**: the pass terminates only when the maintainer reviews the routed additions (from both `/full-qa` and `/fitness`) and explicitly signs off. An empty finding-set does not terminate the pass; maintainer acknowledgement does. This is the trust-rebuilding step.
 
-**No orchestrator-side skip or abbreviation discretion.** Once the maintainer invokes the trust-recovery suite, the orchestrator does NOT have discretion to skip a subagent, run fewer than six, or substitute an abbreviated check, spot-check, memory-only review, or quick scan for the formal dispatch. The only sanctioned exception is a maintainer-authorised scope reduction recorded in the run record. Abbreviation is the failure mode that triggers this skill; reproducing it inside the skill is self-defeating.
+**No orchestrator-side skip or abbreviation discretion.** Once the maintainer invokes the trust-recovery suite, the orchestrator does NOT have discretion to skip a subagent, run fewer than six, or substitute an abbreviated check, spot-check, memory-only review, or quick scan for the formal dispatch. The only sanctioned exception is a maintainer-authorized scope reduction recorded in the run record. Abbreviation is the failure mode that triggers this skill; reproducing it inside the skill is self-defeating.
 
 Reject any subagent finding that lacks an explicit `path:line` quote. A finding without quoted evidence is a hypothesis, not a finding; re-dispatch with a re-emphasized evidence requirement.
 

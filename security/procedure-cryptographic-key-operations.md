@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -24,7 +24,7 @@ This procedure defines the step-by-step operational instructions for all cryptog
 
 ## Scope
 
-Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorized to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organisational platforms.
+Applies to all cryptographic key operations performed by IT Operations, Security Architecture, and any personnel authorized to manage cryptographic material. Covers symmetric keys, asymmetric key pairs, digital certificates, SSH keys, and API tokens across all organizational platforms.
 
 ---
 

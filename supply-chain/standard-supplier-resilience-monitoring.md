@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -24,7 +24,7 @@ This standard defines the resilience signals monitored for critical suppliers, t
 
 ## 2. Scope
 
-This standard applies to all Tier 1 critical suppliers and to Tier 2 high suppliers whose service supports an organisation-essential function. Tier 3 and Tier 4 suppliers may be monitored against a subset of signals at the Supplier Risk Maintainer's discretion.
+This standard applies to all Tier 1 critical suppliers and to Tier 2 high suppliers whose service supports an organization-essential function. Tier 3 and Tier 4 suppliers may be monitored against a subset of signals at the Supplier Risk Maintainer's discretion.
 
 It applies regardless of supplier type: cloud, SaaS, managed services, logistics, hardware, professional services.
 
@@ -48,7 +48,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
 | Disclosed material incidents in the past 12 months | Supplier; regulator filings; public disclosures | Continuous | Threshold per tier and per criticality | Re-rate supplier risk; reassess continuity |
-| Incidents affecting the organisation directly | Internal incident register | Per incident | Zero unrecovered impact | Per incident response procedure |
+| Incidents affecting the organization directly | Internal incident register | Per incident | Zero unrecovered impact | Per incident response procedure |
 | Sector-peer incident pattern | Threat intelligence | Continuous | No pattern indicating systemic weakness | Engage; consider contractual changes |
 | Repeated SLA breaches | Service-level reporting | Monthly | Within contractual tolerance | Service credit; remediation plan |
 
@@ -56,7 +56,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 | Signal | Source | Cadence | Acceptance threshold | Action on breach |
 | --- | --- | --- | --- | --- |
-| Credit rating | Credit reference agency | Quarterly | Above the organisation's defined threshold for tier | Engage; activate concentration analysis |
+| Credit rating | Credit reference agency | Quarterly | Above the organization's defined threshold for tier | Engage; activate concentration analysis |
 | Going-concern statement | Audited accounts | Annual | Clean opinion | Treat as elevated risk; legal review of exit options |
 | Material adverse change notices | Public filings; news | Continuous | None | Investigate; potential exit-strategy activation |
 | Days payable outstanding to sub-suppliers (signal of cash strain) | Public data; intelligence | Quarterly | No material increase | Engage |
@@ -149,7 +149,7 @@ Five categories of signal are monitored. Each category contains specific signals
 
 ## 9. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Effective supplier resilience monitoring depends on signal quality, source independence, and the organisation's analytic capacity to interpret signals. The standard does not predict failures; it identifies leading indicators and structures the organisational response. Adopting organisations tune thresholds to their appetite and supplier portfolio.
+This standard is a CC BY-SA 4.0 baseline. Effective supplier resilience monitoring depends on signal quality, source independence, and the organization's analytic capacity to interpret signals. The standard does not predict failures; it identifies leading indicators and structures the organizational response. Adopting organizations tune thresholds to their appetite and supplier portfolio.
 
 ---
 

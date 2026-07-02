@@ -2,8 +2,8 @@
 
 **Document Title:** IT Security Operations Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -71,7 +71,7 @@ Unapproved platforms present in the production environment are treated as risks 
 
 ### Section 4: cloud subscription and environment architecture
 
-Records the organisational cloud environment structure including:
+Records the organizational cloud environment structure including:
 - Subscription / account names and purposes.
 - Environment classification (Production / Non-Production / Sandbox).
 - Cross-environment connectivity rules.

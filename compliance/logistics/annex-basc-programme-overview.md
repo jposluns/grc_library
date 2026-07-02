@@ -2,8 +2,8 @@
 
 **Document Title:** BASC Programme Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/register-basc-it-compliance-kpis.md`](register-basc-it-compliance-kpis.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This annex provides the programme overview for organisations that pursue or maintain Business Alliance for Secure Commerce (BASC) certification. BASC is an international supply-chain security programme widely adopted in Latin American trade and logistics operations and recognized within the World Customs Organization (WCO) SAFE Framework as a trade-security partnership programme analogous to CTPAT (United States), AEO (United Kingdom and other jurisdictions), PIP (Canada), and similar programmes.
+This annex provides the programme overview for organizations that pursue or maintain Business Alliance for Secure Commerce (BASC) certification. BASC is an international supply-chain security programme widely adopted in Latin American trade and logistics operations and recognized within the World Customs Organization (WCO) SAFE Framework as a trade-security partnership programme analogous to CTPAT (United States), AEO (United Kingdom and other jurisdictions), PIP (Canada), and similar programmes.
 
-Content here is sector-conditional. Organisations that do not pursue BASC certification can ignore this annex entirely.
+Content here is sector-conditional. Organizations that do not pursue BASC certification can ignore this annex entirely.
 
 ---
 
@@ -28,11 +28,11 @@ Content here is sector-conditional. Organisations that do not pursue BASC certif
 
 This annex applies to:
 
-1. Organisations holding or pursuing BASC International Standard certification.
+1. Organizations holding or pursuing BASC International Standard certification.
 2. Operations supporting BASC-certified trade, logistics, and customs activities (whether as the certified entity or as a supplier to one).
 3. Information systems, processes, and personnel that handle cargo, customs, and supply-chain data within a BASC-certified scope.
 
-It does not apply to organisations that operate exclusively outside BASC's scope. Such organisations should rely on the main-library security, risk, and compliance documents directly.
+It does not apply to organizations that operate exclusively outside BASC's scope. Such organizations should rely on the main-library security, risk, and compliance documents directly.
 
 ---
 
@@ -50,7 +50,7 @@ It does not apply to organisations that operate exclusively outside BASC's scope
 
 Where the BASC International Standard requires specific control language, evidence formats, or operating cadences, the BASC-specific artefacts state those requirements explicitly. Where BASC controls coincide with the main library's controls (for example, access management, logging, incident response, data classification), the main-library control remains the implementation; the BASC artefacts document how that implementation maps to BASC's expectations.
 
-Adopting organisations implementing BASC certification consume:
+Adopting organizations implementing BASC certification consume:
 
 1. The main library (information security, risk, governance, compliance) as the baseline.
 2. The logistics-sector annex ([`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md)) for sector-wide trade and customs requirements.

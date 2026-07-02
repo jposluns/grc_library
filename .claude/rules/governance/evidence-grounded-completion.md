@@ -2,7 +2,7 @@
 
 Never declare a piece of work "done", "complete", "fixed", "shipped", "ready", "resolved", "merged-and-clean", or any synonym without evidence that supports the claim. The cost of an unsupported completion claim compounds: a downstream reader, reviewer, or operator trusts the claim and skips their own verification, and a defect that the claim missed proceeds further into the system.
 
-This rule applies to human developers and to AI coding assistants equally; in practice it is binding more often on AI assistants, because the failure mode (declaring victory based on inference rather than observation) is the dominant pattern when an assistant feels pressure to summarise progress.
+This rule applies to human developers and to AI coding assistants equally; in practice it is binding more often on AI assistants, because the failure mode (declaring victory based on inference rather than observation) is the dominant pattern when an assistant feels pressure to summarize progress.
 
 The rule is a discipline, not a vocabulary ban. The words above are fine when an evidence-grounded verification supports them. The words are forbidden when they are decorative narration.
 
@@ -34,7 +34,7 @@ A *state assertion* is a claim about what an artefact is or needs. "This file co
 
 The discipline for state assertions:
 
-- **Read before characterising.** Open the artefact before asserting what it contains, lacks, or requires. A plausible inference about an unread file is the failure mode this section exists to prevent.
+- **Read before characterizing.** Open the artefact before asserting what it contains, lacks, or requires. A plausible inference about an unread file is the failure mode this section exists to prevent.
 - **Label hypotheses explicitly.** Where the read has not happened yet, mark the statement as unverified (for example, "unverified: I have not read X") and do not let a downstream decision depend on it until the read is done.
 - **Separate findings from hypotheses in analysis.** In an assessment or review, present findings (grounded in a read, with a quote or a location reference) separately from hypotheses (inferences pending a read). Never present an unverified inference in the same register as a verified fact; a reader cannot tell the two apart unless the labelling does it for them.
 - **Own a caught inference plainly.** Where an assertion about an unread artefact has already been made, say so and read the artefact before anything depends on it. Do not retrofit the assertion as though it had been verified.
@@ -45,10 +45,10 @@ This is the same machinery as the completion protocol: enumerate what is claimed
 
 ## Un-observable state, inventory, and external-version currency
 
-Three assertion classes need a sharper rule than "read before characterising", because the thing to be read is not a single artefact sitting in front of you.
+Three assertion classes need a sharper rule than "read before characterizing", because the thing to be read is not a single artefact sitting in front of you.
 
 - **Un-observable state is never assertable.** Some states have no instrument you can read at all: your own context depth, how degraded your reasoning is, "I feel done", "this is getting long". Unlike an unread-but-readable file (which you resolve by reading it), there is no read that grounds these, so they are never the basis of an assertion or a decision. In particular, an internal-state claim is never a valid trigger for winding down, stopping, or deferring; the trigger for those must be a named, externally-observable signal (a failing check, a surfaced finding, a maintainer correction, a concrete self-inconsistency you can quote). "I think I am degraded" is not such a signal; "the last gate run reported finding X" is.
-- **Inventory and absence claims require the index, not a partial look.** A claim that a collection contains, lacks, or holds-a-given-version-of something ("the repo has no MITRE data", "there is no template for X") is a state assertion about a *set*, and a single directory listing or one grep is not a read of the set. Consult the set's own index or catalogue (the manifest the collection maintains to describe itself) before asserting presence, absence, or location. Asserting absence from a partial look is the same failure as characterising an unread file.
+- **Inventory and absence claims require the index, not a partial look.** A claim that a collection contains, lacks, or holds-a-given-version-of something ("the repo has no MITRE data", "there is no template for X") is a state assertion about a *set*, and a single directory listing or one grep is not a read of the set. Consult the set's own index or catalogue (the manifest the collection maintains to describe itself) before asserting presence, absence, or location. Asserting absence from a partial look is the same failure as characterizing an unread file.
 - **External-version currency: the upstream source is the only authority.** For any externally-versioned reference (a standard, a framework, a dataset), the authoritative answer to "is this the current version?" is the upstream / primary source verified in the current turn, never a stored note, a cached copy, a local catalogue, or memory: each of those records what was believed current when it was written, which is exactly the belief that goes stale. The discipline whenever such a reference is load-bearing: (1) find what is held, via the collection's index, not a guess; (2) verify the current version upstream this turn; (3) act only after both. Do not write or rely on a version you have not confirmed current upstream, and do not proceed on a version known to be superseded unless the responsible authority explicitly authorizes working from the older one.
 
 These are corollaries of the same principle as the rest of the rule (a claim requires an observation, not an inference); they are called out because the failure mode is subtler when the observation requires reading a manifest or an upstream source rather than a single named file, and because an un-observable internal state tempts a confident assertion precisely because nothing can contradict it in the moment.
@@ -115,7 +115,7 @@ If part of the claim is unverified, name the unverified part. Do not imply verif
 - **Hedging with "should" or "appears to" while still making a state assertion**. "The fix should work" or "the entry appears to be present" are still claims a reader will rely on. Either you ran the verification (state the result) or you did not (state the gap).
 - **Conflating "I edited the file" with "the file is correct"**. The edit happened; the file's correctness is a separate proposition that needs its own verification.
 - **Bypassing the verification protocol to make progress faster**. The protocol exists precisely because skipping it is the failure mode. The minute saved by skipping is paid back many times when the unsupported claim turns out to be wrong.
-- **Characterising an artefact you have not opened**. Asserting that a file, template, schema, or document contains, lacks, or requires something by inference rather than by reading it. If you have not read it, the statement is a hypothesis, not a finding; label it as such and read it before anything depends on it. This anti-pattern fires in analysis and assessment, not only at completion.
+- **Characterizing an artefact you have not opened**. Asserting that a file, template, schema, or document contains, lacks, or requires something by inference rather than by reading it. If you have not read it, the statement is a hypothesis, not a finding; label it as such and read it before anything depends on it. This anti-pattern fires in analysis and assessment, not only at completion.
 
 ---
 

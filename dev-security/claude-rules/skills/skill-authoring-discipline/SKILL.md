@@ -59,7 +59,7 @@ This skill is a checklist + a validation step. The checklist confirms structural
 - Writing the `description` field after the body. The description is the trigger; it must be the focus of the authoring effort, not an afterthought.
 - Skipping trigger-accuracy validation. The skill's effectiveness depends on whether it fires when needed; "I think it'll trigger" is not validation.
 - Cross-referencing in one direction only. Bidirectional cross-references survive pack growth; uni-directional ones do not.
-- Treating the parent governance rule as ornamental. The `derives_from` field is a structural constraint; the skill's process should be a direct operationalisation of the rule.
+- Treating the parent governance rule as ornamental. The `derives_from` field is a structural constraint; the skill's process should be a direct operationalization of the rule.
 
 ## Verification
 

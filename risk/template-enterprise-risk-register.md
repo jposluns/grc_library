@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the schema, field definitions, population guidance, and governance requirements for the organisation's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
+This template defines the schema, field definitions, population guidance, and governance requirements for the organization's enterprise risk register. The register is the primary instrument for tracking identified risks, their assessment scores, treatment plans, residual risk, and monitoring obligations across all risk categories.
 
 ---
 

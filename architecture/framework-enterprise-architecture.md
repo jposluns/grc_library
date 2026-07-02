@@ -2,14 +2,14 @@
 
 **Document Title:** Enterprise Architecture Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
 **Classification:** Public\
 **Category:** Architecture\
-**Review Frequency:** Annual and upon material change to architecture practice, technology strategy, or organisational structure\
+**Review Frequency:** Annual and upon material change to architecture practice, technology strategy, or organizational structure\
 **Repository Path:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -20,7 +20,7 @@
 
 This framework defines the enterprise architecture practice: its principles, scope, viewpoints, deliverables, governance forum, and integration with adjacent governance programmes. It expresses outcomes and operating expectations, not a specific toolchain or notation.
 
-The framework supports the organisation in making coherent, consistent, and risk-aware architecture decisions across business, information, application, and technology domains.
+The framework supports the organization in making coherent, consistent, and risk-aware architecture decisions across business, information, application, and technology domains.
 
 ---
 
@@ -29,7 +29,7 @@ The framework supports the organisation in making coherent, consistent, and risk
 This framework applies to:
 
 1. Strategic architecture decisions affecting more than one product, service, or business unit.
-2. Architecture of regulated, customer-facing, safety-relevant, or organisational-critical services.
+2. Architecture of regulated, customer-facing, safety-relevant, or organizational-critical services.
 3. Cross-cutting architecture concerns: identity, integration, data, observability, AI, cloud, and security.
 4. New product or service introductions requiring architecture review.
 5. Material changes to existing architecture (technology change, vendor change, platform consolidation).
@@ -62,7 +62,7 @@ The framework uses four primary viewpoints, consistent with the spirit of the Op
 
 | Viewpoint | Scope |
 | --- | --- |
-| Business architecture | Capabilities, value streams, business processes, organisational roles |
+| Business architecture | Capabilities, value streams, business processes, organizational roles |
 | Information (data) architecture | Data domains, master data, data flow, lifecycle, ownership |
 | Application architecture | Applications, services, interfaces, components |
 | Technology architecture | Infrastructure, platforms, networks, runtime, security-architecture overlays |
@@ -75,7 +75,7 @@ A fifth cross-cutting view, the security and resilience view, overlays all four 
 
 | Element | Description |
 | --- | --- |
-| Capability map | A stable description of what the organisation does, decomposed to a working level |
+| Capability map | A stable description of what the organization does, decomposed to a working level |
 | Capability ownership | Each capability has a named owner |
 | Capability maturity | Each capability has a maturity rating |
 | Heatmap | Capability map overlaid with investment, risk, technical-debt, or strategic-priority signals |
@@ -126,7 +126,7 @@ Forum membership, decision rights, escalation paths, and recording practice are 
 | Domain architects | Own architecture within a domain (security, data, AI, integration, infrastructure) |
 | Solution architects | Lead architecture for products and projects |
 | Architecture review board | Reviews significant decisions |
-| Architecture community | Practitioner network across the organisation |
+| Architecture community | Practitioner network across the organization |
 | Business architects | Bridge business and technology architecture |
 
 ---
@@ -212,7 +212,7 @@ Fitness functions are evolved alongside the architecture; the framework does not
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. The specific notation, tooling, level of formality, and forum cadence are organisation-specific. Adopting organisations select an architecture toolchain, level of formality, and integration depth consistent with their size, regulatory profile, and engineering culture.
+This framework is a CC BY-SA 4.0 baseline. The specific notation, tooling, level of formality, and forum cadence are organization-specific. Adopting organizations select an architecture toolchain, level of formality, and integration depth consistent with their size, regulatory profile, and engineering culture.
 
 ---
 

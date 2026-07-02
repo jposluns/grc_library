@@ -31,7 +31,7 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 2. **Choose the date and version**. Use the project's existing convention (CalVer, SemVer, monotonic integer). The version must strictly increase over the prior entry; merge-conflict resolutions that drop a version bump are the failure mode the version-monotonicity audit catches. The date pins the entry to wall-clock time.
 
-3. **Write the title sentence**. Plain language, summarising the change in one sentence a future reader can act on. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
+3. **Write the title sentence**. Plain language, summarizing the change in one sentence a future reader can act on. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
 
 4. **Pick the Keep a Changelog section(s)** that most accurately classify the change: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Do not bury a removed-public-API event under `Changed`; misclassification is a documentation failure downstream consumers will pay for.
 
@@ -79,7 +79,7 @@ The two-file split applies regardless of shape: a terse entry in the root `CHANG
 The entry is ready when:
 
 - Date and version header are present; the version strictly increases over the prior entry.
-- Title sentence summarises the change in plain language.
+- Title sentence summarizes the change in plain language.
 - Keep a Changelog section(s) classify the change accurately, including a `BREAKING` callout when relevant.
 - Every file referenced in the entry text is wrapped as a markdown link.
 - The "why" is captured, not only the "what".

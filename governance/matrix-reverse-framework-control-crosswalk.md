@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -29,7 +29,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 ## Scope and limitations
 
 1. Coverage is partial. The matrix focuses on the framework control areas most frequently cited across the library: ISO 27001:2022 Annex A, ISO 42001:2023, NIST CSF 2.0, NIST SP 800-53 Rev. 5, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT MSC, BASC v6, and WCO SAFE. It is intended to grow over time as adopter demand reveals gaps.
-2. Alignment is architectural unless explicitly stated otherwise. The library artefacts establish baseline control structures; adopting organisations must validate implementation, evidence, and operating effectiveness against their own jurisdiction, sector, processing role, threat model, and risk appetite.
+2. Alignment is architectural unless explicitly stated otherwise. The library artefacts establish baseline control structures; adopting organizations must validate implementation, evidence, and operating effectiveness against their own jurisdiction, sector, processing role, threat model, and risk appetite.
 3. External control identifiers and clause numbers are referenced for navigation only. The library does not reproduce control text, questionnaire text, audit guidance, or metrics catalogue text from restrictively-licensed frameworks.
 4. Mappings cite the most relevant library artefacts. A document may also be relevant to controls beyond those listed here; the inverse forward matrix and per-document `References and framework alignment` sections remain authoritative.
 
@@ -39,7 +39,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 | Annex A control area | Library documents | Alignment type |
 | --- | --- | --- |
-| A.5.1 to A.5.4 Organisational policies, roles, segregation of duties | [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/register-role-authority.md`](register-role-authority.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
+| A.5.1 to A.5.4 Organizational policies, roles, segregation of duties | [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/register-role-authority.md`](register-role-authority.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
 | A.5.7 Threat intelligence | [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md) | Architectural recommendation |
 | A.5.9 Inventory of assets | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Evidence category |
 | A.5.10 Acceptable use | [`security/policy-acceptable-use.md`](../security/policy-acceptable-use.md) | Architectural recommendation |
@@ -82,7 +82,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 | CSF function and category | Library documents | Alignment type |
 | --- | --- | --- |
-| GOVERN GV.OC Organisational context | [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
+| GOVERN GV.OC Organizational context | [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |
 | GOVERN GV.RM Risk management strategy | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | Architectural recommendation |
 | GOVERN GV.RR Roles, responsibilities, authorities | [`governance/register-role-authority.md`](register-role-authority.md) | Evidence category |
 | GOVERN GV.PO Policy | [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Architectural recommendation |

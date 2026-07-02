@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.51\
-**Date:** 2026-07-01\
+**Version:** 1.27.52\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -20,7 +20,7 @@
 
 This register is the authoritative index for active documents in the public GRC Documentation Library. It records document title, type, domain, classification, owner role, approving authority, review frequency, repository path, and primary alignment families.
 
-This register intentionally avoids internal document numbers from any source organisation. Repository paths and filenames are the canonical identifiers.
+This register intentionally avoids internal document numbers from any source organization. Repository paths and filenames are the canonical identifiers.
 
 ---
 
@@ -28,7 +28,7 @@ This register intentionally avoids internal document numbers from any source org
 
 | Classification | Use |
 | --- | --- |
-| Public | Suitable for publication under CC BY-SA 4.0 and contains no organisation-specific, personal, proprietary, confidential, contractual, audit, incident, or security-sensitive information. |
+| Public | Suitable for publication under CC BY-SA 4.0 and contains no organization-specific, personal, proprietary, confidential, contractual, audit, incident, or security-sensitive information. |
 | Reference Only | External source material or source-derived note that must not be committed as CC BY-SA 4.0 content unless independently confirmed to be compatible. |
 | Deprecated | Historical repository content that is retained for context but no longer recommended for adoption. |
 
@@ -38,12 +38,12 @@ All active repository documents should be Public.
 
 ## Adoption disposition model
 
-The **Adoption Disposition** column in the index below records, per document, how an organisation cloning this library should treat that document. It operationalizes the inheritance vocabulary defined in [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) (term: Adoption Disposition). The three labels:
+The **Adoption Disposition** column in the index below records, per document, how an organization cloning this library should treat that document. It operationalizes the inheritance vocabulary defined in [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md) (term: Adoption Disposition). The three labels:
 
 | Disposition | Meaning for an adopter |
 | --- | --- |
 | `library-internal` | Library scaffolding, index, or build-and-governance machinery (for example, this register, the three `specification-*` documents, the library charter, the coverage-gap register, and the library quality-and-review cadence procedure with its health-report template, which describe or maintain the library itself). An adopter treats these as internal reference or deletes them; they are not an adopter governance deliverable. |
-| `template` | Adopter-fillable or adopter-customisable governance content the adopter adapts to its organisation (policies, standards, procedures, frameworks, annexes, guidelines, plans, fill-in templates, the definitions and terminology registers, the framework-alignment matrices and crosswalks the library authors over its own documents, and the registers an adopter populates as instances). This is the default disposition for the corpus. |
+| `template` | Adopter-fillable or adopter-customizable governance content the adopter adapts to its organization (policies, standards, procedures, frameworks, annexes, guidelines, plans, fill-in templates, the definitions and terminology registers, the framework-alignment matrices and crosswalks the library authors over its own documents, and the registers an adopter populates as instances). This is the default disposition for the corpus. |
 | `reference` | External-standard or source content cited and kept as cited, not authored by the adopter (the canonical-citations register and the AI security tooling landscape register). |
 
 Documents are classified by their **primary** disposition. The small number that straddle two labels are recorded at the disposition that governs their dominant content, and any document not explicitly library machinery or external-standard reference defaults to `template`. The dominant content, not the document Type or the filename prefix, decides the label (a `register-*` file, for example, can be `library-internal`, `template`, or `reference` depending on whether it is library machinery, an adopter instance, or an external-citation list).
@@ -141,7 +141,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | Data Protection Officer | Annual | GDPR Arts 4(11)/6/7/8/9, ePrivacy Directive, LGPD Arts 7/8, PIPL Arts 13/14, COPPA, ISO/IEC 29184 | template |
 | Privacy | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | Data Protection Officer | Quarterly | GDPR Art 22, EU AI Act Arts 6/14/26, LGPD Art 20, PIPL Art 24, NIST AI RMF | template |
 | Privacy | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | Data Protection Officer | Quarterly | ePrivacy Directive Art 5(3), UK PECR, GDPR, LGPD, PIPL, CCPA/CPRA | template |
-| Privacy | Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 | template |
+| Privacy | Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | Data Protection Officer | Annual | GDPR Art 4(5)/25/Recital 26, ISO/IEC 20889, ISO/IEC 27559, NIST SP 800-188, EDPB Opinion 05/2014 | template |
 | Privacy | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | Data Protection Officer | Annual | GDPR Art 8, UK ICO AADC, COPPA, California AB 1394, LGPD Art 14, PIPL Art 31, EU AI Act Art 5(1)(b), UNCRC GC25 | template |
 | Privacy | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | Data Protection Officer | Annual | GDPR Art 25/Recital 78/Art 42, UK GDPR Art 25, Privacy by Design (Cavoukian), ISO/IEC 27701:2025, ISO/IEC 29134:2017 | template |
 | Privacy | Annex | Privacy Jurisdiction Index | [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) | Data Protection Officer | Annual | GDPR, EU AI Act, UK GDPR, CCPA/CPRA, LGPD, PIPL, PDPA, POPIA, UAE PDPL, DPDPA, APEC CBPR 2.0 | template |
@@ -363,7 +363,7 @@ The expansion backlog is currently empty. All planned documents are active.
 1. Every active document must appear in this register.
 2. Every document path must be unique.
 3. Every document must use a role-based owner and approving authority.
-4. Every document must be checked for organisation-specific and person-specific identifiers before publication.
+4. Every document must be checked for organization-specific and person-specific identifiers before publication.
 5. Documents informed by external sources must comply with [`NOTICE.md`](../NOTICE.md).
 6. Regulatory alignment must not be interpreted as compliance or legal advice.
 7. Framework alignment must not reproduce restricted third-party source text.

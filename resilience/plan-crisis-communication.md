@@ -2,8 +2,8 @@
 
 **Document Title:** Crisis Communication Plan\
 **Document Type:** Plan\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Communications Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
@@ -35,7 +35,7 @@ This plan applies to internal communications, customer communications, supplier 
 3. Statements must avoid speculation, unsupported attribution, unnecessary technical detail, and disclosure of restricted evidence.
 4. Communications must distinguish confirmed facts, current assessment, open investigation items, and planned updates.
 5. AI-related communications must address data exposure, system behaviour, human oversight, model or supplier involvement, and remediation status where relevant.
-6. Public CC BY-SA 4.0 templates must not include real contact lists, customer names, supplier names, regulator contact details, incident facts, or approved message drafts from a specific organisation.
+6. Public CC BY-SA 4.0 templates must not include real contact lists, customer names, supplier names, regulator contact details, incident facts, or approved message drafts from a specific organization.
 
 ---
 
@@ -98,13 +98,13 @@ Close crisis communications when normal communication ownership resumes, all req
 | Release Channel | Internal channel, customer channel, regulator channel, public channel, or other. |
 | Release Time | Date and time released. |
 | Follow-Up Required | Yes, no, or pending. |
-| Evidence Reference | Internal record reference for adopting organisations. |
+| Evidence Reference | Internal record reference for adopting organizations. |
 
 ---
 
 ## Limitations
 
-This plan is a CC BY-SA 4.0 baseline. Adopting organisations must define actual approval thresholds, legal notification requirements, regulatory timelines, customer commitments, media process, contact lists, and message templates internally.
+This plan is a CC BY-SA 4.0 baseline. Adopting organizations must define actual approval thresholds, legal notification requirements, regulatory timelines, customer commitments, media process, contact lists, and message templates internally.
 
 ---
 

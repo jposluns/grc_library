@@ -2,8 +2,8 @@
 
 **Document Title:** Pandemic Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This plan defines the organisation's continuity posture for a pandemic or other prolonged workforce-impacting disruption (severe respiratory disease, novel infectious outbreak, prolonged civil unrest affecting facility access, prolonged extreme weather affecting commuting). It covers staged activation, workforce health, remote-work scaling, supplier impact, facility and operational adjustments, essential-service prioritisation, communications, deactivation, and learning. It is a sister plan to the IT disaster recovery plan and the business continuity and crisis management plan.
+This plan defines the organization's continuity posture for a pandemic or other prolonged workforce-impacting disruption (severe respiratory disease, novel infectious outbreak, prolonged civil unrest affecting facility access, prolonged extreme weather affecting commuting). It covers staged activation, workforce health, remote-work scaling, supplier impact, facility and operational adjustments, essential-service prioritization, communications, deactivation, and learning. It is a sister plan to the IT disaster recovery plan and the business continuity and crisis management plan.
 
 ---
 
@@ -37,7 +37,7 @@ The plan operates in five stages. Movement between stages is decided by the Resi
 | Stage | Activation criteria | Posture |
 | --- | --- | --- |
 | Stage 0: Monitor | Public-health surveillance signal or external advisory at heightened level | No operational change; intelligence collection |
-| Stage 1: Prepare | Sustained surveillance signal; specific risk to the organisation's workforce or facilities | Communication primers; remote-work readiness verified; PPE and supplies inventory checked |
+| Stage 1: Prepare | Sustained surveillance signal; specific risk to the organization's workforce or facilities | Communication primers; remote-work readiness verified; PPE and supplies inventory checked |
 | Stage 2: Activate | Formal public-health authority advisory or directive; first workforce impact observed | Remote-work shift for non-essential on-site roles; visitor restrictions; travel constraints |
 | Stage 3: Sustained operations | Disruption confirmed; workforce-availability projected impact above thresholds | Essential-services-only operational mode; rotational on-site staffing; supplier impact assessment |
 | Stage 4: Recovery | Sustained improvement; advisories relaxed | Phased return to baseline; workforce well-being focus; lessons-learned commissioning |
@@ -49,7 +49,7 @@ The plan operates in five stages. Movement between stages is decided by the Resi
 | Item | Required content |
 | --- | --- |
 | Health-and-safety responsibilities | Employer obligations under local occupational health and safety law |
-| Vaccination and prophylaxis | Recommendation, support, or requirement per applicable law and organisational policy |
+| Vaccination and prophylaxis | Recommendation, support, or requirement per applicable law and organizational policy |
 | Sick-leave policy adjustments | Extended sick leave; remote-work-while-recovering options; quarantine pay |
 | Mental health support | Employee assistance programme; manager training on prolonged-disruption stress signs |
 | Personal protective equipment | PPE provided where required for on-site roles |
@@ -74,15 +74,15 @@ The plan operates in five stages. Movement between stages is decided by the Resi
 
 ---
 
-## Essential-service prioritisation
+## Essential-service prioritization
 
-Each business function is classified by criticality. During Stage 3 the organisation operates essential services only.
+Each business function is classified by criticality. During Stage 3 the organization operates essential services only.
 
 | Tier | Definition | Posture under Stage 3 |
 | --- | --- | --- |
-| Essential | Service the organisation must maintain regardless of workforce availability (e.g. customer-facing payment processing, regulatory reporting, safety functions) | Continue with rotational staffing and supplier coverage |
-| Important | Service the organisation should maintain if workforce permits | Continue at reduced capacity; defer non-urgent activity |
-| Deferrable | Service the organisation can suspend | Suspend with communicated restart criteria |
+| Essential | Service the organization must maintain regardless of workforce availability (e.g. customer-facing payment processing, regulatory reporting, safety functions) | Continue with rotational staffing and supplier coverage |
+| Important | Service the organization should maintain if workforce permits | Continue at reduced capacity; defer non-urgent activity |
+| Deferrable | Service the organization can suspend | Suspend with communicated restart criteria |
 
 Each in-scope function maps to one of these tiers in the business impact analysis. The BIA is the source of truth; this plan operationalizes it.
 
@@ -97,8 +97,8 @@ Each in-scope function maps to one of these tiers in the business impact analysi
 | Alternate-supplier activation | Plan to activate pre-identified alternates per the supplier risk register |
 | Concentration-risk review | Per the concentration risk register; pandemic concentration risks include geographically clustered suppliers |
 | Sub-processor disruption | Privacy implications for personal data processing |
-| Logistics and physical supply | For organisations with physical supply chains, transport and customs continuity |
-| Critical-component stocking | Where authorised, advance procurement of critical components |
+| Logistics and physical supply | For organizations with physical supply chains, transport and customs continuity |
+| Critical-component stocking | Where authorized, advance procurement of critical components |
 
 ---
 
@@ -125,7 +125,7 @@ Each in-scope function maps to one of these tiers in the business impact analysi
 | Customers | Status page; email; in-product | At stage transitions and at material changes | Service availability, alternative channels, expected duration |
 | Regulators | Per regulator | Per regulatory expectation | Continuity status |
 | Suppliers | Account manager channels | As needed | Coordination on continuity |
-| Public and media | Per the crisis communication plan | As needed | Sanitised, board-approved |
+| Public and media | Per the crisis communication plan | As needed | Sanitized, board-approved |
 
 ---
 
@@ -183,7 +183,7 @@ Deactivation criteria are public-health-authority guidance plus internal indicat
 
 ## Limitations
 
-This plan is a CC BY-SA 4.0 baseline. Adopting organisations populate the activation thresholds, the essential-service tier mapping, the supplier alternate list, the contact roster, the facility-access protocols, and the communications templates from their environment and local public-health guidance. The plan is not medical advice and is not a substitute for occupational health and safety counsel.
+This plan is a CC BY-SA 4.0 baseline. Adopting organizations populate the activation thresholds, the essential-service tier mapping, the supplier alternate list, the contact roster, the facility-access protocols, and the communications templates from their environment and local public-health guidance. The plan is not medical advice and is not a substitute for occupational health and safety counsel.
 
 ---
 

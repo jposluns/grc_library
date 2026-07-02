@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Overview
 
-A structured navigator for adopting organisations: "I have these characteristics; which library documents should I read first, in what order?" It is a controlled reference artefact that complements [`docs/adopter-guide.md`](adopter-guide.md): the adopter guide gives general adoption principles; this document gives a sequenced reading order.
+A structured navigator for adopting organizations: "I have these characteristics; which library documents should I read first, in what order?" It is a controlled reference artefact that complements [`docs/adopter-guide.md`](adopter-guide.md): the adopter guide gives general adoption principles; this document gives a sequenced reading order.
 
 ### Where this fits among the adopter entry points
 
@@ -28,7 +28,7 @@ The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience
 
 ## How to use this guide
 
-1. Identify your organisation's characteristics across the dimensions in **Section 1** (size, sector, jurisdiction, regulated activities, technology footprint).
+1. Identify your organization's characteristics across the dimensions in **Section 1** (size, sector, jurisdiction, regulated activities, technology footprint).
 2. Read the **Section 2** baseline that applies to every adopter, in the order listed.
 3. Layer the **Section 3** sector-conditional content based on your sector (only the sub-directories that apply).
 4. Layer the **Section 4** jurisdiction-conditional content based on where you operate and where your data subjects are.
@@ -43,7 +43,7 @@ For terms and acronyms used below, see [`governance/register-glossary.md`](../go
 
 Answer each of the following to determine your reading path.
 
-### 1.1 Organisation size
+### 1.1 Organization size
 
 - **Small** (under 50 employees)
 - **Mid-market** (50 to 500)
@@ -96,7 +96,7 @@ Answer each of the following to determine your reading path.
 - Operational technology / industrial control systems present
 - AI/ML in production
 - Multi-cloud
-- Containerised / Kubernetes
+- Containerized / Kubernetes
 
 ---
 
@@ -114,7 +114,7 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 ### 2.2 Governance core
 
 5. [`governance/charter-governance-library.md`](../governance/charter-governance-library.md): library authority model.
-6. [`governance/register-role-authority.md`](../governance/register-role-authority.md): the roles the library uses; you will map these to people in your organisation.
+6. [`governance/register-role-authority.md`](../governance/register-role-authority.md): the roles the library uses; you will map these to people in your organization.
 7. [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md): how documents relate.
 8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every document with type, domain, status, and related artefacts. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point per PR #165 / FR-56); the document index is the deeper-dive register for readers who already know what they are looking for.
 
@@ -156,7 +156,7 @@ Read the sub-section matching your sector. Skip the others.
 
 ### 3.1 If logistics
 
-Read the sector-overview annex first, then the programme overlays for programmes your organisation participates in.
+Read the sector-overview annex first, then the programme overlays for programmes your organization participates in.
 
 1. [`compliance/logistics/README.md`](../compliance/logistics/README.md): sector + programme index.
 2. [`compliance/logistics/annex-logistics-sector-requirements.md`](../compliance/logistics/annex-logistics-sector-requirements.md): sector overview.
@@ -286,7 +286,7 @@ These are illustrative rather than prescriptive. Adapt to your context.
 2. Universal baseline risk and compliance foundation (2.3): read.
 3. Identify your sector and read the sector index README (3.x).
 4. Identify your jurisdiction and read the relevant privacy annex (4.1).
-5. Map the library's roles ([`register-role-authority.md`](../governance/register-role-authority.md)) to people in your organisation.
+5. Map the library's roles ([`register-role-authority.md`](../governance/register-role-authority.md)) to people in your organization.
 6. Decide which library documents you will adopt as-is, adapt, or omit.
 
 Deliverable: a one-page adoption plan listing the library documents you will operate.

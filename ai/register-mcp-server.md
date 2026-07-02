@@ -2,8 +2,8 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`dev-security/claude-rules/ai/mcp-security.md`](../dev-security/claude-rules/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register inventories Model Context Protocol (MCP) servers the organisation operates internally, consumes from third parties, or permits AI assistants to invoke. MCP is the canonical pattern for exposing tools, data sources, and capabilities to AI agents; each MCP server is a security boundary that must be governed, monitored, and reviewed.
+This register inventories Model Context Protocol (MCP) servers the organization operates internally, consumes from third parties, or permits AI assistants to invoke. MCP is the canonical pattern for exposing tools, data sources, and capabilities to AI agents; each MCP server is a security boundary that must be governed, monitored, and reviewed.
 
 A populated MCP server register identifies real servers, suppliers, and capabilities and is sensitive operational data; populate, classify, and store internally.
 
@@ -28,11 +28,11 @@ A populated MCP server register identifies real servers, suppliers, and capabili
 
 This register covers:
 
-1. **First-party MCP servers** developed and operated by the organisation.
+1. **First-party MCP servers** developed and operated by the organization.
 2. **Third-party MCP servers** consumed from suppliers, whether hosted by the supplier or self-hosted from supplier-published code.
 3. **Open-source MCP servers** in production use.
 4. **Developer-environment MCP servers** that AI coding assistants connect to during software development.
-5. **Customer-deployed MCP servers** the organisation distributes as part of its product (where applicable).
+5. **Customer-deployed MCP servers** the organization distributes as part of its product (where applicable).
 
 It does not cover ad-hoc experimentation by individual developers; experimental servers are scoped to the developer's environment and do not connect to production data or systems.
 
@@ -48,7 +48,7 @@ Each row is one MCP server. Mandatory fields:
 | Server name | Internal name; not vendor name in the public template |
 | Provider | First-party team or third-party supplier |
 | Tier | Tier classification (Critical, High, Moderate, Low) per the same scheme as the supplier risk register |
-| Hosting | Supplier-hosted, organisation-hosted, developer-workstation-hosted |
+| Hosting | Supplier-hosted, organization-hosted, developer-workstation-hosted |
 | Endpoint | Internal endpoint identifier; private record |
 | Protocol version | MCP protocol version supported |
 | Authentication | Authentication mechanism (token, mTLS, OAuth, no-auth restricted to local) |
@@ -94,11 +94,11 @@ Every approved server satisfies:
 | --- | --- |
 | Authentication | Authenticated by default; unauthenticated only where the server is bound to localhost and the user owns the workstation |
 | Encryption | TLS for non-local servers; mTLS where Tier 1 |
-| Authorisation | The server applies the user-on-whose-behalf authorisation; agent identity alone does not unlock data |
+| Authorization | The server applies the user-on-whose-behalf authorization; agent identity alone does not unlock data |
 | Input validation | The server validates inputs against the declared schema; rejects out-of-schema requests |
-| Output sanitisation | Where the server returns data fed into downstream model context, the data is delimited and identified as untrusted to mitigate indirect prompt injection |
+| Output sanitization | Where the server returns data fed into downstream model context, the data is delimited and identified as untrusted to mitigate indirect prompt injection |
 | Rate limiting | Per-client rate limit enforced; chain-length limit where applicable |
-| Logging | Per-invocation logging with the user identity, agent identity, tool, arguments (sanitised), outcome |
+| Logging | Per-invocation logging with the user identity, agent identity, tool, arguments (sanitized), outcome |
 | Secrets handling | No secrets in server source; secrets accessed from the secrets management service per invocation |
 | Supply chain | First-party servers follow the secure development standard; third-party servers follow the AI vendor security questionnaire |
 | Vulnerability management | Server software patched on the cadence in the vulnerability management procedure |
@@ -136,7 +136,7 @@ Every approved server satisfies:
 | --- | --- | --- |
 | Approved-server coverage | Percentage of MCP servers connected to production AI systems with an Approved-for-use row in this register | 100% |
 | Review currency | Percentage of Tier 1 and Tier 2 servers with a review completed in the past 6 months | At least 95% |
-| Unauthorised-tool-call rate | Tool invocations rejected at the server boundary as out-of-allow-list per 10 thousand invocations | Trend-monitored; persistent increase triggers a capability-list review |
+| Unauthorized-tool-call rate | Tool invocations rejected at the server boundary as out-of-allow-list per 10 thousand invocations | Trend-monitored; persistent increase triggers a capability-list review |
 | Identity propagation coverage | Percentage of tool invocations carrying a verified user-on-whose-behalf identity | 100% for production |
 | Server-incident count | MCP-server-related incidents per quarter | Trend-monitored |
 
@@ -158,7 +158,7 @@ Every approved server satisfies:
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. MCP and the broader agentic ecosystem are rapidly evolving; the register and the security baseline expect to evolve. Adopting organisations validate the current MCP specification, the supplier landscape, and the threat-model assumptions at each review cycle.
+This register is a CC BY-SA 4.0 structural baseline. MCP and the broader agentic ecosystem are rapidly evolving; the register and the security baseline expect to evolve. Adopting organizations validate the current MCP specification, the supplier landscape, and the threat-model assumptions at each review cycle.
 
 ---
 

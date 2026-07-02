@@ -2,11 +2,11 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.5\
-**Date:** 2026-06-30\
+**Version:** 0.0.6\
+**Date:** 2026-07-02\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** Annual and upon material change to training-data sources, regulation, or supplier landscape\
@@ -24,7 +24,7 @@ This procedure governs the lifecycle of data used to train, fine-tune, or otherw
 
 ## Scope
 
-This procedure applies to all training-data activities including: pre-training corpora used by foundation models the organisation builds or substantially shapes; fine-tuning datasets; reinforcement-learning feedback data; evaluation datasets where evaluation results materially influence model selection; retrieval indices whose content affects model output. It applies regardless of whether the data is internally generated, licensed, scraped under documented rules, or synthetically produced.
+This procedure applies to all training-data activities including: pre-training corpora used by foundation models the organization builds or substantially shapes; fine-tuning datasets; reinforcement-learning feedback data; evaluation datasets where evaluation results materially influence model selection; retrieval indices whose content affects model output. It applies regardless of whether the data is internally generated, licensed, scraped under documented rules, or synthetically produced.
 
 It does not cover purely transactional logging (per the logging standard) or business-process data flows that do not feed an AI training or fine-tuning step.
 
@@ -55,11 +55,11 @@ Before the dataset is used for training:
 | Action | Required output |
 | --- | --- |
 | PII detection | Run PII detection across the corpus; record categories detected and the volume |
-| Redaction or removal | Apply the technique appropriate to the use case (removal, redaction, pseudonymisation, anonymisation per the pseudonymisation standard) |
+| Redaction or removal | Apply the technique appropriate to the use case (removal, redaction, pseudonymization, anonymization per the pseudonymization standard) |
 | CSAM and prohibited content filtering | Run prohibited-category classifiers; remove with audit trail |
 | Hate, violence, and high-toxicity filtering | Apply per the responsible-use policy; thresholds documented |
 | Copyrighted content review | Where the corpus may contain copyrighted material, document the use rationale and any opt-out mechanism the upstream source provides |
-| De-identification verification | For corpora claimed anonymised, the re-identification risk assessment per the pseudonymisation standard |
+| De-identification verification | For corpora claimed anonymized, the re-identification risk assessment per the pseudonymization standard |
 | Output of step | A cleaned dataset; the datasheet annex documenting all transformations |
 
 ### Step 3: Consent and subject rights mechanism
@@ -108,7 +108,7 @@ When a data subject exercises a right to deletion, or when a corpus is retired u
 | Step | Action | SLA |
 | --- | --- | --- |
 | 1 | Identify all dataset versions containing the subject's data | Within 7 calendar days |
-| 2 | Remove or pseudonymise per the dataset's policy; produce a new dataset version | Within 14 calendar days of identification |
+| 2 | Remove or pseudonymize per the dataset's policy; produce a new dataset version | Within 14 calendar days of identification |
 | 3 | Identify all derived models, fine-tunes, and embeddings | Within 21 calendar days |
 | 4 | Treat per the derived-artefact policy: retrain from cleaned dataset where economically feasible; otherwise document the residual exposure and risk-accept per the exception process | Per the retraining schedule; risk acceptance within 30 calendar days |
 | 5 | Confirm deletion to the subject through the DSAR workflow | Within the subject-rights regulatory window |
@@ -128,26 +128,26 @@ The procedure guarantees the following deletion outcomes within the stated SLAs:
 | Production-served models trained on the dataset | Best-effort - retraining is scheduled where economically feasible; residual exposure is risk-accepted with documented rationale where not |
 | Fine-tunes and adapters derived from the dataset | Best-effort - same as above |
 | Logs of past inferences that reflected the deleted data | Per the logging retention policy; not retroactively scrubbed unless the inference logs themselves are personal data |
-| External models the organisation does not control | Out of scope; addressed contractually via no-training and right-to-deletion clauses with providers |
+| External models the organization does not control | Out of scope; addressed contractually via no-training and right-to-deletion clauses with providers |
 
-Adopting organisations honestly distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
+Adopting organizations honestly distinguish what they can guarantee from what is best-effort when communicating to data subjects and regulators.
 
 ### Step 7: Supplier-provided training data
 
-Where the organisation acquires training data from a supplier:
+Where the organization acquires training data from a supplier:
 
 | Action | Required output |
 | --- | --- |
 | Supplier datasheet | Acquired alongside the dataset |
 | Provenance attestation | Supplier's documented sources and lawful-basis chain |
 | Licence compliance | Legal review of the use rights |
-| Subject-rights flow-through | How the supplier honours deletion that propagates from the organisation's customers |
+| Subject-rights flow-through | How the supplier honours deletion that propagates from the organization's customers |
 | Indemnity | Coverage for IP claims arising from the supplier's data |
 | Refresh cadence | Frequency at which the supplier provides updated provenance attestations |
 
 ### Step 8: Synthetic data
 
-Where the organisation generates or acquires synthetic training data:
+Where the organization generates or acquires synthetic training data:
 
 | Field | Required content |
 | --- | --- |
@@ -191,7 +191,7 @@ Where a retrieval index materially shapes model output:
 | AI system register | Each AI system row references its consuming model and indirectly its datasets |
 | Privacy and data governance policy | Lawful basis, consent, subject rights |
 | Data subject rights management procedure | DSAR workflow integration |
-| Pseudonymisation and anonymisation standard | De-identification techniques |
+| Pseudonymization and anonymization standard | De-identification techniques |
 | ROPA | Personal-data-bearing datasets recorded |
 | Children's data framework | Where children's data is present |
 | Sustainability and responsible technology framework | Training compute energy and emissions |
@@ -216,7 +216,7 @@ Where a retrieval index materially shapes model output:
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Training-data governance is an evolving area; specific obligations under the EU AI Act, sector regulations, and emerging litigation (notably copyright) change frequently. Adopting organisations consult specialist counsel at each material decision. The procedure recognizes that some technical mitigations (e.g. machine unlearning at scale) remain immature; the exception process captures unavoidable residual exposure.
+This procedure is a CC BY-SA 4.0 baseline. Training-data governance is an evolving area; specific obligations under the EU AI Act, sector regulations, and emerging litigation (notably copyright) change frequently. Adopting organizations consult specialist counsel at each material decision. The procedure recognizes that some technical mitigations (e.g. machine unlearning at scale) remain immature; the exception process captures unavoidable residual exposure.
 
 ---
 

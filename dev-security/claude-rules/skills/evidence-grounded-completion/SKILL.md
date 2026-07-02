@@ -1,6 +1,6 @@
 ---
 name: evidence-grounded-completion
-description: Verifies completion claims with evidence before declaring done. Use before stating "done", "complete", "fixed", "shipped", "ready", or any synonym. Use when wrapping up a unit of work and about to summarise to the user. Use when about to acknowledge a user-reported issue with "good catch". Use also before asserting a factual property of an artefact you have not read (a state assertion in research, assessment, planning, or review), not only at completion.
+description: Verifies completion claims with evidence before declaring done. Use before stating "done", "complete", "fixed", "shipped", "ready", or any synonym. Use when wrapping up a unit of work and about to summarize to the user. Use when about to acknowledge a user-reported issue with "good catch". Use also before asserting a factual property of an artefact you have not read (a state assertion in research, assessment, planning, or review), not only at completion.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 

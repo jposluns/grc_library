@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README\
 **Document Type:** Register\
-**Version:** 1.2.1\
-**Date:** 2026-06-19\
+**Version:** 1.2.2\
+**Date:** 2026-07-02\
 **Owner:** Information Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organisation-neutral information security governance artefacts released under CC BY-SA 4.0. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
+This directory contains organization-neutral information security governance artefacts released under CC BY-SA 4.0. The domain covers security governance, identity and access management, logging and monitoring, data classification, secure operations, incident response, vulnerability management, secure development, and technical control baselines.
 
 ---
 

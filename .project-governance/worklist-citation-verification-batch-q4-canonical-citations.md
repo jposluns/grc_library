@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -174,7 +174,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | NFPA 72 | https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=72 | all | 2025, National Fire Alarm and Signaling Code; supersedes 2022, 2019 |  |  |  |  |  |  |
 | EN 54 | https://standards.cencenelec.eu/dyn/www/f?p=205:32:0::::FSP_ORG_ID,FSP_LANG_ID:6196,25 | all | Series, current parts published 2017 to 2023 |  |  |  |  |  |  |
 | TSA Pipeline Security Directive | https://www.tsa.gov/sites/default/files/sd-pipeline-2021-02c.pdf | all | SD02 (with subsequent revisions), 2021 initial, revised through 2024 |  |  |  |  |  |  |
-| Basel III | https://www.bis.org/basel_framework/ | all | 2017 (with 2023 finalisation, in force 2025); supersedes Basel II |  |  |  |  |  |  |
+| Basel III | https://www.bis.org/basel_framework/ | all | 2017 (with 2023 finalization, in force 2025); supersedes Basel II |  |  |  |  |  |  |
 | NERC CIP | https://www.nerc.com/pa/Stand/Pages/CIPStandards.aspx | all | 014-3 (latest revision), various |  |  |  |  |  |  |
 | PCI DSS | https://www.pcisecuritystandards.org/document_library/?category=pcidss | all | 4.0.1, 2024-06; supersedes 3.2.1, 4.0 |  |  |  |  |  |  |
 

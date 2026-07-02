@@ -49,7 +49,7 @@ hashlib.md5(password.encode()).hexdigest()       # Broken
 
 ## Key management
 
-Keys must never be hardcoded in source code, configuration files, or build artefacts. Store keys in the organisation's approved secrets management service.
+Keys must never be hardcoded in source code, configuration files, or build artefacts. Store keys in the organization's approved secrets management service.
 
 Key lifecycle requirements:
 - **Generate** keys using a cryptographically secure random number generator (CSPRNG): not `random`, not `Math.random()`
@@ -99,7 +99,7 @@ Use a cryptographically secure random number generator for all security-relevant
 
 ## Post-quantum readiness
 
-Current public-key cryptography (RSA, ECDSA, ECDH) is vulnerable to cryptographically relevant quantum computers. Organisations should:
+Current public-key cryptography (RSA, ECDSA, ECDH) is vulnerable to cryptographically relevant quantum computers. Organizations should:
 - Inventory all systems using public-key cryptography
 - Prioritize migration for long-lived data and long-lived certificates
 - Monitor NIST post-quantum cryptography standardization (ML-KEM, ML-DSA, SLH-DSA)

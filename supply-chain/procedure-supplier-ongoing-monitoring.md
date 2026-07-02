@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organisation's operations, data, or compliance posture.
+This procedure defines the activities, frequencies, and escalation steps for ongoing monitoring of active supplier relationships. Monitoring ensures that supplier risk ratings remain current, contractual obligations are being met, and emerging risks are identified before they cause harm to the organization's operations, data, or compliance posture.
 
 ---
 
@@ -89,7 +89,7 @@ In addition to scheduled activities, the following continuous signals should be 
 | **Security ratings** | External security rating drops materially (e.g., by one grade or 10+ points) | Initiate unscheduled security posture review |
 | **Dark web / threat intelligence** | Supplier's credentials or data appear in threat intelligence or breach notifications | Initiate immediate review; assess impact; notify DPO if personal data involved |
 | **Financial distress signals** | Credit rating downgrade; county court judgements; news of financial difficulty | Initiate contingency planning review; escalate to CRO |
-| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organisation; escalate to CCO and CRO |
+| **Regulatory sanctions** | Supplier named in regulatory enforcement action | Assess impact on organization; escalate to CCO and CRO |
 | **Adverse media** | Significant negative news coverage involving security, privacy, or ethical conduct | Review and assess relevance; escalate if material |
 | **Trade compliance alerts** | Supplier loses CTPAT / AEO-S / PIP / BASC certification; enters customs sanctions list | Immediate escalation to Trade Compliance Manager and CRO; assess operational impact |
 

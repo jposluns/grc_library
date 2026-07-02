@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
-**Date:** 2026-06-22\
+**Version:** 1.2.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the processes for granting, reviewing, modifying, and revoking access to organisational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
+This procedure defines the processes for granting, reviewing, modifying, and revoking access to organizational systems, applications, data, and network resources. It implements the principle of least privilege and need-to-know access model across all platforms, ensuring access is appropriate, authorized, and periodically reviewed.
 
 ---
 
 ## Scope
 
-Applies to all access to organisational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
+Applies to all access to organizational systems including cloud platforms, on-premises systems, applications, network infrastructure, databases, development environments, and privileged management interfaces. Covers all user types: employees, contractors, third parties, and service accounts.
 
 ---
 
@@ -36,10 +36,10 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 | **IT Operations / Identity Team** | Provisions and deprovisions access; maintains access management tooling. |
 | **System / Application Owner** | Approves access requests for their systems; conducts periodic access reviews. |
 | **Manager / People Leader** | Initiates and approves access requests for their team members. |
-| **Delegated Security Lead** | A named deputy of the CISO authorised to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organisations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template). |
+| **Delegated Security Lead** | A named deputy of the CISO authorized to approve privileged-access and emergency-access requests when the CISO is unavailable. In this library's reference configuration the role is filled by a pre-named senior member of the Incident Response Team (IRT) or the deputy CISO where one exists. **Sample data, adjust upon adoption**: adopting organizations name a specific role (e.g., Director of Security Operations, Lead Security Engineer) and identify the individual currently holding it in their internal access-control runbook (not in this public template). |
 | **Internal Audit** | Conducts access certification audits and reviews for compliance. |
 
-> **Sample-data note (operational thresholds)**: this section and §1.4 below carry sample operational thresholds (incident-severity definitions, time bounds, named roles) that are illustrative only. Adopting organisations MUST adjust these values to match their own incident-severity model, regulatory environment, and operational tempo before putting this procedure into force. The thresholds shown here are calibrated against a typical mid-market organisation with a 24/7 SOC; small adopters and high-regulation adopters will both need to recalibrate.
+> **Sample-data note (operational thresholds)**: this section and §1.4 below carry sample operational thresholds (incident-severity definitions, time bounds, named roles) that are illustrative only. Adopting organizations MUST adjust these values to match their own incident-severity model, regulatory environment, and operational tempo before putting this procedure into force. The thresholds shown here are calibrated against a typical mid-market organization with a 24/7 SOC; small adopters and high-regulation adopters will both need to recalibrate.
 
 ---
 
@@ -68,11 +68,11 @@ Applies to all access to organisational systems including cloud platforms, on-pr
 
 > **Sample-data note**: "P1 or P2 severity" reflects this template's incident-severity tier model (four tiers P1 through P4, with P1 being most severe). Adopters with a different severity model (e.g., Critical / High / Medium / Low) must substitute the equivalent top-two severity bands. "Material business or safety harm" means the delay would, on its own, more likely than not cause an outcome that would itself trigger a P1 or P2 incident under the adopter's incident-severity policy (e.g., demonstrable risk of regulated-data exposure, safety incident, customer-facing outage exceeding the adopter's SLA-breach threshold).
 
-1.4.1 Verbal approval must be formalised by the approver as an ITSM ticket within 24 hours of grant, with the trigger condition, the named approver, the granted access, and the access expiry recorded.
+1.4.1 Verbal approval must be formalized by the approver as an ITSM ticket within 24 hours of grant, with the trigger condition, the named approver, the granted access, and the access expiry recorded.
 
-1.4.2 If verbal-approval access has not been formalised within 24 hours, the Identity Team must revoke the access at the 24-hour mark and notify the CISO. **Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly. Re-grant of access requires the standard request-and-approval flow under §1.1.
+1.4.2 If verbal-approval access has not been formalized within 24 hours, the Identity Team must revoke the access at the 24-hour mark and notify the CISO. **Escalation**: if the Identity Team has not acknowledged the revocation requirement within 30 minutes of the 24-hour mark (as evidenced by an ITSM ticket update or chat acknowledgement), the SOC escalates to the SOC L2 on-call (or equivalent second-tier security operations role). If the L2 has not acknowledged within a further 30 minutes, the SOC escalates to the CISO directly. Re-grant of access requires the standard request-and-approval flow under §1.1.
 
-1.4.3 Emergency access events (both formalised and revoked-for-non-formalisation) are reviewed by the CISO quarterly as part of the access-control programme metrics.
+1.4.3 Emergency access events (both formalized and revoked-for-non-formalization) are reviewed by the CISO quarterly as part of the access-control programme metrics.
 
 ---
 

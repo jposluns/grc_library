@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.2\
-**Date:** 2026-06-30\
+**Version:** 1.3.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -28,8 +28,8 @@ To protect information held on physical and digital media from unauthorized disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organisation-issued and personally-owned devices (BYOD) where they are used to handle organisational data.
-4. Covers all employees, contractors, and third parties who handle organisational media in any classification.
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data.
+4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
 ---
@@ -43,7 +43,7 @@ To protect information held on physical and digital media from unauthorized disc
 | **Data Owners** | Classify data held on media under their domain; authorize transfers of Confidential or Restricted data; confirm retention holds before disposal is initiated. |
 | **All Employees and Contractors** | Handle media in accordance with the classification of the information it contains; report loss or suspected compromise of media immediately to IT Operations and the CISO. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who confirms destruction of trade and customs data per BASC and applicable national customs authority obligations) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who confirms destruction of trade and customs data per BASC and applicable national customs authority obligations) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -106,7 +106,7 @@ Loss or suspected compromise of physical media in transit must be reported immed
 
 ### 5.1 Approved transfer mechanisms
 
-Digital transfer of organisational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
+Digital transfer of organizational data must use approved channels. The approved mechanism depends on the classification of the data being transferred:
 
 | Data Classification | Approved Transfer Mechanisms |
 | --- | --- |
@@ -152,7 +152,7 @@ Media containing Confidential or Restricted data must not be stored in general o
 
 ### 6.2 Portable digital media encryption
 
-All portable digital media (USB drives, external hard drives, portable SSDs) used for organisational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organisation-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organisation-managed endpoints unless explicitly approved by the CISO for a documented purpose.
+All portable digital media (USB drives, external hard drives, portable SSDs) used for organizational data must be encrypted. Unencrypted portable media is prohibited for Confidential or Restricted data. IT Operations maintains an inventory of organization-issued portable media and the data classification they are approved to carry. Personal USB drives and portable storage devices are not permitted to connect to organization-managed endpoints unless explicitly approved by the CISO for a documented purpose.
 
 ### 6.3 Backup media
 
@@ -204,7 +204,7 @@ A Certificate of Destruction is mandatory for the disposal of all media that has
 
 - All decommissioned servers and workstations.
 - All portable media (USB drives, external drives, tapes) removed from service.
-- All organisation-issued mobile devices.
+- All organization-issued mobile devices.
 - Paper records of Confidential or Restricted classification destroyed by a contracted service.
 
 A Certificate of Destruction is not required for internal-only paper records shredded on-site, provided the shredding is recorded in the Destruction Register.
@@ -255,13 +255,13 @@ Where external vendors are used for media sanitization or physical destruction, 
 
 ### 9.3 Sector-programme data disposal
 
-Where media holds data governed by a sector programme (for example, BASC-governed trade and customs data where the organisation participates in BASC), destruction must be confirmed by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer) before the Certificate of Destruction is filed. The sector-conditional role verifies that:
+Where media holds data governed by a sector programme (for example, BASC-governed trade and customs data where the organization participates in BASC), destruction must be confirmed by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer) before the Certificate of Destruction is filed. The sector-conditional role verifies that:
 
 - The sector-programme minimum retention period has expired or the records have been migrated to an approved successor system.
 - No sector authority hold or audit request (for example, no outstanding customs authority hold or audit request under BASC) is outstanding.
 - The destruction method satisfies the relevant sector annex's data-security requirements.
 
-See [`compliance/`](../compliance/) for the sector annex applicable to the organisation's covered programmes.
+See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
 
 ---
 

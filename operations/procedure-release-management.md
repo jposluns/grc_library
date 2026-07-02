@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure governs the release of software, configuration, and infrastructure changes to production. It complements the change management procedure (which authorises the change) and the secure code review procedure (which validates the artefact) by governing how changes move from acceptance to live operation safely, predictably, and reversibly.
+This procedure governs the release of software, configuration, and infrastructure changes to production. It complements the change management procedure (which authorizes the change) and the secure code review procedure (which validates the artefact) by governing how changes move from acceptance to live operation safely, predictably, and reversibly.
 
 ---
 
@@ -26,11 +26,11 @@ This procedure governs the release of software, configuration, and infrastructur
 
 This procedure applies to:
 
-1. Production deployments of organisationally-owned software.
+1. Production deployments of organizationally-owned software.
 2. Production configuration changes that are not strictly software (feature flags, configuration values, parameter changes).
 3. Infrastructure-as-code releases to production.
 4. AI artefact releases (model weights, prompts, retrieval-augmentation indices, tool definitions, evaluation suites that gate releases).
-5. Vendor-supplied releases that the organisation deploys (third-party patches, COTS upgrades).
+5. Vendor-supplied releases that the organization deploys (third-party patches, COTS upgrades).
 
 It does not cover patches under the patch management procedure (which has its own cadence and risk class), although critical security patches may also use this procedure for the release mechanics.
 
@@ -73,7 +73,7 @@ It does not cover patches under the patch management procedure (which has its ow
 | Compliance gates | Privacy, regulatory, and licensing gates verified where applicable |
 | Pre-flight checks | Production-readiness checklist signed off |
 
-### Step 4: Authorisation
+### Step 4: Authorization
 
 | Activity | Required output |
 | --- | --- |
@@ -114,14 +114,14 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | AI behaviour spot-check | Where the release affects AI behaviour, a spot-check evaluates representative inputs |
 | Sign-off | Verification signed off by the deploy operator and the on-call engineer |
 
-### Step 7: Stabilisation
+### Step 7: Stabilization
 
 | Activity | Required output |
 | --- | --- |
 | Observation window | Defined window during which the on-call team monitors for emergent issues |
 | Customer-facing telemetry | Customer-impact telemetry observed; surges in support contacts treated as a signal |
 | Anomaly response | Anomalies trigger investigation; rollback considered if criteria are met |
-| Stabilisation hand-off | Stabilisation ends with a documented hand-off to standard operations |
+| Stabilization hand-off | Stabilization ends with a documented hand-off to standard operations |
 
 ### Step 8: Rollback or forward-fix
 
@@ -150,7 +150,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Routine release | Standard change approval | Full automated gates |
 | Expedited release | Documented expedited path; senior engineering approval | Full gates; reduced waiting |
 | Emergency release | Emergency change approval; out-of-cycle senior approval | Minimum-viable gates; post-release reconciliation required |
-| Standard repeatable release | Pre-authorised template; automated approval where templated | Templated gates |
+| Standard repeatable release | Pre-authorized template; automated approval where templated | Templated gates |
 
 ---
 
@@ -161,8 +161,8 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Release manager | Coordinates the release calendar; arbitrates conflicts; owns this procedure |
 | Service owner | Owns the artefact being released and the outcome |
 | Deploy operator | Executes the deployment |
-| On-call engineer | Monitors during deployment and stabilisation |
-| Approver | Authorises the release per its class |
+| On-call engineer | Monitors during deployment and stabilization |
+| Approver | Authorizes the release per its class |
 | Communications owner | Owns customer and internal communication |
 | AI governance reviewer | Reviews AI artefact releases per the AI release gate |
 
@@ -222,7 +222,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Release practice is highly tooling-dependent; the procedure expresses requirements rather than vendor-specific implementations. Adopting organisations confirm current tooling and select deployment strategies appropriate to their architecture.
+This procedure is a CC BY-SA 4.0 baseline. Release practice is highly tooling-dependent; the procedure expresses requirements rather than vendor-specific implementations. Adopting organizations confirm current tooling and select deployment strategies appropriate to their architecture.
 
 ---
 

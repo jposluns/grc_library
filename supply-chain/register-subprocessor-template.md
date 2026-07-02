@@ -2,8 +2,8 @@
 
 **Document Title:** Subprocessor Register Template\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -16,19 +16,19 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This template defines the schema for the organisation's Subprocessor Register. The register records all third-party organisations that process personal data on behalf of the organisation as data processors or subprocessors. It supports GDPR Article 28 compliance, enables transparency with data subjects and supervisory authorities, and provides the basis for subprocessor notifications to customers where contractually required.
+This template defines the schema for the organization's Subprocessor Register. The register records all third-party organizations that process personal data on behalf of the organization as data processors or subprocessors. It supports GDPR Article 28 compliance, enables transparency with data subjects and supervisory authorities, and provides the basis for subprocessor notifications to customers where contractually required.
 
 ---
 
 ## Legal context
 
-Under GDPR and UK GDPR Article 28, a controller must engage processors only where the processor can provide sufficient guarantees about technical and organisational measures. Where a processor engages a subprocessor, the controller retains responsibility for the subprocessor's compliance. This register enables the organisation to:
+Under GDPR and UK GDPR Article 28, a controller must engage processors only where the processor can provide sufficient guarantees about technical and organizational measures. Where a processor engages a subprocessor, the controller retains responsibility for the subprocessor's compliance. This register enables the organization to:
 
 - Meet its Article 30 Record of Processing Activities obligations with respect to processors
 - Discharge notification obligations to customers who have subprocessor notification clauses in their contracts
@@ -110,7 +110,7 @@ For subprocessors where customer contracts include subprocessor notification cla
 
 ## Sub-subprocessor section
 
-Where a subprocessor engages its own sub-subprocessors that will process the organisation's personal data, these must be documented:
+Where a subprocessor engages its own sub-subprocessors that will process the organization's personal data, these must be documented:
 
 | Sub-Subprocessor Name | Relationship | Processing Purpose | Location | Approved? | Date |
 |---|---|---|---|---|---|
@@ -133,7 +133,7 @@ Where a subprocessor engages its own sub-subprocessors that will process the org
 
 ## Connection to records of processing activities (article 30)
 
-This register forms the processor annex to the organisation's Article 30 Records of Processing Activities. The DPO must ensure that:
+This register forms the processor annex to the organization's Article 30 Records of Processing Activities. The DPO must ensure that:
 - Each subprocessor entry is reflected in the relevant processing activity record in the Article 30 register
 - Changes to subprocessors are updated in both registers concurrently
 

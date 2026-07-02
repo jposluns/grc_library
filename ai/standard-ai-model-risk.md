@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
-**Date:** 2026-07-01\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -83,7 +83,7 @@ Where the model is a classical ML model (image classifier, object detector, tabu
 
 - **Evasion attacks**: gradient-based methods such as FGSM, PGD (projected gradient descent), Carlini-Wagner family (L0, L2, LInf), DeepFool, AutoAttack; decision-boundary methods such as BoundaryAttack and HopSkipJump; score-based methods such as SquareAttack and ZooAttack; patch and physical attacks such as AdversarialPatch, DPatch for object detection, RobustDPatch; universal perturbations; transformation attacks such as SpatialTransformation; audio-specific attacks such as ImperceptibleASR; video-specific attacks such as OverTheAirFlickering; tabular attacks such as LowProFool.
 - **Poisoning attacks**: data poisoning to induce backdoor behaviour (PoisoningAttackBackdoor, PoisoningAttackCleanLabelBackdoor); poisoning to induce class-targeted misclassification (FeatureCollisionAttack, BullseyePolytope); hidden-trigger backdoors; gradient-matching attacks; sleeper-agent attacks; object-detection-specific poisoning (BadDet global misclassification, regional misclassification, object generation, object disappearance).
-- **Extraction attacks** (model theft): CopycatCNN-style query-based extraction; KnockoffNets-style label-only extraction; functionally-equivalent extraction. Mitigations include query rate limiting, output randomisation, and watermarking.
+- **Extraction attacks** (model theft): CopycatCNN-style query-based extraction; KnockoffNets-style label-only extraction; functionally-equivalent extraction. Mitigations include query rate limiting, output randomization, and watermarking.
 - **Inference attacks** (privacy): membership inference (black-box, label-only decision-boundary, label-only gap, shadow-model); attribute inference (black-box, white-box decision-tree variants); model inversion (MIFace and equivalents); training-data reconstruction (DatabaseReconstruction).
 
 #### 3.5.3 Federated-learning threats (where applicable)
@@ -100,13 +100,13 @@ Where the model is trained or fine-tuned via federated learning or split learnin
 
 Defences are applied proportionate to risk, threat class, and deployment context. Categories applicable across LLM and classical ML where the threat applies:
 
-- **Preprocessor defences**: feature squeezing, spatial smoothing, JPEG compression, total-variation minimisation, thermometer encoding, Gaussian augmentation.
+- **Preprocessor defences**: feature squeezing, spatial smoothing, JPEG compression, total-variation minimization, thermometer encoding, Gaussian augmentation.
 - **Postprocessor defences**: reverse sigmoid, high-confidence filtering, output rounding, Gaussian noise injection, label-set restriction.
 - **Adversarial training**: standard adversarial training, Madry-style PGD adversarial training, TRADES, fast-better-faster (FBF), differentially-private adversarial training.
 - **Transformer defences**: defensive distillation, NeuralCleanse for backdoor removal, STRIP, activation-defence for poisoning detection.
 - **Detectors**: binary input detectors, binary activation detectors, subset-scanning detectors.
 - **Privacy defences**: differential privacy (DP-SGD, AdaDPS, DPlis), homomorphic encryption, k-anonymity for tabular inputs, federated-learning aggregation defences (FoolsGold against Sybil patterns, Mondrian, MID).
-- **Output egress controls**: query rate limiting, watermarking, output randomisation against extraction.
+- **Output egress controls**: query rate limiting, watermarking, output randomization against extraction.
 - **Certified defences**: where applicable to model class, certified-robustness training and certified adversarial training.
 
 #### 3.5.5 Adaptive-attacker testing
@@ -149,7 +149,7 @@ Evidence should include inventory entry, model card, system card where applicabl
 
 ## 5. Limitations
 
-This standard is original library content. It does not reproduce external control text and does not establish compliance, certification, safety, or assurance by itself. Adopting organisations must validate applicability and operating effectiveness.
+This standard is original library content. It does not reproduce external control text and does not establish compliance, certification, safety, or assurance by itself. Adopting organizations must validate applicability and operating effectiveness.
 
 ---
 

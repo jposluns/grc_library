@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-24\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -16,21 +16,21 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This template defines the structure of a privacy notice that satisfies the information duties of GDPR Articles 13 and 14, UK GDPR equivalents, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It accommodates both website-style standing notices and just-in-time notices delivered at the point of collection. Adopting organisations populate the placeholders, validate jurisdictional coverage, and publish through the appropriate channel.
+This template defines the structure of a privacy notice that satisfies the information duties of GDPR Articles 13 and 14, UK GDPR equivalents, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It accommodates both website-style standing notices and just-in-time notices delivered at the point of collection. Adopting organizations populate the placeholders, validate jurisdictional coverage, and publish through the appropriate channel.
 
-A populated privacy notice is a public-facing document specific to an organisation; this template intentionally contains no organisation-specific content.
+A populated privacy notice is a public-facing document specific to an organization; this template intentionally contains no organization-specific content.
 
 ---
 
 ## Scope
 
-This template applies wherever the organisation, acting as a controller, collects or otherwise processes personal data from a data subject. It covers data collected directly from the subject (Article 13) and data collected from other sources (Article 14). It does not replace processor-specific transparency obligations under data processing agreements.
+This template applies wherever the organization, acting as a controller, collects or otherwise processes personal data from a data subject. It covers data collected directly from the subject (Article 13) and data collected from other sources (Article 14). It does not replace processor-specific transparency obligations under data processing agreements.
 
 ---
 
@@ -42,7 +42,7 @@ Each privacy notice instantiated from this template must contain the following b
 
 | Field | Required content |
 | --- | --- |
-| Legal name of the controller | The organisation's legal entity name |
+| Legal name of the controller | The organization's legal entity name |
 | Postal address | Registered office or other publishable contact address |
 | Privacy contact | Privacy-team contact route; commonly an email and a postal address |
 | Data Protection Officer (where appointed) | DPO contact route or statement that no DPO is appointed |
@@ -64,7 +64,7 @@ State each category of personal data collected (identifying, contact, demographi
 
 ### 4. Sources of data
 
-Where data was collected from sources other than the subject (Article 14), state the source category (e.g. credit reference agency, public records, partner organisation, supplier) and whether the source was public.
+Where data was collected from sources other than the subject (Article 14), state the source category (e.g. credit reference agency, public records, partner organization, supplier) and whether the source was public.
 
 ### 5. Recipients
 
@@ -165,7 +165,7 @@ For just-in-time notices delivered at the point of collection (form submission, 
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. Adopting organisations must validate jurisdictional coverage, lawful basis selections, and the rights framework against their specific operating jurisdictions. Where the controller relies on legitimate interest or carries out automated decision-making, additional legal-counsel review is required before publication. The template is not legal advice.
+This template is a CC BY-SA 4.0 baseline. Adopting organizations must validate jurisdictional coverage, lawful basis selections, and the rights framework against their specific operating jurisdictions. Where the controller relies on legitimate interest or carries out automated decision-making, additional legal-counsel review is required before publication. The template is not legal advice.
 
 ---
 

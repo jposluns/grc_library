@@ -10,7 +10,7 @@ A "gate" is any deterministic pass/fail check that guards a workflow:
 - Required-review and required-status-check branch protections
 - Generator-output `--check` modes and drift detectors
 
-When a gate fails, it is reporting a real defect in the artefact. The cost of the defect, typically far higher than the cost of fixing it, is what justifies the gate's existence. Disabling the gate to ship the artefact monetises the gate's cost (slow CI, blocked commits) while throwing away its benefit (the deferred cost of the defect plus every future defect the gate would have caught).
+When a gate fails, it is reporting a real defect in the artefact. The cost of the defect, typically far higher than the cost of fixing it, is what justifies the gate's existence. Disabling the gate to ship the artefact monetizes the gate's cost (slow CI, blocked commits) while throwing away its benefit (the deferred cost of the defect plus every future defect the gate would have caught).
 
 This rule applies equally to human developers and to AI coding assistants. An AI assistant that responds to a failing gate by suppressing it is, in this respect, indistinguishable from a junior developer who does the same; the resolution is identical: fix the artefact, not the gate.
 
@@ -41,7 +41,7 @@ In order of preference:
 1. **Fix the artefact**. Almost always the right answer. The gate exists because the defect class matters; the defect class is present in this artefact; fix it.
 2. **If the gate is wrong** (genuine false positive, stale rule, environmental fluke), fix the gate. Document why in the same commit. Treat the gate-fix as a substantive change subject to the same review discipline as any other code change.
 3. **If the gate is right but the artefact cannot be fixed in this PR** (cross-team coordination, tooling limitation, downstream migration, vendor patch outstanding), file a tracked issue with a remediation deadline, add a documented exception with the issue link as justification, and surface the exception in the next governance review. The exception is temporary by construction; renewal requires re-approval.
-4. **If the artefact and the gate are both correct and the failure is environmental** (CI runner OOM, network flake, transient dependency outage), re-run. If the flake recurs, document it so the gate can be hardened; do not normalise re-running as a strategy.
+4. **If the artefact and the gate are both correct and the failure is environmental** (CI runner OOM, network flake, transient dependency outage), re-run. If the flake recurs, document it so the gate can be hardened; do not normalize re-running as a strategy.
 
 A failure is signal. The first question is "what does it mean?", not "how do I make it go away?"
 
@@ -100,7 +100,7 @@ def test_authorization_blocks_cross_tenant_access():
     ...
 
 # CORRECT: investigate. The test is either:
-#   - revealing a real authorisation defect (fix the code), or
+#   - revealing a real authorization defect (fix the code), or
 #   - itself wrong (fix or remove for a documented reason recorded in the commit message)
 ```
 
@@ -164,6 +164,6 @@ If the project does not have an exception register, the exception is not availab
 
 Audit and governance programmes derive their value from being unconditional. A "gate" that can be silenced when inconvenient is not a gate; it is decoration. The maintainability cost of fixing the artefact is bounded and accrues to the team that introduced the defect. The cost of letting one defect through accrues to every future user of the artefact and compounds with every subsequent defect the gate would have caught. The asymmetry justifies the discipline.
 
-The exception process exists precisely so that legitimate, time-bounded deviations are possible without normalising bypass as a routine response. If the exception process feels burdensome, that is the control working as designed: the friction is proportional to the residual risk of holding a known defect open.
+The exception process exists precisely so that legitimate, time-bounded deviations are possible without normalizing bypass as a routine response. If the exception process feels burdensome, that is the control working as designed: the friction is proportional to the residual risk of holding a known defect open.
 
 For AI coding assistants specifically: when a gate fails, do not propose suppressing it as a first move. Diagnose the failure, propose a fix to the artefact, and surface the choice to the human operator. If the operator wants to suppress, that decision is theirs, documented under the exception process; it is not yours to make unilaterally.

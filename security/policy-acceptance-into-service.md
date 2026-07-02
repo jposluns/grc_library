@@ -2,7 +2,7 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -91,7 +91,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ### 4. AI risk classification and impact validation
 
-4.1 All AI systems must be classified according to the organisational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
+4.1 All AI systems must be classified according to the organizational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
 
 4.2 High-risk AI systems require additional ethical and safety validation by the AIGC prior to deployment.
 

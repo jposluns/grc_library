@@ -2,8 +2,8 @@
 
 **Document Title:** Recovery Runbook Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-23\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -20,7 +20,7 @@
 
 This template defines the structure of a recovery runbook for a single in-scope service, application, or platform. Each in-scope service has its own runbook instantiated from this template. The runbook is the authoritative operating document used by the recovery team during a degraded or failed state. It is not a strategy document; it is operational.
 
-A populated runbook contains organisation-specific system, supplier, and contact data and is sensitive operational material. This CC BY-SA 4.0 template intentionally contains no example values for any field.
+A populated runbook contains organization-specific system, supplier, and contact data and is sensitive operational material. This CC BY-SA 4.0 template intentionally contains no example values for any field.
 
 ---
 
@@ -48,7 +48,7 @@ Each runbook must include the following sections in this order.
 | Criticality tier | Tier classification from the BIA |
 | RTO | Recovery Time Objective (target time to restore service after declaration) |
 | RPO | Recovery Point Objective (maximum acceptable data loss measured in time) |
-| MTPD | Maximum Tolerable Period of Disruption (organisation-level tolerance) |
+| MTPD | Maximum Tolerable Period of Disruption (organization-level tolerance) |
 | Business impact summary | One paragraph describing the consequence of outage to customers, regulators, finances, safety |
 | Runbook version | Version of this runbook |
 | Last successful recovery test | Date and reference to the test record |
@@ -72,7 +72,7 @@ Each runbook must include the following sections in this order.
 | --- | --- |
 | Detection signals | Specific alerts, thresholds, or external signals that indicate degradation or failure |
 | Severity criteria | When to treat the event as P1, P2, P3, P4 per the incident severity matrix |
-| Declaration authority | Role authorised to declare a recovery event |
+| Declaration authority | Role authorized to declare a recovery event |
 | Declaration channel | Where the declaration is logged |
 | Notification list | Roles to notify on declaration; expected notification times |
 
@@ -114,7 +114,7 @@ Recovery is not complete until validation passes. The runbook defines specific v
 | Functional smoke tests | Specific user journeys or API calls that demonstrate the service is operating |
 | Data integrity tests | Specific queries or hashes that confirm data is consistent |
 | Performance check | Response time, throughput, or capacity check against an acceptance threshold |
-| Security check | Authentication, authorisation, encryption-in-transit confirmation |
+| Security check | Authentication, authorization, encryption-in-transit confirmation |
 | Customer experience check | External monitor or canary user confirmation |
 
 ### Section 7: Communications
@@ -127,7 +127,7 @@ Recovery is not complete until validation passes. The runbook defines specific v
 | Executive briefing | Email or call | Executive Sponsor | At declaration; hourly during P1 |
 | Post-recovery report | Email | Recipients per incident report distribution | Within 5 business days of closure |
 
-The cadence above is the recovery-runbook view of communications. Align message content, spokesperson designation, and the approval chain with [`plan-crisis-communication.md`](plan-crisis-communication.md) (the organisation's authoritative crisis-communications plan) so the runbook and the crisis-communication plan do not drift.
+The cadence above is the recovery-runbook view of communications. Align message content, spokesperson designation, and the approval chain with [`plan-crisis-communication.md`](plan-crisis-communication.md) (the organization's authoritative crisis-communications plan) so the runbook and the crisis-communication plan do not drift.
 
 ### Section 8: Rollback
 

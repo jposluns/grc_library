@@ -2,8 +2,8 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.3\
-**Date:** 2026-06-22\
+**Version:** 0.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-network-communications-security.md`](policy-network-communications-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the organisation's approach to zero trust architecture (ZTA): the principles, pillars, control patterns, and migration model that bring identity, device, network, application, data, and workload controls into a coherent posture where trust is never implicit. It supports the migration from perimeter-based security to a model in which every request is authenticated, authorised, and continuously evaluated.
+This framework defines the organization's approach to zero trust architecture (ZTA): the principles, pillars, control patterns, and migration model that bring identity, device, network, application, data, and workload controls into a coherent posture where trust is never implicit. It supports the migration from perimeter-based security to a model in which every request is authenticated, authorized, and continuously evaluated.
 
 ---
 
@@ -32,10 +32,10 @@ This framework applies to all corporate, production, partner-integrated, and cus
 
 | Principle | Statement |
 | --- | --- |
-| Never trust, always verify | Every access request is authenticated and authorised regardless of source network |
+| Never trust, always verify | Every access request is authenticated and authorized regardless of source network |
 | Least privilege | Access is granted at the smallest scope and shortest duration consistent with the task |
 | Assume breach | Defences are designed assuming the adversary is already inside; lateral movement is constrained |
-| Verify explicitly | Authentication and authorisation use multiple signals including identity, device posture, location, and behaviour |
+| Verify explicitly | Authentication and authorization use multiple signals including identity, device posture, location, and behaviour |
 | Continuous evaluation | Trust is re-evaluated during a session; static-at-login trust is insufficient |
 | Per-resource policy | Policy is enforced as close to the protected resource as possible, not at a perimeter |
 | Identity as the new perimeter | The identity layer is the primary policy boundary for human and non-human actors |
@@ -60,7 +60,7 @@ The framework adopts seven pillars consistent with the CISA Zero Trust Maturity 
 
 | Capability | Maturity expectation |
 | --- | --- |
-| Device inventory | Authoritative inventory of every device that connects to organisation resources |
+| Device inventory | Authoritative inventory of every device that connects to organization resources |
 | Compliance enforcement | Policy-based access controls deny non-compliant devices |
 | Posture evaluation | Continuous posture (patch level, encryption, EDR health) feeds the policy engine |
 | Bring-your-own device | BYOD posture model defined and enforced where the BYOD policy permits |
@@ -203,7 +203,7 @@ The Chief Information Security Officer publishes an annual maturity assessment p
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. Zero trust maturity is incremental; the framework defines direction and pillars rather than a one-time deployment. Adopting organisations sequence the migration according to their risk appetite, technology landscape, and operational tolerance. The framework is not a product or platform mandate; it is a control-pattern reference.
+This framework is a CC BY-SA 4.0 baseline. Zero trust maturity is incremental; the framework defines direction and pillars rather than a one-time deployment. Adopting organizations sequence the migration according to their risk appetite, technology landscape, and operational tolerance. The framework is not a product or platform mandate; it is a control-pattern reference.
 
 ---
 

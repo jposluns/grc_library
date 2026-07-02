@@ -2,8 +2,8 @@
 
 **Document Title:** Project Governance Separation Specification\
 **Document Type:** Specification\
-**Version:** 1.0.5\
-**Date:** 2026-06-26\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`governance/README.md`](README.md), [`.working/README.md`](../.working/README.md)\
@@ -50,7 +50,7 @@ The split exists because `governance/` is meant to hold governance *documents an
 
 ### 3.1 Definitions
 
-**Corpus governance** is content whose audience is the adopter: a reader who takes the library's GRC material and adapts it to their own organisation. Policies, standards, frameworks, guidelines, charters, cross-framework matrices, and the content registers an adopter would reference (glossary, key terms, role authority, retention schedule) are corpus governance. So are the *reusable patterns* of process: a specification of how to run an audit programme, a procedure for a review cadence, a template for a verification worklist. The pattern is the deliverable; an adopter adapts it.
+**Corpus governance** is content whose audience is the adopter: a reader who takes the library's GRC material and adapts it to their own organization. Policies, standards, frameworks, guidelines, charters, cross-framework matrices, and the content registers an adopter would reference (glossary, key terms, role authority, retention schedule) are corpus governance. So are the *reusable patterns* of process: a specification of how to run an audit programme, a procedure for a review cadence, a template for a verification worklist. The pattern is the deliverable; an adopter adapts it.
 
 **Project governance** is the operational record of running this specific library: the filled-in instances that the reusable patterns produce when the maintainer actually operates the project. A live citation-verification campaign's registers and batch worklists, a coverage-gap tracker for this corpus, this project's review schedule. These are not content an adopter adapts; they are the maintainer's working record.
 

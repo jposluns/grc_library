@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-24\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organisation. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
+This register defines the schema, governance, and representative risk entries for the AI Risk Register. The AI Risk Register is the central record of identified risks associated with AI systems deployed or under development by the organization. It supports the AI Governance Council's risk oversight function and feeds into the enterprise risk management process.
 
 ---
 

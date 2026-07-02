@@ -2,7 +2,7 @@
 
 **Document Title:** China Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Lawful basis (Article 13):** Processing requires one of: consent; contract performance or HR management; legal obligation; vital interests; public interest or journalism; or other legitimate interests (narrower than GDPR). Consent must be voluntary, specific, informed, and unambiguous.
 - **Sensitive personal information (Articles 28 to 32):** Separate and express consent required. Sensitive categories include biometric identification, religious beliefs, specially-designated status, medical health, financial accounts, whereabouts/location, and personal information of minors under 14.
-- **Automated decision-making (Article 24):** Organisations must ensure that transparency and fairness are upheld. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
+- **Automated decision-making (Article 24):** Organizations must ensure that transparency and fairness are upheld. No unreasonable differential treatment of individuals in terms of transaction price or conditions. Individuals have the right to receive an explanation and to opt out of automated decision-making significantly affecting their interests.
 - **Person in charge of personal information protection (Article 52):** Large-scale personal information processors must designate a responsible person whose name and contact information must be disclosed publicly.
 - **DPIA (Article 55):** Required before: processing sensitive personal information; using personal information for automated decision-making; entrusting, sharing, or publicly disclosing personal information; cross-border transfers; and processing activities with significant impact on personal rights. Records must be retained for at least three years.
 
@@ -105,7 +105,7 @@ The thresholds are evaluated on a cumulative calendar-year basis starting 1 Janu
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

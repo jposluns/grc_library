@@ -2,8 +2,8 @@
 
 **Document Title:** Philippines Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -36,7 +36,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - NPC guidance requires that AI systems processing sensitive personal information implement heightened security and strict purpose limitation.
-- Organisations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
+- Organizations conducting large-scale AI profiling are encouraged to conduct privacy impact assessments.
 - Data subjects have rights to object to automated processing producing significantly impactful effects.
 
 ---
@@ -57,7 +57,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

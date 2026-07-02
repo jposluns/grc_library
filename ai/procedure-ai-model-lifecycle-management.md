@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organisation's inventory is governed, documented, and reviewed throughout its operational life.
+This procedure defines the end-to-end lifecycle management process for AI models, from initial development or procurement through deployment, monitoring, retraining, and decommissioning. It ensures that every AI model in the organization's inventory is governed, documented, and reviewed throughout its operational life.
 
 ---
 

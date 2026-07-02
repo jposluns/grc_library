@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Crisis Management Plan\
 **Document Type:** Plan\
-**Version:** 1.1.0\
-**Date:** 2026-05-28\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This plan defines an organisation-neutral structure for maintaining critical business functions and managing crises that disrupt operations, technology, facilities, suppliers, data, AI systems, or personnel availability.
+This plan defines an organization-neutral structure for maintaining critical business functions and managing crises that disrupt operations, technology, facilities, suppliers, data, AI systems, or personnel availability.
 
 It establishes activation criteria, command structure, communication flow, recovery coordination, evidence expectations, and return-to-normal decision points.
 
@@ -118,7 +118,7 @@ Maintain records for:
 
 ## Limitations
 
-This plan is a CC BY-SA 4.0 template. It does not define an adopting organisation's actual crisis team, contact details, recovery objectives, customer obligations, legal obligations, or supplier commitments.
+This plan is a CC BY-SA 4.0 template. It does not define an adopting organization's actual crisis team, contact details, recovery objectives, customer obligations, legal obligations, or supplier commitments.
 
 ---
 

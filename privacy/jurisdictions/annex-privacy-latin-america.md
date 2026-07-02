@@ -2,8 +2,8 @@
 
 **Document Title:** Latin America Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-brazil.md`](../jurisdictions/annex-privacy-brazil.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -31,7 +31,7 @@ This annex provides an overview of privacy regulatory requirements in key Latin 
 
 ### Mexico
 
-- **Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP, 2010)** and Regulations (2011). Applies to private-sector organisations processing personal data of Mexican individuals.
+- **Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP, 2010)** and Regulations (2011). Applies to private-sector organizations processing personal data of Mexican individuals.
 - **Regulatory authority:** Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI).
 
 ### Colombia
@@ -89,7 +89,7 @@ Most Latin American jurisdictions apply general data protection principles to AI
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

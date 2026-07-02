@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.1\
+**Version:** 1.2.2\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure defines the methodology for conducting risk assessments across all organisational domains including information security, privacy, AI, business continuity, supply chain, and operational risk. It establishes a consistent approach for identifying, analyzing, evaluating, and treating risks, aligned with ISO 31000:2018 and ISO/IEC 27005:2022.
+This procedure defines the methodology for conducting risk assessments across all organizational domains including information security, privacy, AI, business continuity, supply chain, and operational risk. It establishes a consistent approach for identifying, analyzing, evaluating, and treating risks, aligned with ISO 31000:2018 and ISO/IEC 27005:2022.
 
 ---
 
 ## Scope
 
-Applies to all risk assessments conducted within the organisation including: annual enterprise risk assessments, project and change risk assessments, third-party risk assessments, AI impact and risk assessments, and ad-hoc risk assessments triggered by incidents or material changes.
+Applies to all risk assessments conducted within the organization including: annual enterprise risk assessments, project and change risk assessments, third-party risk assessments, AI impact and risk assessments, and ad-hoc risk assessments triggered by incidents or material changes.
 
 ---
 
@@ -45,7 +45,7 @@ Applies to all risk assessments conducted within the organisation including: ann
 The risk assessment process follows the ISO 31000 framework:
 
 ```
-Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Treat Risks → Monitor and Review
+Establish Context → Identify Risks → Analyze Risks → Evaluate Risks → Treat Risks → Monitor and Review
 ```
 
 ---
@@ -125,7 +125,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 | 10 to 16 | High | Treat; corrective action required within 90 days |
 | 17 to 25 | Critical | Treat immediately; escalate to ERC within 5 business days |
 
-5.2 Risks above the organisation's risk tolerance require a treatment plan or formal risk acceptance.
+5.2 Risks above the organization's risk tolerance require a treatment plan or formal risk acceptance.
 
 ---
 
@@ -152,7 +152,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 
 ## 7. Risk register
 
-7.1 All identified risks are recorded in the organisational Risk Register.
+7.1 All identified risks are recorded in the organizational Risk Register.
 
 7.2 The Risk Register includes: Risk ID, description, risk owner, inherent risk score, current controls, residual risk score, treatment status, and review date.
 

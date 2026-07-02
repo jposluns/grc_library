@@ -23,7 +23,7 @@ The skill is **the orchestrator-side process-improvement loop**. It pairs with t
 - **Mandatory** after every successful PR merge, immediately after `/validate-pr` completes. Runs as part of the post-merge sequence: sync main → delete merged branch → `/validate-pr` → `/retro` → next-PR planning.
 - The retrospective is one entry per PR. If a PR cycle produced findings, the entry carries them as observed friction. If a PR cycle was clean, the entry carries the clean-result observation.
 
-**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorisation.
+**No orchestrator-side skip discretion.** Same discipline as `/validate-pr`: every merged PR gets a `/retro` entry, even when the retrospective conclusion is "nothing new to learn." Zero-content entries (clean PR, no friction, no pattern surfaced) record that fact and serve as the proof-of-discipline (a uniformly-clean register-entry sequence is itself a signal that the workflow is calibrated). Skipping is a policy deviation requiring maintainer authorization.
 
 ## Process
 
@@ -93,7 +93,7 @@ The register's preamble describes the column semantics and links to this SKILL.
 
 ## Termination
 
-Single-iteration cycle: identify → analyse → record. One entry per PR.
+Single-iteration cycle: identify → analyze → record. One entry per PR.
 
 There is no looping. The slash command `/retro` is fire-and-forget retrospective. The register accumulates entries; pattern recognition emerges from the accumulation, not from any single entry.
 
@@ -127,12 +127,12 @@ The retrospective is complete when:
 
 ## Common Rationalizations
 
-| Rationalisation | Reality |
+| Rationalization | Reality |
 |---|---|
 | "This PR was routine; nothing to retro" | The discipline of writing the entry is itself the value. A uniformly-clean register-entry sequence is a calibration signal. |
 | "I'll bundle retros for several PRs together" | The retrospective consumes /validate-pr's findings as input; bundling loses the input freshness. One entry per merge. |
 | "The pattern is obvious; no need to record it" | Patterns visible in the moment fade as the session progresses. Recording locks them in for cross-session learning. |
-| "I'll surface the pattern when I'm sure it's a pattern" | First occurrence is observation. Second is signal. Third is pattern. Record at each stage; the register's accumulated view shows when the pattern crystallised. |
+| "I'll surface the pattern when I'm sure it's a pattern" | First occurrence is observation. Second is signal. Third is pattern. Record at each stage; the register's accumulated view shows when the pattern crystallized. |
 
 ## See Also
 

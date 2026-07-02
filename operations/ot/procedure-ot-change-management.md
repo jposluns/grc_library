@@ -2,8 +2,8 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -54,7 +54,7 @@ Where a change affects Safety Instrumented Systems (SIS) or other safety-critica
 | Role | OT change management responsibility |
 | --- | --- |
 | **OT Security Lead** | Reviews all OT changes for security impact; approves changes affecting zone-and-conduit architecture, vendor remote access, or OT security telemetry; chairs the OT Change Advisory Board (OT-CAB). |
-| **Plant Manager / Operations Director** | Authorises any production-impacting change; coordinates production-maintenance windows; signs off on operational readiness. |
+| **Plant Manager / Operations Director** | Authorizes any production-impacting change; coordinates production-maintenance windows; signs off on operational readiness. |
 | **Process Safety Engineer** | Mandatory reviewer for any change affecting SIS, shared SIS/BPCS infrastructure, or safety-relevant control loops; coordinates with IEC 61511 management-of-change process. |
 | **Control System Engineer** | Designs, tests, and implements OT changes under direction from the requestor; produces the technical change package including test results. |
 | **Change Requester** | Originates the change request; documents business or operational justification, scope, risk, and backout plan. |
@@ -77,7 +77,7 @@ Vendor-controlled systems require vendor involvement from the planning stage, no
 
 ### 4.3 Test before production
 
-OT changes must be tested in a representative environment before production application. "Representative" means a test bench, simulator, or non-production zone configured equivalently to the target zone. Direct production changes are permitted only where the change is reversible, low risk, and explicitly authorised by the OT-CAB.
+OT changes must be tested in a representative environment before production application. "Representative" means a test bench, simulator, or non-production zone configured equivalently to the target zone. Direct production changes are permitted only where the change is reversible, low risk, and explicitly authorized by the OT-CAB.
 
 ### 4.4 Reversibility planning
 
@@ -112,7 +112,7 @@ The default category. Any change not on the standard-change catalogue and not me
 
 ### 5.3 Emergency change
 
-Changes required to respond to an active incident or safety hazard. Authorised by the CISO (cyber emergency) or Plant Manager (safety emergency) with retrospective OT-CAB review within 5 business days.
+Changes required to respond to an active incident or safety hazard. Authorized by the CISO (cyber emergency) or Plant Manager (safety emergency) with retrospective OT-CAB review within 5 business days.
 
 Emergency change requirements:
 
@@ -160,7 +160,7 @@ Each OT change request must include:
 
 ### 6.3 Change register
 
-All change requests are recorded in the OT change register, which is maintained alongside the asset inventory in the [`OT Asset Inventory and Lifecycle Register`](register-ot-asset-inventory-and-lifecycle.md). For organisations that have not yet stood up that register, the change register can be maintained in the general change-management system with an OT-scope flag until the OT register is in place.
+All change requests are recorded in the OT change register, which is maintained alongside the asset inventory in the [`OT Asset Inventory and Lifecycle Register`](register-ot-asset-inventory-and-lifecycle.md). For organizations that have not yet stood up that register, the change register can be maintained in the general change-management system with an OT-scope flag until the OT register is in place.
 
 ---
 
@@ -202,7 +202,7 @@ The assessment produces a risk tier driving the depth of review and the OT-CAB c
 
 OT changes are tested before production application using one or more of:
 
-- **Sandbox or simulator**: vendor-provided simulator, digital twin, or virtualised representation of the target system. Suitable for logic-only changes (PLC programs, HMI screen logic).
+- **Sandbox or simulator**: vendor-provided simulator, digital twin, or virtualized representation of the target system. Suitable for logic-only changes (PLC programs, HMI screen logic).
 - **Engineering test bench**: physical hardware-in-the-loop test environment. Required for changes involving hardware, firmware, or low-level protocol behaviour.
 - **Representative non-production zone**: a production-shadow zone configured equivalently to the target zone. Required for changes affecting zone-and-conduit architecture or multi-component interactions.
 
@@ -212,7 +212,7 @@ OT changes are tested before production application using one or more of:
 
 8.2.1 Each Tier 1 and Tier 2 change must include cyber regression testing to confirm that existing security controls remain functional after the change. The cyber regression suite covers, at minimum:
 
-- Authentication and authorisation enforcement on affected interfaces.
+- Authentication and authorization enforcement on affected interfaces.
 - Conduit-boundary enforcement (firewall rules, protocol restrictions).
 - Logging continuity (no gaps introduced).
 - SIEM integration continuity.
@@ -269,7 +269,7 @@ Rejected requests return to the requester with rationale. Resubmission requires 
 
 10.1.1 Implementation occurs during a production-maintenance window approved by the Plant Manager. Windows are scheduled in advance with change requests aligned to the window.
 
-10.1.2 Where a Normal change requires implementation outside the next scheduled window (urgency, vendor availability), the Plant Manager authorises an out-of-window implementation specifically.
+10.1.2 Where a Normal change requires implementation outside the next scheduled window (urgency, vendor availability), the Plant Manager authorizes an out-of-window implementation specifically.
 
 ### 10.2 Implementation team
 
@@ -322,11 +322,11 @@ Rejected requests return to the requester with rationale. Resubmission requires 
 
 - The change produces unintended effects detected during implementation or verification.
 - A safety hazard arises from the change.
-- The change cannot be completed within its authorised window.
+- The change cannot be completed within its authorized window.
 
-### 12.2 Backout authorisation
+### 12.2 Backout authorization
 
-12.2.1 Backout is authorised by the OT-CAB Chair (or delegate) for non-safety changes and jointly with the Process Safety Engineer for safety-related changes.
+12.2.1 Backout is authorized by the OT-CAB Chair (or delegate) for non-safety changes and jointly with the Process Safety Engineer for safety-related changes.
 
 ### 12.3 Backout execution
 
@@ -368,7 +368,7 @@ The OT Security Lead reports the following monthly:
 | --- | --- |
 | Change-success rate (changes implemented without backout) | ≥ 95% |
 | Emergency-change rate (emergency changes as % of total) | ≤ 5% |
-| Unauthorised-change detection rate (changes detected post-event without prior approval) | Trend toward zero |
+| Unauthorized-change detection rate (changes detected post-event without prior approval) | Trend toward zero |
 | OT-CAB meeting attendance (mandatory members) | ≥ 90% |
 | Mean time from change request to OT-CAB review | ≤ 10 business days for Normal |
 | Vendor-driven change traceability (vendor changes with complete records) | 100% |

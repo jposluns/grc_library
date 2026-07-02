@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-06-20\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template consolidates the recurring regulator-facing interactions into reusable shapes. The library ships incident-notification language inside per-jurisdiction privacy annexes (under [`privacy/jurisdictions/`](../privacy/jurisdictions/)) and inside industry compliance overlays (under [`compliance/<sector>/`](.)), but the shape of an organisation-to-regulator interaction is broadly similar across jurisdictions and sectors. This template provides five reusable sub-templates so adopters facing first-time regulator contact have a starting structure.
+This template consolidates the recurring regulator-facing interactions into reusable shapes. The library ships incident-notification language inside per-jurisdiction privacy annexes (under [`privacy/jurisdictions/`](../privacy/jurisdictions/)) and inside industry compliance overlays (under [`compliance/<sector>/`](.)), but the shape of an organization-to-regulator interaction is broadly similar across jurisdictions and sectors. This template provides five reusable sub-templates so adopters facing first-time regulator contact have a starting structure.
 
 Each sub-template is shape-only. Jurisdiction-specific or sector-specific timing, format, and submission-channel requirements live in the relevant annex or sector folder; this template names what to put in each submission, not when or where.
 
@@ -68,7 +68,7 @@ Determine the applicable timing from the relevant annex or sector folder before 
 
 ```
 To: <regulator name and reporting-contact address/portal>
-From: <organisation legal name>
+From: <organization legal name>
 Date of notification: <YYYY-MM-DD HH:MM timezone>
 Reference number assigned by us: <internal incident ID>
 Reference number assigned by the regulator: <if known; otherwise "to be assigned">
@@ -82,7 +82,7 @@ Subject: Notification under <framework section, e.g. GDPR Article 33>
 
 2. Nature of the incident
    Brief description: <one paragraph, factual; reserve interpretation for later sections>
-   Incident type: <unauthorised access / data exfiltration / availability event / integrity event / other>
+   Incident type: <unauthorized access / data exfiltration / availability event / integrity event / other>
    Asset and data categories affected: <list>
    Approximate number of records or affected data subjects: <best estimate at time of notification; mark as preliminary if not yet refined>
    Approximate number of individuals materially affected: <best estimate>
@@ -127,7 +127,7 @@ Signed: <named senior officer per the framework's signatory requirements; e.g. D
 
 ### When to use
 
-When the framework requires the organisation to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO 27001 statement-of-applicability submission, DORA control attestation).
+When the framework requires the organization to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO 27001 statement-of-applicability submission, DORA control attestation).
 
 ### Timing
 
@@ -137,7 +137,7 @@ Per the framework. Most attestations are annual; some are quarterly or event-dri
 
 ```
 To: <regulator or designated attestation receiver>
-From: <organisation legal name>
+From: <organization legal name>
 Attestation period covered: <YYYY-MM-DD to YYYY-MM-DD>
 Date of attestation: <YYYY-MM-DD>
 
@@ -161,7 +161,7 @@ Subject: Attestation under <framework name and section reference>
    <Where a control was not fully implemented during the period, describe the compensating control and the residual risk.>
 
 6. Changes since the prior attestation
-   <Material changes to the control set, scope, or organisational structure since the prior attestation period.>
+   <Material changes to the control set, scope, or organizational structure since the prior attestation period.>
 
 7. Supporting artefacts
    <List of supporting artefacts maintained internally: control register, evidence package, internal audit reports, external audit opinion.>
@@ -186,7 +186,7 @@ Subject: Attestation under <framework name and section reference>
 
 ### When to use
 
-When a regulator has notified the organisation of an upcoming examination (on-site or remote). The template covers the period from notification through closing meeting.
+When a regulator has notified the organization of an upcoming examination (on-site or remote). The template covers the period from notification through closing meeting.
 
 ### Timing
 
@@ -230,7 +230,7 @@ Internal support team: <list of roles and the artefacts they own>
    - Privileged communication: any item involving counsel goes through counsel before reaching the examiner
 
 4. Closing meeting
-   Format: <regulator-led summary of findings, organisation response opportunity>
+   Format: <regulator-led summary of findings, organization response opportunity>
    Internal preparation: <prepare draft responses to anticipated findings 24 to 48 hours in advance>
    Attendees: <senior leadership per the framework's requirements; counsel where applicable>
 
@@ -250,7 +250,7 @@ Internal support team: <list of roles and the artefacts they own>
 
 ### Notes
 
-- Single point of contact between the organisation and the examiner. Avoid parallel channels.
+- Single point of contact between the organization and the examiner. Avoid parallel channels.
 - Document everything; the daily-update notes and the request log are the audit trail for the audit trail.
 - Counsel involvement is jurisdiction- and framework-specific; consult before the examination begins.
 
@@ -260,7 +260,7 @@ Internal support team: <list of roles and the artefacts they own>
 
 ### When to use
 
-When the framework requires the organisation to submit a recurring report (e.g., annual cybersecurity assessment under DFS Part 500; annual report under NIS 2; quarterly returns under sector regulators).
+When the framework requires the organization to submit a recurring report (e.g., annual cybersecurity assessment under DFS Part 500; annual report under NIS 2; quarterly returns under sector regulators).
 
 ### Timing
 
@@ -326,7 +326,7 @@ Requested response date: <YYYY-MM-DD>
 Acknowledgement sent: <YYYY-MM-DD>
 
 Inquiry summary
-<One paragraph summarising what the regulator is asking. Use the regulator's own words where helpful.>
+<One paragraph summarizing what the regulator is asking. Use the regulator's own words where helpful.>
 
 Internal triage
 - Owning team: <which internal team owns the response>

@@ -265,7 +265,7 @@ Logger.LogInformation("Auth event for user {userIdHash}", HashUserId(userId));
 ## Blazor Hybrid (MAUI Blazor) WebView (Section 7, Section 15)
 
 ```razor
-@* NEVER: render unsanitised user-supplied HTML *@
+@* NEVER: render unsanitized user-supplied HTML *@
 <div>@((MarkupString)userInput)</div>
 
 @* CORRECT: rely on Razor's default HTML-encoding; render plain text *@

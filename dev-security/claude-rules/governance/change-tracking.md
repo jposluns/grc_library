@@ -27,7 +27,7 @@ The detailed mirror's location is project-specific; the project chooses where to
 Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.
 
 1. **A date-and-version header**. The date pins the entry to wall-clock time; the version pins it to a release. The version monotonically increases across entries.
-2. **A short title sentence** summarising the change in plain language. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
+2. **A short title sentence** summarizing the change in plain language. "Phase 2: add gate-discipline rule to dev-security pack" is a title; "Updates" is not.
 3. **Structured sections** following the Keep a Changelog convention: `Added`, `Changed`, `Removed`, `Fixed`, `Security`. A single entry may use multiple sections. Use the section that most accurately classifies the change; do not bury a removed-public-API event under `Changed`.
 4. **File references**, with every touched file linked from the entry text. A link-coverage gate (see below) enforces that bare path references in markdown code spans are wrapped in markdown links so readers can navigate to the file from the entry.
 5. **The "why"**, not only the "what". The diff already records what changed; the entry records why. "Bumped the version" is a what; "bumped the version because a downstream consumer needed v1.7 to ship Phase 3" is a why.
@@ -69,7 +69,7 @@ The two-file split applies regardless of shape: a terse entry in root `CHANGELOG
 These responses must never substitute for a real CHANGELOG entry:
 
 - **Silent changes**. Shipping a change without any entry, terse or otherwise. The most common form of this anti-pattern is bundling "while I'm in here" cleanups into a feature PR and not mentioning them. Either add them to the entry, or split them into a separate PR with its own entry.
-- **Skip-trailer shortcuts**. Previous conventions allowed a `Changelog: skip (reason: ...)` trailer to bypass the entry requirement. This rule no longer sanctions that pattern; every PR carries at least a terse entry. A project's CHANGELOG-delta CI gate may still accept the skip trailer as a back-compat measure during a transition window, but the rule does not authorise its use; the terse-entry convention replaces it.
+- **Skip-trailer shortcuts**. Previous conventions allowed a `Changelog: skip (reason: ...)` trailer to bypass the entry requirement. This rule no longer sanctions that pattern; every PR carries at least a terse entry. A project's CHANGELOG-delta CI gate may still accept the skip trailer as a back-compat measure during a transition window, but the rule does not authorize its use; the terse-entry convention replaces it.
 - **Vague entries**. "Misc fixes", "various improvements", "general cleanup", "minor updates", "housekeeping". A reader cannot act on these. If the work spans multiple unrelated changes, write multiple bullets, one per change.
 - **Batched-up entries**. Rolling up many weeks of unrecorded changes into one omnibus entry at release time. The per-PR gate prevents this if enforced; do not work around the gate by deferring entries.
 - **Retroactive entries**. Adding an entry after the change shipped, dated to look like it was concurrent. The git history shows the truth, and the deception is worse than the missing entry would have been.
@@ -90,7 +90,7 @@ A change-tracking discipline needs at least three mechanical gates. Implementati
 - Requires the same PR to add a CHANGELOG entry (terse or substantive form per the convention above).
 - **For projects using the two-file split**: requires the same PR to modify BOTH the root file and the detailed mirror in lock-step. A PR that modifies one without the other is a discipline failure caught by the gate.
 - Fails closed: if the gate cannot determine whether an entry was added, it blocks the PR. Ambiguity is not approval.
-- **Back-compat note**: a delta gate that historically accepted a `Changelog: skip` trailer may continue to do so during a transition window after a project adopts the no-skip convention. The rule does not authorise the skip trailer's use; the gate's continued acceptance is a measure of grace toward in-flight PRs, not a sanction.
+- **Back-compat note**: a delta gate that historically accepted a `Changelog: skip` trailer may continue to do so during a transition window after a project adopts the no-skip convention. The rule does not authorize the skip trailer's use; the gate's continued acceptance is a measure of grace toward in-flight PRs, not a sanction.
 
 ### The link-coverage gate
 

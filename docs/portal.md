@@ -460,7 +460,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ### Standard
 
-- [Pseudonymisation and Anonymisation Standard](../privacy/standard-pseudonymisation-and-anonymisation.md)
+- [Pseudonymization and Anonymization Standard](../privacy/standard-pseudonymization-and-anonymization.md)
 
 ### Template
 

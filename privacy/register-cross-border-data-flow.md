@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This register documents all cross-border transfers of personal data from the organisation's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
+This register documents all cross-border transfers of personal data from the organization's operating jurisdictions to third countries. It provides the basis for demonstrating compliance with Chapter V of the GDPR, Schedule 21 of the UK GDPR, and equivalent requirements under applicable privacy laws in Canada (PIPEDA), Quebec (Law 25), Brazil (LGPD), China (PIPL), and other applicable regimes.
 
 ---
 
@@ -58,7 +58,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 
 | Field | Description | Example |
 |---|---|---|
-| **Data Controller** | Legal entity acting as controller | [Organisation legal entity] |
+| **Data Controller** | Legal entity acting as controller | [Organization legal entity] |
 | **Data Processor / Recipient** | Legal entity receiving the data | [Recipient entity name and jurisdiction] |
 | **Relationship Type** | Controller → Processor; Controller → Controller; Processor → Sub-processor | Controller → Processor |
 | **Data Categories** | Categories of personal data being transferred | Employee names, salary details, bank account numbers |

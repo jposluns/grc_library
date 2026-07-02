@@ -2,7 +2,7 @@
 
 **Document Title:** UK AEO-S IT and Cybersecurity Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-The UK Authorized Economic Operator (AEO) programme, administered by HMRC and Border Force, grants recognized trade facilitation benefits to businesses that meet defined security and safety standards. AEO-S (Security and Safety) specifically requires documented security controls covering IT systems, access controls, personnel security, and cybersecurity. This annex defines the organisation's IT and cybersecurity controls relevant to AEO-S compliance and maps them to the corresponding GRC library documents.
+The UK Authorised Economic Operator (AEO) programme, administered by HMRC and Border Force, grants recognized trade facilitation benefits to businesses that meet defined security and safety standards. AEO-S (Security and Safety) specifically requires documented security controls covering IT systems, access controls, personnel security, and cybersecurity. This annex defines the organization's IT and cybersecurity controls relevant to AEO-S compliance and maps them to the corresponding GRC library documents.
 
 ---
 

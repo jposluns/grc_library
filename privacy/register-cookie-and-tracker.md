@@ -2,8 +2,8 @@
 
 **Document Title:** Cookie and Tracker Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This register inventories cookies, similar storage technologies, and tracking technologies operated on the organisation's websites, mobile applications, embedded surfaces, and partner-integrated channels. It supports the consent management framework, the privacy notice, and the ePrivacy and equivalent obligations across the EU, UK, Brazil, and other jurisdictions with prior-consent or opt-in requirements for non-essential tracking.
+This register inventories cookies, similar storage technologies, and tracking technologies operated on the organization's websites, mobile applications, embedded surfaces, and partner-integrated channels. It supports the consent management framework, the privacy notice, and the ePrivacy and equivalent obligations across the EU, UK, Brazil, and other jurisdictions with prior-consent or opt-in requirements for non-essential tracking.
 
 A populated register identifies specific technologies and their providers and is operational data. This template is the structural baseline; populate, classify, and store internally.
 
@@ -32,7 +32,7 @@ A populated register identifies specific technologies and their providers and is
 
 This register covers:
 
-1. HTTP cookies set first-party or third-party on the organisation's web properties.
+1. HTTP cookies set first-party or third-party on the organization's web properties.
 2. Local storage, session storage, IndexedDB entries, and equivalent client-side storage technologies that contain identifiers or are used for tracking.
 3. Mobile application equivalents (advertising identifiers, device identifiers, attribution SDKs).
 4. Pixel and tracking-image technologies (single-pixel images, web beacons).
@@ -50,7 +50,7 @@ This register covers:
 | Performance and analytics | Measure usage to improve services; first-party analytics with narrow scope may have a lighter regulatory footprint in some jurisdictions but the conservative position is to require prior consent | Prior consent required (conservative position) |
 | Advertising and marketing | Track subjects across sites or sessions for targeted advertising, retargeting, attribution, or marketing measurement | Prior consent required |
 | Social media | Embedded social platform widgets or share buttons that read or write identifiers | Prior consent required |
-| Personalisation | Content or product personalisation outside the strictly necessary set | Prior consent required |
+| Personalization | Content or product personalization outside the strictly necessary set | Prior consent required |
 | Other | Any technology that does not fit the above categories | Default to prior consent required pending Data Protection Officer review |
 
 ---
@@ -122,7 +122,7 @@ Each entry is one row. Mandatory fields:
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. Adopting organisations must populate the rows with real trackers, integrate the register with their consent management platform configuration, validate jurisdictional positions with legal counsel where the position is contested (notably first-party analytics in the EU), and conduct the quarterly drift audit. The register is not legal advice.
+This register is a CC BY-SA 4.0 structural baseline. Adopting organizations must populate the rows with real trackers, integrate the register with their consent management platform configuration, validate jurisdictional positions with legal counsel where the position is contested (notably first-party analytics in the EU), and conduct the quarterly drift audit. The register is not legal advice.
 
 ---
 

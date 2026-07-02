@@ -2,8 +2,8 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -63,7 +63,7 @@ LM estimates the expected financial impact per loss event. It is composed of:
 
 | Loss Form | Description | Examples |
 |---|---|---|
-| **Primary Loss** | Direct losses experienced by the organisation | Response costs; system recovery; downtime; data reconstruction |
+| **Primary Loss** | Direct losses experienced by the organization | Response costs; system recovery; downtime; data reconstruction |
 | **Secondary Loss** | Downstream losses from secondary stakeholders | Regulatory fines; litigation; customer compensation; reputational damage |
 
 #### Primary loss components
@@ -141,7 +141,7 @@ Start from a qualitatively identified risk in the enterprise risk register. Defi
 - Productivity: 48 to 240 hours disruption × hourly revenue
 - Response costs: external IR retainer; forensics team; media specialist
 - Recovery costs: system rebuild; data restoration from backup
-- Primary loss range: *[example figures to be populated with organisational data]*
+- Primary loss range: *[example figures to be populated with organizational data]*
 
 ### Step 4: Estimate secondary loss magnitude
 

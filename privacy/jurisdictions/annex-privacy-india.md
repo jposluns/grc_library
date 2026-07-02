@@ -2,8 +2,8 @@
 
 **Document Title:** India Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Digital Personal Data Protection Act 2023 (DPDPA)**: Enacted by the Parliament of India on 2023-08-11. India's first comprehensive data protection law.
-- **Digital Personal Data Protection Rules 2025**: Draft published by the Ministry of Electronics and Information Technology (MeitY) in January 2025 for public consultation; final Rules notified by MeitY on 13 November 2025. The Rules operationalize the principal Act through a **phased commencement**: provisions establishing the Data Protection Board took immediate effect on notification; provisions governing the registration and functioning of consent managers commence 12 months after notification (approximately November 2026); the remainder of the Rules commence 18 months after notification (approximately May 2027). Adopting organisations should plan compliance programmes against the staged timeline rather than treat all obligations as effective on a single date.
+- **Digital Personal Data Protection Rules 2025**: Draft published by the Ministry of Electronics and Information Technology (MeitY) in January 2025 for public consultation; final Rules notified by MeitY on 13 November 2025. The Rules operationalize the principal Act through a **phased commencement**: provisions establishing the Data Protection Board took immediate effect on notification; provisions governing the registration and functioning of consent managers commence 12 months after notification (approximately November 2026); the remainder of the Rules commence 18 months after notification (approximately May 2027). Adopting organizations should plan compliance programmes against the staged timeline rather than treat all obligations as effective on a single date.
 - Scope: applies to processing of digital personal data of individuals in India; also applies to processing outside India where data of Indian residents is processed for the purpose of offering goods or services to individuals in India.
 - **Key concepts:** Data Principals (data subjects); Data Fiduciaries (data controllers); Consent Managers (accredited entities managing consent on behalf of Data Principals); Significant Data Fiduciaries (SDFs): large-scale or high-risk data fiduciaries designated by the Indian government and subject to enhanced obligations.
 - **Regulatory authority:** Data Protection Board of India (DPBI): an independent adjudicatory body that receives complaints and imposes financial penalties.
@@ -48,8 +48,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - The DPDPA employs a **whitelist approach**: cross-border transfers of personal data are permitted only to countries and territories notified by the Indian government as permissible destinations.
 - The government may restrict transfers to countries posing a risk to national security or public order.
-- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organisations must monitor official government notifications as the whitelist framework is progressively operationalized.
-- Practical note: until the whitelist is fully published, organisations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
+- The 2025 Rules initiated the process for publishing the approved transfer destination list. Organizations must monitor official government notifications as the whitelist framework is progressively operationalized.
+- Practical note: until the whitelist is fully published, organizations should engage early with MeitY guidance and consider contractual safeguards as interim measures.
 
 ---
 
@@ -71,7 +71,7 @@ There are no criminal penalties under the DPDPA; enforcement is administrative t
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

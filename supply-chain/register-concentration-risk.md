@@ -2,8 +2,8 @@
 
 **Document Title:** Concentration Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-06-24\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md)\
@@ -36,7 +36,7 @@ A concentration exists when multiple critical or material dependencies share a c
 
 ### Dimension 1: service-class concentration
 
-Multiple suppliers in the same service category. Concentration here is normally desirable (substitutability) up to a point; the register flags where the organisation relies on a single supplier in a critical service class.
+Multiple suppliers in the same service category. Concentration here is normally desirable (substitutability) up to a point; the register flags where the organization relies on a single supplier in a critical service class.
 
 | Service class | Indicative concentration concern |
 | --- | --- |
@@ -53,7 +53,7 @@ Multiple suppliers in the same service category. Concentration here is normally 
 
 ### Dimension 2: shared sub-tier dependency
 
-Multiple third parties whose service to the organisation depends on the same fourth-party or nth-party supplier. A failure of that shared sub-tier dependency cascades through the portfolio.
+Multiple third parties whose service to the organization depends on the same fourth-party or nth-party supplier. A failure of that shared sub-tier dependency cascades through the portfolio.
 
 | Shared sub-tier type | Common examples |
 | --- | --- |
@@ -69,7 +69,7 @@ Multiple suppliers operating from the same country, region, or facility. Concent
 
 ### Dimension 4: jurisdiction and regulatory concentration
 
-Multiple suppliers subject to the same jurisdictional regime such that a regulatory event (data localisation order, sanctions, export controls) cascades through the portfolio.
+Multiple suppliers subject to the same jurisdictional regime such that a regulatory event (data localization order, sanctions, export controls) cascades through the portfolio.
 
 ### Dimension 5: vendor-family concentration
 
@@ -91,7 +91,7 @@ Each row records one concentration finding.
 | Dimension | Service-class, shared sub-tier, geographical, jurisdiction, vendor-family, intra-group |
 | Concentration subject | The shared attribute (e.g. cloud platform name, country, parent company) |
 | Affected third parties | List of in-scope third parties exhibiting this concentration |
-| Critical service impact | What organisational service is at risk if the concentration crystallises |
+| Critical service impact | What organizational service is at risk if the concentration crystallizes |
 | Likelihood (descriptive) | Very Low, Low, Medium, High, Very High |
 | Impact (descriptive) | Negligible, Minor, Moderate, Major, Catastrophic |
 | Overall residual risk | Negligible, Low, Moderate, High, Unacceptable |
@@ -112,7 +112,7 @@ Each row records one concentration finding.
 3. Concentration findings rated High or Unacceptable are escalated to the Executive Sponsor within the same review cycle they are identified.
 4. The register feeds the annual supplier risk report to the board or board-equivalent.
 5. New third parties undergo a concentration check as part of due diligence; any new concentration finding is opened immediately on onboarding.
-6. The register is integrated with the geopolitical-risk briefing where the organisation operates one; events that materially change risk in a jurisdiction trigger an ad-hoc review.
+6. The register is integrated with the geopolitical-risk briefing where the organization operates one; events that materially change risk in a jurisdiction trigger an ad-hoc review.
 
 ---
 
@@ -133,7 +133,7 @@ Each row records one concentration finding.
 
 ## Coordination with the critical ICT third-party regime
 
-Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation and the organisation's reliance becomes subject to additional contractual and reporting requirements.
+Under DORA, designated critical ICT third-party providers (CTPPs) are supervised by a Lead Overseer. Where one of the affected third parties is a CTPP, the concentration register cross-references the regulatory designation and the organization's reliance becomes subject to additional contractual and reporting requirements.
 
 Adopting financial entities populate per-CTPP fields including the designation date, the Lead Overseer, and the entity's contractual position with the CTPP.
 
@@ -147,7 +147,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 | Concentration treatment closure rate | Percentage of identified High or Unacceptable concentrations with treatment plans within 30 days | At least 90% |
 | Cross-portfolio cloud concentration | Percentage of Tier 1 suppliers running on the most-relied-upon cloud platform | Trend-monitored; tolerance per appetite |
 | Single-IdP exposure | Percentage of critical authentication flows depending on a single IdP | Trend-monitored |
-| Geopolitical concentration in restricted-list countries | Percentage of Tier 1 supplier operations in countries on the organisation's restricted list | Per policy |
+| Geopolitical concentration in restricted-list countries | Percentage of Tier 1 supplier operations in countries on the organization's restricted list | Per policy |
 | Designated CTPP reliance | Count of relied-upon DORA-designated critical ICT third-party providers | Trend-monitored |
 
 ---
@@ -168,7 +168,7 @@ Adopting financial entities populate per-CTPP fields including the designation d
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 structural baseline. Concentration identification depends on the quality of fourth-party and nth-party disclosure obtained from third parties, on public-record availability of vendor ownership data, and on the maturity of the organisation's threat intelligence. The register is not a regulatory designation tool; CTPP designation is determined by competent authorities under the applicable regime.
+This register is a CC BY-SA 4.0 structural baseline. Concentration identification depends on the quality of fourth-party and nth-party disclosure obtained from third parties, on public-record availability of vendor ownership data, and on the maturity of the organization's threat intelligence. The register is not a regulatory designation tool; CTPP designation is determined by competent authorities under the applicable regime.
 
 ---
 

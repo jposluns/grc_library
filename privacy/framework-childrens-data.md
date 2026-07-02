@@ -2,8 +2,8 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-06-24\
+**Version:** 1.0.8\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -16,21 +16,21 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This framework defines the safeguards that apply when the organisation processes personal data of children. It addresses age assurance, parental or guardian consent, special-category treatment of children's data, design defaults, profiling and ADM restrictions, and the special obligations under COPPA, GDPR-K, UK Children's Code (Age Appropriate Design Code), Quebec under-14 rules, AB 1394 and similar US state laws, and equivalents.
+This framework defines the safeguards that apply when the organization processes personal data of children. It addresses age assurance, parental or guardian consent, special-category treatment of children's data, design defaults, profiling and ADM restrictions, and the special obligations under COPPA, GDPR-K, UK Children's Code (Age Appropriate Design Code), Quebec under-14 rules, AB 1394 and similar US state laws, and equivalents.
 
 ---
 
 ## Scope
 
-This framework applies wherever the organisation knowingly processes personal data of children, where there is reason to believe the user base includes children, or where a product is directed to children. It applies across all channels and product surfaces.
+This framework applies wherever the organization knowingly processes personal data of children, where there is reason to believe the user base includes children, or where a product is directed to children. It applies across all channels and product surfaces.
 
-The framework deliberately uses "child" rather than a single age threshold because the threshold varies by jurisdiction. Adopting organisations populate the per-jurisdiction threshold from the jurisdiction index annex.
+The framework deliberately uses "child" rather than a single age threshold because the threshold varies by jurisdiction. Adopting organizations populate the per-jurisdiction threshold from the jurisdiction index annex.
 
 ---
 
@@ -49,13 +49,13 @@ The framework deliberately uses "child" rather than a single age threshold becau
 | Japan: APPI | No fixed statutory numeric age; guardian involvement expected for minors under PPC guidance | Personal Information Protection Commission guidance applies |
 | South Korea: PIPA | Under 14 | Parental consent required |
 
-Adopting organisations validate these against the jurisdiction index and applicable legal advice at the time of processing.
+Adopting organizations validate these against the jurisdiction index and applicable legal advice at the time of processing.
 
 ---
 
 ## Special-category treatment
 
-Children's data is treated with elevated protection across the organisation:
+Children's data is treated with elevated protection across the organization:
 
 1. The default privacy posture is the most protective default available, irrespective of jurisdictional minimum.
 2. The data classification is at minimum the same level as adult special-category personal data.
@@ -67,7 +67,7 @@ Children's data is treated with elevated protection across the organisation:
 
 ## Age assurance
 
-Age assurance is the set of measures used to determine whether a subject is a child. Where the organisation knows or has reason to believe the user is a child, the children's data framework applies.
+Age assurance is the set of measures used to determine whether a subject is a child. Where the organization knows or has reason to believe the user is a child, the children's data framework applies.
 
 | Approach | Description | Use case |
 | --- | --- | --- |
@@ -91,7 +91,7 @@ Age assurance is risk-proportionate. The framework does not require document-bas
 
 ## Design defaults (Age Appropriate Design Code style)
 
-These defaults apply by design wherever the product or feature is likely to be accessed by children. They are protective starting points; the organisation may relax them where there is a clear best-interest justification.
+These defaults apply by design wherever the product or feature is likely to be accessed by children. They are protective starting points; the organization may relax them where there is a clear best-interest justification.
 
 | Design default | Default state |
 | --- | --- |
@@ -155,7 +155,7 @@ These defaults apply by design wherever the product or feature is likely to be a
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. Adopting organisations must populate jurisdictional thresholds from the applicable jurisdiction annexes, validate consent verification mechanisms with legal counsel, design product flows in collaboration with child-safety specialists where the product is materially directed to children, and conduct independent reviews of automated systems that may affect children. The framework is not legal advice and does not establish certification.
+This framework is a CC BY-SA 4.0 baseline. Adopting organizations must populate jurisdictional thresholds from the applicable jurisdiction annexes, validate consent verification mechanisms with legal counsel, design product flows in collaboration with child-safety specialists where the product is materially directed to children, and conduct independent reviews of automated systems that may affect children. The framework is not legal advice and does not establish certification.
 
 ---
 

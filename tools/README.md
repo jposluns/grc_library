@@ -48,7 +48,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-Subsequent commits run the full audit programme before the commit is finalised. Run on demand against the entire corpus:
+Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
 
 ```
 pre-commit run --all-files

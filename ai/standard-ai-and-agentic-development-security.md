@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.5\
+**Version:** 1.8.6\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -121,7 +121,7 @@ Enforcement points: input validation before inference; output validation before 
 | **TC-11** Memory Poisoning | Injected summarization introducing false information into persistent memory. Cross-session memory contamination where one user's data affects another user's memory context. |
 | **TC-12** Tool Metadata Poisoning | An attacker-supplied tool exposes a description, parameter docstring, or schema text containing hidden instructions intended to influence the calling model. The injection vector is the tool definition itself, not its arguments or return values. Distinct from TC-09 in that the model never invokes the tool: it reads the catalogue. |
 | **TC-13** Multimodal Injection | Adversarial content carried in non-text modalities reaches the model: text rendered in images (visual jailbreak), instructions encoded in audio that the model transcribes, embedded instructions in PDF metadata or alternative text, OCR-extracted hidden text, QR codes carrying payloads, video frames carrying instruction overlays. |
-| **TC-14** Agentic Goal Theft and Drift | An agent is induced over a multi-turn session to pursue an objective different from the user-authorised goal. Goal Theft is acute substitution by adversarial input; Drift is gradual divergence driven by long-context pressure, accumulated tool feedback, or chained intermediate objectives. |
+| **TC-14** Agentic Goal Theft and Drift | An agent is induced over a multi-turn session to pursue an objective different from the user-authorized goal. Goal Theft is acute substitution by adversarial input; Drift is gradual divergence driven by long-context pressure, accumulated tool feedback, or chained intermediate objectives. |
 | **TC-15** Inter-Agent Communication Compromise | In a multi-agent orchestration, an upstream agent injects directives into a downstream agent through the response channel; or a sibling agent is impersonated; or message authentication is bypassed by content shape that the receiver treats as instruction. Distinct from TC-08 in that no privilege escalation is required: lateral movement is sufficient. |
 | **TC-16** Adaptive / RL-Trained Adversary | An adversary uses reinforcement-learning-trained attacker models to generate payloads that adapt to observed defences. Static defensive test suites become insufficient at the rate at which adaptive attackers iterate. |
 
@@ -139,9 +139,9 @@ Enforcement points: input validation before inference; output validation before 
 
 **AI-SEC-INP-05:** PII detection must run on all user inputs before logging. Detected PII must be masked before writing to any log system.
 
-**AI-SEC-INP-06:** Untrusted input must pass through a Unicode normalisation layer before reaching the LLM. The layer applies, at minimum: NFKC normalisation (Unicode Annex 15), zero-width and format-character stripping (Unicode general categories Cf, Cc, Co, Cn), bidirectional-control character removal, homoglyph folding to a canonical script, combining-mark collapse, and a per-sink length cap. Normalisation precedes any classifier-based detection so that adversarial steganographic content is reduced to a canonical form first. Aligns with Unicode Technical Standard 39 (Security Considerations).
+**AI-SEC-INP-06:** Untrusted input must pass through a Unicode normalization layer before reaching the LLM. The layer applies, at minimum: NFKC normalization (Unicode Annex 15), zero-width and format-character stripping (Unicode general categories Cf, Cc, Co, Cn), bidirectional-control character removal, homoglyph folding to a canonical script, combining-mark collapse, and a per-sink length cap. Normalization precedes any classifier-based detection so that adversarial steganographic content is reduced to a canonical form first. Aligns with Unicode Technical Standard 39 (Security Considerations).
 
-**AI-SEC-INP-07:** Untrusted input must have forged chat-template tokens neutralised before reaching the LLM. Examples for current deployed model families include `<|im_start|>`, `<|im_end|>`, `[INST]`, `[/INST]`, `<<SYS>>`, `<</SYS>>`, `<|system|>`, `<|user|>`, `<|assistant|>`, and `<|begin_of_text|>`. Neutralisation may be escape, removal, or HTML-style entity encoding; the requirement is that the token's role-boundary semantic is destroyed before tokenisation by the model. The set of neutralised tokens must be maintained per the deployed model family and reviewed when model versions change.
+**AI-SEC-INP-07:** Untrusted input must have forged chat-template tokens neutralized before reaching the LLM. Examples for current deployed model families include `<|im_start|>`, `<|im_end|>`, `[INST]`, `[/INST]`, `<<SYS>>`, `<</SYS>>`, `<|system|>`, `<|user|>`, `<|assistant|>`, and `<|begin_of_text|>`. Neutralization may be escape, removal, or HTML-style entity encoding; the requirement is that the token's role-boundary semantic is destroyed before tokenization by the model. The set of neutralized tokens must be maintained per the deployed model family and reviewed when model versions change.
 
 **AI-SEC-INP-08:** Structural delimiters wrapping untrusted content in prompts must use per-call nonces rather than static markers. The nonce is a cryptographically unique session-scoped string generated at prompt construction time; static markers (for example, `[DOCUMENT_START]`) used across multiple calls allow adversaries to pre-include matching delimiters in retrieved or supplied content. The nonce is unique per call, embedded in both the system instruction and the surrounding delimiter pair, and discarded after the call.
 
@@ -197,7 +197,7 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 Approved AI coding tools:
 
 - **Claude Code**: for development sessions with appropriate secure coding rule files deployed
-- **GitHub Copilot**: within the approved organisation and tier
+- **GitHub Copilot**: within the approved organization and tier
 
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
 
@@ -282,7 +282,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **AGENT-SEC-14:** Code-executing agents must run in an isolated sandbox with no network access except to explicitly allow-listed endpoints and no persistence between sessions.
 
-**AGENT-SEC-15:** Goal stability must be tested across multi-turn agent sessions. The test exercises whether sustained pressure (prolonged context, sequential tool feedback, chained intermediate objectives, role-play framing) causes the agent to pursue a different objective from the one authorised at session start. Goal-stability tests are part of the adversarial test suite per §22; failures are P1 or P2 incidents per the AI Incident Response Plan depending on production exposure.
+**AGENT-SEC-15:** Goal stability must be tested across multi-turn agent sessions. The test exercises whether sustained pressure (prolonged context, sequential tool feedback, chained intermediate objectives, role-play framing) causes the agent to pursue a different objective from the one authorized at session start. Goal-stability tests are part of the adversarial test suite per §22; failures are P1 or P2 incidents per the AI Incident Response Plan depending on production exposure.
 
 **AGENT-SEC-16:** Inter-agent communications must be authenticated and the receiving agent must validate the content shape before treating any portion as instruction. Specifically: an agent receiving output from another agent treats that output as Untrusted (per Trust zones §3), validates against schema before downstream use, and does not infer caller identity from content. Channel-level authentication (signed messages, mutual TLS in mesh deployments, signed envelopes with verified claims) is mandatory between any two agents that propagate authority.
 
@@ -312,7 +312,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **RAG-SEC-10 (RAG Poisoning testing):** The adversarial test suite must include RAG-poisoning tests that simulate attacker-controlled documents entering the retrieval corpus and measure the influence on model behaviour. The test exercises both direct ingestion of adversarial documents (where ingestion governance is bypassed or relaxed) and embedding-space poisoning (crafted documents that achieve high similarity to legitimate context and displace it). RAG-poisoning tests are repeated at every material change to the ingestion pipeline or the embedding model.
 
-**RAG-SEC-11 (RAG Document Exfiltration testing):** The adversarial test suite must include tests that confirm retrieval cannot return chunks from tenants, users, classifications, or data-residency scopes other than the requestor's authorised scope. The test exercises crafted queries designed to bypass the retrieval scope binding (`RAG-SEC-04`) and crafted prompts designed to induce the model to reveal retrieved-but-not-rendered content.
+**RAG-SEC-11 (RAG Document Exfiltration testing):** The adversarial test suite must include tests that confirm retrieval cannot return chunks from tenants, users, classifications, or data-residency scopes other than the requestor's authorized scope. The test exercises crafted queries designed to bypass the retrieval scope binding (`RAG-SEC-04`) and crafted prompts designed to induce the model to reveal retrieved-but-not-rendered content.
 
 **RAG-SEC-12 (RAG Source Attribution testing):** The adversarial test suite must include tests that confirm retrieved-content attribution metadata (per `RAG-SEC-05`) is preserved and surfaced in user-visible output. The test exercises attempts to induce the model to misattribute content provenance, to attribute attacker-controlled content to a trusted source, or to omit attribution where attribution is required.
 
@@ -320,7 +320,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 ## 12. MCP security requirements
 
-**MCP-SEC-01:** Only organisation-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
+**MCP-SEC-01:** Only organization-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
 
 **MCP-SEC-02:** MCP server tool manifests must be signed and version-controlled. The client must verify signatures before trusting tool descriptions.
 
@@ -407,7 +407,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 - **OCR**: extracted text is treated as Untrusted input (per Trust zones §3) and re-enters the input pipeline at `AI-SEC-INP-01`.
 - **QR codes**: decoded payloads are validated against URL allow-lists (`AI-SEC-OUT-05`) and instruction-pattern scanners before any tool action is taken on them.
 
-**RUNTIME-SEC-08 (Modality-cross-contamination):** Text controls do not transfer to images. A surface that filters text but accepts images without an image-aware filter is vulnerable. Adopting organisations document, per AI system, which modalities are accepted and which modality-specific filters apply.
+**RUNTIME-SEC-08 (Modality-cross-contamination):** Text controls do not transfer to images. A surface that filters text but accepts images without an image-aware filter is vulnerable. Adopting organizations document, per AI system, which modalities are accepted and which modality-specific filters apply.
 
 ---
 
@@ -455,16 +455,16 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
    - Python builtins enabling code execution: `eval`, `exec`, `compile`, `open`, `breakpoint`, `__import__`, `getattr`, `apply`.
    - OS / process / network modules: `os`, `nt`, `posix`, `sys`, `subprocess`, `socket`, `shutil`.
    - Debug and runtime: `pdb`, `bdb`, `pty`, `asyncio`, `runpy`.
-   - Serialisation re-entry: `pickle`, `_pickle`.
+   - Serialization re-entry: `pickle`, `_pickle`.
    - Reflection: `operator.attrgetter`, `getattr` chains.
    - For Keras: `Lambda` layers carrying code objects.
 4. **High severity** (deployment requires documented justification): network/HTTP modules (`webbrowser`, `httplib`, `requests.api`, `aiohttp.client`), TensorFlow file-IO operations (`ReadFile`, `WriteFile`, `io.MatchingFiles`).
 5. **Medium severity** (review before adoption): unknown custom operators lacking a parent-library mapping.
-6. **Adoption gate**: every model artefact entering the model registry from outside the organisation (Hugging Face Hub, vendor download, supplier delivery) passes through this scan before the registry entry is approved. The scan is repeated when the artefact version changes.
+6. **Adoption gate**: every model artefact entering the model registry from outside the organization (Hugging Face Hub, vendor download, supplier delivery) passes through this scan before the registry entry is approved. The scan is repeated when the artefact version changes.
 7. **Production-load gate**: production AI workloads loading model artefacts at runtime use scanner-aware loaders or run with `trust_remote_code=False` (per `P-14` in §8) and rely on the adoption-gate scan as the integrity record.
-8. **Exception path**: organisations may grant a CISO-approved exception for a model artefact that requires a Critical operator for legitimate reasons; the exception is recorded in the AI risk register with compensating controls (network isolation of the loading host, restricted-identity execution).
+8. **Exception path**: organizations may grant a CISO-approved exception for a model artefact that requires a Critical operator for legitimate reasons; the exception is recorded in the AI risk register with compensating controls (network isolation of the loading host, restricted-identity execution).
 
-The control is informed by the byte-level scanning patterns established by open-source tools modelscan (Apache-2.0), picklescan (MIT, the engine used by Hugging Face Hub-side scanning), and fickling (LGPL-3.0, pickle decompiler and symbolic tracer). Tool choice is at the organisation's discretion; the deny-list categories above are the minimum coverage. The scanner must produce a machine-readable report retained alongside the model registry entry.
+The control is informed by the byte-level scanning patterns established by open-source tools modelscan (Apache-2.0), picklescan (MIT, the engine used by Hugging Face Hub-side scanning), and fickling (LGPL-3.0, pickle decompiler and symbolic tracer). Tool choice is at the organization's discretion; the deny-list categories above are the minimum coverage. The scanner must produce a machine-readable report retained alongside the model registry entry.
 
 ---
 
@@ -503,7 +503,7 @@ Every CI/CD pipeline for AI-enabled systems must include the following gates in 
 
 **OBS-SEC-02:** PII detected in prompts or responses must be masked in all log systems before writing.
 
-**OBS-SEC-03:** AI observability tooling used for the destinations above must support, at minimum: structured trace recording with semantic conventions for LLM and agent operations, hash-based content recording with selective unmasking limited to authorised operators, evaluator integration for continuous-risk-signal calculation (hallucination, toxicity, refusal-rate), data masking via SDK-side or proxy-side hooks before bytes leave the workload, and a self-hosting deployment option where data residency requires it. Reference open-source platforms implementing these requirements include Langfuse (Apache 2.0 / self-hostable), Arize Phoenix (Elastic License 2.0, OpenTelemetry/OpenInference-native), and Helicone (Apache 2.0; provider-key vault pattern). Vendor-hosted equivalents may be used where data-residency posture and contractual data-processing terms permit.
+**OBS-SEC-03:** AI observability tooling used for the destinations above must support, at minimum: structured trace recording with semantic conventions for LLM and agent operations, hash-based content recording with selective unmasking limited to authorized operators, evaluator integration for continuous-risk-signal calculation (hallucination, toxicity, refusal-rate), data masking via SDK-side or proxy-side hooks before bytes leave the workload, and a self-hosting deployment option where data residency requires it. Reference open-source platforms implementing these requirements include Langfuse (Apache 2.0 / self-hostable), Arize Phoenix (Elastic License 2.0, OpenTelemetry/OpenInference-native), and Helicone (Apache 2.0; provider-key vault pattern). Vendor-hosted equivalents may be used where data-residency posture and contractual data-processing terms permit.
 
 **OBS-SEC-04:** Where AI dev tooling sessions transit a vendor proxy (such as an AI gateway that mediates between client and LLM provider), the proxy is itself an AI observability surface. Logs from the proxy must be inventoried, retention defined, and access controlled equivalently to the application telemetry platform.
 
@@ -655,7 +655,7 @@ When an AI security incident is declared, the following steps apply in addition 
 
 **AUTON-SEC-02:** The following action categories are permanently classified as requiring human confirmation and cannot be reclassified as autonomous:
 
-- Any action sending data outside the organisational cloud tenant
+- Any action sending data outside the organizational cloud tenant
 - Any action modifying a production database record
 - Any action initiating a financial transaction
 - Any action creating, modifying, or deleting user accounts or permissions
@@ -699,15 +699,15 @@ When an AI security incident is declared, the following steps apply in addition 
 
 AI-driven penetration testing and offensive security agents (PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT, and equivalent tools that run security testing autonomously or semi-autonomously) are a category that did not exist when the prior AI security standard was first written. They straddle two existing governance regimes: the Penetration Testing and Red Team Standard governs the offensive activity, and the agent-permissions and agentic-security controls in this standard govern the agent. The controls below specify how the two regimes combine for AI-driven offensive tooling.
 
-**OFFAI-SEC-01:** AI-driven offensive security tools must be authorised under the Penetration Testing and Red Team Standard before any use against any system in any environment. Authorisation includes scope (target list with explicit allow-list), time window, rules of engagement, and approver identity. Use of an AI-driven offensive tool without prior authorisation is treated as an unauthorised security testing incident.
+**OFFAI-SEC-01:** AI-driven offensive security tools must be authorized under the Penetration Testing and Red Team Standard before any use against any system in any environment. Authorization includes scope (target list with explicit allow-list), time window, rules of engagement, and approver identity. Use of an AI-driven offensive tool without prior authorization is treated as an unauthorized security testing incident.
 
 **OFFAI-SEC-02:** AI-driven offensive security tools are agents under §10 of this standard. Tool permissions, capability scopes (Bounded / Operational / Cross-system per the AI Access and Agent Permissions Standard), and human approval requirements apply without exception. Where the tool's vendor framing assumes broader autonomy than the library's agent permission model permits, the library's model takes precedence.
 
-**OFFAI-SEC-03:** AI-driven offensive tools that integrate with CI/CD pipelines (for example, Strix's GitHub Actions integration) execute under a dedicated service identity with PAM-vaulted credentials per the developer-security DevOps requirements. The service identity has explicit allow-list scope; it does not run against production targets except under authorised engagements.
+**OFFAI-SEC-03:** AI-driven offensive tools that integrate with CI/CD pipelines (for example, Strix's GitHub Actions integration) execute under a dedicated service identity with PAM-vaulted credentials per the developer-security DevOps requirements. The service identity has explicit allow-list scope; it does not run against production targets except under authorized engagements.
 
-**OFFAI-SEC-04:** AI-driven offensive tool runs produce auditable evidence of every action taken. The audit log includes target host, action class, parameters (sanitised where they may contain secrets), result, and timestamp. The log is forwarded to the SIEM with retention per the logging and monitoring standard.
+**OFFAI-SEC-04:** AI-driven offensive tool runs produce auditable evidence of every action taken. The audit log includes target host, action class, parameters (sanitized where they may contain secrets), result, and timestamp. The log is forwarded to the SIEM with retention per the logging and monitoring standard.
 
-**OFFAI-SEC-05:** AI-driven offensive tools that send organisational target details, code, or data to vendor LLM backends are subject to the vendor-telemetry inventory and data-residency controls in the AI Coding Assistant Security Guideline. Where the engagement covers regulated data or in-scope-of-regulation targets, the tool's data-handling posture must satisfy the regulatory regime before use.
+**OFFAI-SEC-05:** AI-driven offensive tools that send organizational target details, code, or data to vendor LLM backends are subject to the vendor-telemetry inventory and data-residency controls in the AI Coding Assistant Security Guideline. Where the engagement covers regulated data or in-scope-of-regulation targets, the tool's data-handling posture must satisfy the regulatory regime before use.
 
 **OFFAI-SEC-06:** AI-driven offensive tool vendor-claimed metrics (detection rates, false-positive rates, success rates) are treated as marketing-grade and do not substitute for engagement-specific evidence of effectiveness. Where the vendor's metrics derive from published academic benchmarks with reproducible methodology, the metrics are recorded with the citation; vendor self-reported metrics without independent benchmark are recorded as such.
 

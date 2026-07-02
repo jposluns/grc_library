@@ -159,7 +159,7 @@ def main(argv: list[str]) -> int:
     print(f"\nFAIL: {total} internal-reference finding(s) across {len(grouped)} file(s).")
     print(
         "Internal-deployment patterns detected. A CC0 library should be "
-        "vendor-neutral and organisation-neutral; replace specific cloud "
+        "vendor-neutral and organization-neutral; replace specific cloud "
         "regions, internal hostnames, or non-documentation subnets with "
         "placeholders or generic references."
     )

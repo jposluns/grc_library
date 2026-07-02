@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-06-24\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -20,7 +20,7 @@
 
 ### 1.1 Purpose
 
-This framework defines the audit and certification approach for AI systems within the organisation. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
+This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
 
 The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Title VIII (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
 
@@ -29,11 +29,11 @@ The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and manag
 This framework applies to all AI systems in production or entering production. It covers:
 
 - Internally developed AI systems.
-- Procured or third-party AI systems that the organisation deploys and operates.
-- AI systems embedded within third-party services that the organisation configures and is responsible for deploying.
-- General-purpose AI models integrated into the organisation's products, services, or operational processes.
+- Procured or third-party AI systems that the organization deploys and operates.
+- AI systems embedded within third-party services that the organization configures and is responsible for deploying.
+- General-purpose AI models integrated into the organization's products, services, or operational processes.
 
-This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)) for external AI services where the organisation is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
+This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)) for external AI services where the organization is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
 
 ---
 
@@ -172,11 +172,11 @@ Under EU AI Act Art. 43, conformity assessment for most high-risk AI systems lis
 - AI systems intended for use in biometric identification.
 - AI systems in Annex III categories where the Commission has specified third-party assessment in implementing acts.
 
-Where the organisation acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
+Where the organization acts as a deployer of a high-risk system rather than the provider, it relies on the provider's conformity assessment documentation, supplemented by its own deployer obligations assessment.
 
 ### 7.2 Documentation requirements: EU AI act annex IV
 
-For high-risk AI systems where the organisation is the provider, Annex IV technical documentation must include:
+For high-risk AI systems where the organization is the provider, Annex IV technical documentation must include:
 
 - A general description of the AI system, its intended purpose, and the version.
 - A description of the system's design, including model architecture, training methodology, and key design choices.
@@ -246,7 +246,7 @@ Each finding classified as Critical, High, or Medium generates a formal CAPA rec
 - Responsible owner.
 - Verification method: how the CISO will confirm the corrective action has been implemented effectively.
 
-CAPAs are tracked in the organisation's CAPA management system and reviewed at each AIGC quarterly meeting. Overdue CAPAs are escalated to the CIO.
+CAPAs are tracked in the organization's CAPA management system and reviewed at each AIGC quarterly meeting. Overdue CAPAs are escalated to the CIO.
 
 ---
 

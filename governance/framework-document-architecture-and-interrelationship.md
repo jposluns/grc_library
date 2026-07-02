@@ -2,8 +2,8 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework\
 **Document Type:** Framework\
-**Version:** 1.1.1\
-**Date:** 2026-06-23\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
@@ -20,7 +20,7 @@
 
 This framework defines how documents in the GRC Documentation Library relate to each other. It establishes a hierarchy that connects governance authority to policies, standards, procedures, plans, evidence, metrics, and cross-framework mappings.
 
-The framework provides a reusable architecture for organisations that need a coherent policy corpus rather than a collection of disconnected documents.
+The framework provides a reusable architecture for organizations that need a coherent policy corpus rather than a collection of disconnected documents.
 
 ---
 
@@ -130,7 +130,7 @@ Mappings should use the following pattern:
 | Mapping Type | Legal obligation, regulatory interpretation, industry practice, architectural recommendation, or evidence category. |
 | Applicability Condition | Deployment, data, sector, jurisdiction, processing role, or service condition that activates relevance. |
 | Repository Artefact | Document path in this repository. |
-| Evidence Class | Record type that would support implementation in an adopting organisation. |
+| Evidence Class | Record type that would support implementation in an adopting organization. |
 | Limitation | Statement that mapping does not prove compliance or certification. |
 
 ---
@@ -157,7 +157,7 @@ Before publication, each document must be checked for:
 
 - Correct metadata.
 - Correct repository path.
-- No real organisation names.
+- No real organization names.
 - No real person names.
 - No internal identifiers.
 - No copied restricted third-party text.

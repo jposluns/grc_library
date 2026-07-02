@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Domain README\
 **Document Type:** Register\
-**Version:** 1.3.0\
-**Date:** 2026-05-28\
+**Version:** 1.3.1\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This directory contains organisation-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. All content is released under CC BY-SA 4.0.
+This directory contains organization-neutral supplier governance, third-party risk, cloud governance, and supply-chain continuity artefacts. It covers the full lifecycle of supplier and partner relationships as well as trade security programme obligations. All content is released under CC BY-SA 4.0.
 
 ---
 

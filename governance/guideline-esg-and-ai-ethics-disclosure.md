@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.0\
-**Date:** 2026-06-23\
+**Version:** 1.1.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This guideline defines the organisation's approach to disclosing Environmental, Social, and Governance (ESG) performance and AI ethics commitments to external stakeholders. It provides direction on what to disclose, how to disclose it, and which standards and frameworks govern disclosure content.
+This guideline defines the organization's approach to disclosing Environmental, Social, and Governance (ESG) performance and AI ethics commitments to external stakeholders. It provides direction on what to disclose, how to disclose it, and which standards and frameworks govern disclosure content.
 
 ---
 
@@ -32,9 +32,9 @@ Applies to all external ESG and AI ethics disclosures including: annual sustaina
 
 ### 1. Materiality
 
-Disclosures focus on matters that are material to stakeholders: those that could reasonably influence their decisions. The organisation applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
+Disclosures focus on matters that are material to stakeholders: those that could reasonably influence their decisions. The organization applies a double materiality lens: impact on society and environment (impact materiality) and financial implications (financial materiality).
 
-A matter crosses the materiality threshold through a documented materiality assessment performed at least annually, owned by the GRC Programme Manager with input from affected stakeholders, applying both lenses. The assessment records which matters were considered, the evidence weighed, and the reasoning for including or excluding each; the record is retained per the Data Retention Schedule. No single quantitative cut-off is prescribed: materiality is a reasoned determination under both lenses that each adopting organisation calibrates to its sector, size, and stakeholder profile.
+A matter crosses the materiality threshold through a documented materiality assessment performed at least annually, owned by the GRC Programme Manager with input from affected stakeholders, applying both lenses. The assessment records which matters were considered, the evidence weighed, and the reasoning for including or excluding each; the record is retained per the Data Retention Schedule. No single quantitative cut-off is prescribed: materiality is a reasoned determination under both lenses that each adopting organization calibrates to its sector, size, and stakeholder profile.
 
 ### 2. Accuracy and verifiability
 
@@ -101,7 +101,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 ## Disclosure standards and frameworks
 
-The organisation aligns its ESG and AI ethics disclosures with the following standards:
+The organization aligns its ESG and AI ethics disclosures with the following standards:
 
 | Standard / Framework | Application |
 | --- | --- |
@@ -119,7 +119,7 @@ The organisation aligns its ESG and AI ethics disclosures with the following sta
 
 The annual ESG and AI Ethics Report is:
 - Reviewed by the ERC before publication.
-- Published on the organisation's external website.
+- Published on the organization's external website.
 - Aligned with the annual governance review cycle.
 - Retained in the governance document repository per the Data Retention Schedule.
 

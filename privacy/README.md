@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.6\
-**Date:** 2026-06-30\
+**Version:** 1.2.7\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -36,7 +36,7 @@ This directory contains privacy governance artefacts covering data protection po
 | Framework | Consent Management Framework | [`privacy/framework-consent-management.md`](framework-consent-management.md) |
 | Framework | Children's Data Framework | [`privacy/framework-childrens-data.md`](framework-childrens-data.md) |
 | Framework | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](framework-privacy-by-design.md) |
-| Standard | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](standard-pseudonymisation-and-anonymisation.md) |
+| Standard | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md) |
 | Register | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md) |
 | Register | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md) |
 | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md) |
@@ -102,7 +102,7 @@ The privacy domain covers:
 
 ## Role terminology
 
-This domain uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title, following the statutorily-mandated term in GDPR (Article 37), LGPD (Article 41), India DPDP Act 2023 (§10), Malaysia PDPA (as amended), and similar regimes. Some adopters (typically in Canada and the United States) prefer **Chief Privacy Officer (CPO)** for the same accountability set; some adopters maintain both as distinct roles (e.g., DPO regulatory-facing, CPO strategic / executive). See [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical role definition and adopter-customisation guidance; substitute or extend per your organisation's convention.
+This domain uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title, following the statutorily-mandated term in GDPR (Article 37), LGPD (Article 41), India DPDP Act 2023 (§10), Malaysia PDPA (as amended), and similar regimes. Some adopters (typically in Canada and the United States) prefer **Chief Privacy Officer (CPO)** for the same accountability set; some adopters maintain both as distinct roles (e.g., DPO regulatory-facing, CPO strategic / executive). See [`governance/register-role-authority.md`](../governance/register-role-authority.md) for the canonical role definition and adopter-customization guidance; substitute or extend per your organization's convention.
 
 ---
 

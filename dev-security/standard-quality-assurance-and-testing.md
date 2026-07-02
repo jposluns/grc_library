@@ -2,7 +2,7 @@
 
 **Document Title:** Quality Assurance and Testing Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance are achieved across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
+This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance are achieved across all organizational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
 
 ---
 

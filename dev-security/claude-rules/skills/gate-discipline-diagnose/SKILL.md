@@ -29,7 +29,7 @@ The correct-response hierarchy from the canonical rule, executed in order of pre
 2. **Fix the artefact.** Almost always the right answer. The gate exists because the defect class matters; the defect class is present in this artefact; fix it. The cost of the fix accrues to the team that introduced it; the cost of letting one defect through accrues to every future reader of the artefact.
 3. **If the gate is genuinely wrong** (false positive, stale rule, environmental fluke), fix the gate. Document the rationale in the same commit. Treat the gate-fix as a substantive change subject to the same review discipline as any code change. A gate that is wrong today may be right tomorrow; weakening it has compounding cost.
 4. **If the artefact and gate are both correct but the fix is impractical in this PR** (cross-team coordination, vendor patch outstanding, tooling limitation), file a tracked issue with a remediation deadline and document a temporary exception per the project's exception register. The exception is temporary by construction; renewal requires re-approval.
-5. **If the failure is environmental** (CI runner OOM, network flake, transient dependency outage), re-run. If the flake recurs, document it so the gate can be hardened (e.g., retry logic; idempotency check; deterministic seed). Do not normalise re-running as a strategy.
+5. **If the failure is environmental** (CI runner OOM, network flake, transient dependency outage), re-run. If the flake recurs, document it so the gate can be hardened (e.g., retry logic; idempotency check; deterministic seed). Do not normalize re-running as a strategy.
 
 The first question on a failure is "what does it mean?", not "how do I make it go away?".
 
@@ -62,7 +62,7 @@ The gate-discipline response is verified when:
 
 | Rationalization | Reality |
 |---|---|
-| "It is just one finding; let me suppress it and move on." | The finding is what the gate is for. Suppressing it without addressing the underlying issue normalises the bypass and lets the defect class leak into future changes. |
+| "It is just one finding; let me suppress it and move on." | The finding is what the gate is for. Suppressing it without addressing the underlying issue normalizes the bypass and lets the defect class leak into future changes. |
 | "The gate is too strict for this case." | If the gate is genuinely wrong, fix the gate as its own substantive change. Drive-by exemptions hollow out the audit programme. |
 | "I will fix it properly in a follow-up PR." | The exception register is the documented channel for that posture. Verbal "I will fix it later" is not. |
 | "Re-running the CI fixed it last time." | Intermittent failure is a race condition or timing dependency; left undiagnosed, it will fail when stakes are higher. |

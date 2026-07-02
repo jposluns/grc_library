@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-07-01\
+**Version:** 0.0.5\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines how the organisation governs the cost of AI inference and training: budgeting, allocation, ceiling enforcement, model-choice criteria, monitoring, anomaly response, and reporting. AI costs are volatile and easily exceed forecasts; this standard ensures that AI use is economically rational and that runaway spend cannot occur silently.
+This standard defines how the organization governs the cost of AI inference and training: budgeting, allocation, ceiling enforcement, model-choice criteria, monitoring, anomaly response, and reporting. AI costs are volatile and easily exceed forecasts; this standard ensures that AI use is economically rational and that runaway spend cannot occur silently.
 
 ---
 
@@ -56,7 +56,7 @@ It does not duplicate the broader IT financial management standard; it overlays 
 | --- | --- |
 | Annual budget | Each owning function commits to an annual AI cost budget, broken down by feature and by provider |
 | Quarterly forecast | Forecast updated quarterly with variance analysis |
-| Allocation model | Costs allocated to the owning function via showback at minimum; chargeback where the organisation operates internal financial accountability at this granularity |
+| Allocation model | Costs allocated to the owning function via showback at minimum; chargeback where the organization operates internal financial accountability at this granularity |
 | Customer-level cost attribution | Where the AI feature is customer-facing and material, per-customer cost attribution supports product economics |
 | Cost-tier classification | Each AI feature classified as High Cost, Medium Cost, Low Cost based on per-unit and aggregate spend; classification drives controls |
 
@@ -83,7 +83,7 @@ Cost ceilings are enforced at the most reliable point available; reliance on pro
 | Layer | Description | Notes |
 | --- | --- | --- |
 | Application middleware (per-request gating) | The application's AI client wraps each provider call with a request-cost estimator and a per-session running total; calls that would exceed a ceiling are short-circuited before the provider call is made | Required for every production AI feature; provides per-request and per-session enforcement |
-| Provider rate-limit configuration | Provider-side rate limits configured to align with the organisation's session and daily ceilings; provider rejects calls beyond the rate limit | Acts as a secondary safeguard; provider rate limits are coarser than middleware controls |
+| Provider rate-limit configuration | Provider-side rate limits configured to align with the organization's session and daily ceilings; provider rejects calls beyond the rate limit | Acts as a secondary safeguard; provider rate limits are coarser than middleware controls |
 | Provider commitment ceiling | Provider account configured with a hard spend ceiling where the provider supports it; alternatively a tagged budget with auto-disable | Backstop for the day-level and feature-level ceilings |
 | Post-billing reconciliation | Daily ingestion of provider billing data; comparison against the ceiling; manual remediation where automated layers were bypassed | Detective rather than preventive; the gap between automated enforcement and reality is documented as residual risk |
 

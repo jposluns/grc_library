@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md)\
@@ -49,7 +49,7 @@ This procedure is about identity and access. It belongs in `security/`. Per the 
 security/procedure-quarterly-privileged-access-review.md
 ```
 
-## Step 3: apply the sanitisation substitution table
+## Step 3: apply the sanitization substitution table
 
 Use the Appendix A table in [`specification-ingestion.md`](../specification-ingestion.md):
 
@@ -59,7 +59,7 @@ Use the Appendix A table in [`specification-ingestion.md`](../specification-inge
 | Microsoft Sentinel | SIEM |
 | SharePoint | collaboration and file storage platform |
 
-Quebec is a legitimate jurisdictional reference, not a sanitisation target. It stays.
+Quebec is a legitimate jurisdictional reference, not a sanitization target. It stays.
 
 ## Step 4: replace person- and team-specific text with role-based language
 
@@ -126,7 +126,7 @@ the previous 90 days. Inactive accounts are flagged.
 ### Step 3: Certify
 
 System Owners certify each active account. Certification confirms
-business need, role correctness, and continued authorisation.
+business need, role correctness, and continued authorization.
 
 ### Step 4: Deactivate
 
@@ -151,7 +151,7 @@ to log access by the identity custodian.
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Adopting organisations must
+This procedure is a CC BY-SA 4.0 baseline. Adopting organizations must
 validate the cadence, the certification record format, the
 deactivation grace period, and the jurisdictional retention conditions
 against their own policy and legal requirements.
@@ -201,11 +201,11 @@ Reference the issue if one exists. Note the version bump on the index register. 
 ## Common pitfalls
 
 - Forgetting to add the new document to both the index and the domain README. The structural linter catches this.
-- Leaving `Microsoft`, `Entra`, `Azure`, `Sentinel`, `SharePoint`, or other vendor-product references unsanitised. The language linter has a partial coverage; manual review is still required.
+- Leaving `Microsoft`, `Entra`, `Azure`, `Sentinel`, `SharePoint`, or other vendor-product references unsanitized. The language linter has a partial coverage; manual review is still required.
 - Using a bare `ensure` (without `that`) or an em or en dash. The language linter catches both.
 - Starting the version at `1.0.0` rather than `0.0.1`. New documents always begin at `0.0.1` per the ingestion specification.
 - Using British `-ise` endings. The language linter catches a defined list of common endings.
 
 ## Summary
 
-The end state is a self-contained, role-based, framework-aligned, CC BY-SA 4.0-licensed procedure that any organisation can fork and adapt. The path to that state is short: type selection, domain placement, canonical filename, sanitisation, role substitution, metadata block, canonical body structure, index and README updates, audit pass, commit.
+The end state is a self-contained, role-based, framework-aligned, CC BY-SA 4.0-licensed procedure that any organization can fork and adapt. The path to that state is short: type selection, domain placement, canonical filename, sanitization, role substitution, metadata block, canonical body structure, index and README updates, audit pass, commit.

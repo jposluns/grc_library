@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.12\
+**Version:** 1.5.13\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -225,7 +225,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
 | EN 54 | series, current parts published 2017 to 2023 | various | Fire detection and fire alarm systems (European standard series) | - | - | needs-reconfirm |
 | TSA Pipeline Security Directive | SD02 (with subsequent revisions) | 2021 (initial; revised through 2024) | US Transportation Security Administration pipeline cybersecurity requirements | - | - | needs-reconfirm |
-| Basel III | 2017 (with 2023 finalisation, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
+| Basel III | 2017 (with 2023 finalization, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
 
 ## OECD and global
 
@@ -267,7 +267,7 @@ This section records open-source AI security projects referenced by library cont
 | Protect AI llm-guard | continuous | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | - | https://github.com/protectai/llm-guard | 2026-06-30 |
 | Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 | https://github.com/protectai/rebuff | 2026-06-30 |
 | Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - | https://github.com/protectai/modelscan/releases | 2026-06-30 |
-| picklescan | continuous | 2024 | Pickle opcode-stream analyser; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-06-30 |
+| picklescan | continuous | 2024 | Pickle opcode-stream analyzer; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-06-30 |
 | Trail of Bits fickling | continuous | 2024 | Pickle decompiler, symbolic tracer, runtime import-hook with severity tiers | LGPL-3.0 | Copyleft caution for redistribution | https://github.com/trailofbits/fickling/releases | 2026-06-30 |
 | Giskard | continuous | 2024 | AI testing platform with 55 probes across 11 categories; native AVID export | Apache 2.0 | - | https://github.com/Giskard-AI/giskard-oss/releases | 2026-06-30 |
 | Confident AI deepteam | continuous | 2025 | Open-source LLM red-team framework with 50+ vulnerability categories incl. agentic-specific | Apache 2.0 | - | https://github.com/confident-ai/deepteam/releases | 2026-06-30 |
@@ -294,7 +294,7 @@ Soft-law guidance documents issued by supervisory authorities, regulators, or in
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 |---|---|---|---|---| --- | --- |
 | WP243 (Article 29 Working Party Guidelines on Data Protection Officers) | rev.01 | 2017-04 | Guidelines on Data Protection Officers ('DPOs') under GDPR Articles 37-39; endorsed by EDPB in May 2018 as part of the EDPB's adoption of WP29 guidelines. Cited for Article 38(6) conflict-of-interest interpretation. | WP243 (initial 2016-12 draft) | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
-| WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques) | Original (no later revision) | 2014-04 | Opinion on anonymisation vs pseudonymisation, the singling-out / linkability / inference re-identification tests, adopted 10 April 2014 under Directive 95/46/EC and read across to the GDPR. Cited for anonymisation thresholds. | - | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
+| WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques) | Original (no later revision) | 2014-04 | Opinion on anonymization vs pseudonymization, the singling-out / linkability / inference re-identification tests, adopted 10 April 2014 under Directive 95/46/EC and read across to the GDPR. Cited for anonymization thresholds. | - | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
 | WP248 rev.01 (Article 29 Working Party Guidelines on Data Protection Impact Assessment) | rev.01 | 2017-10 | Guidelines on DPIA and determining whether processing is 'likely to result in a high risk' for the purposes of Regulation 2016/679 (GDPR Article 35), as last revised and adopted 4 October 2017; endorsed by the EDPB. Cited for DPIA methodology and the high-risk criteria. | WP248 (4 April 2017 first adoption) | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
 | EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR) | Version 2.1 | 2021-07 | The controller, joint-controller, and processor concepts under the GDPR; Version 2.1 adopted 7 July 2021 after public consultation. Cited for controller / processor determination. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 | EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3) | Version 2.1 | 2019-11 | The establishment criterion and the targeting criterion for GDPR territorial scope (Article 3); Version 2.1 adopted 12 November 2019. Cited for extraterritorial applicability. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.5\
-**Date:** 2026-06-30\
+**Version:** 1.4.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -26,8 +26,8 @@ This directory contains compliance management policies, registers, audit governa
 
 The compliance domain has two layers:
 
-1. **Root-level core compliance content**: policies, procedures, registers, and templates that apply across all sectors and organisations.
-2. **Sector sub-directories**: sector-conditional content for organisations operating in a specific industry. Most organisations adopt only the sub-directories matching their sector.
+1. **Root-level core compliance content**: policies, procedures, registers, and templates that apply across all sectors and organizations.
+2. **Sector sub-directories**: sector-conditional content for organizations operating in a specific industry. Most organizations adopt only the sub-directories matching their sector.
 
 Cross-sector horizontal regulations that span multiple industries (for example, EU NIS 2) stay at the root.
 
@@ -125,7 +125,7 @@ The compliance domain covers:
 - **Compliance management systems**: obligations registers, legal and regulatory tracking, compliance risk assessment, and performance reporting.
 - **Internal audit governance**: audit planning, audit execution criteria, independence requirements, finding classification, corrective and preventive action (CAPA) lifecycle.
 - **Cross-sector horizontal regulations**: regulations that span multiple sectors (for example, EU NIS 2 Directive).
-- **Industry-sector compliance**: six sector sub-directories hosting sector overviews, programme overlays (CTPAT, BASC, PIP, AEO), and regulation-specific annexes (DORA, SOX, FedRAMP, etc.) for organisations operating in those sectors.
+- **Industry-sector compliance**: six sector sub-directories hosting sector overviews, programme overlays (CTPAT, BASC, PIP, AEO), and regulation-specific annexes (DORA, SOX, FedRAMP, etc.) for organizations operating in those sectors.
 - **AI and algorithmic compliance auditing**: audit trails, transparency, bias assessment, and regulatory alignment for AI systems.
 - **Regulatory applicability analysis**: structured approach to determining which legal regimes apply across jurisdictions, data categories, and processing roles.
 

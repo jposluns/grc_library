@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.7\
+**Version:** 1.4.8\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,9 +26,9 @@ To ensure that consistent, auditable, and secure handling of log data is maintai
 
 ## Scope
 
-1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organisational data.
+1. Applies to all systems, applications, services, network devices, cloud environments, and AI systems that process or store organizational data.
 2. Includes infrastructure managed internally or by third parties, including SaaS, PaaS, and IaaS services.
-3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organisation participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`compliance/`](../compliance/).
+3. Applies to logs generated for security, operational, compliance, and AI accountability purposes. Where the organization participates in a sector-specific programme (for example, BASC trade-security), the corresponding sector annex extends this standard with programme-specific log categories and retention overlays; see [`compliance/`](../compliance/).
 
 ### Scope boundary with the operations observability and telemetry standard
 
@@ -36,11 +36,11 @@ This standard governs security-relevant logging, monitoring, and SIEM operations
 
 | Event class | Authoritative destination |
 | --- | --- |
-| Authentication, authorisation, privilege changes, secret access, security-policy outcomes | SIEM (per this standard) |
+| Authentication, authorization, privilege changes, secret access, security-policy outcomes | SIEM (per this standard) |
 | Data access, data export, classification-tagged operations | SIEM (per this standard) |
 | Incident and threat-detection signals, anti-malware, EDR, DLP | SIEM (per this standard) |
 | Service availability, latency, throughput, error rate, request traces | Observability platform (per the observability standard) |
-| Capacity, saturation, resource utilisation | Observability platform |
+| Capacity, saturation, resource utilization | Observability platform |
 | Customer-experience signals (real-user monitoring, synthetic checks) | Observability platform |
 | Events that are both security-relevant and operational (e.g. an authentication failure inside a request, or a privileged action during an outage) | Both: emitted to SIEM and to the observability platform, correlated by trace identifier and request identifier so the two backends can be joined for investigation |
 
@@ -55,7 +55,7 @@ Where an event is genuinely dual-purpose, the producer service emits the securit
 - The CIO ensures that integration with enterprise infrastructure and business systems is maintained.
 - System owners and third-party service providers are responsible for compliant logging configurations.
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -117,7 +117,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 8.1 SOC analysts must review critical event logs daily.
 8.2 Weekly reviews must validate that correlation rules, thresholds, and data normalization remain effective.
-8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organisation participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`compliance/`](../compliance/).
+8.3 Findings must feed into the risk register and continual improvement cycle. Sector-programme log anomalies (for example, BASC-related log anomalies where the organization participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex for sector-programme audit follow-up; see [`compliance/`](../compliance/).
 
 ### 9. Automation and AI integration
 

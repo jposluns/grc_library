@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-06-22\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organisation. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
+This framework defines the documentation and transparency requirements for all AI systems deployed or developed by the organization. It establishes minimum standards for model cards, AI Impact Assessments, training data records, and transparency disclosures, ensuring that AI systems are understandable, auditable, and accountable to stakeholders, regulators, and affected individuals.
 
 ---
 
@@ -62,7 +62,7 @@ Every AI system must have a current Model Card. Model Cards are living documents
 | **Bias and Fairness** | Fairness evaluation methodology and results; identified residual biases |
 | **Explainability** | Explainability method used; representative example explanations |
 | **Privacy** | Personal data processing summary; consent and legal basis if applicable |
-| **Risk Tier** | Organisational AI risk classification: Minimal / Limited / High / Unacceptable |
+| **Risk Tier** | Organizational AI risk classification: Minimal / Limited / High / Unacceptable |
 | **Owner** | Role title of AI System Owner |
 | **Version History** | Version, date, and summary of changes |
 
@@ -108,7 +108,7 @@ The AI System Inventory published by the GRC Programme Manager provides a summar
 
 ### 4.2 Affected individual transparency
 
-Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organisation must:
+Where an AI system makes or materially influences decisions affecting individuals (customers, employees, suppliers), the organization must:
 
 - Disclose that an AI system is involved in the decision.
 - Provide a plain-language explanation of the factors that influenced the outcome.

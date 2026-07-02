@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.4\
-**Date:** 2026-07-01\
+**Version:** 1.3.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -63,7 +63,7 @@ Access to the primary data centre server room and all IT equipment rooms is rest
 
 ## 6. Camera surveillance and NVR systems
 
-The organisation operates IP camera systems at office and data centre locations under IT Operations management.
+The organization operates IP camera systems at office and data centre locations under IT Operations management.
 
 | Control | Requirement |
 |---|---|

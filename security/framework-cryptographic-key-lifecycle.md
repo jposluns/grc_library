@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-06-29\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organisation's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24 to §8.28, BASC v6, and the WCO SAFE Framework.
+This framework establishes the strategic governance, lifecycle controls, and operational standards for managing cryptographic keys across the organization's IT, OT, cloud, and BASC-certified trade environments. It defines a unified structure for key generation, distribution, storage, rotation, revocation, and destruction, aligned with NIST SP 800-57, ISO/IEC 27002:2022 §8.24 to §8.28, BASC v6, and the WCO SAFE Framework.
 
 ---
 
@@ -86,13 +86,13 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who maintains trade-system key registrations and validates keys during BASC audits) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
 ## 5. Sector-programme cryptographic integration
 
-Where the organisation participates in a sector programme that imposes additional cryptographic requirements (for example, BASC and WCO SAFE for trade and customs systems requiring AES-256 with PQC hybrid encryption by 2027), the keys used for sector-programme communications must:
+Where the organization participates in a sector programme that imposes additional cryptographic requirements (for example, BASC and WCO SAFE for trade and customs systems requiring AES-256 with PQC hybrid encryption by 2027), the keys used for sector-programme communications must:
 
 - Be uniquely identifiable in the Key Lifecycle Register.
 - Have documented ownership by the sector-conditional role defined by the relevant sector annex (for example, a BASC Regional Compliance Officer for the BASC programme).
@@ -100,13 +100,13 @@ Where the organisation participates in a sector programme that imposes additiona
 - Be validated during sector-programme audits.
 - Have audit evidence retained for the period stated by the annex (default: 7 years).
 
-See [`compliance/`](../compliance/) for the sector annex applicable to the organisation's covered programmes.
+See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
 
 ---
 
 ## 6. Post-quantum cryptography transition
 
-In alignment with the Post-Quantum Cryptography Roadmap, the organisation must:
+In alignment with the Post-Quantum Cryptography Roadmap, the organization must:
 
 1. Inventory all cryptographic dependencies by 2025 (complete).
 2. Deploy PQC hybrid algorithms in new systems from 2026.

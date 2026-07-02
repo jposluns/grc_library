@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Record Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-26\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
@@ -64,7 +64,7 @@ The reviewer confirms each of the following or records a finding.
 | Accuracy | The technical and substantive content is correct |
 | Framework references | The framework references are accurate against current publishing-body materials |
 | Cross-references | The Related Documents links resolve and remain meaningful |
-| Sanitisation | No real organisation identifiers, real personnel names, internal system names, IP addresses, customer names, vendor names, or other sanitisation residue |
+| Sanitization | No real organization identifiers, real personnel names, internal system names, IP addresses, customer names, vendor names, or other sanitization residue |
 | Language and style | Oxford English `-ize` endings; no em or en dashes; "ensure that" rather than bare "ensure"; sentence case for H2-H6 headings |
 | Metadata correctness | All 13 metadata fields present and accurate |
 | Auto-generated artefact alignment | Taxonomy, portal, scorecard, and index alignment confirmed |
@@ -150,7 +150,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 | Accuracy | Confirmed |
 | Framework references | Finding: NIST SP 800-92 referenced; minor refresh required to align with the current revision number |
 | Cross-references | Confirmed |
-| Sanitisation | Confirmed |
+| Sanitization | Confirmed |
 | Language and style | Confirmed |
 | Metadata correctness | Confirmed |
 | Auto-generated artefact alignment | Confirmed |
@@ -191,7 +191,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. The specific layout, tooling, and storage location for review records are organisation-specific. The template expresses the minimum content and the cadence integration; adopting organisations adapt the surface form to their tooling.
+This template is a CC BY-SA 4.0 baseline. The specific layout, tooling, and storage location for review records are organization-specific. The template expresses the minimum content and the cadence integration; adopting organizations adapt the surface form to their tooling.
 
 ---
 

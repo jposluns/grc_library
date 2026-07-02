@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.0\
+**Version:** 1.8.1\
 **Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 2. Scope
 
-1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organisation and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+1. This standard applies to all business, operational, financial, security, privacy, AI, and technology risks managed within the organization and its subsidiaries. Sector-specific risk overlays (for example, BASC for trade and logistics operations) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 2. It covers both strategic and operational risk management activities across enterprise, project, and system levels.
 3. It applies to all employees, contractors, and third parties responsible for risk identification, analysis, reporting, or control execution.
 
@@ -38,7 +38,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 | Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that these risks are integrated into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
-| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
+| Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organization. |
 | Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, reports status per the cadence in §8, and validates risk assessments supporting exception requests (per [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2: confirms residual exposure stays within the enterprise risk appetite when an exception is requested). Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). Canonical role definition in [`governance/register-role-authority.md`](../governance/register-role-authority.md) §Authority register. |
 | Process and System Owners | Identify risks within their domains, implement controls, and report residual exposures. |
 | Internal Audit | Provides independent assurance on risk governance and control effectiveness. |
@@ -47,7 +47,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 4. Risk taxonomy
 
-The organisation maintains the following risk taxonomy: the twelve categories of the enterprise risk register's canonical Risk Category field ([`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)). Each category contains subcategories used to classify risks consistently in the risk register.
+The organization maintains the following risk taxonomy: the twelve categories of the enterprise risk register's canonical Risk Category field ([`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)). Each category contains subcategories used to classify risks consistently in the risk register.
 
 | Category | Example Subcategories |
 |---|---|
@@ -168,7 +168,7 @@ Each risk register entry must include the following fields.
 | Treatment Actions | Specific steps with owner and target date |
 | Treatment Status | Pending / In Progress / Complete. Workflow state of the Treatment Option's execution; independent of the Status field below |
 | Risk Owner | Accountable individual (role title) |
-| Status | Open / Closed. Risk-record lifecycle state. A risk is Open while it remains within the organisation's risk appetite considerations; a risk is Closed when no further treatment or monitoring action remains (e.g., the underlying activity has ceased, or the residual risk is accepted indefinitely under a documented acceptance). The Status field does NOT name the treatment outcome (which is captured by Treatment Option) or the treatment workflow state (Treatment Status above). |
+| Status | Open / Closed. Risk-record lifecycle state. A risk is Open while it remains within the organization's risk appetite considerations; a risk is Closed when no further treatment or monitoring action remains (e.g., the underlying activity has ceased, or the residual risk is accepted indefinitely under a documented acceptance). The Status field does NOT name the treatment outcome (which is captured by Treatment Option) or the treatment workflow state (Treatment Status above). |
 | Review Frequency | Monthly / Quarterly / Annually |
 | Last Reviewed | Date |
 | Next Review | Date |
@@ -263,7 +263,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 
 ## 11. Licence
 
-This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, the organisation waives all copyright and related rights to this document.
+This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, the organization waives all copyright and related rights to this document.
 
 ---
 

@@ -2,14 +2,14 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-06-22\
+**Version:** 0.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
 **Classification:** Public\
 **Category:** Compliance: Sector-Specific\
-**Review Frequency:** Annual and upon material FedRAMP baseline, OMB guidance, or authorisation status change\
+**Review Frequency:** Annual and upon material FedRAMP baseline, OMB guidance, or authorization status change\
 **Repository Path:** [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,39 +18,39 @@
 
 ## Purpose
 
-This annex describes how a cloud service provider seeking US Federal Risk and Authorization Management Program (FedRAMP) authorisation can use the core GRC library to demonstrate the control set, evidence, and operating expectations FedRAMP requires. The annex maps the library to FedRAMP baselines, identifies applicability triggers, describes the authorisation routes, and lists the supplementary documentation FedRAMP requires beyond the library's baseline.
+This annex describes how a cloud service provider seeking US Federal Risk and Authorization Management Program (FedRAMP) authorization can use the core GRC library to demonstrate the control set, evidence, and operating expectations FedRAMP requires. The annex maps the library to FedRAMP baselines, identifies applicability triggers, describes the authorization routes, and lists the supplementary documentation FedRAMP requires beyond the library's baseline.
 
-This annex does not reproduce FedRAMP control text, the FedRAMP Tailored guidance, or the assessment documentation templates. Adopting organisations consume those from the official FedRAMP source.
+This annex does not reproduce FedRAMP control text, the FedRAMP Tailored guidance, or the assessment documentation templates. Adopting organizations consume those from the official FedRAMP source.
 
 ---
 
 ## Applicability triggers
 
-The library is relevant to FedRAMP where the organisation:
+The library is relevant to FedRAMP where the organization:
 
 1. Sells or intends to sell a cloud service offering to a US federal agency.
-2. Operates as a cloud service provider for a federal contractor whose contract requires FedRAMP authorisation flow-down.
-3. Operates as a third-party assessment organisation (3PAO) supporting authorisation packages.
+2. Operates as a cloud service provider for a federal contractor whose contract requires FedRAMP authorization flow-down.
+3. Operates as a third-party assessment organization (3PAO) supporting authorization packages.
 4. Operates as a state, local, or tribal government provider whose buyer requires StateRAMP, TX-RAMP, or equivalent and relies on FedRAMP-equivalent controls.
 
-The library is not relevant where the organisation has no federal customer in pipeline and no contractual flow-down requirement.
+The library is not relevant where the organization has no federal customer in pipeline and no contractual flow-down requirement.
 
 ---
 
-## Authorisation route selection
+## Authorization route selection
 
 | Route | When to choose | Effort |
 | --- | --- | --- |
 | Joint Authorization Board (JAB) Provisional ATO (P-ATO) | High-impact services with broad agency demand; CSP can sustain continuous JAB engagement | Highest; finite annual slots |
 | Agency Authorization (A-ATO) | Specific agency sponsor identified; faster than JAB; package later submitted for agency-to-agency reuse | High |
 | FedRAMP Tailored | SaaS with limited impact and well-defined data scope (Low or Moderate); reduced control set | Lower |
-| FedRAMP Ready | Pre-authorisation marketplace listing; demonstrates a 3PAO-assessed control posture without an agency sponsor | Medium |
+| FedRAMP Ready | Pre-authorization marketplace listing; demonstrates a 3PAO-assessed control posture without an agency sponsor | Medium |
 
 ---
 
 ## Baseline selection
 
-FedRAMP baselines map to FIPS 199 system categorisation. Adopting organisations confirm the categorisation with their agency sponsor before selecting a baseline.
+FedRAMP baselines map to FIPS 199 system categorization. Adopting organizations confirm the categorization with their agency sponsor before selecting a baseline.
 
 | Baseline | Use case | Control count (approximate) |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ FedRAMP baselines map to FIPS 199 system categorisation. Adopting organisations 
 
 ## Library coverage and gaps
 
-The library provides architectural baselines that align with FedRAMP control families. Adopting organisations must implement and evidence the controls per the selected baseline; the library is not a substitute for the authorisation package.
+The library provides architectural baselines that align with FedRAMP control families. Adopting organizations must implement and evidence the controls per the selected baseline; the library is not a substitute for the authorization package.
 
 | FedRAMP control family | Library coverage |
 | --- | --- |
@@ -85,7 +85,7 @@ The library provides architectural baselines that align with FedRAMP control fam
 | SI System and Information Integrity | [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md), [`security/standard-data-loss-prevention.md`](../../security/standard-data-loss-prevention.md) |
 | SR Supply Chain Risk Management | [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) |
 
-Library gaps requiring additional documentation for a FedRAMP authorisation package:
+Library gaps requiring additional documentation for a FedRAMP authorization package:
 
 1. **System Security Plan (SSP).** FedRAMP requires an SSP using the FedRAMP template. The library provides architectural inputs; the SSP itself is a per-system artefact built outside the library.
 2. **Continuous Monitoring (ConMon) plan and monthly reporting.** FedRAMP requires monthly POA&M, vulnerability scan submission, and inventory updates.
@@ -100,7 +100,7 @@ Library gaps requiring additional documentation for a FedRAMP authorisation pack
 
 ## Operating expectations
 
-1. Each control implementation in the SSP references the relevant library artefact and any organisation-specific extension.
+1. Each control implementation in the SSP references the relevant library artefact and any organization-specific extension.
 2. ConMon submissions follow the FedRAMP-published cadence and template; the library's metrics and audit registers feed but do not replace the ConMon submission.
 3. Significant change requests follow the FedRAMP significant change process; the library's change management procedure is the operational input.
 4. Annual assessment by a 3PAO is scheduled; the assessment-evidence repository is structured around FedRAMP test cases, not library structure.
@@ -114,10 +114,10 @@ Library gaps requiring additional documentation for a FedRAMP authorisation pack
 | FedRAMP Baseline (Low, Moderate, High) | NIST SP 800-53 Rev. 5 + FedRAMP parameters | Primary control set |
 | FedRAMP Tailored | LI-SaaS Authorization Process | Tailored route |
 | NIST SP 800-53 Rev. 5 | Security and Privacy Controls | Underlying control catalogue |
-| NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorisation lifecycle |
+| NIST SP 800-37 Rev. 2 | Risk Management Framework | Authorization lifecycle |
 | NIST SP 800-171 / 800-172 | Protecting CUI | Where applicable |
 | OMB M-22-09 | Federal Zero Trust Strategy | Architectural direction |
-| FIPS 199 | Standards for Security Categorization | Categorisation prerequisite |
+| FIPS 199 | Standards for Security Categorization | Categorization prerequisite |
 | FIPS 200 | Minimum Security Requirements | Baseline prerequisite |
 | FIPS 140-3 / 140-2 | Cryptographic Module Validation | FIPS-validated cryptography |
 
@@ -125,7 +125,7 @@ Library gaps requiring additional documentation for a FedRAMP authorisation pack
 
 ## Limitations
 
-This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorisation requires the FedRAMP-mandated artefacts, a federal sponsor or marketplace listing, and engagement with a 3PAO; this library does not produce authorisation by itself. Adopting organisations consult the official FedRAMP programme documentation and engage a 3PAO before commencing authorisation work. This annex is not a substitute for FedRAMP programme guidance.
+This annex is a CC BY-SA 4.0 navigation aid. FedRAMP authorization requires the FedRAMP-mandated artefacts, a federal sponsor or marketplace listing, and engagement with a 3PAO; this library does not produce authorization by itself. Adopting organizations consult the official FedRAMP programme documentation and engage a 3PAO before commencing authorization work. This annex is not a substitute for FedRAMP programme guidance.
 
 ---
 

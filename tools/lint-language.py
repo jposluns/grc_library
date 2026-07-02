@@ -19,9 +19,19 @@ Checks for:
 
 - Em dashes and en dashes (not allowed; replace with hyphen, colon, or
   parentheses).
-- Commonwealth `-ise` endings used where Canadian `-ize` is preferred
-  (`ISE_PATTERN` enumerates the word list; the rule is the Canadian-
-  orthography form, not a generic American mandate).
+- Commonwealth `-ise` verb endings used where Canadian `-ize` is preferred
+  (`ISE_PATTERN` enumerates the stem list, including prefixed derivatives;
+  the rule is the Canadian-orthography form, not a generic American mandate).
+- Commonwealth `-isation` noun / adjective forms (`ISATION_PATTERN`, a
+  generic suffix match with the `ISATION_ALLOWED_WORDS` exclusion for the
+  tiny legitimate-in-every-dialect vocabulary such as `improvisation`).
+- Commonwealth `-yse` verb forms (`YSE_PATTERN`: analyse / analysed /
+  analysing; the noun plural `analyses` is correct in every dialect and is
+  not matched).
+- Verbatim quotes of external instruments and official proper names that
+  legitimately carry Commonwealth spellings are masked out of the three
+  spelling checks via `ALLOWED_COMMONWEALTH_SPANS` (the GDPR Article 25(1)
+  quote, the OECD's official name, the WP216 opinion title).
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
@@ -95,30 +105,83 @@ WORKED_EXAMPLE = "docs/worked-example.md"
 # (`-ised`), and present participle (`-ising`). The `-ises` form was added
 # 2026-06-30 (#480 /validate-pr finding: `recognises` and the other
 # third-person forms passed gate 2 because only three of the four inflections
-# were listed); keep all four present for any stem added later.
+# were listed); keep all four present for any stem added later. Prefixed
+# derivatives (unauthorised, unrecognised, reorganise, deprioritise, ...) are
+# enumerated as their own stems because the `\b(...)` construction does not
+# match a covered stem inside a prefixed word. Each stem also carries its
+# derivational forms: the -isable adjective and the -iser / -isers agent
+# nouns (a false-negative verifier on the 2026-07-02 harmonization sweep
+# found the derivational family escaping both the sweep and the gate). The
+# verb form "analyses" (vs the every-dialect noun plural of "analysis") is
+# grammar-ambiguous and deliberately NOT matched; it is caught editorially.
+_ISE_STEMS = (
+    "recognise", "organise", "prioritise", "categorise", "emphasise",
+    "harmonise", "standardise", "optimise", "centralise", "customise",
+    "finalise", "specialise", "utilise", "minimise", "maximise",
+    "criticise", "generalise", "operationalise",
+    # Stems added by the 2026-07-02 spelling-coverage extension:
+    "anonymise", "authorise", "capitalise", "characterise", "containerise",
+    "contextualise", "crystallise", "deprioritise", "deserialise",
+    "formalise", "internalise", "itemise", "localise", "materialise",
+    "mechanise", "memorise", "modernise", "monetise", "neutralise",
+    "normalise", "parameterise", "penalise", "personalise", "pseudonymise",
+    "quantise", "randomise", "realise", "reorganise", "sanitise",
+    "serialise", "stabilise", "summarise", "synchronise", "synthesise",
+    "tokenise", "unauthorise", "unrecognise", "unsanitise", "virtualise",
+    "weaponise",
+)
 ISE_PATTERN = re.compile(
-    r"\b("
-    r"recognise|recognises|recognised|recognising|"
-    r"organise|organises|organised|organising|"
-    r"prioritise|prioritises|prioritised|prioritising|"
-    r"categorise|categorises|categorised|categorising|"
-    r"emphasise|emphasises|emphasised|emphasising|"
-    r"harmonise|harmonises|harmonised|harmonising|"
-    r"standardise|standardises|standardised|standardising|"
-    r"optimise|optimises|optimised|optimising|"
-    r"centralise|centralises|centralised|centralising|"
-    r"customise|customises|customised|customising|"
-    r"finalise|finalises|finalised|finalising|"
-    r"specialise|specialises|specialised|specialising|"
-    r"utilise|utilises|utilised|utilising|"
-    r"minimise|minimises|minimised|minimising|"
-    r"maximise|maximises|maximised|maximising|"
-    r"criticise|criticises|criticised|criticising|"
-    r"generalise|generalises|generalised|generalising|"
-    r"operationalise|operationalises|operationalised|operationalising"
-    r")\b",
+    r"\b(" + "|".join(
+        f"{stem}|{stem}s|{stem}d|{stem[:-1]}ing|{stem[:-1]}able|{stem}r|{stem}rs"
+        for stem in _ISE_STEMS
+    ) + r")\b",
     re.IGNORECASE,
 )
+
+# Commonwealth `-isation` noun / adjective forms (organisation, authorisation,
+# pseudonymisation, organisational, ...). Unlike ISE_PATTERN's enumerated verb
+# stems, the noun check is a generic suffix match with a small allowed-words
+# exclusion, because the legitimate-in-every-dialect `-isation` vocabulary is
+# tiny (improvisation) while the Commonwealth-noun vocabulary is open-ended.
+ISATION_PATTERN = re.compile(r"\b[A-Za-z][a-z]*isation(s|al|ally)?\b", re.IGNORECASE)
+ISATION_ALLOWED_WORDS = frozenset({
+    "improvisation", "improvisations", "improvisational", "improvisationally",
+})
+
+# Commonwealth `-yse` verb forms and agent nouns (Canadian is `analyze` /
+# `analyzer`). The noun plural `analyses` (of `analysis`) is deliberately NOT
+# matched: it is correct in every dialect and indistinguishable from the
+# verb's third-person form only by grammar, so the pattern lists the
+# unambiguous inflections.
+YSE_PATTERN = re.compile(r"\b(analyse|analysed|analysing|analyser|analysers)\b", re.IGNORECASE)
+
+# Verbatim spans that legitimately carry Commonwealth spellings and are masked
+# out of a line before the three spelling checks run (dash / ensure / heading
+# checks are unaffected). Three classes, each an exact substring: the GDPR
+# Article 25(1) official-text quote (the EU Official Journal English text
+# spells "organisational measures ... pseudonymisation ... minimisation"), the
+# OECD's official English name, and the Article 29 Working Party opinion's
+# official title. Add a span here ONLY for a verbatim quote of an external
+# instrument or an official proper name, never for ordinary prose.
+ALLOWED_COMMONWEALTH_SPANS = (
+    "implement appropriate technical and organisational measures, such as "
+    "pseudonymisation, which are designed to implement data-protection "
+    "principles, such as data minimisation, in an effective manner",
+    "Organisation for Economic Co-operation and Development",
+    "Opinion 05/2014 on Anonymisation Techniques",
+    # The EU / UK customs programme's official English name (maintainer
+    # decision 2026-07-02: proper-noun fidelity where the programme is
+    # named; the generic WCO SAFE concept elsewhere uses the corpus -ize).
+    "Authorised Economic Operator",
+)
+
+
+def mask_allowed_spans(line: str) -> str:
+    """Blank out ALLOWED_COMMONWEALTH_SPANS so the spelling checks skip them."""
+    for span in ALLOWED_COMMONWEALTH_SPANS:
+        if span in line:
+            line = line.replace(span, " " * len(span))
+    return line
 
 EM_DASH_PATTERN = re.compile(r"[—–]")  # em dash or en dash
 ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
@@ -218,8 +281,14 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
         if EM_DASH_PATTERN.search(line):
             findings.append(("dash", lineno, line.strip()))
 
-        for m in ISE_PATTERN.finditer(line):
+        spelling_line = mask_allowed_spans(line)
+        for m in ISE_PATTERN.finditer(spelling_line):
             findings.append(("ise", lineno, m.group(0)))
+        for m in ISATION_PATTERN.finditer(spelling_line):
+            if m.group(0).lower() not in ISATION_ALLOWED_WORDS:
+                findings.append(("isation", lineno, m.group(0)))
+        for m in YSE_PATTERN.finditer(spelling_line):
+            findings.append(("yse", lineno, m.group(0)))
 
         # Skip the specs', the AI ingestion instruction's, and the document review
         # record template's own self-referential rule statements about "ensure that".
@@ -294,8 +363,14 @@ def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
         lineno = getattr(node, "lineno", 0)
         if EM_DASH_PATTERN.search(value):
             findings.append(("dash", lineno, value.strip()[:160]))
-        for m in ISE_PATTERN.finditer(value):
+        masked_value = mask_allowed_spans(value)
+        for m in ISE_PATTERN.finditer(masked_value):
             findings.append(("ise", lineno, m.group(0)))
+        for m in ISATION_PATTERN.finditer(masked_value):
+            if m.group(0).lower() not in ISATION_ALLOWED_WORDS:
+                findings.append(("isation", lineno, m.group(0)))
+        for m in YSE_PATTERN.finditer(masked_value):
+            findings.append(("yse", lineno, m.group(0)))
         if ENSURE_PATTERN.search(value):
             findings.append(("ensure", lineno, value.strip()[:160]))
     return findings

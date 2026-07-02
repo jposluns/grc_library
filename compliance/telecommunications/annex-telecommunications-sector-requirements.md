@@ -2,8 +2,8 @@
 
 **Document Title:** Telecommunications Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-06-20\
+**Version:** 0.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex identifies the overlay obligations that apply when the organisation operates a public electronic communications network or service, or provides services that depend on one. It covers network security, lawful interception, data retention, emergency calling and resilience, vendor and supply-chain restrictions, customer privacy under sector-specific rules, and number- and addressing-resource obligations.
+This annex identifies the overlay obligations that apply when the organization operates a public electronic communications network or service, or provides services that depend on one. It covers network security, lawful interception, data retention, emergency calling and resilience, vendor and supply-chain restrictions, customer privacy under sector-specific rules, and number- and addressing-resource obligations.
 
 This annex does not reproduce national licence conditions or regulator-published guidance. Adopting entities consume those from the national regulator (Ofcom in the UK, BNetzA in Germany, ACMA in Australia, FCC in the US, CRTC in Canada, ARCEP in France, AGCOM in Italy, equivalents elsewhere).
 
@@ -26,7 +26,7 @@ This annex does not reproduce national licence conditions or regulator-published
 
 ## Applicability triggers
 
-This annex applies where the organisation:
+This annex applies where the organization:
 
 1. Holds a telecoms licence or registration as a public electronic communications network or service provider.
 2. Provides interpersonal communications services (number-based or number-independent).
@@ -82,7 +82,7 @@ Many jurisdictions impose specific telecoms-data-retention rules that overlay ge
 | Obligation | Library support |
 | --- | --- |
 | Retain defined categories of communications metadata for the statutory period | [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) provides the structure; the telecoms schedule is added as an overlay |
-| Restrict access to retained data to authorised purposes | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
+| Restrict access to retained data to authorized purposes | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md) |
 | Destroy after the statutory period | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) |
 | Provide statistics to the regulator | Per the regulator template |
 

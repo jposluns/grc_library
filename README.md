@@ -4,20 +4,20 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.57 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.418 (semantic per-document version for this file)
+**Library Version:** 2026.07.58 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.419 (semantic per-document version for this file)
 
 ---
 
 ## New to GRC? Start here
 
-**GRC** stands for **Governance, Risk, and Compliance**: three interlocking disciplines an organisation uses to align its activities with strategy, manage uncertainty, and meet legal, regulatory, and contractual obligations.
+**GRC** stands for **Governance, Risk, and Compliance**: three interlocking disciplines an organization uses to align its activities with strategy, manage uncertainty, and meet legal, regulatory, and contractual obligations.
 
 - **Governance** establishes who decides, who is accountable, and how decisions are made. Charters, policies, role registers, and approval-authority models are governance artefacts.
-- **Risk management** identifies, evaluates, and treats threats to the organisation's objectives. Risk registers, treatment plans, and acceptance records are risk artefacts.
-- **Compliance** ensures that the organisation meets external obligations (laws, regulations, standards, contracts) and internal policy. Obligation registers, control mappings, and audit-evidence packages are compliance artefacts.
+- **Risk management** identifies, evaluates, and treats threats to the organization's objectives. Risk registers, treatment plans, and acceptance records are risk artefacts.
+- **Compliance** ensures that the organization meets external obligations (laws, regulations, standards, contracts) and internal policy. Obligation registers, control mappings, and audit-evidence packages are compliance artefacts.
 
-In modern programmes the boundaries between the three overlap with **security** (protecting information and systems), **privacy** (handling personal data lawfully), **resilience** (continuing operations under disruption), **supplier/third-party governance** (managing risk that originates outside the organisation), and **AI governance** (managing the risk introduced by AI systems). This library treats all of those as sibling domains under the GRC umbrella because organisations operate them together.
+In modern programmes the boundaries between the three overlap with **security** (protecting information and systems), **privacy** (handling personal data lawfully), **resilience** (continuing operations under disruption), **supplier/third-party governance** (managing risk that originates outside the organization), and **AI governance** (managing the risk introduced by AI systems). This library treats all of those as sibling domains under the GRC umbrella because organizations operate them together.
 
 **This README orients first-time readers and contributors to the library as a whole.** Most adopters do not need to read it end-to-end. If you already know what you are here for, the canonical adopter entry is [`docs/portal.md`](docs/portal.md), which routes by role and intent:
 
@@ -33,9 +33,9 @@ In modern programmes the boundaries between the three overlap with **security** 
 
 ## Purpose
 
-The Governance, Risk, and Compliance Documentation Library is a Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) reference set for building an organisation-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
+The Governance, Risk, and Compliance Documentation Library is a Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) reference set for building an organization-neutral governance, risk, compliance, security, privacy, resilience, supplier, and artificial intelligence governance programme.
 
-The library is designed to be adopted, adapted, or extended by any organisation without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
+The library is designed to be adopted, adapted, or extended by any organization without retaining references to a specific company, individual, internal system, customer, vendor, geography, or operating environment.
 
 The repository provides reusable artefacts across the following thematic areas:
 
@@ -47,13 +47,13 @@ The repository provides reusable artefacts across the following thematic areas:
 - Supplier, third-party, cloud, and supply-chain governance.
 - Cross-framework mapping, regulatory applicability analysis, and metrics.
 
-The seven thematic areas above span 11 governance domain directories, and the library grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organisations operating in those sectors or participating in covered programmes.
+The seven thematic areas above span 11 governance domain directories, and the library grows by routine PR cadence; the current document inventory is machine-generated on every change and lives in [`taxonomy.yml`](taxonomy.yml) (one row per active artefact with canonical metadata). For an audience-keyed view of the same inventory, see [`docs/portal.md`](docs/portal.md). The `compliance/` domain hosts sector-conditional sub-directories ([`compliance/logistics/`](compliance/logistics/), [`compliance/financial-services/`](compliance/financial-services/), [`compliance/healthcare/`](compliance/healthcare/), and others) for organizations operating in those sectors or participating in covered programmes.
 
 ---
 
 ## What this repository is
 
-This repository is, primarily, a **GRC documentation corpus**: organisation-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the eleven domains listed above. The corpus is the product an adopter takes away.
+This repository is, primarily, a **GRC documentation corpus**: organization-neutral, CC BY-SA 4.0 governance artefacts (charters, frameworks, policies, standards, procedures, registers, matrices, plans, guidelines, templates) across the eleven domains listed above. The corpus is the product an adopter takes away.
 
 The corpus is maintained by a small team using Claude Code as an AI coding assistant, under documented governance and discipline. To keep the corpus internally consistent under that maintenance model, the project carries an audit toolchain ([`tools/`](tools/), the multi-gate audit programme under [`tools/run_all_audits.sh`](tools/run_all_audits.sh)) and a Claude Code rules-and-skills pack at [`dev-security/claude-rules/`](dev-security/claude-rules/). The audit toolchain is the maintainer's quality-assurance machinery, not an adopter dependency: adopters who only consume the corpus do not need it. Adopters who want the same maintenance discipline for their own fork can adopt the toolchain (it is permissively licensed and copy-paste portable), but doing so is optional. The pack distils the maintenance disciplines into reusable rules that ship under CC BY-SA 4.0 alongside the corpus: an adopter who is not building a GRC library can still take the pack for use on any project. The pack is a by-product of the corpus's maintenance, not a parallel deliverable.
 
@@ -63,7 +63,7 @@ The audit gates and the pack rules grew out of the corpus, not the other way aro
 
 An adopter can engage with this repository at any of three levels:
 
-- **Fork the whole repo.** You want both the GRC corpus and the maintenance toolkit. Your organisation forks, substitutes organisation-specific values across the artefacts, and inherits the audit programme and the pack as the operational layer your AI coding assistant uses to keep the corpus consistent. See [`docs/adopter-guide.md`](docs/adopter-guide.md) for the full path.
+- **Fork the whole repo.** You want both the GRC corpus and the maintenance toolkit. Your organization forks, substitutes organization-specific values across the artefacts, and inherits the audit programme and the pack as the operational layer your AI coding assistant uses to keep the corpus consistent. See [`docs/adopter-guide.md`](docs/adopter-guide.md) for the full path.
 
 - **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`dev-security/claude-rules/`](dev-security/claude-rules/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
@@ -79,9 +79,9 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
-3. **Copy and adapt.** All content is CC BY-SA 4.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organisation-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
+3. **Copy and adapt.** All content is CC BY-SA 4.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
 
-4. **Validate applicability.** Not every document applies to every organisation. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
+4. **Validate applicability.** Not every document applies to every organization. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
 
 5. **Review the contribution and authoring specifications.** If extending or maintaining the library, see the root-level specification files described in the section below.
 
@@ -91,7 +91,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 This repository is intended to become an authoritative CC BY-SA 4.0 GRC library. Authoritative means that the repository maintains a coherent hierarchy, controlled document model, versioned artefacts, role-based accountability, traceable mappings, and clear boundaries between original library content and external reference materials.
 
-This repository is not legal advice, audit certification, regulatory approval, or a substitute for organisation-specific risk acceptance. Adopting organisations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
+This repository is not legal advice, audit certification, regulatory approval, or a substitute for organization-specific risk acceptance. Adopting organizations must validate applicability, control implementation, and evidence against their own jurisdiction, sector, contractual obligations, processing role, threat model, and risk appetite.
 
 ---
 
@@ -139,7 +139,7 @@ Documents are organized by primary governance domain.
 
 ```
 
-Sector-specific content (financial-services, healthcare, energy-and-utilities, telecommunications, public-sector, logistics) lives under the `compliance/` domain as subdirectories rather than under a separate `/sectors` top-level directory. Sector content is conditional and can be omitted by organisations outside the relevant programme.
+Sector-specific content (financial-services, healthcare, energy-and-utilities, telecommunications, public-sector, logistics) lives under the `compliance/` domain as subdirectories rather than under a separate `/sectors` top-level directory. Sector content is conditional and can be omitted by organizations outside the relevant programme.
 
 
 Repository infrastructure directories (not used for governance artefacts):
@@ -200,8 +200,8 @@ Additional repository hygiene files:
 | --- | --- |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution workflow, metadata block requirements, style rules, filename rules, and review path. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Phase-level history of repository changes. |
-| [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, licence concerns, organisation or personal data leakage, and tooling defects. |
-| [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organisation. |
+| [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, licence concerns, organization or personal data leakage, and tooling defects. |
+| [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organization. |
 | [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a library-compliant artefact. |
 | [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
 | [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) | Auto-generated per-document maturity classification (Mature, Baseline, Draft). |
@@ -337,7 +337,7 @@ Mappings must distinguish between:
 - Architectural recommendation.
 - Optional assurance evidence.
 
-Mappings must not imply certification, compliance, conformity, regulatory approval, or operating effectiveness unless the adopting organisation has implemented controls, retained evidence, assigned accountable owners, completed review, and accepted residual risk.
+Mappings must not imply certification, compliance, conformity, regulatory approval, or operating effectiveness unless the adopting organization has implemented controls, retained evidence, assigned accountable owners, completed review, and accepted residual risk.
 
 ---
 
@@ -355,7 +355,7 @@ The developer security domain (`/dev-security/`) addresses AI coding assistant s
 
 Contributions must satisfy the following conditions:
 
-1. Content must be original, CC BY-SA 4.0-licensable, and organisation-neutral.
+1. Content must be original, CC BY-SA 4.0-licensable, and organization-neutral.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
 3. Third-party materials may be used only for non-verbatim reference. The library does not copy externally licensed content; it references and synthesizes.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.

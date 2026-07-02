@@ -2,14 +2,14 @@
 
 **Document Title:** Google Cloud Platform Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-07-01\
+**Version:** 0.0.8\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
 **Classification:** Public\
 **Category:** Developer Security\
-**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organisational use of new service classes\
+**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organizational use of new service classes\
 **Repository Path:** [`dev-security/standard-cloud-hardening-baseline-gcp.md`](standard-cloud-hardening-baseline-gcp.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the hardening baseline for Google Cloud Platform environments operated by or on behalf of the organisation. It expresses outcomes and control intent in vendor-neutral language and references GCP service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
+This standard defines the hardening baseline for Google Cloud Platform environments operated by or on behalf of the organization. It expresses outcomes and control intent in vendor-neutral language and references GCP service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
 
 ---
 
@@ -26,37 +26,37 @@ This standard defines the hardening baseline for Google Cloud Platform environme
 
 This standard applies to:
 
-1. GCP organisation, folder, and project structures owned by the organisation.
-2. Landing-zone and Cloud Foundation Toolkit constructs used to host organisational workloads.
-3. Workloads operated by the organisation in GCP, regardless of whether the workload itself is open source or proprietary.
+1. GCP organization, folder, and project structures owned by the organization.
+2. Landing-zone and Cloud Foundation Toolkit constructs used to host organizational workloads.
+3. Workloads operated by the organization in GCP, regardless of whether the workload itself is open source or proprietary.
 4. GCP infrastructure-as-code that provisions or configures the above.
 
 It does not cover the contractual relationship with the provider, which is governed by the supplier security and privacy assurance standard.
 
 ### 2.1 Scope boundary with the operations cloud configuration baseline
 
-This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organisation/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
+This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organization/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
 
 ---
 
 ## 3. Baseline alignment
 
-The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and to the Google Cloud Architecture Framework security pillar without reproducing benchmark content verbatim. Adopting organisations confirm current versions of those baselines at each review.
+The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and to the Google Cloud Architecture Framework security pillar without reproducing benchmark content verbatim. Adopting organizations confirm current versions of those baselines at each review.
 
 ---
 
-## 4. Organisation, folder, and identity
+## 4. Organization, folder, and identity
 
 | Control area | Requirement |
 | --- | --- |
-| Resource hierarchy | Organisation, folders, and projects separate workloads, environments, and trust tiers; landing-zone topology applied |
+| Resource hierarchy | Organization, folders, and projects separate workloads, environments, and trust tiers; landing-zone topology applied |
 | Project ownership | Each project has a documented owner, environment label, and purpose |
-| Identity provider | Google Workspace or federated IdP is the source of identity; consumer Google accounts not used for organisational workloads |
+| Identity provider | Google Workspace or federated IdP is the source of identity; consumer Google accounts not used for organizational workloads |
 | Super administrator accounts | Super administrators minimized; break-glass accounts separated, multi-factor protected, and monitored |
 | IAM model | Least privilege; primitive roles (Owner, Editor, Viewer) avoided on production; predefined and custom roles preferred |
 | Service accounts | Per-workload service accounts; default service accounts not used; service-account keys avoided in favour of workload identity, identity federation, or impersonation |
 | Privilege elevation | Just-in-time access requested through Privileged Access Manager or equivalent; standing privileged assignments minimized |
-| OAuth consent | Internal-only consent screen for organisational applications; external consent reviewed |
+| OAuth consent | Internal-only consent screen for organizational applications; external consent reviewed |
 
 ---
 
@@ -64,13 +64,13 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 | Control area | Requirement |
 | --- | --- |
-| Cloud Audit Logs | Admin Activity, Data Access, System Event, and Policy Denied logs enabled organisation-wide and forwarded to a central, write-once destination |
+| Cloud Audit Logs | Admin Activity, Data Access, System Event, and Policy Denied logs enabled organization-wide and forwarded to a central, write-once destination |
 | Data Access logs | Enabled selectively for sensitive resources, balancing cost and visibility |
-| Sink configuration | Aggregated sinks at the organisation level route logs to the central destination |
+| Sink configuration | Aggregated sinks at the organization level route logs to the central destination |
 | Log retention | Retention aligned to the logging standard; immutable copies as required |
-| Security Command Center | Premium or Enterprise tier enabled organisation-wide; findings forwarded to the SOC ticketing scheme |
+| Security Command Center | Premium or Enterprise tier enabled organization-wide; findings forwarded to the SOC ticketing scheme |
 | Network telemetry | VPC Flow Logs enabled where the cost-benefit profile justifies |
-| Configuration recording | Organisation Policy and Asset Inventory used to evaluate continuous compliance |
+| Configuration recording | Organization Policy and Asset Inventory used to evaluate continuous compliance |
 
 ---
 
@@ -78,12 +78,12 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 | Control area | Requirement |
 | --- | --- |
-| Organisation Policy | Constraints enforce allowed services, regions, locations, and dangerous-action restrictions at the organisation level |
+| Organization Policy | Constraints enforce allowed services, regions, locations, and dangerous-action restrictions at the organization level |
 | Region restriction | Workloads constrained to approved regions matching the data residency profile |
 | VPC Service Controls | Service perimeters protect sensitive data services from data exfiltration |
 | Public IP restriction | Public IPs restricted on VMs and managed services where supported |
 | External access | External IAM grants restricted via domain-restricted-sharing policy |
-| Prevention of detective-control tampering | Modification or disablement of audit logs, organisation policy, or Security Command Center restricted at the organisation level |
+| Prevention of detective-control tampering | Modification or disablement of audit logs, organization policy, or Security Command Center restricted at the organization level |
 | Default network removal | Default network deleted; project-specific networks provisioned |
 
 ---
@@ -94,8 +94,8 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 | --- | --- |
 | Shared VPC | Shared VPC used for centralized network governance where applicable |
 | Network segmentation | Workloads placed in subnets aligned with their trust tier |
-| Firewall rules | Least privilege; no 0.0.0.0/0 inbound for administrative ports; hierarchical firewall policies enforce organisation-wide rules |
-| Private Google Access | Private Google Access and Private Service Connect used where supported; data does not traverse the public internet between organisational components |
+| Firewall rules | Least privilege; no 0.0.0.0/0 inbound for administrative ports; hierarchical firewall policies enforce organization-wide rules |
+| Private Google Access | Private Google Access and Private Service Connect used where supported; data does not traverse the public internet between organizational components |
 | Cross-region connectivity | Cloud Interconnect, HA VPN, or peering configurations documented and reviewed |
 | DNS hygiene | Private DNS zones used internally; DNS logging where the cost-benefit profile justifies |
 | Edge protection | Cloud Armor and Cloud CDN configured for internet-facing services; rate limiting tuned per the API security standard |
@@ -163,7 +163,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 | Control area | Requirement |
 | --- | --- |
 | Threat detection | Security Command Center Premium or Enterprise tier with Threat Detection, Container Threat Detection, and Event Threat Detection enabled |
-| SIEM integration | Findings exported to the organisation's SIEM via Pub/Sub or direct sink |
+| SIEM integration | Findings exported to the organization's SIEM via Pub/Sub or direct sink |
 | Alerting | Critical findings route to the SOC ticketing scheme; on-call paged where required |
 | Response automation | Pre-approved playbooks; automation accountability separated from response decision |
 | Forensic readiness | Snapshot and isolation capabilities tested; chain-of-custody documented per the incident response procedure |
@@ -189,7 +189,7 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 | Control area | Requirement |
 | --- | --- |
 | Mandatory labels | Owner, environment, data classification, application, cost-centre |
-| Label enforcement | Provisioning gated on mandatory labels; non-compliant resources flagged via Organisation Policy |
+| Label enforcement | Provisioning gated on mandatory labels; non-compliant resources flagged via Organization Policy |
 | Inventory | Cloud Asset Inventory queries reconcile inventory with the configuration management database |
 | Stale-resource cleanup | Unused resources identified and decommissioned; orphaned IAM bindings, firewall rules, and storage reviewed regularly |
 
@@ -211,16 +211,16 @@ The standard aligns to the CIS Google Cloud Platform Foundations Benchmark and t
 
 | Control area | Requirement |
 | --- | --- |
-| Organisation compromise playbook | Documented; tested; includes credential revocation, IAM rollback, snapshot, isolation, and forensic preservation |
+| Organization compromise playbook | Documented; tested; includes credential revocation, IAM rollback, snapshot, isolation, and forensic preservation |
 | Region failover | Tested per the business continuity strategy where regional resilience is required |
-| Provider incident channel | Subscribed; Personalised Service Health and Security Command Center signals routed to the SOC ticketing scheme |
+| Provider incident channel | Subscribed; Personalized Service Health and Security Command Center signals routed to the SOC ticketing scheme |
 | Tabletop exercises | At least annually; covers loss of identity plane, data exfiltration, and credential compromise |
 
 ---
 
 ## 17. Operating expectations
 
-1. Baseline coverage is verified continuously through Organisation Policy compliance and Security Command Center posture signals.
+1. Baseline coverage is verified continuously through Organization Policy compliance and Security Command Center posture signals.
 2. Deviations are tracked as exceptions with risk acceptance recorded per the security exceptions process.
 3. New GCP services are reviewed before adoption against the baseline and against the supplier security and privacy assurance standard.
 4. Annual review aligns the baseline with the current CIS benchmark and Google Cloud Architecture Framework guidance.

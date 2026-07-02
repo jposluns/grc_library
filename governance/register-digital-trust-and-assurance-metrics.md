@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-06-24\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines reusable metric categories for evaluating governance maturity, control coverage, resilience, data protection, supplier assurance, and artificial intelligence governance. Metrics are original, organisation-neutral, and do not reproduce restricted third-party metrics catalogues.
+This register defines reusable metric categories for evaluating governance maturity, control coverage, resilience, data protection, supplier assurance, and artificial intelligence governance. Metrics are original, organization-neutral, and do not reproduce restricted third-party metrics catalogues.
 
 ---
 

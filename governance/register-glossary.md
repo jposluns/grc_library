@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.5\
-**Date:** 2026-06-30\
+**Version:** 1.4.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -20,7 +20,7 @@
 
 This register resolves the **acronyms and external-domain terms** used throughout the GRC Documentation Library, primarily standards, regulations, frameworks, regulators, sector programmes, and well-known technical concepts. Where a term has a primary canonical document in the library, that document is cited.
 
-The glossary is the single source of truth for acronym expansion. New documents should use a term's first occurrence to introduce the acronym (e.g., "Authorised Economic Operator (AEO)"), then use the acronym thereafter. The expansion shown here is the canonical form.
+The glossary is the single source of truth for acronym expansion. New documents should use a term's first occurrence to introduce the acronym (e.g., "Authorized Economic Operator (AEO)"), then use the acronym thereafter. The expansion shown here is the canonical form.
 
 ### Scope distinction
 
@@ -46,7 +46,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | Term | Expansion / definition |
 | --- | --- |
 | **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
-| **AEO** | Authorised Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
+| **AEO** | Authorized Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
 | **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; would require reintroduction). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
@@ -105,7 +105,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **DORA** | Digital Operational Resilience Act (EU). Financial-services regulation. See [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md). |
 | **DPA** | Data Processing Agreement. |
 | **DPIA** | Data Protection Impact Assessment (GDPR Art 35). |
-| **DPO** | Data Protection Officer. Canonical privacy-lead role in the library, following the statutorily-mandated title in GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA (as amended), and similar regimes. See [`register-role-authority.md`](register-role-authority.md) for the role definition and adopter-customisation guidance. The North American variant "Chief Privacy Officer (CPO)" is an acceptable adopter substitution; some adopters maintain both DPO and CPO as distinct roles. |
+| **DPO** | Data Protection Officer. Canonical privacy-lead role in the library, following the statutorily-mandated title in GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA (as amended), and similar regimes. See [`register-role-authority.md`](register-role-authority.md) for the role definition and adopter-customization guidance. The North American variant "Chief Privacy Officer (CPO)" is an acceptable adopter substitution; some adopters maintain both DPO and CPO as distinct roles. |
 | **DR** | Disaster Recovery. |
 | **DSAR** | Data Subject Access Request. |
 | **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. Used interchangeably with DCS in CCM v4.1. |
@@ -130,7 +130,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **FedRAMP** | Federal Risk and Authorization Management Program. U.S. federal cloud-service authorisation. See [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md). |
+| **FedRAMP** | Federal Risk and Authorization Management Program. U.S. federal cloud-service authorization. See [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md). |
 | **FERC** | Federal Energy Regulatory Commission (U.S.). |
 | **FMCSA** | Federal Motor Carrier Safety Administration (U.S.). |
 | **FSA** | Financial Services Agency (Japan). |
@@ -348,7 +348,7 @@ Terms used by the library to classify its own artefacts.
 | **Guideline** | A doctype expressing recommended (non-mandatory) practice. Uses "should" rather than "must". |
 | **Matrix** | A doctype mapping artefacts to external frameworks or to each other. |
 | **Plan** | A doctype defining a sequence of activities, milestones, or recovery steps for a specific scenario. |
-| **Policy** | A doctype expressing organisational position. Mandatory. Uses "must". |
+| **Policy** | A doctype expressing organizational position. Mandatory. Uses "must". |
 | **Procedure** | A doctype defining an operational sequence of activities. |
 | **Register** | A doctype maintaining a running record (inventory, list, index). |
 | **Roadmap** | A doctype defining time-sequenced milestones for a programme. |

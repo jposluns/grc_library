@@ -2,8 +2,8 @@
 
 **Document Title:** Integration Architecture Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-07-01\
+**Version:** 0.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md)\
@@ -27,7 +27,7 @@ This standard governs the architecture of system-to-system integration: the patt
 This standard applies to:
 
 1. Integration between internal services, products, and platforms.
-2. Integration between the organisation and customers, suppliers, partners, and regulators.
+2. Integration between the organization and customers, suppliers, partners, and regulators.
 3. Integration with AI providers and AI-bearing systems.
 4. Bulk data movement between systems.
 5. Event-driven communication.
@@ -77,10 +77,10 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 | Class | Description |
 | --- | --- |
-| Internal high-volume | Between organisational services in the same trust domain; volume is high; latency budget tight |
-| Internal cross-domain | Between organisational services in different trust domains |
+| Internal high-volume | Between organizational services in the same trust domain; volume is high; latency budget tight |
+| Internal cross-domain | Between organizational services in different trust domains |
 | Customer-facing | API or event published to customers |
-| Supplier-consumed | The organisation consumes a supplier's API or events |
+| Supplier-consumed | The organization consumes a supplier's API or events |
 | Partner | Bidirectional; governed by a bilateral agreement |
 | Public | Public APIs or feeds |
 | Regulator | Mandatory regulatory submissions or feeds |
@@ -279,7 +279,7 @@ The choice is recorded as an ADR for material integrations and informed by the i
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Integration platform choices and per-pattern implementation details are organisation-specific. The standard expresses outcomes and pattern selection criteria, not specific commercial products.
+This standard is a CC BY-SA 4.0 baseline. Integration platform choices and per-pattern implementation details are organization-specific. The standard expresses outcomes and pattern selection criteria, not specific commercial products.
 
 ---
 

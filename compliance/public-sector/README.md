@@ -2,8 +2,8 @@
 
 **Document Title:** Public Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,19 +18,19 @@
 
 ## Purpose
 
-This directory contains public-sector compliance content of the library: sector-wide regulatory requirements that apply to government agencies, public bodies, and private organisations serving the public sector (for example, cloud-service providers to federal agencies under FedRAMP).
+This directory contains public-sector compliance content of the library: sector-wide regulatory requirements that apply to government agencies, public bodies, and private organizations serving the public sector (for example, cloud-service providers to federal agencies under FedRAMP).
 
-Content here is sector-conditional. Organisations outside the public sector and not providing services to the public sector can omit this directory entirely without affecting the rest of the library's coherence.
+Content here is sector-conditional. Organizations outside the public sector and not providing services to the public sector can omit this directory entirely without affecting the rest of the library's coherence.
 
 ---
 
 ## Applicability
 
-This directory applies to organisations operating as any of the following:
+This directory applies to organizations operating as any of the following:
 
 - Government agencies and public bodies at any level (federal, national, regional, local).
 - State-owned enterprises and public-sector corporations.
-- Cloud-service providers offering services to government agencies (FedRAMP authorisation, equivalent authorisations).
+- Cloud-service providers offering services to government agencies (FedRAMP authorization, equivalent authorizations).
 - Service providers and contractors to government agencies in scope of public-sector procurement and cyber-hygiene requirements.
 
 ---
@@ -46,19 +46,19 @@ This directory applies to organisations operating as any of the following:
 
 ## Future-coverage placeholders
 
-Country-level public-sector overlays. Candidates for future addition include UK Government Cyber Security Strategy and GovAssure, EU eIDAS public-sector authentication, Canada IT Standards for federal departments, Australia ISM (Information Security Manual) and PSPF (Protective Security Policy Framework), and other jurisdiction-specific frameworks as adopting organisations require.
+Country-level public-sector overlays. Candidates for future addition include UK Government Cyber Security Strategy and GovAssure, EU eIDAS public-sector authentication, Canada IT Standards for federal departments, Australia ISM (Information Security Manual) and PSPF (Protective Security Policy Framework), and other jurisdiction-specific frameworks as adopting organizations require.
 
 ---
 
 ## Relationship to the main library
 
-The main library is sector-agnostic and applies to all adopting organisations. This directory's content extends but does not contradict the main library. Where a public-sector regulation requires specific control language, evidence formats, or operating cadences, the relevant annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a public-sector regulation requires specific control language, evidence formats, or operating cadences, the relevant annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
 
-Adopting organisations operating in the public sector or providing services to it consume:
+Adopting organizations operating in the public sector or providing services to it consume:
 
 1. The main library as the baseline.
 2. The public-sector overview annex ([`annex-public-sector-requirements.md`](annex-public-sector-requirements.md)) for sector-wide requirements.
-3. The regulation-specific annexes for the regulations the organisation is in scope for (for example, FedRAMP for US federal cloud providers).
+3. The regulation-specific annexes for the regulations the organization is in scope for (for example, FedRAMP for US federal cloud providers).
 
 ---
 

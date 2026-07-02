@@ -1,6 +1,6 @@
 ---
 name: library-fitness-review
-description: Trigger a comprehensive whole-corpus library-fitness review with ten persona reviewers when a governance/security documentation library undergoes a major change (new domain dir, new document type, multiple governance rule additions, major restructure) or quarterly minimum. Each invocation dispatches a fan-out of independent persona subagents (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer) who review every page from a fresh-reader perspective without inheriting maintainer mental models. Catches comprehensibility, usability, logical-structure, standardisation, governance/security quality, auditability, maintainability, and reader-experience gaps that per-PR validation sweeps and mechanical audit gates do not detect. Surfaces prioritized recommendations and a discrete remediation backlog the maintainer drives through subsequent PRs.
+description: Trigger a comprehensive whole-corpus library-fitness review with ten persona reviewers when a governance/security documentation library undergoes a major change (new domain dir, new document type, multiple governance rule additions, major restructure) or quarterly minimum. Each invocation dispatches a fan-out of independent persona subagents (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer) who review every page from a fresh-reader perspective without inheriting maintainer mental models. Catches comprehensibility, usability, logical-structure, standardization, governance/security quality, auditability, maintainability, and reader-experience gaps that per-PR validation sweeps and mechanical audit gates do not detect. Surfaces prioritized recommendations and a discrete remediation backlog the maintainer drives through subsequent PRs.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
@@ -37,7 +37,7 @@ Run `tools/run_all_audits.sh` (or the project's equivalent) standalone. The fitn
 
 ### 2. Identify scope and run ordinal
 
-The scope is **whole corpus** (every page reachable from the library's top-level index). Do not scope down except by explicit maintainer authorisation in the run's history-row Summary cell.
+The scope is **whole corpus** (every page reachable from the library's top-level index). Do not scope down except by explicit maintainer authorization in the run's history-row Summary cell.
 
 The run ordinal is the next `N` after the most recent entry in `.working/fitness-reviews/history.md`. Multiple runs in one calendar day increment `r1 → r2 → r3`.
 
@@ -63,21 +63,21 @@ The ten personas (project-specific catalogue in `.working/fitness-reviews/README
 9. **Privacy / data protection officer**, privacy-specific obligations; data subject rights, jurisdiction-aware, DPIA triggers, breach thresholds.
 10. **Newcomer / onboarding engineer**, zero-knowledge entry; jargon-free comprehension, navigation friction, minimum reading order.
 
-Dispatch all ten on every full run. Skipping a persona is the same class of discipline failure that the validation-sweep's Rule 5.6 names (dispatch declaration must be recorded; silent absence cannot be reconstructed). The only sanctioned exception is a maintainer-authorised scoped run recorded in the history-row Summary.
+Dispatch all ten on every full run. Skipping a persona is the same class of discipline failure that the validation-sweep's Rule 5.6 names (dispatch declaration must be recorded; silent absence cannot be reconstructed). The only sanctioned exception is a maintainer-authorized scoped run recorded in the history-row Summary.
 
-### 4. Synthesise findings
+### 4. Synthesize findings
 
 Apply a six-step synthesis rubric (mirrors the validation-sweep's synthesis discipline at a different scope):
 
-**4.1. Dedupe by `(file_path, normalised_section, claim_type)`**. Different personas may surface the same defect through different lenses (e.g., the executive reader and the newcomer both flag the same unexplained acronym). One dedupe-key tuple, one synthesised finding.
+**4.1. Dedupe by `(file_path, normalised_section, claim_type)`**. Different personas may surface the same defect through different lenses (e.g., the executive reader and the newcomer both flag the same unexplained acronym). One dedupe-key tuple, one synthesized finding.
 
-**4.2. Tag each synthesised finding `R | I | K`**: `R` (Real evidence: quoted line or specific reference); `I` (Inference: persona's interpretation pending verification); `K` (Known-issue resurfaced: already in the remediation backlog from a prior run).
+**4.2. Tag each synthesized finding `R | I | K`**: `R` (Real evidence: quoted line or specific reference); `I` (Inference: persona's interpretation pending verification); `K` (Known-issue resurfaced: already in the remediation backlog from a prior run).
 
 **4.3. Adjudicate severity**: pick the higher severity if personas disagree by one level (e.g., Medium vs. Low → Medium). If they disagree by more than one level or split on `[critical]` vs. non-critical, invoke one round of asymmetric debate (4.5).
 
-**4.4. Record persona provenance**: each synthesised finding carries the set of personas that surfaced it (e.g., `personas: [executive, newcomer]`). Coverage gaps are then attributable: if only one persona surfaces a finding repeatedly across runs, the others' briefs may need tuning.
+**4.4. Record persona provenance**: each synthesized finding carries the set of personas that surfaced it (e.g., `personas: [executive, newcomer]`). Coverage gaps are then attributable: if only one persona surfaces a finding repeatedly across runs, the others' briefs may need tuning.
 
-**4.5. Debate for large divergence**: when two personas split on real-vs-false-positive, or by more than one severity level, re-prompt each disagreeing persona with the other's claim attached and ask each to update or hold with rebuttal. One round only. The orchestrator adjudicates the second-round positions; persisted disagreement is flagged `debated: divergence-persisted` in the synthesised finding.
+**4.5. Debate for large divergence**: when two personas split on real-vs-false-positive, or by more than one severity level, re-prompt each disagreeing persona with the other's claim attached and ask each to update or hold with rebuttal. One round only. The orchestrator adjudicates the second-round positions; persisted disagreement is flagged `debated: divergence-persisted` in the synthesized finding.
 
 **4.6. Dispatch declaration recorded**: the history-row's `Personas` column declares which personas were dispatched. Per the discipline mirrored from `validation-sweep` Rule 5.6, silent absence cannot be reconstructed; the dispatch declaration is the auditable trail.
 
@@ -132,7 +132,7 @@ Single combined Markdown file at `.working/fitness-reviews/YYYY-MM-DD-rN.md` (th
 7. `## Standardization Recommendations`, page taxonomy, naming conventions, required metadata, required page sections, requirement-language rules, ownership model, review cadence, cross-linking model, versioning model, status labels, template recommendations.
 8. `## Remediation Backlog`, discrete work items with IDs (`FR-1`, `FR-2`, ...), title, description, severity, affected pages, recommended action, acceptance criteria, estimated effort, dependencies.
 
-Optional `## Final Assessment` if sections 1 and 6-8 leave material to summarise (fit-for-use, fit-for-audit-support, fit-for-executive-consumption, fit-for-operational-execution).
+Optional `## Final Assessment` if sections 1 and 6-8 leave material to summarize (fit-for-use, fit-for-audit-support, fit-for-executive-consumption, fit-for-operational-execution).
 
 ### 7. Append the history-table row
 
@@ -143,7 +143,7 @@ Add a row to the top of `.working/fitness-reviews/history.md` with columns:
 
 - **Date** is `YYYY-MM-DD`.
 - **Run** is `rN` (run ordinal that day).
-- **Personas** is `A through J` for a full ten-persona dispatch, or a comma-separated subset for a scoped run (rare; with authorisation reason in the Summary cell).
+- **Personas** is `A through J` for a full ten-persona dispatch, or a comma-separated subset for a scoped run (rare; with authorization reason in the Summary cell).
 - **Findings** is a brief count with severity breakdown (e.g., `0`, `7 (2H, 1H[critical], 3M, 1L)`).
 - **Resulting PR** is the close-out PR link, or `none` for zero-finding runs (or `pending` if the maintainer hasn't decided which findings to action yet).
 - **Detail** is a link to the per-run file at step 6, or the marker `none` for zero-finding runs.
@@ -157,11 +157,11 @@ The fitness review's actionable layer is the chat surface. After writing the com
 
 - **High [critical] findings**: each named with location and one-line action recommendation; ask the maintainer to confirm immediate-action priority.
 - **Top 5 High findings**: named with location and recommendation; suggest grouping into a small focused PR.
-- **Cross-library patterns surfaced**: named with the implicated documents and the proposed standardisation; ask whether to pursue.
-- **Standardisation recommendations**: each with effort estimate; ask the maintainer to triage which to adopt now, defer, or reject.
+- **Cross-library patterns surfaced**: named with the implicated documents and the proposed standardization; ask whether to pursue.
+- **Standardization recommendations**: each with effort estimate; ask the maintainer to triage which to adopt now, defer, or reject.
 - **Remediation backlog**: total count of discrete items; ask which to drive in the next PR cycle.
 
-The combined report file is the persistent archive; the chat surface is the prioritisation conversation.
+The combined report file is the persistent archive; the chat surface is the prioritization conversation.
 
 ### 9. Maintain follow-up tracking
 
@@ -176,7 +176,7 @@ Once the maintainer has triaged the recommendations and assigned remediation IDs
 - **Reusing the prior run's conclusions to skip current personas.** Each run's findings are evaluated against the current corpus. The prior run's conclusions inform priority, not current findings. "Subagent A returned zero last time, skip this run" is the inference-cascade failure mode the project's 7th pack rule (`validate-inference-before-action`) prevents.
 - **Letting maintainer mental models leak into persona briefs.** If the brief telegraphs what the maintainer expects, the subagent confirms expectation rather than testing it. Strip maintainer context from each persona brief.
 - **Treating "all gates pass" as evidence the library is in good shape.** The fitness review exists precisely because mechanical gates don't catch what the personas catch. Conflating mechanical pass with quality is the failure mode.
-- **Skipping personas because "scope is similar to the prior run".** Persona-specific failure modes recur per-persona; the security practitioner may surface findings the GRC practitioner systematically misses, and vice versa. Full ten-persona dispatch is the default; scoped runs require explicit maintainer authorisation recorded in the history-row Summary.
+- **Skipping personas because "scope is similar to the prior run".** Persona-specific failure modes recur per-persona; the security practitioner may surface findings the GRC practitioner systematically misses, and vice versa. Full ten-persona dispatch is the default; scoped runs require explicit maintainer authorization recorded in the history-row Summary.
 - **Bundling a fitness-review close-out with unrelated work.** The fitness-review PR closes (or surfaces) findings; bundling unrelated work confuses the audit trail. Each substantive remediation gets its own PR; the close-out PR contains only the history-row update + report file + any tiny editorial fixes inline.
 - **Treating the remediation backlog as exhaustive.** The fitness review surfaces what the personas catch in one run. Subsequent fitness reviews may surface different findings as the corpus evolves. The backlog is current at write-time; new findings get new IDs.
 - **Letting Low/FYI findings crowd out High priority items in the synthesis.** The combined report's Recommendations and Remediation Backlog sections lead with High and High[critical]; Medium and Low items follow; FYI items go in their own clearly-marked section.
@@ -185,12 +185,12 @@ Once the maintainer has triaged the recommendations and assigned remediation IDs
 
 This skill is complete on a given run when:
 
-- All ten personas have been dispatched (or a scoped subset has been authorised by the maintainer with the authorisation recorded in the history-row Summary).
+- All ten personas have been dispatched (or a scoped subset has been authorized by the maintainer with the authorization recorded in the history-row Summary).
 - Each persona has returned findings (or "zero findings" with a one-line rationale).
 - Synthesis has applied all six rubric steps (dedupe, R/I/K tag, severity adjudicate, persona provenance, debate where applicable, dispatch declaration).
 - The combined report (`.working/fitness-reviews/YYYY-MM-DD-rN.md`) has all 8 H2 sections (plus optional `## Final Assessment`) written.
 - The history-row has been appended to `.working/fitness-reviews/history.md` with all columns populated.
-- The maintainer-facing chat surface has presented the High[critical] findings, the top High findings, the cross-library patterns, the standardisation recommendations, and the remediation backlog count for prioritisation.
+- The maintainer-facing chat surface has presented the High[critical] findings, the top High findings, the cross-library patterns, the standardization recommendations, and the remediation backlog count for prioritization.
 - The full audit programme passes standalone on the post-fitness-review state (no findings the fitness review introduced into the corpus).
 
 ## Common Rationalizations

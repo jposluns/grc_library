@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier and Cloud Governance Framework\
 **Document Type:** Framework\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organisation-neutral model for supplier, third-party, cloud, managed service, outsourced processing, AI service, and supply-chain governance.
+This framework defines an organization-neutral model for supplier, third-party, cloud, managed service, outsourced processing, AI service, and supply-chain governance.
 
 It establishes lifecycle controls for supplier intake, risk classification, due diligence, contract control alignment, onboarding, monitoring, reassessment, incident management, resilience, exit, and evidence retention.
 
@@ -26,7 +26,7 @@ It establishes lifecycle controls for supplier intake, risk classification, due 
 
 ## Scope
 
-This framework applies to external providers that provide, operate, host, process, access, store, transmit, analyze, support, maintain, or materially affect organisational data, systems, services, operations, security, privacy, AI capabilities, or resilience.
+This framework applies to external providers that provide, operate, host, process, access, store, transmit, analyze, support, maintain, or materially affect organizational data, systems, services, operations, security, privacy, AI capabilities, or resilience.
 
 Supplier categories may include:
 
@@ -135,7 +135,7 @@ Cloud services should be governed across:
 
 ## Evidence requirements
 
-Adopting organisations should maintain:
+Adopting organizations should maintain:
 
 - Supplier inventory.
 - Supplier risk classification.

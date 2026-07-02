@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-24\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -16,15 +16,15 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates the analogous joint-controller or co-controller concepts in LGPD (Brazil, Article 5(VI) operadores conjuntos), India DPDP Act 2023, and PIPL (China, Article 20 joint personal information handlers). Adopting organisations populate one arrangement per joint-processing context.
+This template defines the structure of a **joint controller arrangement** sufficient to satisfy **GDPR Article 26** and equivalent obligations under UK GDPR. It also accommodates the analogous joint-controller or co-controller concepts in LGPD (Brazil, Article 5(VI) operadores conjuntos), India DPDP Act 2023, and PIPL (China, Article 20 joint personal information handlers). Adopting organizations populate one arrangement per joint-processing context.
 
-A populated arrangement is a binding contractual instrument between joint controllers. It must be signed by authorised representatives of each party, retained as a legal record, and made available to data subjects in essence (see Section 9 below). The populated arrangement is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
+A populated arrangement is a binding contractual instrument between joint controllers. It must be signed by authorized representatives of each party, retained as a legal record, and made available to data subjects in essence (see Section 9 below). The populated arrangement is sensitive operational data and must not be published in this public CC BY-SA 4.0 repository; use this template structurally and store the executed instrument internally.
 
 ---
 
@@ -34,7 +34,7 @@ This template applies to every processing activity where **two or more controlle
 
 Typical scenarios that trigger joint controllership:
 
-- Two organisations co-design a joint marketing campaign using each party's customer data.
+- Two organizations co-design a joint marketing campaign using each party's customer data.
 - A platform and a partner co-determine the purposes and means of analytics on shared user data.
 - A research consortium jointly determines purposes (research questions) and means (protocols, data combination methods).
 - An employer and a benefits provider jointly determine the purposes and means of an employee benefits programme.
@@ -59,11 +59,11 @@ When in doubt, conduct a joint-controllership assessment per Article 26(1) befor
 | Effective date | The date from which the arrangement takes effect | 2026-09-01 |
 | Term | The period for which the arrangement applies (with renewal terms if any) | 3 years, renewable for 1-year periods |
 | Joint Controller A | Legal name, registered address, jurisdiction of incorporation | <name>, <address>, <jurisdiction> |
-| Joint Controller A, authorised representative | Name and title of signatory | <name>, <title> |
+| Joint Controller A, authorized representative | Name and title of signatory | <name>, <title> |
 | Joint Controller A, DPO contact | Name, email, postal address of DPO (or equivalent privacy lead) | <name>, <email>, <postal> |
 | Joint Controller A, EU representative | Where applicable per Article 27 | <name>, <address> |
 | Joint Controller B | Legal name, registered address, jurisdiction of incorporation | <name>, <address>, <jurisdiction> |
-| Joint Controller B, authorised representative | Name and title of signatory | <name>, <title> |
+| Joint Controller B, authorized representative | Name and title of signatory | <name>, <title> |
 | Joint Controller B, DPO contact | Name, email, postal address of DPO | <name>, <email>, <postal> |
 | Joint Controller B, EU representative | Where applicable per Article 27 | <name>, <address> |
 | Additional joint controllers | Same field set repeated for each additional party | n/a or repeat |
@@ -83,7 +83,7 @@ Where more than two joint controllers exist, repeat the per-party field set.
 | Lawful basis (per purpose) | Article 6(1)(a) to (f); plus Article 9(2) where special categories; plus Article 10 conditions where criminal-conviction data. Where consent is the basis, identify who collects, who can demonstrate, and how withdrawal cascades to all joint controllers. |
 | Means of processing | Systems, platforms, tooling jointly determined by the parties |
 | Data flows | Identify which data flows between the joint controllers; the lawful basis for each flow; whether any cross-border transfer is involved |
-| Retention period | Maximum retention; deletion or anonymisation procedure; alignment between joint controllers' retention schedules |
+| Retention period | Maximum retention; deletion or anonymization procedure; alignment between joint controllers' retention schedules |
 | ROPA reference | Each joint controller maintains its own Article 30 ROPA referencing this joint arrangement |
 
 ### Section 3: Allocation of GDPR responsibilities
@@ -105,7 +105,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 | Processor engagement and Article 28 contracts | Article 28 | Per party (each party contracts with its own processors) | Where a processor is shared, the arrangement names a single contracting party with the other as named beneficiary |
 | Record of Processing Activities | Article 30 | Each party maintains its own | Both ROPAs cross-reference this arrangement |
 | Cooperation with supervisory authority | Article 31 | Both (each cooperates with its lead SA and with any SA requesting information about the joint processing) | |
-| Security of processing | Article 32 | Both (each is responsible for security in its own infrastructure; jointly responsible for security of inter-controller data flows) | Document the technical and organisational measures (TOMs) for each party |
+| Security of processing | Article 32 | Both (each is responsible for security in its own infrastructure; jointly responsible for security of inter-controller data flows) | Document the technical and organizational measures (TOMs) for each party |
 | Breach notification to SA | Article 33 | Party first aware notifies the lead SA within 72 hours; jointly notify additional SAs where one-stop-shop does not apply | Each party also notifies its own DPO and Legal Counsel |
 | Breach notification to data subjects | Article 34 | Lead party communicates; both parties acknowledge in their respective channels | |
 | DPIA | Article 35 | Joint DPIA by both parties; lead drafter named in this arrangement | Where one party already has a DPIA covering similar processing, the joint DPIA may incorporate by reference |
@@ -170,7 +170,7 @@ For multi-jurisdiction arrangements, the arrangement must satisfy the strictest 
 
 ### Section 8: Documentation and audit trail
 
-The executed arrangement and all amendments are retained per the organisation's privacy records retention schedule (typically 7+ years post-termination per [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)).
+The executed arrangement and all amendments are retained per the organization's privacy records retention schedule (typically 7+ years post-termination per [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)).
 
 Each amendment is dated, version-numbered, and signed by both parties. The audit trail of amendments must be preserved alongside the original arrangement.
 
@@ -195,7 +195,7 @@ The essence-of-arrangement notice does NOT publish the internal liability alloca
 
 ## Use guidance
 
-Joint controllers populate this template before the joint processing begins. The completed arrangement is signed by authorised representatives of each party and retained per Section 8.
+Joint controllers populate this template before the joint processing begins. The completed arrangement is signed by authorized representatives of each party and retained per Section 8.
 
 The Article 26(2) essence-of-arrangement publication is added to each joint controller's public privacy notice using [`privacy/template-privacy-notice.md`](template-privacy-notice.md) at the time the joint processing begins.
 

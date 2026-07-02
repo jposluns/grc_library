@@ -2,8 +2,8 @@
 
 **Document Title:** Lessons Learned Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-22\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md)\
@@ -148,10 +148,10 @@ Actions are SMART: specific, measurable, achievable, relevant, time-bound.
 | --- | --- | --- | --- |
 | Executive Sponsor and board | Briefing | Executive summary | Resilience Owner |
 | Participating-domain Leads | Workshop | Full report | Authoring role |
-| Wider operational team | Internal write-up | Sanitised summary | Domain Leads |
-| Customers | Per the communications policy | Sanitised public-facing summary if material | Communications Lead |
+| Wider operational team | Internal write-up | Sanitized summary | Domain Leads |
+| Customers | Per the communications policy | Sanitized public-facing summary if material | Communications Lead |
 | Regulator | Per the regulatory requirement | Required content | Legal Lead |
-| Peer organisations and information-sharing groups | Per the policy | Sanitised TLP-amber content | Threat intelligence operator |
+| Peer organizations and information-sharing groups | Per the policy | Sanitized TLP-amber content | Threat intelligence operator |
 
 ### Section 10: Metric impact
 
@@ -162,7 +162,7 @@ Actions are SMART: specific, measurable, achievable, relevant, time-bound.
 | Mean time to contain | Time from declaration to containment | Baseline | Current | Delta |
 | Mean time to recover | Time from declaration to full service | Baseline | Current | Delta |
 | Notification-window adherence | Percentage of regulatory windows met | Baseline | Current | Delta |
-| Customer satisfaction or trust signal | Per organisation's measurement | Baseline | Current | Delta |
+| Customer satisfaction or trust signal | Per organization's measurement | Baseline | Current | Delta |
 
 ### Section 11: Approval and signature
 
@@ -174,7 +174,7 @@ The Resilience Owner and Executive Sponsor sign the report. Where the event invo
 
 1. The lessons-learned report is initiated within 5 business days of event closure for P1 and P2 events, and within 10 business days for exercises.
 2. Final report is published within 20 business days of initiation; longer windows require Executive Sponsor approval.
-3. Reports are stored in a location accessible to authorised roles only; classification per source-data sensitivity.
+3. Reports are stored in a location accessible to authorized roles only; classification per source-data sensitivity.
 4. Corrective actions are tracked monthly until closure; ageing actions are escalated to the Executive Sponsor.
 5. The aggregate of corrective actions feeds the governance review and the resilience metrics register.
 6. Annual review identifies systemic patterns across the year's lessons-learned reports.
@@ -187,7 +187,7 @@ The Resilience Owner and Executive Sponsor sign the report. Where the event invo
 | --- | --- | --- |
 | ISO/IEC 27035-3 | Information security incident response | Incident learning |
 | ISO 22301:2019 | §10 Improvement | Continuity improvement |
-| NIST SP 800-61 Rev. 3 | Post-incident review and improvement activities (Rev. 3 reorganises around NIST CSF 2.0 functions; post-incident activities map to the Recover and Identify functions) | Lessons learned activity |
+| NIST SP 800-61 Rev. 3 | Post-incident review and improvement activities (Rev. 3 reorganizes around NIST CSF 2.0 functions; post-incident activities map to the Recover and Identify functions) | Lessons learned activity |
 | DORA | Article 13 Learning and evolving | Financial-sector learning |
 | NIS 2 | Article 21(2)(f) Effectiveness assessment | Effectiveness review |
 | ISO 9001:2015 | §10.2 Nonconformity and corrective action | Quality management |
@@ -196,7 +196,7 @@ The Resilience Owner and Executive Sponsor sign the report. Where the event invo
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. Adopting organisations adapt the section structure to their existing PIR and CAPA workflows; the integration point with the corrective action register is the most important consistency element. The template is not a substitute for a formal regulatory after-action submission, nor a substitute for a forensic investigation report when one is required.
+This template is a CC BY-SA 4.0 baseline. Adopting organizations adapt the section structure to their existing PIR and CAPA workflows; the integration point with the corrective action register is the most important consistency element. The template is not a substitute for a formal regulatory after-action submission, nor a substitute for a forensic investigation report when one is required.
 
 ---
 

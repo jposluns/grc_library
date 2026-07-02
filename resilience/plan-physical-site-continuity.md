@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Site Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md)\
@@ -202,7 +202,7 @@ When the site is again usable:
 
 ## Limitations
 
-This plan is a CC BY-SA 4.0 baseline. Adopting organisations populate site-specific values (alternate-site addresses, rosters, evacuation routes, equipment inventories) in private instantiations of this plan. The plan is not safety advice and is not a substitute for a qualified safety professional, a building-control inspection, or insurance-specific guidance. Life-safety decisions are governed by the qualified site emergency response role per local statute.
+This plan is a CC BY-SA 4.0 baseline. Adopting organizations populate site-specific values (alternate-site addresses, rosters, evacuation routes, equipment inventories) in private instantiations of this plan. The plan is not safety advice and is not a substitute for a qualified safety professional, a building-control inspection, or insurance-specific guidance. Life-safety decisions are governed by the qualified site emergency response role per local statute.
 
 ---
 

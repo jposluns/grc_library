@@ -2,8 +2,8 @@
 
 **Document Title:** Container and Image Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`supply-chain/register-sbom.md`](../supply-chain/register-sbom.md)\
@@ -24,7 +24,7 @@ This standard defines the security controls applied to container images, contain
 
 ## 2. Scope
 
-This standard applies to every container image built, stored, distributed, or executed by the organisation, in any environment from developer workstations through production. It applies regardless of whether the orchestrator is self-managed, managed by a cloud provider, or operated by a third party.
+This standard applies to every container image built, stored, distributed, or executed by the organization, in any environment from developer workstations through production. It applies regardless of whether the orchestrator is self-managed, managed by a cloud provider, or operated by a third party.
 
 ---
 
@@ -53,7 +53,7 @@ This standard applies to every container image built, stored, distributed, or ex
 | --- | --- |
 | Authoritative registry | Production images are pulled only from approved registries; no `:latest` or public-registry pulls in production |
 | Authentication | Registry access authenticated with short-lived credentials; long-lived registry credentials prohibited |
-| Authorisation | Per-repository RBAC; least-privilege push and pull |
+| Authorization | Per-repository RBAC; least-privilege push and pull |
 | Image scanning at rest | Registry continuously scans stored images against new vulnerability data; scan output integrated with the vulnerability programme |
 | Image immutability | Tags immutable where the registry supports it; mutable tags retire after a defined window |
 | Retention | Defined retention; superseded images garbage-collected; provenance attestations retained alongside images |
@@ -199,7 +199,7 @@ This standard applies to every container image built, stored, distributed, or ex
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Specific orchestrator and platform configurations evolve rapidly; the standard expresses requirements rather than vendor-specific settings. Adopting organisations select the appropriate CIS Benchmark profile (Level 1 typical, Level 2 high-security) and tune to their workload.
+This standard is a CC BY-SA 4.0 baseline. Specific orchestrator and platform configurations evolve rapidly; the standard expresses requirements rather than vendor-specific settings. Adopting organizations select the appropriate CIS Benchmark profile (Level 1 typical, Level 2 high-security) and tune to their workload.
 
 ---
 

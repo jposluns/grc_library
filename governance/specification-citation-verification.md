@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.4\
-**Date:** 2026-07-01\
+**Version:** 1.2.5\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -61,9 +61,9 @@ The AI verifier:
 
 1. **Prepares the per-batch verification worklist**: identifies the publisher canonical URL pattern, the expected catalogue URL for each Standard ID in the batch, the field(s) to be checked, and any known parsing gotchas. Output is a markdown worklist per the worklist template ([`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md)).
 2. **Reviews the human verifier's captured text**: confirms the captured text supports the claim the verifier intended to record; flags anomalies (the page text appears to contradict the claim, the text appears to be a summary rather than primary, the URL is not allow-listed).
-3. **Records the verification row** in the Citation Verifications Register, faithfully reproducing the human-captured text without summarisation.
+3. **Records the verification row** in the Citation Verifications Register, faithfully reproducing the human-captured text without summarization.
 4. **Identifies downstream impact**: where a verification finds the register entry should be corrected, the AI verifier identifies the library content that references the corrected entry and proposes the fixes for human approval.
-5. **Does not** perform primary verification, claim AI agreement as verification, or summarise publisher text.
+5. **Does not** perform primary verification, claim AI agreement as verification, or summarize publisher text.
 
 ### 3.4 Human verifier responsibilities
 
@@ -112,7 +112,7 @@ The verification process must defend against:
 | **Adversarial poisoning** | Content seeded specifically to corrupt AI knowledge or to misrepresent reputable standards. | Publisher-only primary sources; never trust LLM summaries, AI-generated content, or content of unknown provenance. |
 | **SEO and content-farm spam** | Automatically generated material with confident-sounding wrong claims. | Restrict verification to a closed allow-list of canonical publisher domains. |
 | **Lookalike domains** | Sites mimicking the publisher to mislead readers. | Domain match against the publisher's known canonical domain; TLS verification recorded; human verifier confirms URL-bar and certificate chrome. |
-| **AI summarisation drift** | A search-result summary that paraphrases content incorrectly. | Capture the exact text of the publisher page, not a summary. Primary verification is performed by the human verifier (per §3.4), not by an AI reading a search snippet. |
+| **AI summarization drift** | A search-result summary that paraphrases content incorrectly. | Capture the exact text of the publisher page, not a summary. Primary verification is performed by the human verifier (per §3.4), not by an AI reading a search snippet. |
 | **Honest staleness** | Outdated mirrors or cached copies. | Prefer the publisher's current catalogue page; record the fetch date. |
 | **Publisher silently amending the page later** | Page content changes after verification, making the verification log unreproducible. | Wayback Machine snapshot URL recorded alongside the live URL. |
 | **Verifier-side hallucination** | The verifier (whether human or LLM) interprets the publisher page incorrectly. | Captured-text rule (the page's words, not the verifier's paraphrase) plus second-pair-of-eyes spot-check. AI verifier is barred from primary verification (per §3.3). |
@@ -129,7 +129,7 @@ The verification process must defend against:
 | --- | --- | --- |
 | **Tier 1: Publisher canonical** | The standard publisher's own canonical domain (see §7 for the allow-list). | The only source that counts as primary verification. |
 | **Tier 2: Authoritative secondary** | National standards bodies republishing publisher catalogue metadata (ANSI, BSI, DIN, AFNOR, SIS, CSA Group, etc.); official government catalogues (FedRAMP marketplace, EUR-Lex for EU regulations, Federal Register for US, gazettes for other jurisdictions). | Corroboration only. Cannot replace Tier 1. |
-| **Tier 3: Industry-credible secondary** | Reputable professional bodies' summary pages, peer-reviewed academic indexes, government regulator pages summarising third-party standards. | Used only for orientation and triangulation. Not a verification of record. |
+| **Tier 3: Industry-credible secondary** | Reputable professional bodies' summary pages, peer-reviewed academic indexes, government regulator pages summarizing third-party standards. | Used only for orientation and triangulation. Not a verification of record. |
 | **Untrusted** | Wikipedia, blogs, security-vendor articles, AI-generated summaries, SEO content farms, social media, forums, lookalike domains. | Never cited as verification. May not contribute confidence. |
 
 ### 6.2 Publisher-only primary rule
@@ -251,7 +251,7 @@ Before any fetch is requested:
 1. The AI verifier reads the human verifier's captured text from the worklist (or accepts it as supplied directly).
 2. The AI verifier appends a row to the Citation Verifications Register with the fields defined in §9, faithfully reproducing the captured text.
 3. The `Captured by` field is set to identify the human verifier.
-4. The AI verifier does not summarise, paraphrase, or "tidy" the captured text.
+4. The AI verifier does not summarize, paraphrase, or "tidy" the captured text.
 
 ### 8.5 Reconcile (AI verifier, with human approval)
 
@@ -369,7 +369,7 @@ The following rules are not subject to convenience-driven exception:
 This specification does not address:
 
 - **Verification of standard content** versus the library's interpretation of it. A standard's text may legitimately be subject to different reasonable interpretations; this specification does not adjudicate. Where the library makes a claim about what a standard requires, that claim is the library's interpretation, not a verified statement of the standard's text.
-- **Verification of regulator interpretations**. Where the library characterises a regulator's position, the source is the regulator's published material; the verifier captures that material's text but does not adjudicate regulatory disputes.
+- **Verification of regulator interpretations**. Where the library characterizes a regulator's position, the source is the regulator's published material; the verifier captures that material's text but does not adjudicate regulatory disputes.
 - **Translations**. Publishers issuing standards in multiple languages may have non-identical wording across languages. The verifier captures the publisher's English-language page where one exists, and notes where it does not.
 
 ---

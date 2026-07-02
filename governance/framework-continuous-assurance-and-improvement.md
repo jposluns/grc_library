@@ -2,7 +2,7 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,7 +45,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 | **AI Governance Council (AIGC)** | Monitors AI maturity, ethics performance, and digital trust indicators. |
 | **Enterprise Risk Committee (ERC)** | Reviews assurance outcomes and approves improvement initiatives. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade, customs, and supply-chain assurance) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer for trade, customs, and supply-chain assurance) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -60,7 +60,7 @@ The Continuous Assurance and Improvement Framework integrates four interrelated 
 | **Performance Evaluation** | Measure KPIs, digital trust, and AI governance maturity. | GRC programme management procedure, metrics register |
 | **Improvement Implementation** | Execute corrective and preventive actions. | CAPA procedure, risk register |
 
-This structure provides a continuous feedback loop ensuring organisational learning, resilience, and compliance evolution.
+This structure provides a continuous feedback loop ensuring organizational learning, resilience, and compliance evolution.
 
 ---
 
@@ -94,7 +94,7 @@ This structure provides a continuous feedback loop ensuring organisational learn
 
 ### 4.1 Digital trust indicators (COBIT 2019)
 
-The organisation must track and improve:
+The organization must track and improve:
 - Governance effectiveness and transparency.
 - Data reliability and system integrity.
 - Security resilience and service availability.
@@ -134,7 +134,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ## 6. Sector-programme integration
 
-6.1 Where the organisation participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`compliance/`](../compliance/).
+6.1 Where the organization participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`compliance/`](../compliance/).
 
 6.2 Sector-conditional roles (for example, a BASC Regional Compliance Officer where the relevant sector annex defines that role) maintain the sector-programme assurance logs and ensure that dual reporting to the sector body and the ERC follows the annex's cadence and channels.
 
@@ -162,7 +162,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Stakeholder feedback and maturity self-assessments.
 - Alignment with ISO, COBIT, CSA, and BASC revisions.
 
-8.3 Updates are approved by the ERC and published organisation-wide.
+8.3 Updates are approved by the ERC and published organization-wide.
 
 ---
 

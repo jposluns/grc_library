@@ -2,8 +2,8 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -18,9 +18,9 @@
 
 ## 1. Purpose
 
-This standard establishes mandatory security requirements for Operational Technology (OT) environments operated by the organisation, including Industrial Control Systems (ICS), Supervisory Control and Data Acquisition (SCADA), Distributed Control Systems (DCS), Programmable Logic Controllers (PLCs), Human-Machine Interfaces (HMIs), Building Management Systems (BMS), and Safety Instrumented Systems (SIS).
+This standard establishes mandatory security requirements for Operational Technology (OT) environments operated by the organization, including Industrial Control Systems (ICS), Supervisory Control and Data Acquisition (SCADA), Distributed Control Systems (DCS), Programmable Logic Controllers (PLCs), Human-Machine Interfaces (HMIs), Building Management Systems (BMS), and Safety Instrumented Systems (SIS).
 
-The standard codifies the conceptual model introduced in [`annex-ot-security-overview.md`](annex-ot-security-overview.md) into auditable control requirements. It applies to every OT zone and conduit under the organisation's control and to vendor and integrator activities that affect those zones and conduits.
+The standard codifies the conceptual model introduced in [`annex-ot-security-overview.md`](annex-ot-security-overview.md) into auditable control requirements. It applies to every OT zone and conduit under the organization's control and to vendor and integrator activities that affect those zones and conduits.
 
 The standard aligns to IEC 62443 (primary) and NIST SP 800-82 Rev. 3 (secondary). Where sector-specific regulation (NERC CIP for North American electricity; sector annexes for transportation, healthcare, energy) imposes additional requirements, the sector annex extends this standard.
 
@@ -32,8 +32,8 @@ The standard aligns to IEC 62443 (primary) and NIST SP 800-82 Rev. 3 (secondary)
 
 This standard applies to:
 
-- All ICS, SCADA, DCS, PLC, HMI, and engineering-workstation assets operated by the organisation or its subsidiaries.
-- All SIS in the organisation's process facilities, with safety regulations taking precedence where conflict arises.
+- All ICS, SCADA, DCS, PLC, HMI, and engineering-workstation assets operated by the organization or its subsidiaries.
+- All SIS in the organization's process facilities, with safety regulations taking precedence where conflict arises.
 - All BMS deployments where they manage facility infrastructure (HVAC, fire/life-safety, physical access control, smart-building automation).
 - All conduits (logical communication channels) connecting OT zones to each other, to IT networks, or to external networks.
 - All vendor, integrator, and third-party activities that access, modify, or extend the above.
@@ -58,7 +58,7 @@ Where an OT system cannot meet a requirement of this standard because of vendor 
 | Role | Responsibility |
 | --- | --- |
 | **Chief Information Security Officer (CISO)** | Owns this standard; approves OT zone definitions, security-level targets, and exceptions. Reviews OT incident reports. |
-| **OT Security Lead** | Day-to-day OT security operations; maintains zone-and-conduit inventory; oversees SL-T setting and SL-A verification. Reports to CISO. Where the organisation does not have a dedicated OT Security Lead, the role merges with Security Owner per [`governance/register-role-authority.md`](../../governance/register-role-authority.md). |
+| **OT Security Lead** | Day-to-day OT security operations; maintains zone-and-conduit inventory; oversees SL-T setting and SL-A verification. Reports to CISO. Where the organization does not have a dedicated OT Security Lead, the role merges with Security Owner per [`governance/register-role-authority.md`](../../governance/register-role-authority.md). |
 | **Plant Manager / Operations Director** | Accountable for safe and continuous operation; signs off on changes affecting production zones; coordinates with OT Security Lead on outage windows. |
 | **Process Safety Engineer** | Accountable for SIS integrity and safety-related changes; consulted on any security change affecting safety-instrumented functions. |
 | **Control System Engineer** | Implements and maintains OT control systems; executes hardening, patching, and configuration changes per this standard. |
@@ -77,7 +77,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 ### 5.1 Zone definition (62443-3-2)
 
-5.1.1 Every OT asset under organisational control must be assigned to a zone. No OT asset may exist outside a zone.
+5.1.1 Every OT asset under organizational control must be assigned to a zone. No OT asset may exist outside a zone.
 
 5.1.2 Each zone must have:
 
@@ -172,7 +172,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 ### 6.3 Security Level Capability (SL-C)
 
-6.3.1 OT components procured by the organisation must have a documented SL-C from the vendor stating the security level they are capable of achieving when correctly configured. Components without a stated SL-C may be procured only with CISO approval and documented compensating controls.
+6.3.1 OT components procured by the organization must have a documented SL-C from the vendor stating the security level they are capable of achieving when correctly configured. Components without a stated SL-C may be procured only with CISO approval and documented compensating controls.
 
 6.3.2 For each OT component in the asset inventory, the SL-C must be recorded alongside the SL-A of the zone or conduit the component supports. The SL-A of a zone or conduit cannot exceed the lowest SL-C of any component contributing to it.
 
@@ -208,7 +208,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 7.2.3 Default vendor credentials must be changed before any OT component is connected to a zone. The change must be verified during commissioning.
 
-### 7.3 Authorisation and privilege
+### 7.3 Authorization and privilege
 
 7.3.1 Privilege levels for OT users must be enumerated:
 
@@ -230,7 +230,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 - Access must be time-bounded (the session has a start time, expected duration, and automatic disconnect).
 - Access must be authenticated with MFA at the OT DMZ ingress point.
 - Access must be logged and the session recorded.
-- Access must use a jump host that the organisation controls, not direct vendor-to-OT-zone tunnels.
+- Access must use a jump host that the organization controls, not direct vendor-to-OT-zone tunnels.
 - Vendor accounts used for the session must be unique to the vendor representative (not shared vendor accounts).
 
 7.4.2 Persistent vendor connections (always-on cellular modems, dedicated VPN tunnels) require explicit CISO approval, must terminate in the OT DMZ, and must include the controls above.
@@ -314,9 +314,9 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 10.1.3 The SOC must have analysts trained in OT-aware monitoring. OT alerts that the SOC cannot resolve within 15 minutes are escalated to the OT Security Lead and, for production-impacting indicators, the Plant Manager.
 
-### 10.2 Time synchronisation
+### 10.2 Time synchronization
 
-10.2.1 All OT components capable of receiving time synchronisation must be synchronised to a common reliable time source (typically NTP from a hardened internal time server, with the internal server upstream from a verified external source). Clock skew greater than 5 minutes triggers an alert.
+10.2.1 All OT components capable of receiving time synchronization must be synchronized to a common reliable time source (typically NTP from a hardened internal time server, with the internal server upstream from a verified external source). Clock skew greater than 5 minutes triggers an alert.
 
 10.2.2 Safety-critical components must use a clock source whose disruption cannot cause unsafe behaviour. Where a safety component cannot accept network time, it uses a locally trusted source.
 
@@ -354,7 +354,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 - Right to audit the vendor's security practices.
 - Notification timeline for vulnerabilities discovered in supplied products.
 - Notification timeline for security incidents at the vendor that may affect supplied products or services.
-- Cooperation obligation for incident response at the organisation's facility.
+- Cooperation obligation for incident response at the organization's facility.
 - Return-of-equipment and data-destruction obligations at contract termination.
 
 ---

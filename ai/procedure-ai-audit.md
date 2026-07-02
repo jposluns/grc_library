@@ -2,7 +2,7 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the process for planning, executing, reporting, and following up on AI audits across the organisation's AI system inventory. AI audits verify that deployed AI systems operate within defined ethical, technical, and compliance boundaries, and that the AI Management System (AIMS) remains effective and improving.
+This procedure defines the process for planning, executing, reporting, and following up on AI audits across the organization's AI system inventory. AI audits verify that deployed AI systems operate within defined ethical, technical, and compliance boundaries, and that the AI Management System (AIMS) remains effective and improving.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Risk Register Template\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the schema for the organisation's Supplier Risk Register: the operational record of all active supplier relationships, their risk classifications, assurance status, monitoring history, and contract details. It serves as the single source of truth for supplier governance and feeds into the enterprise risk register for Tier 1 and High-rated Tier 2 risks.
+This template defines the schema for the organization's Supplier Risk Register: the operational record of all active supplier relationships, their risk classifications, assurance status, monitoring history, and contract details. It serves as the single source of truth for supplier governance and feeds into the enterprise risk register for Tier 1 and High-rated Tier 2 risks.
 
 ---
 
@@ -32,7 +32,7 @@ This template defines the schema for the organisation's Supplier Risk Register: 
 | **Supplier Name** | Legal name of the supplier entity | [Supplier Legal Name] |
 | **Supplier Type** | Logistics / Technology / Cloud / Managed Service / Professional Services / Data Processor / Trade Compliance / Other | Logistics |
 | **Primary Contact** | Supplier-side primary contact (role title, not name) | Account Manager |
-| **Organisation Contact** | Internal contract owner (role title) | Head of Procurement |
+| **Organization Contact** | Internal contract owner (role title) | Head of Procurement |
 | **Onboarding Date** | Date relationship was approved and onboarded | |
 | **Last Review Date** | Date of most recent risk review | |
 | **Status** | Active / Under Review / Exiting / Exited | Active |
@@ -43,7 +43,7 @@ This template defines the schema for the organisation's Supplier Risk Register: 
 |---|---|
 | **Services Provided** | Description of services delivered |
 | **Geographic Scope** | Countries and regions where services are delivered |
-| **Data Access Scope** | Categories of organisation data the supplier can access (if any) |
+| **Data Access Scope** | Categories of organization data the supplier can access (if any) |
 | **System Integration** | Specific systems or platforms to which the supplier has access |
 | **Personal Data Processing** | Yes / No: if Yes, link to DPA and subprocessor register entry |
 | **Trade Compliance Relevance** | Yes / No: if Yes, specify programme(s): CTPAT / AEO-S / PIP / BASC / Other |

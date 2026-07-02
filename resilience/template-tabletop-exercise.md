@@ -2,14 +2,14 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-22\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
 **Classification:** Public\
 **Category:** Resilience\
-**Review Frequency:** Annual and upon material change to scenario library, regulatory expectation, or organisational structure\
+**Review Frequency:** Annual and upon material change to scenario library, regulatory expectation, or organizational structure\
 **Repository Path:** [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines a reusable structure for designing, running, and learning from tabletop exercises. It supports the resilience testing programme by providing the scenario template, injects schedule, evaluation criteria, and after-action format that the Resilience Owner uses to commission each exercise. Adopting organisations select a scenario, populate the placeholders, and run the exercise.
+This template defines a reusable structure for designing, running, and learning from tabletop exercises. It supports the resilience testing programme by providing the scenario template, injects schedule, evaluation criteria, and after-action format that the Resilience Owner uses to commission each exercise. Adopting organizations select a scenario, populate the placeholders, and run the exercise.
 
 ---
 
@@ -41,7 +41,7 @@ This template covers desk-based tabletop exercises (no system action; participan
 
 ---
 
-## Scenario library (illustrative; expand per organisation)
+## Scenario library (illustrative; expand per organization)
 
 | Scenario class | Examples |
 | --- | --- |
@@ -49,7 +49,7 @@ This template covers desk-based tabletop exercises (no system action; participan
 | Personal data breach | Misconfigured cloud storage; insider exfiltration; phishing-led credential theft and data access |
 | AI security incident | Indirect prompt injection in a customer-facing assistant; data poisoning in a training pipeline; agent tool abuse |
 | Operational outage | Cloud region failure; DNS failure; identity provider outage; database corruption |
-| Supplier failure | Critical SaaS supplier insolvency; supplier data breach affecting the organisation; supplier ransom incident |
+| Supplier failure | Critical SaaS supplier insolvency; supplier data breach affecting the organization; supplier ransom incident |
 | Physical event | Office fire; data centre power loss; flooding; pandemic; civil disturbance |
 | Regulatory action | Enforcement notice; supervisory authority inspection; subpoena |
 | Crisis convergence | Ransomware with personal data exposure with media leak with regulator notification simultaneously |
@@ -108,7 +108,7 @@ An inject is a piece of information delivered during the exercise to advance the
 | T+150 | Phone | Executive Sponsor | Board member asking for briefing | Executive briefing materials produced |
 | T+180 | Email | All | Exercise wrap-up | Participants pause for debrief |
 
-Adopting organisations populate the table with scenario-specific inject content.
+Adopting organizations populate the table with scenario-specific inject content.
 
 ---
 
@@ -176,7 +176,7 @@ Within 10 business days of the exercise:
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. Adopting organisations populate scenarios, injects, and participants from their environment. Live-fire exercises require additional safety, communication, and regulator-coordination planning not covered here. The template is not a substitute for the resilience testing procedure or regulator-specific testing methodologies.
+This template is a CC BY-SA 4.0 baseline. Adopting organizations populate scenarios, injects, and participants from their environment. Live-fire exercises require additional safety, communication, and regulator-coordination planning not covered here. The template is not a substitute for the resilience testing procedure or regulator-specific testing methodologies.
 
 ---
 

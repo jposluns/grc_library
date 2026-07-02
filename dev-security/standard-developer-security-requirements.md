@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-07-01\
+**Version:** 1.1.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -78,7 +78,7 @@ Any application onboarding to a production environment must meet the following a
 
 ### 3.5 Authentication patterns by application type
 
-**Customer-facing portals and external user interfaces:** External users must authenticate via the organisation's external identity management platform with MFA enforced. No custom authentication mechanisms or local user stores. Customer data isolation must be enforced server-side on every API call regardless of frontend claims.
+**Customer-facing portals and external user interfaces:** External users must authenticate via the organization's external identity management platform with MFA enforced. No custom authentication mechanisms or local user stores. Customer data isolation must be enforced server-side on every API call regardless of frontend claims.
 
 **Internal applications:** Enterprise IdP SSO with Conditional Access. No bypass paths that circumvent MFA.
 
@@ -226,7 +226,7 @@ Required before any AI feature enters development. High-impact AI systems additi
 
 ### 12.2 Training data
 
-- Classified under the organisation's data classification scheme.
+- Classified under the organization's data classification scheme.
 - Kept separate from production data unless a documented, approved process is in place.
 - Provenance documented.
 - Personal data in training datasets requires PIA and explicit legal basis.
@@ -318,7 +318,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 - When a runtime enters Class 3 (within 180 days of EOL), create an upgrade task in the team backlog.
 - When a runtime is Class 2 (within 90 days of EOL or already EOL), the upgrade must be in active development with a target completion date.
 - When a runtime is Class 1 (over 12 months EOL with qualifying CVE), the service must be in emergency remediation. No new feature development occurs until the runtime is upgraded.
-- CI/CD pipelines must not deploy code to a runtime version classified as EOL by organisational policy.
+- CI/CD pipelines must not deploy code to a runtime version classified as EOL by organizational policy.
 - AI-generated code suggestions to use deprecated or EOL package versions must be rejected.
 
 ---

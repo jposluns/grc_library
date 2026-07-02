@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This directory contains healthcare-sector compliance content of the library: sector-wide regulatory requirements that apply to organisations handling protected health information, providing healthcare services, manufacturing or supplying medical devices, or operating healthcare technology platforms.
+This directory contains healthcare-sector compliance content of the library: sector-wide regulatory requirements that apply to organizations handling protected health information, providing healthcare services, manufacturing or supplying medical devices, or operating healthcare technology platforms.
 
-Content here is sector-conditional. Organisations outside the healthcare sector can omit this directory entirely without affecting the rest of the library's coherence.
+Content here is sector-conditional. Organizations outside the healthcare sector can omit this directory entirely without affecting the rest of the library's coherence.
 
 ---
 
 ## Applicability
 
-This directory applies to organisations operating as any of the following:
+This directory applies to organizations operating as any of the following:
 
 - Healthcare providers (hospitals, clinics, physicians, allied health professionals).
 - Health insurers, payers, and health-plan administrators.
@@ -47,15 +47,15 @@ This directory applies to organisations operating as any of the following:
 
 ## Future-coverage placeholders
 
-Country-level healthcare-regulator overlays. Candidates for future addition include US HIPAA Privacy/Security/Breach Notification rules, US HITECH, UK NHS DSPT (Data Security and Protection Toolkit), EU MDR/IVDR (Medical Device Regulation, In-Vitro Diagnostic Regulation), Canada PHIPA and similar provincial frameworks, Australia My Health Records Act, and other jurisdiction-specific regulations as adopting organisations require.
+Country-level healthcare-regulator overlays. Candidates for future addition include US HIPAA Privacy/Security/Breach Notification rules, US HITECH, UK NHS DSPT (Data Security and Protection Toolkit), EU MDR/IVDR (Medical Device Regulation, In-Vitro Diagnostic Regulation), Canada PHIPA and similar provincial frameworks, Australia My Health Records Act, and other jurisdiction-specific regulations as adopting organizations require.
 
 ---
 
 ## Relationship to the main library
 
-The main library is sector-agnostic and applies to all adopting organisations. This directory's content extends but does not contradict the main library. Where a healthcare regulation requires specific control language, evidence formats, or operating cadences, the annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a healthcare regulation requires specific control language, evidence formats, or operating cadences, the annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
 
-Adopting organisations operating as healthcare entities consume:
+Adopting organizations operating as healthcare entities consume:
 
 1. The main library as the baseline.
 2. The healthcare sector overview annex ([`annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md)) for sector-wide requirements.

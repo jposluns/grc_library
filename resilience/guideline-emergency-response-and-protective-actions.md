@@ -2,8 +2,8 @@
 
 **Document Title:** Emergency Response and Protective Actions Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This guideline provides organisation-neutral guidance for immediate protective actions during emergencies that may affect personnel safety, facilities, operations, technology services, data, suppliers, or continuity response.
+This guideline provides organization-neutral guidance for immediate protective actions during emergencies that may affect personnel safety, facilities, operations, technology services, data, suppliers, or continuity response.
 
 ---
 
@@ -70,7 +70,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 
 ## Evidence and review
 
-Adopting organisations should maintain local emergency procedures, drill records, site risk assessments, training records, incident records, communication logs, corrective action records, and transition records into crisis or continuity processes.
+Adopting organizations should maintain local emergency procedures, drill records, site risk assessments, training records, incident records, communication logs, corrective action records, and transition records into crisis or continuity processes.
 
 ---
 

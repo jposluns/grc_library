@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Disaster Recovery Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-07-01\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md)\
@@ -86,7 +86,7 @@ Evidence must be retained for assessments, plans, tests, restoration activities,
 
 ## 4. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Adopting organisations must define specific thresholds, technologies, schedules, service tiers, legal obligations, contractual commitments, and approval authorities internally.
+This standard is a CC BY-SA 4.0 baseline. Adopting organizations must define specific thresholds, technologies, schedules, service tiers, legal obligations, contractual commitments, and approval authorities internally.
 
 ---
 

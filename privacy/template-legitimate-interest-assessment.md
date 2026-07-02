@@ -2,8 +2,8 @@
 
 **Document Title:** Legitimate Interest Assessment (LIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-06-30\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This template is the instrument that records and evidences a **Legitimate Interest Assessment (LIA)**: the documented three-part test an organisation completes before relying on the legitimate-interests lawful basis under **GDPR Article 6(1)(f)** (Regulation (EU) 2016/679). Article 6(1)(f) permits processing that is "necessary for the purposes of the legitimate interests pursued by the controller or by a third party, except where such interests are overridden by the interests or fundamental rights and freedoms of the data subject". Relying on that basis without a recorded assessment leaves the organisation unable to demonstrate the accountability that Article 5(2) requires.
+This template is the instrument that records and evidences a **Legitimate Interest Assessment (LIA)**: the documented three-part test an organization completes before relying on the legitimate-interests lawful basis under **GDPR Article 6(1)(f)** (Regulation (EU) 2016/679). Article 6(1)(f) permits processing that is "necessary for the purposes of the legitimate interests pursued by the controller or by a third party, except where such interests are overridden by the interests or fundamental rights and freedoms of the data subject". Relying on that basis without a recorded assessment leaves the organization unable to demonstrate the accountability that Article 5(2) requires.
 
 The LIA documents the three cumulative conditions the basis demands: a **purpose test** (is there a legitimate interest?), a **necessity test** (is the processing necessary to pursue it?), and a **balancing test** (do the data subject's interests, rights, and freedoms override the interest?). A completed LIA feeds the lawful-basis field of the Record of Processing Activities, the legitimate-interest disclosure in the privacy notice, and, where the processing is high-risk, the DPIA.
 
@@ -30,11 +30,11 @@ A populated LIA is operationally sensitive: complete it as a working document, n
 
 ## Scope
 
-This template applies wherever the organisation relies, or proposes to rely, on Article 6(1)(f) (legitimate interests) as the lawful basis for processing personal data. It does not apply where another lawful basis governs (consent, contract, legal obligation, vital interests, or public task); the boundary with consent is covered in [`privacy/framework-consent-management.md`](framework-consent-management.md), and transfer-specific assessment is covered by the transfer-impact assessment, not this template.
+This template applies wherever the organization relies, or proposes to rely, on Article 6(1)(f) (legitimate interests) as the lawful basis for processing personal data. It does not apply where another lawful basis governs (consent, contract, legal obligation, vital interests, or public task); the boundary with consent is covered in [`privacy/framework-consent-management.md`](framework-consent-management.md), and transfer-specific assessment is covered by the transfer-impact assessment, not this template.
 
 **Threshold exclusion.** Article 6(1)(f) does not apply to processing carried out by public authorities in the performance of their tasks (Article 6(1)(f), second subparagraph). A public-authority adopter must confirm, as a threshold question, that the processing falls outside its public-task functions before using this basis.
 
-The assessment is completed at the outset of the processing, with the DPO involved, and is retained as part of the organisation's accountability record under Article 5(2).
+The assessment is completed at the outset of the processing, with the DPO involved, and is retained as part of the organization's accountability record under Article 5(2).
 
 ## How to use this template
 
@@ -101,7 +101,7 @@ Necessity is assessed against Recital 39 and the data-minimization principle: if
 | --- | --- |
 | Overall verdict | Article 6(1)(f) is available / is not available for this processing. |
 | Residual concerns | Any concerns that remain after the safeguards. |
-| Committed safeguards | The mitigations the organisation commits to (those relied on in 2.3 must be implemented). |
+| Committed safeguards | The mitigations the organization commits to (those relied on in 2.3 must be implemented). |
 | Right to object (Article 21) | How the data subject's right to object is handled and surfaced. Confirm the Article 21(4) prominence requirement: the right is brought explicitly to the data subject's attention, presented clearly and separately from other information, at the latest at the first communication. |
 | DPIA required? | Whether the processing is high-risk and a DPIA ([`privacy/template-dpia.md`](template-dpia.md)) is also required. |
 | Record of Processing Activities reference | The activity identifier this LIA is linked from. |
@@ -135,9 +135,9 @@ Re-run this assessment:
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 structural baseline. Adopting organisations must validate the template against the specific obligations of their applicable jurisdictions, the published guidance of their supervisory authority, and the requirements of any sectoral regulator. The template is not a substitute for legal advice. Where the supervisory authority publishes its own legitimate-interests guidance or methodology, the supervisory authority's instrument prevails to the extent of any inconsistency.
+This template is a CC BY-SA 4.0 structural baseline. Adopting organizations must validate the template against the specific obligations of their applicable jurisdictions, the published guidance of their supervisory authority, and the requirements of any sectoral regulator. The template is not a substitute for legal advice. Where the supervisory authority publishes its own legitimate-interests guidance or methodology, the supervisory authority's instrument prevails to the extent of any inconsistency.
 
-A populated LIA contains operationally sensitive information (the interests pursued, the risks weighed, the residual-risk decision). This template provides no example values for any field, and adopting organisations must store populated LIAs under an appropriate confidentiality classification.
+A populated LIA contains operationally sensitive information (the interests pursued, the risks weighed, the residual-risk decision). This template provides no example values for any field, and adopting organizations must store populated LIAs under an appropriate confidentiality classification.
 
 ---
 

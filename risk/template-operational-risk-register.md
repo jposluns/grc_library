@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Risk Register Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-24\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template structures the operational risk register that an organisation maintains at the business-process and business-unit level. The operational risk register complements the enterprise risk register (which captures top-of-the-house risk) by capturing the risk-and-control state inside operational processes.
+This template structures the operational risk register that an organization maintains at the business-process and business-unit level. The operational risk register complements the enterprise risk register (which captures top-of-the-house risk) by capturing the risk-and-control state inside operational processes.
 
 Operational risk is the risk of loss from inadequate or failed internal processes, people, and systems, or from external events. This template applies the Basel definition without limiting scope to financial services.
 
@@ -30,7 +30,7 @@ The operational risk register applies to:
 
 1. Business processes that produce, deliver, or support customer or operational outcomes.
 2. Internal control activities that depend on those processes.
-3. Operational events whose realisation would affect service delivery, regulatory standing, or financial result.
+3. Operational events whose realization would affect service delivery, regulatory standing, or financial result.
 
 It does not duplicate the enterprise risk register; it feeds into it via aggregation and escalation.
 
@@ -72,7 +72,7 @@ Each operational risk entry has the following fields:
 | Risk identifier | Unique identifier within the register |
 | Risk title | Short descriptive title |
 | Risk description | The risk expressed as cause-event-effect |
-| Risk taxonomy | Per the organisation's operational risk taxonomy (see Section D) |
+| Risk taxonomy | Per the organization's operational risk taxonomy (see Section D) |
 | Risk owner | The person accountable for managing the risk |
 | Process or activity affected | The process or activity in scope |
 | Inherent likelihood | Per the assessment scale |
@@ -96,7 +96,7 @@ Each operational risk entry has the following fields:
 
 ### Section D: operational risk taxonomy
 
-The taxonomy below is consistent with the Basel operational risk event categorisation, expressed in vendor-neutral terms.
+The taxonomy below is consistent with the Basel operational risk event categorization, expressed in vendor-neutral terms.
 
 | Top-level category | Examples |
 | --- | --- |
@@ -116,7 +116,7 @@ The taxonomy below is consistent with the Basel operational risk event categoris
 
 ### Section E: assessment scales
 
-The likelihood and impact scales use the organisation's risk methodology. For consistency, this template proposes the following ordinal scales; adopting organisations may calibrate or replace them.
+The likelihood and impact scales use the organization's risk methodology. For consistency, this template proposes the following ordinal scales; adopting organizations may calibrate or replace them.
 
 | Likelihood | Description |
 | --- | --- |
@@ -129,7 +129,7 @@ The likelihood and impact scales use the organisation's risk methodology. For co
 | Impact | Description |
 | --- | --- |
 | Negligible | No measurable effect on service or financial result |
-| Minor | Localised effect; short-duration |
+| Minor | Localized effect; short-duration |
 | Moderate | Material effect on a business unit or function |
 | Major | Material effect across business units; regulatory attention possible |
 | Catastrophic | Existential impact; significant regulatory or reputational consequence |
@@ -138,7 +138,7 @@ For quantitative assessments, the FAIR-aligned guideline supplies a quantitative
 
 ### Section F: control linkage
 
-Each risk entry references controls in the control register. Controls are characterised by:
+Each risk entry references controls in the control register. Controls are characterized by:
 
 | Field | Description |
 | --- | --- |
@@ -156,7 +156,7 @@ Each risk entry references controls in the control register. Controls are charac
 | Field | Description |
 | --- | --- |
 | Linked scenario | Identifier in the scenario risk catalogue |
-| Emerging-risk signals | Signals being tracked that may materialise the risk |
+| Emerging-risk signals | Signals being tracked that may materialize the risk |
 | Horizon-scanning source | Where signals are sourced |
 
 ### Section H: loss events and near-misses
@@ -166,10 +166,10 @@ Each risk entry references controls in the control register. Controls are charac
 | Event identifier | Unique identifier for the event |
 | Event date | Date the event occurred or was identified |
 | Event description | What happened |
-| Linked risk identifier | The risk this event materialises |
-| Direct loss | Financial impact realised |
-| Indirect loss | Other realised impact (regulatory, reputational, customer) |
-| Near-miss indicator | Whether this was a near-miss rather than a realised event |
+| Linked risk identifier | The risk this event materializes |
+| Direct loss | Financial impact realized |
+| Indirect loss | Other realized impact (regulatory, reputational, customer) |
+| Near-miss indicator | Whether this was a near-miss rather than a realized event |
 | Root cause | Per the post-incident review |
 | Corrective actions | Actions taken |
 | Linked incident or post-incident review | Reference to the incident response procedure record |
@@ -183,7 +183,7 @@ Each risk entry references controls in the control register. Controls are charac
 | Escalation triggers | Conditions that prompt escalation (e.g. rating change, control failure, KRI breach) |
 | Heatmap | Aggregated heatmap by category produced for management |
 | Trend analysis | Rating trend and event-frequency trend reviewed quarterly |
-| Customer-facing impact summary | Where operational risk materialises in customer impact, recorded for the resilience programme |
+| Customer-facing impact summary | Where operational risk materializes in customer impact, recorded for the resilience programme |
 
 ### Section J: integration
 
@@ -193,16 +193,16 @@ Each risk entry references controls in the control register. Controls are charac
 | Internal control framework | Risks linked to controls; control effectiveness informs residual rating |
 | Internal audit | Audit findings inform risk re-assessment |
 | Resilience programme | Severity 1 and 2 risks coordinated with the business continuity programme |
-| Incident management | Incidents linked back to the risk(s) they materialise |
+| Incident management | Incidents linked back to the risk(s) they materialize |
 | KRI register | KRIs that monitor this risk |
 | Assurance map | Coverage of risks by lines of defence |
-| Board reporting | Top operational risks summarised in the board risk report |
+| Board reporting | Top operational risks summarized in the board risk report |
 
 ---
 
 ## Worked example (illustrative; not a real entry)
 
-The example below illustrates a single risk entry. Adopting organisations replace it with their own entries.
+The example below illustrates a single risk entry. Adopting organizations replace it with their own entries.
 
 | Field | Example value |
 | --- | --- |
@@ -255,7 +255,7 @@ The example below illustrates a single risk entry. Adopting organisations replac
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. Adopting organisations calibrate the scales, taxonomy depth, and reporting cadence to their size and regulatory profile. The template does not replace specialist risk-domain methodologies (information risk, supplier risk, AI risk) that have their own registers and methodologies cross-referenced here.
+This template is a CC BY-SA 4.0 baseline. Adopting organizations calibrate the scales, taxonomy depth, and reporting cadence to their size and regulatory profile. The template does not replace specialist risk-domain methodologies (information risk, supplier risk, AI risk) that have their own registers and methodologies cross-referenced here.
 
 ---
 

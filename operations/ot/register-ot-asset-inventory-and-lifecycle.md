@@ -2,8 +2,8 @@
 
 **Document Title:** OT Asset Inventory and Lifecycle Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/register-asset-inventory.md`](../register-asset-inventory.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This register defines the schema, governance, classification, and lifecycle model for the organisation's Operational Technology (OT) asset inventory. The OT asset inventory is the authoritative record of all OT hardware, firmware, software, network components, and supporting infrastructure within scope of the OT/ICS Security Standard ([`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md)).
+This register defines the schema, governance, classification, and lifecycle model for the organization's Operational Technology (OT) asset inventory. The OT asset inventory is the authoritative record of all OT hardware, firmware, software, network components, and supporting infrastructure within scope of the OT/ICS Security Standard ([`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md)).
 
 The OT inventory supplements (and where conflict arises, supersedes for OT scope) the general operations asset inventory ([`operations/register-asset-inventory.md`](../register-asset-inventory.md)). OT assets carry attributes (zone membership, Security Level Capability, vendor support state, safety relevance, control-loop role) that the general schema does not represent.
 
@@ -81,7 +81,7 @@ This register is the foundation for OT zone-and-conduit governance, vulnerabilit
 
 ## 5. OT asset classification
 
-OT assets are classified along three independent dimensions: operational criticality, safety relevance, and zone trust level. Vulnerability prioritisation, patching cadence, and change rigour are derived from the combination.
+OT assets are classified along three independent dimensions: operational criticality, safety relevance, and zone trust level. Vulnerability prioritization, patching cadence, and change rigour are derived from the combination.
 
 ### 5.1 Operational criticality
 
@@ -160,7 +160,7 @@ Every OT asset has a record with the following fields. Fields are grouped for cl
 | Lifecycle State | Planned / Commissioning / Active / End-of-Support / Decommissioning / Decommissioned (per §7). |
 | In-Service Date | Date placed into production. |
 | Vendor End-of-Support Date | Vendor-published date or "Unknown" (recorded as a tracked gap). |
-| Internal End-of-Support Date | Date at which the organisation plans to retire the asset, if different. |
+| Internal End-of-Support Date | Date at which the organization plans to retire the asset, if different. |
 | Decommission Date | Date removed from service, where applicable. |
 
 ### 6.6 Security state
@@ -259,14 +259,14 @@ OT assets routinely run unsupported operating systems (legacy Windows versions, 
 
 ### 8.4 Secure decommissioning
 
-OT-asset decommissioning is more constrained than IT-asset decommissioning. Physical removal often occurs during plant turnaround. Data sanitisation considerations are limited (most OT components store configuration rather than personal or sensitive data), but configuration extraction for forensic and operational continuity is critical.
+OT-asset decommissioning is more constrained than IT-asset decommissioning. Physical removal often occurs during plant turnaround. Data sanitization considerations are limited (most OT components store configuration rather than personal or sensitive data), but configuration extraction for forensic and operational continuity is critical.
 
 Decommissioning steps:
 
 1. Final configuration backup retained per retention policy.
 2. Credentials and certificates revoked.
 3. Network membership removed; firewall and switch configurations updated.
-4. Physical asset removed; storage components sanitised or destroyed per the media handling procedure.
+4. Physical asset removed; storage components sanitized or destroyed per the media handling procedure.
 5. Inventory record transitioned to Decommissioned state with date.
 6. Zone and conduit records updated to reflect topology change.
 
@@ -310,7 +310,7 @@ Metric definitions feed into the IT Operations KPI register ([`operations/regist
 | NIST SP 800-82 Rev. 3 | OT security guide: inventory and asset management | Aligned. |
 | ISO/IEC 27001:2022 | Annex A.5.9 Inventory of information and other assets | Aligned, extended for OT. |
 | ISO/IEC 27019:2024 | Energy utility extensions (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | Sector overlay where applicable. |
-| NERC CIP-002 | BES Cyber System categorisation | North American electricity sector. |
+| NERC CIP-002 | BES Cyber System categorization | North American electricity sector. |
 | NERC CIP-010 | Configuration change management and vulnerability assessments | Configuration baseline tracking. |
 | IEC 61511 | Functional safety - process sector | Safety classification field. |
 | EU NIS 2 | Essential and important entity obligations | Inventory underpins risk management and incident reporting obligations. |

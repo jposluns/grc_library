@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure governs the lifecycle of foundation and frontier models consumed by the organisation: evaluation, supplier selection, contractual integration, deployment, ongoing monitoring, version-transition management, and exit. It complements the AI model lifecycle management procedure (which is generic) with the specific obligations and risk vectors of foundation-model consumption.
+This procedure governs the lifecycle of foundation and frontier models consumed by the organization: evaluation, supplier selection, contractual integration, deployment, ongoing monitoring, version-transition management, and exit. It complements the AI model lifecycle management procedure (which is generic) with the specific obligations and risk vectors of foundation-model consumption.
 
 ---
 
@@ -27,10 +27,10 @@ This procedure governs the lifecycle of foundation and frontier models consumed 
 This procedure applies to:
 
 1. Large language models, vision-language models, audio models, image and video generation models, multimodal models, and other general-purpose AI systems consumed from an external provider.
-2. Open-source foundation models adopted at scale, where the organisation depends on the model's continued availability and integrity.
+2. Open-source foundation models adopted at scale, where the organization depends on the model's continued availability and integrity.
 3. Significant fine-tunes of foundation models where the underlying foundation continues to drive the system behaviour.
 
-It does not cover narrow, organisation-trained, task-specific models; those follow the AI model lifecycle management procedure.
+It does not cover narrow, organization-trained, task-specific models; those follow the AI model lifecycle management procedure.
 
 ---
 
@@ -44,7 +44,7 @@ The AI System Inventory Keeper maintains a candidate list with the following per
 | --- | --- |
 | Candidate name and provider | Specific version, modality, intended use |
 | Provider type | Proprietary cloud-hosted, proprietary self-hosted, open-source self-hosted, open-source cloud-hosted |
-| Use case | The organisational use this candidate supports |
+| Use case | The organizational use this candidate supports |
 | Risk classification | Per the AI governance framework |
 | Decision-due date | When the candidate must be selected or rejected |
 
@@ -52,7 +52,7 @@ The AI System Inventory Keeper maintains a candidate list with the following per
 
 | Evaluation dimension | Required output |
 | --- | --- |
-| Capability evaluation | Pass against the candidate's intended use cases on the organisation's eval suite |
+| Capability evaluation | Pass against the candidate's intended use cases on the organization's eval suite |
 | Safety evaluation | Pass against the safety, refusal, and harmful-output evaluations including OWASP LLM Top 10 and MITRE ATLAS-aligned tests |
 | Adversarial evaluation | Pass against the adversarial test reference suite |
 | Fairness evaluation | Subgroup performance analysis appropriate to the use case |
@@ -72,7 +72,7 @@ For proprietary cloud-hosted providers, the contract includes the following beyo
 
 | Clause | Required content |
 | --- | --- |
-| Data handling | No training on the organisation's prompts, completions, fine-tuning data, or any derived content unless explicit opt-in is documented |
+| Data handling | No training on the organization's prompts, completions, fine-tuning data, or any derived content unless explicit opt-in is documented |
 | Data retention | Specific retention windows for prompts, completions, and telemetry; right to request deletion |
 | Logging and observability | Provider commitments on log retention, access, and integrity |
 | Service-level commitment | Latency, availability, and capacity targets; service credits |
@@ -83,9 +83,9 @@ For proprietary cloud-hosted providers, the contract includes the following beyo
 | Indemnity for IP claims | Coverage for copyright claims arising from model outputs where the contract allows |
 | Indemnity for personal data claims | Coverage where personal data is involved in training-data disputes |
 | Audit and assurance | SOC 2 Type II, ISO 27001, ISO 42001 (when available) evidence cadence; right to audit or right to an independent attestation |
-| Incident notification | Notification window matching the organisation's regulatory obligations |
+| Incident notification | Notification window matching the organization's regulatory obligations |
 | Right to exit | Documented exit assistance; data return and destruction obligations |
-| Co-operation on regulatory enquiries | Provider's commitments where the organisation faces a regulator under EU AI Act, NIS 2, sector regulator |
+| Co-operation on regulatory enquiries | Provider's commitments where the organization faces a regulator under EU AI Act, NIS 2, sector regulator |
 
 For open-source self-hosted models, the contractual layer is replaced by an internal acceptance memo that records: the licence, the weights provenance, the integrity verification (hash on download), and the secure-hosting plan.
 
@@ -135,7 +135,7 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 | Step | Action |
 | --- | --- |
-| Trigger | Provider failure, contractual breach, change in provider ownership creating restricted-list exposure, material behavioural change rendering the model unsuitable, organisational decision to consolidate providers |
+| Trigger | Provider failure, contractual breach, change in provider ownership creating restricted-list exposure, material behavioural change rendering the model unsuitable, organizational decision to consolidate providers |
 | Successor selection | Per Step 1 and Step 2 |
 | Migration | Per the cloud exit and data portability standard for cloud-hosted; per the open-source migration plan for self-hosted |
 | Data return and destruction | Per the supplier offboarding evidence template; specific to AI artefacts include prompt logs, completions, fine-tuning data, derived embeddings, evaluation data |
@@ -148,12 +148,12 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 | Risk | Mitigation |
 | --- | --- |
-| Provider trains on the organisation's data | Contractual no-train clause; technical controls (zero-data-retention deployment options); periodic audit |
+| Provider trains on the organization's data | Contractual no-train clause; technical controls (zero-data-retention deployment options); periodic audit |
 | Provider deprecates without notice | Contractual notice period; concentration analysis; pin where supported |
 | Provider model behaviour changes silently | Eval-suite regression detection; provider release-note monitoring |
 | Provider faces regulatory action affecting service | Geopolitical and regulatory environment review; pre-identified alternates |
 | Provider faces IP litigation that disrupts service | Indemnity coverage; alternates |
-| Provider security incident exposes the organisation's prompts or completions | Incident response coordination; data-residency and tenant-isolation commitments |
+| Provider security incident exposes the organization's prompts or completions | Incident response coordination; data-residency and tenant-isolation commitments |
 | Provider concentration becomes a critical-ICT-third-party concern | Concentration register; DORA Oversight Framework where applicable |
 
 ---
@@ -183,7 +183,7 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Foundation-model lifecycle is rapidly evolving; specific provider terms, technical mitigations, and regulatory expectations change frequently. Adopting organisations confirm current provider terms, current regulatory positions, and current evaluation practice with subject-matter experts at every cycle.
+This procedure is a CC BY-SA 4.0 baseline. Foundation-model lifecycle is rapidly evolving; specific provider terms, technical mitigations, and regulatory expectations change frequently. Adopting organizations confirm current provider terms, current regulatory positions, and current evaluation practice with subject-matter experts at every cycle.
 
 ---
 

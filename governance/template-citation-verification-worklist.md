@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-25\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md)\
@@ -39,7 +39,7 @@ A worklist is per batch. Copy this template at the start of each batch and renam
 For each row in the worklist:
 
 1. Open the Expected primary URL in an ordinary browser. Verify the URL bar shows the expected domain and TLS is in use. If the page redirects to a non-allow-listed domain, flag and stop for that row.
-2. Locate the text on the publisher page that supports (or refutes) the Expected value. Copy the verbatim text into the Captured text column. Do not paraphrase. Do not summarise.
+2. Locate the text on the publisher page that supports (or refutes) the Expected value. Copy the verbatim text into the Captured text column. Do not paraphrase. Do not summarize.
 3. Submit the publisher page to the Wayback Machine via `https://web.archive.org/save/<publisher-url>` and record the resulting snapshot URL in the Wayback URL column. If a same-day snapshot already exists, the existing snapshot URL is acceptable.
 4. Where Tier 2 corroboration is found, record the corroborating URL in the Secondary URL column.
 5. Record the Result (Match / Diverged / Not found) and any Divergence detail.

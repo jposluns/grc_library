@@ -2,8 +2,8 @@
 
 **Document Title:** SaaS Security Posture Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -18,15 +18,15 @@
 
 ## 1. Purpose
 
-This standard defines the security posture management of the organisation's SaaS portfolio: inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, and offboarding. It complements the supplier programme (which addresses contractual and assurance posture) with the technical and configuration posture of SaaS in use.
+This standard defines the security posture management of the organization's SaaS portfolio: inventory, configuration baselines, continuous posture monitoring, SaaS-to-SaaS integration risk, third-party application access, shadow-SaaS detection, and offboarding. It complements the supplier programme (which addresses contractual and assurance posture) with the technical and configuration posture of SaaS in use.
 
 ---
 
 ## 2. Scope
 
-This standard applies to every SaaS application used by the organisation, regardless of:
+This standard applies to every SaaS application used by the organization, regardless of:
 
-1. Procurement path (sanctioned procurement, departmental purchase, individual subscription expensed back to the organisation).
+1. Procurement path (sanctioned procurement, departmental purchase, individual subscription expensed back to the organization).
 2. Tier (mission critical, important, productivity, niche).
 3. Authentication path (federated SSO, social login, password-based).
 4. Data sensitivity (personal data, business-sensitive, public).
@@ -44,7 +44,7 @@ It does not duplicate the cloud security configuration baseline standard (which 
 | Discovery cadence | Continuous where automated; quarterly review of consolidated inventory |
 | Shadow-SaaS handling | Discovered unsanctioned SaaS triggers a procurement and security review; data migration to sanctioned alternatives or formal sanctioning |
 | Decommissioned applications | Retired applications recorded with offboarding evidence |
-| Customer-of-the-organisation SaaS | Where the organisation's own SaaS product is in scope, the inventory annotates it as out of scope for this internal-use standard |
+| Customer-of-the-organization SaaS | Where the organization's own SaaS product is in scope, the inventory annotates it as out of scope for this internal-use standard |
 
 ---
 
@@ -55,13 +55,13 @@ Each Tier 1 (mission critical) and Tier 2 (important) SaaS application has a doc
 | Configuration area | Required baseline content |
 | --- | --- |
 | Identity and authentication | SSO via the enterprise identity provider; phishing-resistant MFA where the SaaS supports it; legacy authentication disabled; SCIM-based provisioning where available |
-| Authorisation and roles | Documented role-to-permission mapping; least-privilege roles defined; admin role minimisation |
+| Authorization and roles | Documented role-to-permission mapping; least-privilege roles defined; admin role minimization |
 | External sharing | Sharing controls aligned with the data classification standard; external collaboration scope explicit |
 | Data classification awareness | Sensitive-data labelling integrated where the SaaS supports it; per-class handling enforced |
 | Audit logging | Native audit log enabled at the highest sensible level; export to the SIEM |
 | Anomaly detection | SaaS-native detection (impossible travel, suspicious access, mass-download) enabled and routed to the SOC |
-| Data residency | Data residency selected per organisation policy where the SaaS supports the choice |
-| API and integration | Documented integrations; OAuth scope minimisation; webhook validation |
+| Data residency | Data residency selected per organization policy where the SaaS supports the choice |
+| API and integration | Documented integrations; OAuth scope minimization; webhook validation |
 | Encryption | Encryption at rest enabled by default; encryption in transit enforced; customer-managed keys where the SaaS supports and the risk model requires |
 | Backup and recovery | Native backup, retention, and restore tested; export capability validated |
 | Mobile and unmanaged-device access | Per the BYOD policy; conditional access enforces device posture |
@@ -92,7 +92,7 @@ OAuth-grant-based SaaS-to-SaaS integrations expand the trust boundary. The stand
 | Control area | Requirement |
 | --- | --- |
 | Integration inventory | Every approved SaaS-to-SaaS integration is inventoried with the OAuth scopes granted, the principal that granted them, the business purpose, and the data exposure profile |
-| Scope minimisation | Integrations approved with the minimum OAuth scope required for the use case |
+| Scope minimization | Integrations approved with the minimum OAuth scope required for the use case |
 | Admin-consent governance | Admin-consent flows govern broad-scope integrations; standing user-consent for broad scopes prohibited |
 | App allow-list | Approved-integration allow-list applied where the platform supports it |
 | Periodic review | Integration list reviewed quarterly; stale integrations revoked |
@@ -104,14 +104,14 @@ OAuth-grant-based SaaS-to-SaaS integrations expand the trust boundary. The stand
 
 ## 7. Third-party application access
 
-Where employees, contractors, or partners use third-party applications to access organisational SaaS data:
+Where employees, contractors, or partners use third-party applications to access organizational SaaS data:
 
 | Control area | Requirement |
 | --- | --- |
 | Approved-marketplace applications | Pre-approved marketplace applications listed with their permitted use |
-| Browser extension governance | Extensions with access to organisation SaaS data managed; user-installed extensions reviewed |
-| Personal-account separation | Personal accounts and organisation accounts not interchangeable in any sanctioned client |
-| Account-linking restrictions | Personal-account linking to organisational identities prohibited where it creates data leakage paths |
+| Browser extension governance | Extensions with access to organization SaaS data managed; user-installed extensions reviewed |
+| Personal-account separation | Personal accounts and organization accounts not interchangeable in any sanctioned client |
+| Account-linking restrictions | Personal-account linking to organizational identities prohibited where it creates data leakage paths |
 | Conditional access | Conditional access enforces the same posture for third-party clients as for first-party clients where the integration model supports it |
 
 ---
@@ -184,7 +184,7 @@ Where employees, contractors, or partners use third-party applications to access
 1. SaaS application onboarding requires both procurement and security gates before sanctioning.
 2. The Tier 1 and Tier 2 baseline catalogue is reviewed annually for currency.
 3. SSPM tooling deployment is owned by the security architecture function; tool selection follows the tool acceptance criteria pattern.
-4. The organisation does not assume that out-of-the-box SaaS configuration is secure; defaults are reviewed and hardened during onboarding.
+4. The organization does not assume that out-of-the-box SaaS configuration is secure; defaults are reviewed and hardened during onboarding.
 
 ---
 
@@ -204,7 +204,7 @@ Where employees, contractors, or partners use third-party applications to access
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. SaaS portfolios and platform-native controls evolve rapidly; configuration baselines are continuously updated. Tooling specifically labelled SSPM is one implementation; the standard's requirements can also be met through a combination of CASB, native cloud controls, and bespoke automation. Adopting organisations select tooling per the tool acceptance criteria.
+This standard is a CC BY-SA 4.0 baseline. SaaS portfolios and platform-native controls evolve rapidly; configuration baselines are continuously updated. Tooling specifically labelled SSPM is one implementation; the standard's requirements can also be met through a combination of CASB, native cloud controls, and bespoke automation. Adopting organizations select tooling per the tool acceptance criteria.
 
 ---
 

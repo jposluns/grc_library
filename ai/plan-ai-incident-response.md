@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.5\
-**Date:** 2026-06-28\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -37,7 +37,7 @@ This plan applies to every AI system in the AI System Register, including founda
 | Jailbreak | Refusal-bypass output; safety-classifier alert |
 | Data poisoning | Training-data anomaly; sudden behaviour shift after fine-tune; integrity verification failure on training corpus |
 | Model inversion or membership inference | Output containing verbatim training-data segments; targeted query patterns; researcher disclosure |
-| Retrieval leakage | Retrieval-store access by unauthorised query; query-log review revealing unexpected matches |
+| Retrieval leakage | Retrieval-store access by unauthorized query; query-log review revealing unexpected matches |
 | Agent compromise | Tool invocation outside the agent's permitted scope; rate or chain-length limits triggered; tool credentials used outside expected context |
 | Unsafe tool execution | Destructive tool call without confirmation; cross-tenant action; data exfiltration via tool |
 | Hallucination causing harm | Customer complaint; downstream-system failure attributable to AI-generated content; legal or safety review |
@@ -50,9 +50,9 @@ This plan applies to every AI system in the AI System Register, including founda
 
 | Severity | Criteria | Examples |
 | --- | --- | --- |
-| P1 | Active exfiltration of personal or regulated data via AI; agent in production performing unauthorised actions at scale; safety-critical AI returning incorrect outputs with confirmed harm; coordinated jailbreak campaign against a customer-facing assistant | Multi-customer data exfiltration through indirect prompt injection; agent issued unauthorised payments |
+| P1 | Active exfiltration of personal or regulated data via AI; agent in production performing unauthorized actions at scale; safety-critical AI returning incorrect outputs with confirmed harm; coordinated jailbreak campaign against a customer-facing assistant | Multi-customer data exfiltration through indirect prompt injection; agent issued unauthorized payments |
 | P2 | Suspected breach via AI vector; agent isolated incident with limited blast radius; degradation outside tolerance | Single-tenant prompt injection success without confirmed exfiltration |
-| P3 | AI safety event with no operational impact; localised behaviour regression | Eval-suite regression on a non-customer model |
+| P3 | AI safety event with no operational impact; localized behaviour regression | Eval-suite regression on a non-customer model |
 | P4 | False positive; reproducible-only-by-researcher edge case | Lab-only proof of concept with no production exposure |
 
 The Joint Command convenes for P1 within 60 minutes of declaration; P2 within 8 business hours; P3 by next business day.
@@ -118,9 +118,9 @@ AI-specific containment actions, applied per the severity and the system archite
 | Action | When |
 | --- | --- |
 | Patch prompt template; deploy patched version | Direct prompt injection |
-| Update retrieved-content allow list; sanitise quarantined documents | Indirect prompt injection |
+| Update retrieved-content allow list; sanitize quarantined documents | Indirect prompt injection |
 | Update agent tool allow list and confirmation rules | Agent compromise |
-| Invoke the reversal or compensating transaction for agent-performed production actions; confirm the affected system returned to an equivalent prior state | Agent performed unauthorised, harmful, or out-of-scope production actions (per the reversibility classification in `AGENT-PROD-02` of the AI and Agentic Development Security Standard) |
+| Invoke the reversal or compensating transaction for agent-performed production actions; confirm the affected system returned to an equivalent prior state | Agent performed unauthorized, harmful, or out-of-scope production actions (per the reversibility classification in `AGENT-PROD-02` of the AI and Agentic Development Security Standard) |
 | Rotate compromised credentials | Credential exposure |
 | Retire compromised model version; revert to a clean prior version | Poisoning or degradation |
 | Update safety classifier; redeploy with updated thresholds | Repeated jailbreak success |
@@ -198,7 +198,7 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 
 ## Limitations
 
-This plan is a CC BY-SA 4.0 baseline. Adopting organisations populate per-system AI incident playbooks, eval-suite specifics, supplier contact rosters, and regulatory-notification matrices. AI incident response is rapidly maturing; the plan is expected to evolve as new threat patterns emerge.
+This plan is a CC BY-SA 4.0 baseline. Adopting organizations populate per-system AI incident playbooks, eval-suite specifics, supplier contact rosters, and regulatory-notification matrices. AI incident response is rapidly maturing; the plan is expected to evolve as new threat patterns emerge.
 
 ---
 

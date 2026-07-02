@@ -2,8 +2,8 @@
 
 **Document Title:** Minimum Viable Governance Structure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.3\
-**Date:** 2026-06-30\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md)\
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-The library references multiple governance forums (AI Governance Council, Enterprise Risk Committee, Board Risk Committee, Architecture Review Board, Change Advisory Board, Data Council, Reliability Council, Capacity Council, and others). A small or mid-sized organisation cannot staff all of these as discrete bodies. This guideline shows how an adopting organisation can implement the library's governance content at three maturity tiers, consolidating forums where appropriate and naming clear seats for the responsibilities the library assigns.
+The library references multiple governance forums (AI Governance Council, Enterprise Risk Committee, Board Risk Committee, Architecture Review Board, Change Advisory Board, Data Council, Reliability Council, Capacity Council, and others). A small or mid-sized organization cannot staff all of these as discrete bodies. This guideline shows how an adopting organization can implement the library's governance content at three maturity tiers, consolidating forums where appropriate and naming clear seats for the responsibilities the library assigns.
 
-This guideline is non-binding; it is adopter guidance. The library's individual documents continue to reference the formal forum names (which a large organisation may have as discrete bodies). This document describes how a smaller organisation maps those formal names to a leaner structure without losing the underlying accountability.
+This guideline is non-binding; it is adopter guidance. The library's individual documents continue to reference the formal forum names (which a large organization may have as discrete bodies). This document describes how a smaller organization maps those formal names to a leaner structure without losing the underlying accountability.
 
 ---
 
@@ -28,9 +28,9 @@ This guideline is non-binding; it is adopter guidance. The library's individual 
 
 This guideline applies to:
 
-1. Organisations adopting the library who need to decide which formal forums to instantiate as discrete bodies and which to combine.
-2. Smaller organisations (no dedicated risk function, no separate AI governance body) seeking a minimum-viable starting point.
-3. Maturing organisations that have outgrown a leaner structure and need a target-state design.
+1. Organizations adopting the library who need to decide which formal forums to instantiate as discrete bodies and which to combine.
+2. Smaller organizations (no dedicated risk function, no separate AI governance body) seeking a minimum-viable starting point.
+3. Maturing organizations that have outgrown a leaner structure and need a target-state design.
 
 It does not redefine the formal forum names used elsewhere in the library; it shows the consolidation patterns that preserve the responsibilities.
 
@@ -38,19 +38,19 @@ It does not redefine the formal forum names used elsewhere in the library; it sh
 
 ## Three tiers of governance structure
 
-The guideline describes three reference structures. Adopting organisations choose the tier that matches their size, complexity, and regulatory profile.
+The guideline describes three reference structures. Adopting organizations choose the tier that matches their size, complexity, and regulatory profile.
 
 | Tier | Profile | Number of discrete forums |
 | --- | --- | --- |
-| Tier 1: Minimum viable | Small organisation (under approximately 200 staff, low regulatory exposure, no high-risk AI in production) | 2-3 |
-| Tier 2: Mid-market | Mid-sized organisation (200-2,000 staff, sector-regulated, some production AI) | 4-6 |
-| Tier 3: Enterprise / regulated | Large organisation, multiple jurisdictions, financial-services or healthcare-grade regulation, material AI portfolio | 8-12 (close to the library's full forum vocabulary) |
+| Tier 1: Minimum viable | Small organization (under approximately 200 staff, low regulatory exposure, no high-risk AI in production) | 2-3 |
+| Tier 2: Mid-market | Mid-sized organization (200-2,000 staff, sector-regulated, some production AI) | 4-6 |
+| Tier 3: Enterprise / regulated | Large organization, multiple jurisdictions, financial-services or healthcare-grade regulation, material AI portfolio | 8-12 (close to the library's full forum vocabulary) |
 
 ---
 
 ## Tier 1: Minimum viable
 
-A small organisation can implement the library's governance content with two named bodies plus the founder / CEO / equivalent for board-level decisions.
+A small organization can implement the library's governance content with two named bodies plus the founder / CEO / equivalent for board-level decisions.
 
 | Library forum | Tier-1 home |
 | --- | --- |
@@ -71,7 +71,7 @@ Key practice: the *responsibilities* the library assigns to each forum remain ac
 
 ## Tier 2: Mid-market
 
-A mid-sized organisation typically instantiates four to six discrete bodies.
+A mid-sized organization typically instantiates four to six discrete bodies.
 
 | Body | Library forums combined |
 | --- | --- |
@@ -82,13 +82,13 @@ A mid-sized organisation typically instantiates four to six discrete bodies.
 | Change Advisory Board | Change Advisory Board (often the only purely operational body separate from technology council) |
 | Ethics and Compliance Committee | Ethics Committee, Ethics and Compliance Committee, Whistleblower oversight |
 
-A mid-market organisation might add an AI Governance Council as a separate body when the AI portfolio reaches a complexity that warrants dedicated cadence; otherwise the technology council carries AI items.
+A mid-market organization might add an AI Governance Council as a separate body when the AI portfolio reaches a complexity that warrants dedicated cadence; otherwise the technology council carries AI items.
 
 ---
 
 ## Tier 3: Enterprise / regulated
 
-A large or regulated organisation typically instantiates most of the library's named forums as discrete bodies. The library's individual document references then map one-to-one onto the organisation's actual forums.
+A large or regulated organization typically instantiates most of the library's named forums as discrete bodies. The library's individual document references then map one-to-one onto the organization's actual forums.
 
 At this tier:
 
@@ -98,7 +98,7 @@ At this tier:
 - The Insider Risk Steering Committee exists as a discrete cross-functional body.
 - The Change Advisory Board is a discrete operational body.
 
-Even at this tier, the library's forum vocabulary is the maximum; an organisation may still consolidate forums that don't justify discrete cadence in its context.
+Even at this tier, the library's forum vocabulary is the maximum; an organization may still consolidate forums that don't justify discrete cadence in its context.
 
 ---
 
@@ -130,7 +130,7 @@ Example (Tier 1):
 | Enterprise Risk Committee | Executive forum (risk items on agenda) | Weekly |
 | Change Advisory Board | IT Operations Lead approval list | Continuous |
 
-This mapping makes the library's documents auditable in your context: a reader of, say, the AI governance framework can determine which body in your organisation actually exercises the council's authority.
+This mapping makes the library's documents auditable in your context: a reader of, say, the AI governance framework can determine which body in your organization actually exercises the council's authority.
 
 ---
 
@@ -152,7 +152,7 @@ The mapping has succeeded when:
 
 1. Choose a tier deliberately; do not aspire to Tier 3 if your operating context is Tier 1.
 2. Document your mapping in a short internal artefact; do not rely on tacit knowledge.
-3. Revisit the mapping as your organisation grows. Tier transitions are deliberate decisions, recorded against the appropriate body.
+3. Revisit the mapping as your organization grows. Tier transitions are deliberate decisions, recorded against the appropriate body.
 4. Where consolidation is chosen, agenda items still record which library responsibility is being exercised, so audit and review remain possible.
 5. Where you cannot map a library responsibility to any body, treat that as a finding and either accept the responsibility gap deliberately (with a documented rationale) or stand up the corresponding forum.
 
@@ -162,7 +162,7 @@ The mapping has succeeded when:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 37000:2021 | Governance of organisations | Governance maturity guidance |
+| ISO 37000:2021 | Governance of organizations | Governance maturity guidance |
 | ISO/IEC 27001:2022 | A.5.2 Information security roles and responsibilities | Role and forum design |
 | ISO/IEC 42001:2023 | §5 Leadership | AI governance leadership |
 | COBIT 2019 | EDM (Evaluate, Direct, Monitor) processes | Governance forum design |
@@ -173,7 +173,7 @@ The mapping has succeeded when:
 
 ## Limitations
 
-This guideline is a CC BY-SA 4.0 baseline. The mapping an organisation produces is organisation-specific. The guideline does not prescribe which forums must exist for a specific regulatory regime; sector regulators (financial-services, healthcare, critical infrastructure) may require specific bodies with specific compositions. Adopting organisations confirm sector-specific requirements with subject-matter experts.
+This guideline is a CC BY-SA 4.0 baseline. The mapping an organization produces is organization-specific. The guideline does not prescribe which forums must exist for a specific regulatory regime; sector regulators (financial-services, healthcare, critical infrastructure) may require specific bodies with specific compositions. Adopting organizations confirm sector-specific requirements with subject-matter experts.
 
 ---
 

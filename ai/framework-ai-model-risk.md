@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organisation-neutral model for identifying, assessing, treating, monitoring, and evidencing risks arising from AI model behaviour, data representation, robustness, interpretability, lifecycle control, and deployment context.
+This framework defines an organization-neutral model for identifying, assessing, treating, monitoring, and evidencing risks arising from AI model behaviour, data representation, robustness, interpretability, lifecycle control, and deployment context.
 
 The framework treats data as the primary risk surface. Model behaviour is governed through controls over data provenance, lineage, training or tuning data, retrieval sources, prompts, inference inputs, monitoring records, retention, deletion, and lifecycle evidence.
 
@@ -103,7 +103,7 @@ Each model or model-enabled system should have:
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. It does not reproduce external framework text and does not establish legal compliance, certification, model safety, or operating effectiveness. Adopting organisations must validate requirements against their own AI systems, data categories, suppliers, jurisdictions, sectors, and risk appetite.
+This framework is a CC BY-SA 4.0 baseline. It does not reproduce external framework text and does not establish legal compliance, certification, model safety, or operating effectiveness. Adopting organizations must validate requirements against their own AI systems, data categories, suppliers, jurisdictions, sectors, and risk appetite.
 
 ---
 

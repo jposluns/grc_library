@@ -2,8 +2,8 @@
 
 **Document Title:** Data Architecture Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/procedure-training-data-governance.md`](../ai/procedure-training-data-governance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard governs the data architecture practice: how data is modelled, owned, integrated, served, and retired across the organisation. It complements the data classification and handling standard (which governs the controls applied to data) and the privacy and data governance policy (which governs the organisation's privacy posture) by addressing the architectural choices that determine how data flows and is consumed.
+This standard governs the data architecture practice: how data is modelled, owned, integrated, served, and retired across the organization. It complements the data classification and handling standard (which governs the controls applied to data) and the privacy and data governance policy (which governs the organization's privacy posture) by addressing the architectural choices that determine how data flows and is consumed.
 
 ---
 
@@ -142,7 +142,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 | Capture | Data is captured at known sources with documented schema |
 | Storage | Data is stored according to its classification and access pattern |
 | Use | Data is used by named consumers with documented purposes |
-| Sharing | Data sharing inside and outside the organisation is governed per the data sharing register |
+| Sharing | Data sharing inside and outside the organization is governed per the data sharing register |
 | Retention | Per the records retention schedule |
 | Deletion | Deletion is propagated reliably, including from backups per the retention policy |
 | Archival | Long-term archival is distinct from retention for active use |
@@ -169,7 +169,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 | --- | --- |
 | Internal sharing | Sharing across teams is contract-based; documented data products |
 | External sharing | External sharing follows privacy, regulatory, and contractual constraints |
-| Open data | Where the organisation publishes open data, the publication pipeline is governed |
+| Open data | Where the organization publishes open data, the publication pipeline is governed |
 | Data exports for customers | Customer-facing data exports have documented schema, integrity, and access controls |
 | Data clean rooms | Where used, governance follows the relevant privacy framework |
 | Marketplaces | Inbound and outbound data marketplaces are governed |
@@ -258,7 +258,7 @@ It does not govern ephemeral telemetry beyond its data shape (the observability 
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Data platform choices, ownership topology, and tooling are organisation-specific. The standard expresses outcomes and architectural principles, not specific platforms or commercial products.
+This standard is a CC BY-SA 4.0 baseline. Data platform choices, ownership topology, and tooling are organization-specific. The standard expresses outcomes and architectural principles, not specific platforms or commercial products.
 
 ---
 

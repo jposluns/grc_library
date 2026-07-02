@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Code Review Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.2\
-**Date:** 2026-05-28\
+**Version:** 0.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -66,7 +66,7 @@ The change is not submitted for review until these preconditions are met.
 | Third-party or vendor patch | Security reviewer; the change author cannot self-merge |
 | Hotfix to production | Reviewer assignment may be reduced in flight; full review completed within the same business day after merge |
 
-Security-sensitive change indicators include: changes touching authentication, authorisation, session management, cryptography, key handling, input handling at trust boundaries, output rendering, deserialisation, file or path handling, command construction, network endpoints, IAM policy, secrets configuration, AI tool permissions, or retrieval augmentation sources.
+Security-sensitive change indicators include: changes touching authentication, authorization, session management, cryptography, key handling, input handling at trust boundaries, output rendering, deserialization, file or path handling, command construction, network endpoints, IAM policy, secrets configuration, AI tool permissions, or retrieval augmentation sources.
 
 ### Step 3: Reviewer evaluation
 
@@ -87,19 +87,19 @@ Reviewers evaluate the change against the categories below. The reviewer is expe
 | --- | --- |
 | Validation at trust boundary | Untrusted input validated against a permissive-deny pattern at boundary entry |
 | Output encoding | Output encoded for the destination context; no string concatenation into HTML, SQL, shell, or LDAP |
-| Parameterised queries | Database access uses parameterised interfaces; ORM use does not introduce dynamic predicate strings |
+| Parameterized queries | Database access uses parameterized interfaces; ORM use does not introduce dynamic predicate strings |
 | Command and shell | No shell invocation of untrusted input; subprocess invocations use argument lists, not strings |
-| Deserialisation | Untrusted deserialisation avoided; safe formats preferred |
+| Deserialization | Untrusted deserialization avoided; safe formats preferred |
 | Path handling | Path traversal protected; canonical-path comparison; allow-listed base paths |
 | Regular expressions | No catastrophic backtracking patterns on untrusted input |
 | Server-side request forgery | Outbound HTTP from untrusted input restricted; metadata endpoints blocked |
 
-#### Category C: authentication, authorisation, and session
+#### Category C: authentication, authorization, and session
 
 | Check | Description |
 | --- | --- |
 | Authentication | New endpoints honour authentication; no inadvertent anonymous exposure |
-| Authorisation enforcement | Per-resource authorisation evaluated server-side; object-level checks present; no client-trusted role claims |
+| Authorization enforcement | Per-resource authorization evaluated server-side; object-level checks present; no client-trusted role claims |
 | Session and token handling | Tokens issued and validated correctly; no logging of session identifiers; no token in URL |
 | Multi-tenant isolation | Tenant scoping evaluated for every data access path |
 | Privilege escalation | Administrative endpoints separated; sensitive operations require step-up where required |
@@ -120,7 +120,7 @@ Reviewers evaluate the change against the categories below. The reviewer is expe
 | Check | Description |
 | --- | --- |
 | Data classification | Data classification considered; controls match per the data classification standard |
-| Personal data | Personal data handling consistent with privacy framework; minimisation respected |
+| Personal data | Personal data handling consistent with privacy framework; minimization respected |
 | Children's data | Where children's data is in scope, the children's data framework applies |
 | Storage at rest | Sensitive data at rest is encrypted; storage chosen per the classification |
 | Transmission | Transit cryptography enforced; no internal plaintext channels for sensitive data |
@@ -165,7 +165,7 @@ Reviewers evaluate the change against the categories below. The reviewer is expe
 | --- | --- |
 | Prompt injection resistance | Untrusted content treated as data; instructions are not derived from untrusted sources |
 | Tool permissions | Agentic tool sets minimized; tool invocations are auditable |
-| Output handling | Model output sanitised before use in security-sensitive contexts |
+| Output handling | Model output sanitized before use in security-sensitive contexts |
 | Sensitive data in prompts | Sensitive data is not passed to models that have not been assessed for that classification |
 | Evaluation | Evaluation suite updated where the change materially affects model behaviour |
 | Logging | Prompt and completion logging consistent with the [`AI and Agentic Development Security Standard`](../ai/standard-ai-and-agentic-development-security.md) (Inference call logging control) |
@@ -291,7 +291,7 @@ Automated findings inform but do not replace the human review.
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Adopting organisations select reviewer pool size, tooling, and gating thresholds proportionate to their risk profile and engineering culture. Review effectiveness is verified through penetration testing, post-incident review, and periodic process audit.
+This procedure is a CC BY-SA 4.0 baseline. Adopting organizations select reviewer pool size, tooling, and gating thresholds proportionate to their risk profile and engineering culture. Review effectiveness is verified through penetration testing, post-incident review, and periodic process audit.
 
 ---
 

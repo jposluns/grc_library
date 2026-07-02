@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptable Use Policy\
 **Document Type:** Policy\
-**Version:** 1.3.0\
-**Date:** 2026-05-27\
+**Version:** 1.3.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -79,7 +79,7 @@ All personnel must be aware that social engineering attacks are frequently condu
 
 ## 7. Monitoring
 
-The organisation reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
+The organization reserves the right to monitor activity on company systems and devices for security and compliance purposes. Monitoring is conducted in accordance with applicable privacy law and is disclosed through this policy. Users have no expectation of privacy when using company-owned devices or systems. Monitoring results may be used in disciplinary or legal proceedings.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ## 2. Scope
 
-2.1 This procedure applies to all employees (permanent and fixed-term), contractors, consultants, and third-party workers who are granted access to any organisational system, application, network, or physical IT asset.
+2.1 This procedure applies to all employees (permanent and fixed-term), contractors, consultants, and third-party workers who are granted access to any organizational system, application, network, or physical IT asset.
 
 2.2 It covers all user account types including standard user accounts, privileged accounts, shared accounts, service accounts provisioned to individuals, and third-party portal credentials.
 
@@ -165,7 +165,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ### 7.5 Data retrieval
 
-7.5.1 Any organisational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
+7.5.1 Any organizational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
 
 7.5.2 Personal email forwarding from a corporate account to a personal account must not be set up and will be removed as part of the deprovisioning checklist.
 
@@ -209,7 +209,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 9.2 Third-party system access, including access to client portals, supplier systems, or external platforms, must be reviewed and removed as part of the deprovisioning checklist.
 
-9.3 Where a contractor or third-party worker shared credentials with other members of their organisation (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
+9.3 Where a contractor or third-party worker shared credentials with other members of their organization (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
 
 9.4 IT Operations must confirm with the relevant line manager or contract owner that all third-party access has been removed before closing the offboarding record.
 
@@ -268,7 +268,7 @@ The following checklist must be completed for every departure. IT Operations is 
 
 12.2 Deprovisioning records must be retained for a minimum of 7 years from the date of departure. This supports audit requirements, regulatory inquiry, and legal proceedings.
 
-12.3 Records must be stored in the organisation's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit.
+12.3 Records must be stored in the organization's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit.
 
 12.4 Onboarding records (access provisioning approvals, role-profile assignments, initial MFA enrolment confirmation) must similarly be retained for 7 years from the date of offboarding of the individual to whom they relate.
 

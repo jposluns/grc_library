@@ -2,8 +2,8 @@
 
 **Document Title:** Adversarial Evaluation Suite Development Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This guideline provides an organisation-neutral method for developing adversarial evaluation suites for AI models and AI systems. It supports repeatable testing for misuse resistance, data leakage, prompt injection, unsafe tool use, robustness, and lifecycle assurance.
+This guideline provides an organization-neutral method for developing adversarial evaluation suites for AI models and AI systems. It supports repeatable testing for misuse resistance, data leakage, prompt injection, unsafe tool use, robustness, and lifecycle assurance.
 
 ---
 
@@ -105,7 +105,7 @@ Maintain evaluation plan, test case inventory, execution summary, findings, reme
 
 ## Limitations
 
-This guideline is a CC BY-SA 4.0 baseline. Adopting organisations must define specific technical methods, tooling, restricted test prompts, evidence repositories, legal review triggers, and disclosure controls internally.
+This guideline is a CC BY-SA 4.0 baseline. Adopting organizations must define specific technical methods, tooling, restricted test prompts, evidence repositories, legal review triggers, and disclosure controls internally.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.1\
-**Date:** 2026-06-29\
+**Version:** 1.2.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organisation establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
+This register defines the key performance indicators (KPIs) used to monitor IT and cybersecurity obligations under the BASC International Standard v6. BASC §9.1 requires that the organization establish, implement, and maintain monitoring and measurement processes. This register operationalizes that requirement for IT-owned controls. Results are reported to the CISO monthly and to the BASC Compliance function quarterly.
 
 ---
 

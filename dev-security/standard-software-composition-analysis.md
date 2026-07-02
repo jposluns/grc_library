@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-07-01\
+**Version:** 1.1.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -33,7 +33,7 @@ This standard applies to:
 - All containerized workloads and container images
 - All infrastructure-as-code (IaC) that references external modules or provider plugins
 
-This standard applies to all languages and package ecosystems in use across the organisation including but not limited to Python (pip/PyPI), JavaScript/TypeScript (npm, yarn), Java (Maven, Gradle), C# (.NET/NuGet), Go (Go modules), Ruby (Gems), and Rust (Cargo).
+This standard applies to all languages and package ecosystems in use across the organization including but not limited to Python (pip/PyPI), JavaScript/TypeScript (npm, yarn), Java (Maven, Gradle), C# (.NET/NuGet), Go (Go modules), Ruby (Gems), and Rust (Cargo).
 
 ---
 
@@ -86,7 +86,7 @@ Where a fix is not available (no patched version exists), the following actions 
 
 ### 4.3 Licence compliance
 
-All open-source licences in use must be reviewed and approved before use in the organisation's products or services.
+All open-source licences in use must be reviewed and approved before use in the organization's products or services.
 
 | Licence Category | Examples | Use Permitted | Conditions |
 |---|---|---|---|
@@ -140,7 +140,7 @@ SBOMs must be produced in at least one of:
 
 | Control | Requirement |
 |---|---|
-| **Private registries for internal packages** | All internally developed packages must be published to and consumed from a private registry. Internal package names must use organisation-controlled namespace prefixes that cannot be registered on public registries. |
+| **Private registries for internal packages** | All internally developed packages must be published to and consumed from a private registry. Internal package names must use organization-controlled namespace prefixes that cannot be registered on public registries. |
 | **Registry scoping** | Package manager configuration files (`.npmrc`, `pip.conf`, `nuget.config`, `settings.xml`) must scope internal packages to the private registry only; public registry fallback must be disabled for namespaces used internally. |
 | **Dependency pinning** | All direct dependencies must be pinned to an exact version in the dependency manifest. Ranges (e.g., `^1.0.0`, `>=2.0`) are prohibited for production builds. |
 | **Lock files** | Dependency lock files (`package-lock.json`, `yarn.lock`, `poetry.lock`, `requirements.txt` with hashes, `go.sum`) must be committed to version control and treated as authoritative for builds. Lock files must not be regenerated without explicit approval. |
@@ -149,7 +149,7 @@ SBOMs must be produced in at least one of:
 
 #### 4.5.2 Source and build integrity (SLSA alignment)
 
-The organisation targets the following SLSA levels by system type:
+The organization targets the following SLSA levels by system type:
 
 | System Type | Target SLSA Level | Rationale |
 |---|---|---|
@@ -217,7 +217,7 @@ A tool that passes the criteria is documented in the security architecture regis
 | **Developer** | Perform triage on SCA findings in their codebase; remediate within SLA; document VEX justifications for non-exploitable findings |
 | **Security Champion** | Review SCA reports for their team; escalate unresolved High+ findings; advise on compensating controls |
 | **DevOps / Platform Team** | Maintain and configure SCA tooling in CI/CD pipelines; ensure that SBOM generation is automated; manage private registry configuration |
-| **CISO** | Approve exceptions to remediation SLAs; set organisational risk acceptance thresholds; review Critical vulnerability escalations |
+| **CISO** | Approve exceptions to remediation SLAs; set organizational risk acceptance thresholds; review Critical vulnerability escalations |
 | **Legal** | Review and approve licence exceptions; advise on SBOM distribution obligations |
 | **Procurement** | Require SBOMs from commercial software vendors; include SBOM provision clauses in software procurement contracts |
 

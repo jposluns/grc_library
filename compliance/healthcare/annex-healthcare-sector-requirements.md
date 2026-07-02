@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-06-24\
+**Version:** 1.1.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -18,9 +18,9 @@
 
 ## Purpose
 
-This annex identifies the additional GRC obligations that apply to organisations operating in or adjacent to the healthcare sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
+This annex identifies the additional GRC obligations that apply to organizations operating in or adjacent to the healthcare sector. It maps applicable regulatory frameworks to the core GRC library controls and identifies gap areas requiring sector-specific supplementation.
 
-This annex applies where an organisation:
+This annex applies where an organization:
 - Is a healthcare provider, health insurer, or healthcare clearinghouse (covered entity under HIPAA)
 - Processes electronic protected health information (ePHI) or equivalent health data on behalf of a covered entity (business associate)
 - Manufactures, distributes, or services connected medical devices
@@ -52,7 +52,7 @@ This annex applies where an organisation:
 |---|---|---|
 | **PIPEDA** (personal health information provisions) | OPC | Health information about identifiable individuals |
 | **PHIPA**: Personal Health Information Protection Act | Ontario IPC | Ontario health information custodians |
-| **PIPA** (Alberta) | OIPC Alberta | Alberta health organisations |
+| **PIPA** (Alberta) | OIPC Alberta | Alberta health organizations |
 | **HIA**: Health Information Act | Alberta | Alberta custodians of health information |
 | **PHIA** (Manitoba, Nova Scotia, etc.) | Provincial | Province-specific health information custodians |
 | **FINTRAC** | FINTRAC | Pharmacies (AML obligations in some provinces) |
@@ -62,9 +62,9 @@ This annex applies where an organisation:
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
 | **UK GDPR + Data Protection Act 2018** | ICO | All health data processing |
-| **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organisations and their suppliers |
+| **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organizations and their suppliers |
 | **CQC Data Security Standards** | Care Quality Commission | Regulated health and social care providers |
-| **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organisations |
+| **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organizations |
 | **MHRA regulations** | MHRA | Medical device manufacturers and distributors in UK |
 
 ### European union
@@ -82,7 +82,7 @@ This annex applies where an organisation:
 
 | Standard | Body | Scope |
 |---|---|---|
-| **ISO 27799**, Health informatics, Information security management | ISO | Health organisations implementing information security |
+| **ISO 27799**, Health informatics, Information security management | ISO | Health organizations implementing information security |
 | **HL7 FHIR Security** | HL7 International | FHIR API implementers |
 | **ISO 13485**: Medical devices quality management | ISO | Medical device manufacturers |
 | **IEC 62304**: Medical device software lifecycle | IEC | Medical device software developers |
@@ -135,7 +135,7 @@ The HIPAA Security Rule establishes three categories of safeguards for ePHI. The
 
 ### HIPAA Security Rule NPRM (proposed)
 
-HHS OCR issued a Notice of Proposed Rulemaking (NPRM) on 27 December 2024, published in the Federal Register on 6 January 2025. The comment period closed 7 March 2025 with approximately 5,000 comments. The final rule remained pending as of May 2026, with OCR's regulatory agenda listing May 2026 as the target finalisation window.
+HHS OCR issued a Notice of Proposed Rulemaking (NPRM) on 27 December 2024, published in the Federal Register on 6 January 2025. The comment period closed 7 March 2025 with approximately 5,000 comments. The final rule remained pending as of May 2026, with OCR's regulatory agenda listing May 2026 as the target finalization window.
 
 The most consequential proposed changes (note: still proposed; not yet in force):
 
@@ -149,7 +149,7 @@ The most consequential proposed changes (note: still proposed; not yet in force)
 | Enhanced business associate oversight | Greater BAA verification and reporting expectations. |
 | 72-hour incident reporting (proposed) | Internal reporting timeline tightened. |
 
-When the NPRM is finalized, the published Final Rule will take effect 60 days after publication in the Federal Register, and covered entities and business associates will have an additional 180 days after the effective date to reach compliance (240 days total from publication). Organisations operating in the healthcare sector should track the OCR regulatory agenda and the Federal Register for the finalisation event.
+When the NPRM is finalized, the published Final Rule will take effect 60 days after publication in the Federal Register, and covered entities and business associates will have an additional 180 days after the effective date to reach compliance (240 days total from publication). Organizations operating in the healthcare sector should track the OCR regulatory agenda and the Federal Register for the finalization event.
 
 ### HIPAA breach notification rule
 
@@ -165,7 +165,7 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 
 ### NHS DSPT (UK)
 
-The NHS Data Security and Protection Toolkit is mandatory for all organisations that access NHS patient data or systems. It is structured around the 10 National Data Guardian Standards.
+The NHS Data Security and Protection Toolkit is mandatory for all organizations that access NHS patient data or systems. It is structured around the 10 National Data Guardian Standards.
 
 | NDG Standard | Core Requirement | GRC Library Mapping |
 |---|---|---|
@@ -180,7 +180,7 @@ The NHS Data Security and Protection Toolkit is mandatory for all organisations 
 | 9. IT protection | Cyber security measures deployed | [`security/policy-information-security.md`](../../security/policy-information-security.md) |
 | 10. Accountable suppliers | Contracts include data security requirements | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
 
-DSPT submission is annual. Organisations must achieve at minimum "Standards Met" status to maintain NHS data access.
+DSPT submission is annual. Organizations must achieve at minimum "Standards Met" status to maintain NHS data access.
 
 ### FDA cybersecurity for medical devices (2023 guidance)
 
@@ -212,7 +212,7 @@ Processing health data as special category data under GDPR requires additional s
 
 ### Caldicott principles (UK NHS)
 
-In addition to UK GDPR, NHS and social care organisations must apply the 7 Caldicott Principles:
+In addition to UK GDPR, NHS and social care organizations must apply the 7 Caldicott Principles:
 
 1. Justify the purpose for using confidential information
 2. Use only the minimum necessary identifiable information

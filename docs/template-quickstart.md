@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Quickstart Template\
 **Document Type:** Template\
-**Version:** 3.0.5\
-**Date:** 2026-06-29\
+**Version:** 3.0.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md), [`README.md`](../README.md)\
@@ -38,11 +38,11 @@ Every adopter needs these three things in the first session, regardless of size 
    - [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) plus the relevant file from [`privacy/jurisdictions/`](../privacy/jurisdictions/) (privacy policy and home-jurisdiction annex)
    - [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) (enterprise risk governance policy; aligns with the Tier 1 starter set in [`docs/adopter-guide.md`](adopter-guide.md))
 
-2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organisation in a private overlay. Do not edit named individuals into the artefacts themselves.
+2. **Substitute the role names.** Every artefact in the library names roles, not people. Map each role to a real person in your organization in a private overlay. Do not edit named individuals into the artefacts themselves.
 
 3. **Point at the portal.** Browse [`docs/portal.md`](portal.md) to see which other documents fit your audience (CIO, CISO, DPO (Data Protection Officer), auditor, engineering team, etc.). Take only the documents that match your sector, jurisdiction, and operating model.
 
-That is the quickstart. An organisation that has done these three things has a defensible floor. These six artefacts are the Day-1 floor, and all six now also appear in the adopter guide's 17-document Tier 1 set, so the Day-1 floor is a strict subset of Tier 1. The Day-1 floor, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones.
+That is the quickstart. An organization that has done these three things has a defensible floor. These six artefacts are the Day-1 floor, and all six now also appear in the adopter guide's 17-document Tier 1 set, so the Day-1 floor is a strict subset of Tier 1. The Day-1 floor, the Tier 1 set, and the sector-conditional sets the decision tree builds are progressively-nested, complementary starting points rather than competing ones.
 
 ---
 

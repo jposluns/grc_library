@@ -2,14 +2,14 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.2\
-**Date:** 2026-07-01\
+**Version:** 1.1.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
 **Classification:** Public\
 **Category:** Information Security\
-**Review Frequency:** Annual and upon material platform, regulatory, or organisational change\
+**Review Frequency:** Annual and upon material platform, regulatory, or organizational change\
 **Repository Path:** [`security/policy-byod.md`](policy-byod.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,20 +18,20 @@
 
 ## 1. Purpose
 
-This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organisation's access to the device.
+This policy governs the use of personally owned devices, including smartphones, tablets, and laptops, to access corporate data and applications. It defines the technical controls applied to personal devices, the obligations of the device owner, and the boundaries of the organization's access to the device.
 
-This policy supports two BYOD deployment models, mobile application management (MAM) and mobile device management (MDM), defined in the next section. The adopting organisation selects the model, or a combination, that matches its risk appetite and data-sensitivity profile. The model chosen determines how much of the personal device the organisation controls and what it may wipe.
+This policy supports two BYOD deployment models, mobile application management (MAM) and mobile device management (MDM), defined in the next section. The adopting organization selects the model, or a combination, that matches its risk appetite and data-sensitivity profile. The model chosen determines how much of the personal device the organization controls and what it may wipe.
 
 ---
 
 ## 2. BYOD deployment models
 
-The organisation may operate either model below, or both (different models for different device classes or data sensitivities). The choice is a risk decision the organisation records in its control baseline.
+The organization may operate either model below, or both (different models for different device classes or data sensitivities). The choice is a risk decision the organization records in its control baseline.
 
-- **Mobile application management (MAM), container model.** The organisation controls a container of corporate applications and data on the personal device, enforced by application protection policies. The device itself is not enrolled and stays fully under the owner's control; the organisation applies no device-level configuration and can wipe only the corporate container. MAM is the lighter-touch model, appropriate where the organisation accepts application-layer control and does not require device-level assurance. The controls in the Approved access model section below are the MAM control set.
-- **Mobile device management (MDM), full-device model.** The owner explicitly enrols the personal device into the organisation's device-management platform, and the organisation applies device-level policies (passcode strength, disk encryption, screen-lock timeout, OS-patch enforcement, configuration profiles) and may perform a full-device wipe. MDM gives the organisation device-level assurance at the cost of greater control over a personally owned device. It requires the owner's informed, recorded consent, because it extends the organisation's reach beyond the corporate container.
+- **Mobile application management (MAM), container model.** The organization controls a container of corporate applications and data on the personal device, enforced by application protection policies. The device itself is not enrolled and stays fully under the owner's control; the organization applies no device-level configuration and can wipe only the corporate container. MAM is the lighter-touch model, appropriate where the organization accepts application-layer control and does not require device-level assurance. The controls in the Approved access model section below are the MAM control set.
+- **Mobile device management (MDM), full-device model.** The owner explicitly enrols the personal device into the organization's device-management platform, and the organization applies device-level policies (passcode strength, disk encryption, screen-lock timeout, OS-patch enforcement, configuration profiles) and may perform a full-device wipe. MDM gives the organization device-level assurance at the cost of greater control over a personally owned device. It requires the owner's informed, recorded consent, because it extends the organization's reach beyond the corporate container.
 
-An organisation choosing MDM must obtain and record the device owner's explicit enrolment consent before applying device-level policies, and must state in its enrolment notice what the organisation can see, configure, and wipe. An organisation choosing MAM applies the container controls below without device enrolment. An organisation operating both must define which model applies to which device class or data classification.
+An organization choosing MDM must obtain and record the device owner's explicit enrolment consent before applying device-level policies, and must state in its enrolment notice what the organization can see, configure, and wipe. An organization choosing MAM applies the container controls below without device enrolment. An organization operating both must define which model applies to which device class or data classification.
 
 ---
 
@@ -55,7 +55,7 @@ An organisation choosing MDM must obtain and record the device owner's explicit 
 
 ## 5. Approved access model
 
-Under the MAM model, personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer. Under the MDM model the organisation enforces these and additionally applies the device-level policies named in the BYOD deployment models section:
+Under the MAM model, personal devices may access corporate applications through the cloud productivity platform (email, collaboration, file storage) only. Access is governed by the following controls, enforced at the application and identity layer. Under the MDM model the organization enforces these and additionally applies the device-level policies named in the BYOD deployment models section:
 
 | Control | Enforcement |
 | --- | --- |
@@ -72,17 +72,17 @@ Under the MAM model, personal devices may access corporate applications through 
 
 ---
 
-## 6. What the organisation does not do
+## 6. What the organization does not do
 
-Under the MAM model, the organisation does not enrol personal devices into MDM, and the following actions are explicitly not taken:
+Under the MAM model, the organization does not enrol personal devices into MDM, and the following actions are explicitly not taken:
 
-- The organisation does not apply device configuration profiles to personal devices.
-- The organisation does not manage device-level security settings (password policy, encryption, screen lock) on personal devices.
-- The organisation does not monitor personal application usage, browsing history, personal email, or personal files.
-- The organisation does not perform a full device wipe. Remote wipe is scoped to corporate application data only.
-- The organisation does not track device location.
+- The organization does not apply device configuration profiles to personal devices.
+- The organization does not manage device-level security settings (password policy, encryption, screen lock) on personal devices.
+- The organization does not monitor personal application usage, browsing history, personal email, or personal files.
+- The organization does not perform a full device wipe. Remote wipe is scoped to corporate application data only.
+- The organization does not track device location.
 
-These boundaries are properties of the MAM model. Under the MDM model the organisation does apply device-level configuration and may perform a full-device wipe; that model requires the owner's explicit, recorded enrolment consent (see the BYOD deployment models section), and the organisation states in its enrolment notice what it can configure, see, and wipe.
+These boundaries are properties of the MAM model. Under the MDM model the organization does apply device-level configuration and may perform a full-device wipe; that model requires the owner's explicit, recorded enrolment consent (see the BYOD deployment models section), and the organization states in its enrolment notice what it can configure, see, and wipe.
 
 ---
 

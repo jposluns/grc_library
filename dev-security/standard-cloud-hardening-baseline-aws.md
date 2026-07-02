@@ -2,14 +2,14 @@
 
 **Document Title:** AWS Cloud Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-07-01\
+**Version:** 0.0.8\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
 **Classification:** Public\
 **Category:** Developer Security\
-**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organisational use of new service classes\
+**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organizational use of new service classes\
 **Repository Path:** [`dev-security/standard-cloud-hardening-baseline-aws.md`](standard-cloud-hardening-baseline-aws.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the hardening baseline for Amazon Web Services environments operated by or on behalf of the organisation. It expresses outcomes and control intent in vendor-neutral language and references AWS service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
+This standard defines the hardening baseline for Amazon Web Services environments operated by or on behalf of the organization. It expresses outcomes and control intent in vendor-neutral language and references AWS service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
 
 ---
 
@@ -26,22 +26,22 @@ This standard defines the hardening baseline for Amazon Web Services environment
 
 This standard applies to:
 
-1. AWS accounts owned by the organisation.
-2. AWS organisation structures, control towers, and landing zones used to host organisational workloads.
-3. Workloads operated by the organisation in AWS, regardless of whether the workload itself is open source or proprietary.
+1. AWS accounts owned by the organization.
+2. AWS organization structures, control towers, and landing zones used to host organizational workloads.
+3. Workloads operated by the organization in AWS, regardless of whether the workload itself is open source or proprietary.
 4. AWS infrastructure-as-code that provisions or configures the above.
 
 It does not cover the contractual relationship with the provider, which is governed by the supplier security and privacy assurance standard.
 
 ### 2.1 Scope boundary with the operations cloud configuration baseline
 
-This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organisation/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
+This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organization/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
 
 ---
 
 ## 3. Baseline alignment
 
-The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Architected Security Pillar without reproducing benchmark content verbatim. Adopting organisations confirm current versions of those baselines at each review.
+The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Architected Security Pillar without reproducing benchmark content verbatim. Adopting organizations confirm current versions of those baselines at each review.
 
 ---
 
@@ -68,8 +68,8 @@ The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Arc
 | Log integrity | Log integrity validation enabled; tampering detection alerted |
 | Data-plane logging | Object-level and access logging enabled for storage resources holding sensitive data |
 | Network flow logging | VPC flow logs and equivalent enabled where the cost-benefit profile justifies |
-| Threat detection service | Provider threat detection enabled organisation-wide; findings forwarded to the central detection pipeline |
-| Configuration tracking | Configuration recording enabled organisation-wide; baseline rules evaluate continuous compliance |
+| Threat detection service | Provider threat detection enabled organization-wide; findings forwarded to the central detection pipeline |
+| Configuration tracking | Configuration recording enabled organization-wide; baseline rules evaluate continuous compliance |
 | Security posture aggregator | Findings from multiple sources aggregated centrally; routed to the SOC ticketing scheme |
 
 ---
@@ -78,11 +78,11 @@ The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Arc
 
 | Control area | Requirement |
 | --- | --- |
-| Service control policies | Organisation-level guardrails block use of disallowed services, regions, and dangerous actions |
+| Service control policies | Organization-level guardrails block use of disallowed services, regions, and dangerous actions |
 | Region restriction | Workloads constrained to approved regions matching the data residency profile |
-| Public access blocks | Default-blocking of public access on storage services at the account or organisation level |
+| Public access blocks | Default-blocking of public access on storage services at the account or organization level |
 | Permissions boundary | Permissions boundaries enforce maximum privilege ceilings for delegated administration |
-| Prevention of detection-control tampering | Modification or disablement of audit log, threat detection, or configuration tracking blocked at the organisation level |
+| Prevention of detection-control tampering | Modification or disablement of audit log, threat detection, or configuration tracking blocked at the organization level |
 | Outbound network egress | Egress to public networks goes through inspected, controlled paths; default routes are not internet-default for sensitive subnets |
 
 ---
@@ -95,7 +95,7 @@ The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Arc
 | Default network | Default networks deleted or unused; project-specific networks provisioned |
 | Security groups | Least privilege; no 0.0.0.0/0 inbound for administrative ports |
 | Cross-VPC connectivity | Transit gateway or central inspection account topology; spoke-to-spoke routed through inspection where required |
-| Private connectivity to services | Private endpoints used for managed services where supported; data does not traverse the public internet between organisational components |
+| Private connectivity to services | Private endpoints used for managed services where supported; data does not traverse the public internet between organizational components |
 | DNS hygiene | Private DNS used internally; DNS query logging enabled for sensitive zones |
 | Edge protection | Web application firewall and DDoS protection in front of internet-facing services; rate limiting tuned per the API security standard |
 
@@ -159,7 +159,7 @@ The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Arc
 
 | Control area | Requirement |
 | --- | --- |
-| Detection | Threat detection service enabled; custom detections aligned to the organisation's threat model |
+| Detection | Threat detection service enabled; custom detections aligned to the organization's threat model |
 | Alerting | Critical findings route to the SOC ticketing scheme; on-call paged where required |
 | Investigation tooling | Investigation tooling configured (audit log lake, query interface) |
 | Response automation | Pre-approved playbooks for common findings; automation accountability separated from response decision |
