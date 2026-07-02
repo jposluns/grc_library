@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.12\
+**Version:** 1.4.13\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,7 +74,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 | Corporate Governance | 7 years |
 | Financial | 7 years |
 | Human Resources | 7 years after separation |
-| IT / Security | Tiered by record class per [`register-data-retention-schedule.md`](register-data-retention-schedule.md) (authoritative; 1 to 7 years, e.g. access logs 1 year, security incident records 7 years, AI decision and detection logs 7 years) |
+| IT / Security | Tiered by record class per [`register-data-retention-schedule.md`](register-data-retention-schedule.md) (authoritative; 1 to 7 years, e.g. access logs 1 year, security incident records 7 years, AI decision and detection logs 7 years or 5 years after system decommission, whichever is longer) |
 | Legal and Compliance | 7 years |
 | Privacy / Data Subject Requests (DSR) | 3 years post-closure (per [`register-data-retention-schedule.md`](register-data-retention-schedule.md), Data subject access request records) |
 | AI Systems | 5 years post-decommission |
