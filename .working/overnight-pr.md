@@ -36,4 +36,6 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 - PR 6 (#558): W6 / GR-7 + L-a + item-24 tool carriers closed: six comment/docstring corrections across five tool files (the "gate 19" mis-cite, the stale D3 filename, two closed-section lineage pointers, two "D1-D4" to D1-D5 headers), item 24 reduced to its protected-CLAUDE.md residual, and the batched #557 QA rows (0 findings).
 
+- PR 7 (#559): GR-13 closed: the D5 major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id (re-tested FP-free against the whole CHANGELOG history; lowercase narration stays excluded), fixture cases extended, the spec D5 narrative updated (1.16.31 + regen), the item-24 residual carrying the routed #558 sweep note, and the batched #558 QA rows (0 findings).
+
 **Open ambiguities:** none yet; anything surfacing mid-run is logged here plus [`pending-decisions.md`](pending-decisions.md) under the graceful-degradation rule.
