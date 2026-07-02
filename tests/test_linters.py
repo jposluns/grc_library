@@ -4699,9 +4699,10 @@ class TodoRotationOnPrTests(unittest.TestCase):
     Unit-tests the false-positive-critical trigger helper
     ``asserts_todo_closure`` directly (the gate is otherwise a git-diff
     delta check verified behaviourally via run-pr-time-checks.sh). The
-    trigger (broadened 2026-06-30, the §1.3 rotation-prevention item) must
-    fire on three closure forms, the canonical "clos(e|es|ed|ing) [the]
-    TODO §", the "FR-N CLOSED" major-closure marker, and the prose-named
+    trigger (broadened 2026-06-30 by the since-closed rotation-prevention
+    backlog item) must fire on three closure forms, the canonical
+    "clos(e|es|ed|ing) [the] TODO §", the coded-id CLOSED major-closure
+    marker (FR/GR/SR-style uppercase ids; widened by GR-13), and the prose-named
     "clos... the ... (backlog item | TODO item | directive)" form, and NOT
     on incidental TODO/FR mentions or past-closure narration.
     """
@@ -4722,9 +4723,12 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "closes TODO §4.14 (the matrix gap-fill).",
             "Completes the family, closing TODO §4.10.",
             "closing the TODO §4.13 item",
-            # FR-N CLOSED major-closure marker (uppercase CLOSED).
+            # Coded-id CLOSED major-closure marker (uppercase CLOSED; widened
+            # from FR-only to any 2-4-letter uppercase id family per GR-13).
             "FR-58 CLOSED: applied the 3-label inheritance vocabulary.",
             "FR-167 CLOSED: matrix gap-fill for the 6 OT documents.",
+            "GR-13 CLOSED: the D5 coded-id widening this very fixture pins.",
+            "SR-5 CLOSED: ETSI designation corrected across scratch surfaces.",
             # Prose-named / explicit backlog-item form (the #495 miss shape).
             "closes the maintainer-directed OT post-ingestion audit/validation directive; no FR row.",
             "Closes the P3 docs/ house-style enforcement-gap backlog item.",
@@ -4750,6 +4754,10 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "FR-37/38/39/40/42 closed in #224-#228.",
             "FR-70 confirmed a significant gap, not expansion.",
             "per the FR-154 deepen-to-operational-depth decision.",
+            # Lowercase coded-id narration stays excluded after the GR-13
+            # widening (case-sensitivity is the deliberate FP guard).
+            "GR-2 closed (rotated to the DONE ledger), the first machinery item.",
+            "SR-5 upstream-CONFIRMED at #551, so not upstream-gated.",
             # "directive" inside a prepositional phrase, not the closure object
             # (the second-"the" guard excludes these).
             "closing the gap per the maintainer directive about scope.",

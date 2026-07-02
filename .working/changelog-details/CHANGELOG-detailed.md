@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.47, PR #559
+
+Tooling for local project: **GR-13 closed** (rotated to the DONE ledger): D5's major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id. Batches the #558 QA rows. Library 2026.07.46 to 2026.07.47; README 1.9.407 to 1.9.408.
+
+### Changed
+
+- [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py) closure pattern 2: `\bFR-\d+\s+CLOSED\b` widened to `\b[A-Z]{2,4}-\d+\s+CLOSED\b` with the comment documenting the GR-13 rationale, the retained case-sensitivity guard, and the empirical FP re-test (the widened form matches exactly the same four genuine `FR-N CLOSED` instances across the whole CHANGELOG history that the old form did; verified before wiring and re-verified in the D5 self-run on the merge range).
+- D5 unit fixtures in [`tests/test_linters.py`](../../tests/test_linters.py): `GR-13 CLOSED` and `SR-5 CLOSED` added to the positive cases; the lowercase `GR-2 closed (rotated...)` narration and an `SR-5 upstream-CONFIRMED` line added to the negative cases (suite count unchanged at 258; the cases extend the existing loop-style tests).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) D5 narrative: the second closure form now described as the coded-id CLOSED marker with the GR-13 widening and its FP re-test (1.16.30 to 1.16.31, Date current; [`taxonomy.yml`](../../taxonomy.yml) regenerated first, then portal/scorecard, both check-mode clean).
+- [`TODO.md`](../../TODO.md): GR-13 deleted (rotation to [`.working/DONE.md`](../DONE.md) in the same commit); the item-24 residual extended with the routed #558 sweep note ([`.working/claude-md-considerations.md`](../claude-md-considerations.md):119 becomes the only other D1-D4-as-current carrier after the morning edit).
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced. The #558 QA rows: [`.working/validate-pr/history.md`](../validate-pr/history.md) (0 findings; 1.2.336 to 1.2.337) and [`.working/improvement-log.md`](../improvement-log.md) (1.0.282 to 1.0.283).
+
+### Verification
+
+- The linter regression suite: 258 tests, all pass (the widened pattern exercised by the extended positive/negative cases). `tools/run_all_audits.sh`: all 59 gates pass on the committed state.
+- The empirical FP test the D5 narrative documents, re-run for the widened pattern: `grep -rnoE '\b[A-Z]{2,4}-[0-9]+\s+CLOSED\b'` over both CHANGELOG files returns exactly the four historical genuine closures (`FR-58`/`FR-167` in root and mirror), zero new matches. (Future-census footnote: this entry itself quotes the `GR-13 CLOSED` / `SR-5 CLOSED` fixture strings, so a LATER re-run of the census counts those quoted fixtures too; they are fixture text, not real closures, and this PR's rotation kept D5 green regardless.)
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.46, PR #558
 
 Tooling for local project: docstring/stale-pointer batch closing GR-7 and L-a, plus item 24's two tool-side carriers (its protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) carrier deferred to morning as a maintainer-gated residual). Comment/docstring changes only, no behaviour change. Batches the #557 QA rows. Library 2026.07.45 to 2026.07.46; README 1.9.406 to 1.9.407.
