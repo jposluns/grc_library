@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.21\
+**Version:** 1.1.22\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -160,13 +160,13 @@ Regulations and frameworks named in the library but without dedicated operationa
 | ISO 9001 (quality management) | None | Out of scope | n/a | Quality management is outside the library's information-security/GRC scope |
 | ISO 22301:2019 (business continuity) | Substantive | In library | n/a | Throughout resilience domain |
 | ISO 31000:2018 (risk management) | Substantive | In library | n/a | Throughout risk domain |
-| ISO 14001 (environmental management) | None | Out of scope | n/a | ESG content references it; not in scope for dedicated treatment |
+| ISO 14001 (environmental management) | Referenced | Out of scope | n/a | ESG content references it (e.g. the IT-financial-management standard's sustainability crosswalk); not in scope for dedicated treatment. Re-graded None to Referenced 2026-07-02, resolving the row's own Notes contradiction |
 | PCI DSS 4.0.1 | Referenced | Deferred | Backlog candidate: PCI DSS payments annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Payments-specific; would fit under financial-services or as a sector annex |
 | Basel III | Referenced | Deferred | Backlog candidate: Basel III banking annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Banking-specific; would fit under financial-services |
 | IEC 62443 (OT security) | Referenced | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself shipped, see section 4) | High-priority for industrial/energy/logistics sectors |
 | NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
-| SWIFT CSP (Customer Security Programme) | None | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Financial-services payment networks |
-| ITIL 4 | None | Out of scope | n/a | Service management framework; operational rather than governance |
+| SWIFT CSP (Customer Security Programme) | Referenced | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only). Re-graded None to Referenced 2026-07-02: the financial-services annex names SWIFT CSP in its regime table and attestation row ([`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md)) | Financial-services payment networks |
+| ITIL 4 | Partial | Out of scope | n/a | Service management framework; operational rather than governance. Re-graded None to Partial 2026-07-02: [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) consolidates the ITIL-based ITSM processes (SMO oversight, process ownership); dedicated ITIL-instrument treatment stays out of scope |
 | TOGAF | None | Out of scope | n/a | Architecture framework; operational |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
 
@@ -179,12 +179,12 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Provider / platform | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
 | Provider-agnostic cloud guidance | Substantive | In library | n/a | Throughout operations and supply-chain |
-| AWS-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the AWS hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
-| Azure-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the Azure hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
-| GCP-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the GCP hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
+| AWS-specific overlays | Partial | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the multi-cloud TODO item covers only cross-cloud governance) | Re-graded None to Partial 2026-07-02: the AWS hardening baseline shipped as [`dev-security/standard-cloud-hardening-baseline-aws.md`](../dev-security/standard-cloud-hardening-baseline-aws.md), a dedicated per-cloud technical standard; the governance overlay itself remains the gap |
+| Azure-specific overlays | Partial | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the multi-cloud TODO item covers only cross-cloud governance) | Re-graded None to Partial 2026-07-02: the Azure hardening baseline shipped as [`dev-security/standard-cloud-hardening-baseline-azure.md`](../dev-security/standard-cloud-hardening-baseline-azure.md), a dedicated per-cloud technical standard; the governance overlay itself remains the gap |
+| GCP-specific overlays | Partial | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the multi-cloud TODO item covers only cross-cloud governance) | Re-graded None to Partial 2026-07-02: the GCP hardening baseline shipped as [`dev-security/standard-cloud-hardening-baseline-gcp.md`](../dev-security/standard-cloud-hardening-baseline-gcp.md), a dedicated per-cloud technical standard; the governance overlay itself remains the gap |
 | Multi-cloud governance patterns | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
-| Kubernetes-specific governance | None | Deferred | Backlog candidate: Kubernetes-specific governance (not currently scheduled in TODO) | Could live in operations or dev-security |
-| Serverless / FaaS-specific governance | None | Deferred | n/a |  |
+| Kubernetes-specific governance | Partial | Deferred | Backlog candidate: Kubernetes-specific governance (not currently scheduled in TODO) | Could live in operations or dev-security. Re-graded None to Partial 2026-07-02 (initially Referenced; raised at the verifier's vocabulary check): [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) carries Kubernetes-specific operational controls (the pod-security-standards baseline, host-namespace prohibitions, a full orchestrator-security section) and its framework table cites CIS benchmarks and the Kubernetes Pod Security Standards; dedicated Kubernetes governance remains the gap |
+| Serverless / FaaS-specific governance | Partial | Deferred | Backlog candidate: serverless-specific governance (not currently scheduled in TODO) | Re-graded None to Partial 2026-07-02: [`dev-security/standard-container-and-image-security.md`](../dev-security/standard-container-and-image-security.md) carries a dedicated serverless-container-platforms section, and all three per-cloud hardening baselines carry serverless compute/platform control rows; dedicated FaaS governance remains the gap |
 | SaaS-specific SPM (Security Posture Management) | None | Deferred | n/a | Adjacent to supply-chain domain |
 
 ---
@@ -227,9 +227,9 @@ Within the library's doctype vocabulary, some types are under-represented relati
 
 | Capability | Coverage | Status | Notes |
 | --- | --- | --- | --- |
-| Adopter quickstart templates per profile | None | Planned | Backlog candidate: per-profile quickstarts (not currently scheduled in TODO; the general quickstart and startup roadmap shipped, see docs/) |
-| Interactive maturity assessment | None | Planned | Backlog candidate: interactive maturity assessment (not currently scheduled in TODO; the current scorecard is static) |
-| Implementation roadmap templates | None | Planned | Backlog candidate: further roadmap templates (not currently scheduled in TODO; the implementation and startup roadmaps shipped, see docs/) |
+| Adopter quickstart templates per profile | Partial | Planned | Backlog candidate: per-profile quickstarts (not currently scheduled in TODO). Re-graded None to Partial 2026-07-02: the general quickstart and the startup roadmap shipped in docs/ and serve the capability generically; the per-profile variants remain the gap |
+| Interactive maturity assessment | Partial | Planned | Backlog candidate: interactive maturity assessment (not currently scheduled in TODO). Re-graded None to Partial 2026-07-02: the maturity self-assessment template ([`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md)) and the static scorecard serve the assessment capability; interactivity itself remains the gap |
+| Implementation roadmap templates | Partial | Planned | Backlog candidate: further roadmap templates (not currently scheduled in TODO). Re-graded None to Partial 2026-07-02: the implementation roadmap and the startup roadmap shipped in docs/; further profile- or sector-specific templates remain the gap |
 | Decision-tree adopter navigator | Substantive | In library | [`docs/decision-tree.md`](../docs/decision-tree.md) |
 | Worked examples / case studies | None | Out of scope | The library is organization-neutral; case studies would conflict with that posture |
 | Regulator interaction templates (notification, attestation, response) | Substantive | In library | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) |
