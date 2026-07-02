@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.22\
+**Version:** 1.1.23\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,7 +40,7 @@ For each entry:
 
 - **Coverage**: one of *Substantive*, *Partial*, *Referenced*, *None*.
   - *Substantive*: one or more dedicated documents address the topic with sufficient depth for adoption.
-  - *Partial*: addressed within broader documents; not given dedicated treatment.
+  - *Partial*: materially addressed by shipped documents, broader or adjacent dedicated, while the row's named ask remains unshipped.
   - *Referenced*: named or cited but without operational detail.
   - *None*: not covered.
 - **Status**: *In library*, *Planned*, *Deferred*, *Out of scope*.
@@ -60,7 +60,7 @@ Industry sectors covered by `/compliance/<sector>/` sub-directories or otherwise
 | Energy and utilities (electricity, gas, water, renewables) | Substantive | In library | n/a | [`compliance/energy-and-utilities/`](../compliance/energy-and-utilities/) |
 | Telecommunications (telcos, ISPs, IXPs, electronic communications) | Substantive | In library | n/a | [`compliance/telecommunications/`](../compliance/telecommunications/) |
 | Public sector (government agencies, public bodies, CSPs to public sector) | Substantive | In library | n/a | [`compliance/public-sector/`](../compliance/public-sector/) with FedRAMP |
-| Manufacturing (industrial, automotive, consumer goods) | None | Deferred | Backlog candidate: manufacturing sector overlay (not currently scheduled in TODO) | Likely cross-cuts with the OT/ICS content and logistics |
+| Manufacturing (industrial, automotive, consumer goods) | Partial | Deferred | Backlog candidate: manufacturing sector overlay (not currently scheduled in TODO) | Re-graded None to Partial 2026-07-02 (the #581 sweep's I-1): the operations OT suite (six documents plus README, graded Substantive in section 5) addresses industrial and ICS environments within broader and adjacent dedicated documents; the manufacturing sector overlay itself remains the gap. Likely cross-cuts with logistics |
 | Retail and consumer goods | None | Deferred | Backlog candidate: retail sector overlay (not currently scheduled in TODO) | E-commerce-specific compliance, payment, consumer protection |
 | Hospitality and travel | None | Deferred | Backlog candidate: hospitality sector overlay (not currently scheduled in TODO) | PCI DSS-heavy; some overlap with retail |
 | Education | None | Deferred | Backlog candidate: education sector overlay (not currently scheduled in TODO) | FERPA (US), student-data regulations per jurisdiction |
@@ -100,7 +100,7 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | US CTPAT | Substantive | In library | n/a | IT controls + MSC controls |
 | UK AEO | Substantive | In library | n/a | Annex + self-assessment procedure |
 | Canada PIP | Substantive | In library | n/a | IT controls register |
-| EU AEO (27 member states) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; covers all EU |
+| EU AEO (27 member states) | Referenced | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; covers all EU. Re-graded None to Referenced 2026-07-02: mutual-recognition prose in the Canada PIP controls register and AEO (EU) columns and rows in the supply-chain programme-alignment matrix (the Union Customs Code row, the CTPAT and AEO-S mutual-recognition rows); arguably Partial on the matrix evidence, kept at the conservative grade until the dedicated annex ships |
 | Mexico NEEC / OEA | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; NAFTA/USMCA partner |
 | Australia ATT (Australian Trusted Trader) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
 | Singapore STP / STP-Plus | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
@@ -116,15 +116,15 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | --- | --- | --- | --- | --- |
 | EU (DORA) | Substantive | In library | n/a | [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) |
 | US (SOX-ITGC) | Substantive | In library | n/a | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) |
-| UK (PRA / FCA) | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| UK (PRA / FCA) | Partial | Planned | TODO backlog: financial-services country regulator overlays | Re-graded None to Partial 2026-07-02: the financial-services annex carries UK regime rows (FCA PS21/3, PRA SS1/21, the CTPs regime) plus a dedicated FCA/PRA operational-resilience mapping section; the dedicated regulator overlay remains the gap |
 | US bank regulators (OCC, FRB, FDIC) | Referenced | Planned | TODO backlog: financial-services country regulator overlays | SOX covers reporting; bank-specific cyber expectations not yet detailed |
 | US securities (SEC, FINRA) | Referenced | Planned | TODO backlog: financial-services country regulator overlays |  |
-| Canada OSFI | None | Planned | TODO backlog: financial-services country regulator overlays |  |
-| Australia APRA | None | Planned | TODO backlog: financial-services country regulator overlays |  |
-| Singapore MAS | None | Planned | TODO backlog: financial-services country regulator overlays |  |
-| Japan FSA | None | Planned | TODO backlog: financial-services country regulator overlays |  |
-| Hong Kong HKMA | None | Deferred | TODO backlog: financial-services country regulator overlays |  |
-| Switzerland FINMA | None | Deferred | TODO backlog: financial-services country regulator overlays |  |
+| Canada OSFI | Partial | Planned | TODO backlog: financial-services country regulator overlays | Re-graded None to Partial 2026-07-02: the financial-services annex carries Canada regime rows (B-13, B-10, B-7) plus a dedicated OSFI B-13 mapping section; the dedicated regulator overlay remains the gap |
+| Australia APRA | Referenced | Planned | TODO backlog: financial-services country regulator overlays | Re-graded None to Referenced 2026-07-02: regime-table row in the financial-services annex (CPS 234, CPS 230), named structurally without operational detail per the annex's own Asia-Pacific note |
+| Singapore MAS | Referenced | Planned | TODO backlog: financial-services country regulator overlays | Re-graded None to Referenced 2026-07-02: regime-table row in the financial-services annex (MAS TRM Guidelines, Cyber Hygiene Notice), named structurally without operational detail per the annex's own Asia-Pacific note |
+| Japan FSA | Referenced | Planned | TODO backlog: financial-services country regulator overlays | Re-graded None to Referenced 2026-07-02: regime-table row in the financial-services annex (JFSA system-risk and cybersecurity guidelines), named structurally without operational detail per the annex's own Asia-Pacific note |
+| Hong Kong HKMA | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Re-graded None to Referenced 2026-07-02: regime-table row in the financial-services annex (Supervisory Policy Manual technology and operational-risk modules), named structurally without operational detail per the annex's own Asia-Pacific note |
+| Switzerland FINMA | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Re-graded None to Referenced 2026-07-02: regime-table row in the financial-services annex's Switzerland subsection (the FINMA operational-risks-and-resilience circular), named structurally without operational detail per the annex's own note |
 
 ### 2.4 Healthcare jurisdictions
 
@@ -132,9 +132,9 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | --- | --- | --- | --- | --- |
 | US HIPAA + HITECH | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Cited in healthcare sector annex; dedicated detailed annex pending |
 | EU MDR / IVDR | Referenced | Planned | TODO backlog: healthcare country regulator overlays |  |
-| UK NHS DSPT | None | Planned | TODO backlog: healthcare country regulator overlays |  |
-| Canada PHIPA and provincial frameworks | None | Planned | TODO backlog: healthcare country regulator overlays |  |
-| Australia My Health Records Act | None | Planned | TODO backlog: healthcare country regulator overlays |  |
+| UK NHS DSPT | Partial | Planned | TODO backlog: healthcare country regulator overlays | Re-graded None to Partial 2026-07-02: healthcare-annex regime row plus a dedicated NHS DSPT mapping section (the 10 National Data Guardian standards mapped to library documents); the dedicated overlay remains the gap |
+| Canada PHIPA and provincial frameworks | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Re-graded None to Referenced 2026-07-02: healthcare-annex Canada regime rows name PHIPA and the provincial frameworks (Alberta PIPA and HIA, Manitoba and Nova Scotia PHIA); no operational mapping yet |
+| Australia My Health Records Act | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Re-graded None to Referenced 2026-07-02: named only in the healthcare README's future-coverage candidates list, the same evidence class the US-securities row's FINRA half already grades Referenced; the weakest re-grade of the batch, disclosed as such |
 
 ### 2.5 AI jurisdictions
 
@@ -144,8 +144,8 @@ The library cites the EU AI Act extensively in the AI domain but lacks dedicated
 | --- | --- | --- | --- | --- |
 | EU (AI Act 2024/1689) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Heavy citation; dedicated jurisdiction annex would consolidate |
 | Canada AIDA | Referenced | Planned | TODO backlog: AI jurisdiction overlays |  |
-| UK AI regulatory framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
-| US state-by-state (Colorado AI Act, NYC bias audit, etc.) | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
+| US state-by-state (Colorado AI Act, NYC bias audit, etc.) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Referenced 2026-07-02: the Colorado AI Act carries a canonical-citations register row, a privacy jurisdiction-index cell, and a US privacy-annex legislative-status bullet; the NYC bias-audit law is not yet cited in any corpus document, so the grade rests on Colorado alone |
 | China generative AI rules | None | Planned | TODO backlog: AI jurisdiction overlays |  |
 | Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
 
@@ -157,7 +157,7 @@ Regulations and frameworks named in the library but without dedicated operationa
 
 | Instrument | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| ISO 9001 (quality management) | None | Out of scope | n/a | Quality management is outside the library's information-security/GRC scope |
+| ISO 9001 (quality management) | Referenced | Out of scope | n/a | Quality management is outside the library's information-security/GRC scope. Re-graded None to Referenced 2026-07-02 (the ISO 14001 row-shape parallel: a dated re-grade with Status staying Out of scope): the CAPA procedure operationalizes ISO 9001 clauses 10.2 and 10.3 as its primary source, and the library-quality cadence procedure plus further governance documents cite it in framework tables; arguably Partial on the CAPA evidence (the ITIL 4 row's shape), kept at the conservative grade since only two clauses of the QMS are operationalized; dedicated treatment stays out of scope |
 | ISO 22301:2019 (business continuity) | Substantive | In library | n/a | Throughout resilience domain |
 | ISO 31000:2018 (risk management) | Substantive | In library | n/a | Throughout risk domain |
 | ISO 14001 (environmental management) | Referenced | Out of scope | n/a | ESG content references it (e.g. the IT-financial-management standard's sustainability crosswalk); not in scope for dedicated treatment. Re-graded None to Referenced 2026-07-02, resolving the row's own Notes contradiction |
@@ -167,7 +167,7 @@ Regulations and frameworks named in the library but without dedicated operationa
 | NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
 | SWIFT CSP (Customer Security Programme) | Referenced | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only). Re-graded None to Referenced 2026-07-02: the financial-services annex names SWIFT CSP in its regime table and attestation row ([`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md)) | Financial-services payment networks |
 | ITIL 4 | Partial | Out of scope | n/a | Service management framework; operational rather than governance. Re-graded None to Partial 2026-07-02: [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) consolidates the ITIL-based ITSM processes (SMO oversight, process ownership); dedicated ITIL-instrument treatment stays out of scope |
-| TOGAF | None | Out of scope | n/a | Architecture framework; operational |
+| TOGAF | Referenced | Out of scope | n/a | Architecture framework; operational. Re-graded None to Referenced 2026-07-02: framework-table rows in six shipped architecture documents (the enterprise-architecture framework, the reference-architecture standard, the architecture-review procedure, and three further standards); dedicated TOGAF treatment stays out of scope |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
 
 ---
