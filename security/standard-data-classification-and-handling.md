@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.3.5\
-**Date:** 2026-06-24\
+**Version:** 1.3.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -20,7 +20,7 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ## Purpose
 
-To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2023).
+To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2022).
 
 ---
 
