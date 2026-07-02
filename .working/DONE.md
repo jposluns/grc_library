@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #585: lifecycle vocabulary aligned to Superseded across the four carriers (2026-07-02)
+
+The routed section-3.14 lifecycle-vocabulary fork (#579 sweep L-2) closed per the maintainer's return-round answer: the charter's stage 5, the health-report template's count row, the adopter-guide's index advice, and the build-taxonomy docstring now say "Superseded" (anchored to the Status: Superseded marker), with "Retired" kept as the distinct removal stage.
+
 ### PR #582: GR-P3 tension-marker check shipped as an advisory aid (2026-07-02)
 
 The partial-rewrite tension-marker item (GR-P3 graduation, the #565 retro) shipped as the diff-scoped advisory aid `tools/tension-scan.py` rather than a standing gate: a build-time census over the live TODO and ledger surfaces found 91 status+hedge pair coincidences, essentially all legitimate, so the bookkeeping-gate family's zero-false-positive bar is unreachable and the contradiction judgment stays human (the aid flags rewritten blocks carrying a status+hedge pair for an end-to-end read; the aid-not-gate shape is a logged proceeded default).
