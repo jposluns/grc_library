@@ -21,9 +21,9 @@ skipped.
 
 Examples this catches:
 
-  - "[Unverified] The organisation shall implement ..."
+  - "[Unverified] The organization shall implement ..."
   - "Draft 2026 X Revision ... shall be ..."
-  - "TODO: define the threshold; the organisation must ..."
+  - "TODO: define the threshold; the organization must ..."
 
 Files in EXEMPT_FILES (the CHANGELOG, the project and ingestion
 master specifications, and the document-ingestion instruction, all

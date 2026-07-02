@@ -24,7 +24,7 @@ Scope (deliberately bounded, precision-first):
 
   * **NIST-labelled table cells only.** A code is validated only when it
     sits in a cell governed by a NIST CSF column header or NIST CSF
-    framework-row label. Two table shapes are recognised:
+    framework-row label. Two table shapes are recognized:
 
       - *Framework-as-column*: a header row (the row immediately before a
         ``|---|`` separator) has a cell matching the NIST CSF label; the

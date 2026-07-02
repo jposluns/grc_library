@@ -27,7 +27,7 @@ Two intentional, by-design differences are stripped before comparison
      copied from; the pack source does not.
 
 After stripping those, the remaining body must be identical (trailing
-newline differences are normalised away). The governance local copies
+newline differences are normalized away). The governance local copies
 carry neither a frontmatter block nor a provenance comment, so for them
 the comparison is effectively whole-file.
 
@@ -97,7 +97,7 @@ MIRROR_MAP: dict[str, str] = {
 
 def strip_preamble(text: str) -> str:
     """Return ``text`` with a leading frontmatter block and provenance
-    comment removed, and trailing newlines normalised.
+    comment removed, and trailing newlines normalized.
 
     Removes, in order:
       1. A leading YAML frontmatter block delimited by ``---`` lines.

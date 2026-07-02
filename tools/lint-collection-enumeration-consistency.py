@@ -62,11 +62,11 @@ class EnumerationLocation:
 class Collection:
     name: str
     # Source-of-truth directory and glob pattern. Items are discovered
-    # by listing entries matching the glob and normalising their names.
+    # by listing entries matching the glob and normalizing their names.
     source_dir: str
     source_glob: str
-    # Function name (in this file) that normalises a source filename
-    # to the canonical item name. Each collection picks a normaliser
+    # Function name (in this file) that normalizes a source filename
+    # to the canonical item name. Each collection picks a normalizer
     # appropriate for its source layout.
     source_normaliser: str
     # Locations elsewhere in the corpus that enumerate the same

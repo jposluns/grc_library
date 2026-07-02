@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #573: 3.14 batch A: the mechanical low-severity cleanup set (2026-07-02)
+
+Eight of the 3.14 items closed in one mechanical batch: 39 Commonwealth prose flips across 19 tools files (identifiers and word-reference carriers deliberately kept), the TLS 1.3-canonical caveat on the pack's two ASVS TLS 1.2 lines (pack 1.53.12), gate 55 spliced into the audit-spec section-5 category-3 list plus its stale example (1.16.34), the protected CLAUDE.md D1-D5 and coded-id closure-form lines (item 24 closed), the pending-decisions stale summary, the FR-48 residual reframed to the true 13-of-38, the Japan APPI transliteration, and the COBIT APO12 "Managed Risk" trio plus the APO10 "Managed Vendors" cells confirmed at the held COBIT text; plus the six #572 sweep dispositions and the L-j load-bearing-Classification finding routed back to TODO as a design decision.
+
 ### PR #572: 2.13 item 11: GDPR DSR clock corrected to the statutory one month (2026-07-02)
 
 The DSR rights catalogue, workflow-template SLA, and privacy-policy timeframe corrected from "30 days" to the GDPR Article 12(3) one-month clock with the two-further-months extension and first-month notice, the PIPEDA 30-day clock kept where PIPEDA is the cited instrument, and the CCPA/CPRA 45-day window (extendable once by 45) added beside the rights table; every value quote-verified against the held GDPR, CCPA, and PIPEDA full texts.

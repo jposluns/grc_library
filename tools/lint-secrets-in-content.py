@@ -17,7 +17,7 @@ patterns. The pattern families currently implemented (SECRET_PATTERNS):
   - Private-key PEM headers (RSA, DSA, EC, OPENSSH, PGP).
   - JWT-shaped strings with plausibly long header / payload / signature.
 
-The regex set is informed by ClawGuard's published sanitiser-engine
+The regex set is informed by ClawGuard's published sanitizer-engine
 patterns (recorded in [`governance/register-ai-security-tooling-landscape.md`](register-ai-security-tooling-landscape.md))
 and the detect-secrets project's default rules. No entropy-based check
 is implemented; every pattern requires a structural prefix to avoid

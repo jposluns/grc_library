@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-07-02\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -67,7 +67,7 @@ The following table maps the enterprise risk management control areas to externa
 | Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
 | AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; AIDA (pending, Canada) | Not applicable |
-| Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.2 Context and third-party data | Organizational context | Govern | APO10 Manage Suppliers | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
+| Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.2 Context and third-party data | Organizational context | Govern | APO10 Managed Vendors | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
 | Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organizational resilience context | Manage | DSS04 Manage Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
 | Exception and acceptance | Clause 6.5 Risk treatment, acceptance option (ISO 31000:2018) | Clause 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.06 Respond to risk | GRC domain | Documented approvals and durations | WCO SAFE equivalence |
 

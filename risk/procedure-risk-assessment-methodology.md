@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -181,7 +181,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 | ISO/IEC 27005:2022 | Information Security Risk Management | Information security risk methodology |
 | ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
 | NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |
-| COBIT 2019 | APO12: Manage Risk | Enterprise risk governance |
+| COBIT 2019 | APO12: Managed Risk | Enterprise risk governance |
 | CSA CCM v4.1 | GRC-01 through GRC-11 | Cloud risk management |
 
 ---

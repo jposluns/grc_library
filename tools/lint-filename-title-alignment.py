@@ -3,14 +3,14 @@
 
 For every active markdown file with a metadata block, verify that the
 filename (after the doctype prefix) and the Document Title share a
-recognisable common stem.
+recognizable common stem.
 
 Rules:
 
 1. The filename has the form ``<doctype>-<kebab-case-name>.md`` where
    ``<doctype>`` is one of the canonical library doctypes.
 2. The Document Title is a human-readable string.
-3. The two should share the same content words after normalisation
+3. The two should share the same content words after normalization
    (lowercasing, removing the doctype, removing common short words,
    converting kebab-case to space-separated, removing acronym hyphens).
 
@@ -161,7 +161,7 @@ def parse_title(path: Path) -> str | None:
 
 
 def normalise_tokens(text: str) -> set[str]:
-    """Tokenise text into a set of normalised content words.
+    """Tokenize text into a set of normalized content words.
 
     Steps:
         - lowercase

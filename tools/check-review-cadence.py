@@ -5,7 +5,7 @@ Parses each active document's metadata block, computes the
 next-review-due date from the Date and Review Frequency fields, and
 reports any document that is overdue or past the action threshold.
 
-Frequency phrases recognised (FREQUENCY_MAP, fixed-phrase lookup): "12 months" / "annual" / "yearly", "24 months" / "biennial", "6 months" / "biannual" / "semi-annual", "3 months" / "quarterly", "continuous / monthly", "continuous / quarterly", "6 to 12 months". Note: biannual maps to 6 months (Phase 23.48 guard); the regression test test_biannual_is_six_months_not_two_years protects this. When a Review Frequency phrase contains "and upon material change to X" or similar, the periodic portion is used for scheduling and the event trigger is informational. When no recognised periodic phrase is present, the document is treated as event-driven and not scheduled.
+Frequency phrases recognized (FREQUENCY_MAP, fixed-phrase lookup): "12 months" / "annual" / "yearly", "24 months" / "biennial", "6 months" / "biannual" / "semi-annual", "3 months" / "quarterly", "continuous / monthly", "continuous / quarterly", "6 to 12 months". Note: biannual maps to 6 months (Phase 23.48 guard); the regression test test_biannual_is_six_months_not_two_years protects this. When a Review Frequency phrase contains "and upon material change to X" or similar, the periodic portion is used for scheduling and the event trigger is informational. When no recognized periodic phrase is present, the document is treated as event-driven and not scheduled.
 
 Usage:
     python3 tools/check-review-cadence.py

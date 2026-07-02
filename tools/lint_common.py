@@ -369,7 +369,7 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
         ``` ``` ... ``` ... ``` ... ``` ``` ``` toggles include/exclude
         in pairs.
 
-    The function does not attempt to recognise matching fence widths
+    The function does not attempt to recognize matching fence widths
     (CommonMark requires the closing fence to be at least as wide as
     the opening fence); a toggle is a toggle.
     """

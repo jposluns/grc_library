@@ -2,7 +2,7 @@
 """Section-placement audit for the GRC Documentation Library.
 
 The library's documents follow strong placement conventions for a small
-set of recognisable section types. This linter codifies those
+set of recognizable section types. This linter codifies those
 conventions so future drift is caught mechanically rather than relying
 on review to catch it. The conventions were surfaced by a corpus-wide
 section-ordering survey (recorded in the CHANGELOG entry for the PR
@@ -31,7 +31,7 @@ sections in the file; for files with three or fewer ``##`` sections,
 the constraints are trivially satisfied.
 
 Matching is case-insensitive and uses exact match against the
-normalised section heading (with leading numbering, "Section N", and
+normalized section heading (with leading numbering, "Section N", and
 common punctuation stripped first). Exact matching is used rather than
 prefix or substring matching to avoid false positives on sections that
 legitimately reuse a canonical orientation or closing word in a
@@ -96,7 +96,7 @@ EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
 
 # Each rule: (rule_id, description, canonical_heading_names, position, applicable_doctypes_or_none)
 # - canonical_heading_names: case-insensitive exact-match set; a section heading
-#   matches the rule if (after normalisation) it equals any of these names.
+#   matches the rule if (after normalization) it equals any of these names.
 # - position: ("top", N) means the matched section must be in the first N
 #   ``##`` sections; ("bottom", N) means in the last N ``##`` sections.
 # - applicable_doctypes_or_none: None means apply to all in-scope files
