@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,10 +36,10 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 | Role | Responsibility |
 | --- | --- |
-| **Chief Information Officer (CIO)** | Accountable for the global compliance management system and oversees regulatory governance integration. |
+| **Chief Information Officer (CIO)** | Oversees regulatory governance integration with enterprise IT and provides executive support to the compliance management system. |
 | **Chief Information Security Officer (CISO)** | Ensures that security, privacy, and trade-compliance obligations are enforced and evidenced across all systems. |
 | **Legal Counsel** | Interprets laws, validates control coverage, and approves external submissions. |
-| **Chief Compliance Officer (CCO)** | Manages enterprise compliance programmes aligned to ISO 37301. |
+| **Chief Compliance Officer (CCO)** | Accountable for the global compliance management system; manages enterprise compliance programmes aligned to ISO 37301. |
 | **AI Governance Council (AIGC)** | Oversees AI regulatory monitoring and EU AI Act readiness. |
 | **Internal Audit** | Validates compliance processes and verifies evidence linkage for all regulatory domains. |
 

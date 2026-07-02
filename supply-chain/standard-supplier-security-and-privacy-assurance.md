@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-07-01\
+**Version:** 1.1.5\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -70,7 +70,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 |---|---|---|
 | Information security policy | Documented | Self-attestation |
 | Access controls: basic | Described | Self-declaration |
-| Incident notification | Within 72 hours | Contractual obligation |
+| Incident notification | Within 72 hours (24 hours where personal data is in scope, per the privacy-assurance table below) | Contractual obligation |
 | Data breach response procedure | Documented | Self-attestation |
 
 ---
@@ -126,7 +126,7 @@ Contracts with suppliers in scope of this standard must include the following mi
 |---|---|---|---|
 | Information security obligations aligned to this standard | Mandatory | Mandatory | Abbreviated |
 | Audit and inspection rights (direct or through third party) | Mandatory | Mandatory: audit report right | Where applicable |
-| Incident notification timeline (24 hours) | Mandatory | Mandatory | 72 hours |
+| Incident notification timeline (24 hours) | Mandatory | Mandatory | 72 hours (24 hours where personal data is in scope: the privacy-assurance obligations govern regardless of tier) |
 | Penetration test results sharing | Mandatory | Mandatory | Not required |
 | Sub-contractor approval or notification | Written consent required | Written consent required | Notification |
 | Data Processing Agreement | Mandatory where personal data processed | Mandatory where personal data processed | Mandatory where personal data processed |
