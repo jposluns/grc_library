@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #577: GR-5, guardrail-review cadence mechanized as gate 60 + the r2 record backfilled (2026-07-02)
+
+The prose-only auto-prompt cadence now has a mechanical backstop: gate 60 compares the live machinery inventory (gates/rules/skills/commands) against the newest guardrail-review history row's as-of token, warning on drift and failing at the threshold; the 2026-07-02 five-lens review's missing history row and per-run record were backfilled from the intake artefacts (the gap the finding itself named).
+
 ### PR #576: 3.13 gates-widening: gate 55 to eight retention pairs, D5 to six closure forms, gate 50 dual-spelling marker (2026-07-02)
 
 The audit-surfaced widening bullet closed in one PR: gate 55 now locks the five reconciled retention rows (breach, PIA, AI-IA, AI-audit, supplier-audit) beside the original three, with the AI-audit anchor sentence reworded, the supplier-audit retention sentence authored, and both register matches notes added; D5 gains the section-name, item-number, and rotation-assertion closure forms (the #567 vacuous pass closed; the generalized form rejected on census FPs); gate 50 accepts the -ized marker spelling. Fixtures grew with all three.

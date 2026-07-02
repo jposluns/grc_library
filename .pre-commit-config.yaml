@@ -435,3 +435,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-guardrail-cadence
+        name: Guardrail-review cadence audit
+        entry: python3 tools/lint-guardrail-cadence.py
+        language: system
+        pass_filenames: false
+        always_run: true

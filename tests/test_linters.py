@@ -4836,6 +4836,100 @@ class DocumentIsoAnnexATests(LinterTestCase):
         )
 
 
+class GuardrailCadenceTests(LinterTestCase):
+    """tools/lint-guardrail-cadence.py (gate 60)
+
+    The gate compares the live machinery inventory (spec section-6 gate rows,
+    pack governance rules, pack SKILLs, commands) against the as-of inventory
+    token in the newest guardrail-review history row, warning below the drift
+    threshold and failing at/above it; a missing or token-less record fails
+    closed (the un-honoured record convention is the defect class).
+    """
+
+    HISTORY_REL = ".working/guardrail-reviews/history.md"
+
+    def _write_tree(
+        self,
+        d: str,
+        *,
+        gates: int = 3,
+        recorded: str = "inventory 3 gates / 2 rules / 2 skills / 1 command",
+        with_row: bool = True,
+    ) -> None:
+        root = Path(d)
+        (root / ".working/guardrail-reviews").mkdir(parents=True, exist_ok=True)
+        (root / "governance").mkdir(parents=True, exist_ok=True)
+        (root / "dev-security/claude-rules/governance").mkdir(parents=True, exist_ok=True)
+        (root / ".claude/commands").mkdir(parents=True, exist_ok=True)
+        for name in ("alpha", "beta"):
+            (root / f"dev-security/claude-rules/skills/{name}").mkdir(parents=True, exist_ok=True)
+            (root / f"dev-security/claude-rules/skills/{name}/SKILL.md").write_text("# s\n", encoding="utf-8")
+            (root / f"dev-security/claude-rules/governance/{name}.md").write_text("# r\n", encoding="utf-8")
+        (root / ".claude/commands/one.md").write_text("# c\n", encoding="utf-8")
+        spec_rows = "".join(f"| {n} | Gate {n} | x |\n" for n in range(1, gates + 1))
+        (root / "governance/specification-audit-programme.md").write_text(
+            "# Spec\n\n| # | Gate | Script |\n|---|---|---|\n" + spec_rows, encoding="utf-8"
+        )
+        row = f"| 2026-07-02 | r1 | lenses | f | pr | d | Baseline; {recorded}. |\n" if with_row else ""
+        (root / self.HISTORY_REL).write_text(
+            "# History\n\n| Date | Run | Lenses | Findings | Resulting PR | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n" + row,
+            encoding="utf-8",
+        )
+
+    def test_zero_drift_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d)
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"zero drift must pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertNotIn("warning", result.stdout)
+
+    def test_small_drift_warns_but_passes(self) -> None:
+        # One gate added since the recorded row: below the threshold, warn only.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, gates=4)
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"sub-threshold drift must pass with a warning.\nstdout:\n{result.stdout}",
+            )
+            self.assertIn("warning", result.stdout)
+            self.assertIn("drifted 1", result.stdout)
+
+    def test_threshold_drift_fails(self) -> None:
+        # Five gates added since the recorded row: at the threshold, fail.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, gates=8)
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertLinterFails(result, "drifted 5")
+
+    def test_missing_inventory_token_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, recorded="no counts recorded here")
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertLinterFails(result, "inventory")
+
+    def test_missing_history_row_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, with_row=False)
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertLinterFails(result, "inventory")
+
+    def test_commands_axis_optional_for_old_rows(self) -> None:
+        # The r1-era row records no commands axis: the comparison runs on the
+        # three recorded axes only and passes at zero drift.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, recorded="inventory 3 gates / 2 rules / 2 skills")
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertEqual(
+                result.returncode, 0,
+                f"a three-axis row must compare on its recorded axes.\nstdout:\n{result.stdout}",
+            )
+
+
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
 
