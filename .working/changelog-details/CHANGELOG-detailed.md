@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.63, PR #575
+
+Tooling: **the GR-12 post-fix residual-scan aid** ([`tools/residual-scan.py`](../../tools/residual-scan.py)) plus the five #574 sweep dispositions. Library 2026.07.62 to 2026.07.63; README 1.9.423 to 1.9.424.
+
+### Added
+
+- [`tools/residual-scan.py`](../../tools/residual-scan.py) (stdlib-only): word-boundary token scan over every tracked text surface (markdown, python, shell, yaml, cff, toml, txt, json; `.git` excluded), full untruncated line per hit, LIVE / LEDGER / FROZEN-RECORD labels (frozen per-run archives suppressed without `--all`; append-only ledgers always shown because the tool cannot tell an old entry from a new one), `--substring` and `--regex` modes, exit 1 on any LIVE hit. Docstring carries the discipline (read each hit in full before triage) and the aid-not-gate positioning. Pre-ship exercise: the APO10, calendar-days, and 57-stems historical cases reproduced their known carriers with correct labels and exit codes, and the tool's first live use re-found the #574 sweep's two already-reported stale register-name carriers in the charter and then confirmed zero LIVE residuals after the I5 fix.
+
+### Fixed
+
+- **#574 sweep L1:** the AI-audit retention decision's "Item 14" mis-label corrected in [`pending-decisions.md`](../pending-decisions.md) and this mirror's #574 entry (record-correction): the decision traces to the #563 sweep's routed note; the audit's item 14 is the C8-closed encryption conflict.
+- **#574 sweep L2:** the pending-decisions sibling observation widened to both flat-valued AI rows under the AI-Systems domain minimum (AI-incident-records AND AI-decision-and-detection-logs), both routed for triage.
+- **#574 sweep I3/I4:** the mirror's bracket-contents sentence corrected to the two-of-four precision; the Status-line umbrella relabelled to name both rule-2 arms.
+- **#574 sweep I5:** the charter's two "Global Regulatory Mapping Register" carriers corrected to "Global Regulatory Applicability Register" ([`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md) 1.5.5), the residual-scan aid confirming zero LIVE residuals after the fix.
+
+### Verification
+
+- The aid's exit-code behaviour verified standalone (1 on LIVE, 0 clean), after its own first test run re-demonstrated the pipe-masked-exit-code anti-pattern (the test piped through `tail`; the tool was fine, the test was not).
+- Batches the #574 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.353; detail [`2026-07-02-PR-574.md`](../validate-pr/2026-07-02-PR-574.md)) and [`/retro`](../improvement-log.md) (1.0.299, which adopts the run-the-aid-on-every-corrected-token close-out habit and the provenance-label grep check).
+
 ## 2026-07-02, Library Version 2026.07.62, PR #574
 
 Cleanup batch (the section-3.14 judgment tier): **five items resolved**, two of them stricter-safe retention values logged for confirm-or-redirect. Library 2026.07.61 to 2026.07.62; README 1.9.422 to 1.9.423.
@@ -13,13 +33,13 @@ Cleanup batch (the section-3.14 judgment tier): **five items resolved**, two of 
 ### Changed
 
 - [`docs/decision-tree.md`](../../docs/decision-tree.md) (1.0.12): the step-6 line now names its 30/90/180 set as size-keyed (Sections 6.1 to 6.3) and deliberately distinct from the roadmap's 90/180/365 module-composition calendar (item 22; the align-the-outlier option was rejected on the tree's own internal consistency).
-- [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md) (1.5.4): the scope item 2 four-region enumeration replaced with the applicability-register pointer plus an adopter fill-in bracket carrying the former statutes as examples (L-g; the register was already in the charter's Related Documents); the same file's Applicable-regulatory-obligations table gained a worked-examples framing bracket (a verifier catch: the scope fix alone left the charter internally inconsistent).
+- [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md) (1.5.4): the scope item 2 four-region enumeration replaced with the applicability-register pointer plus an adopter fill-in bracket carrying two of the four former regions as examples, the other two surviving as worked-example table rows (L-g; the register was already in the charter's Related Documents; precision per the #574 sweep); the same file's Applicable-regulatory-obligations table gained a worked-examples framing bracket (a verifier catch: the scope fix alone left the charter internally inconsistent).
 - [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md) (1.0.3): five cells genericized (the overall-statement value driver; the Operational, Cybersecurity, Technology, and Physical rows), the Technology row being the parallel-case carrier the research scan added to the four enumerated (L-h).
 
 ### Fixed
 
 - **L-f (stricter-safe, logged):** [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) (1.0.10) Security-incident-records row 5 to 7 years with the alignment rationale in the basis cell; the tiered-example echoes in [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md) (1.4.9) AND [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) Section 5.1 (1.4.12) co-changed (the second echo was a pre-push verifier BLOCKER catch, the fourth fix-named-miss-sibling instance in this window). Redirect path recorded in [`pending-decisions.md`](../pending-decisions.md).
-- **Item 14 (stricter-safe, logged):** the register's AI-audit-reports row composed with the AI-Systems domain minimum of [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) Section 5, using the adjacent AI-Impact-Assessments row's proven whichever-is-longer shape; the AI-incident-records sibling observation routed to pending-decisions, not silently actioned. An initial wrong "Section 4" pointer in the new basis cell was caught and fixed at apply-time verification (the cross-file section-citation class the paused gate targets).
+- **The #563-routed AI-audit retention pair (stricter-safe, logged; this entry first mis-labelled it "Item 14", which denotes the C8-closed encryption conflict, a #574 sweep record-correction):** the register's AI-audit-reports row composed with the AI-Systems domain minimum of [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) Section 5, using the adjacent AI-Impact-Assessments row's proven whichever-is-longer shape; the AI-incident-records sibling observation routed to pending-decisions, not silently actioned. An initial wrong "Section 4" pointer in the new basis cell was caught and fixed at apply-time verification (the cross-file section-citation class the paused gate targets).
 - **#573 sweep L1:** the #572 mirror entry's sibling "45 calendar days" sentence corrected with a record-correction note, re-converging the root and mirror records on the statute's unqualified value.
 
 ### Verification
