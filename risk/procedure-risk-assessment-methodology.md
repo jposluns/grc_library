@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
-**Date:** 2026-06-24\
+**Version:** 1.2.0\
+**Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -106,9 +106,11 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 
 4.2 Inherent risk score = Likelihood × Impact.
 
-4.3 Control effectiveness is assessed and residual risk calculated:
+4.3 Control effectiveness is assessed (Strong / Adequate / Weak / Untested, per the risk-register field model in `risk/standard-enterprise-risk-management.md` Section 7) and residual risk is re-scored with existing controls taken into account:
 
-Residual risk score = Inherent risk × (1 − Control effectiveness factor)
+Residual risk score = Residual likelihood × Residual impact
+
+Residual likelihood and residual impact are re-assessed on the same 1-to-5 scales as the inherent assessment, so inherent and residual scores share the 1-to-25 range and the Section 5 score-to-rating bands apply to both.
 
 ---
 

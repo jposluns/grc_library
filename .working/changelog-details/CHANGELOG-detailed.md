@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.48, PR #560
+
+Corpus fix (risk model): **section-1.6 item 1 closed**: the methodology's residual-risk formula reconciled to the canonical re-scored model. Methodology 1.1.2 to 1.2.0. Batches the #559 QA rows. Library 2026.07.47 to 2026.07.48; README 1.9.408 to 1.9.409.
+
+### Fixed
+
+- [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) section 4.3: the multiplicative-discount residual model (`Residual = Inherent x (1 - Control effectiveness factor)`; the numeric factor was defined nowhere in the corpus) replaced with the canonical re-scored model carried by [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) Section 7 (the register field set: categorical Control Effectiveness, re-scored Residual Likelihood/Impact) and [`risk/template-enterprise-risk-register.md`](../../risk/template-enterprise-risk-register.md) (re-scored L x I, 1 to 25). The new 4.3 names the categorical effectiveness scale, cross-references the standard's Section 7, and states that inherent and residual scores share the 1-to-5 input scales, the 1-to-25 range, and the section-5 tolerance bands. Evidence the canonical direction was right beyond the two-against-one surface count: the methodology's own section-5 bands are integer bands over 1 to 25, which the discount model (producing non-integer scores) never fit. Version 1.1.2 to 1.2.0 (minor bump: a normative scoring-model change), Date co-bumped; taxonomy regenerated FIRST, then portal/scorecard, all check-mode clean.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): section-1.6 item 1 deleted (rotation to [`.working/DONE.md`](../DONE.md) in the same commit); the section header and intro now say items 2-3 remaining with the closure recorded; the item-24 residual gains the routed #559 note ([`.claude/CLAUDE.md`](../../.claude/CLAUDE.md):215's FR-only D5 enumeration, under-inclusive post-GR-13, queued for the same maintainer-gated morning edit as the line-152 carrier).
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced. The #559 QA rows: [`.working/validate-pr/history.md`](../validate-pr/history.md) (0 findings; 1.2.337 to 1.2.338) and [`.working/improvement-log.md`](../improvement-log.md) (1.0.283 to 1.0.284; the row logs the owned first-occurrence CI-wait discipline slip, benign and stash-carried, log-only per the GR-P3 escalation convention).
+
+### Verification
+
+- Corpus-wide residual scan for the retired model: zero hits for the discount formula or "Control effectiveness factor" outside frozen records. `tools/run_all_audits.sh`: all 59 gates pass on the committed state; regeneration order taxonomy-first observed; the full suite green.
+- A pre-push refute-verifier (substantive tier: corpus-document body change) ran on the diff; see the PR body for its verdict.
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.47, PR #559
 
 Tooling for local project: **GR-13 closed** (rotated to the DONE ledger): D5's major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id. Batches the #558 QA rows. Library 2026.07.46 to 2026.07.47; README 1.9.407 to 1.9.408.
