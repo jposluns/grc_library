@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.3\
-**Date:** 2026-06-30\
+**Version:** 1.5.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -232,7 +232,7 @@ Maintain in the compliance repository:
 - Mitigation plan and residual risk summary.
 - Approvals and sign-off documentation.
 
-All records retained for a minimum of **7 years**.
+All records retained for a minimum of **7 years, or 5 years after the associated system's decommission, whichever is longer** (matching the retention schedule register, [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
 
 ---
 
