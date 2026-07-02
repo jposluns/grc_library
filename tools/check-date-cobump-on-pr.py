@@ -105,7 +105,11 @@ VERSION_LINE_PATTERN = re.compile(
 )
 
 # Canonical metadata Date line: ``**Date:** YYYY-MM-DD`` with an optional
-# trailing hard-line-break backslash. Mirrors gate 31's DATE_RE.
+# trailing hard-line-break backslash. Gate 31 retired its equivalent
+# private regex for the shared lint_common parser (GR-3 wave 1, with
+# fail-loud malformed-Date semantics); this delta check still parses
+# privately and treats an annotated Date as a missing canonical line
+# (a FAIL for a changed versioned file), pending the wave-2 migration.
 DATE_LINE_PATTERN = re.compile(
     r"^\s*\*\*Date:\*\*\s+(?P<date>\d{4}-\d{2}-\d{2})\\?\s*$",
     re.MULTILINE,
