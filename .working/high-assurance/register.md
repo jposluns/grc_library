@@ -1,7 +1,7 @@
 # High-Assurance Verification Register
 
-**Version:** 1.0.12\
-**Date:** 2026-06-30\
+**Version:** 1.0.13\
+**Date:** 2026-07-02\
 **License:** CC BY-SA 4.0
 
 The durable, cross-session register for the **high-assurance verification** discipline (the
@@ -32,7 +32,13 @@ This file is maintainer working state, exempt from corpus audit gates.
 
 ## Active items
 
-None currently in-flight (no `pending` / `in-progress` / `deferred` rows). The §1.5 reference version-currency register harness completed and is recorded under Completed items below. The closing whole-matrix `/matrix-fit` over the 62-row worklist (FR-167 closure, tracked in [`TODO.md`](../../TODO.md)) is the next candidate that may warrant a register row when it runs, if its findings touch sensitive cells.
+One item in-flight:
+
+| Date | Item | Why sensitive (conditions) | Harness stages and outcome | Status | Follow-up |
+|---|---|---|---|---|---|
+| 2026-07-02 | **M1 / TODO 7.4 + 3.13 item-25: corpus-wide `-isation` to `-ization` harmonization (~2000 occurrences, ~300 files) + `lint-language.py` noun-form extension** (maintainer-locked overnight decision: full normalization, not a Commonwealth exception). | All three: **(1) gate-blind correctness** (a flip inside a VERBATIM quote of an external instrument, e.g. the GDPR's official English "organisational measures" in the Article 25 quotes, is a real defect no gate catches; the extended gate validates spelling, not quote fidelity), **(2) delicate scale** (~2000-occurrence, ~300-file mechanical sweep), **(3) high escaped-error cost** (every corpus document is citable; a corrupted verbatim quote misattributes an official text). | **Stage 1** (in-flight): research worker enumerating and classifying every occurrence in the gate-2 scan set (FLIP vs KEEP-verbatim-quote vs KEEP-code-fence vs KEEP-other), exhaustive on the KEEP lists. **Stage 2**: quote-context signal pass done (5 quoted lines, 14 "organisational measures" carriers identified pre-dispatch). Stages 3-5 pending: two blind adversarial verifiers (false-negative: residual `-isation`; false-positive: flips inside verbatim quotes), programmatic floor (extended gate 2 exits 0 post-sweep; census re-parse), deterministic scripted apply keyed on the classified map. Guard-note: the linter extension and the sweep land in ONE PR (landing the gate first would hold `main` red across the window, which gate-discipline forbids working around; the new-rule-plus-conforming-corpus bundle is the sanctioned tightly-coherent exception). | in-progress | On land: rotate TODO 7.4 (decision executed) + the 3.13 item-25 line; scratch CONTRIBUTING/house-style cross-repo note is SR-wave. |
+
+Previously none in-flight. The §1.5 reference version-currency register harness completed and is recorded under Completed items below. The closing whole-matrix `/matrix-fit` over the 62-row worklist (FR-167 closure, tracked in [`TODO.md`](../../TODO.md)) is the next candidate that may warrant a register row when it runs, if its findings touch sensitive cells.
 
 ## Completed items (retained for the audit trail)
 
