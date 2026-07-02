@@ -35,12 +35,12 @@ Mechanics:
     convention was not being honoured, so an unparseable record is a finding,
     not a skip.
 
-The threshold (5, sum of absolute deltas) is a proceeded stricter-safe default
-recorded in `.working/pending-decisions.md` at build time; the maintainer
-confirms or redirects it. It is deliberately larger than one so a single
-gate-adding PR (including the PR that ships THIS gate) warns rather than
-blocks, and small enough that a wave of machinery growth cannot run past the
-cadence unreviewed.
+The threshold (3, sum of absolute deltas) is the maintainer's calibration:
+the 2026-07-02 return round redirected the build-time proceeded default of 5
+to the stricter 3 (the decision trail is in `.working/pending-decisions.md`).
+It is deliberately larger than one so a single gate-adding PR (including the
+PR that shipped this gate) warns rather than blocks, and small enough that a
+wave of machinery growth cannot run past the cadence unreviewed.
 
 Usage:
     python3 tools/lint-guardrail-cadence.py
@@ -66,9 +66,9 @@ SKILLS_DIR = "dev-security/claude-rules/skills"
 COMMANDS_DIR = ".claude/commands"
 
 # Sum of absolute per-axis deltas at/above which the gate fails. See the
-# docstring for the calibration rationale (a proceeded stricter-safe default,
-# recorded in pending-decisions at build time).
-FAIL_DRIFT_THRESHOLD = 5
+# docstring for the calibration rationale (maintainer-set at the 2026-07-02
+# return round, tightening the build-time proceeded default of 5).
+FAIL_DRIFT_THRESHOLD = 3
 
 # The as-of inventory token a guardrail-review history row's Summary cell
 # carries, e.g. "inventory 59 gates / 12 rules / 17 skills / 10 commands".
