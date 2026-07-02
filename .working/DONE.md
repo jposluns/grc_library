@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #578: L-k, pre-commit regen-before-check reorder (2026-07-02)
+
+The pre-commit-only regenerate-derived-artefacts hook moved after the taxonomy and portal --check hooks, so local drift now fails loud at the checks instead of being silently regenerated into a false green (CI was never affected, check-only there); moving the regen hook rather than the check hooks keeps the gate order identical across the four parity surfaces.
+
 ### PR #577: GR-5, guardrail-review cadence mechanized as gate 60 + the r2 record backfilled (2026-07-02)
 
 The prose-only auto-prompt cadence now has a mechanical backstop: gate 60 compares the live machinery inventory (gates/rules/skills/commands) against the newest guardrail-review history row's as-of token, warning on drift and failing at the threshold; the 2026-07-02 five-lens review's missing history row and per-run record were backfilled from the intake artefacts (the gap the finding itself named).
