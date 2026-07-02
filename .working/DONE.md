@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #560: section-1.6 item 1, residual-risk formula reconcile (2026-07-02)
+
+The methodology's multiplicative-discount residual model replaced with the canonical re-scored Residual likelihood x Residual impact (matching the ERM standard's register field model and the register template); control effectiveness stays categorical; the 1-to-25 tolerance bands now provably apply to both inherent and residual scores. First C-wave corpus fix of the overnight run.
+
 ### PR #559: GR-13, D5 coded-id closure-pattern widening (2026-07-02)
 
 The D5 major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id (FR/GR/SR families), re-tested false-positive-free against the whole CHANGELOG history; lowercase narration stays excluded by the case-sensitivity guard. Positive and negative fixture cases extended in the existing D5 unit tests.
