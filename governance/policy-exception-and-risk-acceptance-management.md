@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.10\
+**Version:** 1.3.11\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -127,7 +127,7 @@ The renewal number and the approving authority must be recorded on the exception
 
 - **ISO/IEC 27001:2022** Annex A.5.36 Compliance with policies, rules and standards for information security 
 - **ISO 31000:2018** Risk Management 
-- **COBIT 2019** APO12.06 Respond to risk; APO12.02 Analyze risk; MEA01 Monitor Evaluate and Assess 
+- **COBIT 2019** APO12.06 Respond to risk; APO12.02 Analyze risk; MEA01 Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** guidance including CCM v4.1 GRC-04 Policy Exception Process 
 - **NIST SP 800-37 Rev. 2** RMF Step 6 Authorize the System; **NIST SP 800-53 Rev. 5** CA-6 Authorization 
 - **NIST AI RMF 1.0** Govern Function (with the AI 600-1 Generative AI Profile)
