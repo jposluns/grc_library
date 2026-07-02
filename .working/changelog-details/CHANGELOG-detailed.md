@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.43, PR #555
+
+Tooling for local project: **GR-2 closed** (rotated to the DONE ledger), the first guardrail-review machinery item: nineteen regression tests added to [`tests/test_linters.py`](../../tests/test_linters.py) covering the previously-untested PR-time delta checks D1/D2/D3 plus a D5 behavioural tier and the [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) exit-code chain, via a shared two-commit temp-repo harness generalizing the D4 fixture shape; regression suite grows 228 to 247, all green. Also batches the #554 QA rows and resolves both #554 `/validate-pr` notes. Library 2026.07.42 to 2026.07.43; README 1.9.403 to 1.9.404.
+
+### Added
+
+- `DeltaGateRepoTestCase` in [`tests/test_linters.py`](../../tests/test_linters.py): a shared two-commit temp-repo harness (multi-file commits, positional base/head refs so fixtures never consult `GITHUB_BASE_REF` or a remote), generalizing the `DateCobumpOnPrTests` shape.
+- `ChangelogOnPrTests` (D1, 5 tests: neither-surface fail with "neither" diagnostic, both-surfaces pass, root-without-mirror fail with "detailed mirror" diagnostic, mirror-without-root fail with "root" diagnostic, `Changelog:` opt-out trailer pass).
+- `VersionBumpOnPrTests` (D2, 4 tests: body-change-without-bump fail naming the file, bumped pass, unversioned-file skip, added-file skip).
+- `ChangelogDashOnPrTests` (D3, 4 tests: added em-dash fail, dash-free pass, pre-existing-dash-in-context pass exercising the unified=0 added-lines-only scope, CHANGELOG-not-in-diff pass).
+- `TodoRotationOnPrDeltaTests` (D5 behavioural tier atop the existing closure-pattern unit tests, 3 tests: closure claim without rotation fail, closure with TODO+DONE rotation pass, `TodoRotation:` trailer pass).
+- `PrePushGuardTests` (3 tests): the guard copied beside stub runners; first-runner rc=7 propagates with the second runner proven un-run (marker-file absence), second-runner rc=5 propagates, both-green exits 0 with the PASS banner. Pins the improvement-log #438/#439 exit-code-swallow class.
+- [`.working/validate-pr/2026-07-02-PR-554.md`](../validate-pr/2026-07-02-PR-554.md) per-PR record, the paired history row ([`.working/validate-pr/history.md`](../validate-pr/history.md) 1.2.332 to 1.2.333), and the #554 [`/retro`](../improvement-log.md) row (1.0.278 to 1.0.279).
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): GR-2 deleted from section 3.15 (rotation to [`.working/DONE.md`](../DONE.md) in the same commit); GR-P5's exception-register hoist clause repointed to the precise carrier set (the strict-mode sentence exists in gate-discipline and change-tracking only; artefact-and-branch-discipline carries a cross-reference) and now records the routed out-of-window #554 finding (the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) Boundaries line cites evidence-grounded-completion, which has zero exception-register mentions, instead of artefact-and-branch-discipline; to be corrected by the GR-P5 implementation PR as a logged protected-file factual touch).
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced (PR 2 merged; PR 3 = this PR).
+
+### Verification
+
+- The linter regression suite ([`tools/run-linter-regression.py`](../../tools/run-linter-regression.py)): 247 tests, all pass (228 + 19 new, discovered automatically by unittest; no runner wiring needed).
+- `tools/run_all_audits.sh`: all 59 gates pass on the committed state (gate 36 runs the enlarged suite).
+- Apply-time verification of the research worker's claims before authoring: script filenames, merge-base/exit-code conventions, the D4 harness lines, the D1 trailer and D5 closure patterns, and the guard's bare-command rc capture all re-read at source (research-assistant discipline; zero corrections needed against the worker's report).
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.42, PR #554
 
 TODO intake + QA batch for local project: the 2026-07-02 **guardrail-review findings** routed to [`TODO.md`](../../TODO.md) as new section 3.15 (twelve machinery extensions) and new section 4.7 (five pack-design items); every claim re-verified at source at intake, one lens-agent claim refuted and dropped. Batches the #553 [`/validate-pr`](../validate-pr/history.md) row (2 warnings + 1 note, all in-window) and [`/retro`](../improvement-log.md) row, and fixes all three #553 findings. Library 2026.07.41 to 2026.07.42; README 1.9.402 to 1.9.403.
