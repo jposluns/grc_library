@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.45, PR #557
+
+Tooling for local project: **GR-1 closed** (rotated to the DONE ledger): gate 59 extended to assert CHANGELOG Library-Version ordering (strictly decreasing top-down, integer-tuple compare, cutoff-scoped). Four new fixtures (suite 254 to 258). Batches the #556 QA rows and carries the "338/338" correction note. Library 2026.07.44 to 2026.07.45; README 1.9.405 to 1.9.406.
+
+### Added
+
+- Gate 59 ordering assertion in [`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py): a `VERSION_RE` capture on matched per-PR headers, an ordered `pr_headers()` records function (the existing `pr_header_counts()` now derives from it), and `ordering_violations()` requiring the cutoff-scoped Library Versions to strictly decrease top-down per file, with distinct equal-version and increasing-version failure wording; module docstring extended. This is the CHANGELOG version-monotonicity control the change-tracking rule's CI-enforcement section describes; gate 13 ([`tools/lint-library-version-monotonicity.py`](../../tools/lint-library-version-monotonicity.py)) deliberately skips the CHANGELOG, so before this extension the described control existed nowhere (the guardrail review's GR-1 finding).
+- Four fixtures in `ChangelogMirrorHeaderParityTests` ([`tests/test_linters.py`](../../tests/test_linters.py)): out-of-order fail, equal-version fail (the historical #174/#175 shape), the single-digit numeric-compare case (2026.06.9 above 2026.06.10 must fail; a string compare would pass it), and the pre-cutoff-exempt replica of the #170-#175 window; suite 254 to 258.
+- [`.working/validate-pr/2026-07-02-PR-556.md`](../validate-pr/2026-07-02-PR-556.md) per-PR record, the history row ([`.working/validate-pr/history.md`](../validate-pr/history.md) 1.2.334 to 1.2.335), and the #556 [`/retro`](../improvement-log.md) row (1.0.280 to 1.0.281).
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): the section-6 gate-59 narrative and the section-5 grouped-list clause now describe the ordering assertion (1.16.29 to 1.16.30, Date already current; [`taxonomy.yml`](../../taxonomy.yml) regenerated FIRST, then portal/scorecard, both check-mode clean; gate-name parity re-confirmed at 59, step name unchanged).
+- [`TODO.md`](../../TODO.md): GR-1 deleted from section 3.15 (rotation to [`.working/DONE.md`](../DONE.md) in the same commit).
+- [`.working/overnight-pr.md`](../overnight-pr.md): the PR-4 ledger line's "338/338" reworded to carry both measurement scopes; PR-5 ledger line added.
+
+### Fixed
+
+- **Correction of record for the shipped #556 entry** (its "338/338 identical" blast-radius claim, also carried in the #556 root lead): the denominator was scope-underspecified. 338 = the orchestrator's pre-push scan over the full markdown tree; the #556 post-merge `/validate-pr` reproduction over gate 31's exact post-filter target set returns **334/334**. Both scans show zero old-vs-new differences, so the load-bearing zero-blast-radius claim stands; the shipped entries are not retro-edited, this note is the correction. The soft-count class thereby hits its THIRD in-window occurrence tonight, formally meeting the GR-P3 three-occurrence threshold (see the #556 retro row; GR-12 residual-scan tooling elevated in priority as the designated fix).
+
+### Verification
+
+- The linter regression suite: 258 tests, all pass. `tools/run_all_audits.sh`: all 59 gates pass on the committed state (gate 59 exercised with the new assertion against the live corpus, which verified strictly decreasing before wiring).
+- Adversarial probes pre-commit: in-order pass, equal-version fail, single-digit tuple-compare fail, pre-cutoff-exempt pass, all via `--root` temp fixtures.
+- Apply-time verification of the W4 research: the ordering census independently reproduced by the orchestrator (0 cutoff-scoped violations in both files; only the pre-cutoff #170-#175 window), `CUTOFF_PR`/`HEADER_RE` quotes confirmed, the pack-rule byte-parity confirmed. The research's suggested pack-rule clarifying edit (the "strictly increase in the order the entries appear" phrasing vs newest-first reading order) is maintainer-visible pack prose and is NOT taken tonight; the gate implements the rule's chronological intent.
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.44, PR #556
 
 Tooling for local project: **GR-3 wave 1 + GR-4 tilde half shipped** (both items reduced to residuals in [`TODO.md`](../../TODO.md)): the shared metadata parser lands in [`tools/lint_common.py`](../../tools/lint_common.py), gate 31 migrates to it with fail-loud malformed-Date semantics, and `iter_non_code_lines` gains the tilde-fence toggle. Seven new tests (suite 247 to 254). Batches the #555 QA rows. Library 2026.07.43 to 2026.07.44; README 1.9.404 to 1.9.405.
