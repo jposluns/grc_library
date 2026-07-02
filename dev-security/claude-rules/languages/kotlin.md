@@ -6,7 +6,7 @@ Java-Android idioms are noted inline where they differ from Kotlin; the underlyi
 
 ---
 
-## Secure storage (Section 2)
+## Secure storage (Section 4)
 
 ```kotlin
 // NEVER: sensitive data in plain SharedPreferences
@@ -49,7 +49,7 @@ Same rules in Java: `getSharedPreferences()` and `openFileOutput()` are the same
 
 ---
 
-## Cryptography (Section 3)
+## Cryptography (Section 5)
 
 ```kotlin
 // NEVER: hardcoded keys, ECB mode, custom crypto
@@ -93,7 +93,7 @@ SecureRandom().nextBytes(bytes)
 
 ---
 
-## Authentication and local biometrics (Section 4)
+## Authentication and local biometrics (Section 6)
 
 ```kotlin
 // NEVER: biometric used as the sole credential
@@ -124,7 +124,7 @@ OAuth / OIDC: use `Custom Tabs` (`androidx.browser`) for the auth flow; never em
 
 ---
 
-## Network and Network Security Configuration (Section 5)
+## Network and Network Security Configuration (Section 7)
 
 ```xml
 <!-- NEVER: cleartext traffic globally enabled -->
@@ -146,11 +146,11 @@ OAuth / OIDC: use `Custom Tabs` (`androidx.browser`) for the auth flow; never em
             <certificates src="system"/>
         </trust-anchors>
     </base-config>
-    <!-- Domain-scoped exceptions documented per Section 5 -->
+    <!-- Domain-scoped exceptions documented per Section 7 -->
 </network-security-config>
 ```
 
-Certificate pinning (Tier 1, Tier 2 per Section 1) via Network Security Config (`<pin-set>`) or OkHttp `CertificatePinner`:
+Certificate pinning (Tier 1, Tier 2 per Section 3) via Network Security Config (`<pin-set>`) or OkHttp `CertificatePinner`:
 
 ```kotlin
 val pinner = CertificatePinner.Builder()
@@ -163,7 +163,7 @@ Backup pins documented; pin-rotation plan exists.
 
 ---
 
-## Backend attestation: Play Integrity (Section 5)
+## Backend attestation: Play Integrity (Section 7)
 
 Tier 1 and Tier 2 application backends require Play Integrity. The client requests a token, sends to the backend, the backend verifies against Google's attestation service.
 
@@ -189,7 +189,7 @@ Never trust Play Integrity verdicts purely client-side. The backend is the verif
 
 ---
 
-## Platform interaction (Section 6)
+## Platform interaction (Section 8)
 
 ```xml
 <!-- NEVER: exported component without permission protection or signature check -->
@@ -234,7 +234,7 @@ logger.info("Auth event for user", userIdHash)  // hash, not raw id
 
 ---
 
-## WebView (Section 5, 6)
+## WebView (Section 7, 8)
 
 ```kotlin
 // NEVER: enable JavaScript with a JS interface that exposes broad native APIs
@@ -265,7 +265,7 @@ webView.addJavascriptInterface(NarrowBridge(allowed = setOf("showSheet")), "Nati
 
 ---
 
-## App permissions and privacy (Section 10)
+## App permissions and privacy (Section 12)
 
 ```kotlin
 // NEVER: request a broad permission for a narrow need
@@ -284,7 +284,7 @@ Honour the "Don't ask again" / `shouldShowRequestPermissionRationale` flow. Phot
 
 ---
 
-## Distribution and signing (Section 9)
+## Distribution and signing (Section 11)
 
 - App signing keys held in a CI/CD secrets manager or Google Play App Signing; never committed to source control.
 - Release builds use `minifyEnabled true` and ProGuard / R8 with appropriate keep rules. The resulting `mapping.txt` is preserved per release for crash de-symbolication.
@@ -293,7 +293,7 @@ Honour the "Don't ask again" / `shouldShowRequestPermissionRationale` flow. Phot
 
 ---
 
-## In-app billing / receipt validation (Section 14)
+## In-app billing / receipt validation (Section 16)
 
 ```kotlin
 // NEVER: grant entitlement from BillingClient result alone
@@ -317,11 +317,11 @@ purchases.forEach { purchase ->
 }
 ```
 
-Acknowledge purchases only after backend verification. Real-time Developer Notifications (RTDN) feed the backend for subscription state changes per Section 14.
+Acknowledge purchases only after backend verification. Real-time Developer Notifications (RTDN) feed the backend for subscription state changes per Section 16.
 
 ---
 
-## Reverse-engineering resistance (Section 7, Tier 1 and Tier 2)
+## Reverse-engineering resistance (Section 9, Tier 1 and Tier 2)
 
 - Root detection used as a signal, not as the sole defence. RootBeer / SafetyNet-Attest-style checks reported to backend; user experience degrades gracefully.
 - String obfuscation for embedded secrets (with the caveat that no embedded secret is truly secret on a rooted device).
@@ -334,14 +334,14 @@ Acknowledge purchases only after backend verification. Real-time Developer Notif
 
 Implements these sections of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md):
 
-- Section 2 (storage): EncryptedSharedPreferences, EncryptedFile, manifest backup posture.
-- Section 3 (cryptography): Android Keystore (StrongBox-backed for Tier 1), AES-GCM, SecureRandom.
-- Section 4 (authentication and authorisation): BiometricPrompt with CryptoObject; setInvalidatedByBiometricEnrollment; Custom Tabs for OAuth.
-- Section 5 (network): Network Security Config; OkHttp CertificatePinner; Play Integrity server verification.
-- Section 6 (platform interaction): App Links over custom schemes; explicit intents for cross-app data; logging redaction.
-- Section 7 (MASVS-R): root detection as signal; R8; native anti-tamper for Tier 1.
-- Section 9 (distribution): App Signing; ProGuard / R8 in release; mapping.txt preservation.
-- Section 10 (privacy): narrow permission scopes; Photo Picker preference.
-- Section 14 (IAP): server-side `purchaseToken` verification via Play Developer API; acknowledgement gating.
+- Section 4 (storage): EncryptedSharedPreferences, EncryptedFile, manifest backup posture.
+- Section 5 (cryptography): Android Keystore (StrongBox-backed for Tier 1), AES-GCM, SecureRandom.
+- Section 6 (authentication and authorisation): BiometricPrompt with CryptoObject; setInvalidatedByBiometricEnrollment; Custom Tabs for OAuth.
+- Section 7 (network): Network Security Config; OkHttp CertificatePinner; Play Integrity server verification.
+- Section 8 (platform interaction): App Links over custom schemes; explicit intents for cross-app data; logging redaction.
+- Section 9 (MASVS-R): root detection as signal; R8; native anti-tamper for Tier 1.
+- Section 11 (distribution): App Signing; ProGuard / R8 in release; mapping.txt preservation.
+- Section 12 (privacy): narrow permission scopes; Photo Picker preference.
+- Section 16 (IAP): server-side `purchaseToken` verification via Play Developer API; acknowledgement gating.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG Android test cases; Android Developers Security guide.

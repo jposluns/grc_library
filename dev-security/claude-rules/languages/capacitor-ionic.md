@@ -1,14 +1,14 @@
 # Capacitor / Ionic Security Rules
 
-These rules apply to mobile applications built with Capacitor (the modern Cordova successor) and Ionic Framework. They supplement the core rules in `core/`, the TypeScript / JavaScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 13 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with Capacitor (the modern Cordova successor) and Ionic Framework. They supplement the core rules in `core/`, the TypeScript / JavaScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
-Hybrid framework rule: Capacitor wraps a WebView and exposes native APIs through plugins; Ionic adds UI components on top of either Capacitor or Cordova. Web-stack security (CSP, XSS, etc.) and mobile-stack security (Sections 2-10) BOTH apply. The WebView IS the application UI, so any control assumed to be enforced at the network or browser layer must be enforced inside the WebView host.
+Hybrid framework rule: Capacitor wraps a WebView and exposes native APIs through plugins; Ionic adds UI components on top of either Capacitor or Cordova. Web-stack security (CSP, XSS, etc.) and mobile-stack security (Sections 4-12) BOTH apply. The WebView IS the application UI, so any control assumed to be enforced at the network or browser layer must be enforced inside the WebView host.
 
 If the app is on Cordova rather than Capacitor: migrate. Cordova is in maintenance mode (per Apache's published status) and most plugins have lagging security maintenance.
 
 ---
 
-## Secure storage delegation (Section 2, Section 13)
+## Secure storage delegation (Section 4, Section 15)
 
 ```ts
 // NEVER: sensitive data in @capacitor/preferences (insecure by default)
@@ -26,11 +26,11 @@ import { SecureStorage } from '@aparajita/capacitor-secure-storage';
 await SecureStorage.set('auth_token', token, true /* synchronized */, false /* access via biometry */);
 ```
 
-`@capacitor/preferences`, `localStorage`, `sessionStorage`, IndexedDB, and `WebSQL` are all prohibited for any data covered by Section 2. The same rule applies to Ionic Storage when configured with the default driver.
+`@capacitor/preferences`, `localStorage`, `sessionStorage`, IndexedDB, and `WebSQL` are all prohibited for any data covered by Section 4. The same rule applies to Ionic Storage when configured with the default driver.
 
 ---
 
-## Content Security Policy in the wrapped WebView (Section 13)
+## Content Security Policy in the wrapped WebView (Section 15)
 
 ```html
 <!-- NEVER: missing CSP -->
@@ -57,7 +57,7 @@ The bundler (Vite, Webpack) is configured to extract inline styles into separate
 
 ---
 
-## JavaScript bridge / plugin trust boundary (Section 13)
+## JavaScript bridge / plugin trust boundary (Section 15)
 
 ```typescript
 // NEVER: a custom plugin that runs arbitrary native code from JS
@@ -94,7 +94,7 @@ Cordova plugins (if migration is incomplete): audit each plugin's permission and
 
 ---
 
-## Network (Section 5)
+## Network (Section 7)
 
 ```ts
 // NEVER: bypass CSP's connect-src by setting allowMixedContent on the WebView
@@ -119,11 +119,11 @@ const response = await CapacitorHttp.request({
 });
 ```
 
-For Tier 1 / Tier 2 apps (per Section 1), certificate pinning is required. Capacitor delegates HTTP to the native layer when `CapacitorHttp` is enabled; otherwise the WebView's `fetch` / `XMLHttpRequest` uses the WebView's HTTP stack and pinning is harder.
+For Tier 1 / Tier 2 apps (per Section 3), certificate pinning is required. Capacitor delegates HTTP to the native layer when `CapacitorHttp` is enabled; otherwise the WebView's `fetch` / `XMLHttpRequest` uses the WebView's HTTP stack and pinning is harder.
 
 ---
 
-## Backend attestation (Section 5)
+## Backend attestation (Section 7)
 
 App Attest (iOS) and Play Integrity (Android) implementations live in native plugin code; the JS layer forwards opaque tokens.
 
@@ -140,7 +140,7 @@ Don't trust attestation client-side; don't roll your own. The Capacitor plugin m
 
 ---
 
-## Deep links and App Links / Universal Links (Section 6)
+## Deep links and App Links / Universal Links (Section 8)
 
 ```ts
 // NEVER: deep-link handler that triggers a sensitive action without validation
@@ -165,7 +165,7 @@ Use App Links (Android `autoVerify="true"`) and Universal Links (iOS Associated 
 
 ---
 
-## Permissions (Section 10)
+## Permissions (Section 12)
 
 ```ts
 // NEVER: request a broad permission for a narrow need
@@ -181,7 +181,7 @@ await Geolocation.requestPermissions({ permissions: ['coarseLocation'] });
 
 ---
 
-## Debug-tooling exclusion in release (Section 13)
+## Debug-tooling exclusion in release (Section 15)
 
 ```ts
 // NEVER: leave the WebView inspector enabled in release
@@ -210,9 +210,9 @@ For Cordova: same rule via `<preference name="AndroidInsecureFileModeEnabled" va
 
 ---
 
-## Over-the-air updates (Section 13)
+## Over-the-air updates (Section 15)
 
-Apple and Google permit OTA of web assets (HTML, CSS, JS) but not native code, subject to the store's review policies. Ionic Appflow Live Updates is one option; Capacitor Live Updates is another. Both must satisfy the Section 13 OTA rule.
+Apple and Google permit OTA of web assets (HTML, CSS, JS) but not native code, subject to the store's review policies. Ionic Appflow Live Updates is one option; Capacitor Live Updates is another. Both must satisfy the Section 15 OTA rule.
 
 ```ts
 // CORRECT: signed Live Update channels
@@ -227,7 +227,7 @@ Live Updates cannot grant new permissions or modify native code. Plugin updates 
 
 ---
 
-## In-app purchases (Section 14)
+## In-app purchases (Section 16)
 
 ```ts
 // NEVER: grant entitlement from a Capacitor IAP plugin result alone
@@ -250,7 +250,7 @@ CdvPurchase.store.when().approved(async (purchase) => {
 });
 ```
 
-`cordova-plugin-purchase` (now also Capacitor-compatible) and `@capacitor-community/in-app-purchases` both require backend verification per Section 14.
+`cordova-plugin-purchase` (now also Capacitor-compatible) and `@capacitor-community/in-app-purchases` both require backend verification per Section 16.
 
 ---
 
@@ -276,6 +276,6 @@ The Ionic framework's components are XSS-safe when used with the framework's idi
 
 ## Framework alignment
 
-Implements Section 13 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (2, 5, 6, 10, 14) as they apply through Capacitor's WebView + plugin architecture. Web-stack security from [`languages/typescript.md`](typescript.md) and `core/owasp.md` also applies because the WebView IS the application UI.
+Implements Section 15 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 7, 8, 12, 16) as they apply through Capacitor's WebView + plugin architecture. Web-stack security from [`languages/typescript.md`](typescript.md) and `core/owasp.md` also applies because the WebView IS the application UI.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; Capacitor security documentation; Ionic security best practices.

@@ -1,14 +1,14 @@
 # .NET MAUI Security Rules
 
-These rules apply to mobile applications built with .NET MAUI (Multi-platform App UI). They supplement the core rules in `core/`, the server-side C# rules in [`languages/csharp.md`](csharp.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 13 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with .NET MAUI (Multi-platform App UI). They supplement the core rules in `core/`, the server-side C# rules in [`languages/csharp.md`](csharp.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
-Hybrid framework rule: .NET MAUI shifts the layer at which a control is implemented; it does not remove the control. The C# layer runs on top of the native iOS / Android platforms via Mono / .NET runtime; every Section 2-10 requirement that applies to native still applies to a MAUI app, delegated to the appropriate .NET API or native handler.
+Hybrid framework rule: .NET MAUI shifts the layer at which a control is implemented; it does not remove the control. The C# layer runs on top of the native iOS / Android platforms via Mono / .NET runtime; every Section 4-12 requirement that applies to native still applies to a MAUI app, delegated to the appropriate .NET API or native handler.
 
-For Blazor Hybrid apps within MAUI, the additional WebView controls in Section 13 apply on top of the rules below.
+For Blazor Hybrid apps within MAUI, the additional WebView controls in Section 15 apply on top of the rules below.
 
 ---
 
-## Secure storage delegation (Section 2, Section 13)
+## Secure storage delegation (Section 4, Section 15)
 
 ```csharp
 // NEVER: sensitive data in Preferences (the cross-platform .NET preferences API)
@@ -31,11 +31,11 @@ var options = new SQLiteConnectionString(
 var connection = new SQLiteAsyncConnection(options);
 ```
 
-`Preferences` and unencrypted SQLite are prohibited for any data covered by Section 2.
+`Preferences` and unencrypted SQLite are prohibited for any data covered by Section 4.
 
 ---
 
-## Cross-platform handlers and dependency-service trust boundary (Section 13)
+## Cross-platform handlers and dependency-service trust boundary (Section 15)
 
 ```csharp
 // NEVER: a custom handler that exposes broad native APIs to the
@@ -68,7 +68,7 @@ Same rule for Blazor Hybrid's `IJSRuntime` interop: every call from the WebView'
 
 ---
 
-## Network (Section 5)
+## Network (Section 7)
 
 ```csharp
 // NEVER: globally trust any server certificate
@@ -92,11 +92,11 @@ var handler = new SocketsHttpHandler
 var client = new HttpClient(handler);
 ```
 
-For Tier 1 / Tier 2 (per Section 1), pinning is required. Native iOS ATS and Android Network Security Config still apply at the platform layer below MAUI.
+For Tier 1 / Tier 2 (per Section 3), pinning is required. Native iOS ATS and Android Network Security Config still apply at the platform layer below MAUI.
 
 ---
 
-## Backend attestation (Section 5)
+## Backend attestation (Section 7)
 
 App Attest (iOS) and Play Integrity (Android) live in the native iOS / Android platforms; consume them via a partial-class platform implementation or a NuGet wrapper.
 
@@ -135,7 +135,7 @@ Don't trust attestation client-side. Don't roll your own.
 
 ---
 
-## Build hardening and release configuration (Section 7, Section 13)
+## Build hardening and release configuration (Section 9, Section 15)
 
 ```xml
 <!-- NEVER: ship a Debug-mode release; ship release without trimming/AOT review -->
@@ -170,7 +170,7 @@ Hot reload (`MAUI` hot reload, XAML hot reload) attaches in debug only; verify y
 
 ---
 
-## Deep links (Section 6)
+## Deep links (Section 8)
 
 ```csharp
 // NEVER: a deep-link handler triggering sensitive action without validation
@@ -202,7 +202,7 @@ Use App Links (Android `autoVerify="true"`) and Universal Links (iOS Associated 
 
 ---
 
-## Permissions (Section 10)
+## Permissions (Section 12)
 
 ```csharp
 // NEVER: request a permission the app does not need
@@ -217,7 +217,7 @@ var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
 
 ---
 
-## In-app purchases (Section 14)
+## In-app purchases (Section 16)
 
 MAUI does not ship a first-party IAP API. Common community options: `Plugin.InAppBilling` (cross-platform), `Xamarin.Essentials.InAppPurchase` (legacy), or platform-specific bindings.
 
@@ -262,7 +262,7 @@ Logger.LogInformation("Auth event for user {userIdHash}", HashUserId(userId));
 
 ---
 
-## Blazor Hybrid (MAUI Blazor) WebView (Section 5, Section 13)
+## Blazor Hybrid (MAUI Blazor) WebView (Section 7, Section 15)
 
 ```razor
 @* NEVER: render unsanitised user-supplied HTML *@
@@ -285,6 +285,6 @@ Logger.LogInformation("Auth event for user {userIdHash}", HashUserId(userId));
 
 ## Framework alignment
 
-Implements Section 13 of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (2, 3, 4, 5, 6, 7, 9, 10, 14) as they apply through .NET MAUI's handler architecture and Mono / .NET runtime on iOS and Android.
+Implements Section 15 of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through .NET MAUI's handler architecture and Mono / .NET runtime on iOS and Android.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; .NET MAUI documentation security topics.

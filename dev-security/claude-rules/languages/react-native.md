@@ -1,12 +1,12 @@
 # React Native Security Rules
 
-These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with particular emphasis on Section 13 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with particular emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
-Hybrid framework rule: React Native shifts the layer at which a control is implemented; it does not remove the control. If a Section 2 storage requirement exists for native iOS / Android, the equivalent requirement applies to the React Native app, just delegated to the right plugin or native module.
+Hybrid framework rule: React Native shifts the layer at which a control is implemented; it does not remove the control. If a Section 4 storage requirement exists for native iOS / Android, the equivalent requirement applies to the React Native app, just delegated to the right plugin or native module.
 
 ---
 
-## Secure storage delegation (Section 2, Section 13)
+## Secure storage delegation (Section 4, Section 15)
 
 ```ts
 // NEVER: sensitive data in AsyncStorage
@@ -33,11 +33,11 @@ const storage = new MMKV({
 });
 ```
 
-`AsyncStorage` and the unencrypted `MMKV` constructor are prohibited for any data covered by Section 2 of the standard.
+`AsyncStorage` and the unencrypted `MMKV` constructor are prohibited for any data covered by Section 4 of the standard.
 
 ---
 
-## JS bridge as a trust boundary (Section 13)
+## JS bridge as a trust boundary (Section 15)
 
 ```ts
 // NEVER: a native module that accepts and executes arbitrary JS-supplied
@@ -64,7 +64,7 @@ Don't use `eval`, `Function(...)`, or dynamic `require()` on JS-bundle-supplied 
 
 ---
 
-## Network (Section 5)
+## Network (Section 7)
 
 ```ts
 // NEVER: bypass certificate validation
@@ -81,14 +81,14 @@ const response = await pinnedFetch('https://api.example.com/v1/me', {
   sslPinning: { certs: ['sha256/PRIMARY_PIN', 'sha256/BACKUP_PIN'] },
 });
 
-// Tier 1 / Tier 2 per Section 1 require pinning; backup pins documented
+// Tier 1 / Tier 2 per Section 3 require pinning; backup pins documented
 ```
 
 For Tier 3 / Tier 4 apps without pinning, the native-layer ATS (iOS) and Network Security Config (Android) protections are non-negotiable: no blanket cleartext exception.
 
 ---
 
-## Backend attestation (Section 5)
+## Backend attestation (Section 7)
 
 App Attest (iOS) and Play Integrity (Android) implementations live in native code; React Native consumes them via a native module.
 
@@ -106,7 +106,7 @@ Don't roll your own attestation. Don't trust client-side verdicts.
 
 ---
 
-## Debug-tooling exclusion in release (Section 13)
+## Debug-tooling exclusion in release (Section 15)
 
 ```ts
 // NEVER: leave Flipper / react-native-debugger / Reactotron enabled in release
@@ -131,7 +131,7 @@ Native-side Flipper integration: remove or guard the Flipper initialization in t
 
 ---
 
-## Over-the-air updates (Section 13)
+## Over-the-air updates (Section 15)
 
 ```ts
 // NEVER: an OTA channel that delivers unsigned payloads or that can
@@ -153,7 +153,7 @@ Native binary changes always require a store release. OTA is for JS-bundle and a
 
 ---
 
-## Deep links and Universal Links / App Links (Section 6)
+## Deep links and Universal Links / App Links (Section 8)
 
 ```ts
 // NEVER: a deep-link handler that triggers a sensitive action without
@@ -177,7 +177,7 @@ Use Universal Links (iOS Associated Domains) and App Links (Android with `autoVe
 
 ---
 
-## Permissions (Section 10)
+## Permissions (Section 12)
 
 ```ts
 // NEVER: bundle a permission the app does not need just because a popular
@@ -194,7 +194,7 @@ Use Universal Links (iOS Associated Domains) and App Links (Android with `autoVe
 
 ---
 
-## In-app purchases (Section 14)
+## In-app purchases (Section 16)
 
 ```ts
 // NEVER: grant entitlement from RN's purchase-result callback alone
@@ -246,7 +246,7 @@ Sentry.init({
 
 ## Expo-specific notes
 
-- `expo-secure-store` delegates to Keychain / Keystore; acceptable for Section 2 data.
+- `expo-secure-store` delegates to Keychain / Keystore; acceptable for Section 4 data.
 - `expo-application` and `expo-device` provide platform info; do not use platform info as a primary security signal (it is JS-readable and spoofable).
 - EAS Build signing certificates managed in Expo's secrets; never in repo.
 - EAS Update channels follow the OTA rule above: signed, no native-binary changes, no new permissions.
@@ -255,6 +255,6 @@ Sentry.init({
 
 ## Framework alignment
 
-Implements Section 13 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (2, 3, 4, 5, 6, 7, 9, 10, 14) as they apply through the React Native bridge.
+Implements Section 15 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through the React Native bridge.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; React Native Security guide; Expo Security documentation.

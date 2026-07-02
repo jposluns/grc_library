@@ -2,8 +2,8 @@
 
 **Document Title:** Mobile Application Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-06-30\
+**Version:** 1.1.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-endpoint-hardening.md`](../security/standard-endpoint-hardening.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the security controls applied to mobile applications the organisation develops, publishes, or significantly customizes. It covers iOS and Android applications; mobile-web is governed by the API security standard plus the web-application standards in the dev-security domain.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -35,7 +35,7 @@ It does not cover the device-management posture for organisationally-issued devi
 
 ---
 
-## Section 1: platform alignment
+## 3. Platform alignment
 
 The standard aligns to the OWASP Mobile Application Security Verification Standard (MASVS) v2 conceptual verification levels.
 
@@ -57,7 +57,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 2: storage
+## 4. Storage
 
 | Control area | Requirement |
 | --- | --- |
@@ -71,7 +71,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 3: cryptography
+## 5. Cryptography
 
 | Control area | Requirement |
 | --- | --- |
@@ -85,7 +85,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 4: authentication and authorisation
+## 6. Authentication and authorisation
 
 | Control area | Requirement |
 | --- | --- |
@@ -99,7 +99,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 5: network communication
+## 7. Network communication
 
 | Control area | Requirement |
 | --- | --- |
@@ -113,7 +113,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 6: platform interaction
+## 8. Platform interaction
 
 | Control area | Requirement |
 | --- | --- |
@@ -128,7 +128,7 @@ Applications classified by sensitivity tier determine the verification level app
 
 ---
 
-## Section 7: code quality and reverse-engineering resistance (MASVS-R)
+## 9. Code quality and reverse-engineering resistance (MASVS-R)
 
 Required for Tier 1 applications; recommended for Tier 2.
 
@@ -146,7 +146,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 8: third-party SDKs
+## 10. Third-party SDKs
 
 | Control area | Requirement |
 | --- | --- |
@@ -160,7 +160,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 9: store and distribution
+## 11. Store and distribution
 
 | Control area | Requirement |
 | --- | --- |
@@ -173,7 +173,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 10: privacy
+## 12. Privacy
 
 | Control area | Requirement |
 | --- | --- |
@@ -187,7 +187,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 11: testing
+## 13. Testing
 
 | Control area | Requirement |
 | --- | --- |
@@ -199,7 +199,7 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 12: incident readiness
+## 14. Incident readiness
 
 | Control area | Requirement |
 | --- | --- |
@@ -211,15 +211,15 @@ Resilience controls reduce ease of attack; they do not replace fundamental secur
 
 ---
 
-## Section 13: hybrid and cross-platform frameworks
+## 15. Hybrid and cross-platform frameworks
 
-Hybrid and cross-platform mobile frameworks (React Native, Flutter, .NET MAUI, Capacitor / Ionic) shift the layer at which controls are implemented across the native-platform / framework-runtime / JavaScript-or-Dart-layer boundary; they do not reduce the set of controls. Sections 2 through 10 apply to all mobile applications regardless of framework choice. This section adds the framework-specific requirements that arise from the additional layer.
+Hybrid and cross-platform mobile frameworks (React Native, Flutter, .NET MAUI, Capacitor / Ionic) shift the layer at which controls are implemented across the native-platform / framework-runtime / JavaScript-or-Dart-layer boundary; they do not reduce the set of controls. §4 through §12 apply to all mobile applications regardless of framework choice. This section adds the framework-specific requirements that arise from the additional layer.
 
 | Control area | Requirement |
 | --- | --- |
-| Secure storage delegation | Framework-provided storage primitives that wrap native key stores (`react-native-keychain`, `flutter_secure_storage`, MAUI `SecureStorage`, Capacitor secure-storage plugins) used for sensitive data; the framework's default key-value store (`AsyncStorage`, `@capacitor/preferences`, equivalent) prohibited for any data covered by Section 2 |
+| Secure storage delegation | Framework-provided storage primitives that wrap native key stores (`react-native-keychain`, `flutter_secure_storage`, MAUI `SecureStorage`, Capacitor secure-storage plugins) used for sensitive data; the framework's default key-value store (`AsyncStorage`, `@capacitor/preferences`, equivalent) prohibited for any data covered by §4 |
 | JS or Dart bridge boundary | The bridge between native modules and the JS or Dart layer treated as a trust boundary; native modules validate all bridge inputs; the framework's eval-like APIs (where present) are not invoked on attacker-influenced strings |
-| Native module review | Custom native modules reviewed for the same controls applied to fully-native code; framework-provided native modules treated as third-party SDKs per Section 8 |
+| Native module review | Custom native modules reviewed for the same controls applied to fully-native code; framework-provided native modules treated as third-party SDKs per §10 |
 | Debug-tooling exclusion | Framework-specific debug tools (React Native Flipper or react-native-debugger, Flutter Dart DevTools, MAUI hot reload, Capacitor or Ionic WebView inspector) excluded from release builds; the build process verifies exclusion |
 | Over-the-air update integrity | Framework over-the-air update channels (CodePush, EAS Update, Shorebird, Appflow Live Updates) deliver signed payloads only; signature verification non-bypassable; updates cannot modify native binary or grant capabilities the app did not have at install time |
 | Content Security Policy in wrapped WebViews | For WebView-wrapped hybrid frameworks (Capacitor, Ionic, MAUI Blazor), CSP enforced inside the WebView; local resources allow-listed; `unsafe-inline` and `unsafe-eval` prohibited |
@@ -228,7 +228,7 @@ Hybrid and cross-platform mobile frameworks (React Native, Flutter, .NET MAUI, C
 
 ---
 
-## Section 14: in-app purchases and receipt validation
+## 16. In-app purchases and receipt validation
 
 Application stores (Apple App Store, Google Play, Microsoft Store) issue receipts cryptographically attesting that a purchase was completed. The application's backend validates every receipt before granting the corresponding entitlement.
 
@@ -245,7 +245,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 
 ---
 
-## Operating expectations
+## 17. Operating expectations
 
 1. New mobile applications target MASVS-L1 at minimum; tier classification determines whether L2 and R apply.
 2. Annual review against the current MASVS and platform-store policy.
@@ -257,7 +257,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 
 ---
 
-## Framework alignment
+## 18. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -274,7 +274,7 @@ Application stores (Apple App Store, Google Play, Microsoft Store) issue receipt
 
 ---
 
-## Limitations
+## 19. Limitations
 
 This standard is a CC BY-SA 4.0 baseline. Mobile platforms and store policies change frequently; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations select the appropriate MASVS verification level per application tier and confirm current platform-store policy at each release.
 
