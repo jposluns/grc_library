@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.68, PR #580
+
+Corpus fix (retention): **the two flat-valued AI retention rows composed with the AI-Systems domain minimum.** Library 2026.07.67 to 2026.07.68; README 1.9.428 to 1.9.429.
+
+### Changed
+
+- [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) (1.0.12 to 1.0.13): the AI-incident-records row composed to "5 years, or 5 years after the associated system's decommission, whichever is longer" and the AI-decision-and-detection-logs row to "7 years, or 5 years after the associated system's decommission, whichever is longer", each rationale naming the composition with the domain minimum in the records-retention standard's Section 5. The maintainer's round-1 "Compose both" answer decided this; it is not a proceeded default. Echo census (corrected by the pre-push verifier's bare-token catch; the first census grepped the citation phrasing and under-counted): the incident row has zero external carriers; the decision-log row has FOUR, the two citing AI standards stating the preserved 7-year floor (unchanged) and two flat example echoes co-changed to the composed value, [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) 1.4.13 (three lines above the very Section 5.1 cell the compositions cite) and [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md) 1.4.10, the #574 precedent's treatment of exactly these example surfaces. Neither row is gate-55-tracked, and gates 25 and 55 run green on the composed state.
+- [`.working/pending-decisions.md`](../pending-decisions.md): the sibling-triage note ACTIONED with the decision provenance; the Status-line clause updated to match.
+
+### Fixed
+
+- **#579 sweep M-1:** [`specification-ingestion.md`](../../specification-ingestion.md) (1.7.6 to 1.7.7): the rewritten Classification paragraph's closing example no longer calls Reference Only a lifecycle-axis value (the handling axis, matching the paragraph's own new definition).
+- **#579 sweep M-2:** [`governance/procedure-grc-programme-management-and-annual-review.md`](../../governance/procedure-grc-programme-management-and-annual-review.md) (1.0.4 to 1.0.5): the supersession bullet and retirement step 1 now instruct the Status: Superseded metadata line (Classification stays Public), with the index-register cross-reference retained; the operational sibling of the instruction step 20 migrated in #579.
+- **#579 sweep L-1/L-3:** the [`tools/lint-structure.py`](../../tools/lint-structure.py) docstring residual ("superseded annex"); [`instruction-ai-document-ingestion.md`](../../instruction-ai-document-ingestion.md) step 4 now names the optional Status fourteenth line with a step-20 pointer, reconciling the exactly-13 phrasing.
+- **#579 sweep I-1 (record-correction):** the #578 retro cell's re-read claim reworded to what the record shows ([`improvement-log.md`](../improvement-log.md) 1.0.303 to 1.0.304, correction noted in the cell).
+- **#579 sweep L-2 (routed):** the charter-stage-vs-marker-value lifecycle-vocabulary fork added to [`TODO.md`](../../TODO.md) section 3.14 with named options (align the four carriers or document the distinction); an authorial naming call held for the maintainer.
+
+### Verification
+
+- All 60 gates green standalone post-commit; gates 25 (cross-document numbers) and 55 (retention consistency, 8 pairs) exercised individually on the composed rows; suite 275 OK; taxonomy regenerated first, portal/scorecard check-clean.
+- Batches the #579 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.358; detail [`2026-07-02-PR-579.md`](../validate-pr/2026-07-02-PR-579.md)) and [`/retro`](../improvement-log.md) (1.0.304, which logs the instructs-the-convention completeness pattern: migration carrier sets include the procedures that exercise a convention, greppable by verb forms rather than value tokens).
+
 ## 2026-07-02, Library Version 2026.07.67, PR #579
 
 Corpus and tooling (the section-3.14 L-j item): **the Classification field's lifecycle overload removed.** Library 2026.07.66 to 2026.07.67; README 1.9.427 to 1.9.428.

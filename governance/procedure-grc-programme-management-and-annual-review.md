@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -133,7 +133,7 @@ All GRC library documents follow semantic versioning using the format MAJOR.MINO
 
 6.4.1 When a document is superseded, it is retired. Retired documents must be:
 
-- Marked as deprecated in the document index register with a cross-reference to the superseding document
+- Marked with the `**Status:** Superseded` lifecycle line in its metadata (Classification stays Public; the 2026-07-02 lifecycle-marker migration), with a cross-reference to the superseding document recorded in the document index register
 - Archived in the designated document archive location with read-only access
 - Cross-referenced from the superseding document with the retirement date
 - Not deleted: archived copies must be retained per the Records Retention and Destruction Standard
@@ -307,7 +307,7 @@ Each quarterly report must include the following:
 
 | Step | Action | Responsible Party |
 | --- | --- | --- |
-| 1 | Mark document as deprecated in the document index register; record retirement date and superseding document reference | GRC Programme Manager |
+| 1 | Mark the document with the `**Status:** Superseded` metadata lifecycle line; record the retirement date and superseding-document reference in the document index register | GRC Programme Manager |
 | 2 | Update the superseding document to include a reference to the retired document and retirement date | GRC Programme Manager |
 | 3 | Move the retired document to the designated document archive; set access to read-only | GRC Programme Manager |
 | 4 | Notify all document owners and domain approvers of the retirement | GRC Programme Manager |

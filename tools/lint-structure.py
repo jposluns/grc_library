@@ -6,7 +6,7 @@ Asserts that:
 1. Every active markdown file in each domain folder appears in that
    domain's README.md Active Documents table.
 2. Every active markdown file (excluding READMEs, exempt files, draggable
-   AI-context rule files, tooling, and the privacy deprecated annex)
+   AI-context rule files, tooling, and the privacy superseded annex)
    appears in `governance/register-document-index-and-classification.md`.
 3. Every entry in those tables points to a file that exists.
 
