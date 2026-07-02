@@ -6,9 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.70, PR #582
+
+Tooling (the GR-P3 graduation, census-first design): **the partial-rewrite tension-marker check ships as the advisory aid [`tools/tension-scan.py`](../../tools/tension-scan.py), not a standing gate.** Library 2026.07.69 to 2026.07.70; README 1.9.430 to 1.9.431.
+
+### Added
+
+- [`tools/tension-scan.py`](../../tools/tension-scan.py): the GR-P3 aid. For a commit range (`tension-scan.py <base-ref> [head-ref]`, diffed from the merge base over [`TODO.md`](../../TODO.md) plus the six working ledgers), it pairs each rewritten block, a markdown bullet, a table data row, a bold-led paragraph, or a plain paragraph line, where an added line shares ANY pairing key (the bold lead token, the first two table cells, or a 24-character normalized prefix) with a removed line in the same file, so an edit inside one key region still pairs, and flags any whose NEW text carries a status-claim token (`upstream-CONFIRMED`, `CONFIRMED`, `CLOSED`, `RESOLVED`, `ACTIONED`, `SHIPPED`/`Shipped`/`shipped`) alongside a hedge token (`NEEDS-UPSTREAM`, `TBD`, `pending`, `likely`, `awaiting`, `not yet`, `deferred`), printing each `[JUDGE]` line untruncated. The docstring discloses the known recall limit: pairing is line-local, so a rewrite that changes a block's opening words and has no stable lead or cells (a DONE-entry body whose leading count is the edit) escapes; a clean run means nothing detected, never nothing rewritten. Exit 0 always on findings (the judgment is the reader's); exit 2 only on usage or git error. The docstring records the census and the aid-not-gate rationale; the close-out convention is to run it before pushing any PR that edits TODO or a ledger block in place and read each flagged block end to end.
+- The pending-decisions entry for the aid-not-gate shape (proceeded default, census evidence, revert path to a gated shape), resolved CONFIRMED at the maintainer's return round in this same PR window.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): the section-3.13 GR-P3 graduation bullet rotated to [`DONE.md`](../DONE.md); section 3.14 gains the routed second coverage-gaps triage batch (the #581 sweep's M-1 plus I-1, every claim re-verified at file at routing time) with its intro co-updated, and both routed 3.14 bullets now record the maintainer's return-round answers (coverage batch 2: execute re-grade-with-evidence plus widen the vocabulary's Partial definition; lifecycle fork: align to Superseded).
+- [`.working/pending-decisions.md`](../pending-decisions.md): Status line rewritten end to end to the post-return-round state (0 pending; all six proceeded entries maintainer-resolved; the gate-60 threshold REDIRECTED to fail-at-3, shipping in the follow-up PR; the rotation authorized into the CLAUDE.md batch PR).
+- [`.working/session-handoff.md`](../session-handoff.md): PROGRESS current through #581 with #582 in flight; the queue re-ordered per the return round.
+
+### Fixed
+
+- The #581 record-drift cluster (the #581 sweep's L-1 and L-2, the DONE half independently caught orchestrator-side pre-sweep): the root [`CHANGELOG.md`](../../CHANGELOG.md) #581 entry's lead and Kubernetes clause reconciled to the shipped register (eleven distinct cells across twelve re-grade events; Kubernetes at Partial with the verifier-raise provenance) with the correction noted inline; this mirror's #581 lead corrected from the stale "seven" and its root-lead mismatch; the [`DONE.md`](../DONE.md) #581 entry rewritten to the eleven-cell, Kubernetes-Partial state with a correction note; the handoff's seven-cell framing refreshed.
+
+### Verification
+
+- The aid exercised standalone before shipping: a five-merge historical probe (7 rewritten blocks paired at the final detection logic, 2 legitimate candidates flagged, exit 0), this PR's own diff (6 paired, 2 flagged, both judged honest narrative), a synthetic #563-class contradiction in a scratch repo (flagged, exit 0), the no-args and bad-ref paths (exit 2 each), and an empty range (0 blocks, exit 0). The first historical probe returned 0 rewritten blocks and exposed the bold-led-paragraph gap (the pending-decisions `**Status:**` shape did not match the bullet-and-table-row block pattern); the pre-push verifier then demonstrated the single-key pairing break on this PR's own bold-lead-edited TODO bullets; both fixes were re-exercised against their demonstrating cases before push.
+- All 60 gates green standalone post-commit; the regression suite 275 tests OK (the aid, like the GR-12 residual-scan aid, is not a numbered gate and adds no fixture); both generators check-clean; pre-push guard green.
+- The #581 QA trio: [`validate-pr/history.md`](../validate-pr/history.md) row (1.2.360), the per-PR record [`2026-07-02-PR-581.md`](../validate-pr/2026-07-02-PR-581.md), and the [`improvement-log.md`](../improvement-log.md) retro row (1.0.307, the author-record-surfaces-LAST generalization of the cite-ledger-versions-LAST convention).
+
+### Discipline observations
+
+- The maintainer returned mid-PR; the return round resolved every held item (six decisions), and this PR's pending-decisions and TODO surfaces were updated to the resolved state before push rather than shipping the pre-round pending framing.
+- The pre-push verifier (refute-briefed, substantive tier) returned 0 BLOCKER, 3 SHOULD-FIX, 8 NIT; all three SHOULD-FIX validated and were fixed pre-push: (1) plain-paragraph blocks (the DONE-entry body shape, the aid's own motivating case) were invisible to the block pattern, widened; (2) single-key pairing broke when the bold lead itself carried the edit (demonstrated on this PR's own TODO bullets), replaced with match-on-ANY-key pairing; (3) the history row shipped a pre-round "pending the vocabulary call" phrase the same commit elsewhere records as answered, reconciled. The demonstrated escapes were re-exercised after the fix (both now pair); the residual opening-word-edit limit is disclosed rather than papered over. Five nits fixed in the same pass (docstring exit-code sentence, two token-regex boundary defects, the root entry's closed-list vocabulary now "e.g.", deleted-file attribution guard); the duplicate-key collapse is documented in a comment, and the two pre-return pending-decisions HEADINGS stay as-disclosed until the authorized rotation PR.
+
 ## 2026-07-02, Library Version 2026.07.69, PR #581
 
-Register maintenance (the section-3.14 coverage-gaps triage): **seven stale Coverage cells re-graded with corpus evidence.** Library 2026.07.68 to 2026.07.69; README 1.9.429 to 1.9.430.
+Register maintenance (the section-3.14 coverage-gaps triage): **eleven stale Coverage cells re-graded with corpus evidence, across twelve re-grade events.** Library 2026.07.68 to 2026.07.69; README 1.9.429 to 1.9.430. (Lead corrected in #582, the #581 sweep's L-2: it originally said "seven stale Coverage cells", the pre-verifier triage count, and mismatched the root lead's wording; both leads now carry the shipped register's eleven-cell count.)
 
 ### Changed
 
