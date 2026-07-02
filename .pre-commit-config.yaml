@@ -240,13 +240,6 @@ repos:
         pass_filenames: false
         types: [markdown]
 
-      - id: regenerate-derived-artefacts
-        name: Regenerate taxonomy, portal, and maturity scorecard
-        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-portal.py'
-        language: system
-        pass_filenames: false
-        types: [markdown]
-
       - id: taxonomy-in-sync
         name: Machine-readable taxonomy in sync
         entry: python3 tools/build-taxonomy.py --check
@@ -257,6 +250,13 @@ repos:
       - id: portal-in-sync
         name: Adopter portal and maturity scorecard in sync
         entry: python3 tools/build-portal.py --check
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: regenerate-derived-artefacts
+        name: Regenerate taxonomy, portal, and maturity scorecard
+        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-portal.py'
         language: system
         pass_filenames: false
         types: [markdown]
