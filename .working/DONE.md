@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #565: section-2.12 items 6, 8, 9: citation title/domain/label corrections (2026-07-02)
+
+Three upstream-or-source-confirmed citation fixes: the privacy policy's v3.x CCM "PRI" domain dropped (DSP stands alone); the exception policy's fabricated "A.5.36 Policy on Exceptions" title corrected twice to the true Annex A title; the cross-framework matrix's nonexistent APO12.07 replaced with APO12.06 Respond to risk, four non-canonical APO12 practice titles made canonical (three in the matrix plus a verifier-caught case-variant in the exception policy's framework list), and the ISO 31000 appetite-row citation corrected to Clause 5.4 Design (appetite lives in 5.4.2). Items 7 and 10 stay queued as upstream-confirmed value sweeps (C7).
+
 ### PR #564: section-1.8 DSAR operational conflicts closed; audit P1 cluster complete (2026-07-02)
 
 The DSAR pair reconciled to the canonical procedure: the template's Low/Medium/High ladder replaced with the procedure's Standard/Enhanced/Re-verification levels with fail-to-suspend (not close) and the 10-business-day outer clock; denial independence supplied by a mandatory Legal Counsel written concurrence recorded in the DSR register (the CIO acting-DPO sign-off retained per policy 4.8); the 72-hour restriction acknowledgement clarified as a calendar-clock ceiling on the intake receipt. Section 1.8 fully closed, completing the 2026-07-02 audit P1 cluster (sections 1.6, 1.7, 1.8).
