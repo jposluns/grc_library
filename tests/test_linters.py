@@ -287,7 +287,7 @@ class LanguageLinterTests(LinterTestCase):
     def test_allowed_commonwealth_span_masked(self) -> None:
         # A verbatim external-instrument quote in ALLOWED_COMMONWEALTH_SPANS
         # is masked out of the spelling checks (the GDPR Article 25(1)
-        # official English text spells 'organizational').
+        # official English text spells 'organisational').
         fixture = self.make_fixture(
             "standard-verbatim-quote.md",
             VALID_METADATA + "\n\nThe controller must \"implement appropriate technical and "

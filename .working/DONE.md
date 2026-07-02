@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #571: Overnight cleanup: ledger routing + 7.5 keep-tracked decision + mode-exit priority codification + the nine #570 sweep dispositions (2026-07-02)
+
+The 18-PR overnight run's morning processing: the overnight ledger routed and reset to stub, the ISO/EPUB keep-tracked decision recorded with the watermark-scrub condition (7.5 rotated here; the untrack-and-purge direction superseded before execution), the mode-exit priority ordering and the model-tiering direction recorded, and all nine #570 sweep findings dispositioned (the "practised" irregular-flip residual plus its editorial-carve-out documentation, the HA register restructure, the four-ledger count corrections, the test-comment and linter-docstring fixes, the README AEO reflow).
+
 ### PR #570: TODO 7.4 (decision executed) + 3.13 item-25: full Commonwealth-spelling harmonization + gate-2 coverage extension (2026-07-02)
 
-The maintainer-locked full-normalization decision executed: ~2000 "-isation"/"-ise"/"-yse" occurrences flipped to the Canadian forms across ~330 files under the high-assurance harness (classified research map, deterministic masked apply, verbatim-quote carve-outs for the GDPR Article 25(1) quote, the OECD name, and the WP216 title), with the pseudonymization standard renamed and gate 2 extended (39 new verb stems, a generic -isation noun check, the -yse family, the allow-span mask). Also batches the #569 QA rows.
+The maintainer-locked full-normalization decision executed: ~2000 "-isation"/"-ise"/"-yse" occurrences flipped to the Canadian forms across ~330 files under the high-assurance harness (classified research map, deterministic masked apply, verbatim-quote carve-outs for the GDPR Article 25(1) quote, the OECD name, and the WP216 title), with the pseudonymization standard renamed and gate 2 extended (40 new verb stems, a generic -isation noun check, the -yse family, the allow-span mask). Also batches the #569 QA rows.
 
 ### PR #569: L-d (M): verbless "ensure that" sentences repaired corpus-wide (2026-07-02)
 

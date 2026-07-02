@@ -2,7 +2,7 @@
 
 **Document Title:** OT/ICS Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -282,7 +282,7 @@ Terms used in this standard are defined in the library glossary ([`governance/re
 
 ### 9.2 Patching
 
-9.2.1 OT components must have a documented patching cadence appropriate to the asset type, vendor support, and risk profile. Monthly patching as practised in IT environments is not assumed; OT patching is typically aligned with planned production-maintenance windows.
+9.2.1 OT components must have a documented patching cadence appropriate to the asset type, vendor support, and risk profile. Monthly patching as practiced in IT environments is not assumed; OT patching is typically aligned with planned production-maintenance windows.
 
 9.2.2 Patches must be tested in a representative non-production OT environment before production deployment, except where vendor explicitly permits direct production patching.
 

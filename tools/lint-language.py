@@ -25,13 +25,17 @@ Checks for:
 - Commonwealth `-isation` noun / adjective forms (`ISATION_PATTERN`, a
   generic suffix match with the `ISATION_ALLOWED_WORDS` exclusion for the
   tiny legitimate-in-every-dialect vocabulary such as `improvisation`).
-- Commonwealth `-yse` verb forms (`YSE_PATTERN`: analyse / analysed /
-  analysing; the noun plural `analyses` is correct in every dialect and is
-  not matched).
+- Commonwealth `-yse` verb forms and agent nouns (`YSE_PATTERN`: analyse /
+  analysed / analysing / analyser / analysers; the noun plural `analyses` is
+  correct in every dialect and is not matched). Irregular-flip Commonwealth
+  verbs whose Canadian form is not `-ize` (the practise-to-practice family)
+  and the grammar-ambiguous verb "analyses" are caught editorially, not by
+  pattern.
 - Verbatim quotes of external instruments and official proper names that
   legitimately carry Commonwealth spellings are masked out of the three
   spelling checks via `ALLOWED_COMMONWEALTH_SPANS` (the GDPR Article 25(1)
-  quote, the OECD's official name, the WP216 opinion title).
+  quote, the OECD's official name, the WP216 opinion title, the EU / UK
+  "Authorised Economic Operator" programme name).
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
@@ -48,8 +52,9 @@ The `tools/build-*.py` generators (GENERATOR_SOURCES) emit adopter-facing
 prose (audience blurbs, overview paragraphs, table cells) into the
 GENERATED_DOCS artefacts, which are doubly blind to the markdown scan above:
 the `.py` source is not a `.md` file, and the rendered output is excluded.
-The generator-source scan closes that gap by running the three prose
-house-style rules (dash, `-ise`, `ensure that`) over each generator's
+The generator-source scan closes that gap by running the prose
+house-style rules (dash, the Commonwealth-spelling checks, `ensure that`)
+over each generator's
 non-docstring string literals (parsed via `ast`); docstrings are developer
 documentation, not emitted corpus prose, so they are excluded, and the
 markdown-specific checks (heading-case, sanitisation) are not applied.
@@ -157,11 +162,12 @@ YSE_PATTERN = re.compile(r"\b(analyse|analysed|analysing|analyser|analysers)\b",
 
 # Verbatim spans that legitimately carry Commonwealth spellings and are masked
 # out of a line before the three spelling checks run (dash / ensure / heading
-# checks are unaffected). Three classes, each an exact substring: the GDPR
+# checks are unaffected). Four classes, each an exact substring: the GDPR
 # Article 25(1) official-text quote (the EU Official Journal English text
 # spells "organisational measures ... pseudonymisation ... minimisation"), the
-# OECD's official English name, and the Article 29 Working Party opinion's
-# official title. Add a span here ONLY for a verbatim quote of an external
+# OECD's official English name, the Article 29 Working Party opinion's
+# official title, and the EU / UK "Authorised Economic Operator" customs
+# programme name. Add a span here ONLY for a verbatim quote of an external
 # instrument or an official proper name, never for ordinary prose.
 ALLOWED_COMMONWEALTH_SPANS = (
     "implement appropriate technical and organisational measures, such as "
