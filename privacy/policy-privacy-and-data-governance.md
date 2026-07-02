@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.10\
+**Version:** 1.4.11\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -114,7 +114,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 4.8 Data subject rights
 
 - Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
-- Requests must be processed within legal timeframes (typically 30 days).
+- Requests must be processed within the applicable statutory timeframes (one month under the GDPR, extendable by two further months for complex or numerous requests; 45 days under the CCPA / CPRA; 30 days under PIPEDA).
 - Denials must be justified in writing and reviewed by the CIO (acting DPO).
 
 ### 4.9 Third-party and supplier governance
