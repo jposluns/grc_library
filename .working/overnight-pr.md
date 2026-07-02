@@ -8,7 +8,7 @@ session. It is `stub` when no overnight session is in flight (the default state)
 
 Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on `done`):
 
-- `stub`: no overnight session in flight. This file holds only this protocol description and the `Status: stub` line.
+- `stub`: no overnight session in flight. This file holds only this protocol description, the `Status: stub` line, and (after a routed run) a short closure note recording where the last run's content went.
 - `in-flight`: an overnight session is active. The assistant fills the file with the authorization scope, design decisions made, files being authored or modified, build progress, and open ambiguities. Each overnight PR ships `in-flight`.
 - `done`: the session ended. The next-morning processing PR routes the content to the durable ledgers (design decisions to [`design-decisions.md`](design-decisions.md), closed work to [`DONE.md`](DONE.md), queued follow-ups to [`../TODO.md`](../TODO.md)) and resets this file to `stub`.
 

@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.60, PR #572
+
+Corpus fix (statutory-value class, the section-2.13 item-11 closure): **the DSR response clock corrected from "30 days" to the statutory GDPR one-month clock**, the PIPEDA 30-day clock retained where cited, and the CCPA / CPRA 45-day window added. Library 2026.07.59 to 2026.07.60; README 1.9.420 to 1.9.421.
+
+### Fixed
+
+- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md) (1.6.3): the seven rights-catalogue Response Timeframe cells corrected from "30 days" to the GDPR one-month clock, with the Access row's extension restated per Article 12(3) (two further months where necessary for complex or numerous requests, notice with reasons within the first month) replacing "extendable to 90 days ... notification at day 30"; the Access and Correction rows retain "30 days under PIPEDA" (the section-8(3) access clock covers clause-4.9 requests); the Objection row instead notes that its cited PIPEDA basis (Principle 3, consent withdrawal) carries no statutory response clock, a pre-push verifier catch correcting this PR's own first draft (the held PIPEDA text: "not later than thirty days"); a **California (CCPA / CPRA) basis** paragraph added beside the Canadian one under the rights table (45 calendar days, one 45-day extension with notice within the first 45-day period, Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to 90 days total), quote-verified against the held full text; the Section-8 human-review step and the Section-10 response-time metric aligned to the one-month clock. The Section-5 clarification window stays organization-set (an operational SLA, not a statutory claim).
+- [`privacy/template-dsar-workflow.md`](../../privacy/template-dsar-workflow.md) (1.1.2): the SLA row's "default 30 calendar days ... extendable to 60 or 90 days" corrected to the three statutory clocks (GDPR one month + two further months; CCPA 45 + 45; PIPEDA 30).
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) (1.4.11): "within legal timeframes (typically 30 days)" corrected to the enumerated statutory timeframes.
+- [`.working/overnight-pr.md`](../overnight-pr.md): the #571 sweep I1 fix (the stub lifecycle line now names the closure note the stub deliberately carries).
+
+### Verification
+
+- All three statutory values were quote-verified against the held scratch full texts this turn (GDPR Article 12(3); Cal. Civ. Code sections 1798.130(a)(2) and 1798.145; PIPEDA "not later than thirty days"), per the reference-version currency SOP.
+- Post-fix census: the only surviving "30 days" carriers in the three files are the deliberate PIPEDA values and the organization-set clarification window.
+- Batches the #571 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.350; five informationals, zero substantive, detail in [`2026-07-02-PR-571.md`](../validate-pr/2026-07-02-PR-571.md)) and [`/retro`](../improvement-log.md) (1.0.296).
+
 ## 2026-07-02, Library Version 2026.07.59, PR #571
 
 Overnight-run morning processing (step 1 of the maintainer-directed mode-exit priority ordering): **the 18-PR overnight window's working state routed and all nine #570 post-merge sweep findings dispositioned in-window**. Library 2026.07.58 to 2026.07.59; README 1.9.419 to 1.9.420.

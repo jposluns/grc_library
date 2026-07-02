@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #572: 2.13 item 11: GDPR DSR clock corrected to the statutory one month (2026-07-02)
+
+The DSR rights catalogue, workflow-template SLA, and privacy-policy timeframe corrected from "30 days" to the GDPR Article 12(3) one-month clock with the two-further-months extension and first-month notice, the PIPEDA 30-day clock kept where PIPEDA is the cited instrument, and the CCPA/CPRA 45-day window (extendable once by 45) added beside the rights table; every value quote-verified against the held GDPR, CCPA, and PIPEDA full texts.
+
 ### PR #571: Overnight cleanup: ledger routing + 7.5 keep-tracked decision + mode-exit priority codification + the nine #570 sweep dispositions (2026-07-02)
 
 The 18-PR overnight run's morning processing: the overnight ledger routed and reset to stub, the ISO/EPUB keep-tracked decision recorded with the watermark-scrub condition (7.5 rotated here; the untrack-and-purge direction superseded before execution), the mode-exit priority ordering and the model-tiering direction recorded, and all nine #570 sweep findings dispositioned (the "practised" irregular-flip residual plus its editorial-carve-out documentation, the HA register restructure, the four-ledger count corrections, the test-comment and linter-docstring fixes, the README AEO reflow).
