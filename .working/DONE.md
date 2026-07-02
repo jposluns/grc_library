@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #559: GR-13, D5 coded-id closure-pattern widening (2026-07-02)
+
+The D5 major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id (FR/GR/SR families), re-tested false-positive-free against the whole CHANGELOG history; lowercase narration stays excluded by the case-sensitivity guard. Positive and negative fixture cases extended in the existing D5 unit tests.
+
 ### PR #558: GR-7 + L-a + item 24 tool carriers, docstring/stale-pointer batch (2026-07-02)
 
 Six comment/docstring corrections across five tool files: the working-prose-hygiene "gate 19" mis-cite and stale D3 filename (GR-7), the two closed-section-1.3 lineage pointers (L-a), and the two tool-side "D1-D4" carriers updated to D1-D5 (item 24; its protected CLAUDE.md carrier stays as a maintainer-gated residual).

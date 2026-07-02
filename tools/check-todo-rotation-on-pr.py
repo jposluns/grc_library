@@ -20,8 +20,12 @@ TODO-item closure, the PR's changed-file set must include BOTH `TODO.md` and
 Trigger (broadened 2026-06-30 to three forms, each chosen to stay
 false-positive-free; see ``CLOSURE_PATTERNS``): an added CHANGELOG line matching
 any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO §`` (e.g.
-"closing TODO §4.5 S4"); (2) the major-closure marker ``FR-N CLOSED`` with
-uppercase CLOSED (e.g. "FR-58 CLOSED"); or (3) the explicit backlog-item form
+"closing TODO §4.5 S4"); (2) the coded-id major-closure marker, a
+two-to-four-letter uppercase id then uppercase CLOSED (e.g. "FR-58 CLOSED",
+"GR-13 CLOSED"; widened from the FR-only form by GR-13, and note the wider id
+class brushes the NIST-style control-id families, an accepted collision
+surface bounded by the added-CHANGELOG-lines-only scan and the standalone
+uppercase-CLOSED flag); or (3) the explicit backlog-item form
 ``clos(e|es|ed|ing) the <...> (backlog item | TODO item | directive)`` (e.g.
 "closes the maintainer-directed ... validation directive", the #495 prose-named
 shape). It does NOT match incidental mentions ("closing the #466 finding",
@@ -85,10 +89,15 @@ DONE_PATH = ".working/DONE.md"
 CLOSURE_PATTERNS = (
     # (1) the canonical section form: a closure verb, optional "the", then "TODO §".
     re.compile(r"\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+§", re.IGNORECASE),
-    # (2) the distinctive major-closure marker "FR-N CLOSED" (uppercase CLOSED is
-    # the project's deliberate this-PR-closure flag; case-sensitive so lowercase
-    # "closed FR-N" narration does not match).
-    re.compile(r"\bFR-\d+\s+CLOSED\b"),
+    # (2) the distinctive major-closure marker "FR-N CLOSED", widened (GR-13)
+    # from the FR-only form to any two-to-four-letter uppercase coded id
+    # (FR/GR/SR and future families): the guardrail-intake GR items showed a
+    # coded closure the FR-only pattern was blind to. Uppercase CLOSED stays
+    # the deliberate this-PR-closure flag; case-sensitive so lowercase
+    # "closed FR-N" / "GR-2 closed" narration does not match. Empirically
+    # FP-free against the whole CHANGELOG history (the widened form matches
+    # exactly the same four genuine FR-N CLOSED instances the old one did).
+    re.compile(r"\b[A-Z]{2,4}-\d+\s+CLOSED\b"),
     # (3) the prose-named / explicit backlog-item form: a closure verb, "the",
     # then (within one clause) "backlog item" / "TODO item" / "directive". This
     # catches "closes the maintainer-directed ... validation directive" (the #495
