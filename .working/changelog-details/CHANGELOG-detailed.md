@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.42, PR #554
+
+TODO intake + QA batch for local project: the 2026-07-02 **guardrail-review findings** routed to [`TODO.md`](../../TODO.md) as new section 3.15 (twelve machinery extensions) and new section 4.7 (five pack-design items); every claim re-verified at source at intake, one lens-agent claim refuted and dropped. Batches the #553 [`/validate-pr`](../validate-pr/history.md) row (2 warnings + 1 note, all in-window) and [`/retro`](../improvement-log.md) row, and fixes all three #553 findings. Library 2026.07.41 to 2026.07.42; README 1.9.402 to 1.9.403.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) section 3.15, "Guardrail-review machinery extensions" (GR-1 to GR-12): the gate 59 CHANGELOG Library-Version-ordering extension (the change-tracking rule describes a control gate 13 explicitly does not implement); regression tests for the D1/D2/D3/D5 delta checks and [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh); a shared `parse_metadata_block()` in [`tools/lint_common.py`](../../tools/lint_common.py) with fail-loud date parsing (gate 31's line-end-anchored `DATE_RE` silently skips an annotated Date field); `iter_non_code_lines` fence-coverage widening (`~~~` and unbalanced fences); guardrail-review cadence mechanization (one run ever against 41 machinery-touching commits since); an audit-programme detailed-prose presence check; docstring corrections in [`tools/lint-working-prose-hygiene.py`](../../tools/lint-working-prose-hygiene.py) (the "gate 19" mis-cite and a stale D3 filename); watch-loop closures (the removal ledger's 15 open-with-no-disposition entries; retro proposed-improvement closure); scratch-bucket misdescription fixes in the orchestration surfaces (CSA/MITRE/OWASP live under scratch `ref/frameworks/`, not `ref/standards/`); history-aware gate subprocess batching; preflight-changelog internal hygiene; and post-fix residual-scan tooling.
+- [`TODO.md`](../../TODO.md) section 4.7, "Pack design improvements" (GR-P1 to GR-P5): a session-lifecycle pack rule; the rule operative-core condense (two-layer split per the PR #441 method); the third-occurrence-to-gate escalation convention; overlay primary-wins pointers plus a pruning stance; `derives_from` re-pointing for the trust-recovery suite skills plus the two rules with no derived skill, and the exception-register strict-mode disclosure hoist.
+- [`.working/validate-pr/2026-07-02-PR-553.md`](../validate-pr/2026-07-02-PR-553.md): the #553 per-PR record (findings-producing), plus the paired history row ([`.working/validate-pr/history.md`](../validate-pr/history.md) 1.2.331 to 1.2.332) and the #553 [`/retro`](../improvement-log.md) row (1.0.277 to 1.0.278).
+
+### Fixed
+
+- #553 `/validate-pr` finding 1 (W): the THIRD carrier of the SR-5 NEEDS-UPSTREAM error, in the retained #552 State-snapshot queue sentence of [`.working/session-handoff.md`](../session-handoff.md) (word-order variant the #553 fix pass surfaced in its residual grep but never read in full). Now corrected with an inline note; the exhaustive bare-token re-scan confirms no fourth carrier (remaining `SR-5` hits are the TODO item definitions and an unrelated NIST control ID).
+- #553 `/validate-pr` finding 2 (W): the shipped #553 Verification claim "no live surface listing item 32 or SR-5 as NEEDS-UPSTREAM ... zero residuals" was **false on ship** (refuted by finding 1). Corrected via a dated additive addendum in [`.working/validate-sweeps/2026-07-02-sweep82-iter1.md`](../validate-sweeps/2026-07-02-sweep82-iter1.md) and this correction note; the shipped #553 entry below is not retro-edited.
+- #553 `/validate-pr` note (L): the handoff's standing Operating-mode line still said [`overnight-pr.md`](../overnight-pr.md) is `stub` and "Do not treat ... as in-flight at resume" after #553 flipped it in-flight; now records the 2026-07-02 activation and the crash-resume instruction.
+
+### Changed
+
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced (PR 1 = #553 merged; PR 2 = this PR).
+
+### Verification
+
+- `tools/run_all_audits.sh` all 59 gates pass on the committed state; the TODO-scanning gates (intra-doc refs, collection counts, staleness) re-run standalone after the intake edits (one authoring catch: a historical inventory phrasing in GR-5 tripped the collection-count gate and was reworded pre-commit).
+- The #443-lesson residual scan for this PR's own fix: bare-token `SR-5` and `NEEDS-UPSTREAM` greps across all live surfaces with EVERY hit read to full line/cell extent (the discipline gap the #553 retro row names), zero stale carriers remaining.
+- Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green before push.
+
+### Discipline observation
+
+The intake applied the research-assistant discipline to the guardrail review's own lens agents: every GR item re-verified at source before authoring, and one lens-agent claim (an alleged "gates 32 and 33" stale comment in the date-staleness linter) was REFUTED at intake (zero grep hits across the audit-tooling Python files) and dropped rather than routed.
+
 ## 2026-07-02, Library Version 2026.07.41, PR #553
 
 `.working/` + TODO bookkeeping for local project: **Sweep 82 close-out**, the `/resume` loop-break corpus-wide `/validate` over the #550..#552 window (full A/B/C dispatch; 3 in-window findings, all fixed in this PR: a broken markdown link to the removed cross-file section-ref draft linter in the [`.working/session-metrics.md`](../session-metrics.md) row, the item 32/SR-5 NEEDS-UPSTREAM status contradiction across the #552 handoff surfaces (the designation was upstream-CONFIRMED at #551), and a stale "line ~222" pointer in [`TODO.md`](../../TODO.md) SR-5), plus the resume-protocol handoff prune (keep current + 1 prior) and the overnight-session activation ([`.working/overnight-pr.md`](../overnight-pr.md) stub to in-flight). No adopter-facing corpus content changed. Library 2026.07.40 to 2026.07.41; README 1.9.401 to 1.9.402.
