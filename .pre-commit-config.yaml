@@ -442,3 +442,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-cobit-iso31000-citations
+        name: COBIT/ISO 31000 citation-existence audit
+        entry: python3 tools/lint-cobit-iso31000-citations.py
+        language: system
+        pass_filenames: false
+        always_run: true

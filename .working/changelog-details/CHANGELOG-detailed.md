@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.75, PR #587
+
+Gate 61 ships (COBIT 2019 / ISO 31000:2018 citation existence), both halves of the section-3.13 build per the maintainer's answer: the dedicated existence gate plus the /matrix-fit worklist extension. The reference data was derived deterministically from the held scratch extracts under the high-assurance harness. Three day-one catches fixed; the seven fit-pass recode verdicts routed to their own PR; the #586 sweep's coverage residue routed as the third triage batch. Batches the #586 QA rows.
+
+### Added
+
+- [`tools/cobit_iso31000_reference.py`](../../tools/cobit_iso31000_reference.py): the canonical reference module (COBIT 2019: 40 objectives with titles, per-objective practice counts totalling 231, the closed set verified by a whole-extract token scan; ISO 31000:2018: the full clause tree incl. the 3.1-3.8 term numbers). Derived by a parse script from the held scratch extracts, NOT hand-typed, and independently cross-checked against a second worker's manual extraction with exact agreement (the HA stage-3/stage-5 discipline; [`high-assurance/register.md`](../high-assurance/register.md) row added, status verified). Practice-level titles deliberately excluded (the extract line-wraps them; embedding truncated strings would enshrine the fabrication class the module prevents).
+- [`tools/lint-cobit-iso31000-citations.py`](../../tools/lint-cobit-iso31000-citations.py) (gate 61): COBIT objective/practice existence corpus-wide; ISO 31000 clause existence under an unambiguous-attribution scope (standard-name adjacency, single-standard cell pairs, in-cell attribution; clause tokens adjacent to other standards are never mis-attributed, the design that kept the three multi-standard prose lines from false-positiving); the ISO/IEC 31000 wrong-designation check. Exempt files mirror gate 48's set.
+- Eight regression fixtures in [`tests/test_linters.py`](../../tests/test_linters.py) (suite 276 to 284), pinning the fabricated-practice, unknown-objective, unknown-clause, wrong-designation, and not-mis-attributed boundaries plus the corpus-at-HEAD smoke test.
+
+### Changed
+
+- Four-surface wiring: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.38: section-6 row 61, the detailed-prose pair, the section-5 content-drift group widened to include gate 61).
+- [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py): CODE_RE extended with COBIT tokens, KNOWN_TITLES extended with COBIT objective titles and ISO 31000 clause headings, a COBIT 2019 matrix column pickup, docstring and footer updated; self-test 7 OK.
+- Corpus fixes (the new-gate-plus-conforming-corpus bundle): [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) (1.0.7 to 1.0.8, MEA01.06 "Automated assurance" to MEA01.03 per the fit pass: MEA04 models engagement-shaped initiatives, MEA01.03's activity 1 carries the only automated-monitoring language); [`security/policy-information-security.md`](../../security/policy-information-security.md) (1.3.9 to 1.3.10, DSS01.06 to DSS05.07, the one DSS05 practice spanning the row's Protect and Detect halves); [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (1.5.5 to 1.5.6, ISO/IEC 31000 to ISO 31000).
+- Pack 1.53.13 to 1.53.14: [`dev-security/claude-rules/skills/matrix-fit/SKILL.md`](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) existence-gate enumeration widened to 48/49/54/58/61 across its five carriers and the validator-module list extended; the [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) growth-narrative count advanced (sixty to sixty-one); pack README tree blurb and version-history row. Paired carriers widened in [`.claude/commands/matrix-fit.md`](../../.claude/commands/matrix-fit.md), [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), and [`TODO.md`](../../TODO.md).
+- [`TODO.md`](../../TODO.md): the section-3.13 citation-coverage bullet rotated to [`DONE.md`](../DONE.md); two routed additions to section 3.14 (the seven-verdict COBIT recode PR, pre-authorized as its own small PR; the third coverage-gaps triage batch from the #586 sweep's M-1/M-2/L-2/L-3, each claim re-verified at file at routing time).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Verification
+
+All 61 audit gates pass standalone (exit code echoed, unpiped); linter regression suite 284 OK; both generators check-clean; pre-push guard green. Gate 61's two build-time findings (gate 9's uncertainty-marker proximity on the new spec prose, gate 39's guardrail-review count) were fixed before commit. External-version note: COBIT 2019 and ISO 31000:2018 are recorded as held-extract facts; the upstream currency confirmation cycle remains egress-gated per the standing deferral (the canonical-citations register's needs-reconfirm workflow governs).
+
+### Discipline observations
+
+The reference-data build ran the high-assurance harness (all three sensitivity conditions hold): research fan-out with a closed-set token scan, an independent deterministic parse agreeing exactly with the worker's manual extraction, the fixture floor, and scripted (not hand-typed) data generation; the register row records the stages. The fit pass's items 5 and 6 were required in this PR (a gate cannot land red); its five remaining recode verdicts are routed, not applied, per the maintainer's recodes-as-their-own-PR answer.
+
 ## 2026-07-02, Library Version 2026.07.74, PR #586
 
 The second coverage-gaps triage batch: sixteen rows of the coverage-gaps register re-graded with corpus evidence verified at file, and the vocabulary's *Partial* definition widened, per the maintainer's return-round answers to the routed #581 sweep M-1 plus I-1. Closes the routed section-3.14 coverage-gaps item (rotated to the DONE ledger). Batches the #585 QA rows.
