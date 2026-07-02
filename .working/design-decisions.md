@@ -92,6 +92,31 @@ resolved before sleep (so the run would not stall on them):
   depth rather than treating any as an intentional baseline. Tracked as the disposition on the
   corresponding TODO P2 items.
 
+## Scratch-repo licensed reference files (ISO PDFs, O'Reilly EPUBs): keep tracked, private-forever promise (decided 2026-07-02, maintainer)
+
+The 2026-07-02 overnight authorization to untrack the O'Reilly EPUBs in `grc_library_scratch` and queue history-purge instructions (TODO 7.5's then-direction) was SUPERSEDED the same morning, before execution, after a maintainer-requested walkthrough of the gitignore mechanics and the actual exposure model. Decision: the licensed reference artefacts in the scratch repo (the ISO standard PDFs and the O'Reilly EPUBs, both maintainer-licensed purchases) REMAIN TRACKED there. Basis: the scratch repo is private and single-user (the maintainer plus their own AI sessions) and carries an explicit maintainer promise that it will never be shared or made public, so untracking would sacrifice the reproducibility of the reference base without reducing any real exposure. Conditions attached by the maintainer:
+
+1. **The private-forever promise is load-bearing.** If the scratch repo's sharing model ever changes (a collaborator, a public fork, any external access), this decision is re-opened FIRST, before the change.
+2. **Exposure controls stay in place**: the repo stays private; future least-privilege worker accounts are scoped to scratch-write only and inherit no right to redistribute its contents.
+3. **The per-licensee watermarks are the one real PII risk and are ALWAYS scrubbed at ingestion**: the maintainer's own watermark text must never sit in scratch, in extracted text or in any committed artefact (the scratch `CONTRIBUTING.md` "Style" scrub rule; a mechanical watermark-residue check is queued in the SR-wave `validate.py` hardening so that the scrub is gated, not remembered).
+
+The EPUB history-purge instruction queue is dropped as moot; the TODO 7.5 item rotates to DONE with this record as the decision trail.
+
+## Mode-exit priority ordering: cleanup, then fixes, then tooling, then new work (decided 2026-07-02, maintainer)
+
+When a session switches AWAY from overnight mode (to daytime-unattended or attended), the standing work priority is: (1) **overnight cleanup** first (route and reset the overnight ledger, batch the pending QA rows, fix what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3) then **tooling and protections** (gates, guardrails, machinery); (4) then **new work**. Codified in `.claude/CLAUDE.md`'s attended-autonomous section (a maintainer-directed protected-file touch, logged per the touch-log convention) so future mode exits follow the ordering without re-asking.
+
+## Model tiering for multi-session orchestration (maintainer direction 2026-07-02; enabler work queued)
+
+After the 18-PR overnight run, the maintainer directed (consider-and-advise, assessment delivered in chat and endorsed) that once the overnight cleanup lands, the multi-session TODO items (§3.6, §3.7, §3.8, plus supporting QA and guardrails) be prioritized so multi-session runs can use the highest-capability model tier as the ORCHESTRATOR and a lighter tier (Opus-class) for worker tasks that do not require that capability. The assessment's load-bearing points, recorded so the enabler wave builds against them:
+
+- **The session-concurrency lease (§3.7) is the hard prerequisite**: no second concurrent session before it ships (the accidental-double-resume corruption risk is the binding constraint, not worker capability).
+- **Adversarial verifier subagents stay at the orchestrator tier.** A weaker verifier fails silently and stamps a false pass, which is worse than no verifier; capability economies apply to research workers, never to the refute-briefed verification layer.
+- **Enabler order**: §3.7 lease first, then §3.6 (runbook / worker primitives), §4.4, §2.11, and §3.8 (instrumentation, which also produces the evidence base for the model-economics question).
+- **The scratch `validate.py` hardening (SR-1..5) doubles as the exchange-channel guardrail** for worker-delivered content.
+- **Multi-session multiplies research throughput, not merge throughput**: the serial-apply and CI-gating invariants are unchanged; parallelism lives in the research stage only.
+- **Maintainer-side dependency**: provisioning least-privilege worker accounts (scratch-write only) is the maintainer's action item before any external-collaborator worker runs.
+
 ---
 
 ## Working state and `.working/` convention

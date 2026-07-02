@@ -511,6 +511,15 @@ each merge or decision. Its three standing rules:
    every remaining task depends on the one pending decision, wrap a clean handoff or idle
    on a longer check-in rather than guessing.
 
+**Mode-exit priority ordering (maintainer-directed 2026-07-02).** When a session switches
+AWAY from overnight mode (to attended-autonomous, daytime-unattended, or fully-attended),
+the work priority is fixed: (1) **overnight cleanup** first (route and reset
+[`.working/overnight-pr.md`](../.working/overnight-pr.md), batch the pending QA rows, fix
+what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3) then
+**tooling and protections** (gates, guardrails, machinery); (4) then **new work**. The
+ordering is standing; it is not re-asked at each mode exit. (Decision record:
+[`.working/design-decisions.md`](../.working/design-decisions.md).)
+
 On `/resume` the assistant reads
 [`.working/pending-decisions.md`](../.working/pending-decisions.md) first, surfaces the
 still-pending entries (confirming "proceeded" stricter-safe defaults for redirect, asking
