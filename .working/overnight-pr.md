@@ -27,6 +27,7 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 **Progress ledger (updated as PRs land; the per-PR narrative is CHANGELOG + [`DONE.md`](DONE.md)):**
 
-- PR 1 (this PR): Sweep 82 close-out (3 in-window bookkeeping findings fixed, detail file + history row), the resume-protocol handoff prune, and this file's transition stub to in-flight.
+- PR 1 (#553, merged): Sweep 82 close-out (3 in-window bookkeeping findings fixed, detail file + history row), the resume-protocol handoff prune, and this file's transition stub to in-flight.
+- PR 2 (#554): the guardrail-review TODO intake (new sections 3.15 and 4.7, every claim re-verified at source, one lens claim refuted and dropped), the batched #553 QA rows (`/validate-pr` 2 warnings + 1 note, `/retro`), and the three #553 finding fixes (the third SR-5 carrier at the handoff State-snapshot line, the false zero-residuals claim corrected via dated addendum + correction note, the stale stub-imperative in the handoff Operating-mode line).
 
 **Open ambiguities:** none yet; anything surfacing mid-run is logged here plus [`pending-decisions.md`](pending-decisions.md) under the graceful-degradation rule.
