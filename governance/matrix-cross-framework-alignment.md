@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-07-02\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,9 +61,9 @@ The following table maps the enterprise risk management control areas to externa
 
 | Control Area | ISO 31000 | ISO 23894 | NIST SP 800-39 | NIST AI RMF | COBIT 2019 | CSA CCM v4.1 | Legal and Regulatory | Trade and Supply-Chain Programmes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | APO12.01 Collect data | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
-| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.03 Maintain a risk profile | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
-| Risk appetite and tolerance | Clause 5.4 Design; Clause 5.6 Evaluation | Clause 5 Governance | Organizational risk strategy | Govern | APO12.02 Analyze risk | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
+| Risk framework and governance | Clause 5 Framework | Clause 5 Governance | Organization-wide RMF | Govern | EDM03 Ensured Risk Optimization | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
+| Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.2 Identification; Clause 6.3 Analysis | Tasks 1 and 2 | Map; Measure | APO12.02 Analyze risk | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
+| Risk appetite and tolerance | Clause 6.3.4 Defining risk criteria (ISO 31000:2018) | Clause 5 Governance | Organizational risk strategy | Govern | EDM03.01 Evaluate risk management | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
 | Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.4 Treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO 27001 Annex A controls | WCO SAFE equivalence |
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
 | AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; AIDA (pending, Canada) | Not applicable |
