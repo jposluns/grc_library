@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.46, PR #558
+
+Tooling for local project: docstring/stale-pointer batch closing GR-7 and L-a, plus item 24's two tool-side carriers (its protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) carrier deferred to morning as a maintainer-gated residual). Comment/docstring changes only, no behaviour change. Batches the #557 QA rows. Library 2026.07.45 to 2026.07.46; README 1.9.406 to 1.9.407.
+
+### Fixed
+
+- GR-7: [`tools/lint-working-prose-hygiene.py`](../../tools/lint-working-prose-hygiene.py):4 cited lint-language as "gate 19" (it is gate 2 in the section-6 inventory); :22 cited a stale `check-changelog-dash` filename (actual: [`tools/check-changelog-dash-on-pr.py`](../../tools/check-changelog-dash-on-pr.py)).
+- L-a: the closed-section lineage pointers in [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py) (the word-form pattern block) and [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py) (the closure-patterns comment) reworded to drop the retired TODO section numbers (the section-orphan cleanup convention; both now cite the shipping PR instead).
+- Item 24, tool carriers: [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) header group 1 and [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) runner comment updated from "D1-D4" to D1-D5.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): L-a and GR-7 deleted (rotation to [`.working/DONE.md`](../DONE.md) in the same commit); item 24 rewritten as "item 24 residual" naming only the protected CLAUDE.md carrier.
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced.
+- The #557 QA rows: [`.working/validate-pr/history.md`](../validate-pr/history.md) (0 findings; 1.2.335 to 1.2.336) and [`.working/improvement-log.md`](../improvement-log.md) (1.0.281 to 1.0.282).
+
+### Verification
+
+- Comment/docstring-only diff on the five tool files (no behaviour change); the touched gates re-run standalone green (working-prose-hygiene, gate-count-consistency) and the D5/guard test classes re-run green; the full audit sweep passes on the committed state.
+- Residual scans, every hit read: zero section-1.3 references left in the tools tree; zero stale `check-changelog-dash` filenames; the only remaining "D1-D4" carriers are TODO's own residual item text and the protected CLAUDE.md line it names; no "gate 19" claims remain.
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.45, PR #557
 
 Tooling for local project: **GR-1 closed** (rotated to the DONE ledger): gate 59 extended to assert CHANGELOG Library-Version ordering (strictly decreasing top-down, integer-tuple compare, cutoff-scoped). Four new fixtures (suite 254 to 258). Batches the #556 QA rows and carries the "338/338" correction note. Library 2026.07.44 to 2026.07.45; README 1.9.405 to 1.9.406.
