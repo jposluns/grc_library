@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.6\
+**Version:** 1.3.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-Defines mandatory encryption and cryptographic key management requirements. Ensures that confidentiality, integrity, and availability through consistent encryption controls for data at rest, in transit, and in use.
+Defines mandatory encryption and cryptographic key management requirements. Ensures that confidentiality, integrity, and availability are protected through consistent encryption controls for data at rest, in transit, and in use.
 
 ---
 
@@ -35,8 +35,8 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 
 | Role | Responsibility |
 |---|---|
-| CIO | Approves encryption standards and ensures that alignment with enterprise risk strategy. |
-| CISO | Owns encryption controls, defines key management processes, and ensures that compliance monitoring. |
+| CIO | Approves encryption standards and ensures that alignment with enterprise risk strategy is maintained. |
+| CISO | Owns encryption controls, defines key management processes, and ensures that compliance monitoring is performed. |
 | IT Operations / Security Engineering | Ensures that all cryptographic implementation procedures and key-management runbooks are maintained for traceability and lifecycle verification. |
 | Application Owners / Developers | Ensure that encryption requirements are applied within systems and APIs. |
 | Compliance / GRC Manager | Monitors adherence and maintains evidence for audit and certification. |
@@ -54,7 +54,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 | In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. |
 | In Use | Protect data processed in volatile memory through secure enclaves or hardware encryption where supported. | Trusted Execution Environments (TEE), SGX, SEV. |
 | AI and Model Data | Apply encryption for model weights, datasets, and configuration files. | AES-256-GCM (AEAD: confidentiality with built-in integrity tag); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys. SHA-512 alone is a hash function, not a key-derivation function. |
-| BASC Customs and Trade Data | Ensure that encryption for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by BASC chapter or WCO SAFE authority. |
+| BASC Customs and Trade Data | Ensure that encryption is applied for all cargo manifests, customs documentation, and trade communications. | AES-256 + PKI certificates validated by BASC chapter or WCO SAFE authority. |
 
 ---
 

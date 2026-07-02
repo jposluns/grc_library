@@ -2,8 +2,8 @@
 
 **Document Title:** South Africa Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- **Section 72:** Restricts transfer of personal information to a third party in a foreign country unless: the foreign country has adequate protection (as determined by the Information Regulator); the data subject consents; the transfer is necessary for the performance of a contract; it is in the public interest; it is necessary for establishment, exercise, or defence of legal claims; or the responsible party takes reasonable steps to ensure that adequate protection.
+- **Section 72:** Restricts transfer of personal information to a third party in a foreign country unless: the foreign country has adequate protection (as determined by the Information Regulator); the data subject consents; the transfer is necessary for the performance of a contract; it is in the public interest; it is necessary for establishment, exercise, or defence of legal claims; or the responsible party takes reasonable steps to ensure that adequate protection is in place.
 
 ---
 

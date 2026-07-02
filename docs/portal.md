@@ -7,7 +7,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

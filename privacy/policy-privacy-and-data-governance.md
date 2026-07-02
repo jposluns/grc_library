@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.8\
+**Version:** 1.4.9\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,19 +44,19 @@ This policy defines principles, governance structure, and control framework for 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
 3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
-4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.).
+4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.) is maintained.
 
 ### 3.2 Governance committees
 
 - **Data Governance Council (DGC):** Sets strategic data management objectives.
-- **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation.
+- **AI Governance Council (AIGC):** Ensures that responsible use of data for AI training and operation is maintained.
 
 ### 3.3 Roles and responsibilities
 
 | Role | Responsibilities |
 |---|---|
 | CIO (acting DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests until a DPO is appointed. |
-| CISO | Implements and monitors technical security measures to ensure that data protection and integrity. |
+| CISO | Implements and monitors technical security measures to ensure that data protection and integrity are maintained. |
 | Data Owners | Accountable for accuracy, quality, and lawful use of data within their domain. |
 | Data Stewards | Maintain data dictionaries, classification schemes, and quality validation rules. |
 | System Owners | Implement data protection controls, retention schedules, and access management. |

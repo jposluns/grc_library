@@ -40,7 +40,7 @@ SCORECARD = REPO_ROOT / "docs" / "maturity-scorecard.md"
 # the metadata schema itself changes (e.g. a new required field, a
 # rewritten Overview, an audience added or removed) and capture the
 # bump in CHANGELOG.md.
-PORTAL_METADATA_VERSION = "1.2.0"
+PORTAL_METADATA_VERSION = "1.3.0"
 SCORECARD_METADATA_VERSION = "1.0.0"
 
 # Fallback Date if the parsed taxonomy yields no usable date values

@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-27\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -32,7 +32,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 2.3 It applies regardless of whether personnel are onboarded or offboarded locally or remotely, and regardless of whether access is to on-premises, cloud, or hybrid systems.
 
-2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 11 to ensure that coordinated revocation.
+2.4 Physical access (key cards, building access) is subject to separate facilities management processes but is included in the deprovisioning checklist in Section 11 to ensure that coordinated revocation takes place.
 
 ---
 

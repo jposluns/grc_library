@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -40,7 +40,7 @@ Applies to:
 | **CIO** | Approves software categories, enterprise standards, and lifecycle governance. |
 | **CISO** | Validates cybersecurity and compliance requirements for all software. |
 | **IT Operations / Endpoint Management** | Tests deployment, patch, and rollback procedures; manages packaging and rollout. |
-| **Procurement** | Ensures that licensing, vendor due diligence, and contract compliance. |
+| **Procurement** | Ensures that licensing, vendor due diligence, and contract compliance are managed. |
 | **Application or System Owner** | Maintains documentation, configuration records, and lifecycle compliance. |
 | **Internal Audit** | Conducts periodic reviews of AIS adherence and operational controls. |
 

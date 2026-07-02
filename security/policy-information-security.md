@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.7\
+**Version:** 1.3.8\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 
 **ISMS Ownership**
 - The Chief Information Security Officer (CISO) is responsible for establishing, maintaining, and continually improving the ISMS.
-- The Chief Information Officer (CIO) provides strategic alignment and ensures that resourcing.
+- The Chief Information Officer (CIO) provides strategic alignment and ensures that resourcing is in place.
 - An Enterprise Risk Committee reviews risk posture and control effectiveness quarterly.
 
 **Information Security Management System (ISMS)**
@@ -112,7 +112,7 @@ Where the organisation participates in a sector-specific security programme (for
 
 8.1 AI systems and models must be protected against unauthorized access, modification, or data poisoning.
 8.2 Model artifacts must be version-controlled, integrity-checked, and logged.
-8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility.
+8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility are achieved.
 8.4 AI model risk metrics must align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
 
 ### 9. Incident response and reporting
