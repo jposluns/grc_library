@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-29\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -22,7 +22,7 @@ This template helps an adopter sequence the modules selected via [`docs/template
 
 ### Where this fits among the adopter entry points
 
-The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This roadmap template is one of four deeper-dive paths that branch off the portal; it answers "over what calendar should I roll the programme out?". The other three are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), and [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This roadmap template is one of five deeper-dive paths that branch off the portal; it answers "over what calendar should I roll the programme out?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) (the long-form module-composition workbook), and [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 Each phase has a primary goal, a defendable end-state, and concrete acceptance criteria. The aim is not to copy artefacts faster but to reach a defensible posture against the organisation's actual exposure within bounded calendar time.
 

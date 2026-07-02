@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.3\
-**Date:** 2026-06-29\
+**Version:** 2.2.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -24,7 +24,7 @@ This is the long-form composition workbook. Readers who want a two-minute on-ram
 
 ### Where this fits among the adopter entry points
 
-The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of four deeper-dive paths that branch off the portal; it answers "how do I compose the full starting set across activity, data, audience, regulatory exposure, and capacity?". The other three are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). For the two-minute on-ramp version, see [`docs/template-quickstart.md`](template-quickstart.md). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This template is one of five deeper-dive paths that branch off the portal; it answers "how do I compose the full starting set across activity, data, audience, regulatory exposure, and capacity?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1; the two-minute on-ramp version of this workbook), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 The aim is to compress the adopter's first-week question (`which of the 11 domains do I need on day one?`) into: copy the core baseline, then add the modules that match the organisation. The [`docs/decision-tree.md`](decision-tree.md) covers the conditional logic; this template names the resulting compositions.
 

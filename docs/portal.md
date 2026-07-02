@@ -25,7 +25,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 
 This page is a navigation aid for the most common adopter audiences. Each section lists the documents most likely to be useful to that role, drawn from the machine-readable taxonomy and grouped by document type. The full document index lives in [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md); term definitions and acronym expansions are in the [`governance/register-glossary.md`](../governance/register-glossary.md).
 
-This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Four further adopter-facing documents support the portal as deeper-dive paths for specific questions; the "Other entry points and when to use them" section immediately below maps each to its purpose so a reader can pick the path that matches their question.
+This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Five further adopter-facing documents support the portal as deeper-dive paths for specific questions; the "Other entry points and when to use them" section immediately below maps each to its purpose so a reader can pick the path that matches their question.
 
 This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.
 
@@ -46,7 +46,7 @@ The portal is the canonical front door. The following adopter-facing documents a
 | "In what order should I read the documents that apply to me?" | [`docs/decision-tree.md`](decision-tree.md) | A dimensional questionnaire (size, sector, jurisdiction, regulated activities, technology footprint) and a sequenced reading path conditional on the answers. |
 | "Over what calendar should I roll the programme out?" | [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) | Phase 1 (floor, Days 1-90), Phase 2 (operational, 91-180), and Phase 3 (Year-1 close, 181-365), pace-adjusted by GRC capacity tier. |
 
-The four deeper-dive paths are designed to be used together: the quickstart composes a starting set, the decision tree sequences it, the implementation roadmap calendars it, and the adopter guide governs how the artefacts are forked and customized. Each refers to the others where the workflow crosses between them.
+The five deeper-dive paths are designed to be used together: the quickstart composes a starting set, the startup roadmap works the long-form module composition, the decision tree sequences the reading, the implementation roadmap calendars the rollout, and the adopter guide governs how the artefacts are forked and customized. Each refers to the others where the workflow crosses between them.
 
 For full document discovery (every artefact, machine-readable metadata, type / domain / status / related artefacts), the document index at [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md) is the comprehensive register; this portal is the audience-shaped view of the same underlying taxonomy.
 
