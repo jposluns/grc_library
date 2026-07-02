@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #568: section-2.14: positional-token migration + the five-paths count; C-wave complete (2026-07-02)
+
+The coverage-gaps register's 56 renumber-fragile positional TODO tokens (14 distinct, written against a numbering two re-tiers old) replaced with stable row-subject-verified topic phrases via a scripted apply with census; the portal generator's hardcoded "four deeper-dive paths" corrected to five with the startup roadmap's function added, and the same stale count fixed in four sibling documents (the audit named two; the parallel-case guard found two more). Also rewrites L-d as the promoted C10 corpus-repair item with the pattern-named 20-carrier inventory, and fixes the three #567 sweep Lows. Sections 2.12, 2.13 (to its remainder), and 2.14 now all processed; the planned C-wave is complete.
+
 ### PR #567: section-2.13 items 12-14 and 16-19: seven cross-document conflicts resolved (2026-07-02)
 
-The ops-conflict batch, each stricter-safe or canonical-source: the P1 executive clock aligned to immediate; MFA made exception-eligible with the explicit Section-5 carve per the locked decision (the baseline reference reconciled too; privileged activations stay absolute); Internal-tier encryption required for databases, backups, and portable devices; Tier-3 supplier notifications carry the 24-hour personal-data precedence; the AI-audit Major/Minor findings crosswalked to CAPA High/Moderate; CMS accountability moved to the CCO (the canonical owner); and the risk-acceptance procedure gained the 540-day cumulative ceiling with the conversion anti-evasion clause. Section 2.13 down to item 11 plus the mapping-blocked routed notes.
+The ops-conflict batch, each stricter-safe or canonical-source: the P1 executive clock aligned to immediate; MFA made exception-eligible with the explicit Section-5 carve per the locked decision (the baseline reference reconciled too; privileged activations stay absolute); Internal-tier encryption required for databases, backups, and portable devices; Tier-3 supplier notifications carry the 24-hour personal-data precedence; the AI-audit Major/Minor findings crosswalked to CAPA High/Moderate; CMS accountability moved to the CCO (the canonical owner); and the risk-acceptance procedure gained the 540-day cumulative ceiling with the conversion anti-evasion clause. Section 2.13 down to item 11 plus the mapping-blocked routed note.
 
 ### PR #566: section-2.12 items 7 and 10: BASC and ANPD value sweeps; section closed (2026-07-02)
 
