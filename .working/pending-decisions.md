@@ -23,10 +23,11 @@ The one finding it surfaced (retained for the record): [`risk/procedure-risk-acc
 
 ### C5 DSAR-reconcile apply-time choices (proceeded 2026-07-02, overnight; confirm or redirect on resume)
 
-Two apply-time choices inside the maintainer-locked C5 directions (procedure ladder canonical; independent denial sign-off = Legal Counsel):
+Three apply-time choices inside the maintainer-locked C5 directions (procedure ladder canonical; independent denial sign-off = Legal Counsel):
 
 1. **The template's 3-business-day verification SLA kept as an initial-attempt target nested inside the procedure's 10-business-day suspend clock** (rather than deleted). The two clocks measure different things (an operational first-attempt target vs the outer suspension boundary), so the composition preserves the tighter internal discipline while adopting the canonical outer clock. Redirect path: drop the 3-day sentence from the template's SLA row.
 2. **The CIO (acting DPO) denial sign-off retained, with the Legal Counsel written concurrence made mandatory and recorded as the independent review.** The privacy policy's 4.8 mandates CIO review of denials, so removing the CIO sign-off would contradict the policy; independence is instead supplied by upgrading Legal Counsel's step from "reviews and confirms" to a blocking written concurrence recorded in the DSR register. Redirect path: transfer the sign-off itself to Legal Counsel (requires a paired policy-4.8 edit).
+3. **The 72-hour restriction acknowledgement retained and framed as a calendar-clock ceiling on the intake receipt** (rather than deleted as redundant beside the workflow's 1-business-day acknowledgement, or loosened to a business-day clock). The clause's real work is the long-weekend case, where 1 business day exceeds 72 calendar hours; both surfaces now name the ceiling. Redirect paths: drop the 72-hour clause from the rights table (the 1-business-day SLA then governs alone), or convert it to a business-day clock (weaker; not stricter-safe). (This third choice was counted on the Status line at #564 ship time but its numbered entry was missed; added at the #564 sweep's F1, the C6 PR.)
 
 ### C4 retention-reconcile composed value (proceeded 2026-07-02, overnight; confirm or redirect on resume)
 
