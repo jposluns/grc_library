@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.4\
+**Version:** 1.5.5\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -183,9 +183,9 @@ Privacy considerations must be incorporated into any new system, process, or dat
 |---|---|---|
 | **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, breach notification (material risk of significant harm), accountability. |
 | **Quebec (Provincial)** | Law 25: Act Respecting the Protection of Personal Information in the Private Sector (Law Modernizing Privacy) | Designated Data Protection Officer mandatory; privacy impact assessments; 72-hour breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
-| **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Mapping Register for current state-level obligations. |
+| **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Applicability Register for current state-level obligations. |
 | **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; 72-hour breach notification to the ICO; international transfer mechanisms. |
-| **Latin America** | National privacy laws by jurisdiction (including Brazil LGPD and others) | Jurisdiction-specific requirements apply. Refer to the Global Regulatory Mapping Register and Regional Annexes. |
+| **Latin America** | National privacy laws by jurisdiction (including Brazil LGPD and others) | Jurisdiction-specific requirements apply. Refer to the Global Regulatory Applicability Register and Regional Annexes. |
 
 ---
 
