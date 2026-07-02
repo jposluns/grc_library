@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.3\
-**Date:** 2026-06-25\
+**Version:** 1.1.4\
+**Date:** 2026-07-01\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -385,7 +385,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - visual_jailbreak: multimodal.
   - ANSI-escape terminal-injection probe.
   - leakreplay for training-data memorisation.
-- **GRC concern surfaced**: packagehallucination probe reinforces dev-security DEVSEC-AI-04 (already in library) and standard-developer-security-requirements §9 hallucinated-package coverage. ansiescape and visual_jailbreak surface multimodal and out-of-band-channel threats addressed in Phase 23.4 RUNTIME-SEC-07.
+- **GRC concern surfaced**: packagehallucination probe reinforces dev-security DEVSEC-AI-04 (already in library) and standard-developer-security-requirements §10 hallucinated-package coverage. ansiescape and visual_jailbreak surface multimodal and out-of-band-channel threats addressed in Phase 23.4 RUNTIME-SEC-07.
 - **Status notes**: Active. CI matrix Linux/Windows/macOS.
 - **Provenance**:
   - Source URL: `https://github.com/NVIDIA/garak`
