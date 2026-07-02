@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #569: L-d (M): verbless "ensure that" sentences repaired corpus-wide (2026-07-02)
+
+All 54 verbless "ensure(s) that + noun" carriers across 36 documents repaired by a deterministic scripted apply, the full-corpus 170-occurrence read having raised the enumerated 22 to the true 54 (each repair supplies the missing verb; none deletes "that"), with the in-repo mechanical-sweep root-cause hypothesis refuted: every traced carrier was introduced at the initial public-release commit. Also dispositions the eleven #568 sweep findings (decision-tree tokens and OT answer, linter rationale, portal schema-constant bump, seven more register cell rewordings, the stale DONE count).
+
 ### PR #568: section-2.14: positional-token migration + the five-paths count; C-wave complete (2026-07-02)
 
-The coverage-gaps register's 56 renumber-fragile positional TODO tokens (14 distinct, written against a numbering two re-tiers old) replaced with stable row-subject-verified topic phrases via a scripted apply with census; the portal generator's hardcoded "four deeper-dive paths" corrected to five with the startup roadmap's function added, and the same stale count fixed in four sibling documents (the audit named two; the parallel-case guard found two more). Also rewrites L-d as the promoted C10 corpus-repair item with the pattern-named 20-carrier inventory, and fixes the three #567 sweep Lows. Sections 2.12, 2.13 (to its remainder), and 2.14 now all processed; the planned C-wave is complete.
+The coverage-gaps register's 56 renumber-fragile positional TODO tokens (14 distinct, written against a numbering two re-tiers old) replaced with stable row-subject-verified topic phrases via a scripted apply with census; the portal generator's hardcoded "four deeper-dive paths" corrected to five with the startup roadmap's function added, and the same stale count fixed in four sibling documents (the audit named two; the parallel-case guard found two more). Also rewrites L-d as the promoted C10 corpus-repair item with the pattern-named 22-carrier inventory, and fixes the three #567 sweep Lows. Sections 2.12, 2.13 (to its remainder), and 2.14 now all processed; the planned C-wave is complete.
 
 ### PR #567: section-2.13 items 12-14 and 16-19: seven cross-document conflicts resolved (2026-07-02)
 

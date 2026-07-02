@@ -19,8 +19,8 @@ Exemptions are layered:
   - EXEMPT_FILES: by filename — CHANGELOG.md, TODO.md, the master spec,
     the ingestion spec, the citation-verification spec, the
     audit-programme spec, the citation-verification worklist template,
-    the coverage-gaps register (uses ``TODO P5.x`` cross-references by
-    design), the decision tree, and the linter scripts that enumerate
+    the coverage-gaps register (uses ``TODO backlog: <topic>``
+    planned-target references by design), the decision tree, and the linter scripts that enumerate
     these patterns.
   - EXEMPT_DIR_PARTS: by directory — ``.git``, ``node_modules``,
     ``__pycache__``, ``claude-rules`` (its rule files use angle-bracket
@@ -61,8 +61,8 @@ EXEMPT_FILES = {
     # The Audit Programme Specification discusses the placeholder linter's
     # rule set and references TODO.md by name; both produce false positives.
     "specification-audit-programme.md",
-    # The coverage-gaps register uses "TODO P5.x" markers as cross-references
-    # to TODO.md priorities; this is by design, not leakage.
+    # The coverage-gaps register uses "TODO backlog: <topic>" planned-target
+    # references to TODO.md items; this is by design, not leakage.
     "register-coverage-gaps.md",
     # The decision tree references TODO.md and coverage gaps by name.
     "decision-tree.md",

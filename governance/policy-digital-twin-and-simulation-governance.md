@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Twin and Simulation Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.4\
-**Date:** 2026-07-01\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -43,7 +43,7 @@ Excludes development and test environments that replicate production for softwar
 
 | Role | Responsibility |
 | --- | --- |
-| **CIO** | Approves digital twin initiatives; ensures that integration with enterprise architecture. |
+| **CIO** | Approves digital twin initiatives; ensures that integration with enterprise architecture is maintained. |
 | **CISO** | Validates security controls for digital twin deployments. |
 | **AI Governance Council (AIGC)** | Reviews digital twins incorporating AI decision-making. |
 | **Data Protection Officer (DPO)** | Assesses privacy implications where personal data is processed. |

@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.8\
-**Date:** 2026-06-24\
+**Version:** 1.0.9\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -69,7 +69,7 @@ Drift in source versions is itself an obligation-management event: when the unde
 
 | Field | Description | Example |
 |---|---|---|
-| **Obligation Summary** | Plain-language statement of what is required | Implement appropriate technical and organisational measures to ensure that data security proportionate to risk |
+| **Obligation Summary** | Plain-language statement of what is required | Implement appropriate technical and organisational measures to ensure that data security proportionate to risk is maintained |
 | **Specific Requirements** | Discrete requirements derived from the obligation | (1) Encryption of data at rest; (2) Encryption in transit; (3) Ongoing confidentiality and integrity assurance; (4) Ability to restore data; (5) Regular testing of measures |
 | **Obligation Type** | Preventive / Detective / Corrective / Reporting / Disclosure | Preventive |
 | **Deadline / Trigger Date** | Fixed deadline, recurring date, or event-triggered | Ongoing; by processing start date |

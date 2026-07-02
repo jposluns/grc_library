@@ -2,8 +2,8 @@
 
 **Document Title:** Kenya Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-06-29\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- Transfers permitted where the receiving country ensures that adequate protection, the data subject has consented, or appropriate contractual safeguards are in place.
+- Transfers permitted where the receiving country ensures that adequate protection is provided, the data subject has consented, or appropriate contractual safeguards are in place.
 - The ODPC maintains guidance on permissible transfer conditions.
 
 ---

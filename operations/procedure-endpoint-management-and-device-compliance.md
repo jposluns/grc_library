@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.2\
-**Date:** 2026-06-30\
+**Version:** 1.3.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -14,7 +14,7 @@
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
 
-This procedure defines the end-to-end lifecycle for provisioning, hardening, monitoring, and decommissioning endpoints and servers to ensure that a consistent, auditable, and compliant device estate.
+This procedure defines the end-to-end lifecycle for provisioning, hardening, monitoring, and decommissioning endpoints and servers to ensure that a consistent, auditable, and compliant device estate is maintained.
 
 ---
 

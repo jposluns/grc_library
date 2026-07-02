@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.6\
-**Date:** 2026-06-29\
+**Version:** 1.4.7\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -20,7 +20,7 @@ This standard establishes enterprise-wide requirements for system logging, monit
 
 ## Purpose
 
-To ensure that consistent, auditable, and secure handling of log data aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2019 DSS05, CSA CCM v4.1 I&S-09 and SEF-01, and the EU NIS 2 Directive.
+To ensure that consistent, auditable, and secure handling of log data is maintained, aligned with ISO/IEC 27002:2022 §8.15, NIST SP 800-92, COBIT 2019 DSS05, CSA CCM v4.1 I&S-09 and SEF-01, and the EU NIS 2 Directive.
 
 ---
 
@@ -52,7 +52,7 @@ Where an event is genuinely dual-purpose, the producer service emits the securit
 
 - The CISO is accountable for centralized logging and monitoring capabilities.
 - The Security Operations Center (SOC) manages log collection, storage, correlation, and alerting.
-- The CIO ensures that integration with enterprise infrastructure and business systems.
+- The CIO ensures that integration with enterprise infrastructure and business systems is maintained.
 - System owners and third-party service providers are responsible for compliant logging configurations.
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who oversees logging for BASC-certified logistics and customs systems, with trade-security logs capturing cargo inspection results, customs-transaction records, and personnel screening activities) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).

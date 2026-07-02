@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.19\
+**Version:** 1.1.20\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -161,11 +161,11 @@ Regulations and frameworks named in the library but without dedicated operationa
 | ISO 22301:2019 (business continuity) | Substantive | In library | n/a | Throughout resilience domain |
 | ISO 31000:2018 (risk management) | Substantive | In library | n/a | Throughout risk domain |
 | ISO 14001 (environmental management) | None | Out of scope | n/a | ESG content references it; not in scope for dedicated treatment |
-| PCI DSS 4.0.1 | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Payments-specific; would fit under financial-services or as a sector annex |
-| Basel III | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Banking-specific; would fit under financial-services |
+| PCI DSS 4.0.1 | Referenced | Deferred | Backlog candidate: PCI DSS payments annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Payments-specific; would fit under financial-services or as a sector annex |
+| Basel III | Referenced | Deferred | Backlog candidate: Basel III banking annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Banking-specific; would fit under financial-services |
 | IEC 62443 (OT security) | Referenced | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself shipped, see section 4) | High-priority for industrial/energy/logistics sectors |
 | NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
-| SWIFT CSP (Customer Security Programme) | None | Deferred | TODO backlog: financial-services country regulator overlays | Financial-services payment networks |
+| SWIFT CSP (Customer Security Programme) | None | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only) | Financial-services payment networks |
 | ITIL 4 | None | Out of scope | n/a | Service management framework; operational rather than governance |
 | TOGAF | None | Out of scope | n/a | Architecture framework; operational |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
@@ -179,11 +179,11 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Provider / platform | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
 | Provider-agnostic cloud guidance | Substantive | In library | n/a | Throughout operations and supply-chain |
-| AWS-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
-| Azure-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
-| GCP-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
+| AWS-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the AWS hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
+| Azure-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the Azure hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
+| GCP-specific overlays | None | Deferred | Backlog candidate: per-cloud governance overlays (not currently scheduled in TODO; the GCP hardening baseline shipped in dev-security/, and the multi-cloud TODO item covers only cross-cloud governance) |  |
 | Multi-cloud governance patterns | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
-| Kubernetes-specific governance | None | Deferred | TODO backlog: multi-cloud governance overlay | Could live in operations or dev-security |
+| Kubernetes-specific governance | None | Deferred | Backlog candidate: Kubernetes-specific governance (not currently scheduled in TODO) | Could live in operations or dev-security |
 | Serverless / FaaS-specific governance | None | Deferred | n/a |  |
 | SaaS-specific SPM (Security Posture Management) | None | Deferred | n/a | Adjacent to supply-chain domain |
 

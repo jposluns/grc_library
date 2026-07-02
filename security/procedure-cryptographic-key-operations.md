@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the step-by-step operational instructions for all cryptographic key operations including generation, registration, distribution, activation, rotation, revocation, and destruction. It implements the controls established in the Cryptographic Key Lifecycle Management Framework and ensures that consistent, auditable execution of key management operations.
+This procedure defines the step-by-step operational instructions for all cryptographic key operations including generation, registration, distribution, activation, rotation, revocation, and destruction. It implements the controls established in the Cryptographic Key Lifecycle Management Framework and ensures that consistent, auditable execution of key management operations is achieved.
 
 ---
 

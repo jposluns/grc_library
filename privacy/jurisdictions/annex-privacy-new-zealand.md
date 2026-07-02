@@ -2,8 +2,8 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -42,7 +42,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorized the transfer; or the agency takes reasonable steps to ensure that comparable protection.
+- **IPP 12** restricts transfer to overseas recipients. Transfer is permitted if: the overseas recipient is subject to privacy safeguards comparable to the IPPs; the data subject has authorized the transfer; or the agency takes reasonable steps to ensure that comparable protection is in place.
 - New Zealand benefits from EU adequacy status.
 - New Zealand participates in the APEC CBPR 2.0 framework.
 

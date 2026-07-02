@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -272,7 +272,7 @@ If you build agentic AI:
 
 ### 5.5 If you operate operational technology / ICS
 
-Limited coverage today. See [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) section 5; this is a TODO P6.2 gap. The universal baseline plus the energy-and-utilities annex (Section 3.4) are the current starting points.
+Start with the [`operations/ot/`](../operations/ot/) suite (OT security overview, OT/ICS security standard, OT change management, OT incident response, the OT asset-inventory register, and the BMS overlay), plus the universal baseline and the energy-and-utilities annex (Section 3.4). Deeper IEC 62443 alignment is a backlog candidate (not currently scheduled in TODO); see [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md) section 5.
 
 ---
 
@@ -321,7 +321,7 @@ Universal baseline (Section 2), then `compliance/financial-services/` (3.2), the
 
 **"I'm a 200-person 3PL operating in the US, Canada, and Mexico. What do I read first?"**
 
-Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTPAT and PIP overlays (3.1 sub-bullets), then [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) and [`annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md). Mexico's NEEC/OEA programme is not yet covered (TODO P5.1); use the BASC programme overview as a structural reference until added.
+Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTPAT and PIP overlays (3.1 sub-bullets), then [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) and [`annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md). Mexico's NEEC/OEA programme is not yet covered (TODO backlog: logistics country / programme expansion); use the BASC programme overview as a structural reference until added.
 
 **"I'm a 5-person early-stage SaaS in the UK with no specific sector. What do I read first?"**
 
@@ -329,11 +329,11 @@ Universal baseline orientation (2.1), governance core (2.2, but treat as aspirat
 
 **"I'm a multinational healthcare system. Where do I start?"**
 
-Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privacy jurisdiction annexes for every country your patients reside in or where data is processed (4.1). Then capability-conditional sections for AI (5.1) if you operate clinical AI, cloud (5.2), identity (5.4). HIPAA detail beyond the sector annex is a TODO P5.3 gap.
+Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privacy jurisdiction annexes for every country your patients reside in or where data is processed (4.1). Then capability-conditional sections for AI (5.1) if you operate clinical AI, cloud (5.2), identity (5.4). HIPAA detail beyond the sector annex is a gap under the healthcare country regulator overlays TODO backlog item.
 
 **"I'm building AI products. Where do I start?"**
 
-Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act is heavily cited throughout the AI domain but does not yet have its own dedicated jurisdiction annex (TODO P5.8).
+Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act is heavily cited throughout the AI domain but does not yet have its own dedicated jurisdiction annex (TODO backlog: AI jurisdiction overlays).
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.8\
-**Date:** 2026-06-24\
+**Version:** 1.4.9\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the secure configuration baseline for cloud and cloud productivity environments. It establishes minimum security configuration requirements for the cloud platform, enterprise identity provider, cloud productivity platform, and associated services to reduce attack surface and ensure that consistent security posture across all tenants and subscriptions.
+This standard defines the secure configuration baseline for cloud and cloud productivity environments. It establishes minimum security configuration requirements for the cloud platform, enterprise identity provider, cloud productivity platform, and associated services to reduce attack surface and ensure that a consistent security posture is maintained across all tenants and subscriptions.
 
 ---
 

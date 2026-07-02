@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-06-27\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -33,7 +33,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 | Role | Responsibility |
 | --- | --- |
 | **CIO** | Accountable for service strategy, alignment with business objectives, and continual improvement of the ITSM framework. |
-| **CISO** | Ensures that ITSM integration with incident response and NIS 2 reporting requirements. |
+| **CISO** | Ensures that ITSM integration with incident response and NIS 2 reporting requirements is maintained. |
 | **Service Management Office (SMO)** | Oversees all ITIL process implementation, reporting, and coordination. |
 | **Service Owners** | Manage end-to-end service delivery, availability, and SLAs. |
 | **Process Owners** | Define and maintain policies, procedures, and metrics for their assigned ITIL processes. |

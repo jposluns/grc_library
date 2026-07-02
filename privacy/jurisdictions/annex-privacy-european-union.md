@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-06-30\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -47,7 +47,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **High-risk AI systems (Annex III, applicable August 2026):** AI deployed in employment management, credit scoring, biometric categorization, and critical infrastructure is subject to mandatory conformity assessments, technical documentation, human oversight mechanisms, and EU database registration.
 - **General-purpose AI (GPAI) models (Articles 51 to 56, applicable August 2025):** Providers must maintain technical documentation, comply with EU copyright law, and publish training data summaries. Providers of GPAI models with systemic risk have additional obligations including adversarial testing and incident reporting.
 - **Limited-risk systems (Article 50):** Chatbots and deepfake generators must disclose AI interaction or AI-generated content to users.
-- **AI literacy (Article 4):** Deployers and providers must ensure that sufficient AI literacy among their staff.
+- **AI literacy (Article 4):** Deployers and providers must ensure that sufficient AI literacy is achieved among their staff.
 
 ---
 

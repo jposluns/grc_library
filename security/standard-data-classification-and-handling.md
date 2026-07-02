@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.0\
+**Version:** 1.4.1\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,11 +37,11 @@ To ensure that information is handled consistently according to its sensitivity,
 
 | Role | Responsibility |
 | --- | --- |
-| CIO | Approves data classification framework and ensures that enterprise-wide adoption. |
+| CIO | Approves data classification framework and ensures that enterprise-wide adoption is achieved. |
 | CISO | Enforces encryption, labelling, and protection controls. |
 | Data Owners / Department Heads | Classify and label data assets according to business and regulatory sensitivity. |
 | IT Operations / Cloud Administrators | Implement and maintain automated labelling, DLP, and encryption solutions. |
-| Data Protection Officer | Ensures that alignment with privacy and data protection laws. |
+| Data Protection Officer | Ensures that alignment with privacy and data protection laws is maintained. |
 | AI Governance Council | Oversees classification and protection of AI datasets and model data. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who ensures that classification of customs, trade, and cargo data meets BASC confidentiality standards) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
@@ -103,7 +103,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 - Cryptographic erasure for digital data (per NIST SP 800-88).
 - Cross-cut shredding for physical media.
 4.3 Certificates of Destruction must be logged and archived for seven years.
-4.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity.
+4.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity is preserved.
 
 ---
 

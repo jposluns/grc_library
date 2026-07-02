@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.5\
-**Date:** 2026-06-29\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -38,7 +38,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 1. Board and executive oversight
 1.1 The Board Audit and Risk Committee oversees compliance management, audit results, and CAPA performance. 
-1.2 The CEO ensures that resourcing and independence of audit functions.
+1.2 The CEO ensures that resourcing and independence of audit functions are maintained.
 
 ### 2. Compliance function
 2.1 The Chief Compliance Officer (CCO) maintains the compliance management system (CMS) aligned with ISO 37301 Clauses 5 to 10. 
@@ -56,7 +56,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ### 5. AI and trade compliance oversight
 5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles. 
 5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles. 
-5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks. 
+5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks, is maintained. 
 5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy. 
 5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
 

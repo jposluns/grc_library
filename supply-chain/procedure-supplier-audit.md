@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@ It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 BAI05.02, CSA CCM v4.1 STA-0
 | --- | --- |
 | Chief Information Officer | Provides executive oversight of the supplier audit programme and approves the annual audit plan. |
 | Chief Information Security Officer | Defines audit scope for information security, privacy, and AI risk controls. |
-| Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures that supplier cooperation. |
+| Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures that supplier cooperation is obtained. |
 | Compliance and GRC Manager | Maintains the Supplier Audit Register, records audit evidence, and reports programme performance metrics. |
 | Legal Counsel | Verifies adherence to contractual obligations, data protection law, trade regulations, and BASC requirements. |
 | AI Governance Council | Reviews audit findings involving AI-enabled services or AI system vendors. |

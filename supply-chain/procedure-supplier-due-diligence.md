@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,9 +37,9 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4
 
 | Role | Responsibility |
 | --- | --- |
-| Chief Information Officer | Approves the supplier due diligence framework and ensures that integration with risk management processes. |
+| Chief Information Officer | Approves the supplier due diligence framework and ensures that integration with risk management processes is maintained. |
 | Chief Information Security Officer | Evaluates the information security and privacy posture of potential and existing suppliers. |
-| Procurement Director | Administers supplier assessments, manages onboarding processes, and ensures that contract compliance. |
+| Procurement Director | Administers supplier assessments, manages onboarding processes, and ensures that contract compliance is maintained. |
 | Compliance and GRC Manager | Oversees due diligence documentation, evidence collection, and audit readiness. |
 | Legal Counsel | Verifies contractual and regulatory compliance, including data protection and trade law clauses. |
 | Sustainability Officer | Reviews environmental and social responsibility disclosures submitted by suppliers. |

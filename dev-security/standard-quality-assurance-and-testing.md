@@ -2,8 +2,8 @@
 
 **Document Title:** Quality Assurance and Testing Standard\
 **Document Type:** Standard\
-**Version:** 1.0.1\
-**Date:** 2026-07-01\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
+This standard defines the Quality Assurance (QA) and testing framework for software, infrastructure, and system changes to ensure that consistent reliability, performance, and compliance are achieved across all organisational technology environments. It establishes testing lifecycle stages, quality gates, acceptance criteria, and validation requirements for projects and releases.
 
 ---
 
@@ -36,8 +36,8 @@ This standard defines the Quality Assurance (QA) and testing framework for softw
 | Role | Responsibility |
 | --- | --- |
 | **CIO** | Provides executive oversight of QA programme effectiveness and resourcing. |
-| **CISO** | Ensures that security testing integration, vulnerability management, and compliance. |
-| **QA Manager** | Owns QA framework, defines testing standards, ensures that adherence to lifecycle requirements. |
+| **CISO** | Ensures that security testing integration, vulnerability management, and compliance are maintained. |
+| **QA Manager** | Owns QA framework, defines testing standards, ensures that adherence to lifecycle requirements is maintained. |
 | **Developers / Engineers** | Perform unit, integration, and regression testing per QA standards. |
 | **Project Managers** | Ensure that QA milestones are achieved before release; coordinate test planning. |
 | **Business Owners** | Approve UAT completion and verify functional acceptance. |

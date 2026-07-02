@@ -2,7 +2,7 @@
 
 **Document Title:** BASC Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This policy establishes the framework for managing and protecting the organisation's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data across all BASC-certified operations.
+This policy establishes the framework for managing and protecting the organisation's information assets and supporting infrastructure in alignment with the Business Alliance for Secure Commerce (BASC) International Security Standards. It ensures that the confidentiality, integrity, and availability of data are maintained across all BASC-certified operations.
 
 ---
 
@@ -49,7 +49,7 @@ Applies to all employees, contractors, and third parties accessing the organisat
 | **Chief Information Security Officer (CISO)** | Co-approves the policy; leads enhancement of IT, security, and privacy policies and standards. |
 | **IT Operations Manager** | Manages technical configuration and change management requests; monitors compliance; declares incidents when necessary. |
 | **Service Desk Manager** | Handles user and change management requests via the ITSM portal; monitors compliance; declares incidents when necessary. |
-| **Department Heads** | Ensures that departmental compliance with security practices; declares incidents when necessary. |
+| **Department Heads** | Ensures that departmental compliance with security practices is maintained; declares incidents when necessary. |
 | **All Users** | Adhere to this policy and report any concerns or policy violations. |
 
 ---
@@ -63,7 +63,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 | 6.1.a | Manage and protect information and IT resources, including response measures for non-compliance. | Asset Management; Threat Response |
 | 6.1.b | Safeguard confidentiality, integrity, and availability of information in all forms. | Governance; Access Management; Asset Management; System Integrity; Threat Response |
 | 6.1.c | Protect IT infrastructure. | Access Management; Asset Management; System Integrity; Threat Response |
-| 6.2.a | Establish security criteria for IT systems and ensure that recovery capabilities. | Threat Response |
+| 6.2.a | Establish security criteria for IT systems and ensure that recovery capabilities are in place. | Threat Response |
 | 6.2.b | Communicate cybersecurity threats to relevant parties. | Threat Response |
 | 6.2.c | Identify critical stakeholders in IT infrastructure. | Access Management |
 | 6.2.d | Classify information, systems, and access levels based on criticality. | Governance |
@@ -80,7 +80,7 @@ All requirements identified in Chapter 6 of the BASC International Security Stan
 | 6.2.o | Review and update cybersecurity policies annually or as needed. | Governance |
 | 6.2.p | Use VPN or MFA for remote access. | Access Management |
 | 6.2.q | Prevent unauthorized remote access from personal or other devices. | System Integrity |
-| 6.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal. | Asset Management |
+| 6.2.r | Inventory IT infrastructure media and equipment; ensure that legal disposal is carried out. | Asset Management |
 | 6.2.s | Restrict unauthorized devices from connecting to IT infrastructure. | System Integrity; Access Management |
 | 6.2.t | Monitor cybersecurity policy compliance in digital content and tools. | System Integrity; Threat Response |
 | 6.2.u | Conduct cybersecurity drills to test response effectiveness. | Threat Response |
