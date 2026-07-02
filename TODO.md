@@ -29,7 +29,7 @@ Policy and standard documents used three H2 numbering patterns (fully-numbered `
 
 ### 1.4 Audit-gate candidates from the 2026-06-22 review (M, S each) (was 4.5)
 
-Decided 2026-06-23 (maintainer triage): **build them all** from the 2026-06-22 review. **S3 remains** (the only open item in this section); the original S1 retention-consistency gate shipped in #462, S2 was closed in #463 as a register consolidation (the role-consistency check already existing as gate 8 `lint-roles.py`), and **S4 (no-bare-normative-`shall`) shipped in #466** (gate 56). Each is a `lint-*.py` + 4-surface wiring + regression fixture; one gate per PR to keep diffs reviewable.
+Decided 2026-06-23 (maintainer triage): **build them all** from the 2026-06-22 review. **S3 remains** (the only open item in this section); the original S1 retention-consistency gate shipped in #462, S2 was closed in #463 as a register consolidation (the role-consistency check already existing as gate 8 `lint-roles.py`), and **S4 (no-bare-normative-`shall`) shipped in #466** (gate 56). Each is a `lint-*.py` + 4-surface wiring + regression fixture; one gate per PR to keep diffs reviewable. **Standing state (maintainer, 2026-06-29 park reaffirmed 2026-07-02): S3 stays DEFERRED until a new process/design is ready** (gates 48/49/54 already cover control-code existence; the semantic-precision half needs a design round before any build); the P1 focus is the section-1.1 FR-48 completion.
 
 - **S3 Citation-precision-for-claim gate**: flag "aligned with [normative source] X" claims and verify X actually contains the supporting language (catches FR-120-class issues).
 
@@ -37,7 +37,7 @@ Decided 2026-06-23 (maintainer triage): **build them all** from the 2026-06-22 r
 
 The §1.5 reference version-currency register **shipped in #505** (the `Upstream check location` + `Last verified (UTC)` columns across all 16 register tables, the advisory staleness cadence in [`specification-citation-verification.md`](governance/specification-citation-verification.md) §12.3, the scratch-is-storage / upstream-is-authority principle, the §7 publisher allow-list extension, and 7 upstream-confirmed register corrections), and **all three citation version-upgrade follow-ups have now shipped** (ISO/IEC 27033 -> 27033-1:2015 #506; ISO/IEC 27036-2 2014 -> 2022 #507; NIST SP 800-88 Rev. 2 re-point + IEEE 2883 introduction #508). Remaining residuals:
 
-- The **51 `needs-reconfirm` rows** (iso.org, the IEC webstore, and several government sources block automated fetch) await a browser or different-egress reconfirm pass to fill their `Upstream check location` URLs and stamp a verified date.
+- The **51 `needs-reconfirm` rows** (iso.org, the IEC webstore, and several government sources block automated fetch) await a browser or different-egress reconfirm pass to fill their `Upstream check location` URLs and stamp a verified date. **Maintainer 2026-07-02: DEFERRED until the new process (the maintainer's egress instance) is ready**, alongside the FR-70 and ISO-31000 deferrals; the P1 focus is the section-1.1 FR-48 completion.
 
 ## Priority 2 — Fill significant gaps
 
