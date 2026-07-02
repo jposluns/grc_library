@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.66, PR #578
+
+Tooling for local project (the section-3.14 L-k item): **the pre-commit regen-before-check ordering fixed.** Library 2026.07.65 to 2026.07.66; README 1.9.426 to 1.9.427.
+
+### Changed
+
+- [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml): the pre-commit-only `regenerate-derived-artefacts` hook moved AFTER the `taxonomy-in-sync` and `portal-in-sync` `--check` hooks. Before, local drift was regenerated first and the checks always passed (the L-k false-green); now the checks see the committed state and fail loud, with the regen hook still auto-fixing the tree afterward. CI unaffected (check-only there); gate order across the four parity surfaces unchanged because only the non-gate regen hook moved (gate 35 re-run green).
+- [`TODO.md`](../../TODO.md): L-k rotated out (section-3.14 intro remainder updated); two #577-sweep items routed IN to section 3.15 (the gate-60 section-6-scoped parse, paired with GR-6, fixture co-change named; gate-39 vanished-file tolerance).
+
+### Fixed
+
+- **#577 sweep L1 (record-correction):** the #576 retro row's Proposed-improvement cell reworded in place; the shipped sentence was a garbled draft splice ([`improvement-log.md`](../improvement-log.md) 1.0.301 to 1.0.302, correction noted in the cell).
+- **#577 sweep I1:** the [`pending-decisions.md`](../pending-decisions.md) Status line now separates the four maintainer-CONFIRMED proceeded entries (awaiting only the held move-to-resolved rotation) from the gate-60 threshold default (genuinely awaiting confirm-or-redirect).
+
+### Verification
+
+- All 60 gates green standalone post-commit; suite 271 OK; gate 35 parity confirmed at 60 after the hook move.
+- Batches the #577 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.356; detail [`2026-07-02-PR-577.md`](../validate-pr/2026-07-02-PR-577.md)) and [`/retro`](../improvement-log.md) (1.0.302, which logs the register-cell splice-seam pattern and the re-read-rewritten-cells convention).
+
 ## 2026-07-02, Library Version 2026.07.65, PR #577
 
 Tooling (the QA-and-guardrails step): **GR-5 CLOSED, the guardrail-review cadence mechanized as gate 60.** Library 2026.07.64 to 2026.07.65; README 1.9.425 to 1.9.426.
