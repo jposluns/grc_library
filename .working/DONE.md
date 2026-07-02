@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #562: section-1.6 item 3, risk-taxonomy reconcile + misroute + band + spelling (2026-07-02)
+
+The ERM standard's 10-category taxonomy and the register procedure's 8-plus-other Domain enumeration reconciled to the register template's canonical 12 categories (Environmental examples redistributed, none lost; two canonical-wins defaults logged in pending-decisions); the AI-annex misroute (AI risks to "Supplier category") corrected to the AI category; the acceptance table's "Moderate" band renamed Medium; the register template's "Not Tested" respelled Untested. Section 1.6 fully closed.
+
 ### PR #561: section-1.6 item 2, FR-171 residual carrier realigned (2026-07-02)
 
 The risk methodology's two pre-FR-171 authority lines (roles table and 6.3) realigned to the canonical chain: High and Critical risk acceptances approved by the Executive Committee or Board Risk Committee with the ERC reviewing and recommending, closing the surface FR-171 (#412/#416) missed. Also fixes the two #560 /validate-pr in-window Lows (the item-2 locator resolved by this rotation; the two bare standard citations now linked).

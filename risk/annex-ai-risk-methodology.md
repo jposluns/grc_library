@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.2\
-**Date:** 2026-06-24\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -158,7 +158,7 @@ The following events must trigger an unscheduled AI risk review:
 | Pre-deployment gate | AI risk assessment must be completed and approved before deployment ([`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md)) |
 | AI Risk Register | All Tier 2 and Tier 3 AI systems must have entries in [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) |
 | AI Audit | AI risk register feeds into periodic AI audit scope ([`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md)) |
-| Enterprise Risk Register | AI risks rated High or Critical must be in the enterprise risk register (Supplier category) |
+| Enterprise Risk Register | AI risks rated High or Critical must be in the enterprise risk register, entered under the AI category or the cluster-mapped category per the taxonomy table above, with the AI Flag set either way ([`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) Section 7) |
 | AIGC | Tier 2 AI system risk assessments require AIGC review and approval ([`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md)) |
 
 ---
