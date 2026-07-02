@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.6\
+**Version:** 1.7.7\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -232,7 +232,7 @@ Metadata must use role names only and must not use named individuals.
 
 Dates must use ISO 8601 format: `YYYY-MM-DD`.
 
-`Classification` and `Confidentiality` are distinct fields, not duplicates, even though every document in this corpus carries `Public` for both. `Classification` is the document's handling category within the library's own classification model (`Public` or `Reference Only`; see [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)): it records whether a document is publishable or retained only for reference. Lifecycle is deliberately NOT part of this field: a superseded document keeps `Classification: Public` and inserts the optional lifecycle marker `**Status:** Superseded` after `Document Type` as a fourteenth metadata line, which the stub, required-sections, and section-placement audits key their redirect-notice exemption on (the 2026-07-02 lifecycle-marker migration; the former `Deprecated` classification value overloaded the field and is retired from active use). `Confidentiality` is the information-sensitivity tier of the content itself (the conventional information-security confidentiality label); for this organization-neutral, openly-licensed corpus it is always `Public`. The two coincide at `Public` here because the corpus is public on both axes, but they are conceptually independent: an adopter who forks the library may, for example, hold a document that is `Reference Only` on the lifecycle axis while being `Confidential` on the sensitivity axis. Both fields are retained so a fork inherits both axes rather than conflating them.
+`Classification` and `Confidentiality` are distinct fields, not duplicates, even though every document in this corpus carries `Public` for both. `Classification` is the document's handling category within the library's own classification model (`Public` or `Reference Only`; see [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)): it records whether a document is publishable or retained only for reference. Lifecycle is deliberately NOT part of this field: a superseded document keeps `Classification: Public` and inserts the optional lifecycle marker `**Status:** Superseded` after `Document Type` as a fourteenth metadata line, which the stub, required-sections, and section-placement audits key their redirect-notice exemption on (the 2026-07-02 lifecycle-marker migration; the former `Deprecated` classification value overloaded the field and is retired from active use). `Confidentiality` is the information-sensitivity tier of the content itself (the conventional information-security confidentiality label); for this organization-neutral, openly-licensed corpus it is always `Public`. The two coincide at `Public` here because the corpus is public on both axes, but they are conceptually independent: an adopter who forks the library may, for example, hold a document that is `Reference Only` on the handling axis while being `Confidential` on the sensitivity axis. Both fields are retained so a fork inherits both axes rather than conflating them.
 
 ---
 

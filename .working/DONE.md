@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #580: the two flat AI retention rows composed with the domain minimum (2026-07-02)
+
+The AI-incident-records and AI-decision-and-detection-logs register rows gain the whichever-is-longer composition with the AI-Systems domain minimum (the maintainer's compose-both answer), matching the adjacent composed rows' shape; the two citing AI standards' 7-year floor statements stay true, and the pending-decisions sibling-triage note is closed. Not previously a TODO item; surfaced by the #574 sweep's sibling catch and decided in the 2026-07-02 round.
+
 ### PR #579: L-j, the Classification overload migrated to a lifecycle marker (2026-07-02)
 
 The superseded privacy annex now carries Status: Superseded as the lifecycle marker with Classification restored to Public; the three linters that keyed their redirect-notice exemption on the Classification overload (stub, required-sections, section-placement) are re-keyed on the Status marker with fixtures pinning both the new exemption and that the old overload no longer exempts.
