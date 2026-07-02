@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.69, PR #581
+
+Register maintenance (the section-3.14 coverage-gaps triage): **seven stale Coverage cells re-graded with corpus evidence.** Library 2026.07.68 to 2026.07.69; README 1.9.429 to 1.9.430.
+
+### Changed
+
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (1.1.21 to 1.1.22), seven rows, each Notes cell carrying the re-grade provenance and the remaining gap: AWS / Azure / GCP overlay rows None to Partial (the shipped [`dev-security/standard-cloud-hardening-baseline-aws.md`](../../dev-security/standard-cloud-hardening-baseline-aws.md), [`-azure.md`](../../dev-security/standard-cloud-hardening-baseline-azure.md), and [`-gcp.md`](../../dev-security/standard-cloud-hardening-baseline-gcp.md), each verified at file; the governance overlays remain the gap); Kubernetes-specific governance None to Referenced ([`dev-security/standard-container-and-image-security.md`](../../dev-security/standard-container-and-image-security.md) names the CIS Kubernetes Benchmark and Pod Security Standards in its framework table); adopter quickstart templates per profile None to Partial ([`docs/template-quickstart.md`](../../docs/template-quickstart.md) and [`docs/template-startup-roadmap.md`](../../docs/template-startup-roadmap.md) serve the capability generically); implementation roadmap templates None to Partial ([`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md) and the startup roadmap); interactive maturity assessment None to Partial ([`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) plus the static scorecard; interactivity itself remains the gap; the template is an artefact the original row overlooked). The pre-push verifier's round widened the set with five more evidence-verified re-grades in the same PR: Serverless/FaaS None to Partial (the container standard's dedicated serverless-platforms section plus serverless control rows in all three cloud baselines, the verifier's parallel-case catch); Kubernetes raised Referenced to Partial (the container standard carries Kubernetes-specific operational controls, not mere naming, per the vocabulary's own definitions); SWIFT CSP and ISO 14001 None to Referenced (named in the financial-services annex and the ESG crosswalk respectively, the latter resolving a row-internal contradiction); ITIL 4 None to Partial (the ITSM framework consolidates the ITIL-based processes). The verifier also flagged a vocabulary tension for the maintainer: the per-cloud rows' "Partial" grade sits between the vocabulary's Partial (broader-doc treatment) and the dedicated-adjacent-artefact reality, kept transparent in each Notes cell pending a vocabulary call. The OT row was examined and already reads Substantive/In library; the multi-cloud row's TODO-backlog framing verified against the live section-6.5 item.
+- [`TODO.md`](../../TODO.md): the coverage-gaps triage bullet rotated to [`DONE.md`](../DONE.md) (section-3.14 intro updated to the live state: the one remaining bullet is the routed lifecycle-vocabulary fork); section 2.13's heading and intro extended for the routed N-4 bullet (#580 sweep L-2).
+
+### Fixed
+
+- **#580 sweep L-1 (record-correction):** this mirror's #580 Verification bullet now cites the #579 retro row at its at-ship version (1.0.305) with the two-bump provenance stated.
+
+### Verification
+
+- All 60 gates green standalone post-commit; suite 275 OK; taxonomy regenerated first, portal/scorecard check-clean (the register's bump the only generated-artefact change).
+- Batches the #580 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.359; detail [`2026-07-02-PR-580.md`](../validate-pr/2026-07-02-PR-580.md)) and [`/retro`](../improvement-log.md) (1.0.306, which logs the cite-ledger-versions-last convention after the third version-citation drift this window).
+
 ## 2026-07-02, Library Version 2026.07.68, PR #580
 
 Corpus fix (retention): **the two flat-valued AI retention rows composed with the AI-Systems domain minimum.** Library 2026.07.67 to 2026.07.68; README 1.9.428 to 1.9.429.
@@ -26,7 +44,7 @@ Corpus fix (retention): **the two flat-valued AI retention rows composed with th
 ### Verification
 
 - All 60 gates green standalone post-commit; gates 25 (cross-document numbers) and 55 (retention consistency, 8 pairs) exercised individually on the composed rows; suite 275 OK; taxonomy regenerated first, portal/scorecard check-clean.
-- Batches the #579 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.358; detail [`2026-07-02-PR-579.md`](../validate-pr/2026-07-02-PR-579.md)) and [`/retro`](../improvement-log.md) (1.0.304, which logs the instructs-the-convention completeness pattern: migration carrier sets include the procedures that exercise a convention, greppable by verb forms rather than value tokens).
+- Batches the #579 QA rows: [`/validate-pr`](../validate-pr/history.md) (1.2.358; detail [`2026-07-02-PR-579.md`](../validate-pr/2026-07-02-PR-579.md)) and [`/retro`](../improvement-log.md) (1.0.305 at ship, the register having taken two bumps in this PR, the I-1 record-correction at 1.0.304 then the N-2 quotation fix; the row logs the instructs-the-convention completeness pattern: migration carrier sets include the procedures that exercise a convention, greppable by verb forms rather than value tokens).
 
 ## 2026-07-02, Library Version 2026.07.67, PR #579
 
