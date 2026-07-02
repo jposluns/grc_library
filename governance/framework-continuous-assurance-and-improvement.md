@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -176,7 +176,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
 | COBIT 2019 | Digital Trust Indicators | Governance maturity metrics |
 | CSA CCM v4.1 | A&A-01, A&A-05: Audit and Assurance Policy and Procedures; Audit Management Process | Cloud control assurance |
-| BASC v6 (2023) | Trade and Customs Assurance Governance | Regional trade compliance integration |
+| BASC v6 (2022) | Trade and Customs Assurance Governance | Regional trade compliance integration |
 
 ---
 

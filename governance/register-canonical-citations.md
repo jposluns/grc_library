@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.11\
-**Date:** 2026-07-01\
+**Version:** 1.5.12\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -148,6 +148,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | UK GDPR | 2018 (DPA 2018) as amended by Data (Use and Access) Act 2025 (c. 18), royal assent 19 June 2025; main data-protection provisions commenced 5 February 2026 (Commencement No. 6 Regulations 2026) | 2018 | UK General Data Protection Regulation (retained EU GDPR as amended by the Data Protection Act 2018 and the Data (Use and Access) Act 2025) | - | https://www.legislation.gov.uk/eur/2016/679/contents | 2026-06-30 |
 | Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados | - | - | needs-reconfirm |
+| Resolution CD/ANPD No. 15/2024 | 2024 | 2024-04-26 | ANPD Security Incident Communication Regulation (RCIS): 3-business-day breach notification to the ANPD and data subjects, staged communication, doubled deadlines for small-scale agents | - | https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis | 2026-07-02 |
 | China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | - | needs-reconfirm |
 | China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
 | Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | - | needs-reconfirm |
