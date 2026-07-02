@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -101,7 +101,7 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO 42001 accountability |
-| AI Impact Assessments | 7 years, or 5 years after model decommission, whichever is longer | EU AI Act Article 9; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report) |
+| AI Impact Assessments | 7 years, or 5 years after associated system decommission, whichever is longer | EU AI Act Article 9; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report); the system anchor is deliberate: an impact assessment attaches to the AI system, and a system outlives routine model swaps (the adjacent model-decommission rows are model-artefact records) |
 | AI audit reports | 7 years | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
