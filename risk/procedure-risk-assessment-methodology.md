@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
+**Version:** 1.2.1\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -35,7 +35,7 @@ Applies to all risk assessments conducted within the organisation including: ann
 | **GRC Programme Manager** | Maintains risk assessment methodology; coordinates enterprise risk assessments. |
 | **Risk Owners** | Conduct risk assessments for their domain; own risk treatment decisions. |
 | **CISO** | Approves information security and AI risk assessments. |
-| **ERC** | Reviews enterprise risk register; approves risk acceptance decisions. |
+| **ERC** | Reviews enterprise risk register and risk acceptance decisions; recommends High and Critical acceptances to the Board Risk Committee. |
 | **Internal Audit** | Reviews risk assessment quality and methodology adherence annually. |
 
 ---
@@ -106,7 +106,7 @@ Establish Context → Identify Risks → Analyse Risks → Evaluate Risks → Tr
 
 4.2 Inherent risk score = Likelihood × Impact.
 
-4.3 Control effectiveness is assessed (Strong / Adequate / Weak / Untested, per the risk-register field model in `risk/standard-enterprise-risk-management.md` Section 7) and residual risk is re-scored with existing controls taken into account:
+4.3 Control effectiveness is assessed (Strong / Adequate / Weak / Untested, per the risk-register field model in [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) Section 7) and residual risk is re-scored with existing controls taken into account:
 
 Residual risk score = Residual likelihood × Residual impact
 
@@ -131,7 +131,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 
 ## 6. Risk treatment
 
-6.1 Risk treatment options (canonical six per `risk/standard-enterprise-risk-management.md` Section 6):
+6.1 Risk treatment options (canonical six per [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md) Section 6):
 
 | Option | Definition |
 | --- | --- |
@@ -144,7 +144,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 
 6.2 Risk treatment plans include: treatment option, controls to be implemented, owner, due date, and residual risk target.
 
-6.3 Risk acceptance decisions are documented in the Risk Register and require ERC approval for High and Critical risks.
+6.3 Risk acceptance decisions are documented in the Risk Register. High and Critical acceptances require Executive Committee or Board Risk Committee approval, per the acceptance-authority chain in the Approval guidance section of [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) and Section 2.2 of [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md); the ERC reviews and recommends per its authority in [`governance/register-role-authority.md`](../governance/register-role-authority.md).
 
 6.4 Risk treatment actions are tracked in the CAPA Register.
 
