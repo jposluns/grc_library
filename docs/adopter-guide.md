@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.6\
-**Date:** 2026-06-30\
+**Version:** 1.3.7\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -22,7 +22,7 @@ This guide is for organisations that want to use the GRC Documentation Library a
 
 ### Where this fits among the adopter entry points
 
-The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This adopter guide is one of four deeper-dive paths that branch off the portal; it covers the "fork-and-adapt principles" question. The other three are [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This adopter guide is one of five deeper-dive paths that branch off the portal; it covers the "fork-and-adapt principles" question. The other four are [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) (the long-form module-composition workbook), [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 ### Two reference registers you will need early
 

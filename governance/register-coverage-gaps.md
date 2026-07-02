@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.18\
-**Date:** 2026-07-01\
+**Version:** 1.1.19\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -44,7 +44,7 @@ For each entry:
   - *Referenced*: named or cited but without operational detail.
   - *None*: not covered.
 - **Status**: *In library*, *Planned*, *Deferred*, *Out of scope*.
-- **Planned target**: phase number, TODO priority, or "n/a".
+- **Planned target**: phase number, a stable TODO backlog topic (`TODO backlog: <topic>`), a backlog candidate not currently scheduled (`Backlog candidate: <topic>`), or "n/a".
 
 ---
 
@@ -60,10 +60,10 @@ Industry sectors covered by `/compliance/<sector>/` sub-directories or otherwise
 | Energy and utilities (electricity, gas, water, renewables) | Substantive | In library | n/a | [`compliance/energy-and-utilities/`](../compliance/energy-and-utilities/) |
 | Telecommunications (telcos, ISPs, IXPs, electronic communications) | Substantive | In library | n/a | [`compliance/telecommunications/`](../compliance/telecommunications/) |
 | Public sector (government agencies, public bodies, CSPs to public sector) | Substantive | In library | n/a | [`compliance/public-sector/`](../compliance/public-sector/) with FedRAMP |
-| Manufacturing (industrial, automotive, consumer goods) | None | Deferred | TODO P6 | Likely cross-cuts with OT/ICS depth (TODO P6.2) and logistics |
-| Retail and consumer goods | None | Deferred | TODO P6 | E-commerce-specific compliance, payment, consumer protection |
-| Hospitality and travel | None | Deferred | TODO P6 | PCI DSS-heavy; some overlap with retail |
-| Education | None | Deferred | TODO P6 | FERPA (US), student-data regulations per jurisdiction |
+| Manufacturing (industrial, automotive, consumer goods) | None | Deferred | Backlog candidate: manufacturing sector overlay (not currently scheduled in TODO) | Likely cross-cuts with the OT/ICS content and logistics |
+| Retail and consumer goods | None | Deferred | Backlog candidate: retail sector overlay (not currently scheduled in TODO) | E-commerce-specific compliance, payment, consumer protection |
+| Hospitality and travel | None | Deferred | Backlog candidate: hospitality sector overlay (not currently scheduled in TODO) | PCI DSS-heavy; some overlap with retail |
+| Education | None | Deferred | Backlog candidate: education sector overlay (not currently scheduled in TODO) | FERPA (US), student-data regulations per jurisdiction |
 | Defence and aerospace | None | Out of scope | n/a | Highly jurisdiction- and clearance-specific; not appropriate for a CC BY-SA 4.0 library |
 | Mining and extractive industries | None | Out of scope | n/a | Niche; would require subject-matter expertise the library does not have |
 | Agriculture and food | None | Out of scope | n/a | Niche; HACCP and food-safety regulations are outside the library's information-security focus |
@@ -82,12 +82,12 @@ The library's privacy domain has 25 jurisdiction-specific annexes in [`privacy/j
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| Argentina (PDPA 2025 update) | Partial | Planned | TODO P5.7 | Existing Latin America annex; Argentina-specific update pending |
-| Saudi Arabia (PDPL 2023 update) | Partial | Planned | TODO P5.7 | Existing annex; recent regulatory updates not yet reflected |
-| Mexico (LFPDPPP) | Partial | Planned | TODO P5.7 | Covered within Latin America annex; standalone annex possible |
-| Israel | None | Deferred | TODO P5.7 | Privacy Protection Law and 2024 amendments |
-| Egypt | None | Deferred | TODO P5.7 | PDPL 2020 |
-| Bahrain | None | Deferred | TODO P5.7 | PDPL 2018 |
+| Argentina (PDPA 2025 update) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Existing Latin America annex; Argentina-specific update pending |
+| Saudi Arabia (PDPL 2023 update) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Existing annex; recent regulatory updates not yet reflected |
+| Mexico (LFPDPPP) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Covered within Latin America annex; standalone annex possible |
+| Israel | None | Deferred | TODO backlog: privacy jurisdiction gaps | Privacy Protection Law and 2024 amendments |
+| Egypt | None | Deferred | TODO backlog: privacy jurisdiction gaps | PDPL 2020 |
+| Bahrain | None | Deferred | TODO backlog: privacy jurisdiction gaps | PDPL 2018 |
 | Russia | None | Out of scope | n/a | Sanctions environment; not appropriate to actively curate |
 
 ### 2.2 Trade-security jurisdictions (trusted-trader programmes)
@@ -100,14 +100,14 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | US CTPAT | Substantive | In library | n/a | IT controls + MSC controls |
 | UK AEO | Substantive | In library | n/a | Annex + self-assessment procedure |
 | Canada PIP | Substantive | In library | n/a | IT controls register |
-| EU AEO (27 member states) | None | Planned | TODO P5.1 | High-priority addition; covers all EU |
-| Mexico NEEC / OEA | None | Planned | TODO P5.1 | High-priority addition; NAFTA/USMCA partner |
-| Australia ATT (Authorised Trusted Trader) | None | Planned | TODO P5.1 | High-priority addition |
-| Singapore STP / STP-Plus | None | Planned | TODO P5.1 | High-priority addition |
-| Japan AEO | None | Planned | TODO P5.1 |  |
-| Korea AEO | None | Planned | TODO P5.1 |  |
-| New Zealand SES (Secure Exports Scheme) | None | Planned | TODO P5.1 |  |
-| China AEO | None | Planned | TODO P5.1 |  |
+| EU AEO (27 member states) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; covers all EU |
+| Mexico NEEC / OEA | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; NAFTA/USMCA partner |
+| Australia ATT (Authorised Trusted Trader) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
+| Singapore STP / STP-Plus | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
+| Japan AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
+| Korea AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
+| New Zealand SES (Secure Exports Scheme) | None | Planned | TODO backlog: logistics country / programme expansion |  |
+| China AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
 | ~80 other WCO Member AEO programmes | None | Deferred | n/a | Cataloged in WCO AEO Compendium; added as adopters require |
 
 ### 2.3 Financial-services jurisdictions
@@ -116,25 +116,25 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | --- | --- | --- | --- | --- |
 | EU (DORA) | Substantive | In library | n/a | [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) |
 | US (SOX-ITGC) | Substantive | In library | n/a | [`compliance/financial-services/annex-sox-itgc.md`](../compliance/financial-services/annex-sox-itgc.md) |
-| UK (PRA / FCA) | None | Planned | TODO P5.2 |  |
-| US bank regulators (OCC, FRB, FDIC) | Referenced | Planned | TODO P5.2 | SOX covers reporting; bank-specific cyber expectations not yet detailed |
-| US securities (SEC, FINRA) | Referenced | Planned | TODO P5.2 |  |
-| Canada OSFI | None | Planned | TODO P5.2 |  |
-| Australia APRA | None | Planned | TODO P5.2 |  |
-| Singapore MAS | None | Planned | TODO P5.2 |  |
-| Japan FSA | None | Planned | TODO P5.2 |  |
-| Hong Kong HKMA | None | Deferred | TODO P5.2 |  |
-| Switzerland FINMA | None | Deferred | TODO P5.2 |  |
+| UK (PRA / FCA) | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| US bank regulators (OCC, FRB, FDIC) | Referenced | Planned | TODO backlog: financial-services country regulator overlays | SOX covers reporting; bank-specific cyber expectations not yet detailed |
+| US securities (SEC, FINRA) | Referenced | Planned | TODO backlog: financial-services country regulator overlays |  |
+| Canada OSFI | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| Australia APRA | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| Singapore MAS | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| Japan FSA | None | Planned | TODO backlog: financial-services country regulator overlays |  |
+| Hong Kong HKMA | None | Deferred | TODO backlog: financial-services country regulator overlays |  |
+| Switzerland FINMA | None | Deferred | TODO backlog: financial-services country regulator overlays |  |
 
 ### 2.4 Healthcare jurisdictions
 
 | Jurisdiction / regulation | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| US HIPAA + HITECH | Referenced | Planned | TODO P5.3 | Cited in healthcare sector annex; dedicated detailed annex pending |
-| EU MDR / IVDR | Referenced | Planned | TODO P5.3 |  |
-| UK NHS DSPT | None | Planned | TODO P5.3 |  |
-| Canada PHIPA and provincial frameworks | None | Planned | TODO P5.3 |  |
-| Australia My Health Records Act | None | Planned | TODO P5.3 |  |
+| US HIPAA + HITECH | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Cited in healthcare sector annex; dedicated detailed annex pending |
+| EU MDR / IVDR | Referenced | Planned | TODO backlog: healthcare country regulator overlays |  |
+| UK NHS DSPT | None | Planned | TODO backlog: healthcare country regulator overlays |  |
+| Canada PHIPA and provincial frameworks | None | Planned | TODO backlog: healthcare country regulator overlays |  |
+| Australia My Health Records Act | None | Planned | TODO backlog: healthcare country regulator overlays |  |
 
 ### 2.5 AI jurisdictions
 
@@ -142,12 +142,12 @@ The library cites the EU AI Act extensively in the AI domain but lacks dedicated
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| EU (AI Act 2024/1689) | Referenced | Planned | TODO P5.8 | Heavy citation; dedicated jurisdiction annex would consolidate |
-| Canada AIDA | Referenced | Planned | TODO P5.8 |  |
-| UK AI regulatory framework | None | Planned | TODO P5.8 |  |
-| US state-by-state (Colorado AI Act, NYC bias audit, etc.) | None | Planned | TODO P5.8 |  |
-| China generative AI rules | None | Planned | TODO P5.8 |  |
-| Korea AI framework | None | Planned | TODO P5.8 |  |
+| EU (AI Act 2024/1689) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Heavy citation; dedicated jurisdiction annex would consolidate |
+| Canada AIDA | Referenced | Planned | TODO backlog: AI jurisdiction overlays |  |
+| UK AI regulatory framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| US state-by-state (Colorado AI Act, NYC bias audit, etc.) | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| China generative AI rules | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
 
 ---
 
@@ -161,11 +161,11 @@ Regulations and frameworks named in the library but without dedicated operationa
 | ISO 22301:2019 (business continuity) | Substantive | In library | n/a | Throughout resilience domain |
 | ISO 31000:2018 (risk management) | Substantive | In library | n/a | Throughout risk domain |
 | ISO 14001 (environmental management) | None | Out of scope | n/a | ESG content references it; not in scope for dedicated treatment |
-| PCI DSS 4.0.1 | Referenced | Deferred | TODO P5.2 | Payments-specific; would fit under financial-services or as a sector annex |
-| Basel III | Referenced | Deferred | TODO P5.2 | Banking-specific; would fit under financial-services |
-| IEC 62443 (OT security) | Referenced | Planned | TODO P6.2 | High-priority for industrial/energy/logistics sectors |
-| NERC CIP | Referenced | Planned | TODO P5.4 | High-priority for energy sector |
-| SWIFT CSP (Customer Security Programme) | None | Deferred | TODO P5.2 | Financial-services payment networks |
+| PCI DSS 4.0.1 | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Payments-specific; would fit under financial-services or as a sector annex |
+| Basel III | Referenced | Deferred | TODO backlog: financial-services country regulator overlays | Banking-specific; would fit under financial-services |
+| IEC 62443 (OT security) | Referenced | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself shipped, see section 4) | High-priority for industrial/energy/logistics sectors |
+| NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
+| SWIFT CSP (Customer Security Programme) | None | Deferred | TODO backlog: financial-services country regulator overlays | Financial-services payment networks |
 | ITIL 4 | None | Out of scope | n/a | Service management framework; operational rather than governance |
 | TOGAF | None | Out of scope | n/a | Architecture framework; operational |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
@@ -179,11 +179,11 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Provider / platform | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
 | Provider-agnostic cloud guidance | Substantive | In library | n/a | Throughout operations and supply-chain |
-| AWS-specific overlays | None | Deferred | TODO P6.1 |  |
-| Azure-specific overlays | None | Deferred | TODO P6.1 |  |
-| GCP-specific overlays | None | Deferred | TODO P6.1 |  |
-| Multi-cloud governance patterns | None | Deferred | TODO P6.1 |  |
-| Kubernetes-specific governance | None | Deferred | TODO P6.1 | Could live in operations or dev-security |
+| AWS-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
+| Azure-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
+| GCP-specific overlays | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
+| Multi-cloud governance patterns | None | Deferred | TODO backlog: multi-cloud governance overlay |  |
+| Kubernetes-specific governance | None | Deferred | TODO backlog: multi-cloud governance overlay | Could live in operations or dev-security |
 | Serverless / FaaS-specific governance | None | Deferred | n/a |  |
 | SaaS-specific SPM (Security Posture Management) | None | Deferred | n/a | Adjacent to supply-chain domain |
 
@@ -195,11 +195,11 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | --- | --- | --- | --- | --- |
 | Operational Technology (OT) security | Substantive | In library | n/a | [`operations/ot/`](../operations/ot/): overview annex (Phase 22.1), OT/ICS Security Standard (22.2), OT Incident Response Procedure (22.3), OT Change Management Procedure (22.4), OT Asset Inventory and Lifecycle Register (22.5), BMS Overlay Annex (22.6). IEC 62443 family and NIST SP 800-82 Rev. 3 catalogued in canonical citations. |
 | Identity governance (workforce IAM) | Substantive | In library | n/a | Throughout security domain |
-| Customer Identity (CIAM) | Referenced | Deferred | TODO P6.3 | Adopter UX and consumer-data dimensions |
+| Customer Identity (CIAM) | Referenced | Deferred | TODO backlog: identity-specific content depth | Adopter UX and consumer-data dimensions |
 | Federated identity (SAML, OIDC) | Partial | In library | n/a | Referenced in IAM standards; dedicated patterns deferred |
-| Quantum cryptography readiness | Substantive | In library | n/a | PQC roadmap exists; deepening planned in TODO P6.4 |
-| Post-quantum crypto migration playbook | None | Deferred | TODO P6.4 |  |
-| Crypto-agility patterns | None | Deferred | TODO P6.4 |  |
+| Quantum cryptography readiness | Substantive | In library | n/a | PQC roadmap exists; deepening is queued in the TODO backlog (quantum cryptography readiness deepening) |
+| Post-quantum crypto migration playbook | None | Deferred | TODO backlog: quantum cryptography readiness deepening |  |
+| Crypto-agility patterns | None | Deferred | TODO backlog: quantum cryptography readiness deepening |  |
 | AI/ML governance | Substantive | In library | n/a | Throughout AI domain |
 | AI red-team methodology depth | Substantive | In library | n/a | Adversarial test reference, red team report template, agentic security standard with 16 threat classes, classical ML adversarial taxonomy, AI-driven offensive tool governance (§33 of agentic standard) all expanded across Phase 23 sub-phases |
 | AI-driven offensive security tool governance | Substantive | In library | n/a | [`standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) §33 (OFFAI-SEC-01 to 10); tooling landscape register references PentestGPT, PentAGI, Strix, HexStrike AI, BurpGPT |
@@ -227,9 +227,9 @@ Within the library's doctype vocabulary, some types are under-represented relati
 
 | Capability | Coverage | Status | Notes |
 | --- | --- | --- | --- |
-| Adopter quickstart templates per profile | None | Planned | TODO P4.1 |
-| Interactive maturity assessment | None | Planned | TODO P4.2 (current scorecard is static) |
-| Implementation roadmap templates | None | Planned | TODO P4.3 |
+| Adopter quickstart templates per profile | None | Planned | Backlog candidate: per-profile quickstarts (not currently scheduled in TODO; the general quickstart and startup roadmap shipped, see docs/) |
+| Interactive maturity assessment | None | Planned | Backlog candidate: interactive maturity assessment (not currently scheduled in TODO; the current scorecard is static) |
+| Implementation roadmap templates | None | Planned | Backlog candidate: further roadmap templates (not currently scheduled in TODO; the implementation and startup roadmaps shipped, see docs/) |
 | Decision-tree adopter navigator | Substantive | In library | [`docs/decision-tree.md`](../docs/decision-tree.md) |
 | Worked examples / case studies | None | Out of scope | The library is organisation-neutral; case studies would conflict with that posture |
 | Regulator interaction templates (notification, attestation, response) | Substantive | In library | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) |

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.8\
-**Date:** 2026-06-29\
+**Version:** 1.0.9\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -22,7 +22,7 @@ A structured navigator for adopting organisations: "I have these characteristics
 
 ### Where this fits among the adopter entry points
 
-The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This decision tree is one of four deeper-dive paths that branch off the portal; it answers "in what order should I read the documents that apply to me?". The other three are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
+The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This decision tree is one of five deeper-dive paths that branch off the portal; it answers "in what order should I read the documents that apply to me?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) (the long-form module-composition workbook), and [`docs/template-implementation-roadmap.md`](template-implementation-roadmap.md) (calendar phasing). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
 ---
 
