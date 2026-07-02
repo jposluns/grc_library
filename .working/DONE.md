@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #587: gate 61 shipped, COBIT + ISO 31000 citation existence, both halves of the section-3.13 build (2026-07-02)
+
+The section-3.13 citation-coverage item closed per the maintainer's both-in-one-PR answer: a new reference module derived deterministically from the held scratch extracts (40 objectives, 231 practices, the ISO 31000:2018 clause tree), the gate wired four-surface with eight fixtures, the /matrix-fit worklist tool extended to COBIT and ISO 31000, and the gate's three day-one catches fixed (two fabricated practice codes, one wrong designation). The seven fit-pass recode verdicts routed to their own PR.
+
 ### PR #586: coverage-gaps second batch re-graded; Partial definition widened (2026-07-02)
 
 The routed section-3.14 second coverage-gaps batch (#581 sweep M-1 plus I-1) closed per the maintainer's return-round answer: sixteen rows re-graded with corpus evidence verified at file (UK PRA/FCA, OSFI, NHS DSPT, UK AI, and Manufacturing to Partial; eleven regulator, AI, trade, and framework rows to Referenced), and the vocabulary's Partial definition widened to cover dedicated-adjacent-artefact cases.

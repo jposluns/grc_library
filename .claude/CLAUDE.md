@@ -422,7 +422,7 @@ pack rule (its §2).
 The compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md))
 and per-document framework-alignment tables carry control-code citations whose
 *semantic fit* (is the cited control the right one for the row's document?) the existence
-gates 48/49/54 cannot check: a code can exist, be in the right catalogue, and still be the
+gates 48/49/54/58/61 cannot check: a code can exist, be in the right catalogue, and still be the
 wrong control. Semantic fit is not mechanically gate-checkable, so the durable instrument
 is a cadenced audit, the [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md)
 skill (slash command `/matrix-fit`): it judges each cited code against the source control
@@ -435,7 +435,7 @@ Run `/matrix-fit` on this cadence:
 2. **Once at matrix completion**, over the whole matrix (the closing check).
 3. **Ad-hoc** when a control-code citation is in doubt.
 
-It is NOT a gate and NOT a substitute for gates 48/49/54; it is the semantic layer on top
+It is NOT a gate and NOT a substitute for gates 48/49/54/58/61; it is the semantic layer on top
 of them (a row must pass the existence gates first). Findings are fixed in-window or routed
 under the normal triage; a zero-finding run still gets a history row. This cadence shipped
 across two PRs: the PR A advisory tool in #394 and the PR B skill in #399.

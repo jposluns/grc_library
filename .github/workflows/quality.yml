@@ -201,6 +201,9 @@ jobs:
       - name: Guardrail-review cadence audit
         run: python3 tools/lint-guardrail-cadence.py
 
+      - name: COBIT/ISO 31000 citation-existence audit
+        run: python3 tools/lint-cobit-iso31000-citations.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

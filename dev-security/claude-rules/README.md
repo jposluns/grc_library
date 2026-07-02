@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.13\
+**Version:** 1.53.14\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -100,7 +100,7 @@ claude-rules/
 │   ├── deep-qa-review/SKILL.md                        Trust-recovery deep-QA forensic pass; six AI-failure-pattern subagents over a PR window; pairs with library-fitness-review; findings routed tiered by severity, maintainer sign-off terminates
 │   ├── pr-retrospective/SKILL.md                      Post-merge retrospective on each successful PR; appends to the improvement-log register; recurring patterns surface as candidates for pack-rule updates or worker-brief additions
 │   ├── guardrail-review/SKILL.md                      Periodic structural-integrity review of the governance machinery (rules, skills, gates, wiring surfaces) for overlap / gap / drift the mechanical parity gates cannot see; maintainer-triggered + auto-prompt on machinery change
-│   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates 48/49/54 cannot; after each FR-167 batch + at completion + ad-hoc
+│   ├── matrix-fit/SKILL.md                            Cadenced semantic-fit audit of the compliance matrix and per-document framework tables; catches the gate-blind "valid code, wrong control" class the existence gates 48/49/54/58/61 cannot; after each FR-167 batch + at completion + ad-hoc
 │   └── high-assurance-verification/SKILL.md           Heavier pre-apply harness for a sensitive change (gate-blind, delicate-at-scale, costly): research fan-out, signal pass over the negatives, two independent adversarial verifiers, an invariant floor, and a deterministic scripted apply plus re-parse; the executable form of the high-assurance-verification rule
 └── languages/
     ├── python.md                Python-specific security patterns and anti-patterns
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.14 | 2026.07.75 | 2026-07-02 | [`skills/matrix-fit/SKILL.md`](skills/matrix-fit/SKILL.md) existence-gate enumeration widened (48/49/54 to 48/49/54/58/61: the per-document ISO Annex A gate and the new COBIT/ISO 31000 citation-existence gate join the family the skill layers on) and the validator-module list extended with [`tools/cobit_iso31000_reference.py`](../../tools/cobit_iso31000_reference.py); the pack README tree blurb widened to match; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty to sixty-one, gate-39 keyed). Patch; prose-accuracy only, no step or procedure change. |
 | 1.53.13 | 2026.07.65 | 2026-07-02 | Guardrail-review SKILL gate-count currency: the Overview growth narrative's gate figure updated to sixty alongside the gate-60 cadence audit shipping in the consuming project (the count is narrative currency, not a behaviour change). |
 | 1.53.12 | 2026.07.61 | 2026-07-02 | TLS-baseline caveat in [`core/owasp.md`](core/owasp.md): the two ASVS TLS 1.2 lines (the checklist bullet and the V9 level-progression table) now carry inline notes that the pack's canonical transport floor is TLS 1.3 per [`core/cryptography.md`](core/cryptography.md), with TLS 1.2 and earlier prohibited; the ASVS baseline text itself is unchanged. Closes the parent library's audit item 15. Pack `1.53.11` to `1.53.12` (patch; clarifying caveat only). |
 | 1.53.11 | 2026.07.58 | 2026-07-02 | Corpus-wide Commonwealth-spelling harmonization applied to the pack's prose (the parent library's locked full -ize/-ization normalization): `-isation` nouns, enumerated `-ise` verbs, and the `-yse` verb family flipped to the Canadian forms across the pack rules, SKILLs, language files, and this README; the seven changed `governance/` rules re-mirrored byte-identical into the parent's `.claude/rules/governance/`. No normative content change. Pack `1.53.10` to `1.53.11` (patch; spelling only). |

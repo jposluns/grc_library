@@ -5032,6 +5032,110 @@ class GuardrailCadenceTests(LinterTestCase):
             )
 
 
+class CobitIso31000CitationsTests(LinterTestCase):
+    """tools/lint-cobit-iso31000-citations.py (gate 61)
+
+    COBIT 2019 / ISO 31000:2018 citation existence: flags an unknown COBIT
+    objective, a practice code past its objective's contiguous range, an
+    ISO 31000 clause outside the standard's 1-6 tree (only where the token's
+    attribution to ISO 31000 is unambiguous), and the wrong ISO/IEC 31000
+    designation. Valid codes and clauses pass; a clause token adjacent to a
+    DIFFERENT standard on a multi-standard line is never mis-attributed.
+    """
+
+    SCRIPT = "tools/lint-cobit-iso31000-citations.py"
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the live corpus carries no fabricated COBIT codes or
+        # invalid ISO 31000 clause citations. The two live fabrications found
+        # while building the gate (MEA01.06, DSS01.06) were fixed in the same
+        # PR that wired it as gate 61.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on the live corpus; "
+            f"COBIT/ISO 31000 citations should all be valid.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _doc(self, body_line: str) -> str:
+        return (
+            "# X\n\n## Framework alignment\n\n"
+            f"{body_line}\n"
+        )
+
+    def test_fabricated_practice_flagged(self) -> None:
+        # APO12 has practices .01-.06 only; .07 is the motivating fabrication.
+        fixture = self.make_fixture(
+            "cobit-fab.md", self._doc("Risk acceptance follows APO12.07."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "cobit-practice-out-of-range")
+
+    def test_unknown_objective_flagged(self) -> None:
+        # There is no APO15; the APO objectives run APO01-APO14.
+        fixture = self.make_fixture(
+            "cobit-obj.md", self._doc("Aligned to COBIT 2019 APO15."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "cobit-objective-unknown")
+
+    def test_valid_codes_pass(self) -> None:
+        fixture = self.make_fixture(
+            "cobit-ok.md",
+            self._doc("| COBIT 2019 | APO12.06; DSS05.07; EDM03 | risk |"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"valid COBIT codes should pass.\nstdout:\n{result.stdout}",
+        )
+
+    def test_iso31000_unknown_clause_flagged(self) -> None:
+        # ISO 31000:2018 has clauses 1-6 only; a clause 7 citation is invalid.
+        fixture = self.make_fixture(
+            "iso31000-bad.md", self._doc("Per ISO 31000:2018 §7.1, review."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso31000-clause-unknown")
+
+    def test_iso31000_valid_clause_passes(self) -> None:
+        fixture = self.make_fixture(
+            "iso31000-ok.md",
+            self._doc("| ISO 31000:2018 | §6.4.2 Risk identification |"),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a valid ISO 31000 clause should pass.\nstdout:\n{result.stdout}",
+        )
+
+    def test_wrong_designation_flagged(self) -> None:
+        # ISO 31000 is an ISO (TC 262) standard, never ISO/IEC.
+        fixture = self.make_fixture(
+            "iso31000-desig.md", self._doc("Assess using ISO/IEC 31000 criteria."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "iso31000-wrong-designation")
+
+    def test_other_standard_clause_not_misattributed(self) -> None:
+        # A multi-standard line: the §9/§9.3 tokens belong to ISO 37301 and
+        # ISO 27001, not to ISO 31000, and must not be flagged.
+        fixture = self.make_fixture(
+            "iso31000-multi.md",
+            self._doc(
+                "Aligns to ISO 37301:2021 §9 (Performance evaluation), "
+                "ISO/IEC 27001:2022 §9.3 (Management review), and "
+                "ISO 31000:2018 §6.7 (Monitoring and review)."),
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"other standards' clauses must not be mis-attributed.\n"
+            f"stdout:\n{result.stdout}",
+        )
+
+
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
 
