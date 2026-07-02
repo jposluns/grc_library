@@ -764,6 +764,56 @@ class LicenseConsistencyTests(LinterTestCase):
 class StubDocumentTests(LinterTestCase):
     """tools/lint-stub-documents.py"""
 
+    # A short redirect-notice body (well under the 100-word stub threshold),
+    # used by the lifecycle-marker exemption tests below.
+    REDIRECT_BODY = (
+        "# Superseded Test Annex\n\n"
+        "**Document Title:** Superseded Test Annex\\\n"
+        "**Document Type:** Annex\\\n"
+        "{status_line}"
+        "**Version:** 2.0.0\\\n"
+        "**Date:** 2026-07-02\\\n"
+        "**Owner:** Governance Library Maintainer\\\n"
+        "**Approving Authority:** Governance Library Maintainer\\\n"
+        "**Related Documents:** [`README.md`](../README.md)\\\n"
+        "**Classification:** {classification}\\\n"
+        "**Category:** Test\\\n"
+        "**Review Frequency:** Not applicable: superseded document\\\n"
+        "**Repository Path:** [`tests/tmp/annex-superseded.md`](annex-superseded.md)\\\n"
+        "**Confidentiality:** Public\\\n"
+        "**License:** CC BY-SA 4.0\n\n"
+        "---\n\n"
+        "## Notice\n\n"
+        "Superseded; see the per-jurisdiction annexes.\n"
+    )
+
+    def test_superseded_status_redirect_not_flagged(self) -> None:
+        # The lifecycle marker Status: Superseded exempts a short redirect
+        # notice from the stub word-count rule (the L-j re-key; the
+        # Classification field stays Public, un-overloaded).
+        fixture = self.make_fixture(
+            "annex-superseded.md",
+            self.REDIRECT_BODY.format(
+                status_line="**Status:** Superseded\\\n", classification="Public"
+            ),
+        )
+        result = run_linter("tools/lint-stub-documents.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a Status: Superseded redirect notice must be exempt.\nstdout:\n{result.stdout}",
+        )
+
+    def test_deprecated_classification_no_longer_exempts(self) -> None:
+        # The former Classification: Deprecated overload no longer carries the
+        # exemption: a short document marked only that way is flagged as a
+        # stub (the re-key is a migration, not an alias).
+        fixture = self.make_fixture(
+            "annex-deprecated-only.md",
+            self.REDIRECT_BODY.format(status_line="", classification="Deprecated"),
+        )
+        result = run_linter("tools/lint-stub-documents.py", fixture)
+        self.assertLinterFails(result, "stub")
+
     def test_stub_phrase_flagged(self) -> None:
         bad = (
             "# Standard Test Stub\n\n"
@@ -827,9 +877,47 @@ class RequiredSectionsTests(LinterTestCase):
         result = run_linter("tools/lint-required-sections.py", fixture)
         self.assertLinterFails(result)
 
+    def test_superseded_status_skipped(self) -> None:
+        # A Status: Superseded document (the lifecycle marker, the L-j
+        # re-key) is a short redirect notice and exempt from the per-doctype
+        # required-section model.
+        body = VALID_METADATA.replace(
+            "**Document Type:** Standard\\\n",
+            "**Document Type:** Standard\\\n**Status:** Superseded\\\n",
+        ).replace("## Purpose", "## Notice")
+        fixture = self.make_fixture("standard-superseded-skip.md", body)
+        result = run_linter("tools/lint-required-sections.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a Status: Superseded document must be skipped.\nstdout:\n{result.stdout}",
+        )
+
 
 class SectionPlacementTests(LinterTestCase):
     """tools/lint-section-placement.py"""
+
+    def test_superseded_status_skipped(self) -> None:
+        # A Status: Superseded document (the lifecycle marker, the L-j
+        # re-key) is exempt from the placement conventions.
+        body = VALID_METADATA.replace(
+            "**Document Type:** Standard\\\n",
+            "**Document Type:** Standard\\\n**Status:** Superseded\\\n",
+        ).replace(
+            "## Purpose\n\nTest fixture content for the linter regression suite.\n",
+            (
+                "## Body section one\n\nText.\n\n"
+                "## Body section two\n\nText.\n\n"
+                "## Body section three\n\nText.\n\n"
+                "## Body section four\n\nText.\n\n"
+                "## Purpose\n\nText.\n"
+            ),
+        )
+        fixture = self.make_fixture("standard-superseded-placement.md", body)
+        result = run_linter("tools/lint-section-placement.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a Status: Superseded document must be skipped.\nstdout:\n{result.stdout}",
+        )
 
     def test_orientation_section_outside_top_three_flagged(self) -> None:
         # Build a fixture where Purpose is the 5th of 5 ``##`` sections,

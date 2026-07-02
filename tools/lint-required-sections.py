@@ -49,8 +49,9 @@ HEADING_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$")
 
 # Directory-walk exemption: shared default set from lint_common. The
 # is_target function reads each file's metadata to check for the
-# Classification: Deprecated exemption, so this linter cannot use the
-# shared iter_markdown_targets helper as-is.
+# Status: Superseded lifecycle exemption (re-keyed from the former
+# Classification: Deprecated overload, the L-j migration), so this linter
+# cannot use the shared iter_markdown_targets helper as-is.
 EXEMPT_DIR_PARTS = DEFAULT_EXEMPT_DIRS
 
 # Per-doctype required sections. Each requirement is a list of acceptable
@@ -113,10 +114,11 @@ def is_target(path: Path) -> bool:
         return False
     if path.name.startswith("worklist-"):
         return False
-    # Documents marked Classification: Deprecated are short redirect notices.
+    # Documents marked Status: Superseded (the lifecycle marker) are short
+    # redirect notices.
     try:
         text = path.read_text(encoding="utf-8")
-        if re.search(r"^\*\*Classification:\*\*\s+Deprecated", text, re.MULTILINE):
+        if re.search(r"^\*\*Status:\*\*\s+Superseded", text, re.MULTILINE):
             return False
     except (OSError, UnicodeDecodeError):
         pass

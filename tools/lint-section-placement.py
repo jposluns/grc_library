@@ -62,7 +62,8 @@ Scope:
   Markdown files reachable from the default repository scan paths,
   excluding the DEFAULT_EXEMPT_DIRS set from ``lint_common`` (which
   covers ``.git``, ``node_modules``, ``__pycache__``, ``.claude``).
-  Files marked ``Classification: Deprecated`` are skipped. No per-tool
+  Files marked ``Status: Superseded`` (the lifecycle marker, re-keyed
+  from the former ``Classification: Deprecated`` overload) are skipped. No per-tool
   exempt path prefixes are applied: the placement rules use exact-match
   section-name lookups so they do not produce false positives on
   documents in other directories, and explicit fixture paths (used by
@@ -157,10 +158,10 @@ def is_target(path: Path) -> bool:
         return False
     if any(part in EXEMPT_DIR_PARTS for part in path.parts):
         return False
-    # Skip documents marked Classification: Deprecated.
+    # Skip documents marked Status: Superseded (the lifecycle marker).
     try:
         text = path.read_text(encoding="utf-8")
-        if re.search(r"^\*\*Classification:\*\*\s+Deprecated", text, re.MULTILINE):
+        if re.search(r"^\*\*Status:\*\*\s+Superseded", text, re.MULTILINE):
             return False
     except (OSError, UnicodeDecodeError):
         return False

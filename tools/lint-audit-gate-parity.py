@@ -84,7 +84,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
 # gates. These are excluded from the pre-commit-to-spec parity check.
 # The regenerate-derived-artefacts hook runs the build scripts in
 # write mode so taxonomy.yml / docs/portal.md / docs/maturity-scorecard.md
-# are refreshed before the corresponding --check gates run; it is not
+# are refreshed after the corresponding --check gates have verified the committed state (the L-k ordering: checks fail loud on drift first, then the regen auto-fixes the local tree); it is not
 # itself a verification gate.
 PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, portal, and maturity scorecard"}
 
