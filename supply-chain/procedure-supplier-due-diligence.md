@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.4\
-**Date:** 2026-06-30\
+**Version:** 1.1.5\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines the methodology for pre-qualification, risk assessment, and ongoing compliance review of suppliers, vendors, and third-party partners. It establishes a consistent, evidence-based approach to evaluating supplier fitness prior to engagement and at defined reassessment intervals throughout the supplier lifecycle.
 
-This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2023 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 BAI05, and CSA CCM v4.1 STA-01. Sector-specific framework alignments (for example, BASC International Standard v6 2022 for trade and logistics suppliers) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
@@ -161,7 +161,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 - WCO SAFE Framework of Standards 2021: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
-Sector-specific references (for example, BASC International Standard v6 2023 for trade and logistics) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific references (for example, BASC International Standard v6 2022 for trade and logistics) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 

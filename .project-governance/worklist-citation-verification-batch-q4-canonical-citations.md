@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.8\
-**Date:** 2026-07-01\
+**Version:** 1.0.9\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -147,7 +147,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | WCO SAFE Framework | https://www.wcoomd.org/en/topics/facilitation/instrument-and-tools/frameworks-of-standards/safe_package.aspx | all | 2021, WCO SAFE Framework of Standards; supersedes 2018 |  |  |  |  |  |  |
-| BASC International Standard | https://www.wbasco.org/en/programs-of-certification | all | v6 (2023); supersedes v5 |  |  |  |  |  |  |
+| BASC International Standard | https://www.wbasco.org/en/programs-of-certification | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
 | CTPAT MSC | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat | all | 2020, Minimum Security Criteria |  |  |  |  |  |  |
 
 ### 3.9 Sector-specific: IEC 62443 family (7 entries): publisher `webstore.iec.ch`

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #566: section-2.12 items 7 and 10: BASC and ANPD value sweeps; section closed (2026-07-02)
+
+The two upstream-confirmed value sweeps: sixteen BASC "v6 2023" carriers (fifteen across twelve corpus documents plus the verifier-caught Q4-worklist expected value) reconciled to the register's V6-2022 (the 2023 the citers carried is the certification-transition date); the three ANPD carriers rewritten from the wrong Resolution No. 2 (2 business days) to Resolution CD/ANPD No. 15/2024 (3 business days to the ANPD and data subjects, staged communication, doubled for small agents) with the hedges dropped and a new canonical-citations register row anchoring the regulation. Section 2.12 fully closed.
+
 ### PR #565: section-2.12 items 6, 8, 9: citation title/domain/label corrections (2026-07-02)
 
 Three upstream-or-source-confirmed citation fixes: the privacy policy's v3.x CCM "PRI" domain dropped (DSP stands alone); the exception policy's fabricated "A.5.36 Policy on Exceptions" title corrected twice to the true Annex A title; the cross-framework matrix's nonexistent APO12.07 replaced with APO12.06 Respond to risk, four non-canonical APO12 practice titles made canonical (three in the matrix plus a verifier-caught case-variant in the exception policy's framework list), and the ISO 31000 appetite-row citation corrected to Clause 5.4 Design (appetite lives in 5.4.2). Items 7 and 10 stay queued as upstream-confirmed value sweeps (C7).
