@@ -353,7 +353,7 @@ Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. 
 
 ## Priority 7 — Awaiting maintainer decision
 
-Two open decisions pending (§7.1 the TODO audit-trail-only sections question / §3.10(c); §7.5 the tracked O'Reilly EPUBs). The FR-104 / FR-130 entries are dropped-decision audit-trail records (see [`.working/design-decisions.md`](.working/design-decisions.md)).
+One open decision pending (§7.1 the TODO audit-trail-only sections question / §3.10(c)). The FR-104 / FR-130 entries are dropped-decision audit-trail records (see [`.working/design-decisions.md`](.working/design-decisions.md)).
 
 ### 7.1 Do the audit-trail-only sections belong in TODO? (§3.10(c))
 
@@ -367,15 +367,11 @@ Per-regulation context not pursued.
 
 Portal reorder not pursued (README stays at decision-tree item 1).
 
-### 7.5 O'Reilly EPUBs tracked in git (audit 2026-07-02, item 33; scratch; H copyright)
-
-`grc_library_scratch` tracks **22 full copyrighted O'Reilly EPUBs** under `ref/publications/originals/books/` in git, despite the "not redistributed" stance in scratch `CONTRIBUTING.md` (tracking full copyrighted binaries in a git repo is itself distribution of them). Maintainer decision: keep as-is, purge from git, move to git-LFS/out-of-band, or de-track. Copyright/licensing exposure, so escalated rather than actioned autonomously.
-
 ---
 
 ## Scratch reference-base work (`grc_library_scratch`; ships via MCP PR per the git-proxy issue)
 
-Validated defects in the `grc_library_scratch` reference repo from the 2026-07-02 audit. These ship as PRs to `grc_library_scratch` (not this repo); tracked here for visibility. Item 33 (tracked EPUBs) is the §7.5 decision; item 32's corpus-side carrier is noted in SR-5.
+Validated defects in the `grc_library_scratch` reference repo from the 2026-07-02 audit. These ship as PRs to `grc_library_scratch` (not this repo); tracked here for visibility. Item 33 (tracked EPUBs) was decided 2026-07-02: keep tracked under the private-forever promise with watermark scrubbing gated (see [`.working/design-decisions.md`](.working/design-decisions.md)); item 32's corpus-side carrier is noted in SR-5.
 
 ### SR-1 `last_checked` currency mechanism is inert (item 26, P2, S)
 
@@ -387,7 +383,7 @@ Validated defects in the `grc_library_scratch` reference repo from the 2026-07-0
 
 ### SR-3 `validate.py` binary-scan coverage gaps (items 28-29, P3, M)
 
-(item 28) The disk->catalogue orphan check (`validate.py`:206) covers only `--full-text.md`; ~20 substantive CSV extracts (ATLAS/ATT&CK tactics + mitigations CSVs, CSA implementation/auditing-guideline tabs) are uncatalogued and unchecked. (item 29) The watermark/PII scan (`validate.py`:219-221) covers `.pdf` only; 22 EPUB + 16 office docs are unscanned. The audit directly scanned all 22 EPUBs and found NO watermark strings (a scan-coverage gap, not a live exposure); the .doc/.docx residual is unchecked. Widen both checks.
+(item 28) The disk->catalogue orphan check (`validate.py`:206) covers only `--full-text.md`; ~20 substantive CSV extracts (ATLAS/ATT&CK tactics + mitigations CSVs, CSA implementation/auditing-guideline tabs) are uncatalogued and unchecked. (item 29) The watermark/PII scan (`validate.py`:219-221) covers `.pdf` only; 22 EPUB + 16 office docs are unscanned. The audit directly scanned all 22 EPUBs and found NO watermark strings (a scan-coverage gap, not a live exposure); the .doc/.docx residual is unchecked. Widen both checks. The 2026-07-02 maintainer directive (watermarks always removed and never in the scratch repo; condition 3 of the keep-tracked decision) makes the item-29 widening load-bearing rather than hygiene: the widened scan is the mechanical enforcement of the scrub promise, so it covers every tracked binary format, not `.pdf` alone.
 
 ### SR-4 catalogue / extract hygiene (items 30-31, P3, XS)
 
@@ -428,7 +424,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07
 - **P4 (adopter experience)**: 7 items (4.1-4.5, plus 4.6 adopter-experience enhancements and 4.7 the 2026-07-02 guardrail-review pack-design improvements).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
-- **P7 (awaiting decision)**: 2 pending (7.1, 7.5 O'Reilly EPUBs) + 2 dropped-decision audit-trail entries (7.2 / 7.3).
+- **P7 (awaiting decision)**: 1 pending (7.1) + 2 dropped-decision audit-trail entries (7.2 / 7.3).
 - **Scratch reference-base work (`grc_library_scratch`)**: 5 items (SR-1 last_checked, SR-2 screening-record check, SR-3 validate.py binary-scan gaps, SR-4 catalogue/extract hygiene, SR-5 ETSI designation).
 
 ---
