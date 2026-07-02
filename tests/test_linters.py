@@ -953,6 +953,440 @@ class DateCobumpOnPrTests(LinterTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class DeltaGateRepoTestCase(unittest.TestCase):
+    """Shared two-commit temp-repo harness for the PR-time delta gates.
+
+    Generalizes the DateCobumpOnPrTests fixture shape to multi-file
+    commits: each commit is a dict of relative path to content, and the
+    gate under test runs with POSITIONAL base/head refs (the D4 `_run`
+    pattern), so the fixture never consults GITHUB_BASE_REF or an
+    `origin/main` remote. Dates are left unpinned because D1/D2/D3/D5
+    are date-independent (only D4 compares commit dates).
+    """
+
+    def _build_repo(self, base_files, head_files, head_message="Second"):
+        import shutil
+        import subprocess as sp
+        import tempfile
+
+        tmp = Path(tempfile.mkdtemp(prefix="lint-delta-test-"))
+        sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.email", "test@test"], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.name", "Test"], check=True)
+        for rel, content in base_files.items():
+            path = tmp / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", "Initial"], check=True)
+        base_sha = sp.run(
+            ["git", "-C", str(tmp), "rev-parse", "HEAD"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        for rel, content in head_files.items():
+            path = tmp / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+        sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+        sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", head_message], check=True)
+        return tmp, base_sha, shutil
+
+    def _run_gate(self, script_name, tmp, base_sha):
+        import subprocess as sp
+
+        return sp.run(
+            [sys.executable, str(REPO_ROOT / "tools" / script_name), base_sha, "HEAD"],
+            capture_output=True, text=True, cwd=str(tmp),
+        )
+
+
+class ChangelogOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-changelog-on-pr.py (delta gate D1)."""
+
+    SCRIPT = "check-changelog-on-pr.py"
+    BASE = {
+        "foo.md": "# Foo\n\nA.\n",
+        "CHANGELOG.md": "# Changelog\n\nOld entry.\n",
+        ".working/changelog-details/CHANGELOG-detailed.md": "# Detailed\n\nOld entry.\n",
+    }
+
+    def test_content_change_without_changelog_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE, {"foo.md": "# Foo\n\nB.\n"}
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D1 should FAIL when neither CHANGELOG surface is in the diff; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("neither", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_both_changelog_surfaces_changed_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {
+                "foo.md": "# Foo\n\nB.\n",
+                "CHANGELOG.md": "# Changelog\n\nNew entry.\n\nOld entry.\n",
+                ".working/changelog-details/CHANGELOG-detailed.md": (
+                    "# Detailed\n\nNew entry.\n\nOld entry.\n"
+                ),
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D1 should PASS when both CHANGELOG surfaces move; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_root_without_mirror_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {"CHANGELOG.md": "# Changelog\n\nNew entry.\n\nOld entry.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D1 should FAIL when the root moves without the mirror; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("detailed mirror", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_mirror_without_root_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {
+                ".working/changelog-details/CHANGELOG-detailed.md": (
+                    "# Detailed\n\nNew entry.\n\nOld entry.\n"
+                )
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D1 should FAIL when the mirror moves without the root; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("root", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_opt_out_trailer_accepted(self) -> None:
+        # Back-compat: a `Changelog:` commit trailer opts the PR out.
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {"foo.md": "# Foo\n\nB.\n"},
+            head_message="Tweak foo\n\nChangelog: skip (reason: fixture)",
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D1 should PASS on an opt-out trailer; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class VersionBumpOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-version-bump-on-pr.py (delta gate D2)."""
+
+    SCRIPT = "check-version-bump-on-pr.py"
+    VERSIONED_A = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-25\\\n\n## Body\n\nA.\n"
+    VERSIONED_B_SAME = "# Doc\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-25\\\n\n## Body\n\nB.\n"
+    VERSIONED_B_BUMPED = "# Doc\n\n**Version:** 1.0.1\\\n**Date:** 2026-06-25\\\n\n## Body\n\nB.\n"
+
+    def test_body_change_without_version_bump_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"doc.md": self.VERSIONED_A}, {"doc.md": self.VERSIONED_B_SAME}
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D2 should FAIL on a body change without a Version bump; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("doc.md", result.stdout + result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_version_bumped_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"doc.md": self.VERSIONED_A}, {"doc.md": self.VERSIONED_B_BUMPED}
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D2 should PASS when the Version bumped; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_unversioned_file_skipped(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"notes.md": "# Notes\n\nA.\n"}, {"notes.md": "# Notes\n\nB.\n"}
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D2 should PASS for a file with no Version field; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_added_file_skipped(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"doc.md": self.VERSIONED_A},
+            {"doc.md": self.VERSIONED_A, "new.md": self.VERSIONED_A},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D2 should PASS for a newly-added file; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-changelog-dash-on-pr.py (delta gate D3)."""
+
+    SCRIPT = "check-changelog-dash-on-pr.py"
+
+    def test_added_em_dash_line_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nClean line.\n"},
+            {"CHANGELOG.md": "# Changelog\n\nNew entry — with an em-dash.\n\nClean line.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D3 should FAIL on an added em-dash CHANGELOG line; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_dash_free_addition_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nClean line.\n"},
+            {"CHANGELOG.md": "# Changelog\n\nNew entry, dash-free.\n\nClean line.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D3 should PASS on a dash-free addition; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_preexisting_dash_untouched_passes(self) -> None:
+        # unified=0 sees only ADDED lines, so a historical em-dash in
+        # context must not fire when a clean line is appended.
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nOld — historical dash line.\n"},
+            {"CHANGELOG.md": "# Changelog\n\nNew clean entry.\n\nOld — historical dash line.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D3 should PASS when the only dashes are pre-existing; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_changelog_not_modified_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {"CHANGELOG.md": "# Changelog\n\nClean line.\n", "foo.md": "# Foo\n\nA.\n"},
+            {"foo.md": "# Foo\n\nB.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D3 should PASS when CHANGELOG.md is not in the diff; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
+    """tools/check-todo-rotation-on-pr.py (delta gate D5), subprocess tier.
+
+    Complements TodoRotationOnPrTests (the closure-pattern unit tests)
+    with behavioural fixtures over a real two-commit range.
+    """
+
+    SCRIPT = "check-todo-rotation-on-pr.py"
+    BASE = {
+        "CHANGELOG.md": "# Changelog\n\nOld entry.\n",
+        ".working/changelog-details/CHANGELOG-detailed.md": "# Detailed\n\nOld entry.\n",
+        "TODO.md": "# TODO\n\n- item one\n- item two\n",
+        ".working/DONE.md": "# DONE\n\nOld row.\n",
+    }
+    CLOSURE_LINE = "Closes the TODO §4.9 cleanup item.\n"
+
+    def test_closure_claim_without_rotation_flagged(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {"CHANGELOG.md": "# Changelog\n\n" + self.CLOSURE_LINE + "\nOld entry.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D5 should FAIL on a closure claim without the TODO/DONE rotation; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_closure_with_rotation_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {
+                "CHANGELOG.md": "# Changelog\n\n" + self.CLOSURE_LINE + "\nOld entry.\n",
+                "TODO.md": "# TODO\n\n- item two\n",
+                ".working/DONE.md": "# DONE\n\nNew row.\n\nOld row.\n",
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D5 should PASS when TODO and DONE both rotate; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_trailer_opt_out_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            self.BASE,
+            {"CHANGELOG.md": "# Changelog\n\n" + self.CLOSURE_LINE + "\nOld entry.\n"},
+            head_message="Narrate closure\n\nTodoRotation: narration only (fixture)",
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D5 should PASS on a TodoRotation opt-out trailer; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class PrePushGuardTests(unittest.TestCase):
+    """tools/pre-push-guard.sh exit-code chain.
+
+    Pins the improvement-log #438/#439 regression class: the guard must
+    propagate a failing runner's exit code (captured from the BARE
+    command, not an `if ! cmd` test) and must not run the second runner
+    after the first fails. The fixture copies the real guard into a temp
+    tree beside stub runners.
+    """
+
+    def _build_guard_dir(self, first_rc: int, second_rc: int):
+        import shutil
+        import stat
+        import tempfile
+
+        tmp = Path(tempfile.mkdtemp(prefix="lint-guard-test-"))
+        tools = tmp / "tools"
+        tools.mkdir()
+        shutil.copy(REPO_ROOT / "tools" / "pre-push-guard.sh", tools / "pre-push-guard.sh")
+        (tools / "run_all_audits.sh").write_text(
+            f"#!/bin/bash\nexit {first_rc}\n", encoding="utf-8"
+        )
+        (tools / "run-pr-time-checks.sh").write_text(
+            "#!/bin/bash\ntouch \"$(dirname \"$0\")/../second-ran.marker\"\n"
+            f"exit {second_rc}\n",
+            encoding="utf-8",
+        )
+        for name in ("pre-push-guard.sh", "run_all_audits.sh", "run-pr-time-checks.sh"):
+            path = tools / name
+            path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        return tmp, shutil
+
+    def _run_guard(self, tmp: Path):
+        import subprocess as sp
+
+        return sp.run(
+            ["bash", str(tmp / "tools" / "pre-push-guard.sh")],
+            capture_output=True, text=True, cwd=str(tmp),
+        )
+
+    def test_first_runner_failure_blocks_and_skips_second(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=7, second_rc=0)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(
+                result.returncode, 7,
+                f"guard should exit with the first runner's code; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("FAILED at run_all_audits.sh", result.stdout)
+            self.assertFalse(
+                (tmp / "second-ran.marker").exists(),
+                "second runner must not run after the first fails",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_second_runner_failure_blocks(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=5)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(
+                result.returncode, 5,
+                f"guard should exit with the second runner's code; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("FAILED at run-pr-time-checks.sh", result.stdout)
+            self.assertTrue((tmp / "second-ran.marker").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_both_runners_green_passes(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(
+                result.returncode, 0,
+                f"guard should exit 0 when both runners pass; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class ExternalOverlayLicenseTests(LinterTestCase):
     """tools/lint-external-overlay-license.py"""
 

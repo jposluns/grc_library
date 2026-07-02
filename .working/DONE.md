@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #555: GR-2, delta-check + pre-push-guard regression tests (2026-07-02)
+
+Nineteen new fixtures: two-commit temp-repo behavioural tests for D1/D2/D3/D5 (pass, fail, and exemption/trailer cases each) plus the pre-push-guard exit-code chain (the #439 regression class pinned); suite grows 228 to 247. First GR item closed from the 2026-07-02 guardrail-review intake (GR-2 rotated out of TODO section 3.15).
+
 ### §3.11 + §3.13 + §3.14: protected `.claude/CLAUDE.md` wind-down / checklist cleanup (closed by PR #523, 2026-07-01)
 
 Maintainer-authorized protected-file batch. §3.11: codified two wind-down SOP refinements into `.claude/CLAUDE.md` (overnight-mode-OFF is never a no-answer default, requiring an explicit maintainer signal; and a narrow metrics-grounded exception to "heavy context is never a trigger"). §3.14: reinforced the section-close cross-FILE cleanup checklist line to explicitly span gate-exempt forward `§`/`P` pointers (`.claude/` and tool docstrings). §3.13: closed as decided (the CLAUDE.md-optimization skill was declined 2026-06-28; the guidance doc shipped, the narrow diagnostic stays build-only-if-needed), no edit required.
