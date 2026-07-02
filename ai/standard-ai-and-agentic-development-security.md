@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.4\
-**Date:** 2026-06-30\
+**Version:** 1.8.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -192,7 +192,7 @@ Absolute prohibitions. No exception without written CIO/CISO approval.
 
 ## 9. AI-assisted development controls
 
-### Approved tools
+### 9.1 Approved tools
 
 Approved AI coding tools:
 
@@ -201,7 +201,7 @@ Approved AI coding tools:
 
 Use of other AI coding tools, including public web interfaces, to generate code for production systems requires CIO approval.
 
-### Secure coding rules deployment
+### 9.2 Secure coding rules deployment
 
 The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rules/`](../dev-security/claude-rules/) is the approved Claude Code rules framework. Either copy the relevant rule files into the project's `.claude/rules/` directory (with optional `paths:` YAML frontmatter for path-scoped loading), copy [`dev-security/claude-rules/CLAUDE.md`](../dev-security/claude-rules/CLAUDE.md) to the project root as `./CLAUDE.md` or `./.claude/CLAUDE.md`, or use the AI-assisted setup generator at [`dev-security/claude-rules/setup-generator-prompt.md`](../dev-security/claude-rules/setup-generator-prompt.md). See [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) for full deployment options.
 
@@ -221,7 +221,7 @@ The library's CC BY-SA 4.0 secure-coding rules pack at [`dev-security/claude-rul
 
 External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [`dev-security/claude-rules/README.md`](../dev-security/claude-rules/README.md) are URL pointers only; per the trust-posture decision recorded in Phase 23.66, they are not configured to fetch automatically at session start. Rule deployment is verified in CI per the gate matrix below; builds fail if required rule files are absent when AI-generated code is detected in the commit.
 
-### AI-generated code requirements
+### 9.3 AI-generated code requirements
 
 **DEVSEC-AI-01:** All AI-generated code must include AI attribution disclosure in the commit message or inline comment identifying the tool and model version.
 
@@ -235,7 +235,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **DEVSEC-AI-06:** No AI-generated code deploys to production until it passes the production onboarding security checklist gate.
 
-### Engineering coding standards (AI modules)
+### 9.4 Engineering coding standards (AI modules)
 
 | Requirement | Standard |
 | --- | --- |
@@ -513,7 +513,7 @@ Log retention per Data Retention Schedule.
 
 ## 21. Security testing requirements
 
-### Pre-production gate
+### 21.1 Pre-production gate
 
 - Prompt injection resistance (promptfoo): pass with no open findings
 - Garak vulnerability scan: pass all required probe categories
@@ -524,7 +524,7 @@ Log retention per Data Retention Schedule.
 - Human approval gate test: irreversible actions blocked without explicit human confirmation
 - Recovery test: for each Reversible or Compensable action class, the reversal or compensating mechanism is exercised and confirmed to return the affected system to an equivalent prior state (`AGENT-PROD-03`)
 
-### Regression schedule
+### 21.2 Regression schedule
 
 | Test Type | Frequency | Trigger |
 | --- | --- | --- |
@@ -627,7 +627,7 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 
 ## 29. Incident detection and response
 
-### AI incident indicators
+### 29.1 AI incident indicators
 
 - Confirmed prompt injection: user input or retrieved content successfully overrode system prompt behaviour
 - Unexpected data exfiltration: AI output containing another user's context or above-authorized classification
@@ -636,7 +636,7 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 - Content filter circumvention: prohibited content generated despite active filters
 - Autonomous action breach: agent performed an action outside its defined autonomous scope
 
-### AI-specific IR additions
+### 29.2 AI-specific IR additions
 
 When an AI security incident is declared, the following steps apply in addition to the standard Incident Response Procedure:
 
@@ -753,7 +753,7 @@ This section governs autonomous and semi-autonomous production action. It does n
 
 ---
 
-## Framework alignment
+## 36. Framework alignment
 
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1 | NIST AI RMF |
 | --- | --- | --- | --- | --- |
