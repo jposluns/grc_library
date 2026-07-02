@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.72, PR #584
+
+`.claude/` and working-state changes for local project (the maintainer-authorized CLAUDE.md batch, "ship all three"): **the advisory-directive codification lands in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**, the D5 step-7 description refreshes to six forms, the 60-second background-task check SOP is codified, and the eight resolved pending-decisions entries rotate to a Resolved section. Library 2026.07.71 to 2026.07.72; README 1.9.432 to 1.9.433.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), three edits, each maintainer-authorized at the 2026-07-02 return round: (1) the Communication-conventions section gains the standing proactive-assessment bullet per the approved draft (surface a better / more-efficient / higher-quality alternative and disagree with reasoning ANY time one is seen, not only on "suggest"/"advise"; maintainer override retained; INTEGRITY > SPEED > COST; cross-linked to the pack rule whose calibration section still applies), and the existing "suggest"/"advise" bullet is subordinated to it; (2) PR-workflow step 7's D5 description now enumerates all six closure forms exactly as [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py) documents them (the #576 sweep's I2, held for the return window); (3) the PR-activity-subscription section gains the maintainer's background-task check SOP (60-second checks on EVERY background task, active probing past typical duration, the stall tells, the #582 sweep-stall motivating incident).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the eight 2026-07-02-resolved entries (C3, C4, C5, the section-3.14 retention pair, the gate-60 redirect, the GR-P3 aid confirmation, the advisory-directive codification, the D5 refresh) rotate from Pending to a new "Resolved at the maintainer's 2026-07-02 return round" section with per-entry resolution headings; the Status line already records the zero-open state.
+- [`.working/session-handoff.md`](../session-handoff.md): the queue adds the section-3.13 COBIT + ISO 31000 citation-coverage build (maintainer-queued now that both sources are held; the shape call is asked at build time) and marks #583 merged.
+
+### Verification
+
+- All 60 gates green standalone post-commit (run unpiped with the exit code echoed, per the #583 lesson); suite 276 OK; both generators check-clean; [`tools/lint-language.py`](../../tools/lint-language.py) run against the new CLAUDE.md prose before commit (new-pack-prose checklist line; zero dashes and zero British forms confirmed on the added lines by grep).
+- The #583 QA trio: [`validate-pr/history.md`](../validate-pr/history.md) row (1.2.362), the per-PR record [`2026-07-02-PR-583.md`](../validate-pr/2026-07-02-PR-583.md), and the [`improvement-log.md`](../improvement-log.md) retro row (1.0.309). The #583 sweep returned zero findings above Informational; its I-1 (the mirror's forward commitment that "the #583 retro row carries the lesson") is discharged by that retro row's Pattern cell, which carries the pipe-masking lesson verbatim.
+
+### Discipline observations
+
+- The advisory-directive elevation changes assistant behaviour prospectively (standing proactive assessment); the pack rule itself is unchanged by design (the approved draft scoped the edit to CLAUDE.md with a cross-link, and the rule's calibration section is explicitly retained as the over-ask guard).
+
 ## 2026-07-02, Library Version 2026.07.71, PR #583
 
 Tooling (gate calibration, the maintainer's 2026-07-02 return-round redirect): **gate 60's fail bar tightens from drift 5 to drift 3.** Library 2026.07.70 to 2026.07.71; README 1.9.431 to 1.9.432.
