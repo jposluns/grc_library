@@ -24,13 +24,17 @@ Behaviour:
     a file-discovery omission.
   - Matches on word boundaries by default (the bare-token discipline: a
     phrasing-specific grep misses word-order variants); --substring disables the
-    boundary, --regex treats each argument as a raw regular expression.
+    boundary, --regex treats each argument as a raw regular expression, and the
+    two flags are mutually exclusive (exit 2 when combined). A token whose edge
+    character is not a word character (a leading hyphen, a flag like --all)
+    cannot match under the boundary lookarounds; use --substring for those.
   - Prints every hit as path:line-number followed by the FULL line, untruncated.
     The Sweep-82 lesson is binding: a hit is READ IN FULL before it is triaged;
     never classify a hit from a truncated excerpt or from the match alone.
-  - Labels each hit LIVE, FROZEN-RECORD (any dated per-run file under a
-    .working activity directory, any year: frozen-state archives quoting
-    findings verbatim), or LEDGER (append-only history surfaces: CHANGELOG.md,
+  - Labels each hit LIVE, FROZEN-RECORD (any dated per-run file DIRECTLY under
+    a .working activity directory, depth two, any year: frozen-state archives
+    quoting findings verbatim; a deeper-nested dated file conservatively
+    labels LIVE), or LEDGER (append-only history surfaces: CHANGELOG.md,
     its detailed mirror, DONE.md, the improvement-log and hallucination-metrics
     registers, and every per-activity history.md, where PRE-EXISTING entries legitimately
     quote old values; a hit in a line this PR ADDS is still live in substance).
@@ -119,6 +123,10 @@ def main() -> int:
     parser.add_argument("--regex", action="store_true", help="treat tokens as raw regular expressions")
     parser.add_argument("--all", action="store_true", help="also show FROZEN-RECORD hits")
     args = parser.parse_args()
+
+    if args.substring and args.regex:
+        print("residual-scan: --substring and --regex are mutually exclusive", file=sys.stderr)
+        return 2
 
     patterns = build_patterns(args.tokens, args.substring, args.regex)
     counts = {"LIVE": 0, "LEDGER": 0, "FROZEN-RECORD": 0}

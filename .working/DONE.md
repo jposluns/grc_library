@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #576: 3.13 gates-widening: gate 55 to eight retention pairs, D5 to six closure forms, gate 50 dual-spelling marker (2026-07-02)
+
+The audit-surfaced widening bullet closed in one PR: gate 55 now locks the five reconciled retention rows (breach, PIA, AI-IA, AI-audit, supplier-audit) beside the original three, with the AI-audit anchor sentence reworded, the supplier-audit retention sentence authored, and both register matches notes added; D5 gains the section-name, item-number, and rotation-assertion closure forms (the #567 vacuous pass closed; the generalized form rejected on census FPs); gate 50 accepts the -ized marker spelling. Fixtures grew with all three.
+
 ### PR #575: GR-12: the post-fix residual-scan aid shipped (2026-07-02)
 
-The deterministic residual-scan step is now tooling: given a corrected token, the aid scans every tracked text surface (not an enumerated input set), prints every hit as an untruncated full line labelled LIVE / LEDGER / FROZEN-RECORD, and exits non-zero on live residuals so it chains as a completion check; escalated ahead of the tension-marker gate on the four-in-two-PRs fix-named-miss-sibling recurrence.
+The deterministic residual-scan step is now tooling: given a corrected token, the aid scans every text surface in the working tree (not an enumerated input set), prints every hit as an untruncated full line labelled LIVE / LEDGER / FROZEN-RECORD, and exits non-zero on live residuals so it chains as a completion check; escalated ahead of the tension-marker gate on the four-in-two-PRs fix-named-miss-sibling recurrence.
 
 ### PR #574: 3.14 batch B: the judgment-tier cleanup set (2026-07-02)
 

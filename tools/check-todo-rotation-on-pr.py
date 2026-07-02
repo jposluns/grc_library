@@ -17,18 +17,26 @@ time: if any line ADDED to the CHANGELOG (root or detailed mirror) asserts a
 TODO-item closure, the PR's changed-file set must include BOTH `TODO.md` and
 `.working/DONE.md`.
 
-Trigger (broadened 2026-06-30 to three forms, each chosen to stay
-false-positive-free; see ``CLOSURE_PATTERNS``): an added CHANGELOG line matching
+Trigger (broadened 2026-06-30 to three forms and 2026-07-02 to six, each
+chosen to stay false-positive-free; see ``CLOSURE_PATTERNS``): an added
+CHANGELOG line matching
 any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO §`` (e.g.
 "closing TODO §4.5 S4"); (2) the coded-id major-closure marker, a
 two-to-four-letter uppercase id then uppercase CLOSED (e.g. "FR-58 CLOSED",
 "GR-13 CLOSED"; widened from the FR-only form by GR-13, and note the wider id
 class brushes the NIST-style control-id families, an accepted collision
 surface bounded by the added-CHANGELOG-lines-only scan and the standalone
-uppercase-CLOSED flag); or (3) the explicit backlog-item form
+uppercase-CLOSED flag); (3) the explicit backlog-item form
 ``clos(e|es|ed|ing) the <...> (backlog item | TODO item | directive)`` (e.g.
 "closes the maintainer-directed ... validation directive", the #495 prose-named
-shape). It does NOT match incidental mentions ("closing the #466 finding",
+shape); (4) the section-name closure form ``section-N.M <...> clos(ed|ure)``
+(e.g. "the section-3.14 remainder closed"); (5) the item-number closure form
+``item(s) N [and M ...] closed`` (e.g. "items 11 and 12 closed"); or (6) the
+rotation-assertion form ``rotated to the DONE ledger`` (a line claiming the
+rotation happened must be accompanied by the rotation surfaces in the diff).
+Forms 4 to 6 were added 2026-07-02 after the #563 pre-push verifier showed
+that #567's section-and-item closure phrasings passed the gate vacuously.
+It does NOT match incidental mentions ("closing the #466 finding",
 "TODO §4.10 updated", "per FR-154"), and it deliberately does NOT match bare
 lowercase ``Closes FR-N``: that form matched ~95 historical CHANGELOG lines
 including past-closure narration ("PR #143 closed FR-9", "PRs #221-#228 closing
@@ -77,15 +85,20 @@ DONE_PATH = ".working/DONE.md"
 
 # Closure-assertion phrasings, broadened 2026-06-30 (the rotation-prevention
 # backlog item, since closed) beyond the original `TODO §` form to also catch the
-# prose-named and FR-N closures the #495 miss exposed, while staying
-# false-positive-free. The three forms below were chosen empirically: tested
+# prose-named and FR-N closures the #495 miss exposed, and again 2026-07-02
+# (forms 4 to 6, the #563 verifier's tooling note after #567's section-and-item
+# phrasings passed vacuously), while staying false-positive-free. The six forms
+# below were chosen empirically: tested
 # against the entire CHANGELOG history (root + detailed mirror, ~14k lines),
 # each matched only genuine current-PR closures with ZERO past-closure-narration
 # false positives. A bare lowercase `Closes FR-N` was deliberately NOT added: it
 # matched ~95 lines including past-closure narration ("PR #143 closed FR-9",
 # "PRs #221-#228 closing FR-33/82/..."), exactly the standing-gate false-fire the
 # original narrow design avoided; the close-out-checklist convention covers that
-# residual (maintainer decision 2026-06-30).
+# residual (maintainer decision 2026-06-30). A generalized "clos... the
+# section" form was census-tested for the 2026-07-02 widening and REJECTED on
+# two historical false positives; the shipped section form requires the
+# hyphenated `section-N.M` token instead.
 CLOSURE_PATTERNS = (
     # (1) the canonical section form: a closure verb, optional "the", then "TODO §".
     re.compile(r"\bclos(?:e|es|ed|ing)\b\s+(?:the\s+)?TODO\s+§", re.IGNORECASE),
@@ -110,6 +123,23 @@ CLOSURE_PATTERNS = (
         r"\bclos(?:e|es|ed|ing)\b\s+the\s+(?:(?!\bthe\b)[^.\n]){0,70}?\b(?:backlog item|TODO item|directive)\b",
         re.IGNORECASE,
     ),
+    # (4) the section-name closure form: a hyphenated `section-N.M` token then
+    # (within one clause) a closed/closure word. The hyphenated token is the
+    # FP guard: the generalized "clos... the section" form was census-tested
+    # and rejected on two historical false positives. Case-sensitive, matching
+    # the censused form.
+    re.compile(r"\bsection-\d+\.\d+(?:[^.\n]){0,80}?\bclos(?:ed|ure)\b"),
+    # (5) the item-number closure form: "item(s) N [and M ...] closed", the
+    # multi-item shape #567 used ("items 11 and 12 closed"). The character
+    # class between the numbers and "closed" admits only digits, punctuation,
+    # and whitespace, so narration like "items 4-7 remain deferred, not
+    # closed" cannot match. Case-sensitive, matching the censused form.
+    re.compile(r"\bitems?\s+\d[\d.,\s\-]*(?:and\s+[\d.,\s\-]+)*closed\b"),
+    # (6) the rotation-assertion form: a line claiming the rotation itself
+    # happened. If the claim is true the gate passes trivially (both surfaces
+    # are in the diff); a line NARRATING a past PR's rotation is covered by
+    # the TodoRotation: opt-out trailer, the same escape hatch as form 1.
+    re.compile(r"\brotated to the DONE ledger\b"),
 )
 
 TRAILER_PATTERN = re.compile(
