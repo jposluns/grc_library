@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.2\
-**Date:** 2026-07-01\
+**Version:** 1.6.0\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -44,7 +44,7 @@ The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section 
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
+| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organisation in regulatory matters relating to data subject rights. |
 | **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
@@ -67,7 +67,7 @@ The following table defines the rights managed under this procedure, the applica
 | **Correction / Rectification** | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment of inaccurate data); PIPL Art. 46 | Correction of inaccurate personal data; completion of incomplete data | 30 days | Data that is required for legal or regulatory compliance in its current form; disputes over factual accuracy subject to legal assessment |
 | **Deletion / Erasure (Right to be Forgotten)** | GDPR Art. 17; UK GDPR Art. 17 | Erasure of personal data where no longer necessary; consent withdrawn; unlawful processing; legal obligation to erase | 30 days (subject to retention obligations) | Legal obligation to retain; defence of legal claims; public interest; legitimate interests overriding erasure; statutory or regulatory retention requirements |
 | **Data Portability** | GDPR Art. 20; UK GDPR Art. 20 | Provision of data in a structured, commonly used, machine-readable format; direct transmission to another controller where technically feasible | 30 days | Applies only to data provided by the individual and processed by consent or contract; does not apply to data processed under other legal bases |
-| **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours; restriction applied within 30 days | Restriction lifted only on data subject consent, legal claims, overriding public interest, or resolution of the disputed grounds |
+| **Restriction of Processing** | GDPR Art. 18; UK GDPR Art. 18 | Marking data to restrict active processing while accuracy, lawfulness, or competing interests are assessed | Acknowledgement within 72 hours (a calendar-clock ceiling on the intake receipt acknowledgement, issued before identity verification or the Section 5 triage completes and binding over weekends and holidays where a business-day SLA would not; it confirms receipt, not application of the restriction); restriction applied within 30 days | Restriction lifted only on data subject consent, legal claims, overriding public interest, or resolution of the disputed grounds |
 | **Objection to Processing** | GDPR Art. 21; UK GDPR Art. 21; PIPEDA Sch 1 Principle 3 (withdrawal of consent) | Right to object to processing based on legitimate interests or for direct marketing | Halt direct marketing processing immediately; assess other objections and respond within 30 days | Compelling legitimate grounds overriding the individual's interests; legal claims |
 | **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22 | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within 30 days | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
 
@@ -287,12 +287,12 @@ When the joint controllers or processors operate across multiple regimes, the st
 ### 7.3 Denial process
 
 1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
-2. Legal Counsel reviews the denial rationale and confirms the legal basis.
+2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: while the DPO role is exercised by the CIO in an acting capacity (Section 2.2), the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
 3. The CIO (acting DPO) signs off on the denial in writing before notification is sent to the data subject.
 4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (ICO, OPC, CAI, or other applicable authority).
-5. The denial, its grounds, and the CIO sign-off are recorded in the DSR register.
+5. The denial, its grounds, the Legal Counsel concurrence, and the CIO sign-off are recorded in the DSR register.
 
-All denials must be justified in writing and reviewed by the CIO (acting DPO) before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
+All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the CIO (acting DPO) before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
 
 ---
 
