@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.44, PR #556
+
+Tooling for local project: **GR-3 wave 1 + GR-4 tilde half shipped** (both items reduced to residuals in [`TODO.md`](../../TODO.md)): the shared metadata parser lands in [`tools/lint_common.py`](../../tools/lint_common.py), gate 31 migrates to it with fail-loud malformed-Date semantics, and `iter_non_code_lines` gains the tilde-fence toggle. Seven new tests (suite 247 to 254). Batches the #555 QA rows. Library 2026.07.43 to 2026.07.44; README 1.9.404 to 1.9.405.
+
+### Added
+
+- [`tools/lint_common.py`](../../tools/lint_common.py): `MetadataBlock`, `METADATA_FIELD_RE`, `METADATA_HEAD_LINES`, `parse_metadata_block()` (tolerant capture layer; per-field validity is the caller's judgement so gates can fail loud), and `parse_iso_date()` (exact `YYYY-MM-DD` validator distinguishing malformed-present from absent).
+- `LintCommonHelperTests` (6 tests: field capture + backslash stripping, the head-window boundary, first-occurrence-wins, strict ISO-date validation, tilde-fence toggling, backtick-fence regression) and `test_malformed_date_is_finding_not_skip` in `DocumentDateStalenessTests` (1 test), in [`tests/test_linters.py`](../../tests/test_linters.py); suite 247 to 254.
+
+### Changed
+
+- Gate 31 [`tools/lint-document-date-staleness.py`](../../tools/lint-document-date-staleness.py): the private line-end-anchored `DATE_RE` retired in favour of the shared parser; `get_metadata_date()` now returns a `(date, malformed_value)` pair with three outcomes (well-formed, absent = skip, present-but-malformed = FINDING); a new malformed-Date failure block prints each carrier with remediation; the OK line reports the `skipped_no_date` / `skipped_no_history` counters (previously incremented but never printed, dead state); module docstring updated. **Blast radius verified zero before wiring**: an old-regex-vs-new-parser diff over the full corpus target set returned 338/338 agreement with no old-only or new-only files, so no corpus file changes disposition today; the change is protective against future formatting slips.
+- [`tools/lint_common.py`](../../tools/lint_common.py) `iter_non_code_lines`: fence toggle now fires on `~~~` as well as ``` (docstring updated; corpus census found zero tilde fences and zero unbalanced backtick fences, so behaviour on today's corpus is unchanged).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) section-5 freshness clause: gate 31's entry now records the fail-loud malformed-Date behaviour (Specification 1.16.28 to 1.16.29, Date co-bumped; [`taxonomy.yml`](../../taxonomy.yml) regenerated FIRST, then portal/scorecard, both check-mode clean).
+- [`TODO.md`](../../TODO.md): GR-3 rewritten as "GR-3 residual" (waves 2-3: the Version-window trio, then the gate-1/build-taxonomy fold-in decision) and GR-4 as "GR-4 residual" (unbalanced-fence detection home decision); neither item fully closes, so no DONE rotation.
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced.
+
+### Verification
+
+- The linter regression suite: 254 tests, all pass. `tools/run_all_audits.sh`: all 59 gates pass on the committed state (gate 31 exercised with its new semantics; gates 33/34 confirm the regen).
+- Behavioural probe before commit: a synthetic repo with a `(draft)`-annotated Date fails gate 31 with the malformed-Date block (exit 1), and a date-free file still skips cleanly (exit 0).
+- Apply-time verification of the W3 research: the parser inventory's load-bearing quotes (gate 31 regex + dead counters, the gate-40/D2/D4 shared window, gate 14's tolerant backstop, the 23 `iter_non_code_lines` callers) re-read at source; the research's zero-blast-radius scan INDEPENDENTLY reproduced by the orchestrator before wiring (the research-assistant discipline; zero corrections needed).
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.43, PR #555
 
 Tooling for local project: **GR-2 closed** (rotated to the DONE ledger), the first guardrail-review machinery item: nineteen regression tests added to [`tests/test_linters.py`](../../tests/test_linters.py) covering the previously-untested PR-time delta checks D1/D2/D3 plus a D5 behavioural tier and the [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) exit-code chain, via a shared two-commit temp-repo harness generalizing the D4 fixture shape; regression suite grows 228 to 247, all green. Also batches the #554 QA rows and resolves both #554 `/validate-pr` notes. Library 2026.07.42 to 2026.07.43; README 1.9.403 to 1.9.404.

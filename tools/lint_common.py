@@ -32,6 +32,8 @@ Scope notes:
 
 from __future__ import annotations
 
+import datetime
+import re
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 
@@ -244,6 +246,91 @@ def read_text_safe(path: Path) -> str | None:
         return None
 
 
+class MetadataBlock:
+    """Parsed document-metadata fields from a file's head window.
+
+    Attributes:
+        fields: field name to value, with a single trailing backslash
+            (the metadata hard-line-break marker) stripped from the
+            value and surrounding whitespace trimmed.
+        raw_lines: field name to ``(lineno, raw line)`` for callers
+            that need to point a finding at the exact source line.
+
+    A field that appears more than once inside the window keeps its
+    FIRST occurrence (matching the first-match semantics of the
+    per-linter parsers this helper replaces).
+    """
+
+    __slots__ = ("fields", "raw_lines")
+
+    def __init__(self) -> None:
+        self.fields: dict[str, str] = {}
+        self.raw_lines: dict[str, tuple[int, str]] = {}
+
+
+# The generic metadata field shape shared by every corpus document:
+# ``**Field:** value`` with an optional trailing backslash. This is the
+# same pattern lint-metadata.py and build-taxonomy.py use; centralized
+# here so parsers stop drifting apart (guardrail review GR-3).
+METADATA_FIELD_RE = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
+
+# How many leading lines of a document constitute the metadata head
+# window. Matches the long-standing window in the version-bump and
+# co-bump gates; a ``**Field:**``-shaped line deeper in the body (for
+# example a documented placeholder in a how-to section) is body prose,
+# not metadata.
+METADATA_HEAD_LINES = 30
+
+
+def parse_metadata_block(text: str, *, head_lines: int = METADATA_HEAD_LINES) -> MetadataBlock:
+    """Parse ``**Field:** value`` metadata lines from a file's head window.
+
+    Scans the first ``head_lines`` lines of ``text`` for the corpus
+    metadata-field shape and returns a :class:`MetadataBlock`. Values
+    have the optional trailing backslash (hard-line-break marker)
+    stripped, so ``**Date:** 2026-07-01\\`` yields ``"2026-07-01"``.
+
+    The parser is deliberately TOLERANT at this layer: it captures
+    whatever value text follows the field marker (including trailing
+    annotations such as ``**Date:** 2026-07-01 (draft)``). Per-field
+    validity is the CALLER's judgement, so a gate can fail loud on a
+    present-but-malformed value instead of silently skipping the file
+    (the gate-31 silent fail-open this helper was introduced to close);
+    use a validator such as :func:`parse_iso_date` on the captured
+    value and treat ``None``-on-present-field as a finding.
+    """
+    block = MetadataBlock()
+    for lineno, line in enumerate(text.splitlines()[:head_lines], start=1):
+        match = METADATA_FIELD_RE.match(line)
+        if not match:
+            continue
+        field = match.group(1)
+        if field in block.fields:
+            continue
+        value = match.group(2)
+        if value.endswith("\\"):
+            value = value[:-1].rstrip()
+        block.fields[field] = value
+        block.raw_lines[field] = (lineno, line)
+    return block
+
+
+def parse_iso_date(value: str) -> datetime.date | None:
+    """Return ``value`` as a date if it is EXACTLY ``YYYY-MM-DD``, else ``None``.
+
+    The whole captured value must be the ISO date: a trailing
+    annotation (``2026-07-01 (draft)``) returns ``None`` so the caller
+    can distinguish a malformed-but-present field (a finding, under
+    fail-loud semantics) from an absent one (a legitimate skip).
+    """
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return None
+    try:
+        return datetime.date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
 def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     """Yield ``(lineno, line)`` for each line outside a fenced code block.
 
@@ -252,19 +339,24 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     Fence detection (deliberately simple):
 
       - A fence is a line whose stripped form starts with three
-        backticks (``` ``` ```). Lines whose only content is a tilde
-        fence (``~~~``) are NOT treated as fences. (The library
-        convention is backtick fences; no document currently uses
-        tilde fences.)
-      - Indentation before the backticks is tolerated (``line.strip()``
+        backticks (``` ``` ```) OR three tildes (``~~~``). The library
+        convention is backtick fences and no document currently uses
+        tilde fences, but a stray CommonMark-valid ``~~~`` fence would
+        otherwise silently suppress scanning of everything after it,
+        so both fence characters toggle (added with the guardrail
+        review's GR-4).
+      - Indentation before the fence is tolerated (``line.strip()``
         is used). Per CommonMark, fences are valid up to a 3-space
         indent; this function is more permissive but the difference
         does not matter for the current corpus.
-      - Fence parsing is a state toggle: every fence line flips
-        ``in_code``. A line containing ``\\`\\`\\`` inside an
-        inline code block on its own (which is unusual but possible)
-        would erroneously toggle the state. The linters that use this
-        helper do not encounter this in practice.
+      - Fence parsing is a state toggle per fence character: every
+        fence line flips ``in_code``. A line containing ``\\`\\`\\``
+        inside an inline code block on its own (which is unusual but
+        possible) would erroneously toggle the state. The linters that
+        use this helper do not encounter this in practice. Backtick
+        and tilde fences are tracked with ONE toggle, not paired by
+        character (a toggle is a toggle; mixed-character fence pairs
+        are not a corpus shape).
 
     Edge cases:
 
@@ -283,7 +375,8 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     """
     in_code = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        if line.strip().startswith("```"):
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
             in_code = not in_code
             continue
         if in_code:

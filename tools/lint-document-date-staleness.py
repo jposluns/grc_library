@@ -27,8 +27,14 @@ How the audit decides what is in scope:
      the metadata audit uses (corpus directories plus the repo-root
      meta files). Override via positional arguments.
   2. Inside each scanned file, the linter looks for a metadata Date
-     line of the form ``**Date:** YYYY-MM-DD`` (trailing ``\`` line
-     break tolerated). Files without that line are skipped.
+     field of the form ``**Date:** YYYY-MM-DD`` (trailing ``\`` line
+     break tolerated) via the shared metadata parser in
+     ``lint_common``. Files without a Date field are skipped (and the
+     skip count is reported); a file whose Date field is PRESENT but
+     malformed (a trailing annotation, a non-ISO value) is a FINDING,
+     not a skip, so a formatting slip cannot silently exempt a file
+     from the staleness check (the guardrail review's GR-3 fail-loud
+     migration, wave 1).
   3. The file's most-recent commit date is obtained via
      ``git log -1 --follow --format=%cI -- <path>`` (committer date,
      ISO-8601 with timezone). Files with no git history (untracked
@@ -92,7 +98,6 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -101,6 +106,8 @@ from lint_common import (
     AUDITED_DOMAIN_DIRS,
     DEFAULT_EXEMPT_DIRS,
     iter_markdown_targets,
+    parse_iso_date,
+    parse_metadata_block,
     read_text_safe,
 )
 
@@ -160,15 +167,12 @@ EXEMPT_DIR_PREFIXES: tuple[str, ...] = (
     "dev-security/claude-rules/",
 )
 
-# Matches a metadata Date line of the canonical shape:
-#     **Date:** YYYY-MM-DD\
-# The trailing backslash (hard-line-break marker) is tolerated as
-# optional so the regex works for the last line of the metadata
-# block too.
-DATE_RE = re.compile(
-    r"^\*\*Date:\*\*\s+(?P<date>\d{4}-\d{2}-\d{2})\\?\s*$",
-    re.MULTILINE,
-)
+# Date parsing is delegated to the shared metadata parser
+# (lint_common.parse_metadata_block + parse_iso_date), which strips
+# the optional trailing backslash (hard-line-break marker) and windows
+# the scan to the metadata head lines. This retired the private
+# line-end-anchored DATE_RE whose non-match silently skipped a file
+# with an annotated Date value (GR-3 wave 1).
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -220,21 +224,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def get_metadata_date(text: str) -> datetime.date | None:
-    """Return the metadata Date from a file's text, or None if absent.
+def get_metadata_date(text: str) -> tuple[datetime.date | None, str | None]:
+    """Return ``(date, malformed_value)`` for a file's metadata Date field.
 
-    The Date is the value of the canonical ``**Date:** YYYY-MM-DD``
-    line in the metadata block. If the file has no such line, or
-    the captured date is not a valid ISO date, return None and the
-    caller skips the file.
+    Three outcomes:
+
+      - ``(date, None)``: a well-formed ``**Date:** YYYY-MM-DD`` field.
+      - ``(None, None)``: no Date field in the metadata head window;
+        the caller skips the file (legitimately date-free).
+      - ``(None, raw_value)``: a Date field is PRESENT but its value is
+        not exactly an ISO date (trailing annotation, malformed value).
+        The caller reports a finding; silently skipping here was the
+        fail-open the GR-3 migration closed.
     """
-    match = DATE_RE.search(text)
-    if not match:
-        return None
-    try:
-        return datetime.date.fromisoformat(match.group("date"))
-    except ValueError:
-        return None
+    block = parse_metadata_block(text)
+    if "Date" not in block.fields:
+        return None, None
+    value = block.fields["Date"]
+    parsed = parse_iso_date(value)
+    if parsed is None:
+        return None, value
+    return parsed, None
 
 
 def get_file_commit_date(
@@ -303,6 +313,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     findings: list[tuple[str, datetime.date, datetime.date, int]] = []
+    malformed: list[tuple[str, str]] = []
     scanned = 0
     skipped_no_date = 0
     skipped_no_history = 0
@@ -320,7 +331,13 @@ def main(argv: list[str] | None = None) -> int:
         text = read_text_safe(f)
         if text is None:
             continue
-        metadata_date = get_metadata_date(text)
+        metadata_date, malformed_value = get_metadata_date(text)
+        if malformed_value is not None:
+            # Present-but-malformed Date: a finding, never a skip
+            # (fail-loud per GR-3; a silent skip here exempted the
+            # file from the staleness check on a formatting slip).
+            malformed.append((rel, malformed_value))
+            continue
         if metadata_date is None:
             skipped_no_date += 1
             continue
@@ -338,6 +355,23 @@ def main(argv: list[str] | None = None) -> int:
         if lag > max_lag_days:
             findings.append((rel, metadata_date, commit_date, lag))
 
+    if malformed:
+        malformed.sort()
+        print(
+            f"FAIL: {len(malformed)} document(s) carry a PRESENT but "
+            f"malformed metadata Date field (the value must be exactly "
+            f"YYYY-MM-DD, optional trailing backslash); a malformed "
+            f"Date is a finding, not a skip."
+        )
+        for rel, value in malformed:
+            print(f"  {rel} | **Date:** {value!r}")
+        print(
+            "\nRemediation: restore the canonical `**Date:** "
+            "YYYY-MM-DD` shape (move any annotation out of the "
+            "metadata value)."
+        )
+        return 1
+
     if scanned == 0:
         print(
             f"OK: no files with both a metadata Date and a git "
@@ -350,7 +384,9 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"OK: {scanned} file(s) checked; "
             f"all metadata Dates are within {max_lag_days} day(s) "
-            f"of the file's most-recent commit date."
+            f"of the file's most-recent commit date. "
+            f"Skipped: {skipped_no_date} with no Date field, "
+            f"{skipped_no_history} with no git history."
         )
         return 0
 
