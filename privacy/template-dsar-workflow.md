@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-24\
+**Version:** 1.1.0\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, the identity verification ladder, and the response artefact format that the procedure relies on. Adopting organisations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
+This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, an operational rendering of the identity verification ladder the procedure's Section 4.2 defines and governs, and the response artefact format that the procedure relies on. Adopting organisations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
 
 ---
 
@@ -44,7 +44,7 @@ The workflow has seven stages. Each stage has defined inputs, outputs, owners, a
 | Owner | Privacy team intake desk |
 | Inputs | Request body, sender contact, evidence attached, channel |
 | Outputs | Request record created with a unique identifier; receipt acknowledgement sent within one business day |
-| SLA | Acknowledge within 1 business day |
+| SLA | Acknowledge within 1 business day. Restriction-of-processing requests additionally carry the governing procedure's 72-hour calendar ceiling on the receipt acknowledgement, which binds over weekends and holidays |
 | Quality gates | Channel logged; locale set; jurisdiction inferred; right-category classified |
 
 ### Stage 2: Identity verification
@@ -53,17 +53,17 @@ The workflow has seven stages. Each stage has defined inputs, outputs, owners, a
 | --- | --- |
 | Owner | Privacy team |
 | Inputs | Submitter contact, claim of identity, available authentication signals |
-| Outputs | Verification record at one of three trust levels (Low, Medium, High) per the table below |
-| SLA | Within 3 business days of intake |
+| Outputs | Verification record at one of the three verification levels (Standard, Enhanced, Re-verification) defined by [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md) Section 4.2, which governs; the table below operationalizes that ladder |
+| SLA | Initial verification attempt within 3 business days of intake; a request whose identity cannot be verified within 10 business days is suspended per the governing procedure |
 | Quality gates | Verification record stored with the request; collection of any additional identifier limited to the minimum required to confirm identity |
 
-| Trust level | Use case | Verification method |
+| Verification level | When applied | Verification method |
 | --- | --- | --- |
-| Low | Subject is contacting through an authenticated account channel where the system of record is the same as the channel | Authenticated session is sufficient |
-| Medium | Subject is reachable through a registered communication channel that the controller controls | Verification token sent to the registered channel; subject confirms within window |
-| High | Subject is asserting identity through an unauthenticated channel and is requesting high-impact action (erasure, portability of comprehensive data set, ADM review) | Government-issued identifier or equivalent strong evidence; review by a second Privacy team member |
+| Standard | General access, correction, or deletion requests for low-sensitivity data categories | Government-issued photo ID; confirmation of account details or employment record; or two independently verifiable data points matching held records. An authenticated session on the system of record, or a verification token confirmed via a registered channel the controller controls, may serve as ONE of the two data points, paired with a second independently verifiable data point |
+| Enhanced | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject; high-impact actions asserted through an unauthenticated channel (erasure, portability of a comprehensive data set, ADM review) | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors acting on behalf of the data subject. For the unauthenticated high-impact cases, the evidence is additionally reviewed by a second Privacy team member |
+| Re-verification | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
 
-If identity verification fails, the request is closed and the submitter is informed.
+If identity cannot be verified within 10 business days, the request is suspended (not closed): the data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
 
 ### Stage 3: Scope definition
 
@@ -127,8 +127,8 @@ If identity verification fails, the request is closed and the submitter is infor
 | Channel | Web form, email, postal, social, regulator, legal representative, in-product |
 | Intake timestamp (UTC) | |
 | Acknowledgement timestamp (UTC) | |
-| Identity trust level | Low, Medium, High |
-| Identity verification mechanism | Auth session, registered-channel token, strong identifier |
+| Identity verification level | Standard, Enhanced, Re-verification (per the governing procedure Section 4.2) |
+| Identity verification mechanism | Photo ID; account or employment confirmation; paired data points (an auth session or registered-channel token counts as one of the two); photo ID plus secondary verification; notarized third-party authorization |
 | Scope | Time range, data categories, systems, recipients of interest |
 | Systems searched | List of systems queried; per-system result (data found, null, refused with rationale) |
 | Redactions applied | Count and rationale categories |
@@ -154,7 +154,7 @@ If identity verification fails, the request is closed and the submitter is infor
 | Extension rate | Percentage of requests requiring extension | Trend-monitored |
 | Appeals filed | Count of appeals initiated by subjects | Trend-monitored |
 | Supervisory authority complaints | Count of complaints lodged with regulators that reference the organisation | Trend-monitored |
-| First-pass identity verification rate | Percentage of requests where identity is verified at the appropriate trust level on the first attempt | At least 90% |
+| First-pass identity verification rate | Percentage of requests where identity is verified at the appropriate verification level on the first attempt | At least 90% |
 
 ---
 

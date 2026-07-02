@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #564: section-1.8 DSAR operational conflicts closed; audit P1 cluster complete (2026-07-02)
+
+The DSAR pair reconciled to the canonical procedure: the template's Low/Medium/High ladder replaced with the procedure's Standard/Enhanced/Re-verification levels with fail-to-suspend (not close) and the 10-business-day outer clock; denial independence supplied by a mandatory Legal Counsel written concurrence recorded in the DSR register (the CIO acting-DPO sign-off retained per policy 4.8); the 72-hour restriction acknowledgement clarified as a calendar-clock ceiling on the intake receipt. Section 1.8 fully closed, completing the 2026-07-02 audit P1 cluster (sections 1.6, 1.7, 1.8).
+
 ### PR #563: section-1.7 retention-value conflicts reconciled to the 7-year floor (2026-07-02)
 
 The section-1.7 retention conflicts resolved stricter-safe: AI-audit and supplier-audit retention raised to the compliance policy's seven-year audit-records floor (procedure and register rows), privacy-breach notifications raised to the breach procedure's 7-year evidence minimum, and the PIA and AI-IA values composed as 7-years-or-decommission-plus-5-whichever-is-longer (the AI-IA sibling caught by the pre-push verifier); the breach procedure's consistency claim re-anchored from the retention standard (which carries no per-record value table) to the register. Section 1.7 fully closed.
