@@ -39,6 +39,9 @@ Checks for:
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
+  Verbatim external titles that carry a bare imperative 'Ensure'
+  (VERBATIM_ENSURE_TITLES; currently the COBIT 2019 MEA01.05 practice
+  title) are masked first, per the house-style verbatim-quote exemption.
 - Section headings (H2-H6) that start with a lowercase letter after
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
   Phase, Annex). Project-name allowlist (LOWERCASE_PROJECT_NAMES:
@@ -191,6 +194,21 @@ def mask_allowed_spans(line: str) -> str:
 
 EM_DASH_PATTERN = re.compile(r"[—–]")  # em dash or en dash
 ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
+
+# Verbatim external titles carrying a bare imperative "Ensure": masked out of
+# the ensure-that check (the house-style verbatim-quote exemption; a canonical
+# source title must be reproduced exactly, not reworded to satisfy house style).
+VERBATIM_ENSURE_TITLES = (
+    "Ensure the implementation of corrective actions",  # COBIT 2019 MEA01.05
+)
+
+
+def mask_verbatim_ensure_titles(line: str) -> str:
+    """Blank out VERBATIM_ENSURE_TITLES so the ensure-that check skips them."""
+    for span in VERBATIM_ENSURE_TITLES:
+        if span in line:
+            line = line.replace(span, " " * len(span))
+    return line
 HEADING_PATTERN = re.compile(r"^(#{2,6})\s+(.+?)\s*$")
 
 NUMBERING_PATTERNS = [
@@ -300,7 +318,7 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
         # record template's own self-referential rule statements about "ensure that".
         if (not is_ingestion_spec and not is_master_spec and not is_instruction_file
                 and not is_review_record_template and not is_worked_example
-                and ENSURE_PATTERN.search(line)):
+                and ENSURE_PATTERN.search(mask_verbatim_ensure_titles(line))):
             findings.append(("ensure", lineno, line.strip()))
 
         if not is_ingestion_spec and not is_worked_example:
@@ -377,7 +395,7 @@ def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
                 findings.append(("isation", lineno, m.group(0)))
         for m in YSE_PATTERN.finditer(masked_value):
             findings.append(("yse", lineno, m.group(0)))
-        if ENSURE_PATTERN.search(value):
+        if ENSURE_PATTERN.search(mask_verbatim_ensure_titles(value)):
             findings.append(("ensure", lineno, value.strip()[:160]))
     return findings
 

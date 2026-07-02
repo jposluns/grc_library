@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -125,12 +125,12 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 | Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
-| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | MEA01.01 Establish governance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
+| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Governance | MEA01.01 Establish a monitoring approach | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 6 to 9 | MEA01.02 Set performance and conformance targets | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Ensure the implementation of corrective actions | GRC 05, A&A 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
 | AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act, AIDA | Not applicable |
-| Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Report results | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
+| Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
 | Supplier and trade compliance auditing | Clauses 8 to 9 | Clauses 6 to 9 | APO10.05 Monitor vendor performance and compliance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 
 
