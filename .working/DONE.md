@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #586: coverage-gaps second batch re-graded; Partial definition widened (2026-07-02)
+
+The routed section-3.14 second coverage-gaps batch (#581 sweep M-1 plus I-1) closed per the maintainer's return-round answer: sixteen rows re-graded with corpus evidence verified at file (UK PRA/FCA, OSFI, NHS DSPT, UK AI, and Manufacturing to Partial; eleven regulator, AI, trade, and framework rows to Referenced), and the vocabulary's Partial definition widened to cover dedicated-adjacent-artefact cases.
+
 ### PR #585: lifecycle vocabulary aligned to Superseded across the four carriers (2026-07-02)
 
 The routed section-3.14 lifecycle-vocabulary fork (#579 sweep L-2) closed per the maintainer's return-round answer: the charter's stage 5, the health-report template's count row, the adopter-guide's index advice, and the build-taxonomy docstring now say "Superseded" (anchored to the Status: Superseded marker), with "Retired" kept as the distinct removal stage.
