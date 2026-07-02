@@ -211,10 +211,14 @@ drive end-to-end on the maintainer's behalf:
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
    validation", a maintainer directive captured as a backlog line) all rotate the same way.
    The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
-   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects the
-   coded-id `XX-N CLOSED` marker (any two-to-four-letter uppercase id, e.g. `FR-58
-   CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by GR-13 in #559) and the
-   prose `clos... the ... item/directive` closure forms too, not only `clos... TODO §`.
+   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects SIX
+   closure forms (three since the 2026-06-30 broadening, widened to six by #576): (1) the canonical section form
+   `clos... TODO §`; (2) the coded-id `XX-N CLOSED` marker (any two-to-four-letter
+   uppercase id, e.g. `FR-58 CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by
+   GR-13 in #559); (3) the prose `clos... the ... item/directive` form; (4) the
+   section-name closure form (`section-N.M ... closed/closure`); (5) the item-number
+   closure form (`items N and M closed`); and (6) the rotation-assertion form
+   (`rotated to the DONE ledger`).
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR
@@ -672,6 +676,19 @@ cost. This operationalizes the webhook-subscriptions discipline in
 `.claude/rules/governance/action-before-explanation-of-inaction.md` and the
 subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-completion.md`.
 
+**Background-task check SOP (maintainer-directed 2026-07-02).** The same 60-second
+cadence governs EVERY background task (a subagent, a background command, an external
+wait), not only PR CI waits: check on every background task every 60 seconds until it
+completes, re-arming the timer at each firing. Past the task's typical duration, do not
+keep waiting passively for a completion notification; actively probe the task (a
+`SendMessage` status check to a subagent, a state read for an external process), because
+a background agent can stop silently WITHOUT delivering its result, and the completion
+notification alone does not distinguish "still running" from "stalled". The stall tells:
+no report past the typical duration, a dangling worktree, or liveness signals that stop
+advancing. (Motivating incident: the #582 post-merge sweep agent stalled silently mid-run
+and was recovered only when the maintainer prompted an investigation and an
+orchestrator status probe followed.)
+
 ## Version-bump discipline
 
 The library carries four version-bearing surfaces per document. The rule, one sentence
@@ -734,7 +751,8 @@ These govern how the assistant writes to the maintainer in chat (assistant voice
 
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. State caveats and self-assessments plainly, without the intensifier.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
-- **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted (the `surface-counterproductive-instructions` discipline), not silently complying. A firm directive with no hedge is followed directly.
+- **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by INTEGRITY > SPEED > COST; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
+- **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted, not silently complying. A firm directive with no hedge is followed directly once any standing-assessment concern (the bullet above) has been surfaced or none exists.
 
 ## Security and governance requirements
 Rules in `.claude/rules/` (sourced from this repo's own `dev-security/claude-rules/` pack,
