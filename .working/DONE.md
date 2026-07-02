@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #582: GR-P3 tension-marker check shipped as an advisory aid (2026-07-02)
+
+The partial-rewrite tension-marker item (GR-P3 graduation, the #565 retro) shipped as the diff-scoped advisory aid `tools/tension-scan.py` rather than a standing gate: a build-time census over the live TODO and ledger surfaces found 91 legitimate status+hedge pair coincidences, so the bookkeeping-gate family's zero-false-positive bar is unreachable and the contradiction judgment stays human (the aid flags rewritten blocks carrying a status+hedge pair for an end-to-end read; the aid-not-gate shape is a logged proceeded default).
+
 ### PR #581: coverage-gaps register re-graded with evidence (2026-07-02)
 
-Seven stale Coverage cells re-graded against verified corpus artefacts per the maintainer's re-grade-with-evidence answer: the AWS/Azure/GCP overlay rows to Partial (the shipped per-cloud hardening baselines), Kubernetes to Referenced (the container standard's framework-table entries), and the quickstart, roadmap-template, and interactive-assessment capability rows to Partial (the shipped docs/ artefacts), each Notes cell carrying the re-grade provenance and the remaining gap; this closes the section-3.14 coverage-gaps triage bullet.
+Eleven stale Coverage cells re-graded against verified corpus artefacts per the maintainer's re-grade-with-evidence answer: the AWS/Azure/GCP overlay rows, Kubernetes, Serverless/FaaS, ITIL 4, and the quickstart, roadmap-template, and interactive-assessment capability rows to Partial, and SWIFT CSP and ISO 14001 to Referenced, each Notes cell carrying the re-grade provenance and the remaining gap; this closes the section-3.14 coverage-gaps triage bullet. (Entry corrected in #582: the original said seven cells and graded Kubernetes Referenced, contradicting the shipped register's eleven re-grade notes and Kubernetes's Partial grade, the #581 verifier's raise not reflected back into this ledger at ship time.)
 
 ### PR #580: the two flat AI retention rows composed with the domain minimum (2026-07-02)
 
