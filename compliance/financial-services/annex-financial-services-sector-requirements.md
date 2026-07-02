@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -194,7 +194,7 @@ For organisations subject to AML obligations (banks, money service businesses, c
 | **Transaction Monitoring** | Monitor transactions for suspicious activity | Supplement: Transaction monitoring programme |
 | **Suspicious Activity Reporting (SAR)** | File SARs with FINTRAC / FinCEN / NCA within prescribed timelines | Supplement: SAR filing procedure |
 | **Record Retention** | AML records retained for 5 to 7 years depending on jurisdiction | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md): verify AML retention periods |
-| **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training included |
+| **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training is included |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Disciplinary Process Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -33,7 +33,7 @@ Applies to all employees, contractors, temporary workers, and third parties who 
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Initiates security investigations; determines severity classification; advises HR on security context. |
-| **HR / People Operations** | Owns the disciplinary process; ensures that procedural fairness and legal compliance. |
+| **HR / People Operations** | Owns the disciplinary process; ensures that procedural fairness and legal compliance are maintained. |
 | **Legal Counsel** | Advises on employment law, regulatory obligations, and any criminal referral. |
 | **Manager / People Leader** | Participates in disciplinary meetings; implements agreed outcomes. |
 | **Internal Audit** | Reviews disciplinary process adherence and documents systemic issues. |

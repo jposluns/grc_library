@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
-**Date:** 2026-06-26\
+**Version:** 1.3.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -42,7 +42,7 @@ Effective security monitoring reduces mean time to detect (MTTD) threats, ensure
 | **CISO** | Accountable for the security monitoring programme; approves the alert rule catalogue; receives monthly metrics; authorizes changes to critical detection rules. |
 | **Security Operations Centre (SOC)** | Operates the SIEM; triages and manages alerts; escalates confirmed incidents; maintains dashboards; performs weekly rule tuning; documents all alert dispositions. |
 | **Security Engineering** | Designs and maintains correlation rules and detection logic; maps rules to MITRE ATT&CK; implements SIEM integrations for new log sources; manages AI detection configurations. |
-| **IT Operations** | Ensures that log source connectivity and agent health; resolves log ingestion failures within defined SLAs; assists with infrastructure-level investigation of alerts. |
+| **IT Operations** | Ensures that log source connectivity and agent health are maintained; resolves log ingestion failures within defined SLAs; assists with infrastructure-level investigation of alerts. |
 | **Internal Audit** | Reviews SOC operational records, SLA adherence, and rule maintenance logs annually. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who receives escalated notifications for trade-security anomalies and coordinates with customs authorities where required) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).

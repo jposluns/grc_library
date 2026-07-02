@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.3\
-**Date:** 2026-06-29\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -131,7 +131,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) must be analyzed quarterly.
 
-8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 maturity progression.
+8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 maturity progression is maintained.
 
 ---
 

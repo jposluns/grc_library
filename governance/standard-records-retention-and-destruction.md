@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,7 +35,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 | Role | Responsibility |
 |---|---|
-| **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures that resources for compliance. |
+| **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures that resources for compliance are provided. |
 | **Chief Information Security Officer (CISO)** | Enforces technical and security controls for data retention, backup, and secure destruction. |
 | **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS) register operationally, tracks retention obligations, and coordinates audits. The RRS register ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)) is owned (accountable) by the Data Protection Officer and approved by the CIO per its metadata; this operational-maintenance role sits under that ownership. |
 | **Department Heads / Data Owners** | Classify and manage records according to business and regulatory requirements. |
@@ -139,7 +139,7 @@ All AI training datasets, test results, and model versions must be retained to s
 - Training parameters, bias testing results, and validation metrics.
 - Explainability reports and decision logs.
 
-Retention ensures that traceability under EU AI Act Annex IV, OECD AI Principles (2019, updated 2024), and Canada AIDA (Bill C-27 lapsed January 2025; section reference retained as a record of the proposed law). AI datasets containing personal data must follow anonymization or deletion requirements upon expiry of the retention period, in accordance with ISO/IEC 27701:2025 (privacy information management; section numbering changed in 2025 standalone revision).
+Retention ensures that traceability is preserved under EU AI Act Annex IV, OECD AI Principles (2019, updated 2024), and Canada AIDA (Bill C-27 lapsed January 2025; section reference retained as a record of the proposed law). AI datasets containing personal data must follow anonymization or deletion requirements upon expiry of the retention period, in accordance with ISO/IEC 27701:2025 (privacy information management; section numbering changed in 2025 standalone revision).
 
 ---
 

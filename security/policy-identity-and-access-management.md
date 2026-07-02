@@ -2,8 +2,8 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.2\
-**Date:** 2026-06-29\
+**Version:** 1.3.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -40,7 +40,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 | CIO | Accountable for IAM strategy, architecture, and integration with enterprise risk management. |
 | CISO | Responsible for enforcement, compliance monitoring, and IAM control validation. |
 | IT Operations / Security Engineering | Responsible for implementation, configuration, and monitoring of IAM technologies. |
-| System and Application Owners | Ensure that proper access design and periodic certification within their systems. |
+| System and Application Owners | Ensure that proper access design and periodic certification are carried out within their systems. |
 | Managers and Supervisors | Approve and review user access rights for their direct reports. |
 | Users | Must safeguard credentials and comply with authentication requirements. |
 

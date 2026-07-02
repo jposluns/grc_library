@@ -2,8 +2,8 @@
 
 **Document Title:** Data Loss Prevention Standard\
 **Document Type:** Standard\
-**Version:** 1.3.2\
-**Date:** 2026-06-30\
+**Version:** 1.3.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organisation detects, monitors, and prevents unauthorized disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion in accordance with the Data Classification Model.
+This standard defines the governance, architecture, and technical controls for the Data Loss Prevention (DLP) programme. It establishes how the organisation detects, monitors, and prevents unauthorized disclosure, transfer, or loss of data across all platforms. It ensures that consistent protection of sensitive data in use, at rest, and in motion is maintained in accordance with the Data Classification Model.
 
 ---
 
@@ -39,7 +39,7 @@ This standard defines the governance, architecture, and technical controls for t
 | Chief Information Security Officer (CISO) | Accountable for DLP programme design, governance, monitoring, and continual improvement |
 | DLP Administrator / Security Engineer | Manages enterprise DLP platform configurations, monitors alerts, and maintains the DLP workbook |
 | Security Operations Centre (SOC) | Triages alerts, investigates events, and coordinates incident response |
-| Data Owners | Ensure that classification accuracy and authorize exceptions or overrides |
+| Data Owners | Ensure that classification accuracy is maintained and authorize exceptions or overrides |
 | Compliance and Legal | Validate DLP policies for regulatory, contractual, and privacy obligations |
 | End Users | Handle information responsibly and comply with DLP policy prompts and awareness requirements |
 
