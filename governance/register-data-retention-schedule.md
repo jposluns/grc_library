@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -102,7 +102,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO 42001 accountability |
 | AI Impact Assessments | 7 years, or 5 years after associated system decommission, whichever is longer | EU AI Act Article 9; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report); the system anchor is deliberate: an impact assessment attaches to the AI system, and a system outlives routine model swaps (the adjacent model-decommission rows are model-artefact records) |
-| AI audit reports | 7 years, or 5 years after the associated system's decommission, whichever is longer | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs, composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), so neither source is weakened for any system lifetime |
+| AI audit reports | 7 years, or 5 years after the associated system's decommission, whichever is longer | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs, composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), so neither source is weakened for any system lifetime; matches the Section 5.4 retention statement in [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md) |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
 | AI decision and detection logs (inputs, outputs, model version, confidence scores) | 7 years | ISO/IEC 42001; EU AI Act Annex IV; AI-decision accountability (longer than the general SIEM event tier) |
@@ -123,7 +123,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Supplier contracts | Term + 7 years | Legal and contractual obligations |
 | Supplier security assessments | Assessment date + 5 years | Supply chain security governance |
-| Supplier audit reports | 7 years | Compliance and certification support; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs |
+| Supplier audit reports | 7 years | Compliance and certification support; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs; matches the Step 4 report-retention statement in [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) |
 | Data processing agreements | Term + 5 years | GDPR Article 28 |
 
 ---

@@ -22,10 +22,22 @@ Tracked pairs (see RETENTION_CHECKS for the live set):
   - CAPA records  <->  compliance/procedure-capa.md
   - Internal audit reports  <->  compliance/standard-internal-audit.md
   - Control testing evidence  <->  compliance/procedure-control-testing.md
+  - Privacy impact assessments  <->  privacy/procedure-privacy-impact-and-cross-border-transfer.md
+  - Privacy breach notifications  <->  privacy/procedure-data-protection-and-privacy-breach-response.md
+  - AI Impact Assessments  <->  privacy/procedure-privacy-impact-and-cross-border-transfer.md
+  - AI audit reports  <->  ai/procedure-ai-audit.md
+  - Supplier audit reports  <->  supply-chain/procedure-supplier-audit.md
 
-All three currently agree at a 7-year floor; the register rows carry explicit
-"matches ..." cross-reference notes naming the procedure, and this gate is the
-mechanical enforcement of those notes.
+All eight pairs currently agree at a 7-year floor. Three register rows (PIA,
+AI-IA, AI-audit) carry a composed value ("7 years, or 5 years after the
+associated system's decommission, whichever is longer"); the comparison uses
+the FIRST period figure on each side (the leading 7-year floor), the
+deliberate first-match semantics of PERIOD_RE and PROCEDURE_ANCHOR_RE, so a
+composed row agrees with its procedure on the shared floor. The PIA and AI-IA
+rows deliberately share one procedure: the Step 6 record-keeping statement in
+the privacy-impact procedure covers both report types. The register rows carry
+explicit "matches ..." cross-reference notes naming the procedure, and this
+gate is the mechanical enforcement of those notes.
 
 Usage:
     python3 tools/lint-retention-consistency.py
@@ -65,6 +77,31 @@ RETENTION_CHECKS: list[dict[str, str]] = [
         "label": "Control-testing evidence-retention",
         "register_category": "Control testing evidence",
         "procedure": "compliance/procedure-control-testing.md",
+    },
+    {
+        "label": "Privacy-impact-assessment record-retention",
+        "register_category": "Privacy impact assessments",
+        "procedure": "privacy/procedure-privacy-impact-and-cross-border-transfer.md",
+    },
+    {
+        "label": "Privacy-breach evidence-retention",
+        "register_category": "Privacy breach notifications",
+        "procedure": "privacy/procedure-data-protection-and-privacy-breach-response.md",
+    },
+    {
+        "label": "AI-impact-assessment record-retention",
+        "register_category": "AI Impact Assessments",
+        "procedure": "privacy/procedure-privacy-impact-and-cross-border-transfer.md",
+    },
+    {
+        "label": "AI-audit report-retention",
+        "register_category": "AI audit reports",
+        "procedure": "ai/procedure-ai-audit.md",
+    },
+    {
+        "label": "Supplier-audit report-retention",
+        "register_category": "Supplier audit reports",
+        "procedure": "supply-chain/procedure-supplier-audit.md",
     },
 ]
 
