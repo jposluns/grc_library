@@ -2,7 +2,7 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -227,7 +227,7 @@ The tester records, in the evidence package, the population definition, the samp
 | ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Control effectiveness measurement |
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Control testing methodology |
 | NIST SP 800-53A | Assessing Security and Privacy Controls | Control testing guidance |
-| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Control monitoring and assurance |
+| COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Control monitoring and assurance |
 | CSA CCM v4.1 | A&A-02, A&A-05: Independent Assessments; Audit Management Process | Continuous control assurance |
 
 ---

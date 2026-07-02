@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Monitor, Evaluate, and Assess Performance and Conformance), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
 
 
 
@@ -110,7 +110,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 - **ISO 37301:2021** Compliance Management Systems 
 - **ISO 19011:2018** Guidelines for Auditing 
-- **COBIT 2019 MEA01** Monitor, Evaluate, and Assess Performance and Conformance 
+- **COBIT 2019 MEA01** Managed Performance and Conformance Monitoring 
 - **Cloud Security Alliance (CSA)** frameworks (GRC, A&A, AICM) 
 - **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization) 
 - **OECD AI Principles** (Accountability, Transparency, Human Oversight) 
