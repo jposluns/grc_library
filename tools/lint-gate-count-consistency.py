@@ -43,7 +43,8 @@ DIGIT patterns (gate count only):
       /validate-pr found a stale ``<N> automated audits`` phrasing that
       no P1-P7 pattern caught)
 
-WORD-FORM patterns (TODO §1.3-B, the gate-39-blind word-form class that
+WORD-FORM patterns (shipped in #511, closing the then-open word-form
+backlog item: the gate-39-blind word-form class that
 let a stale "fifty-seven" survive in the guardrail-review growth narrative
 until #510 fixed it by hand). These are deliberately narrow and anchored so
 the pervasive small-word-number prose ("one gate, one concern", "two rules
