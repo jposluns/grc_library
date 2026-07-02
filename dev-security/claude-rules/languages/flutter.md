@@ -1,12 +1,12 @@
 # Flutter / Dart Security Rules
 
-These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 13 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
-Hybrid framework rule: Flutter shifts the layer at which a control is implemented; it does not remove the control. Every Section 2-10 requirement that applies to native iOS / Android applies to Flutter apps, delegated to the appropriate package or platform-channel method.
+Hybrid framework rule: Flutter shifts the layer at which a control is implemented; it does not remove the control. Every Section 4-12 requirement that applies to native iOS / Android applies to Flutter apps, delegated to the appropriate package or platform-channel method.
 
 ---
 
-## Secure storage delegation (Section 2, Section 13)
+## Secure storage delegation (Section 4, Section 15)
 
 ```dart
 // NEVER: sensitive data in shared_preferences
@@ -40,11 +40,11 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 final db = await openDatabase('app.db', password: passphraseFromSecureStorage);
 ```
 
-`shared_preferences` and unencrypted sqflite are prohibited for any data covered by Section 2.
+`shared_preferences` and unencrypted sqflite are prohibited for any data covered by Section 4.
 
 ---
 
-## Platform channels as a trust boundary (Section 13)
+## Platform channels as a trust boundary (Section 15)
 
 ```dart
 // NEVER: a platform channel that executes arbitrary commands from Dart
@@ -88,7 +88,7 @@ Same rule for `PigeonInterface` (codegen) and FFI: every cross-boundary call is 
 
 ---
 
-## Network (Section 5)
+## Network (Section 7)
 
 ```dart
 // NEVER: blanket bypass certificate validation
@@ -116,11 +116,11 @@ final secureResponse = await HttpCertificatePinning.check(
 );
 ```
 
-For Tier 1 / Tier 2 apps (per Section 1), pinning is required. The native-layer ATS (iOS) and Network Security Config (Android) constraints from Sections 2-3 still apply to Flutter HTTP traffic.
+For Tier 1 / Tier 2 apps (per Section 3), pinning is required. The native-layer ATS (iOS) and Network Security Config (Android) constraints from Sections 4-5 still apply to Flutter HTTP traffic.
 
 ---
 
-## Backend attestation (Section 5)
+## Backend attestation (Section 7)
 
 App Attest (iOS) and Play Integrity (Android) live in native code; consume them via a Flutter package or a platform channel.
 
@@ -138,7 +138,7 @@ Don't trust attestation verdicts client-side. The backend is the verifier.
 
 ---
 
-## Debug-tooling exclusion in release (Section 13)
+## Debug-tooling exclusion in release (Section 15)
 
 ```dart
 // NEVER: leave debug-only code paths enabled in release
@@ -158,13 +158,13 @@ assert(() {
 }());
 ```
 
-Build production binaries with `flutter build apk --release --obfuscate --split-debug-info=symbols/` and equivalent for `--target-platform`. Obfuscation by itself is not a security boundary, but the standard's Section 7 requires it for release builds in Tier 1 / Tier 2.
+Build production binaries with `flutter build apk --release --obfuscate --split-debug-info=symbols/` and equivalent for `--target-platform`. Obfuscation by itself is not a security boundary, but the standard's Section 9 requires it for release builds in Tier 1 / Tier 2.
 
 Dart DevTools attaches only in debug / profile builds; verify your CI does not ship profile builds to production.
 
 ---
 
-## Over-the-air updates (Section 13)
+## Over-the-air updates (Section 15)
 
 Flutter does not ship an Apple- or Google-blessed OTA mechanism analogous to React Native CodePush, because Apple and Google prohibit code OTA in their stores' default terms. Third-party solutions exist:
 
@@ -178,11 +178,11 @@ Flutter does not ship an Apple- or Google-blessed OTA mechanism analogous to Rea
 // network source and executes it via dart:mirrors or equivalent
 ```
 
-If OTA is used, the same Section 13 rules apply: signed payloads, no native-binary changes, no new permissions, signature verification cannot be bypassed.
+If OTA is used, the same Section 15 rules apply: signed payloads, no native-binary changes, no new permissions, signature verification cannot be bypassed.
 
 ---
 
-## Deep links and App Links / Universal Links (Section 6)
+## Deep links and App Links / Universal Links (Section 8)
 
 ```dart
 // NEVER: deep-link handler that triggers a sensitive action without
@@ -207,7 +207,7 @@ Use `App Links` (Android `autoVerify="true"` + Digital Asset Links) and `Univers
 
 ---
 
-## Permissions (Section 10)
+## Permissions (Section 12)
 
 ```dart
 // NEVER: request a broad permission for a narrow need
@@ -221,7 +221,7 @@ final status = await Permission.locationWhenInUse.request();
 
 ---
 
-## In-app purchases (Section 14)
+## In-app purchases (Section 16)
 
 ```dart
 // NEVER: grant entitlement from the in_app_purchase plugin's purchase
@@ -254,7 +254,7 @@ InAppPurchase.instance.purchaseStream.listen((purchases) async {
 });
 ```
 
-`verificationData.serverVerificationData` carries the StoreKit JWS (iOS) or `purchaseToken` (Android) for backend verification per Section 14.
+`verificationData.serverVerificationData` carries the StoreKit JWS (iOS) or `purchaseToken` (Android) for backend verification per Section 16.
 
 ---
 
@@ -280,6 +280,6 @@ await SentryFlutter.init((options) {
 
 ## Framework alignment
 
-Implements Section 13 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (2, 3, 4, 5, 6, 7, 9, 10, 14) as they apply through Flutter's platform-channel bridge and Dart runtime.
+Implements Section 15 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through Flutter's platform-channel bridge and Dart runtime.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; Flutter Security best practices documentation.
