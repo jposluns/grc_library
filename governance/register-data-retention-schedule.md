@@ -2,7 +2,7 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
@@ -60,7 +60,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Access logs (user authentication) | 1 year | Security monitoring; incident investigation |
 | Privileged access session logs | 2 years | Audit and forensic requirements |
-| Security incident records | 5 years | Regulatory and legal requirements |
+| Security incident records | 7 years | Regulatory and legal requirements; aligned to the forensic-evidence minimum in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) Section 8 and the privacy-breach row's floor (a privacy breach is a security-incident subclass) |
 | Penetration test reports | 5 years | Compliance evidence |
 | Vulnerability scan results | 3 years | Compliance and audit evidence |
 | CAPA records | 7 years after closure | Quality management; audit evidence; matches [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) §12 (Evidence retention) canonical 7-year mandate; preserves the audit-evidence chain with control-testing-evidence retention (7y) |
@@ -102,7 +102,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO 42001 accountability |
 | AI Impact Assessments | 7 years, or 5 years after associated system decommission, whichever is longer | EU AI Act Article 9; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report); the system anchor is deliberate: an impact assessment attaches to the AI system, and a system outlives routine model swaps (the adjacent model-decommission rows are model-artefact records) |
-| AI audit reports | 7 years | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs |
+| AI audit reports | 7 years, or 5 years after the associated system's decommission, whichever is longer | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs, composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), so neither source is weakened for any system lifetime |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
 | AI decision and detection logs (inputs, outputs, model version, confidence scores) | 7 years | ISO/IEC 42001; EU AI Act Annex IV; AI-decision accountability (longer than the general SIEM event tier) |
