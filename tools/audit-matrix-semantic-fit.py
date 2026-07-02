@@ -3,7 +3,7 @@
 framework tables (the gate-blind "valid code, wrong control" class).
 
 WHAT THIS IS (and is NOT). This is a maintainer dev-AID, not an audit gate. The
-audit gates 48/49/54 check that a cited control code EXISTS in its framework
+audit gates 48/49/54/58/61 check that a cited control code EXISTS in its framework
 catalogue (and, for gate 49, that it is in the right catalogue). None of them
 check semantic FIT: whether the control a row cites is the right control for
 that row's document. That class ("valid code, wrong control") is gate-blind and
@@ -51,7 +51,9 @@ adjudicate. The subtler "loose supporting code on an otherwise-anchored row"
 case (e.g. matrix row 163's TVM-06 on a pen-testing standard, Sweep-61 note
 A-note-1) is intentionally NOT on the worklist: an anchored row is deprioritized,
 and that residual case is exactly what the semantic `/matrix-fit` skill catches.
-ISO 27001:2022 codes are not assessed (no title source in the repo); rows whose
+ISO 27001:2022 codes are not assessed (no Annex A title source in the repo;
+ISO 31000 clause headings and COBIT 2019 objective titles ARE assessable since
+the 2026-07-02 cobit_iso31000_reference extension); rows whose
 only known-title codes are absent are skipped (not assessable, so not listed).
 
 WHAT IT SCANS:
@@ -77,6 +79,7 @@ import sys
 from pathlib import Path
 
 from ccm_aicm_reference import AICM_V11, CCM_V41
+from cobit_iso31000_reference import COBIT_OBJECTIVES, ISO31000_CLAUSES
 from nist_csf_reference import CSF_CATEGORIES
 
 try:
@@ -101,9 +104,23 @@ KNOWN_TITLES: dict[str, str] = {}
 KNOWN_TITLES.update(CCM_V41)
 KNOWN_TITLES.update(AICM_V11)
 KNOWN_TITLES.update(CSF_CATEGORIES)
+# COBIT 2019 objective titles and ISO 31000:2018 clause headings (the
+# 2026-07-02 extension; gate-blind fit judgment for the two families gates
+# 48/49/54/58 do not cover, per the section-3.13 build). Practice-level COBIT
+# titles are deliberately absent from the reference module (extraction wraps
+# them), so practice codes are existence-checked by the companion gate and
+# fit-assessed here only at the objective level.
+KNOWN_TITLES.update(COBIT_OBJECTIVES)
+KNOWN_TITLES.update(
+    {f"ISO 31000 §{k}": v for k, v in ISO31000_CLAUSES.items()})
 
-# Control-code token: CCM (e.g. DSP-16, A&A-02) or CSF category (e.g. GV.OC).
-CODE_RE = re.compile(r"\b(?:[A-Z&]{2,4}-[0-9]{2}|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2})\b")
+# Control-code token: CCM (e.g. DSP-16, A&A-02), CSF category (e.g. GV.OC),
+# or a COBIT 2019 objective/practice code (e.g. APO12, DSS05.03; practice
+# codes are collected so the row surfaces on the worklist, though only the
+# objective level carries a known title for the overlap heuristic).
+CODE_RE = re.compile(
+    r"\b(?:[A-Z&]{2,4}-[0-9]{2}|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
+    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?)\b")
 
 # Minimal stopword set: only words with no discriminating power. Kept SMALL on
 # purpose - a larger set would strip real overlap and over-flag (the opposite of
@@ -196,7 +213,7 @@ def scan_matrix(path: Path) -> list[dict]:
     """Scan the compliance matrix's per-domain mapping tables."""
     candidates: list[dict] = []
     lines = path.read_text(encoding="utf-8").splitlines()
-    title_idx = ccm_idx = aicm_idx = csf_idx = None
+    title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
     in_table = False
     for raw, line in enumerate(lines, start=1):
         if line.lstrip().startswith("|"):
@@ -207,6 +224,7 @@ def scan_matrix(path: Path) -> list[dict]:
                 ccm_idx = cells.index("CSA CCM v4.1")
                 aicm_idx = cells.index("CSA AICM v1.1") if "CSA AICM v1.1" in cells else None
                 csf_idx = cells.index("NIST CSF 2.0") if "NIST CSF 2.0" in cells else None
+                cobit_idx = cells.index("COBIT 2019") if "COBIT 2019" in cells else None
                 in_table = True
                 continue
             if not in_table or title_idx is None:
@@ -221,13 +239,15 @@ def scan_matrix(path: Path) -> list[dict]:
                 codes += CODE_RE.findall(cells[aicm_idx])
             if csf_idx is not None and len(cells) > csf_idx:
                 codes += CODE_RE.findall(cells[csf_idx])
+            if cobit_idx is not None and len(cells) > cobit_idx:
+                codes += CODE_RE.findall(cells[cobit_idx])
             result = assess_row(subject, codes)
             if result:
                 result["location"] = f"{path.relative_to(REPO_ROOT)}:{raw}"
                 candidates.append(result)
         else:
             in_table = False
-            title_idx = ccm_idx = aicm_idx = csf_idx = None
+            title_idx = ccm_idx = aicm_idx = csf_idx = cobit_idx = None
     return candidates
 
 
@@ -306,7 +326,8 @@ def run(matrix: bool, source_docs: bool) -> int:
         report(scan_source_docs(), "Source-doc framework tables")
     print(
         "\nThe /matrix-fit semantic audit judges each listed row against the source control "
-        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0). A worklisted row is a focus candidate, not a "
+        "TITLE (CCM v4.1 / AICM v1.1 / CSF 2.0 / COBIT 2019 / ISO 31000:2018). A "
+        "worklisted row is a focus candidate, not a "
         "mismatch; a non-worklisted row may still carry a loose supporting code (the skill covers those too)."
     )
     return 0
