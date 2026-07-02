@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #574: 3.14 batch B: the judgment-tier cleanup set (2026-07-02)
+
+Five more 3.14 items closed: the decision-tree 30/90/180 phasing annotated as deliberately distinct from the roadmap's 90/180/365 calendar; the privacy charter's hardcoded four-region scope genericized to the applicability register plus an adopter bracket; five sector leaks genericized in the risk-appetite template (the four enumerated plus the Technology-row carrier the research found); the incident-records retention row raised stricter-safe to the 7-year evidence floor with its logging-standard echo; and the AI-audit retention row composed with the domain minimum (both value choices logged in pending-decisions for confirm-or-redirect).
+
 ### PR #573: 3.14 batch A: the mechanical low-severity cleanup set (2026-07-02)
 
 Eight of the 3.14 items closed in one mechanical batch: 39 Commonwealth prose flips across 19 tools files (identifiers and word-reference carriers deliberately kept), the TLS 1.3-canonical caveat on the pack's two ASVS TLS 1.2 lines (pack 1.53.12), gate 55 spliced into the audit-spec section-5 category-3 list plus its stale example (1.16.34), the protected CLAUDE.md D1-D5 and coded-id closure-form lines (item 24 closed), the pending-decisions stale summary, the FR-48 residual reframed to the true 13-of-38, the Japan APPI transliteration, and the COBIT APO12 "Managed Risk" trio plus the APO10 "Managed Vendors" cells confirmed at the held COBIT text; plus the six #572 sweep dispositions and the L-j load-bearing-Classification finding routed back to TODO as a design decision.

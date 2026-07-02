@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.3\
+**Version:** 1.5.4\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,7 +29,7 @@ This charter establishes the Privacy Management Programme: the organizational st
 ## Scope
 
 1. Applies to all personal data processed by the organization, including employee data, customer data, supplier data, and partner data.
-2. Applies across all jurisdictions: Canada (PIPEDA and provincial legislation including Quebec Law 25), United States (applicable state breach notification and privacy laws), Latin America (applicable national privacy laws in jurisdictions where the organization operates), and United Kingdom (UK GDPR / Data Protection Act 2018).
+2. Applies across all jurisdictions where the organization operates or where its data subjects reside; the applicable regimes are those identified in [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md). *[define your jurisdictions and their primary statutes here, for example Canada (PIPEDA and Quebec Law 25) or the United Kingdom (UK GDPR / Data Protection Act 2018)]*
 3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organization.
 
 ---
@@ -176,6 +176,8 @@ Privacy considerations must be incorporated into any new system, process, or dat
 ---
 
 ## Applicable regulatory obligations
+
+*[Adopter-defined: replace the rows below with the jurisdictions identified in your regulatory-applicability register; they are worked examples, not an asserted footprint.]*
 
 | Jurisdiction | Instrument | Key Obligations |
 |---|---|---|

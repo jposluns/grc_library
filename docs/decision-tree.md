@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience
 3. Layer the **Section 3** sector-conditional content based on your sector (only the sub-directories that apply).
 4. Layer the **Section 4** jurisdiction-conditional content based on where you operate and where your data subjects are.
 5. Layer the **Section 5** technical-capability content based on your stack and operations.
-6. Use the **Section 6** roadmap suggestions to phase adoption over 30 / 90 / 180 days.
+6. Use the **Section 6** roadmap suggestions to phase adoption over 30 / 90 / 180 days (this tree's own starter / mid-market / enterprise sets in Sections 6.1 to 6.3, the starter set applying to any adopter; a deliberately distinct phasing from the implementation roadmap's 90 / 180 / 365-day reference calendar, which paces module composition rather than adopter size).
 
 For terms and acronyms used below, see [`governance/register-glossary.md`](../governance/register-glossary.md). For known coverage gaps, see [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md).
 
