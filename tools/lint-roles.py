@@ -2,11 +2,11 @@
 """Verify that every Owner/Approving Authority role used in metadata is defined.
 
 The role authority register (`governance/register-role-authority.md`)
-is the source of truth for organisational roles. Every Owner and
+is the source of truth for organizational roles. Every Owner and
 Approving Authority value in document metadata blocks should resolve to
 a role defined there, or to a role on the EXTRA_KNOWN_ROLES allow-list
 (cross-functional bodies, named forums, external authorities that are
-not formal organisational roles).
+not formal organizational roles).
 
 This linter detects undefined-role usage that would otherwise create
 governance ambiguity.
@@ -59,7 +59,7 @@ ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
 # The set is intentionally empty: it remains as the mechanism for any future
 # cross-functional body, named forum, or external named entity that is a
 # legitimate Owner / Approving Authority value but is not a formal
-# organisational role belonging in the register.
+# organizational role belonging in the register.
 EXTRA_KNOWN_ROLES: set[str] = set()
 
 DEFAULT_PATHS = [

@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.3\
+**Version:** 1.6.4\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,7 +73,7 @@ The following table defines the rights managed under this procedure, the applica
 
 **Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; it would require reintroduction in a future Parliament (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization processes the personal information of Quebec residents, Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
 
-**California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 calendar days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged.
+**California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged.
 
 ---
 

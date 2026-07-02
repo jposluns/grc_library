@@ -149,7 +149,7 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
-   delta gates D1-D4 plus the history-aware trio 45/40/31 against the merge base),
+   delta gates D1-D5 plus the history-aware trio 45/40/31 against the merge base),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
@@ -212,8 +212,9 @@ drive end-to-end on the maintainer's behalf:
    validation", a maintainer directive captured as a backlog line) all rotate the same way.
    The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
    reflex skipping it) is why this is spelled out; the D5 PR-time check now detects the
-   `FR-N CLOSED` and prose `clos... the ... item/directive` closure forms too, not only
-   `clos... TODO §`.
+   coded-id `XX-N CLOSED` marker (any two-to-four-letter uppercase id, e.g. `FR-58
+   CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by GR-13 in #559) and the
+   prose `clos... the ... item/directive` closure forms too, not only `clos... TODO §`.
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR

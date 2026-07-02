@@ -12,7 +12,7 @@ This linter:
   uppercase letters, digits, or hyphens (the regex permits hyphenated
   acronyms such as ``NIST-AI``; slash-separated forms such as
   ``ISO/IEC`` are not detected as inline definitions, but they are
-  recognised by the glossary-row regex when listed in the glossary).
+  recognized by the glossary-row regex when listed in the glossary).
 - Flags definitions whose expansion phrase materially diverges from
   the glossary.
 

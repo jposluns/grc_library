@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.1\
+**Version:** 1.8.2\
 **Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -248,7 +248,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | ISO 31000:2018 | Risk Management: Guidelines (full framework) |
 | ISO/IEC 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
-| COBIT 2019 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01 |
+| COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01 |
 | CSA CCM v4.1 | GRC-01 Risk Management Framework |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST AI RMF | Govern, Map, Measure, Manage functions |

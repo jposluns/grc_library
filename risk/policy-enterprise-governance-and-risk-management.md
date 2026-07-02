@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -132,7 +132,7 @@ Consolidated enterprise risk reporting must be presented to executive leadership
 | ISO 31000:2018 | Clause 5, Framework; Clause 6, Process |
 | ISO 23894:2023 | AI Risk Management |
 | ISO/IEC 42001:2023 | AI Management System |
-| COBIT 2019 | APO12 Manage Risk; APO10 Manage Suppliers; MEA01; DSS04 |
+| COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01; DSS04 |
 | CSA CCM v4.1 | GRC domain; BCR domain; AIS domain |
 | NIST SP 800-39 | Managing Information Security Risk |
 | NIST AI RMF | Govern, Map, Measure, Manage |

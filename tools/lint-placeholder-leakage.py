@@ -98,7 +98,7 @@ PATTERNS = [
     (re.compile(r"\(placeholder\)", re.IGNORECASE), "(placeholder) marker"),
     (re.compile(r"\[Unverified\]"), "[Unverified] marker"),
     (re.compile(r"\bComing soon\b", re.IGNORECASE), "Coming soon marker"),
-    # Phase 23.63: template-placeholder organisation domains. These
+    # Phase 23.63: template-placeholder organization domains. These
     # strings are legitimate in template- / worklist- prefixed files
     # (exempted via the filename-prefix carve-out below) but flag
     # everywhere else as leaked template content. They are also kept

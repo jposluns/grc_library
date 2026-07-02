@@ -2,7 +2,7 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,7 +34,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Purpose specification:** Personal information used to train AI must be handled in compliance with APPI's purpose specification principle. Using personal information obtained by a third party for AI training requires that it was originally provided for a compatible purpose or that explicit consent exists for repurposing.
 - **Publicly available data:** The PPC has issued guidance that even publicly available personal information must be handled in compliance with APPI; scraping for AI training may constitute a violation.
-- **Pseudonymous information (jūmyō kakomu jōhō: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
+- **Pseudonymous information (kamei kakō jōhō, 仮名加工情報: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
 - **Third-party provision:** Consent is required before providing personal information to AI system operators as third parties, unless an exception applies.
 - **Sensitive personal information:** Explicit opt-in consent required for processing of sensitive categories (race, creed, social status, medical history, criminal record, etc.) in AI systems.
 

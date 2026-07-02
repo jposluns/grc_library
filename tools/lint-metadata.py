@@ -192,7 +192,7 @@ VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
 
-# Heuristic for person names: two capitalised words. Allowed if it matches
+# Heuristic for person names: two capitalized words. Allowed if it matches
 # known role suffixes.
 ROLE_SUFFIXES = {
     "Officer",
@@ -412,7 +412,7 @@ def check_file(path: Path) -> list[str]:
     if lic and lic != "CC BY-SA 4.0":
         findings.append(f"License is not 'CC BY-SA 4.0': {lic!r}")
 
-    # 7. Repository Path matches actual path (after link normalisation).
+    # 7. Repository Path matches actual path (after link normalization).
     repo_path_field = meta.get("Repository Path", "")
     if repo_path_field:
         link = LINK_RE.search(repo_path_field)

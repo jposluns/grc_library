@@ -13,7 +13,7 @@ This linter is deliberately narrow and explicit: it checks a curated set of
 retention mention in the corpus. Each pair names a register row (matched by its
 first table cell) and a procedure document; the linter extracts the register
 row's canonical period and the procedure's "retained for a minimum of ..."
-statement, normalises both to days, and fails if they disagree or if either
+statement, normalizes both to days, and fails if they disagree or if either
 citation cannot be found (a missing citation means a document was restructured
 in a way that broke the link the register's cross-reference notes rely on).
 

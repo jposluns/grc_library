@@ -7,7 +7,7 @@ inconsistency is a real defect that adopters will encounter.
 
 This linter is deliberately conservative: it focuses on a curated set of
 canonical terms with well-defined numeric values, extracted via specific
-regex. False positives are minimised by requiring the term to appear
+regex. False positives are minimized by requiring the term to appear
 close to the number on the same line.
 
 Terms currently tracked (see TERM_PATTERNS for the live set):
@@ -40,7 +40,7 @@ legitimate sub-deadlines that need per-deadline patterns (NIS 2 has
 few times in the corpus to justify a curated pattern (DORA 4-hour
 appears in one document).
 
-The unit normaliser (UNIT_TO_MINUTES) converts minutes, hours, days, and
+The unit normalizer (UNIT_TO_MINUTES) converts minutes, hours, days, and
 business days to minutes for comparison, so a document saying "60
 minutes" and another saying "1 hour" do not produce a false positive.
 
@@ -81,7 +81,7 @@ EXEMPT_FILES = {
 # Each pattern extracts (term, value_text). The match must be a substring
 # of a single line to avoid spurious cross-line matches.
 #
-# Patterns capture both the time/duration value AND a unit, normalising
+# Patterns capture both the time/duration value AND a unit, normalizing
 # minute/hour/day equivalences during comparison.
 TERM_PATTERNS: dict[str, re.Pattern[str]] = {
     "P1-acknowledgement": re.compile(
