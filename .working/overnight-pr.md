@@ -38,4 +38,6 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 - PR 7 (#559): GR-13 closed: the D5 major-closure marker widened from `FR-N CLOSED` to any two-to-four-letter uppercase coded id (re-tested FP-free against the whole CHANGELOG history; lowercase narration stays excluded), fixture cases extended, the spec D5 narrative updated (1.16.31 + regen), the item-24 residual carrying the routed #558 sweep note, and the batched #558 QA rows (0 findings).
 
+- PR 8 (#560): C1 / section-1.6 item 1 closed (first C-wave corpus fix): the risk methodology's residual-risk formula reconciled to the canonical re-scored Residual likelihood x Residual impact model (methodology 1.2.0, a normative model change; corpus-wide residual scan zero for the retired discount model; the 1-to-25 tolerance bands unchanged and now provably shared), the routed CLAUDE.md:215 note added to the item-24 residual, and the batched #559 QA rows (0 findings). The #559 retro row logs an owned discipline slip (a corpus edit during the #559 CI wait; benign, stash-carried, first occurrence, log-only per GR-P3).
+
 **Open ambiguities:** none yet; anything surfacing mid-run is logged here plus [`pending-decisions.md`](pending-decisions.md) under the graceful-degradation rule.
