@@ -4436,7 +4436,7 @@ documents:
   domain: "risk"
   type: "Procedure"
   title: "Risk Assessment Methodology Procedure"
-  version: "1.2.0"
+  version: "1.2.1"
   date: "2026-07-02"
   owner: "GRC Programme Manager"
   approving_authority: "Chief Information Officer"

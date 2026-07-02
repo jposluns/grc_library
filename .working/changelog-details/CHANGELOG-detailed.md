@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.49, PR #561
+
+Corpus fix (risk model): **section-1.6 item 2 closed**: the methodology's two pre-FR-171 acceptance-authority lines realigned to the canonical Executive Committee or Board Risk Committee chain. Methodology 1.2.0 to 1.2.1. Batches the #560 QA rows. Library 2026.07.48 to 2026.07.49; README 1.9.409 to 1.9.410.
+
+### Fixed
+
+- [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) roles table (ERC row): "Reviews enterprise risk register; approves risk acceptance decisions" replaced with the review-and-recommend form (recommends High and Critical acceptances to the Board Risk Committee), matching verbatim the ERC authority in [`governance/register-role-authority.md`](../../governance/register-role-authority.md) ("recommendations to the Board Risk Committee"; the register grants the ERC no acceptance-approval authority).
+- Same file, 6.3: "require ERC approval for High and Critical risks" replaced with Executive Committee or Board Risk Committee approval (the ERC reviewing and recommending), with the approval requirement anchored to the Approval guidance chain in [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md) and Section 2.2 of [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) (the canonical source FR-171 aligned the acceptance procedure and appetite template to in #412; this methodology surface was the missed carrier), and the ERC review-and-recommend clause anchored separately to [`governance/register-role-authority.md`](../../governance/register-role-authority.md) (the only source that grants it). Version 1.2.0 to 1.2.1 (patch: the #412 FR-171 alignment used the same bump class), Date current; taxonomy regenerated FIRST, then portal/scorecard, all check-mode clean.
+- The two in-window Lows from the #560 `/validate-pr`: the section-1.6 item-2 bullet carrying the staled ":145" locator is deleted by this PR's own rotation (F1 resolved structurally), and the 4.3 + 6.1 bare code spans citing [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) are now markdown links (F2; both spans fixed in the same edit per the finding's instruction).
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): section-1.6 item 2 deleted (rotation to [`.working/DONE.md`](../DONE.md) in the same commit); the section header and intro now say item 3 remaining; GR-P2 gains the routed #560 out-of-window note (the change-tracking rule's "same lead-paragraph wording" two-file-split text vs the long-standing matching-headers/divergent-wording practice, to be reconciled when that rule is condensed); section 2.13 gains the routed #561-verifier note (the PIA procedure's CIO-signed high-residual acceptance vs the canonical High-acceptance authority, pending the GDPR-Article-36-threshold-to-High-band mapping decision).
+- [`.working/overnight-pr.md`](../overnight-pr.md): progress ledger advanced (PR 9). The #560 QA rows: [`.working/validate-pr/history.md`](../validate-pr/history.md) (3 Low: 2 in-window fixed here, 1 routed; 1.2.338 to 1.2.339, with the per-PR record [`2026-07-02-PR-560.md`](../validate-pr/2026-07-02-PR-560.md)) and [`.working/improvement-log.md`](../improvement-log.md) (1.0.284 to 1.0.285; the row logs the first-occurrence "a PR's own edit stales a same-file line locator it leaves in place in TODO" observation and the re-derive-locators-after-edit habit).
+
+### Verification
+
+- Corpus-wide scan for the retired authority (`ERC` + `approv` + `acceptance`, every hit read in full): the only residuals are the exception policy's own canonical renewal/re-baseline chain (ERC renewal-tier authority per its Section 3.5), which is in-model; the methodology's remaining ERC lines (Critical-band escalation, quarterly register presentation) are review/escalation roles, also in-model. Zero retired-authority carriers remain.
+- `tools/run_all_audits.sh`: all 59 gates pass on the committed state.
+- A pre-push refute-verifier (substantive tier: corpus-document normative-authority change) ran on the diff: NO BLOCKERS; its should-fix S1 adopted pre-push (the first-draft roles-table wording widened the ERC recommendation target to "Executive Committee or Board Risk Committee" where the register grants only the Board Risk Committee, and the first-draft 6.3 attributed the ERC clause to two sources that never mention the ERC; both narrowed/re-anchored as shipped above, together with its cosmetic nit on the double-"reviews" phrasing), and its adjacent-class observation S2 routed to section 2.13 (see Changed).
+- Pre-push guard green before push.
+
 ## 2026-07-02, Library Version 2026.07.48, PR #560
 
 Corpus fix (risk model): **section-1.6 item 1 closed**: the methodology's residual-risk formula reconciled to the canonical re-scored model. Methodology 1.1.2 to 1.2.0. Batches the #559 QA rows. Library 2026.07.47 to 2026.07.48; README 1.9.408 to 1.9.409.

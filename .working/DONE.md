@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #561: section-1.6 item 2, FR-171 residual carrier realigned (2026-07-02)
+
+The risk methodology's two pre-FR-171 authority lines (roles table and 6.3) realigned to the canonical chain: High and Critical risk acceptances approved by the Executive Committee or Board Risk Committee with the ERC reviewing and recommending, closing the surface FR-171 (#412/#416) missed. Also fixes the two #560 /validate-pr in-window Lows (the item-2 locator resolved by this rotation; the two bare standard citations now linked).
+
 ### PR #560: section-1.6 item 1, residual-risk formula reconcile (2026-07-02)
 
 The methodology's multiplicative-discount residual model replaced with the canonical re-scored Residual likelihood x Residual impact (matching the ERM standard's register field model and the register template); control effectiveness stays categorical; the 1-to-25 tolerance bands now provably apply to both inherent and residual scores. First C-wave corpus fix of the overnight run.
