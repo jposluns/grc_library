@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -105,7 +105,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 5.3 The final AI Audit Report is issued and submitted to the AIGC.
 
-5.4 Reports are retained in the compliance document repository for a minimum of 5 years.
+5.4 Reports are retained in the compliance document repository for a minimum of 7 years, per the audit-records floor in [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 and the retention schedule ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
 
 **Report contents:**
 - Executive summary.

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #563: section-1.7 retention-value conflicts reconciled to the 7-year floor (2026-07-02)
+
+The section-1.7 retention conflicts resolved stricter-safe: AI-audit and supplier-audit retention raised to the compliance policy's seven-year audit-records floor (procedure and register rows), privacy-breach notifications raised to the breach procedure's 7-year evidence minimum, and the PIA and AI-IA values composed as 7-years-or-decommission-plus-5-whichever-is-longer (the AI-IA sibling caught by the pre-push verifier); the breach procedure's consistency claim re-anchored from the retention standard (which carries no per-record value table) to the register. Section 1.7 fully closed.
+
 ### PR #562: section-1.6 item 3, risk-taxonomy reconcile + misroute + band + spelling (2026-07-02)
 
 The ERM standard's 10-category taxonomy and the register procedure's 8-plus-other Domain enumeration reconciled to the register template's canonical 12 categories (Environmental examples redistributed, none lost; two canonical-wins defaults logged in pending-decisions); the AI-annex misroute (AI risks to "Supplier category") corrected to the AI category; the acceptance table's "Moderate" band renamed Medium; the register template's "Not Tested" respelled Untested. Section 1.6 fully closed.
