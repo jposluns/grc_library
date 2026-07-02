@@ -2855,6 +2855,64 @@ class SkillDerivesFromTests(LinterTestCase):
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
 
+class LintCommonHelperTests(unittest.TestCase):
+    """lint_common.py shared helpers: parse_metadata_block, parse_iso_date,
+    and the iter_non_code_lines fence semantics (GR-3 / GR-4)."""
+
+    def _lint_common(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "lint_common_under_test", REPO_ROOT / "tools" / "lint_common.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_parse_metadata_block_fields_and_backslash(self) -> None:
+        lc = self._lint_common()
+        block = lc.parse_metadata_block(
+            "# T\n\n**Version:** 1.0.0\\\n**Date:** 2026-07-01\\\n**Owner:** X\n"
+        )
+        self.assertEqual(block.fields["Version"], "1.0.0")
+        self.assertEqual(block.fields["Date"], "2026-07-01")
+        self.assertEqual(block.fields["Owner"], "X")
+        self.assertEqual(block.raw_lines["Date"][0], 4)
+
+    def test_parse_metadata_block_head_window(self) -> None:
+        # A **Field:**-shaped line beyond the head window is body
+        # prose (e.g. a documented placeholder), not metadata.
+        lc = self._lint_common()
+        text = "# T\n" + "filler\n" * 35 + "**Version:** 9.9.9\n"
+        block = lc.parse_metadata_block(text)
+        self.assertNotIn("Version", block.fields)
+
+    def test_parse_metadata_block_first_occurrence_wins(self) -> None:
+        lc = self._lint_common()
+        block = lc.parse_metadata_block("**Date:** 2026-07-01\n**Date:** 2026-07-02\n")
+        self.assertEqual(block.fields["Date"], "2026-07-01")
+
+    def test_parse_iso_date_strict(self) -> None:
+        lc = self._lint_common()
+        self.assertIsNotNone(lc.parse_iso_date("2026-07-01"))
+        self.assertIsNone(lc.parse_iso_date("2026-07-01 (draft)"))
+        self.assertIsNone(lc.parse_iso_date("2026-13-01"))
+        self.assertIsNone(lc.parse_iso_date("not-a-date"))
+
+    def test_tilde_fence_toggles(self) -> None:
+        # GR-4: a ~~~ fence must exclude its contents exactly as a
+        # backtick fence does (previously it silently suppressed
+        # nothing and a stray tilde fence was scanned as prose).
+        lc = self._lint_common()
+        lines = [l for _, l in lc.iter_non_code_lines("a\n~~~\nhidden\n~~~\nb\n")]
+        self.assertEqual(lines, ["a", "b"])
+
+    def test_backtick_fence_still_toggles(self) -> None:
+        lc = self._lint_common()
+        lines = [l for _, l in lc.iter_non_code_lines("a\n```\nhidden\n```\nb\n")]
+        self.assertEqual(lines, ["a", "b"])
+
+
 class DocumentDateStalenessTests(LinterTestCase):
     """tools/lint-document-date-staleness.py
 
@@ -2974,6 +3032,29 @@ class DocumentDateStalenessTests(LinterTestCase):
                 f"linter should pass on a fresh Date.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
+    def test_malformed_date_is_finding_not_skip(self) -> None:
+        # A PRESENT but malformed Date (trailing annotation) must be a
+        # FINDING, not a silent skipped_no_date (the GR-3 fail-loud
+        # migration; previously the strict line-end-anchored regex
+        # silently exempted such a file from the staleness check).
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2026-06-19 (draft)",
+            commit_date="2026-06-19T12:00:00Z",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertLinterFails(result, "malformed metadata Date")
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
