@@ -6,7 +6,7 @@ Objective-C-specific patterns are noted inline where they differ from Swift; the
 
 ---
 
-## Secure storage (Section 2)
+## Secure storage (Section 4)
 
 ```swift
 // NEVER: sensitive data in UserDefaults / NSUserDefaults
@@ -45,7 +45,7 @@ try url.setResourceValues(values)
 
 ---
 
-## Cryptography (Section 3)
+## Cryptography (Section 5)
 
 ```swift
 // NEVER: custom crypto, ECB mode, hardcoded keys, CommonCrypto with insecure params
@@ -79,7 +79,7 @@ Use `SecRandomCopyBytes` for security-sensitive randomness. `arc4random` is acce
 
 ---
 
-## Authentication and local biometrics (Section 4)
+## Authentication and local biometrics (Section 6)
 
 ```swift
 // NEVER: biometric used as the sole authentication factor
@@ -103,7 +103,7 @@ Use ASWebAuthenticationSession for OAuth / OIDC flows: it presents the system br
 
 ---
 
-## Network and App Transport Security (Section 5)
+## Network and App Transport Security (Section 7)
 
 ```xml
 <!-- NEVER: blanket ATS bypass in Info.plist -->
@@ -113,10 +113,10 @@ Use ASWebAuthenticationSession for OAuth / OIDC flows: it presents the system br
 </dict>
 ```
 
-Domain-scoped exceptions are documented per Section 5; blanket exceptions are prohibited.
+Domain-scoped exceptions are documented per Section 7; blanket exceptions are prohibited.
 
 ```swift
-// Certificate pinning via URLSessionDelegate (Tier 1, Tier 2 per Section 1)
+// Certificate pinning via URLSessionDelegate (Tier 1, Tier 2 per Section 3)
 func urlSession(_ session: URLSession,
                 didReceive challenge: URLAuthenticationChallenge,
                 completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
@@ -126,7 +126,7 @@ func urlSession(_ session: URLSession,
         return
     }
     // Compare serverTrust's leaf or intermediate against pinned SPKI hashes;
-    // backup pins documented for rotation per Section 3.
+    // backup pins documented for rotation per Section 5.
     if matchesPin(serverTrust) {
         completionHandler(.useCredential, URLCredential(trust: serverTrust))
     } else {
@@ -137,7 +137,7 @@ func urlSession(_ session: URLSession,
 
 ---
 
-## Backend attestation: App Attest and DeviceCheck (Section 5)
+## Backend attestation: App Attest and DeviceCheck (Section 7)
 
 Tier 1 and Tier 2 application backends require App Attest. The client generates an attestation key, attests on first use, and signs subsequent assertions; the backend verifies tokens against Apple's attestation service.
 
@@ -162,7 +162,7 @@ Never trust App Attest assertions purely client-side. The backend is the verifie
 
 ---
 
-## Platform interaction (Section 6)
+## Platform interaction (Section 8)
 
 ```swift
 // NEVER: open a custom URL scheme that triggers a sensitive action without authentication
@@ -210,7 +210,7 @@ secureTextField.textContentType = .password
 
 ---
 
-## WebView (WKWebView; Section 5 and Section 6)
+## WebView (WKWebView; Section 7 and Section 8)
 
 ```swift
 // NEVER: load arbitrary user-supplied URL into a webview without scheme validation
@@ -232,7 +232,7 @@ Universal Links inside WKWebView: handle via `navigationAction.navigationType ==
 
 ---
 
-## App Tracking Transparency and privacy permissions (Section 10)
+## App Tracking Transparency and privacy permissions (Section 12)
 
 ```swift
 // NEVER: deceptive ATT prompt copy ("Allow tracking to unlock this feature")
@@ -246,16 +246,16 @@ let dialog = ATTrackingManager.requestTrackingAuthorization { ... }
 
 ---
 
-## Code signing and distribution (Section 9)
+## Code signing and distribution (Section 11)
 
 - Code-signing identities held in Apple Developer team accounts; team membership reviewed.
 - Distribution profiles do not bundle development entitlements.
-- TestFlight builds excluded from production telemetry / data per Section 9.
-- App Store privacy labels accurately reflect SDK behaviour (per Section 10).
+- TestFlight builds excluded from production telemetry / data per Section 11.
+- App Store privacy labels accurately reflect SDK behaviour (per Section 12).
 
 ---
 
-## In-app purchases (Section 14)
+## In-app purchases (Section 16)
 
 ```swift
 // NEVER: grant entitlement from client-side StoreKit result alone
@@ -273,11 +273,11 @@ if case .success(.verified(let transaction)) = result {
 }
 ```
 
-`transaction.jwsRepresentation` is what the backend verifies against Apple. Subscription state is polled or webhooked via App Store Server Notifications per Section 14.
+`transaction.jwsRepresentation` is what the backend verifies against Apple. Subscription state is polled or webhooked via App Store Server Notifications per Section 16.
 
 ---
 
-## Reverse-engineering resistance (Section 7, Tier 1 and Tier 2)
+## Reverse-engineering resistance (Section 9, Tier 1 and Tier 2)
 
 - Jailbreak detection used as a signal, not as the sole defence. Detection signals reported to backend; user experience degraded gracefully (not abrupt crash).
 - String obfuscation for embedded secrets (with the caveat that no embedded secret is truly secret on a jailbroken device).
@@ -290,14 +290,14 @@ if case .success(.verified(let transaction)) = result {
 
 Implements these sections of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md):
 
-- Section 2 (storage): Keychain accessibility classes; data protection classes; backup exclusion.
-- Section 3 (cryptography): CryptoKit; Secure Enclave; `SecRandomCopyBytes`.
-- Section 4 (authentication and authorisation): biometry as step-up; ASWebAuthenticationSession; biometry-current-set binding.
-- Section 5 (network): ATS scoped exceptions; certificate pinning; App Attest server verification.
-- Section 6 (platform interaction): Universal Links over custom schemes; deep-link validation; OSLog privacy markers.
-- Section 7 (MASVS-R): Tier 1 / Tier 2 hardening defaults.
-- Section 9 (distribution): code-signing posture.
-- Section 10 (privacy): ATT prompt honesty.
-- Section 14 (IAP): server-side `jwsRepresentation` verification.
+- Section 4 (storage): Keychain accessibility classes; data protection classes; backup exclusion.
+- Section 5 (cryptography): CryptoKit; Secure Enclave; `SecRandomCopyBytes`.
+- Section 6 (authentication and authorisation): biometry as step-up; ASWebAuthenticationSession; biometry-current-set binding.
+- Section 7 (network): ATS scoped exceptions; certificate pinning; App Attest server verification.
+- Section 8 (platform interaction): Universal Links over custom schemes; deep-link validation; OSLog privacy markers.
+- Section 9 (MASVS-R): Tier 1 / Tier 2 hardening defaults.
+- Section 11 (distribution): code-signing posture.
+- Section 12 (privacy): ATT prompt honesty.
+- Section 16 (IAP): server-side `jwsRepresentation` verification.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG iOS test cases; Apple Platform Security guide.
