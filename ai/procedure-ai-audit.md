@@ -2,7 +2,7 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
+**Version:** 1.1.0\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -118,7 +118,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 ## 6. Corrective action and follow-up
 
-6.1 All nonconformities are logged in the CAPA Register.
+6.1 All nonconformities are logged in the CAPA Register. For register purposes, this procedure's finding categories crosswalk to the canonical Critical / High / Moderate / Low scheme of [`compliance/procedure-capa.md`](../compliance/procedure-capa.md): a Major nonconformity is logged at CAPA severity High (its 10-business-day corrective-action-plan window in 6.3 aligns with the CAPA High timeline; Major does not map to Critical) and a Minor nonconformity at Moderate, mirroring the classification-scheme crosswalk note in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) Section 4.
 
 6.2 The AI System Owner assigns a responsible party and due date for each corrective action.
 

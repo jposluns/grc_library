@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.3.6\
+**Version:** 1.4.0\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ## Purpose
 
-To ensure that consistent handling of information according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2022).
+To ensure that information is handled consistently according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2022).
 
 ---
 
@@ -54,7 +54,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 | --- | --- | --- | --- |
 | **Public** | Information approved for open distribution. | No restriction. Public dissemination allowed. | Press releases, marketing materials, published reports. |
 | **Controlled** | Information that may be shared externally at discretion; disclosure poses low risk. | Share externally under context; management awareness required. | Product overviews, proposals, general client communications. |
-| **Internal** | Restricted to employees and authorized contractors; external sharing requires approval or NDA. | Store in internal systems; encryption optional. | Internal procedures, reports, project data. |
+| **Internal** | Restricted to employees and authorized contractors; external sharing requires approval or NDA. | Store in internal systems; encryption required for databases and backups (full at-rest requirements including portable devices in the encryption-requirements table). | Internal procedures, reports, project data. |
 | **Confidential** | Contains sensitive business, financial, or personal data. Unauthorized disclosure may cause harm. | Encryption at rest and in transit; access by authorization only. | Contracts, client data, payroll, incident reports. |
 | **Restricted** | Highest sensitivity; includes trade secrets, privileged data, or AI model code. | Strong encryption, strict access control, PAM enforcement, audit logging. | Source code, credentials, merger data, BASC customs data, AI model weights. |
 
@@ -113,7 +113,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 | --- | --- |
 | Public | Not required. |
 | Controlled | Optional; required if transmitted externally. |
-| Internal | Encrypt when stored on portable devices. |
+| Internal | Required for databases, backups, and portable devices. |
 | Confidential | Mandatory (AES-256 at rest, TLS 1.3 in transit). |
 | Restricted | Mandatory; hardware security modules (HSMs) and key rotation every 90 days. |
 

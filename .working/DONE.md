@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #567: section-2.13 items 12-14 and 16-19: seven cross-document conflicts resolved (2026-07-02)
+
+The ops-conflict batch, each stricter-safe or canonical-source: the P1 executive clock aligned to immediate; MFA made exception-eligible with the explicit Section-5 carve per the locked decision (the baseline reference reconciled too; privileged activations stay absolute); Internal-tier encryption required for databases, backups, and portable devices; Tier-3 supplier notifications carry the 24-hour personal-data precedence; the AI-audit Major/Minor findings crosswalked to CAPA High/Moderate; CMS accountability moved to the CCO (the canonical owner); and the risk-acceptance procedure gained the 540-day cumulative ceiling with the conversion anti-evasion clause. Section 2.13 down to item 11 plus the mapping-blocked routed notes.
+
 ### PR #566: section-2.12 items 7 and 10: BASC and ANPD value sweeps; section closed (2026-07-02)
 
 The two upstream-confirmed value sweeps: sixteen BASC "v6 2023" carriers (fifteen across twelve corpus documents plus the verifier-caught Q4-worklist expected value) reconciled to the register's V6-2022 (the 2023 the citers carried is the certification-transition date); the three ANPD carriers rewritten from the wrong Resolution No. 2 (2 business days) to Resolution CD/ANPD No. 15/2024 (3 business days to the ANPD and data subjects, staged communication, doubled for small agents) with the hedges dropped and a new canonical-citations register row anchoring the regulation. Section 2.12 fully closed.

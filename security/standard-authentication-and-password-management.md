@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-07-01\
+**Version:** 1.1.0\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -57,7 +57,7 @@ To establish consistent, risk-proportionate authentication controls that reduce 
 
 ## 5. Multi-factor authentication (MFA)
 
-MFA is mandatory for all accounts without exception. There are no circumstances under which a user account may access company resources without MFA enrolled.
+MFA is mandatory for all accounts. An exception may be granted only under Section 8 (CISO approval, a documented compensating control, and a remediation target date); absent an approved exception, there are no circumstances under which a user account may access company resources without MFA enrolled.
 
 **MFA method hierarchy (in order of preference):**
 1. FIDO2 hardware security key

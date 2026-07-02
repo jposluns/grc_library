@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-07-01\
+**Version:** 1.1.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -138,7 +138,7 @@ An enterprise identity provider (IdP) serves as the authoritative identity autho
 
 ### 7.2 Authentication standards
 
-Multi-factor authentication (MFA) is mandatory for all human access without exception. Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
+Multi-factor authentication (MFA) is mandatory for all human access; exceptions exist only via the CISO-approved path in [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md) Section 8 (documented compensating control, remediation target date). Phishing-resistant MFA (e.g., FIDO2 or certificate-based) is required for Tier 0 access. Service accounts use platform managed identities or PAM-vaulted accounts. LDAPS (port 636) is the only permitted directory integration protocol. Kerberos AES-256 is required; RC4 Kerberos is prohibited in all new builds.
 
 ### 7.3 Privileged access management
 
