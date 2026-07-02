@@ -8,9 +8,12 @@ the clause just edited, "NEEDS-UPSTREAM" surviving three clauses later). The
 containing block reads self-contradictory, and no gate sees it: the surfaces
 are gate-exempt free prose.
 
-This aid re-lints the whole containing block whenever a diff partially rewrites
-it: for each TODO bullet, ledger table row, bold-led paragraph, or plain
-paragraph line that a commit range MODIFIES (an added line sharing a pairing
+This aid re-lints the rewritten line whenever a diff partially rewrites a
+block (on these surfaces a block is normally one long physical line, so the
+line usually IS the whole block; a status token on an unchanged sibling line
+of a multi-line block is outside the scan): for each TODO bullet, ledger
+table row, bold-led paragraph, or plain paragraph line that a commit range
+MODIFIES (an added line sharing a pairing
 key with a removed counterpart in the same file, a rewrite rather than a pure
 addition or deletion; keys are the bold lead token, the first two table cells,
 and a normalized prefix, matched on ANY so an edit inside one key region still
@@ -80,11 +83,12 @@ HEDGE_RE = re.compile(
 
 # A block line: a markdown bullet, a table data row, a bold-led paragraph
 # (the pending-decisions "**Status:** ..." shape), or a plain paragraph line
-# (the DONE-entry body shape, this aid's own motivating record-drift case).
-# Headings, fences, and markup-led lines are excluded; the pairing
-# requirement (a shared key on both diff sides of the same file) is what
-# keeps the wide net from pairing unrelated prose.
-BLOCK_RE = re.compile(r"^\s*(?:- |\| |\*\*|[A-Za-z])")
+# (the DONE-entry body shape, this aid's own motivating record-drift case),
+# including digit-initial paragraphs ("72-hour ..."). Headings, fences, and
+# other markup-led lines are excluded; the pairing requirement (a shared key
+# on both diff sides of the same file) is what keeps the wide net from
+# pairing unrelated prose.
+BLOCK_RE = re.compile(r"^\s*(?:- |\| |\*\*|[A-Za-z0-9])")
 
 
 def git(*args: str) -> str:
@@ -122,7 +126,7 @@ def main(argv: list[str]) -> int:
     try:
         merge_base = git("merge-base", base, head).strip()
         diff = git("diff", merge_base, head, "--", *SCANNED_FILES)
-    except subprocess.CalledProcessError as exc:
+    except (subprocess.CalledProcessError, OSError) as exc:
         print(f"tension-scan: git failed: {exc}", file=sys.stderr)
         return 2
 
