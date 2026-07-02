@@ -1857,6 +1857,71 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_out_of_order_version_flagged(self) -> None:
+        # GR-1: a smaller Library Version ABOVE a larger one (entries are
+        # newest-first) must fail the ordering assertion.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-07-01, Library Version 2026.07.8, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.07.9, PR #520\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("SMALLER version", result.stdout)
+
+    def test_equal_versions_flagged(self) -> None:
+        # GR-1: two post-cutoff entries sharing one Library Version (the
+        # historical #174/#175 shape) must fail with the equal-version wording.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.07.9, PR #520\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("share Library Version", result.stdout)
+
+    def test_single_digit_patch_compares_numerically(self) -> None:
+        # GR-1: 2026.06.9 above 2026.06.10 must FAIL (9 < 10 numerically); a
+        # string compare would wrongly pass it ("9" > "1"). Guards against a
+        # lexicographic-compare regression.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-06-10, Library Version 2026.06.9, PR #521\n\ntext.\n"
+                "## 2026-06-09, Library Version 2026.06.10, PR #520\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("SMALLER version", result.stdout)
+
+    def test_pre_cutoff_out_of_order_exempt(self) -> None:
+        # GR-1: the historical PR #170-#175 non-monotonic window sits below
+        # the cutoff; a replica must NOT flag.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-06-21, Library Version 2026.06.152, PR #170\n\ntext.\n"
+                "## 2026-06-21, Library Version 2026.06.153, PR #172\n\ntext.\n"
+                "## 2026-06-20, Library Version 2026.06.150, PR #463\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
 
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""

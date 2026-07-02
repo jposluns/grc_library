@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #557: GR-1, gate 59 Library-Version ordering extension (2026-07-02)
+
+Gate 59 now asserts each CHANGELOG file's cutoff-scoped Library Versions strictly decrease top-down (integer-tuple compare), closing the change-tracking rule's described-but-nonexistent CHANGELOG version-monotonicity control. Four new fixtures; suite 254 to 258; the historical pre-cutoff non-monotonic window stays exempt by the existing cutoff.
+
 ### PR #555: GR-2, delta-check + pre-push-guard regression tests (2026-07-02)
 
 Nineteen new fixtures: two-commit temp-repo behavioural tests for D1/D2/D3/D5 (pass, fail, and exemption/trailer cases each) plus the pre-push-guard exit-code chain (the #439 regression class pinned); suite grows 228 to 247. First GR item closed from the 2026-07-02 guardrail-review intake (GR-2 rotated out of TODO section 3.15).
