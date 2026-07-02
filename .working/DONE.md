@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #575: GR-12: the post-fix residual-scan aid shipped (2026-07-02)
+
+The deterministic residual-scan step is now tooling: given a corrected token, the aid scans every tracked text surface (not an enumerated input set), prints every hit as an untruncated full line labelled LIVE / LEDGER / FROZEN-RECORD, and exits non-zero on live residuals so it chains as a completion check; escalated ahead of the tension-marker gate on the four-in-two-PRs fix-named-miss-sibling recurrence.
+
 ### PR #574: 3.14 batch B: the judgment-tier cleanup set (2026-07-02)
 
 Five more 3.14 items closed: the decision-tree 30/90/180 phasing annotated as deliberately distinct from the roadmap's 90/180/365 calendar; the privacy charter's hardcoded four-region scope genericized to the applicability register plus an adopter bracket; five sector leaks genericized in the risk-appetite template (the four enumerated plus the Technology-row carrier the research found); the incident-records retention row raised stricter-safe to the 7-year evidence floor with its logging-standard echo; and the AI-audit retention row composed with the domain minimum (both value choices logged in pending-decisions for confirm-or-redirect).
