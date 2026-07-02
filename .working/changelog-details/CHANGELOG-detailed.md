@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.41, PR #553
+
+`.working/` + TODO bookkeeping for local project: **Sweep 82 close-out**, the `/resume` loop-break corpus-wide `/validate` over the #550..#552 window (full A/B/C dispatch; 3 in-window findings, all fixed in this PR: a broken markdown link to the removed cross-file section-ref draft linter in the [`.working/session-metrics.md`](../session-metrics.md) row, the item 32/SR-5 NEEDS-UPSTREAM status contradiction across the #552 handoff surfaces (the designation was upstream-CONFIRMED at #551), and a stale "line ~222" pointer in [`TODO.md`](../../TODO.md) SR-5), plus the resume-protocol handoff prune (keep current + 1 prior) and the overnight-session activation ([`.working/overnight-pr.md`](../overnight-pr.md) stub to in-flight). No adopter-facing corpus content changed. Library 2026.07.40 to 2026.07.41; README 1.9.401 to 1.9.402.
+
+### Added
+
+- [`.working/validate-sweeps/2026-07-02-sweep82-iter1.md`](../validate-sweeps/2026-07-02-sweep82-iter1.md): the Sweep 82 per-iteration detail record (trigger and state snapshot, the three verbatim subagent returns, orchestrator synthesis, resulting PR), and the paired history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (2.0.74 to 2.0.75). Sweep verdict: A 3 findings (2 M, 1 L, all in-window on live bookkeeping surfaces), B and C 0 findings; no contradiction of the #552 asserted expectations; termination per the Sweep 19 precedent (fixes applied iter 1, iter-2 verification via direct contradiction greps).
+- Overnight-session activation: [`.working/overnight-pr.md`](../overnight-pr.md) transitioned stub to in-flight with the maintainer-authorized scope (green CI = merge with full per-PR cadence; the four pre-approved change tiers; risk-interleaved sequence; the high-assurance `-ize`/`-ization` normalization; the EPUB untrack-plus-queued-purge direction; stricter-safe conflict latitude with per-decision logging; queue-exhaustion-or-named-signal stop condition) and the morning-deferral list.
+
+### Fixed
+
+- Sweep 82 finding 1 (M): the [`.working/session-metrics.md`](../session-metrics.md):75 markdown link to the removed cross-file section-ref draft linter (removed from `tools/` in #551; the link was broken at write-time) reworded to plain words per the #550 retro lesson (a planned-or-removed file is reworded, not linked).
+- Sweep 82 finding 2 (M): the item 32/SR-5 status contradiction. The #551 record upgraded the ETSI designation (TS 104 223 V1.1.1) from NEEDS-UPSTREAM to CONFIRMED via upstream verification, but the #552 surfaces re-listed 32/SR-5 as NEEDS-UPSTREAM. Corrected on the live surfaces ([`.working/session-handoff.md`](../session-handoff.md) Next-actions and Asserted-expectations lines; the [`.working/session-metrics.md`](../session-metrics.md):75 cell), each with an inline corrected-by-Sweep-82 note. **Correction note for the shipped #552 entry below:** its "NEEDS-UPSTREAM items 7/9/10/32/SR-5" phrase carries the same error; per the no-retroactive-edit discipline the shipped entry stands and this note is the correction of record: only items 7/9/10 remain NEEDS-UPSTREAM.
+- Sweep 82 finding 3 (L): the [`TODO.md`](../../TODO.md) SR-5 cross-pointer "(line ~222)" (stale on ship; the carrier sits at line 308) dropped in favour of the stable section-5.1 locator.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): the resume-protocol prune (kept the #552-session and #549-session blocks; removed the #518-session Next-actions blocks, State-snapshot block, and the second-prior asserted-expectations block, which was self-marked for pruning; no un-recorded load-bearing item was deleted, the FR-70 source gate and pending decisions being recorded in the retained blocks and [`.working/pending-decisions.md`](../pending-decisions.md)), and the Resume-cursor bullet advanced from Sweep 81 to Sweep 82 (gate 45 reads this cursor).
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 59 gates pass on the committed state (post-commit re-baseline per the sweep skill's step 7).
+- Iteration-2 contradiction greps on the committed state, all zero residuals: no remaining link target for the removed draft linter; no live surface listing item 32 or SR-5 as NEEDS-UPSTREAM; no remaining "line ~222"; the pruned #518-session block markers absent.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green before push.
+
 ## 2026-07-02, Library Version 2026.07.40, PR #552
 
 Session-closing handoff PR for the 2026-07-02 resumed session (`/resume` from session-closing handoff #549). Working-state + version surfaces only; no adopter-facing corpus content changed. This session ran the loop-break **Sweep 81** first (corpus-wide `/validate` over the #518..#548 FR-48 §1.1 renumber deltas; 0 findings, #549 asserted expectations confirmed), shipped #550 (Sweep-81 close-out + handoff prune), built and tested the phase-2 cross-file section-ref gate then **paused** it on maintainer direction until FR-48 §1.1 completes (its finding was coupled to a still-deferred renumber target; design preserved in [`.working/cross-file-section-ref-gate-design.md`](cross-file-section-ref-gate-design.md)), and ran the maintainer-directed **#551 audit-intake TODO pass** (intake + validation only, no fixes).
