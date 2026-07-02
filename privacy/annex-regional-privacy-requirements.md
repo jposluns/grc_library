@@ -2,12 +2,13 @@
 
 **Document Title:** Privacy Jurisdiction Requirements: Superseded\
 **Document Type:** Annex\
-**Version:** 2.1.1\
-**Date:** 2026-06-22\
+**Status:** Superseded\
+**Version:** 2.1.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
-**Classification:** Deprecated\
+**Classification:** Public\
 **Category:** Privacy\
 **Review Frequency:** Not applicable: superseded document\
 **Repository Path:** [`privacy/annex-regional-privacy-requirements.md`](annex-regional-privacy-requirements.md)\

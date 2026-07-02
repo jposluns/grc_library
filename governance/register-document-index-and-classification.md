@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.52\
+**Version:** 1.27.53\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ This register intentionally avoids internal document numbers from any source org
 | --- | --- |
 | Public | Suitable for publication under CC BY-SA 4.0 and contains no organization-specific, personal, proprietary, confidential, contractual, audit, incident, or security-sensitive information. |
 | Reference Only | External source material or source-derived note that must not be committed as CC BY-SA 4.0 content unless independently confirmed to be compatible. |
-| Deprecated | Historical repository content that is retained for context but no longer recommended for adoption. |
+| Deprecated | Vestigial since the 2026-07-02 lifecycle-marker migration: document lifecycle now lives in the dedicated `Status: Superseded` metadata marker, not in Classification, so no active document carries this value and the audit tooling no longer keys on it. Retained in the model so pre-migration revisions read correctly. |
 
 All active repository documents should be Public.
 

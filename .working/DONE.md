@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #579: L-j, the Classification overload migrated to a lifecycle marker (2026-07-02)
+
+The superseded privacy annex now carries Status: Superseded as the lifecycle marker with Classification restored to Public; the three linters that keyed their redirect-notice exemption on the Classification overload (stub, required-sections, section-placement) are re-keyed on the Status marker with fixtures pinning both the new exemption and that the old overload no longer exempts.
+
 ### PR #578: L-k, pre-commit regen-before-check reorder (2026-07-02)
 
 The pre-commit-only regenerate-derived-artefacts hook moved after the taxonomy and portal --check hooks, so local drift now fails loud at the checks instead of being silently regenerated into a false green (CI was never affected, check-only there); moving the regen hook rather than the check hooks keeps the gate order identical across the four parity surfaces.

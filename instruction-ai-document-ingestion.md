@@ -21,6 +21,6 @@ The assistant must treat the "GRC Library Ingestion and Transformation Specifica
 17. Run the full audit programme (`tools/run_all_audits.sh`; see [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) §6 for the canonical gate inventory) and resolve every finding before declaring the ingestion complete.
 18. Update [`CHANGELOG.md`](CHANGELOG.md) at the phase level for any substantive batch of ingestion changes.
 19. Where the change introduces a new document type, new domain directory, or new rule, update both specifications and the governance charter and document architecture framework hierarchy tables before adding artefacts that depend on the new vocabulary.
-20. Where the change retires or supersedes an existing document, redirect every inbound reference, classify the superseded document as Deprecated in its metadata, and document the supersession in the changelog.
+20. Where the change retires or supersedes an existing document, redirect every inbound reference, mark the superseded document with the `**Status:** Superseded` lifecycle line in its metadata (Classification stays Public; the 2026-07-02 lifecycle-marker migration), and document the supersession in the changelog.
 
 These rules must be persistent and must govern all ingestion tasks initiated by any team member.
