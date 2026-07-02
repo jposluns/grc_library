@@ -16,10 +16,11 @@ The audit-programme specification is also exempt because its §6
 inventory legitimately contains the phrase "stub document" as a gate
 name.
 
-Documents explicitly marked ``**Classification:** Deprecated`` are
-exempt: a deprecated document is allowed to be a short redirect
-notice. The exemption is implemented by scanning the metadata block
-for the Deprecated classification before applying the word-count rule.
+Documents explicitly marked ``**Status:** Superseded`` (the lifecycle
+marker, re-keyed from the former ``Classification: Deprecated``
+overload) are exempt: a superseded document is allowed to be a short
+redirect notice. The exemption is implemented by scanning the metadata
+block for the Superseded status before applying the word-count rule.
 
 Word-count threshold (post-metadata, post-trailing-marker): 100 words.
 Files under threshold are flagged unless exempted above. The linter
@@ -94,11 +95,11 @@ def is_target(path: Path) -> bool:
     # Worklists have blank fields for human completion.
     if path.name.startswith("worklist-"):
         return False
-    # Documents marked Classification: Deprecated are deliberately short
-    # redirect notices and not stubs.
+    # Documents marked Status: Superseded (the lifecycle marker) are
+    # deliberately short redirect notices and not stubs.
     try:
         text = path.read_text(encoding="utf-8")
-        if re.search(r"^\*\*Classification:\*\*\s+Deprecated", text, re.MULTILINE):
+        if re.search(r"^\*\*Status:\*\*\s+Superseded", text, re.MULTILINE):
             return False
     except (OSError, UnicodeDecodeError):
         pass

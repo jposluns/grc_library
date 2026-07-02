@@ -48,7 +48,7 @@ DOMAINS = [
 
 # Files explicitly exempt from the structural-membership requirement.
 EXEMPT_FROM_INDEX = {
-    # Deprecated artefacts: present for history, not active.
+    # Superseded artefacts: present for history, not active.
     "privacy/annex-regional-privacy-requirements.md",
 }
 

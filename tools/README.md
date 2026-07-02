@@ -62,7 +62,7 @@ pre-commit run --all-files
 
 - Draggable AI-context rule files under `dev-security/claude-rules/` are exempt from the metadata and structural audits because they serve a different purpose (loaded into AI coding sessions, not consumed as governance documents).
 - Tooling docs in this directory and adopter docs in `docs/` are exempt from the structural audit.
-- The deprecated [`privacy/annex-regional-privacy-requirements.md`](../privacy/annex-regional-privacy-requirements.md) is exempt from the structural audit (retained for history; superseded by [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) and the jurisdiction subfolder).
+- The superseded [`privacy/annex-regional-privacy-requirements.md`](../privacy/annex-regional-privacy-requirements.md) is exempt from the structural audit (retained for history; superseded by [`privacy/annex-privacy-jurisdiction-index.md`](../privacy/annex-privacy-jurisdiction-index.md) and the jurisdiction subfolder).
 
 ## Exploratory tools (not gates)
 

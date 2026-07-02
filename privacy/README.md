@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Domain README\
 **Document Type:** Register\
-**Version:** 1.2.7\
+**Version:** 1.2.8\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -49,11 +49,11 @@ This directory contains privacy governance artefacts covering data protection po
 | Template | Joint Controller Arrangement Template | [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md) |
 | Template | Data Processing Agreement Template (GDPR Article 28) | [`privacy/template-dpa-article-28.md`](template-dpa-article-28.md) |
 
-### Deprecated documents (retained for redirect)
+### Superseded documents (retained for redirect)
 
-| Type | Title | Path | Classification |
+| Type | Title | Path | Status |
 | --- | --- | --- | --- |
-| Annex | Regional Privacy Requirements (superseded redirect) | [`privacy/annex-regional-privacy-requirements.md`](annex-regional-privacy-requirements.md) | Deprecated |
+| Annex | Regional Privacy Requirements (superseded redirect) | [`privacy/annex-regional-privacy-requirements.md`](annex-regional-privacy-requirements.md) | Superseded |
 
 ### Jurisdiction-specific annexes (`privacy/jurisdictions/`)
 
