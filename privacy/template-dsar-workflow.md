@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -82,7 +82,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Owner | Each system-of-record steward; Privacy team coordinates |
 | Inputs | Scoped request; mapping of personal data to systems from the ROPA |
 | Outputs | Per-system extracts; aggregated assembly record; provenance per item |
-| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 calendar days under the CCPA / CPRA, extendable once by an additional 45 days with notice within the first 45-day period; 30 days under PIPEDA |
+| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA, extendable once by an additional 45 days with notice within the first 45-day period; 30 days under PIPEDA |
 | Quality gates | Each system queried with the subject identifier; null returns recorded explicitly; backups and cold storage included if reasonable; embeddings, vector stores, AI training data, and derived datasets considered |
 
 ### Stage 5: Redaction and exception handling

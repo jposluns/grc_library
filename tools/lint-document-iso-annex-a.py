@@ -38,7 +38,7 @@ Scope (deliberately bounded, precision-first):
     clause) is never scanned; only a ``§6`` inside an ISO-labelled cell is
     treated as an ISO clause reference.
 
-  * **Token shapes recognised** inside an ISO cell: a single Annex A control
+  * **Token shapes recognized** inside an ISO cell: a single Annex A control
     ``A.<5-8>.<n>``; a **theme-only** reference ``A.5``-``A.8`` (a legitimate
     citation of a whole Annex A theme, accepted as valid); a **range**
     ``A.t.n to A.t.m`` / ``A.t.n to t.m`` / ``A.t.n to m`` (same theme,

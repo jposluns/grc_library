@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Detect personal identifiable information (PII) patterns in library content.
 
-The library is meant to be organisation-neutral and individual-neutral.
+The library is meant to be organization-neutral and individual-neutral.
 Personal data in CC0-published content is a privacy issue: anyone
 adopting the library inherits whatever names, emails, phone numbers,
 or addresses appear in the source. This linter defends against
-sanitisation gaps.
+sanitization gaps.
 
 Patterns detected:
 - Email addresses (other than maintainer contact files and example
@@ -31,7 +31,7 @@ Exemption layers:
   - Per-file exemptions: a small set of AI security guides and
     research notes whose content legitimately includes IP-shaped
     threat indicators or address examples.
-  - CHANGELOG.md is exempt because it can describe sanitisation fixes
+  - CHANGELOG.md is exempt because it can describe sanitization fixes
     that quote (now-removed) PII.
   - Fenced code blocks are skipped so example syntax does not produce
     false positives.
@@ -98,7 +98,7 @@ EXAMPLE_DOMAINS = {
     # RFC 2606 reserved example domains
     "example.com", "example.org", "example.net",
     "test", "localhost", "invalid",
-    # Template-placeholder organisation domains (see note above)
+    # Template-placeholder organization domains (see note above)
     "yourcompany.com", "your-org.com", "your-org.example.com",
     # Generic third-party stand-ins used in worked examples
     "competitor.com", "attacker.com", "evil.com",

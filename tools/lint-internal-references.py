@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Detect internal-deployment references that should not appear in a CC0 library.
 
-A vendor-neutral, organisation-neutral public library should not contain
+A vendor-neutral, organization-neutral public library should not contain
 references to specific deployments: internal hostnames, cloud-region
 identifiers, internal subnet patterns. This linter extends the existing
 ``SANITISATION_TERMS`` rule in ``tools/lint-language.py`` with
@@ -20,7 +20,7 @@ Patterns detected:
 
 The linter is deliberately conservative. FQDN-shape detection is NOT
 implemented; the false-positive risk on legitimate vendor / publisher
-domain references is too high. Identifying organisation-specific FQDNs
+domain references is too high. Identifying organization-specific FQDNs
 requires either an allow-list or a deny-list, neither of which has been
 curated for the corpus.
 
@@ -52,7 +52,7 @@ EXEMPT_FILES = {
     "lint-language.py",
     "lint-secrets-in-content.py",
     "lint-pii-in-content.py",
-    # CHANGELOG describes prior sanitisation fixes by name (including the
+    # CHANGELOG describes prior sanitization fixes by name (including the
     # patterns that were removed).
     "CHANGELOG.md",
     # Linter regression tests deliberately embed internal-host-shaped

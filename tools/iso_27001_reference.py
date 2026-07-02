@@ -45,7 +45,7 @@ def check_iso_token(tok: str) -> tuple[str, str] | None:
     Validates a single atomic token as an Annex A control code
     (``A.<5-8>.<n>``) or a management-system clause (``§<4-10>``). Theme-only
     references (``A.5``) and ranges are NOT handled here; a caller that
-    accepts those forms recognises them before calling this function.
+    accepts those forms recognizes them before calling this function.
     """
     if tok == "N/A":
         return None
