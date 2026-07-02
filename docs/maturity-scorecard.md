@@ -113,12 +113,12 @@ _94 documents._
 | [resilience/template-departmental-continuity-plan.md](../resilience/template-departmental-continuity-plan.md) | Departmental Continuity Plan Template | Template | 1.1.0 | 2026-05-28 |
 | [risk/policy-enterprise-governance-and-risk-management.md](../risk/policy-enterprise-governance-and-risk-management.md) | Enterprise Governance and Risk Management Policy | Policy | 1.4.8 | 2026-06-29 |
 | [risk/procedure-risk-assessment-methodology.md](../risk/procedure-risk-assessment-methodology.md) | Risk Assessment Methodology Procedure | Procedure | 1.2.1 | 2026-07-02 |
-| [risk/procedure-risk-register.md](../risk/procedure-risk-register.md) | Risk Register Procedure | Procedure | 1.2.0 | 2026-06-22 |
+| [risk/procedure-risk-register.md](../risk/procedure-risk-register.md) | Risk Register Procedure | Procedure | 1.3.0 | 2026-07-02 |
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.1 | 2026-06-23 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.0 | 2026-06-22 |
-| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.7.2 | 2026-06-27 |
+| [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.0 | 2026-07-02 |
 | [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.3 | 2026-07-01 |
-| [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.5 | 2026-06-27 |
+| [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.6 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.0 | 2026-05-27 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.2 | 2026-07-01 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.5 | 2026-06-27 |
@@ -287,9 +287,9 @@ _181 documents._
 | [resilience/template-lessons-learned.md](../resilience/template-lessons-learned.md) | Lessons Learned Template | Template | 1.0.4 | 2026-06-22 |
 | [resilience/template-recovery-runbook.md](../resilience/template-recovery-runbook.md) | Recovery Runbook Template | Template | 1.0.3 | 2026-06-23 |
 | [resilience/template-tabletop-exercise.md](../resilience/template-tabletop-exercise.md) | Tabletop Exercise Template | Template | 1.0.5 | 2026-06-22 |
-| [risk/annex-ai-risk-methodology.md](../risk/annex-ai-risk-methodology.md) | AI-Specific Risk Methodology Annex | Annex | 1.0.2 | 2026-06-24 |
+| [risk/annex-ai-risk-methodology.md](../risk/annex-ai-risk-methodology.md) | AI-Specific Risk Methodology Annex | Annex | 1.0.3 | 2026-07-02 |
 | [risk/guideline-quantitative-risk-analysis.md](../risk/guideline-quantitative-risk-analysis.md) | Quantitative Risk Analysis Guideline | Guideline | 1.0.1 | 2026-05-28 |
-| [risk/procedure-risk-acceptance.md](../risk/procedure-risk-acceptance.md) | Risk Acceptance Procedure | Procedure | 1.0.2 | 2026-06-27 |
+| [risk/procedure-risk-acceptance.md](../risk/procedure-risk-acceptance.md) | Risk Acceptance Procedure | Procedure | 1.0.3 | 2026-07-02 |
 | [risk/register-scenario-risk-catalogue.md](../risk/register-scenario-risk-catalogue.md) | Scenario Risk Catalogue | Register | 1.0.1 | 2026-06-02 |
 | [risk/template-board-risk-report.md](../risk/template-board-risk-report.md) | Board Risk Report Template | Template | 1.0.2 | 2026-06-30 |
 | [risk/template-operational-risk-register.md](../risk/template-operational-risk-register.md) | Operational Risk Register Template | Template | 1.0.3 | 2026-06-24 |

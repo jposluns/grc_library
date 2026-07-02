@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.7.2\
-**Date:** 2026-06-27\
+**Version:** 1.8.0\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -36,7 +36,7 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 |---|---|
 | Chief Risk Officer | Accountable for the overall enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk appetite stewardship, and ERM-programme outcomes; reports to the Board or Risk Committee. |
 | Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
-| Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that integration into the risk register. |
+| Chief Information Security Officer | Responsible for managing information security, privacy, and AI-related risks; ensures that these risks are integrated into the risk register. |
 | Enterprise Risk Committee (ERC) | Oversees risk appetite, tolerance, and periodic risk reporting; meets quarterly. |
 | Risk Manager / Compliance Officer | Administers risk registers and scoring models; facilitates risk assessments across the organisation. |
 | Risk Owner | Accountable for a specific named risk entered in the enterprise risk register: confirms the risk statement, selects the treatment option, owns the treatment plan and target dates, monitors residual exposure, reports status per the cadence in §8, and validates risk assessments supporting exception requests (per [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2: confirms residual exposure stays within the enterprise risk appetite when an exception is requested). Distinct from the Chief Risk Officer (who owns the ERM framework and methodology) and from Process and System Owners (who identify risks within their operational domains but do not necessarily own each named risk in the register). Canonical role definition in [`governance/register-role-authority.md`](../governance/register-role-authority.md) §Authority register. |
@@ -47,20 +47,22 @@ This standard defines the enterprise-wide risk management framework, taxonomy, a
 
 ## 4. Risk taxonomy
 
-The organisation maintains the following risk taxonomy. Each category contains subcategories used to classify risks consistently in the risk register.
+The organisation maintains the following risk taxonomy: the twelve categories of the enterprise risk register's canonical Risk Category field ([`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)). Each category contains subcategories used to classify risks consistently in the risk register.
 
 | Category | Example Subcategories |
 |---|---|
-| Strategic | Market disruption, regulatory change, AI governance deficiencies, ESG non-compliance |
-| Operational | Process failure, supply chain disruption, human error, system outages |
-| Information Security | Cyberattack, data breach, privilege misuse, cryptographic failure |
-| Compliance and Legal | Regulatory penalties, contract non-compliance, privacy law violations |
+| Strategic | Market disruption, regulatory change, AI governance deficiencies, ESG non-compliance, environmental damage |
+| Operational | Process failure, human error, energy inefficiency |
+| Cybersecurity | Cyberattack, data breach, privilege misuse, cryptographic failure |
+| Privacy | Privacy law violations, misuse of personal data, unlawful cross-border transfer |
+| AI | Algorithmic bias, model drift, explainability gaps, dataset integrity failure |
+| Supplier | Supplier insolvency, concentration risk, vendor security failure, supply chain disruption |
+| Resilience | Single point of failure, disaster recovery gap, critical service unavailability |
 | Financial | Budget variance, fraud, liquidity shortfall |
-| AI and Data | Algorithmic bias, model drift, explainability gaps, dataset integrity failure, misuse of personal data |
-| Environmental and Sustainability | Energy inefficiency, environmental damage, technology lifecycle waste |
-| Third-Party and Supply Chain | Supplier insolvency, concentration risk, vendor security failure |
-| Business Continuity and Resilience | Single point of failure, disaster recovery gap, critical service unavailability |
+| Legal and Regulatory | Regulatory penalties, contract non-compliance, sanctions exposure |
+| Technology | System outages, legacy-system obsolescence, technology lifecycle waste |
 | Human Capital | Insider threat, key-person dependency, skills gap |
+| Physical | Facility damage, physical intrusion, environmental hazard to infrastructure |
 
 ---
 

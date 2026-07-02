@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Register Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
-**Date:** 2026-06-22\
+**Version:** 1.3.0\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/annex-ai-risk-methodology.md`](annex-ai-risk-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md)\
@@ -26,7 +26,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 
 1. **Identify Risk:** Record the risk source, event, consequence, affected process, data, asset, supplier, AI system, service, or obligation.
 2. **Assign Owner:** Assign a role accountable for risk treatment and review.
-3. **Classify Risk:** Assign domain, category, affected objectives, data sensitivity, regulatory relevance, supplier dependency, and resilience impact.
+3. **Classify Risk:** Assign the Domain (the canonical risk category), affected objectives, data sensitivity, regulatory relevance, supplier dependency, and resilience impact.
 4. **Assess Inherent Risk:** Evaluate likelihood and impact before additional treatment.
 5. **Record Existing Controls:** Identify controls already operating and their evidence.
 6. **Assess Control Effectiveness:** Determine whether controls are designed and operating adequately.
@@ -44,7 +44,7 @@ This procedure defines how risks are recorded, maintained, reviewed, escalated, 
 | --- | --- |
 | Risk ID | Unique identifier. |
 | Risk Statement | Clear cause-event-impact statement. |
-| Domain | Security, privacy, AI, supplier, resilience, compliance, operational, financial, or other. |
+| Domain | The canonical risk category per [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md): Strategic, Operational, Cybersecurity, Privacy, AI, Supplier, Resilience, Financial, Legal and Regulatory, Technology, Human Capital, or Physical. |
 | Owner Role | Accountable role. |
 | Affected Asset or Process | Generic service, process, data class, supplier class, or system class. |
 | Inherent Likelihood | Pre-treatment likelihood. |
