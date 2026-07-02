@@ -71,8 +71,8 @@ CHANGELOG_PATHS = ("CHANGELOG.md", ".working/changelog-details/CHANGELOG-detaile
 TODO_PATH = "TODO.md"
 DONE_PATH = ".working/DONE.md"
 
-# Closure-assertion phrasings, broadened 2026-06-30 (the §1.3 / former-§4.8
-# rotation-prevention item) beyond the original `TODO §` form to also catch the
+# Closure-assertion phrasings, broadened 2026-06-30 (the rotation-prevention
+# backlog item, since closed) beyond the original `TODO §` form to also catch the
 # prose-named and FR-N closures the #495 miss exposed, while staying
 # false-positive-free. The three forms below were chosen empirically: tested
 # against the entire CHANGELOG history (root + detailed mirror, ~14k lines),

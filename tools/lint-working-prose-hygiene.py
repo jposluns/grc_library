@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prose-hygiene audit for the `.working/` maintainer working tree (gate 51).
 
-The corpus-wide language gate (`lint-language.py`, gate 19) forbids em-dashes
+The corpus-wide language gate (`lint-language.py`, gate 2) forbids em-dashes
 (`—`) and en-dashes (`–`) in prose, but it exempts the `.working/` tree (the
 maintainer working space is in `DEFAULT_EXEMPT_DIRS`). The 2026-06-26 em-dash
 conformance pass (#353) brought `.working/` prose into line with the house
@@ -19,7 +19,7 @@ quoted format string), not prose, and are left untouched.
 Scope is the `.working/` tree ONLY. The corpus proper is covered by
 `lint-language.py`; the root `CHANGELOG.md`'s historical entries carry
 legitimate en-dashes and are covered at PR time by the D3 dash gate
-(`check-changelog-dash.py`), so this gate does NOT full-scan `CHANGELOG.md`.
+(`check-changelog-dash-on-pr.py`), so this gate does NOT full-scan `CHANGELOG.md`.
 
 Detection logic, per line outside a fenced block (`iter_non_code_lines`):
 

@@ -8,7 +8,8 @@
 #
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
-#      co-bump). These compare the PR head to its merge base, so their
+#      co-bump, D5 backlog-rotation-on-PR). These compare the PR head
+#      to its merge base, so their
 #      inputs are not available in tools/run_all_audits.sh; they run
 #      only here and in quality.yml.
 #   2. The history-aware gates that examine each file's commit graph

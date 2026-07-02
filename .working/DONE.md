@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #558: GR-7 + L-a + item 24 tool carriers, docstring/stale-pointer batch (2026-07-02)
+
+Six comment/docstring corrections across five tool files: the working-prose-hygiene "gate 19" mis-cite and stale D3 filename (GR-7), the two closed-section-1.3 lineage pointers (L-a), and the two tool-side "D1-D4" carriers updated to D1-D5 (item 24; its protected CLAUDE.md carrier stays as a maintainer-gated residual).
+
 ### PR #557: GR-1, gate 59 Library-Version ordering extension (2026-07-02)
 
 Gate 59 now asserts each CHANGELOG file's cutoff-scoped Library Versions strictly decrease top-down (integer-tuple compare), closing the change-tracking rule's described-but-nonexistent CHANGELOG version-monotonicity control. Four new fixtures; suite 254 to 258; the historical pre-cutoff non-monotonic window stays exempt by the existing cutoff.

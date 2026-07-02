@@ -34,4 +34,6 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 - PR 5 (#557): W4 / GR-1 closed: gate 59 extended to assert CHANGELOG Library-Version ordering (strictly decreasing top-down, integer-tuple compare, cutoff-scoped; live corpus verified in order), 4 new fixtures (suite 254 to 258), spec section-5/section-6 prose + 1.16.30 + regen, GR-1 rotated to DONE, the #556 QA rows (1 Low: the "338/338" soft-count denominator, corrected here with a correction note, shipped entries not retro-edited; the soft-count class formally hits the GR-P3 three-occurrence threshold).
 
+- PR 6 (#558): W6 / GR-7 + L-a + item-24 tool carriers closed: six comment/docstring corrections across five tool files (the "gate 19" mis-cite, the stale D3 filename, two closed-section lineage pointers, two "D1-D4" to D1-D5 headers), item 24 reduced to its protected-CLAUDE.md residual, and the batched #557 QA rows (0 findings).
+
 **Open ambiguities:** none yet; anything surfacing mid-run is logged here plus [`pending-decisions.md`](pending-decisions.md) under the graceful-degradation rule.
