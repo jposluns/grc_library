@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.12\
+**Version:** 1.53.13\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.13 | 2026.07.65 | 2026-07-02 | Guardrail-review SKILL gate-count currency: the Overview growth narrative's gate figure updated to sixty alongside the gate-60 cadence audit shipping in the consuming project (the count is narrative currency, not a behaviour change). |
 | 1.53.12 | 2026.07.61 | 2026-07-02 | TLS-baseline caveat in [`core/owasp.md`](core/owasp.md): the two ASVS TLS 1.2 lines (the checklist bullet and the V9 level-progression table) now carry inline notes that the pack's canonical transport floor is TLS 1.3 per [`core/cryptography.md`](core/cryptography.md), with TLS 1.2 and earlier prohibited; the ASVS baseline text itself is unchanged. Closes the parent library's audit item 15. Pack `1.53.11` to `1.53.12` (patch; clarifying caveat only). |
 | 1.53.11 | 2026.07.58 | 2026-07-02 | Corpus-wide Commonwealth-spelling harmonization applied to the pack's prose (the parent library's locked full -ize/-ization normalization): `-isation` nouns, enumerated `-ise` verbs, and the `-yse` verb family flipped to the Canadian forms across the pack rules, SKILLs, language files, and this README; the seven changed `governance/` rules re-mirrored byte-identical into the parent's `.claude/rules/governance/`. No normative content change. Pack `1.53.10` to `1.53.11` (patch; spelling only). |
 | 1.53.10 | 2026.07.36 | 2026-07-02 | Citation-sync of the pack's references to [`standard-mobile-application-security.md`](../standard-mobile-application-security.md) after that standard's FR-48 §1.1 renumber (its `## Section N:` labels became document-order `## N.` headings). The README language-index rows and the six rule files that cite the standard ([`languages/react-native.md`](languages/react-native.md), [`languages/flutter.md`](languages/flutter.md), [`languages/dotnet-maui.md`](languages/dotnet-maui.md), [`languages/capacitor-ionic.md`](languages/capacitor-ionic.md), [`languages/swift.md`](languages/swift.md), [`languages/kotlin.md`](languages/kotlin.md)) cite the standard by "Section N" prose; every such reference was renumbered to the standard's new section number (for example the hybrid-frameworks section moved from Section 13 to Section 15, storage from Section 2 to Section 4), keeping the "Section" wording per the maintainer's 2026-07-02 form decision. No pack rule content changed. Pack `1.53.9` to `1.53.10` (patch; corpus-citation sync). |
