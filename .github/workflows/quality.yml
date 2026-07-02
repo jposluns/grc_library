@@ -198,6 +198,9 @@ jobs:
       - name: CHANGELOG mirror header-parity audit
         run: python3 tools/lint-changelog-mirror-header-parity.py
 
+      - name: Guardrail-review cadence audit
+        run: python3 tools/lint-guardrail-cadence.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
