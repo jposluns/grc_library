@@ -4987,12 +4987,26 @@ class GuardrailCadenceTests(LinterTestCase):
             self.assertIn("warning", result.stdout)
             self.assertIn("drifted 1", result.stdout)
 
-    def test_threshold_drift_fails(self) -> None:
-        # Five gates added since the recorded row: at the threshold, fail.
+    def test_just_below_threshold_warns(self) -> None:
+        # Two gates added since the recorded row: one below the fail bar,
+        # warn only (pins the boundary's underside at the maintainer-set 3).
         with tempfile.TemporaryDirectory() as d:
-            self._write_tree(d, gates=8)
+            self._write_tree(d, gates=5)
             result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
-            self.assertLinterFails(result, "drifted 5")
+            self.assertEqual(
+                result.returncode, 0,
+                f"drift 2 must pass with a warning at threshold 3.\nstdout:\n{result.stdout}",
+            )
+            self.assertIn("warning", result.stdout)
+            self.assertIn("drifted 2", result.stdout)
+
+    def test_threshold_drift_fails(self) -> None:
+        # Three gates added since the recorded row: at the maintainer-set
+        # threshold (3, the 2026-07-02 return-round redirect), fail.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, gates=6)
+            result = run_linter("tools/lint-guardrail-cadence.py", "--root", d)
+            self.assertLinterFails(result, "drifted 3")
 
     def test_missing_inventory_token_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as d:

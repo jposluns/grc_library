@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #582: GR-P3 tension-marker check shipped as an advisory aid (2026-07-02)
 
-The partial-rewrite tension-marker item (GR-P3 graduation, the #565 retro) shipped as the diff-scoped advisory aid `tools/tension-scan.py` rather than a standing gate: a build-time census over the live TODO and ledger surfaces found 91 legitimate status+hedge pair coincidences, so the bookkeeping-gate family's zero-false-positive bar is unreachable and the contradiction judgment stays human (the aid flags rewritten blocks carrying a status+hedge pair for an end-to-end read; the aid-not-gate shape is a logged proceeded default).
+The partial-rewrite tension-marker item (GR-P3 graduation, the #565 retro) shipped as the diff-scoped advisory aid `tools/tension-scan.py` rather than a standing gate: a build-time census over the live TODO and ledger surfaces found 91 status+hedge pair coincidences, essentially all legitimate, so the bookkeeping-gate family's zero-false-positive bar is unreachable and the contradiction judgment stays human (the aid flags rewritten blocks carrying a status+hedge pair for an end-to-end read; the aid-not-gate shape is a logged proceeded default).
 
 ### PR #581: coverage-gaps register re-graded with evidence (2026-07-02)
 

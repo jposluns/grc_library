@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.71, PR #583
+
+Tooling (gate calibration, the maintainer's 2026-07-02 return-round redirect): **gate 60's fail bar tightens from drift 5 to drift 3.** Library 2026.07.70 to 2026.07.71; README 1.9.431 to 1.9.432.
+
+### Changed
+
+- [`tools/lint-guardrail-cadence.py`](../../tools/lint-guardrail-cadence.py): `FAIL_DRIFT_THRESHOLD` 5 to 3; the docstring's calibration paragraph and the constant's comment now carry the maintainer-set provenance (the 2026-07-02 return round redirected the build-time proceeded default of 5 to the stricter 3). The gate currently reports drift 1 (gates 59 to 60) with a warning, the intended sub-threshold behaviour.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.36 to 1.16.37): the gate-60 detailed-prose narrative's threshold updated to "(3, the maintainer-set calibration)".
+- [`tests/test_linters.py`](../../tests/test_linters.py): the threshold fixture re-pinned at the new boundary (gates=6, "drifted 3" fails) and a new just-below case added (gates=5, "drifted 2" warns and passes), suite 275 to 276; generated artefacts re-derived after the spec bump (taxonomy first, then portal and scorecard).
+- [`TODO.md`](../../TODO.md): the maintainer's P1 direction recorded against sections 1.4 and 1.5 (FR-48 completion is the P1 focus; S3 stays parked and the 51 `needs-reconfirm` rows stay deferred until the new process is ready, alongside the FR-70 and ISO-31000 deferrals).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the gate-60 entry records the redirect as executed (constant, docstring, spec narrative, fixtures, suite count).
+
+### Fixed
+
+- Four #582 sweep findings fixed in-window in [`tools/tension-scan.py`](../../tools/tension-scan.py) and [`.working/DONE.md`](../DONE.md): the docstring's opening sentence rewritten from the block-scope over-claim to the line-scoped truth (L-1); digit-initial paragraph lines added to the block pattern with the comment updated (I-1); the git-error handler widened to `OSError` so the documented 0/2 exit contract holds on a missing git binary (I-5); the DONE #582 census claim re-hedged to "essentially all legitimate" matching the docstring's characterization (I-2's live-ledger half; the root lead stays as shipped, log-only, since the docstring is the authoritative characterization and a correction note would outweigh the precision gained). I-3 is log-only (the mirror #581 Changed bullet is coherent chronological narration under a corrected lead, per the frozen-record convention); I-4 (the deferred pending-decisions rotation) executes in the authorized CLAUDE.md batch PR.
+
+### Verification
+
+- All 60 gates green standalone after each commit; the regression suite 276 tests OK; both generators check-clean; the pre-push guard green. Gate 60 exercised directly: warns at the live drift 1, and the new fixtures pin warn-at-2 / fail-at-3.
+- The tension-scan aid re-exercised after its three fixes (this branch's diff and the five-merge historical range; behaviour unchanged except the intended digit-initial widening).
+- The #582 QA trio: [`validate-pr/history.md`](../validate-pr/history.md) row (1.2.361), the per-PR record [`2026-07-02-PR-582.md`](../validate-pr/2026-07-02-PR-582.md), and the [`improvement-log.md`](../improvement-log.md) retro row (1.0.308).
+
+### Discipline observations
+
+- The #582 sweep agent stalled silently mid-run (no report, a dangling worktree) and was recovered by an orchestrator status probe; the maintainer's resulting SOP, check on every background task every 60 seconds until complete with active probing past a duration threshold, was adopted immediately and is queued for CLAUDE.md codification in the authorized batch PR (the retro row carries the pattern).
+- Pre-push discipline failure, self-caught and unwound in-window: the first push of this branch went out with gate 39 FAILING because the orchestrator chained the audit run and the pre-push guard through `tail` pipes, masking both non-zero exit codes so the `&&` chain continued to the push (the exact pipe-masked-exit-code anti-pattern the `evidence-grounded-completion` rule forbids; the gate-39 failure itself was the P7 count-phrasing trap in a fresh TODO clause, "31000 source gate"). The artefact was fixed, gates and guard re-run STANDALONE with exit codes echoed unpiped, and the bad commit replaced on the feature branch via force-with-lease before any PR was opened; no CI run or merge consumed the bad state. The #583 retro row carries the lesson: never pipe a gating command, run it standalone and read its exit code first.
+- Concurrent scratch work: a background worker is ingesting the maintainer-supplied ISO bundle (ISO 31000:2018, IEC 31010:2019, the practical guide) to `grc_library_scratch` via MCP PR under the Mode A workflow with mandatory watermark scrub; its landing un-gates the ISO-31000 half of the section-3.13 citation gate.
+
 ## 2026-07-02, Library Version 2026.07.70, PR #582
 
 Tooling (the GR-P3 graduation, census-first design): **the partial-rewrite tension-marker check ships as the advisory aid [`tools/tension-scan.py`](../../tools/tension-scan.py), not a standing gate.** Library 2026.07.69 to 2026.07.70; README 1.9.430 to 1.9.431.
