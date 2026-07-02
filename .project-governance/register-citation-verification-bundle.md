@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md)\
@@ -46,7 +46,7 @@ The order minimizes context-switching between publisher types and lets the human
 3. **Days 3-4 - Q3 tooling-register provenance** (55 entries). Most are GitHub repositories; the verification pattern is "view the repo, copy commit SHA, submit Wayback snapshot". Six commercial vendor entries follow a slightly different pattern (web pages instead of repos).
 4. **Days 5-7 - Q4 remaining canonical citations** (82 entries). Largest batch; spans NIST publications, EU regulations, North American regulations, other privacy regulations, OWASP, customs/trade, OECD, ICAO/IMO, CSA, ISACA, MITRE adversary frameworks, AICPA, jurisdiction-specific privacy. Publishers vary per entry; the human verifier moves between catalogue sites (csrc.nist.gov, eur-lex.europa.eu, etc.) and reads the URL pattern per row.
 
-**Optional optimisation**: while running Q3, the human verifier can ALSO record the canonical-citations register verification for the overlapping entries (see §5 below) to avoid having to revisit the same publishers later.
+**Optional optimization**: while running Q3, the human verifier can ALSO record the canonical-citations register verification for the overlapping entries (see §5 below) to avoid having to revisit the same publishers later.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,7 +68,7 @@ ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2023) are 
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

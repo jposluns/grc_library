@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.2\
-**Date:** 2026-06-29\
+**Version:** 1.5.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -16,21 +16,21 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This charter establishes the Privacy Management Programme: the organisational structure, accountabilities, and operating principles governing how personal data is collected, used, stored, disclosed, and disposed of across all jurisdictions. It creates the overarching framework within which the Privacy and Data Governance Policy, the Privacy Impact and Cross-Border Transfer Procedure, and the Data Subject Rights Management Procedure operate. The programme aligns to ISO/IEC 27701:2025, which is now a standalone Privacy Information Management System (PIMS) standard (the 2019 edition was an extension to ISO/IEC 27001; the 2025 revision restructured ISO/IEC 27701 as an independent standard; transition deadline October 2028).
+This charter establishes the Privacy Management Programme: the organizational structure, accountabilities, and operating principles governing how personal data is collected, used, stored, disclosed, and disposed of across all jurisdictions. It creates the overarching framework within which the Privacy and Data Governance Policy, the Privacy Impact and Cross-Border Transfer Procedure, and the Data Subject Rights Management Procedure operate. The programme aligns to ISO/IEC 27701:2025, which is now a standalone Privacy Information Management System (PIMS) standard (the 2019 edition was an extension to ISO/IEC 27001; the 2025 revision restructured ISO/IEC 27701 as an independent standard; transition deadline October 2028).
 
 ---
 
 ## Scope
 
-1. Applies to all personal data processed by the organisation, including employee data, customer data, supplier data, and partner data.
-2. Applies across all jurisdictions: Canada (PIPEDA and provincial legislation including Quebec Law 25), United States (applicable state breach notification and privacy laws), Latin America (applicable national privacy laws in jurisdictions where the organisation operates), and United Kingdom (UK GDPR / Data Protection Act 2018).
-3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organisation.
+1. Applies to all personal data processed by the organization, including employee data, customer data, supplier data, and partner data.
+2. Applies across all jurisdictions: Canada (PIPEDA and provincial legislation including Quebec Law 25), United States (applicable state breach notification and privacy laws), Latin America (applicable national privacy laws in jurisdictions where the organization operates), and United Kingdom (UK GDPR / Data Protection Act 2018).
+3. Applies to all employees, contractors, and third parties who process personal data on behalf of the organization.
 
 ---
 
@@ -57,7 +57,7 @@ GDPR Article 38 imposes two structural protections on the DPO role that adopters
 | Requirement | Source | What it forbids in practice |
 |---|---|---|
 | Does not receive any instructions regarding the exercise of DPO tasks | Article 38(3) sentence 1 | Management cannot direct the DPO's privacy assessments, regulator-engagement positions, or breach-notification decisions on a case-by-case basis |
-| Cannot be dismissed or penalised for performing DPO tasks | Article 38(3) sentence 2 | Dismissal, demotion, salary reduction, or denial of training cannot be linked to DPO advice the management disliked |
+| Cannot be dismissed or penalized for performing DPO tasks | Article 38(3) sentence 2 | Dismissal, demotion, salary reduction, or denial of training cannot be linked to DPO advice the management disliked |
 | Reports directly to the highest management level | Article 38(3) sentence 3 | The DPO must have an unfiltered escalation path; intermediary management layers cannot gate DPO communications to the board or executive |
 
 **Article 38(6) conflict-of-interest constraint.** The DPO may fulfil other tasks and duties, but the controller / processor must ensure that any such tasks and duties do not result in a conflict of interests. The Article 29 Working Party Guidelines on DPOs (WP243 rev.01) and the EDPB's subsequent guidance identify the following positions as **typically incompatible** with the DPO role:
@@ -79,7 +79,7 @@ This list is not exhaustive; the test is whether the secondary role results in t
 
 1. **Designate a formal DPO** (the preferred path; the formal designation triggers Article 37-39 protections and resolves the Article 38(6) conflict);
 2. **Implement mitigation controls** while the interim arrangement persists, naming each control to the supervisory authority in any DPIA, ROPA, or Article 36 prior consultation; OR
-3. **Document the formal exemption analysis** if Article 37(1) thresholds are not met (most organisations operating at any non-trivial scale will not qualify for exemption).
+3. **Document the formal exemption analysis** if Article 37(1) thresholds are not met (most organizations operating at any non-trivial scale will not qualify for exemption).
 
 **Mitigation controls for the interim arrangement** (operational only, not a substitute for formal designation):
 
@@ -104,12 +104,12 @@ For multi-regime non-EU controllers the strictest applicable independence regime
 
 ### EU representative (GDPR Article 27)
 
-Where the organisation is not established in the European Union but is subject to GDPR by virtue of Article 3(2) (offering goods or services to data subjects in the Union, or monitoring the behaviour of data subjects in the Union), Article 27 requires the designation in writing of an **EU representative**.
+Where the organization is not established in the European Union but is subject to GDPR by virtue of Article 3(2) (offering goods or services to data subjects in the Union, or monitoring the behaviour of data subjects in the Union), Article 27 requires the designation in writing of an **EU representative**.
 
 **Trigger.** The Article 27 obligation is triggered when **both** of the following are true:
 
-1. The organisation is established outside the European Union (and outside the EEA more broadly: Iceland, Liechtenstein, Norway are within the EEA scope of GDPR).
-2. The organisation processes personal data of subjects in the Union in the context of offering goods or services (irrespective of payment) OR monitoring behaviour that takes place within the Union (Article 3(2)).
+1. The organization is established outside the European Union (and outside the EEA more broadly: Iceland, Liechtenstein, Norway are within the EEA scope of GDPR).
+2. The organization processes personal data of subjects in the Union in the context of offering goods or services (irrespective of payment) OR monitoring behaviour that takes place within the Union (Article 3(2)).
 
 **Article 27(2) exemptions.** The obligation does NOT apply where ALL of the following are true:
 
@@ -120,7 +120,7 @@ Where the organisation is not established in the European Union but is subject t
 | Unlikely to result in a risk to rights and freedoms | Risk assessment documents this conclusion |
 | Public authority or body | Public authorities and bodies are exempt |
 
-The DPO documents the Article 27(2) exemption analysis in the organisation's Article 30 ROPA.
+The DPO documents the Article 27(2) exemption analysis in the organization's Article 30 ROPA.
 
 **Representative criteria.** The EU representative must:
 
@@ -136,9 +136,9 @@ The DPO documents the Article 27(2) exemption analysis in the organisation's Art
 
 1. The DPO assesses Article 3(2) applicability and the Article 27(2) exemption analysis annually and on material change to processing.
 2. Where the obligation applies, the DPO identifies a candidate representative in a Member State where the affected data subjects are located.
-3. Legal Counsel drafts and executes a written mandate between the organisation and the representative covering the Article 27(4) scope (responding to supervisory authorities, responding to data subjects, maintaining the ROPA copy where requested).
+3. Legal Counsel drafts and executes a written mandate between the organization and the representative covering the Article 27(4) scope (responding to supervisory authorities, responding to data subjects, maintaining the ROPA copy where requested).
 4. The CIO signs the designation; the representative countersigns acceptance.
-5. The DPO publishes the representative's contact details in the organisation's privacy notices (Article 13(1)(a) and Article 14(1)(a)) using [`privacy/template-privacy-notice.md`](template-privacy-notice.md).
+5. The DPO publishes the representative's contact details in the organization's privacy notices (Article 13(1)(a) and Article 14(1)(a)) using [`privacy/template-privacy-notice.md`](template-privacy-notice.md).
 6. The representative's contact details are also recorded in the Article 30 ROPA using [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md).
 7. The designation is filed with the lead supervisory authority where required by national implementing law (some Member States require notification; some do not).
 
@@ -156,11 +156,11 @@ The DPO documents the Article 27(2) exemption analysis in the organisation's Art
 |---|---|---|
 | **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; ICO is the supervisory authority |
 | **LGPD** (Brazil) | Legal representative (Article 5(VIII)) | Required for non-Brazilian controllers offering services to Brazilian subjects; ANPD is the supervisory authority |
-| **PIPL** (China, Article 53) | Designated organisation or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
+| **PIPL** (China, Article 53) | Designated organization or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
 | **India DPDP Act 2023** | Local representative where designated as Significant Data Fiduciary | Required at the Significant-Data-Fiduciary designation level; Data Protection Board of India is the supervisory authority |
 | **Saudi Arabia PDPL** | Local representative for non-Saudi controllers (subject to executive regulations) | SDAIA is the supervisory authority |
 
-For multi-regime non-EU controllers, the organisation may need to designate multiple regional representatives in parallel.
+For multi-regime non-EU controllers, the organization may need to designate multiple regional representatives in parallel.
 
 ---
 

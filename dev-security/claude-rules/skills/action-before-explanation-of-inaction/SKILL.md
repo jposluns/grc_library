@@ -54,7 +54,7 @@ The reversibility-gate protocol from the canonical rule, executed in order:
 
 The protocol is complete when one of the following holds:
 
-- For a safe action: the action was attempted this turn, the tool result was read, and the message is grounded in that result (quoted or summarised with reference to the response).
+- For a safe action: the action was attempted this turn, the tool result was read, and the message is grounded in that result (quoted or summarized with reference to the response).
 - For a destructive action: the action was not attempted, the explicit "I have not attempted X because [property that places it in the destructive set]" form is in the draft, and a request for confirmation is surfaced.
 - For an action the actor cannot attempt right now (tool unavailable, no credentials, network partition): the message says so explicitly and does not substitute a guessed cause for the missing attempt.
 

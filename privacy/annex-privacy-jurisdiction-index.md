@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.8\
-**Date:** 2026-06-28\
+**Version:** 1.0.9\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -24,7 +24,7 @@
 
 This index provides navigation to jurisdiction-specific privacy and AI regulatory requirement annexes and a cross-jurisdiction compliance mapping summary. Each jurisdiction file covers applicable laws, AI and privacy obligations, cross-border transfer mechanisms, and enforcement authorities and fines.
 
-Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organisations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
+Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting organizations should retain only the jurisdiction files relevant to their geographic footprint, regulatory obligations, and data subject locations.
 
 ---
 

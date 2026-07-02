@@ -2,8 +2,8 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-06-22\
+**Version:** 1.1.2\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -36,18 +36,18 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - The UK has adopted a pro-innovation, principles-based approach to AI regulation. The UK AI Safety Institute conducts evaluations of frontier AI models.
 - The ICO has published guidance on AI and data protection, including guidance on explaining AI decisions and auditing AI systems.
 - The UK has not enacted legislation equivalent to the EU AI Act as of 2025. The ICO, Competition and Markets Authority (CMA), and Financial Conduct Authority (FCA) each apply existing sector-specific powers to AI.
-- **Automated decision-making:** Following DUAA 2025 commencement (5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. The right to object and the right to human intervention remain available for decisions with legal or similarly significant effects, with sharper definitions of "significant" and clarified application to special-category data. Organisations whose ADM controls were modelled on the original Article 22 must review against the new 22A-22D framework.
+- **Automated decision-making:** Following DUAA 2025 commencement (5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. The right to object and the right to human intervention remain available for decisions with legal or similarly significant effects, with sharper definitions of "significant" and clarified application to special-category data. Organizations whose ADM controls were modelled on the original Article 22 must review against the new 22A-22D framework.
 - **Subject Access Requests (SARs):** DUAA 2025 codifies the principle that searches in response to an SAR are limited to "reasonable and proportionate" searches, and codifies "stopping the clock" while the controller is waiting for the data subject to provide clarification that the controller can demonstrate is reasonably required.
 - **DPIA:** Mandatory under UK GDPR Article 35 for high-risk processing, consistent with EU GDPR requirements.
-- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. Organisations should monitor developments in the UK's forthcoming statutory AI framework.
+- **AI literacy and accountability:** The UK government's AI Opportunities Action Plan and ICO guidance on responsible AI apply. The UK has not enacted legislation equivalent to the EU AI Act; DUAA 2025 did not create a horizontal AI regulatory framework. Organizations should monitor developments in the UK's forthcoming statutory AI framework.
 
 ---
 
 ## Cross-border transfer mechanisms
 
 - **UK Adequacy Regulations:** The UK Secretary of State may issue adequacy regulations for third countries. The UK has retained EU adequacy decisions in effect at the end of the Brexit transition period and has added its own, including recognizing the EU as adequate. The European Commission renewed the UK's adequacy decision until 27 December 2031.
-- **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organisations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
-- **UK-US Data Bridge:** The UK Extension to the EU-US Data Privacy Framework, in force October 2023, provides a transfer mechanism for UK-to-US transfers to participating US organisations.
+- **International Data Transfer Agreements (IDTAs):** The UK's equivalent of EU SCCs for transfers from the UK. Organizations using EU SCCs for EU transfers need separate IDTAs (or the Addendum to EU SCCs) for UK transfers.
+- **UK-US Data Bridge:** The UK Extension to the EU-US Data Privacy Framework, in force October 2023, provides a transfer mechanism for UK-to-US transfers to participating US organizations.
 
 ---
 
@@ -63,7 +63,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

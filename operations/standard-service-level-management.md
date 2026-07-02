@@ -2,8 +2,8 @@
 
 **Document Title:** Service Level Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-06-20\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -28,10 +28,10 @@ This standard applies to:
 
 - All IT services delivered to internal customers, including business units and operational functions.
 - All Operational Level Agreements between internal IT teams supporting service delivery.
-- All externally sourced services where the organisation is the service consumer and the supplier is subject to a contracted SLA.
+- All externally sourced services where the organization is the service consumer and the supplier is subject to a contracted SLA.
 - Cloud-hosted services where availability and support terms are governed by provider service agreements.
 
-This standard does not apply to external services where the organisation is the service provider to clients; those obligations are governed by customer contracts and applicable regulatory requirements.
+This standard does not apply to external services where the organization is the service provider to clients; those obligations are governed by customer contracts and applicable regulatory requirements.
 
 ---
 
@@ -73,7 +73,7 @@ This standard does not apply to external services where the organisation is the 
 
 2.3 SLAs must be approved by the Service Owner and acknowledged by the service consumer before activation.
 
-2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organisation's service targets. Gaps must be identified and risk-accepted before service activation.
+2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organization's service targets. Gaps must be identified and risk-accepted before service activation.
 
 ---
 
@@ -91,7 +91,7 @@ This standard does not apply to external services where the organisation is the 
 
 ### 4: SLA monitoring and measurement
 
-4.1 Service availability and performance must be measured continuously using the organisation's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
+4.1 Service availability and performance must be measured continuously using the organization's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
 
 4.2 The Service Management Office must produce a monthly SLA compliance report for all Tier 1 and Tier 2 services. The report must include:
 
@@ -150,7 +150,7 @@ This standard does not apply to external services where the organisation is the 
 
 ### 7: Supplier SLA governance
 
-7.1 Where an external supplier is responsible for delivering or supporting a service, the organisation must hold the supplier accountable to the contracted SLA through the supplier governance process defined in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
+7.1 Where an external supplier is responsible for delivering or supporting a service, the organization must hold the supplier accountable to the contracted SLA through the supplier governance process defined in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
 
 7.2 Supplier SLA performance must be reviewed at least quarterly. Material or repeated supplier SLA breaches must be escalated to the Supplier Owner and documented in the supplier risk register.
 
@@ -174,7 +174,7 @@ This standard does not apply to external services where the organisation is the 
 - Notification requirements for provider-side incidents.
 - Geographic or zone-specific availability commitments.
 
-8.2 Cloud provider SLA availability must be factored into the organisation's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
+8.2 Cloud provider SLA availability must be factored into the organization's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
 
 8.3 Cloud provider service agreement terms must be reviewed when contracts are renewed and whenever a material architecture change affects the service.
 
@@ -192,7 +192,7 @@ This standard does not apply to external services where the organisation is the 
 
 ## Evidence requirements
 
-Adopting organisations should retain:
+Adopting organizations should retain:
 
 - Approved SLA and OLA documents with version history and approval records.
 - Monthly SLA compliance reports.
@@ -217,7 +217,7 @@ Adopting organisations should retain:
 
 ## Limitations
 
-This standard provides a governance baseline. Adopting organisations must define their own service availability targets, breach thresholds, and escalation paths based on their service catalogue, customer contracts, regulatory obligations, and risk appetite. SLA targets in illustrative tables are placeholders only.
+This standard provides a governance baseline. Adopting organizations must define their own service availability targets, breach thresholds, and escalation paths based on their service catalogue, customer contracts, regulatory obligations, and risk appetite. SLA targets in illustrative tables are placeholders only.
 
 ---
 

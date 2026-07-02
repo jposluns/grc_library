@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-06-29\
+**Version:** 1.0.8\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -38,12 +38,12 @@
 
 ### 1.1 Purpose
 
-This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organisation uses to:
+This procedure governs the identification, recording, assessment, treatment, verification, and closure of nonconformities and opportunities for improvement across all GRC domains. It defines the Corrective and Preventive Action (CAPA) process that the organization uses to:
 
 - Systematically address control failures, compliance gaps, and identified weaknesses before they recur or escalate;
 - Require root cause analysis for material findings so that actions address underlying causes rather than symptoms;
 - Ensure that accountability, target dates, and verification requirements are clearly assigned for every nonconformity;
-- Provide senior leadership with a consolidated, reliable view of the organisation's nonconformity landscape and remediation status;
+- Provide senior leadership with a consolidated, reliable view of the organization's nonconformity landscape and remediation status;
 - Drive measurable, sustained improvement in the GRC programme over time.
 
 ### 1.2 Scope
@@ -113,7 +113,7 @@ The **Enterprise Risk Committee (ERC)** receives a quarterly CAPA status report 
 
 ### 3.1 Raising a nonconformity
 
-Any individual across the organisation may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
+Any individual across the organization may raise a nonconformity or improvement opportunity. Nonconformities are raised through the designated CAPA submission mechanism (e.g., a GRC platform, shared register, or submission form). Identifying and raising a potential nonconformity is a positive act and must not carry negative consequences for the person raising it.
 
 ### 3.2 Minimum required fields
 
@@ -161,7 +161,7 @@ A root cause statement is acceptable only if it meets every criterion below. The
 | **Specific** | Names the concrete process, system, decision, role, or control involved (e.g., "the privileged access review for the AWS production account was last performed in 2024-Q3 and the 2025-Q1 review was not scheduled") | Bare category labels with no further detail (e.g., "process gap", "human error", "lack of training", "configuration issue", "communication failure") |
 | **Causal** | States the mechanism that produced the failure: what condition existed, or was missing, that allowed the nonconformity to occur and to go undetected | Restatements of the symptom (e.g., "the control was not performed because it was not performed"); bare attributions of fault to an individual without identifying the systemic condition |
 | **Actionable** | Identifies what would need to change for the cause to be removed: a procedure to amend, a system to configure, a role to assign, a monitoring control to add | Statements that imply no specific change (e.g., "more attention needed", "should be more careful"); statements whose only implied action is "do the existing thing better" |
-| **Bounded** | Identifies the scope of the cause: whether it affects a single instance, a class of instances within one domain, or multiple domains | Vague universals (e.g., "cultural issue", "organisation-wide gap") asserted without evidence of the scope |
+| **Bounded** | Identifies the scope of the cause: whether it affects a single instance, a class of instances within one domain, or multiple domains | Vague universals (e.g., "cultural issue", "organization-wide gap") asserted without evidence of the scope |
 | **Evidence-anchored** | References the evidence on which the cause statement rests: the audit finding, the incident report, the log excerpt, the interview note | Cause statements that cannot be traced back to an artefact the GRC Manager can review |
 
 The root cause category taxonomy in Section 4.3 is used for pattern analysis aggregation; it is **not** a substitute for the per-statement checklist above. A statement that names only a category (e.g., "Process gap") fails the Specific criterion regardless of whether the category itself is accurate.
@@ -194,7 +194,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 
 ### 5.1 Critical
 
-**Definition:** A material control failure or nonconformity that exposes the organisation to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
+**Definition:** A material control failure or nonconformity that exposes the organization to significant risk of harm, regulatory sanction, certification failure, or operational disruption. The control is absent, has failed completely, or is being actively circumvented.
 
 **Response requirements:**
 
@@ -281,13 +281,13 @@ Target date changes must be accompanied by a documented justification and a new 
 
 #### 6.3.1 Extension ceiling and escalation pathway
 
-Approval authority for an extension does not, on its own, authorise an unbounded sequence of extensions. To prevent Critical and High findings from remaining open indefinitely under repeated single-step approvals, the following hard ceilings apply to every CAPA regardless of classification:
+Approval authority for an extension does not, on its own, authorize an unbounded sequence of extensions. To prevent Critical and High findings from remaining open indefinitely under repeated single-step approvals, the following hard ceilings apply to every CAPA regardless of classification:
 
 | Extension number | Required approving authority | Additional requirement |
 |------------------|------------------------------|------------------------|
 | **1st extension** | Per §6.3 (CISO for Critical; GRC Manager for High / Moderate / Low) | Documented justification and revised target date |
 | **2nd extension** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
-| **3rd extension** | Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
+| **3rd extension** | Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
 | **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension may not be granted by any authority. |
 
 A CAPA whose root cause has materially changed (for example, a new contributing factor identified after the 1st extension is approved) is re-baselined: the count is reset, the revised root cause statement passes the §4.1.1 checklist, and a new initial target date is set. Re-baselining is approved by the ERC and recorded in the CAPA register as a re-baseline event with the prior history retained for audit; re-baselining is not an extension and does not consume an extension slot. Re-baselining cannot be used to bypass the ceiling: a re-baseline that does not rest on a materially-changed root cause is treated as the next extension in the sequence (the ERC declines the re-baseline and the count continues).
@@ -410,7 +410,7 @@ The pattern analysis is documented as a component of the annual GRC management r
 
 ### 10.1 Purpose of preventive action
 
-Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organisation's shift from reactive to proactive risk management.
+Preventive action addresses potential nonconformities: issues that have not yet occurred but that analysis or intelligence suggests may occur if no action is taken. Effective preventive action reduces the frequency and severity of future nonconformities and supports the organization's shift from reactive to proactive risk management.
 
 ### 10.2 Triggers for preventive action
 
@@ -418,8 +418,8 @@ Preventive action may be initiated from:
 
 - Threat intelligence that indicates emerging risks to current control designs;
 - Near-miss events (an event that had the potential to be a security incident but did not result in harm);
-- External audit or regulatory findings at peer organisations in the same sector;
-- Significant changes to the organisational environment that may affect control effectiveness before those effects are detected;
+- External audit or regulatory findings at peer organizations in the same sector;
+- Significant changes to the organizational environment that may affect control effectiveness before those effects are detected;
 - Lessons learned from CAPA pattern analysis showing precursor conditions.
 
 ### 10.3 Preventive action process
@@ -459,7 +459,7 @@ All CAPA records, including root cause analysis documentation, corrective action
 
 For CAPAs that remain open at the time of any regulatory inspection, certification audit, or legal proceeding, records must be preserved until the relevant matter is fully resolved, regardless of the standard 7-year retention period.
 
-Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorized senior leadership. Disposal after the retention period is conducted in accordance with the organisation's data retention and disposal policy.
+Records are stored in the designated secure GRC document repository. Access is restricted to the GRC team, CISO, domain owners with records in scope, and authorized senior leadership. Disposal after the retention period is conducted in accordance with the organization's data retention and disposal policy.
 
 ---
 

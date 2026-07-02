@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,18 +20,18 @@ This policy establishes the overarching framework for protecting the confidentia
 
 ## Purpose
 
-To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organisation maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, COBIT 2019, and CSA CCM v4.1.
+To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organization maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, COBIT 2019, and CSA CCM v4.1.
 
 ---
 
 ## Scope
 
-1. Applies to all business units, employees, contractors, and third parties who access, process, or store organisational data.
+1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational data.
 2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices.
 3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange.
 4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001 Annex A and related frameworks.
 
-Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organisation participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
+Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organization participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
 
 ---
 
@@ -58,7 +58,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 | Employees and Contractors | Adhere to acceptable use and data protection requirements; promptly report incidents or policy violations. |
 | Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001. |
 
-Where the organisation participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`compliance/`](../compliance/).
+Where the organization participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`compliance/`](../compliance/).
 
 ---
 
@@ -66,7 +66,7 @@ Where the organisation participates in a sector-specific security programme (for
 
 ### 1. Information security framework
 
-1.1 The organisation must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+1.1 The organization must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
 1.2 The ISMS must integrate risk management, business continuity, privacy, and AI governance.
 1.3 Security objectives must be measurable and reviewed annually.
 
@@ -93,7 +93,7 @@ Where the organisation participates in a sector-specific security programme (for
 ### 5. Endpoint and mobile security
 
 5.1 All endpoints must have up-to-date antivirus, endpoint detection, and response capabilities.
-5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organisational data.
+5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organizational data.
 5.3 Removable media must be restricted and encrypted when use is approved.
 
 ### 6. Vulnerability and patch management
@@ -142,9 +142,9 @@ Where the organisation participates in a sector-specific security programme (for
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS01.06 | ISM-10 |
 | Continuous Improvement | Clause 10 | 5.31 to 5.37 (compliance and review); ISMS continuous improvement is in 27001 Clause 10 | Recover | MEA01 | ISM-12 |
 
-Note: ISO/IEC 27002:2022 reorganised the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organisational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
+Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
 
-**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2021) apply where the organisation participates in those programmes; see [`compliance/`](../compliance/).
+**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2021) apply where the organization participates in those programmes; see [`compliance/`](../compliance/).
 
 
 

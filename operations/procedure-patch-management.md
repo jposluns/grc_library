@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-06-29\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This procedure defines the end-to-end process for identifying, classifying, testing, authorizing, deploying, and verifying security patches and software updates across the organisation's technology estate. It operationalizes the patch remediation SLAs established in the Production Security Requirements Standard and the Vulnerability Management Procedure, translating policy obligations into repeatable operational steps.
+This procedure defines the end-to-end process for identifying, classifying, testing, authorizing, deploying, and verifying security patches and software updates across the organization's technology estate. It operationalizes the patch remediation SLAs established in the Production Security Requirements Standard and the Vulnerability Management Procedure, translating policy obligations into repeatable operational steps.
 
 Effective patch management reduces the window of exposure between public vulnerability disclosure and remediation, limits the attack surface available for exploitation, and demonstrates measurable compliance with regulatory and framework obligations.
 

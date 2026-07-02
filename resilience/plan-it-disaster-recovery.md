@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.3\
-**Date:** 2026-06-24\
+**Version:** 1.3.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organisations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context.
+This plan defines the system-specific recovery procedures, RTO and RPO targets, and runbook references for IT Disaster Recovery (DR). It is a companion document to the BC/DR Standard and the Business Continuity and Crisis Management Plan, which govern the broader BC/DR framework. This plan focuses on IT system recovery execution rather than business continuity governance. The plan reflects industry experience with phased recovery from major security incidents; adopting organizations calibrate RTO/RPO targets, tier assignments, and phasing to their own incident history, risk appetite, and operational context.
 
 ---
 
 ## Scope
 
-1. Applies to all IT systems and infrastructure supporting organisational operations, including production systems in the primary data centre and cloud platform environments.
+1. Applies to all IT systems and infrastructure supporting organizational operations, including production systems in the primary data centre and cloud platform environments.
 2. Covers recovery of virtual infrastructure, identity systems, data systems, integration layer, and reporting services.
 3. Covers the current infrastructure programme environment model (DEV / TEST / PROD) as it is brought into service.
 
@@ -61,7 +61,7 @@ Specific per-system RTO/RPO targets for ongoing system modernization workstreams
 
 **Recovery platform:** A cloud-based site recovery service replicates production virtual machines to the cloud platform and enables failover within defined RTO windows. Failback to the primary data centre occurs after the primary site is restored and validated.
 
-**Cloud-native services:** Cloud productivity platform services and enterprise identity provider recover according to the cloud provider's platform SLAs and the organisation's configuration backup procedures. These services do not require replication-based DR.
+**Cloud-native services:** Cloud productivity platform services and enterprise identity provider recover according to the cloud provider's platform SLAs and the organization's configuration backup procedures. These services do not require replication-based DR.
 
 ---
 

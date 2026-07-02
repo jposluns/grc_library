@@ -2,8 +2,8 @@
 
 **Document Title:** Trade and Supply-Chain Continuity Controls Annex\
 **Document Type:** Annex\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](../resilience/procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](../resilience/procedure-continuity-and-recovery-testing.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](matrix-supply-chain-security-programme-alignment.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This annex provides organisation-neutral continuity considerations for trade, logistics, customs, cargo, and supply-chain operations. It supports continuity planning where disruption to external routes, facilities, suppliers, documents, customs data, or service providers may affect critical operations.
+This annex provides organization-neutral continuity considerations for trade, logistics, customs, cargo, and supply-chain operations. It supports continuity planning where disruption to external routes, facilities, suppliers, documents, customs data, or service providers may affect critical operations.
 
 ---
 
 ## Scope
 
-This annex may be adapted for organisations with logistics, import, export, customs, broker, carrier, warehousing, cross-border, regulated shipment, or supply-chain dependencies.
+This annex may be adapted for organizations with logistics, import, export, customs, broker, carrier, warehousing, cross-border, regulated shipment, or supply-chain dependencies.
 
-It does not reproduce requirements from customs programmes, trade-security programmes, laws, standards, or certification schemes. Adopting organisations must validate applicable legal, regulatory, contractual, sector, and programme obligations independently.
+It does not reproduce requirements from customs programmes, trade-security programmes, laws, standards, or certification schemes. Adopting organizations must validate applicable legal, regulatory, contractual, sector, and programme obligations independently.
 
 ---
 
@@ -71,7 +71,7 @@ Trade and supply-chain obligations vary materially by jurisdiction, programme, s
 
 ## Evidence requirements
 
-Adopting organisations should maintain trade dependency maps, supplier continuity records, customs data inventories, route risk assessments, alternate processing plans, incident escalation records, recovery tests, corrective action logs, and residual risk decisions.
+Adopting organizations should maintain trade dependency maps, supplier continuity records, customs data inventories, route risk assessments, alternate processing plans, incident escalation records, recovery tests, corrective action logs, and residual risk decisions.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework\
 **Document Type:** Framework\
-**Version:** 1.2.2\
-**Date:** 2026-06-29\
+**Version:** 1.2.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the organisation's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
+This framework defines the organization's approach to environmental sustainability, ethical technology development, and human rights due diligence across all operations and digital systems. It consolidates the Sustainability Framework, Ethical Technology Use Framework, and Human Rights Due Diligence Framework into a unified enterprise structure.
 
 Aligned with ISO 50001 (Energy Management), ISO 26000 (Social Responsibility), OECD Digital Security Framework, UN SDGs, GPAI Model Governance Playbook, and the CSA AI Controls Matrix (AICM v1.1) responsible-AI governance controls.
 
@@ -34,7 +34,7 @@ Applies to all business units, data centres, digital systems, AI solutions, and 
 
 ### 1. Sustainability governance
 
-The organisation maintains an enterprise sustainability management system aligned with ISO 50001 and ISO 26000. Sustainability performance is incorporated into strategic planning and investment decisions. Sustainability metrics are reported to the ERC annually and to external stakeholders per applicable disclosure requirements.
+The organization maintains an enterprise sustainability management system aligned with ISO 50001 and ISO 26000. Sustainability performance is incorporated into strategic planning and investment decisions. Sustainability metrics are reported to the ERC annually and to external stakeholders per applicable disclosure requirements.
 
 ### 2. Energy and resource efficiency
 
@@ -73,7 +73,7 @@ All procurement decisions must include a documented assessment of supplier susta
 
 Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats.
 
-**Escalation triggers.** The CIO escalates sustainability performance to the ERC, and to the Board where the matter is material, when any of the following occurs: a tracked KPI misses its target for two consecutive reporting periods; a substantiated human rights due-diligence finding arises in operations or the supply chain; or a material adverse ESG event occurs (a regulatory disclosure breach, a significant environmental incident, or a reportable ethics failure). These triggers are qualitative by design; each adopting organisation calibrates the specific tolerance bands to its sector and risk appetite. Escalated matters are recorded in the sustainability review and raised into the enterprise risk register where the exposure warrants.
+**Escalation triggers.** The CIO escalates sustainability performance to the ERC, and to the Board where the matter is material, when any of the following occurs: a tracked KPI misses its target for two consecutive reporting periods; a substantiated human rights due-diligence finding arises in operations or the supply chain; or a material adverse ESG event occurs (a regulatory disclosure breach, a significant environmental incident, or a reportable ethics failure). These triggers are qualitative by design; each adopting organization calibrates the specific tolerance bands to its sector and risk appetite. Escalated matters are recorded in the sustainability review and raised into the enterprise risk register where the exposure warrants.
 
 | Role | Responsibility |
 | --- | --- |

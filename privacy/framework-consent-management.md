@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-06-27\
+**Version:** 1.0.7\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This framework defines the operating model for capturing, recording, refreshing, and honouring consent across the organisation. It distinguishes consent from other lawful bases, sets the validity standard, identifies the granularity required for different purposes, and defines the audit trail that supports a defensible position with supervisory authorities and data subjects.
+This framework defines the operating model for capturing, recording, refreshing, and honouring consent across the organization. It distinguishes consent from other lawful bases, sets the validity standard, identifies the granularity required for different purposes, and defines the audit trail that supports a defensible position with supervisory authorities and data subjects.
 
 This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, PIPEDA, COPPA, and equivalent regimes. It supports both web and mobile interfaces and in-product or service-channel consent flows.
 
@@ -30,7 +30,7 @@ This framework supports GDPR, UK GDPR, ePrivacy expectations, LGPD, PIPL, PIPEDA
 
 ## Scope
 
-This framework applies to all consent collection from data subjects across all channels, products, services, and jurisdictions in which the organisation operates. It does not displace contractual, legitimate interest, vital interest, public task, or legal obligation lawful bases; where one of those bases is lawful and appropriate, consent is not required.
+This framework applies to all consent collection from data subjects across all channels, products, services, and jurisdictions in which the organization operates. It does not displace contractual, legitimate interest, vital interest, public task, or legal obligation lawful bases; where one of those bases is lawful and appropriate, consent is not required.
 
 ---
 
@@ -43,7 +43,7 @@ Consent is the lawful basis where:
 3. The processing falls within a category where consent is legally required (for example most ePrivacy cookie use cases, special-category data under GDPR Article 9, certain transfers, marketing communications under most regimes, and processing of children's data under COPPA and equivalents).
 4. The subject's freely-given, specific, informed, and unambiguous indication is required.
 
-Where consent is not appropriate (for example processing necessary to perform a contract), the organisation does not collect consent for that purpose; it identifies the actual lawful basis in the privacy notice and the ROPA.
+Where consent is not appropriate (for example processing necessary to perform a contract), the organization does not collect consent for that purpose; it identifies the actual lawful basis in the privacy notice and the ROPA.
 
 ---
 
@@ -54,7 +54,7 @@ Consent must satisfy each of the following elements. Failure of any element inva
 | Element | Requirement |
 | --- | --- |
 | Freely given | No bundling with contract execution where the processing is not necessary for the contract. No detriment for refusal beyond the loss of the optional feature itself. No pre-ticked boxes or default-on switches. |
-| Specific | A separate, granular indication per distinct purpose. One overall consent covering "marketing, analytics, and product personalisation" does not satisfy this element. |
+| Specific | A separate, granular indication per distinct purpose. One overall consent covering "marketing, analytics, and product personalization" does not satisfy this element. |
 | Informed | The subject has been given the controller identity, the purposes, the data categories, the third-party recipients, the international transfers, the retention, and the rights, before consent is captured. |
 | Unambiguous | Captured through a clear affirmative action: ticked box, button press, biometric gesture, explicit utterance. Inactivity, silence, or continued browsing does not constitute consent. |
 | Withdrawable | The subject can withdraw consent at any time through a route as easy as the route used to give it. Withdrawal has no retrospective effect on processing before withdrawal. |
@@ -73,7 +73,7 @@ Consent must satisfy each of the following elements. Failure of any element inva
 
 ## Consent record
 
-Each consent capture event produces a record stored in the consent register. The record is the audit artefact for the organisation's lawful-basis claim.
+Each consent capture event produces a record stored in the consent register. The record is the audit artefact for the organization's lawful-basis claim.
 
 | Field | Description |
 | --- | --- |
@@ -172,7 +172,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. Adopting organisations must validate jurisdictional rules, integrate with their specific consent management platform, populate the per-purpose consent record fields, and confirm the dormancy and refresh intervals applicable to their regimes. The framework is not legal advice.
+This framework is a CC BY-SA 4.0 baseline. Adopting organizations must validate jurisdictional rules, integrate with their specific consent management platform, populate the per-purpose consent record fields, and confirm the dormancy and refresh intervals applicable to their regimes. The framework is not legal advice.
 
 ---
 

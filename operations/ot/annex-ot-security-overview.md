@@ -2,8 +2,8 @@
 
 **Document Title:** Operational Technology Security Overview Annex\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-06-30\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/README.md`](../README.md), [`operations/standard-network-security-and-segmentation.md`](../standard-network-security-and-segmentation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -43,7 +43,7 @@ OT excludes pure information systems (databases, document management, email, bus
 | Dimension | IT (typical) | OT (typical) |
 | --- | --- | --- |
 | **Failure consequence** | Data loss, service downtime, financial loss | Physical damage, environmental harm, loss of life |
-| **CIA prioritisation** | Confidentiality, Integrity, Availability (in order) | Availability, Integrity, Confidentiality (reversed) |
+| **CIA prioritization** | Confidentiality, Integrity, Availability (in order) | Availability, Integrity, Confidentiality (reversed) |
 | **Asset lifecycle** | 3 to 7 years; patched monthly | 15 to 25 years; often unpatchable; legacy OS |
 | **Patching cadence** | Monthly, automated | Annual at most, requires production window, vendor coordination |
 | **Network model** | Open, internet-connected, dynamic | Segmented, often air-gapped historically (less so now with IT/OT convergence) |
@@ -51,7 +51,7 @@ OT excludes pure information systems (databases, document management, email, bus
 | **Default trust** | Zero trust target; assume breach | Trust within segmented zones; control at boundaries |
 | **Real-time constraints** | Latency tolerance varies | Deterministic real-time often required; security overhead constrained |
 
-The reversed CIA triad is itself subordinate to a higher objective: per NIST SP 800-82 Rev. 3, human safety is paramount, ahead of protection of the process, so where safety and availability conflict, safety governs. These differences are not absolute; modern OT increasingly resembles IT in connectivity and architecture (IT/OT convergence). But the operational consequences of OT failures keep the prioritisation distinct.
+The reversed CIA triad is itself subordinate to a higher objective: per NIST SP 800-82 Rev. 3, human safety is paramount, ahead of protection of the process, so where safety and availability conflict, safety governs. These differences are not absolute; modern OT increasingly resembles IT in connectivity and architecture (IT/OT convergence). But the operational consequences of OT failures keep the prioritization distinct.
 
 ### 2.3 What this annex does not cover
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Scenario Risk Catalogue\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/guideline-quantitative-risk-analysis.md`](guideline-quantitative-risk-analysis.md), [`resilience/template-tabletop-exercise.md`](../resilience/template-tabletop-exercise.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This catalogue lists scenarios used for scenario-based risk analysis, stress testing, tabletop exercises, business-continuity testing, and resilience assurance. Each scenario is a plausible adverse event that exercises the organisation's controls, response, and recovery posture.
+This catalogue lists scenarios used for scenario-based risk analysis, stress testing, tabletop exercises, business-continuity testing, and resilience assurance. Each scenario is a plausible adverse event that exercises the organization's controls, response, and recovery posture.
 
 The catalogue is the source from which scenario tests are scheduled. It complements the enterprise and operational risk registers (which list risks) and the tabletop exercise template (which structures a single exercise).
 
@@ -32,7 +32,7 @@ The catalogue covers scenarios that:
 2. Could materially affect financial performance.
 3. Could materially affect regulatory standing.
 4. Stress controls in ways that frequency-based loss data does not capture.
-5. Stress organisational coordination across teams, suppliers, and regulators.
+5. Stress organizational coordination across teams, suppliers, and regulators.
 
 It does not catalogue every conceivable incident; it catalogues a curated set chosen to exercise different control areas across a rolling window.
 
@@ -84,7 +84,7 @@ Each scenario in the catalogue has:
 
 ## Reference scenario set
 
-This reference set is illustrative; adopting organisations replace entries with their own.
+This reference set is illustrative; adopting organizations replace entries with their own.
 
 ### Cyber attack
 
@@ -92,7 +92,7 @@ This reference set is illustrative; adopting organisations replace entries with 
 | --- | --- |
 | SCN-CYB-001 | Ransomware encrypts critical production systems; backups partially compromised |
 | SCN-CYB-002 | Destructive wiper executed via a software-supply-chain compromise |
-| SCN-CYB-003 | Multi-tenant cloud provider control-plane intrusion exposing organisational tenants |
+| SCN-CYB-003 | Multi-tenant cloud provider control-plane intrusion exposing organizational tenants |
 | SCN-CYB-004 | Identity-provider compromise enabling lateral movement across SaaS estate |
 | SCN-CYB-005 | Insider exfiltrates customer dataset via legitimate access path |
 | SCN-CYB-006 | Adversary-in-the-middle bypasses MFA via phishing for high-privilege account |
@@ -108,7 +108,7 @@ This reference set is illustrative; adopting organisations replace entries with 
 | SCN-AI-001 | Foundation-model provider deprecates model with insufficient notice; downstream services disrupted |
 | SCN-AI-002 | Provider-side safety classifier change materially changes customer-facing model behaviour |
 | SCN-AI-003 | Prompt-injection cascade enables an agent to leak sensitive data to an attacker |
-| SCN-AI-004 | Agentic tool invocation initiates a downstream financial action without proper authorisation |
+| SCN-AI-004 | Agentic tool invocation initiates a downstream financial action without proper authorization |
 | SCN-AI-005 | Training-data leak exposes customer-confidential content to a public model |
 | SCN-AI-006 | Adversarial dataset poisoning degrades model quality in production |
 | SCN-AI-007 | Cost-runaway event exhausts AI inference budget and rate limits |
@@ -184,7 +184,7 @@ This reference set is illustrative; adopting organisations replace entries with 
 | SCN-REP-001 | Adverse media campaign about product quality or safety |
 | SCN-REP-002 | Customer-data breach disclosure with high media attention |
 | SCN-REP-003 | Executive misconduct disclosure |
-| SCN-REP-004 | Coordinated social-media campaign against the organisation |
+| SCN-REP-004 | Coordinated social-media campaign against the organization |
 
 ### Climate-related
 
@@ -212,10 +212,10 @@ Each scenario is exercised at one or more severity levels. The severity calibrat
 | Severity | Description |
 | --- | --- |
 | Moderate | Plausible bad day; exercises routine response |
-| Severe-but-plausible | A bad outcome that the organisation should still be able to manage |
-| Extreme | A tail scenario that exercises the limits of the organisation's response |
+| Severe-but-plausible | A bad outcome that the organization should still be able to manage |
+| Extreme | A tail scenario that exercises the limits of the organization's response |
 
-For regulated organisations, the severe-but-plausible level aligns with operational resilience regulatory expectations.
+For regulated organizations, the severe-but-plausible level aligns with operational resilience regulatory expectations.
 
 ---
 
@@ -272,7 +272,7 @@ For regulated organisations, the severe-but-plausible level aligns with operatio
 
 ## Limitations
 
-This catalogue is a CC BY-SA 4.0 baseline. Adopting organisations curate scenarios to their threat environment, regulatory expectations, sector profile, and customer base. The scenarios listed are illustrative and not exhaustive; new scenarios are added as the threat and business environment evolves.
+This catalogue is a CC BY-SA 4.0 baseline. Adopting organizations curate scenarios to their threat environment, regulatory expectations, sector profile, and customer base. The scenarios listed are illustrative and not exhaustive; new scenarios are added as the threat and business environment evolves.
 
 ---
 

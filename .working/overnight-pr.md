@@ -58,4 +58,15 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 - PR 17 (#569): C10 / L-d closed (the promoted verbless-sentence corpus repair): the pre-apply full read of ALL 170 "ensure(s) that" occurrences raised the enumerated 22 carriers to the TRUE 54 across 36 documents (the fourth consecutive undercount of this class, converging with the #568 post-merge sweep's independent same finding), all repaired by two deterministic scripted applies (per-carrier uniqueness assertions, single Version+Date co-bump per file, prefix-aware re-parse of all 54 applied values), and the in-repo mechanical-sweep root-cause hypothesis REFUTED (every traced carrier introduced at the initial public-release commit 03ca390; the pre-release half unverifiable). The eleven #568 sweep findings dispositioned in the same PR: the decision-tree's four wrong-topic positional tokens plus its stale OT/ICS "Limited coverage today" answer (the ot/ suite shipped), the placeholder-linter rationale (docstring AND the :64 comment the first fix missed), the portal schema-constant bump with regen, seven more register cells to Backlog-candidate form with the triage note extended, the startup-roadmap two-minute claims, the stale DONE count. Batched #568 QA rows. NEXT: the M-wave (ISE_PATTERN + -ize/-ization HA sweep first).
 
+- PR 18 (#570): M1 / TODO 7.4 executed (the locked full-normalization decision) + 3.13 item-25: the ~2000-occurrence Commonwealth-spelling harmonization under the HA harness (research-classified map, three-span verbatim-quote mask, deterministic apply with per-file single bumps, pseudonymization-standard rename, pack mirror re-sync) bundled with the gate-2 spelling-coverage extension (57 stems, generic -isation check, -yse family, allow-span mask, five fixtures). The FN verifier refuted pass-one completeness (the derivational family: 17 residuals), all adopted with a second gate extension (per-stem -isable/-iser + analyser) and the root-file flips (CONTRIBUTING, SECURITY, TODO, CITATION.cff, tools README, .claude command/guidance files, spelling-only protected touch, logged). Batched #569 QA rows. Maintainer directed a PAUSE FOR DISCUSSION after this PR completes. NEXT (after the pause): GR-P3 tension-marker gate, then the remaining M-wave machinery.
+
+**Mode transition (2026-07-02, mid-M1):** the maintainer ended overnight mode by direct
+message and switched the run to DAYTIME-UNATTENDED: green CI still merges, the full QA
+cadence is unchanged, and maintainer decisions are surfaced by push notification plus a
+choice list (proceed on logged stricter-safe defaults if unanswered; irreversible or
+outward-facing items still hold). The three M1 sub-decisions (filename rename, fence
+flips, -yse inclusion) were answered directly by the maintainer in-session via the
+plan-mode question list; the M1 plan was maintainer-approved via plan mode. This file
+stays `in-flight` until its content is routed by the normal processing PR.
+
 **Open ambiguities:** none yet; anything surfacing mid-run is logged here plus [`pending-decisions.md`](pending-decisions.md) under the graceful-degradation rule.

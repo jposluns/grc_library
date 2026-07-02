@@ -2,8 +2,8 @@
 
 **Document Title:** Resilience Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/README.md`](README.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`governance/register-key-terms-and-definitions.md`](../governance/register-key-terms-and-definitions.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register defines resilience terminology used across the public GRC Documentation Library. Definitions are original, organisation-neutral, and intended for CC BY-SA 4.0 reuse.
+This register defines resilience terminology used across the public GRC Documentation Library. Definitions are original, organization-neutral, and intended for CC BY-SA 4.0 reuse.
 
 This register does not reproduce definitions from external standards, laws, trade programmes, or certification schemes.
 
@@ -78,7 +78,7 @@ This register does not reproduce definitions from external standards, laws, trad
 ## Maintenance rules
 
 1. Definitions must be original and library-canonical.
-2. Definitions must remain organisation-neutral.
+2. Definitions must remain organization-neutral.
 3. Do not copy definitions from external standards, laws, or programme materials unless confirmed library-canonical.
 4. New resilience terms should be added when they materially improve consistency across documents.
 5. Role definitions should remain in [`governance/register-role-authority.md`](../governance/register-role-authority.md) unless a resilience-specific role definition is required.

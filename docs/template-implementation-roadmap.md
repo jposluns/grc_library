@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This template helps an adopter sequence the modules selected via [`docs/template
 
 The canonical front door for adopters is [`docs/portal.md`](portal.md) (audience-keyed grouping by role). This roadmap template is one of five deeper-dive paths that branch off the portal; it answers "over what calendar should I roll the programme out?". The other four are [`docs/adopter-guide.md`](adopter-guide.md) (fork-and-adapt principles), [`docs/template-quickstart.md`](template-quickstart.md) (what to copy on Day 1), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) (the long-form module-composition workbook), and [`docs/decision-tree.md`](decision-tree.md) (sequenced reading order). The portal's "Other entry points and when to use them" table picks the right path by question; see the portal Overview.
 
-Each phase has a primary goal, a defendable end-state, and concrete acceptance criteria. The aim is not to copy artefacts faster but to reach a defensible posture against the organisation's actual exposure within bounded calendar time.
+Each phase has a primary goal, a defendable end-state, and concrete acceptance criteria. The aim is not to copy artefacts faster but to reach a defensible posture against the organization's actual exposure within bounded calendar time.
 
 A roadmap is a forecast, not a contract. Real adoptions slip; the value of the template is the sequence and the milestones, not the precise dates.
 
@@ -60,7 +60,7 @@ It does not apply to programmes that are already past Year 1 and operating in st
 
 ### Primary goal
 
-Reach the core-baseline defensible posture. The organisation can answer the most-likely first-contact questions (an incident, an audit, a customer security questionnaire, a regulator notification) from documented artefacts rather than from individual recall.
+Reach the core-baseline defensible posture. The organization can answer the most-likely first-contact questions (an incident, an audit, a customer security questionnaire, a regulator notification) from documented artefacts rather than from individual recall.
 
 ### Defendable end-state at Phase 1 close
 
@@ -75,8 +75,8 @@ Reach the core-baseline defensible posture. The organisation can answer the most
 ### Activities (in sequence)
 
 1. **Days 1 to 14: copy and orient.** Clone the library or fork the relevant subset. Read [`docs/adopter-guide.md`](adopter-guide.md). Run the quickstart-template composition to identify the modules. Identify the named owners for the core baseline artefacts.
-2. **Days 14 to 45: customize the core baseline.** Adapt the six core-baseline artefacts to the organisation. Replace placeholders; update role names; verify the home-jurisdiction privacy annex; populate the risk register with real risks (not aspirational ones).
-3. **Days 45 to 60: customize high-priority Dimension A and B modules.** A1 if there is custom development. B1 if there is customer data. The most-likely modules at this stage map to incidents the organisation actually faces.
+2. **Days 14 to 45: customize the core baseline.** Adapt the six core-baseline artefacts to the organization. Replace placeholders; update role names; verify the home-jurisdiction privacy annex; populate the risk register with real risks (not aspirational ones).
+3. **Days 45 to 60: customize high-priority Dimension A and B modules.** A1 if there is custom development. B1 if there is customer data. The most-likely modules at this stage map to incidents the organization actually faces.
 4. **Days 60 to 80: name owners and approving authorities.** Every adopted artefact carries an owner and an approving authority in its metadata block. Day 60 is when this becomes load-bearing; Phase 1 cannot close without it.
 5. **Days 80 to 90: desk-check the incident-response procedure.** A short tabletop with the named owners; document the result.
 
@@ -114,7 +114,7 @@ Operationalize the artefacts adopted in Phase 1. The artefacts exist; in Phase 2
 ### Activities (in sequence)
 
 1. **Days 91 to 105: stand up the review cadence.** Copy [`governance/template-document-review-record.md`](../governance/template-document-review-record.md) or equivalent. Schedule the first review wave for the artefacts adopted in Phase 1; aim to complete the first wave within the phase.
-2. **Days 105 to 135: layer the Phase 1 modules at depth.** Customize the artefacts in the chosen modules that were deprioritised in Phase 1. Specifically: framework documents (where the GRC capacity tier supports them), the procedures behind the policies, and the registers behind the procedures.
+2. **Days 105 to 135: layer the Phase 1 modules at depth.** Customize the artefacts in the chosen modules that were deprioritized in Phase 1. Specifically: framework documents (where the GRC capacity tier supports them), the procedures behind the policies, and the registers behind the procedures.
 3. **Days 135 to 150: add the Dimension C, D modules.** Audience-shaped artefacts (B2B vendor questionnaires, B2C breach-notification flows) and sector-overlay content (compliance folders).
 4. **Days 150 to 165: run the first incident-response tabletop end-to-end.** Not a desk-check; a full scenario walk with the responding roles in attendance.
 5. **Days 165 to 180: refresh the maturity self-assessment.** Compare scores to the Phase 1 baseline; document the trajectory.
@@ -138,7 +138,7 @@ Operationalize the artefacts adopted in Phase 1. The artefacts exist; in Phase 2
 
 ### Primary goal
 
-Reach a steady-state programme. By Phase 3 close, the programme runs on its own cadence; the adoption phase has ended. The organisation can produce a Year-1 retrospective grounded in operational data, not anecdote.
+Reach a steady-state programme. By Phase 3 close, the programme runs on its own cadence; the adoption phase has ended. The organization can produce a Year-1 retrospective grounded in operational data, not anecdote.
 
 ### Defendable end-state at Phase 3 close
 
@@ -153,13 +153,13 @@ Reach a steady-state programme. By Phase 3 close, the programme runs on its own 
 
 1. **Days 181 to 230: deepen the modules that surfaced gaps in Phase 2.** The maturity self-assessment from Phase 2 close identifies specific domains where the median score is low. Target Phase 3 work at those domains, not at adding new modules.
 2. **Days 230 to 270: introduce the first measurement layer.** A small set (fewer than 10) of programme metrics: review-completion rate, finding-closure time, control-test pass rate, top-risk treatment-plan status. The capacity tier determines how rich the measurement infrastructure is; E2 capacity ships with a quarterly dashboard updated by hand; E3 to E4 can automate. Refer to the maturity self-assessment Tier 4 guidance for the criteria a measurement layer should meet.
-3. **Days 270 to 330: run the first programme-level review.** Convene the governance forum with the metrics, the maturity-assessment trajectory, and the artefact-update backlog. Make Year-2 prioritisation decisions in the review.
-4. **Days 330 to 365: publish the Year-1 retrospective and the Year-2 plan.** A short document summarising what shipped, what slipped, what the programme learned, and where the next year's investment goes.
+3. **Days 270 to 330: run the first programme-level review.** Convene the governance forum with the metrics, the maturity-assessment trajectory, and the artefact-update backlog. Make Year-2 prioritization decisions in the review.
+4. **Days 330 to 365: publish the Year-1 retrospective and the Year-2 plan.** A short document summarizing what shipped, what slipped, what the programme learned, and where the next year's investment goes.
 
 ### Acceptance criteria
 
 - A Year-1 report exists and is signed off by the governance authority.
-- A Year-2 plan exists and is sequenced (which modules deepen, which are added, which are deprioritised).
+- A Year-2 plan exists and is sequenced (which modules deepen, which are added, which are deprioritized).
 - The maturity self-assessment trajectory is documented across Phase 1, 2, and 3.
 - At least one programme-level review has happened with the operational data as its primary input.
 
@@ -195,7 +195,7 @@ The phase sequence above is presented at the **E2** (light, 1 to 2 people) pace 
 
 ### E4 Pace (department)
 
-- Phase 1 and Phase 2 overlap; from Day 30 onwards the team is doing both customisation and operational running in parallel.
+- Phase 1 and Phase 2 overlap; from Day 30 onwards the team is doing both customization and operational running in parallel.
 - Phase 1 close at Day 60; Phase 2 close at Day 90; steady-state from Day 270; Year-1 retrospective at Day 365.
 - The parallel pace assumes the department is fully staffed from Day 1.
 
@@ -214,7 +214,7 @@ The pace adjusts further based on how many modules the composition includes:
 Below is a template for recording the roadmap. Replace the placeholders.
 
 ```
-Adopter: <organisation>
+Adopter: <organization>
 Plan date: <YYYY-MM-DD>
 Composition: <core baseline + A1, A3, B1, B4, D1, E2> (example)
 Capacity tier: <E1/E2/E3/E4>
@@ -222,7 +222,7 @@ Calendar pace: <chosen pace>
 
 Phase 1 milestone dates:
 - Phase 1 start: <YYYY-MM-DD>
-- Customisation complete: <YYYY-MM-DD>
+- Customization complete: <YYYY-MM-DD>
 - Owner assignment complete: <YYYY-MM-DD>
 - Incident-response desk-check: <YYYY-MM-DD>
 - Phase 1 close (maturity assessment 1): <YYYY-MM-DD>
@@ -258,7 +258,7 @@ A complete roadmap document is short. Long roadmaps are a Phase 1 anti-signal; t
 When planning a roadmap, answer the following before committing to dates:
 
 1. Have we completed the quickstart composition first? The roadmap sequences modules; if the modules are not identified, the roadmap cannot be sequenced.
-2. Have we matched the calendar pace to our GRC capacity tier? E1 organisations using the E3 pace will fail Phase 1.
+2. Have we matched the calendar pace to our GRC capacity tier? E1 organizations using the E3 pace will fail Phase 1.
 3. Have we adjusted the pace for composition complexity? Heavy regulatory exposure or many modules need more calendar time.
 4. Have we identified the named owners for the Phase 1 work? Phase 1 does not close without owners.
 5. Have we agreed which Phase 2 module-depth-second-pass items are in scope? Adding modules in Phase 2 is fine; doing so without a deliberate decision is not.

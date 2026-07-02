@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.20\
+**Version:** 1.4.21\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -30,10 +30,10 @@ The procedure is aligned to ISO/IEC 27701:2025 (privacy incident management; sec
 
 ### 1.2 Scope
 
-1. Applies to all confirmed or suspected personal data breaches involving personal data held or processed by the organisation, its processors, or its sub-processors.
+1. Applies to all confirmed or suspected personal data breaches involving personal data held or processed by the organization, its processors, or its sub-processors.
 2. Covers trade and customs data breaches where personal data is embedded in supply chain or customs records, including BASC-certified logistics environments.
 3. Covers AI training data leakage where personal data used to train or fine-tune AI models is exposed to unauthorized parties.
-4. Applies across all jurisdictions in which the organisation operates, including the European Union, United Kingdom, Canada (federal and provincial), China, India, Brazil, and United States.
+4. Applies across all jurisdictions in which the organization operates, including the European Union, United Kingdom, Canada (federal and provincial), China, India, Brazil, and United States.
 5. This procedure operates alongside [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), which governs the technical containment and investigation lifecycle. This procedure governs the privacy-specific assessment, notification, and post-breach obligations.
 
 ### 1.3 Relationship to the incident response procedure
@@ -49,13 +49,13 @@ A personal data breach is also a security incident. The CISO and Data Protection
 | Role | Responsibilities |
 | --- | --- |
 | **CISO** | Joint responsibility for initiating breach response. Leads the technical incident investigation and containment stream per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Notified immediately for all P1 and P2 breaches. Coordinates with the Data Protection Officer on notification decisions. |
-| **Chief Information Officer (CIO, acting DPO)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organisation before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
+| **Chief Information Officer (CIO, acting DPO)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organization before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
 | **Data Protection Officer** | Operational ownership of the privacy breach response process. Manages the breach register, coordinates jurisdictional notification assessment, prepares regulatory notification content, and oversees the post-breach review. |
 | **Legal Counsel** | Determines notification obligations by jurisdiction. Advises on exemptions, litigation hold, evidence handling, and regulatory engagement strategy. Reviews and approves all regulatory and data subject notifications before submission. |
 | **Security Operations Centre (SOC)** | Detects and triages security events that may constitute personal data breaches. Preserves evidence, executes technical containment, and provides forensic information to support the Data Protection Officer's impact assessment. |
 | **IT Operations / System Owners** | Support data scope identification, access restriction, and deletion or recovery actions directed by the Data Protection Officer and CISO. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any breach affecting trade, customs, or cargo records and coordinates sector-specific reporting) apply where the organisation participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any breach affecting trade, customs, or cargo records and coordinates sector-specific reporting) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ### 2.2 Joint leadership
 
@@ -70,7 +70,7 @@ All suspected personal data breaches are classified at the point of initial dete
 | Severity | Classification Criteria | Examples |
 | --- | --- | --- |
 | **P1: Critical** | Large-scale personal data exposure affecting more than 1,000 individuals; Restricted or sensitive personal data (health, financial, biometric, children's data) exfiltrated or exposed; BASC trade data breach with embedded personal data; credentials or encryption keys protecting personal data stores confirmed compromised; ransomware or destructive attack affecting systems holding personal data | Exfiltration of customer PII database; ransomware encrypting HR and payroll systems; confirmed compromise of credentials for the identity provider protecting personal data repositories; BASC cargo manifest breach disclosing shipper personal data at scale |
-| **P2: High** | Moderate personal data exposure affecting fewer than 1,000 individuals; unauthorized access to Confidential personal data without confirmed exfiltration; accidental disclosure to an unintended recipient; supplier breach confirmed to have affected personal data held on the organisation's behalf | Single employee medical record emailed to wrong recipient; supplier notification of unauthorized access to a CRM extract; unauthorized internal access to payroll records |
+| **P2: High** | Moderate personal data exposure affecting fewer than 1,000 individuals; unauthorized access to Confidential personal data without confirmed exfiltration; accidental disclosure to an unintended recipient; supplier breach confirmed to have affected personal data held on the organization's behalf | Single employee medical record emailed to wrong recipient; supplier notification of unauthorized access to a CRM extract; unauthorized internal access to payroll records |
 | **P3: Medium** | Internal data only with no personal data; limited scope with no confirmed external disclosure; technical misconfiguration corrected before any confirmed access; minor policy violations | Configuration error exposing internal-only operational data to authenticated internal users; log file with non-personal technical data briefly publicly accessible |
 
 Severity is reassessed at each phase of the breach response lifecycle. Any team member may escalate severity upward. Downgrading from P1 requires CIO approval.
@@ -90,9 +90,9 @@ Personal data breaches may be detected from any of the following sources:
 - SIEM alerts or SOC investigations revealing unauthorized access to systems holding personal data.
 - Endpoint detection and response (EDR) platform alerts indicating data exfiltration behaviour.
 - Employee or contractor reports of lost devices, misaddressed email, or accidental disclosure.
-- Supplier or processor notification of a breach affecting organisational data: suppliers (acting as data processors) must notify within 24 hours of *becoming aware* of a breach affecting organisational personal data per contractual data processing agreements. The 24-hour clock starts at the moment the processor becomes aware of the breach, not at the moment the controller is later notified (see §6.3 for the GDPR Article 33(2) basis for this asymmetry).
+- Supplier or processor notification of a breach affecting organizational data: suppliers (acting as data processors) must notify within 24 hours of *becoming aware* of a breach affecting organizational personal data per contractual data processing agreements. The 24-hour clock starts at the moment the processor becomes aware of the breach, not at the moment the controller is later notified (see §6.3 for the GDPR Article 33(2) basis for this asymmetry).
 - Regulator or law enforcement notification.
-- Dark web monitoring alerting to the appearance of organisational data.
+- Dark web monitoring alerting to the appearance of organizational data.
 - BASC monitoring systems identifying anomalies in trade or customs data flows.
 
 ### 4.2 24-hour initial assessment
@@ -179,17 +179,17 @@ The notification assessment is documented in the breach record and approved by t
 
 > **Note:** The 72-hour GDPR clock starts from the moment the controller becomes aware that a breach of personal data has occurred: not from the moment the breach occurred. "Becoming aware" is interpreted as when the controller has a reasonable degree of certainty that a security incident has taken place that has led to personal data being compromised.
 
-> **Adopter register and internal target.** The table above is illustrative. The organisation maintains its own applicable regulators, their current deadlines and triggers, and an **internal target** set tighter than each regulatory deadline, in the [breach-notification regulator register](template-breach-notification-regulator-register.md). This notification assessment consults that register to identify the controlling (strictest) regulatory deadline and the internal target the incident team runs to; where a breach engages more than one regime, the organisation acts within the strictest applicable requirement (the earliest deadline and the broadest individual-notification obligation).
+> **Adopter register and internal target.** The table above is illustrative. The organization maintains its own applicable regulators, their current deadlines and triggers, and an **internal target** set tighter than each regulatory deadline, in the [breach-notification regulator register](template-breach-notification-regulator-register.md). This notification assessment consults that register to identify the controlling (strictest) regulatory deadline and the internal target the incident team runs to; where a breach engages more than one regime, the organization acts within the strictest applicable requirement (the earliest deadline and the broadest individual-notification obligation).
 
 ### 6.3 Supplier notification
 
-Where a processor or sub-processor is involved, the organisation:
+Where a processor or sub-processor is involved, the organization:
 
-- Notifies the processor of the breach (if the processor is the affected party, they must have already notified the organisation within 24 hours of becoming aware per §4.1).
+- Notifies the processor of the breach (if the processor is the affected party, they must have already notified the organization within 24 hours of becoming aware per §4.1).
 - Coordinates to ensure that the processor preserves evidence and supports the impact assessment.
 - Confirms contractual notification obligations have been met and documents the confirmation.
 
-> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalizes that "without undue delay" for the organisation's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
+> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalizes that "without undue delay" for the organization's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
 
 ---
 
@@ -213,7 +213,7 @@ Individual notifications are written in plain, accessible language and include:
 1. A clear description of the nature of the breach.
 2. The name and contact details of the Data Protection Officer or acting DPO.
 3. A description of the likely consequences of the breach for the individual.
-4. Actions taken by the organisation to address the breach and mitigate its effects.
+4. Actions taken by the organization to address the breach and mitigate its effects.
 5. Steps the individual can take to protect themselves (e.g., change passwords, monitor financial accounts, contact credit bureaus).
 
 Individual notifications must not contain information that could compromise an ongoing investigation. Legal Counsel reviews all individual notification content before distribution.
@@ -247,7 +247,7 @@ The PIR addresses:
 2. **Root cause analysis:** The underlying control failure, process gap, or configuration weakness that caused or enabled the breach.
 3. **Data impact assessment:** Final confirmed scope of affected individuals, data categories, and records.
 4. **Notification compliance:** Whether all regulatory notification deadlines were met; explanation and documentation of any deadline exceptions.
-5. **Detection effectiveness:** Time from breach occurrence to organisational awareness; assessment of whether monitoring controls were adequate.
+5. **Detection effectiveness:** Time from breach occurrence to organizational awareness; assessment of whether monitoring controls were adequate.
 6. **Control gaps:** Specific controls that failed, were absent, or were insufficient to prevent or detect the breach.
 7. **Corrective actions:** Named control owners, remediation actions, implementation deadlines, and tracking mechanism.
 8. **Risk register update:** Confirmation that existing risk entries have been re-scored or new risks added to reflect the lessons learned.
@@ -306,7 +306,7 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 - The CISO and DPO jointly initiate breach response the moment a potential personal data breach is identified (§2.2, §1.3).
 - Notify per severity: for a P1, the CISO and the CIO, as acting DPO, immediately (§2.1, §3).
 - Protect evidence: do not delete, overwrite, or modify any system, log, backup, or data record pending the impact assessment and notification determination; brief the DPO on evidence status before any containment that affects assessment completeness (§3.1, §5.1).
-- If a third-party processor holds the affected data, notify it immediately to preserve evidence and confirm it notified the organisation within its contractual window (§5.1, §6.3).
+- If a third-party processor holds the affected data, notify it immediately to preserve evidence and confirm it notified the organization within its contractual window (§5.1, §6.3).
 
 **By 4 hours: contain by breach type**
 
@@ -332,11 +332,11 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | --- | --- | --- |
 | **Breaches by Severity** | Total personal data breaches confirmed in the reporting period, broken down by P1, P2, and P3 | Tracked; volume and severity trend monitored |
 | **Regulatory Notification SLA Adherence (%)** | Percentage of notifiable breaches where regulatory notifications were submitted within the applicable jurisdictional deadline | 100% |
-| **Mean Time to Notify (MTTN)** | Average time in hours from organisational awareness of a notifiable breach to submission of the regulatory notification | Target: ≤ 48 hours (comfortably within 72-hour deadlines) |
+| **Mean Time to Notify (MTTN)** | Average time in hours from organizational awareness of a notifiable breach to submission of the regulatory notification | Target: ≤ 48 hours (comfortably within 72-hour deadlines) |
 | **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay following regulatory notification | ≥ 95% |
 | **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 5 business days of closure | ≥ 95% |
 | **Corrective Action Closure Rate (%)** | Percentage of PIR-identified corrective actions closed within their agreed deadline | ≥ 90% |
-| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organisation within 24 hours of the *supplier's* awareness of the breach (per GDPR Article 33(2); see §6.3) | Tracked; persistent non-compliance triggers contract review |
+| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organization within 24 hours of the *supplier's* awareness of the breach (per GDPR Article 33(2); see §6.3) | Tracked; persistent non-compliance triggers contract review |
 
 ---
 

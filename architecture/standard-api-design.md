@@ -2,8 +2,8 @@
 
 **Document Title:** API Design Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
-**Date:** 2026-07-01\
+**Version:** 0.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard governs the design of application programming interfaces (APIs) produced by the organisation. It complements the API security standard (which governs the security controls on APIs) by addressing the design choices that determine usability, longevity, and correctness.
+This standard governs the design of application programming interfaces (APIs) produced by the organization. It complements the API security standard (which governs the security controls on APIs) by addressing the design choices that determine usability, longevity, and correctness.
 
 ---
 
@@ -28,7 +28,7 @@ This standard applies to:
 
 1. APIs exposed externally to customers, partners, or the public.
 2. APIs exposed internally between products, services, or platforms.
-3. APIs exposed between the organisation and its suppliers.
+3. APIs exposed between the organization and its suppliers.
 4. APIs exposed by AI-bearing systems (including agent-callable tools).
 5. Asynchronous interfaces (event streams, webhooks) where a contract is offered to consumers.
 
@@ -36,7 +36,7 @@ It does not govern private interfaces wholly within a single deployable unit.
 
 ### 2.1 Relationship to the API security standard and approval sequence
 
-This standard (CTO-owned) covers API design choices. The dev-security API security standard ([`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md)) (CISO-owned) covers API security controls (authentication, authorisation, input validation, transport, rate limiting, observability).
+This standard (CTO-owned) covers API design choices. The dev-security API security standard ([`dev-security/standard-api-security.md`](../dev-security/standard-api-security.md)) (CISO-owned) covers API security controls (authentication, authorization, input validation, transport, rate limiting, observability).
 
 For material new APIs the approval sequence is:
 
@@ -85,7 +85,7 @@ The choice is recorded as an ADR for material APIs.
 | Element | Convention |
 | --- | --- |
 | Resource model | Resources represent nouns; verbs are HTTP methods |
-| URI structure | Consistent across the organisation; documented in a URI conventions guide |
+| URI structure | Consistent across the organization; documented in a URI conventions guide |
 | HTTP methods | GET (safe, idempotent), PUT (idempotent), POST (non-idempotent), DELETE (idempotent), PATCH (with documented semantics) |
 | Status codes | 2xx for success, 4xx for client error, 5xx for server error; specific codes used consistently |
 | Content negotiation | JSON is the default; alternatives via Accept header |
@@ -129,7 +129,7 @@ The choice is recorded as an ADR for material APIs.
 
 | Element | Convention |
 | --- | --- |
-| Error model | Consistent across the organisation; documented |
+| Error model | Consistent across the organization; documented |
 | Error code | Stable, machine-readable error code separate from human-readable message |
 | Error message | Human-readable; safe for surfacing to end users where appropriate |
 | Field-level errors | Where multiple field-level errors apply, returned as a collection |
@@ -163,7 +163,7 @@ The choice is recorded as an ADR for material APIs.
 | Monetary amounts | Decimal-safe representation with currency; not floating point |
 | Units | Explicit (e.g. include unit suffixes or separate unit field) |
 | Locale | Locale-sensitive output identified; defaults documented |
-| Internationalisation | Strings intended for end-user display are localisable |
+| Internationalization | Strings intended for end-user display are localizable |
 
 ---
 
@@ -174,7 +174,7 @@ The choice is recorded as an ADR for material APIs.
 | Reference documentation | Generated from the schema |
 | Conceptual documentation | Hand-written; explains the model, the lifecycle, and the choices |
 | Quickstart | A worked example consumers can follow |
-| Authentication and authorisation | Documented per the API security standard |
+| Authentication and authorization | Documented per the API security standard |
 | Rate limits and quotas | Documented |
 | Changelog | Maintained per API |
 | Migration guides | Provided for breaking changes |
@@ -187,7 +187,7 @@ The choice is recorded as an ADR for material APIs.
 
 | Element | Convention |
 | --- | --- |
-| Pagination | Cursor-based preferred; opaque cursor; consistent across the organisation |
+| Pagination | Cursor-based preferred; opaque cursor; consistent across the organization |
 | Result ordering | Documented and stable; ties broken deterministically |
 | Filtering | Documented conventions; complex filtering may warrant a query endpoint |
 | Search | When the data warrants it, a dedicated search endpoint with documented relevance and recall behaviour |
@@ -230,7 +230,7 @@ The choice is recorded as an ADR for material APIs.
 | Support | Documented support channel; documented SLOs |
 | Status communication | A status page; subscribable notifications |
 | Backward-compatibility commitment | A documented commitment to consumers |
-| Pricing model | Where the API is monetised, the pricing model is documented and stable |
+| Pricing model | Where the API is monetized, the pricing model is documented and stable |
 | Terms | Terms of service documented |
 | Acceptable use | An acceptable use policy is published |
 
@@ -256,7 +256,7 @@ The choice is recorded as an ADR for material APIs.
 2. The schema is the source of truth; documentation is generated.
 3. Breaking changes are deliberate; their announcement and sunset windows are honoured.
 4. The API catalogue is current; orphan APIs are not allowed to accrete.
-5. Customer-facing APIs maintain a backward-compatibility commitment that the organisation actually honours.
+5. Customer-facing APIs maintain a backward-compatibility commitment that the organization actually honours.
 
 ---
 
@@ -279,7 +279,7 @@ The choice is recorded as an ADR for material APIs.
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. The specific URI conventions, error model, schema registry, and tooling are organisation-specific. The standard expresses design principles and outcomes, not a single canonical layout.
+This standard is a CC BY-SA 4.0 baseline. The specific URI conventions, error model, schema registry, and tooling are organization-specific. The standard expresses design principles and outcomes, not a single canonical layout.
 
 ---
 

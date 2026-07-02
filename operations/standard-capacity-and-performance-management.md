@@ -2,8 +2,8 @@
 
 **Document Title:** Capacity and Performance Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/standard-it-financial-management.md`](standard-it-financial-management.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard governs how capacity and performance are planned, measured, tested, and adjusted for services operated by the organisation. It aligns capacity to demand at acceptable cost and performance, while preserving the headroom required for failure scenarios and growth.
+This standard governs how capacity and performance are planned, measured, tested, and adjusted for services operated by the organization. It aligns capacity to demand at acceptable cost and performance, while preserving the headroom required for failure scenarios and growth.
 
 ---
 
@@ -29,7 +29,7 @@ This standard applies to:
 1. Production and pre-production services with capacity-bound resources (compute, memory, storage, network, database connections, message queues, third-party API quotas, AI inference quotas).
 2. Shared platform services whose capacity affects multiple consumers.
 3. Customer-facing services whose performance affects customer experience.
-4. Vendor-managed services where the organisation pays for capacity-shaped commitments.
+4. Vendor-managed services where the organization pays for capacity-shaped commitments.
 
 It does not cover human workforce capacity (a separate governance topic).
 
@@ -116,7 +116,7 @@ Each capacity class has a named owner and a defined measurement.
 | Failover test | Performance measured during failover scenarios |
 | Test cadence | Major changes; quarterly for critical services; per release for high-volatility services |
 | Test environment | Sized representative of production; data and traffic representative |
-| Test isolation | Tests do not impact production; production traffic-replay is sanitised |
+| Test isolation | Tests do not impact production; production traffic-replay is sanitized |
 
 ---
 
@@ -177,7 +177,7 @@ Each capacity class has a named owner and a defined measurement.
 | --- | --- |
 | Capacity council | Reviews forecast, headroom, performance regressions, and vendor capacity quarterly |
 | Per-service capacity owner | Named per service; accountable for capacity decisions |
-| Capacity register | Tracks all capacity classes, owners, current utilisation, headroom, and lead-times |
+| Capacity register | Tracks all capacity classes, owners, current utilization, headroom, and lead-times |
 | Reporting | Capacity status reported to the operations leadership; material concerns escalated to the executive |
 | Exceptions | Where headroom or lead-time targets are missed, an exception is logged with a remediation plan |
 
@@ -220,7 +220,7 @@ Each capacity class has a named owner and a defined measurement.
 
 ## 17. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Capacity practice is highly platform-specific; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations confirm current provider quotas, tooling, and cost models with subject-matter experts.
+This standard is a CC BY-SA 4.0 baseline. Capacity practice is highly platform-specific; the standard expresses requirements rather than vendor-specific implementations. Adopting organizations confirm current provider quotas, tooling, and cost models with subject-matter experts.
 
 ---
 

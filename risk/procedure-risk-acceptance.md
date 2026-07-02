@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Acceptance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Executive Management\
@@ -51,7 +51,7 @@ The High and critical acceptance authorities below align with the canonical appr
 
 ## Duration and renewal limits
 
-A risk acceptance is time-bound (the Expiry or review date field below). Renewal requires updated justification and reassessment (step 9). The cumulative lifetime of an acceptance, summed across the initial term and all renewals, must not exceed 540 days unless the Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the Enterprise Risk Committee (ERC) reports) explicitly approves a longer horizon when the acceptance is first recorded, mirroring the exception-register ceiling in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) Section 3.4. An acceptance created by converting an exception at its renewal ceiling (that policy's Section 3.4 conversion path) counts the exception's elapsed lifetime toward this ceiling, so conversion cannot be used to restart the clock.
+A risk acceptance is time-bound (the Expiry or review date field below). Renewal requires updated justification and reassessment (step 9). The cumulative lifetime of an acceptance, summed across the initial term and all renewals, must not exceed 540 days unless the Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the Enterprise Risk Committee (ERC) reports) explicitly approves a longer horizon when the acceptance is first recorded, mirroring the exception-register ceiling in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) Section 3.4. An acceptance created by converting an exception at its renewal ceiling (that policy's Section 3.4 conversion path) counts the exception's elapsed lifetime toward this ceiling, so conversion cannot be used to restart the clock.
 
 ---
 

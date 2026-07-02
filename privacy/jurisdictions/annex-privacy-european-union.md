@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 2018-05-25. The primary EU data protection law governing the processing of personal data of individuals in the EU.
 - **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
-- **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organisations with cross-border processing; lead supervisory authority determined by location of main establishment.
+- **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment.
 
 ---
 
@@ -114,7 +114,7 @@ GDPR Article 8(1) sets the default age at 16 for child consent to information so
 
 ## Limitations
 
-This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organisations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
+This document is a CC BY-SA 4.0 reference baseline. It does not constitute legal advice. Adopting organizations must obtain jurisdiction-specific legal advice and validate applicability against their operating model, sector, processing activities, and contractual obligations. Regulatory frameworks change frequently; verify currency before reliance.
 
 ---
 

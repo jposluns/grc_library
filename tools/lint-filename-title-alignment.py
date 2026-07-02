@@ -107,7 +107,7 @@ SYNONYMS: dict[str, str] = {
     "sox": "sarbanes oxley",
     "fedramp": "federal risk and authorization management program",
     "itgc": "it general controls",
-    "aeo": "authorised economic operator",
+    "aeo": "authorized economic operator",
     "ctpat": "customs trade partnership against terrorism",
     "pip": "partners in protection",
     "basc": "business alliance for secure commerce",

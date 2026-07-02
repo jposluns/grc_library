@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## 1. Purpose
 
-This policy defines principles, governance structure, and control framework for managing personal data and organisational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organisation's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
+This policy defines principles, governance structure, and control framework for managing personal data and organizational information assets across all jurisdictions. It consolidates Privacy Policy, Data Governance Policy, Data Quality Policy, and Records Management Policy into a unified global standard. It supports the organization's compliance with applicable data protection laws, upholds data accuracy and integrity, and governs ethical use of information including AI training datasets.
 
 **Applicable Frameworks:** ISO/IEC 27701:2025 PIMS (standalone), ISO 8000-8 Data Quality Principles, EU GDPR, EU Data Act (Regulation (EU) 2023/2854; applicable from 12 September 2025), Canada CPPA (Bill C-27 lapsed January 2025), APEC CBPR 2.0, China PIPL, CSA CCM v4.1 domain DSP.
 
@@ -30,9 +30,9 @@ This policy defines principles, governance structure, and control framework for 
 
 ## 2. Scope
 
-1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organisational or personal data.
+1. Applies to all employees, contractors, subsidiaries, and third parties that collect, process, share, or store organizational or personal data.
 2. Covers all forms of data, including structured, unstructured, derived, anonymized, synthetic, and AI training datasets.
-3. Applies to all geographies where the organisation operates, including cross-border data transfers and multinational data processing arrangements.
+3. Applies to all geographies where the organization operates, including cross-border data transfers and multinational data processing arrangements.
 4. Encompasses the entire data lifecycle from collection through storage, use, disclosure, retention, and destruction.
 
 ---
@@ -43,7 +43,7 @@ This policy defines principles, governance structure, and control framework for 
 
 1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organisation before regulatory authorities and oversees the organisation's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
+3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.) is maintained.
 
 ### 3.2 Governance committees
@@ -78,7 +78,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 4.2 Data classification and handling
 
 - All data assets must be classified based on sensitivity: Public, Controlled, Internal, Confidential, and Restricted, per the [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md).
-- Handling procedures for each classification level must be documented and enforced through technical and organisational controls.
+- Handling procedures for each classification level must be documented and enforced through technical and organizational controls.
 - Sensitive personal data and AI datasets must be encrypted at rest and in transit.
 
 ### 4.3 Data quality and accuracy
@@ -101,7 +101,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 4.6 Cross-border data transfers
 
 - All data transfers between jurisdictions must comply with applicable legal mechanisms, such as EU SCCs, APEC CBPR 2.0 certifications, or recognized adequacy decisions.
-- The organisation must maintain a register of all cross-border data flows, reviewed quarterly.
+- The organization must maintain a register of all cross-border data flows, reviewed quarterly.
 - Transfers to jurisdictions lacking adequate protection must include additional safeguards and executive approval.
 
 ### 4.7 AI training data governance

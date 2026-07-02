@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.5\
-**Date:** 2026-06-30\
+**Version:** 1.11.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -40,7 +40,7 @@ Read across a row to identify which frameworks a given document supports. Read d
 
 ## Notes
 
-This matrix is indicative only. It reflects the best available assessment of control mappings at the time of publication based on the content of each GRC library document and publicly available framework documentation. Specific control mapping for a formal certification assessment, audit submission, or regulatory response requires an engagement-specific review by qualified practitioners with access to the full framework specifications and the organisation's operational evidence. No entry in this matrix constitutes a certification, attestation, or legal opinion.
+This matrix is indicative only. It reflects the best available assessment of control mappings at the time of publication based on the content of each GRC library document and publicly available framework documentation. Specific control mapping for a formal certification assessment, audit submission, or regulatory response requires an engagement-specific review by qualified practitioners with access to the full framework specifications and the organization's operational evidence. No entry in this matrix constitutes a certification, attestation, or legal opinion.
 
 ---
 
@@ -271,7 +271,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | Privacy | Children's Data Framework | [`privacy/framework-childrens-data.md`](../privacy/framework-childrens-data.md) | DSP-17, DSP-07, DSP-04 | GRC-10, GRC-15 | A.5.34, A.8.12 | GV.PO, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Consent Management Framework | [`privacy/framework-consent-management.md`](../privacy/framework-consent-management.md) | DSP-12, DSP-01, GRC-01 | N/A | A.5.34 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Privacy by Design Framework | [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md) | DSP-07, DSP-08, DSP-01 | N/A | A.5.34, A.8.25, A.8.27 | GV.PO, PR.DS, PR.PS | N/A | N/A | N/A | N/A | N/A |
-| Privacy | Pseudonymisation and Anonymisation Standard | [`privacy/standard-pseudonymisation-and-anonymisation.md`](../privacy/standard-pseudonymisation-and-anonymisation.md) | DSP-07, DSP-17, DSP-16 | DSP-22 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
+| Privacy | Pseudonymization and Anonymization Standard | [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md) | DSP-07, DSP-17, DSP-16 | DSP-22 | A.8.11, A.5.34 | PR.DS, GV.PO | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Automated Decision-Making and Profiling Register | [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md) | DSP-03, GRC-02, DSP-12 | GRC-11, GRC-13, GRC-15 | A.5.34 | GV.PO, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cookie and Tracker Register | [`privacy/register-cookie-and-tracker.md`](../privacy/register-cookie-and-tracker.md) | DSP-03, DSP-12, DSP-01 | N/A | A.5.34 | GV.PO, ID.AM | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Cross-Border Data Flow Register | [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md) | DSP-10, DSP-19, DSP-03 | N/A | A.5.34, A.5.31 | GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |

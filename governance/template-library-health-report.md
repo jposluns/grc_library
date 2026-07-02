@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-06-26\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -20,7 +20,7 @@
 
 This template structures the quarterly library health report referenced by the library quality and review cadence procedure. The report aggregates the state of the library's documents, derived artefacts, tooling, and review cadence; surfaces drift; and proposes corrective actions.
 
-The objective is that the library's maintainer (and, where applicable, contributors and adopting organisations) can see, in a single short document each quarter, whether the library remains healthy and where attention is needed.
+The objective is that the library's maintainer (and, where applicable, contributors and adopting organizations) can see, in a single short document each quarter, whether the library remains healthy and where attention is needed.
 
 ---
 
@@ -45,7 +45,7 @@ It does not apply to per-document review records (which use the document review 
 | Report period | The window the report covers (e.g. 2026-Q1, 2026-Q2) |
 | Report date | When the report was finalized |
 | Prepared by | The Governance Library Maintainer or designated reviewer |
-| Audience | Library maintainer, contributors, and any subscribed adopting organisations |
+| Audience | Library maintainer, contributors, and any subscribed adopting organizations |
 | Version | Report version |
 | Linked source data | Pointers to the underlying audit outputs and registers |
 
@@ -112,7 +112,7 @@ For each drift indicator, describe the observed pattern, the affected documents,
 | Cross-document inconsistency | Pairs of documents that say different things about the same control |
 | Owner-role overload | Roles assigned an excessive number of responsibilities |
 | Forum proliferation | New named forums introduced without consolidation guidance |
-| Sanitisation residue | Real organisation identifiers, regional scoping, internal hostnames |
+| Sanitization residue | Real organization identifiers, regional scoping, internal hostnames |
 | Phantom dependencies | References to documents or frameworks that don't exist |
 
 ### Section G: incidents and lessons
@@ -141,8 +141,8 @@ Where signals are available:
 
 | Indicator | Note |
 | --- | --- |
-| Known adopters | Number of organisations known to be using the library (where the organisation has self-identified) |
-| Reported defects from adopters | Defects raised by adopting organisations |
+| Known adopters | Number of organizations known to be using the library (where the organization has self-identified) |
+| Reported defects from adopters | Defects raised by adopting organizations |
 | Sector-annex usage | Which sector annexes are most frequently downloaded or referenced |
 | Common adapter modifications | Patterns observed in fork-and-adapt usage where visible |
 
@@ -155,7 +155,7 @@ Where signals are available:
 | Planned phases or significant content additions | List |
 | Tooling improvements | List |
 | Framework reference refreshes | Per the semi-annual cadence |
-| Sanitisation sweep | Per the quarterly cadence |
+| Sanitization sweep | Per the quarterly cadence |
 
 ### Section K: sign-off
 
@@ -211,7 +211,7 @@ A full report would include the per-audit table, per-document review status, per
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. The specific report contents, the audience, the publication mechanism, and the integration with adjacent reports are organisation-specific. The library itself uses this template to produce its own quarterly health reports.
+This template is a CC BY-SA 4.0 baseline. The specific report contents, the audience, the publication mechanism, and the integration with adjacent reports are organization-specific. The library itself uses this template to produce its own quarterly health reports.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -38,11 +38,11 @@ Absolute prohibitions. No exception exists without written CIO or CISO approval,
 | 6 | Give a service account Domain Admin or equivalent permanent elevated membership | Minimum required permissions only. |
 | 7 | Use SAMAccountName-only authentication in new code | LDAPS and UPN/SSO are the required patterns. |
 | 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1/1.2 | All deprecated. AES-256, SHA-256+, TLS 1.3 only. |
-| 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organisational policy. |
+| 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organizational policy. |
 | 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without security team approval. |
 | 11 | Reimage or modify a system you suspect is compromised | Preserve evidence. Alert the security team first. |
 | 12 | Use `:latest` as a container image tag in Test or Production | Digest-pinned or explicit version tags only. |
-| 13 | Create a shadow IT system or unapproved cloud resource | All resources must be under organisational governance and in approved cloud environments. |
+| 13 | Create a shadow IT system or unapproved cloud resource | All resources must be under organizational governance and in approved cloud environments. |
 | 14 | Store IaC state locally or in version control | Remote state backend with versioning and access logging only. |
 | 15 | Leave a self-signed certificate in production | CA-issued certificate required. Internal PKI for internal services; an approved external CA for external-facing services. |
 | 16 | Process personal data in a new system without completing a Privacy Impact Assessment | Mandatory under Quebec Law 25. |

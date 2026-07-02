@@ -2,8 +2,8 @@
 
 **Document Title:** Telecommunications Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-28\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -18,15 +18,15 @@
 
 ## Purpose
 
-This directory contains telecommunications-sector compliance content of the library: sector-wide regulatory requirements that apply to organisations operating telecommunications networks, providing electronic communications services, or operating internet exchange points and digital infrastructure.
+This directory contains telecommunications-sector compliance content of the library: sector-wide regulatory requirements that apply to organizations operating telecommunications networks, providing electronic communications services, or operating internet exchange points and digital infrastructure.
 
-Content here is sector-conditional. Organisations outside the telecommunications sector can omit this directory entirely without affecting the rest of the library's coherence.
+Content here is sector-conditional. Organizations outside the telecommunications sector can omit this directory entirely without affecting the rest of the library's coherence.
 
 ---
 
 ## Applicability
 
-This directory applies to organisations operating as any of the following:
+This directory applies to organizations operating as any of the following:
 
 - Fixed-line and mobile telecommunications network operators.
 - Internet service providers and content delivery networks.
@@ -48,15 +48,15 @@ This directory applies to organisations operating as any of the following:
 
 ## Future-coverage placeholders
 
-Country-level telecommunications regulator overlays. Candidates for future addition include EU EECC (European Electronic Communications Code), US FCC regulations, UK Ofcom telecom security framework, Australia ACMA requirements, Japan MIC requirements, Singapore IMDA requirements, and other jurisdiction-specific regulations as adopting organisations require.
+Country-level telecommunications regulator overlays. Candidates for future addition include EU EECC (European Electronic Communications Code), US FCC regulations, UK Ofcom telecom security framework, Australia ACMA requirements, Japan MIC requirements, Singapore IMDA requirements, and other jurisdiction-specific regulations as adopting organizations require.
 
 ---
 
 ## Relationship to the main library
 
-The main library is sector-agnostic and applies to all adopting organisations. This directory's content extends but does not contradict the main library. Where a telecommunications regulation requires specific control language, evidence formats, or operating cadences, the annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
+The main library is sector-agnostic and applies to all adopting organizations. This directory's content extends but does not contradict the main library. Where a telecommunications regulation requires specific control language, evidence formats, or operating cadences, the annex states those requirements explicitly. Where the regulation's controls coincide with main-library controls, the main-library control remains the implementation; the annex documents how the implementation maps to the regulation's expectations.
 
-Adopting organisations operating in the telecommunications sector consume:
+Adopting organizations operating in the telecommunications sector consume:
 
 1. The main library as the baseline.
 2. The telecommunications sector overview annex ([`annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md)) for sector-wide requirements.

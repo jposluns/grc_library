@@ -2,8 +2,8 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -20,7 +20,7 @@
 
 This procedure defines the operational sequence for responding to security incidents in Operational Technology (OT) environments. It extends the general security incident response procedure ([`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)) with OT-specific considerations: safety-first decision-making, vendor coordination, longer recovery windows, and integration with safety management.
 
-The procedure applies to any incident affecting an OT zone, conduit, or supporting infrastructure under the OT/ICS Security Standard ([`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md)). Where a cyber incident has potential safety consequences, this procedure governs the cyber response while the organisation's safety-management procedure governs the safety response; the two run in parallel with the safety procedure taking precedence on any conflict.
+The procedure applies to any incident affecting an OT zone, conduit, or supporting infrastructure under the OT/ICS Security Standard ([`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md)). Where a cyber incident has potential safety consequences, this procedure governs the cyber response while the organization's safety-management procedure governs the safety response; the two run in parallel with the safety procedure taking precedence on any conflict.
 
 ---
 
@@ -31,7 +31,7 @@ The procedure applies to any incident affecting an OT zone, conduit, or supporti
 - Confirmed or suspected cyber compromise of any OT zone, conduit, engineering workstation, HMI, historian, controller, SIS, or BMS asset.
 - Unexpected behaviour in OT systems that may indicate compromise (anomalous process values, unexpected commands, configuration changes outside the change record, alarm flooding).
 - Detected adversary presence in IT zones that have a conduit to any OT zone.
-- OT vendor or integrator incidents (compromise of vendor systems, supply-chain incidents) where the vendor has access to or supplies systems for the organisation's OT environment.
+- OT vendor or integrator incidents (compromise of vendor systems, supply-chain incidents) where the vendor has access to or supplies systems for the organization's OT environment.
 - Loss-of-view or loss-of-control events with potential cyber causation.
 
 ### 2.2 Out of scope
@@ -76,10 +76,10 @@ Operators, engineers, or vendors who observe suspected compromise must report ra
 
 | Role | OT incident responsibility |
 | --- | --- |
-| **Incident Commander (CISO or delegate)** | Overall response leadership; authorises declaration, escalation, containment actions with production impact, and recovery sign-off. |
+| **Incident Commander (CISO or delegate)** | Overall response leadership; authorizes declaration, escalation, containment actions with production impact, and recovery sign-off. |
 | **OT Security Lead** | OT-specific triage and technical response; primary interface to the IT SOC and to Control System Engineers. Reports to Incident Commander. |
-| **Plant Manager / Operations Director** | Accountable for production state during the incident; authorises any production-impacting containment action; coordinates manual fallback if invoked. |
-| **Process Safety Engineer** | Accountable for safety state; authorises any action that could affect safety-instrumented functions; consulted on every containment action affecting SIS or shared SIS/BPCS infrastructure. |
+| **Plant Manager / Operations Director** | Accountable for production state during the incident; authorizes any production-impacting containment action; coordinates manual fallback if invoked. |
+| **Process Safety Engineer** | Accountable for safety state; authorizes any action that could affect safety-instrumented functions; consulted on every containment action affecting SIS or shared SIS/BPCS infrastructure. |
 | **Control System Engineer** | Executes technical actions on OT systems under direction from OT Security Lead; provides system-state information; coordinates with vendor. |
 | **IT Security Operations Centre (SOC)** | Provides initial detection and triage; correlates OT alerts with IT-side telemetry; supports forensics on IT-side conduit endpoints. |
 | **Vendor Liaison** | OT vendor or integrator point-of-contact; coordinates vendor diagnostic and recovery activity per the standard's vendor remote-access controls. |
@@ -97,7 +97,7 @@ OT incident severity uses the base severity scale from [`security/procedure-secu
 | --- | --- |
 | **P1: Critical** | Confirmed adversary presence in a production OT zone with SL-T ≥ SL 3. Compromise of a SIS or potential to affect safety. Loss-of-view or loss-of-control on a production process. Cyber-related production outage of a critical site. |
 | **P2: High** | Suspected adversary presence in a production OT zone. Anomalous control commands not attributable to scheduled changes. Cyber compromise of an OT vendor with active access. Confirmed compromise in an OT DMZ. Loss-of-view or loss-of-control on a non-critical process. |
-| **P3: Medium** | Unauthorised configuration change detected post-event. Compromise of an engineering workstation with no evidence of further movement. Failed authentication storm against an OT identity surface. |
+| **P3: Medium** | Unauthorized configuration change detected post-event. Compromise of an engineering workstation with no evidence of further movement. Failed authentication storm against an OT identity surface. |
 | **P4: Low** | Single suspicious event without corroboration. Policy violation (for example, unsanctioned removable media use) with no compromise evidence. |
 
 Classification is initial; severity is re-evaluated at each phase of the procedure.

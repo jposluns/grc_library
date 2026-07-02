@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-06-22\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -35,7 +35,7 @@ This template applies to:
 - An internal audit, where the package becomes the auditor's working artefact.
 - A customer due-diligence inquiry that requires evidence at the control level.
 
-The template assumes the controls themselves are already documented elsewhere (typically the relevant policy, standard, or framework artefact in the library, plus any organisation-specific control register). This template packages the **evidence**, not the controls.
+The template assumes the controls themselves are already documented elsewhere (typically the relevant policy, standard, or framework artefact in the library, plus any organization-specific control register). This template packages the **evidence**, not the controls.
 
 Out of scope: the audit programme's design (covered by [`compliance/standard-internal-audit.md`](standard-internal-audit.md)); the control test methodology (covered by [`compliance/procedure-control-testing.md`](procedure-control-testing.md)); the regulator-facing shape of the submission (covered by [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)).
 
@@ -59,7 +59,7 @@ Out of scope: the audit programme's design (covered by [`compliance/standard-int
 Audit Evidence Package
 ======================
 
-Organisation: <legal name>
+Organization: <legal name>
 Framework: <e.g. ISO 27001:2022 / SOC 2 Type II / PCI DSS v4.0 / DORA / FedRAMP Moderate>
 Audit type: <External / Internal / Regulator examination / Customer DDQ>
 Audit firm or assessor: <if external>
@@ -128,11 +128,11 @@ For each control in the inventory, the bundle contains a section using the templ
 
 - Primary: <e.g. ISO 27001:2022 Annex A.5.16>
 - Secondary (where the same control maps to multiple frameworks): <e.g. NIST SP 800-53 AC-2; CIS Control 5; SOC 2 CC6.1>
-- Internal control identifier (if different): <e.g. organisation's internal control number>
+- Internal control identifier (if different): <e.g. organization's internal control number>
 
 ### Control description
 
-<One paragraph describing what the control does in the organisation's own language. Reference the source policy or standard document.>
+<One paragraph describing what the control does in the organization's own language. Reference the source policy or standard document.>
 
 Source artefact: <link to the policy, standard, or procedure that documents the control>
 
@@ -296,7 +296,7 @@ Before releasing a package, answer the following:
 This template is updated when:
 
 - A covered framework materially changes its evidence-presentation requirements.
-- An organisational change moves package assembly to a new team (the role assignments in the cover page need to reflect the team).
+- An organizational change moves package assembly to a new team (the role assignments in the cover page need to reflect the team).
 - Adopter feedback identifies a per-control field that consistently produces ambiguity.
 
 Per-framework evidence specifics (the exact schema PCI DSS expects, the SOC 2 description-criteria, etc.) live in the relevant sector overlay or framework-specific annex, not in this template. Updates to those specifics do not require updates here.

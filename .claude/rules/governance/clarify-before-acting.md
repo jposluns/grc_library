@@ -75,7 +75,7 @@ When the toolchain offers a structured prompt (`AskUserQuestion`, an IDE picker,
 - **Asking after acting**. "I went ahead and used branch X; want me to switch?" is not a clarification; it is post-hoc consent-seeking. The work is already done and the friction of unwinding is real. Ask before, not after.
 - **Asking trivia**. Pinging the user for every micro-decision that has a sensible default produces friction. The signal-to-noise erodes; eventually the user starts hand-waving "do whatever," which collapses the discipline back into silent picking.
 - **Hiding the ambiguity in narration**. "I'll pick X, but let me know if that's not right" is a silent pick with a fig leaf. The fig leaf does not protect the user from the work being done wrong; it only protects the assistant from being told "you should have asked".
-- **Treating a previously-given answer as durable when the scope has changed**. The user approved Option A for last week's task; that does not authorise Option A for this week's different task. Authorisation stands for the scope specified, not beyond.
+- **Treating a previously-given answer as durable when the scope has changed**. The user approved Option A for last week's task; that does not authorize Option A for this week's different task. Authorization stands for the scope specified, not beyond.
 - **Combining a clarification with a leading recommendation that hides the trade-off**. "Should I do X (which is obviously what you want) or Y (which makes no sense)?" is not a clarification; it is theatre. Name the real alternatives honestly.
 - **Asking a question that the user cannot answer without reading more than the question**. If the question requires the user to scroll back to context, you have failed to make it self-contained; restate the relevant context inline.
 - **Asking for a findable fact**. Surfacing a question whose answer the assistant could retrieve itself (a file location, a citation, a count, a version, where a term appears in the corpus, what a document currently says) instead of running the `grep` or read and surfacing the answer. This spends the requestor's attention on the assistant's own retrieval work; it is the inverse of silent-picking and equally a discipline failure. Run the compute-first gate before forming any question.
@@ -120,7 +120,7 @@ If midway through a task you discover the request implicitly required a larger c
 
 The clarification discipline has natural exceptions:
 
-- **Pre-authorised durable instructions**: a `CLAUDE.md` file, a project README, a documented runbook may pre-authorise classes of choices ("always use branch `develop` for non-release work"). Honour the pre-authorisation; you do not need to re-ask. If the pre-authorisation is silent on the current ambiguity, the discipline applies.
+- **Pre-authorized durable instructions**: a `CLAUDE.md` file, a project README, a documented runbook may pre-authorize classes of choices ("always use branch `develop` for non-release work"). Honour the pre-authorization; you do not need to re-ask. If the pre-authorization is silent on the current ambiguity, the discipline applies.
 - **Emergency response**: when the user has explicitly invoked an urgent mode ("the build is broken in production, fix it now"), the bar for asking rises but does not disappear. Ask only about choices that materially change the response; default the rest and report.
 - **Reversible exploration**: experimental work in a sandbox where the cost of a wrong choice is a redo. Default and report; do not ask. But do not confuse "this PR is reversible" with "this choice is reversible"; some choices (database migrations, public API changes) are not reversible even from a feature branch.
 
@@ -131,7 +131,7 @@ The clarification discipline has natural exceptions:
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
 | Documented decisions before action | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 |
-| Scope-bounded authorisation | PO.5 | IAM-09 | A.5.15, A.5.18 |
+| Scope-bounded authorization | PO.5 | IAM-09 | A.5.15, A.5.18 |
 | Investigation before destructive action | RV.1, RV.2 | TVM-01 | A.5.27, A.8.16 |
 | Change-management for scope expansion | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
 
@@ -146,4 +146,4 @@ The two failure modes a clarify-before-acting discipline prevents are:
 
 The discipline shifts both costs back to the moment of choice. A one-sentence clarification at the start of the work is the lowest-friction intervention available. The cost is one round-trip; the benefit is correctly-scoped, correctly-aimed work.
 
-For AI coding assistants specifically: the pressure to "make progress" can manifest as silent picking. Resist this. The user's confidence in the assistant grows when the assistant asks sharp, specific questions and shrinks when the assistant ships work the user did not authorise. A clarification is not a failure to act; it is the action that the situation calls for.
+For AI coding assistants specifically: the pressure to "make progress" can manifest as silent picking. Resist this. The user's confidence in the assistant grows when the assistant asks sharp, specific questions and shrinks when the assistant ships work the user did not authorize. A clarification is not a failure to act; it is the action that the situation calls for.

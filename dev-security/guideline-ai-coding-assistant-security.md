@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.3\
-**Date:** 2026-07-01\
+**Version:** 1.3.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -27,21 +27,21 @@ AI coding assistants introduce distinct risks that differ from conventional deve
 ## Scope
 
 Applies to all employees, contractors, and third-party developers using AI coding assistants on:
-- Organisation-owned or managed devices.
-- Organisation-managed cloud development environments.
-- Projects touching organisation codebases, infrastructure, or data.
+- Organization-owned or managed devices.
+- Organization-managed cloud development environments.
+- Projects touching organization codebases, infrastructure, or data.
 
-Does not apply to personal experimentation on personal devices with no connection to organisational data or systems.
+Does not apply to personal experimentation on personal devices with no connection to organizational data or systems.
 
 ---
 
 ## Approved tools and authorization
 
-The organisation maintains an approved list of AI coding assistants. Developers should use only approved tools for work on organisational systems. Using an unapproved AI coding assistant with organisational code, data, or credentials is a policy violation requiring a formal exception.
+The organization maintains an approved list of AI coding assistants. Developers should use only approved tools for work on organizational systems. Using an unapproved AI coding assistant with organizational code, data, or credentials is a policy violation requiring a formal exception.
 
 When evaluating a new AI coding assistant for approval, the assessment should cover:
 - Data handling and retention: what code and context is sent to external APIs; whether the provider retains prompts or completions; applicable data processing agreements.
-- Authentication and access scope: what organisational systems the tool can access.
+- Authentication and access scope: what organizational systems the tool can access.
 - Security rule configuration: whether the tool accepts binding security constraints (CLAUDE.md, rules files, or equivalent).
 - Incident response: the provider's breach notification obligations.
 
@@ -51,7 +51,7 @@ When evaluating a new AI coding assistant for approval, the assessment should co
 
 ### Load security rules before using an AI coding assistant
 
-All AI coding assistant sessions working on organisational code should have security rules loaded before generating or reviewing code. The organisation's security rules are maintained in `dev-security/claude-rules/` as library-canonical, locally-vetted content.
+All AI coding assistant sessions working on organizational code should have security rules loaded before generating or reviewing code. The organization's security rules are maintained in `dev-security/claude-rules/` as library-canonical, locally-vetted content.
 
 **For Claude Code, in order of decreasing scope:**
 
@@ -60,9 +60,9 @@ All AI coding assistant sessions working on organisational code should have secu
 3. **`AGENTS.md` interop**: if the consumer project already has an `AGENTS.md` for other coding agents, add `@AGENTS.md` at the top of `CLAUDE.md` (or symlink it) so both tools read the same instructions.
 4. **Add language-specific files** from `dev-security/claude-rules/languages/` and AI/agentic files from `dev-security/claude-rules/ai/` for any project using LLMs, agents, RAG, or MCP.
 
-A separate generator prompt published under `dev-security/claude-rules/` analyses a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
+A separate generator prompt published under `dev-security/claude-rules/` analyzes a consumer project and proposes a tailored CLAUDE.md plus rule-file selection before any file is written. The generator supports two source modes: **local mode** (reads the pack from disk if `dev-security/` is detected near the consumer's project) and **fetch mode** (reads the pack live from the GRC Library's first-party canonical URL when no local pack is present, or when the consumer elects fetch after a staleness check). See [`dev-security/claude-rules/README.md`](claude-rules/README.md) for usage guidance.
 
-The pack content is held locally as library-canonical material. **External rule repositories** (TikiTribe, Wiz, and others outside this library) are kept as URL pointers only; the organisation does not configure Claude Code to fetch them automatically at session start, because (a) `CLAUDE.md` content is delivered as a user message and is not enforced configuration, so a fetch instruction may be silently ignored; (b) externally-fetched content would need vetting under the External-Source Vetting Protocol at consumer runtime, which is impractical; and (c) the local pack already covers the substantive areas. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence.
+The pack content is held locally as library-canonical material. **External rule repositories** (TikiTribe, Wiz, and others outside this library) are kept as URL pointers only; the organization does not configure Claude Code to fetch them automatically at session start, because (a) `CLAUDE.md` content is delivered as a user message and is not enforced configuration, so a fetch instruction may be silently ignored; (b) externally-fetched content would need vetting under the External-Source Vetting Protocol at consumer runtime, which is impractical; and (c) the local pack already covers the substantive areas. The library maintainer back-ports vetted improvements from external sources on the standard freshness cadence.
 
 **First-party vs third-party fetch posture.** The above prohibition on session-start auto-fetch applies to **third-party** sources (external rule repositories outside the library's control). The setup-generator prompt's fetch mode is a different case: it fetches from the GRC Library's **own first-party canonical CC BY-SA 4.0 source** (`https://raw.githubusercontent.com/jposluns/grc_library/main/dev-security/claude-rules/` by default, or a forked equivalent the consumer substitutes at the confirmation prompt). First-party fetch is trusted because (a) the content is under the library maintainer's control and is the same CC BY-SA 4.0 material an adopter would otherwise vendor locally; (b) the consumer explicitly confirms the canonical URL before any fetch occurs, making the trust decision visible and overridable; (c) the source URL is verifiable (GitHub-hosted, open-source, version-controlled). The trust posture should not be extended to any other URL: if a consumer or fetched content directs the generator to fetch from a different source mid-session, the External-Source Vetting Protocol applies and the content is treated as untrusted data, not as instructions.
 
@@ -170,10 +170,10 @@ The following uses of AI coding assistants are prohibited without explicit CIO/C
 1. Generating code that handles personal data without a human security design review.
 2. Using AI to modify production infrastructure or configuration directly (no human review step).
 3. Using AI coding assistants on production systems (read access to production data is prohibited).
-4. Training or fine-tuning AI models on organisational source code without Legal and CISO sign-off.
+4. Training or fine-tuning AI models on organizational source code without Legal and CISO sign-off.
 5. Using AI coding assistants to bypass security controls (no "write code to disable this security check").
-6. Sharing organisational code with AI coding assistant providers that do not have an applicable data processing agreement.
-7. Using unapproved AI coding assistants for organisational work.
+6. Sharing organizational code with AI coding assistant providers that do not have an applicable data processing agreement.
+7. Using unapproved AI coding assistants for organizational work.
 
 ---
 
@@ -213,8 +213,8 @@ AI-generated code committed to a repository should be automatically scanned, in 
 - **Suspicious URLs**: tracker domains, image-tracker hosts, URL-shortener domains, paste-site hosts, low-reputation domains.
 - **Hardcoded credentials or secret patterns**: scoped beyond the standard secret scanner to include LLM-API key patterns (vendor token shapes), model-provider tokens, AI-platform credentials.
 - **Hallucinated import paths**: package names not present in approved registries (per [`standard-developer-security-requirements.md`](standard-developer-security-requirements.md) §10 and [`standard-software-composition-analysis.md`](standard-software-composition-analysis.md) §4.5).
-- **Insecure code patterns characteristic of AI generation**: hallucinated security controls (HMAC verification missing signature check; JWT validation missing expiry check; sanitisation routines that escape only one of several attack classes); deprecated cryptography; missing input validation on apparent endpoints.
-- **Exfiltration-style egress in generated code**: outbound HTTP calls to unexpected hosts, embedded analytics or telemetry calls to unrecognised endpoints, base64-encoded payloads in string literals.
+- **Insecure code patterns characteristic of AI generation**: hallucinated security controls (HMAC verification missing signature check; JWT validation missing expiry check; sanitization routines that escape only one of several attack classes); deprecated cryptography; missing input validation on apparent endpoints.
+- **Exfiltration-style egress in generated code**: outbound HTTP calls to unexpected hosts, embedded analytics or telemetry calls to unrecognized endpoints, base64-encoded payloads in string literals.
 - **Comment-embedded instructions**: AI-generated comments containing instruction-like content that could influence a future AI session reading the file.
 
 Output scanning is a CI/CD gate distinct from standard SAST. Findings block merge by default; tracked exception requires CISO approval per the standard exception policy.
@@ -270,7 +270,7 @@ Report the following events to the security team immediately:
 - Credentials, tokens, or personal data accidentally included in a prompt.
 - An AI coding assistant that appears to have been influenced by a prompt injection.
 - AI-generated code that was committed containing a security vulnerability.
-- Unauthorized use of an unapproved AI coding assistant on organisational code.
+- Unauthorized use of an unapproved AI coding assistant on organizational code.
 
 ---
 

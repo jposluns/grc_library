@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.10\
+**Version:** 1.4.11\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,9 +24,9 @@ This standard establishes controls, retention schedules, destruction methods, an
 
 ## 2. Scope
 
-1. Applies to all organisational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
+1. Applies to all organizational records including business documents, electronic files, system logs, datasets, AI model artifacts, and contractual records.
 2. Covers all systems, storage media, and cloud environments that hold information subject to regulatory, audit, or contractual retention obligations.
-3. Applies globally across all entities and regional subsidiaries. Sector-specific retention overlays (for example, BASC trade and customs retention) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+3. Applies globally across all entities and regional subsidiaries. Sector-specific retention overlays (for example, BASC trade and customs retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 4. Includes AI-specific content such as model training datasets, testing results, and explainability documentation.
 
 ---
@@ -42,7 +42,7 @@ This standard establishes controls, retention schedules, destruction methods, an
 | **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. |
 | **AI Governance Council (AIGC)** | Defines retention and destruction controls for AI datasets, model versions, and audit logs. |
 
-Sector-conditional roles (for example, a BASC Regional Compliance Officer where the organisation participates in BASC) apply retention controls per the relevant sector annex; see [`compliance/`](../compliance/).
+Sector-conditional roles (for example, a BASC Regional Compliance Officer where the organization participates in BASC) apply retention controls per the relevant sector annex; see [`compliance/`](../compliance/).
 
 ---
 
@@ -79,7 +79,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 | Privacy / Data Subject Requests (DSR) | 3 years post-closure (per [`register-data-retention-schedule.md`](register-data-retention-schedule.md), Data subject access request records) |
 | AI Systems | 5 years post-decommission |
 
-Sector-specific retention categories (for example, trade and customs records under BASC, healthcare records under HIPAA, financial-services records under sector-specific regulation) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific retention categories (for example, trade and customs records under BASC, healthcare records under HIPAA, financial-services records under sector-specific regulation) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 > Retention periods longer than 7 years require written approval from Legal Counsel.
 
@@ -145,7 +145,7 @@ Retention ensures that traceability is preserved under EU AI Act Annex IV, OECD 
 
 ## 10. Sector-specific retention overlays
 
-Where the organisation participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`compliance/`](../compliance/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
+Where the organization participates in a sector-specific programme that imposes its own retention obligations (for example, BASC for trade and logistics operations, sector-specific financial-services or healthcare regulations), the corresponding sector annex defines the additional retention categories, minimum retention periods, and destruction requirements. See [`compliance/`](../compliance/) and the sector-specific compliance annexes in [`compliance/`](../compliance/).
 
 Sector overlays extend (do not contradict) the retention requirements defined elsewhere in this standard. Where the overlay specifies a longer retention period than the base requirement, the longer period applies.
 
@@ -184,7 +184,7 @@ Annual audits verify:
 | ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |
 | EU AI Act Annex IV | AI System Documentation |
 
-Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2021 for trade and customs records retention) apply where the organisation participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2021 for trade and customs records retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 

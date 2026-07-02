@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Domain Incident Coordination Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.6\
-**Date:** 2026-06-28\
+**Version:** 1.1.7\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](procedure-security-incident-reporting-and-escalation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -39,7 +39,7 @@ Each incident is assigned a primary owning domain and zero or more participating
 | Confirmed or suspected security breach without personal data exposure | Security | Operations, Communications |
 | Security breach with personal data exposure | Security (technical) and Privacy (notification stream) jointly | Communications, Legal, Operations |
 | Personal data disclosure without security breach (e.g. accidental email, lost device with encrypted data) | Privacy | Security (if security control gap), Legal |
-| Supplier breach affecting organisation data | Supplier (coordination with supplier) | Security, Privacy, Legal, Communications |
+| Supplier breach affecting organization data | Supplier (coordination with supplier) | Security, Privacy, Legal, Communications |
 | AI system safety or security incident not involving personal data | AI | Security, Operations, Legal |
 | AI system incident involving personal data | AI and Privacy jointly | Security, Communications, Legal |
 | Operational service outage with no security or privacy implication | Operations | Communications, Resilience (if continuity activated) |
@@ -72,14 +72,14 @@ For P1 events, the Incident Coordinator and Executive Sponsor are notified withi
 
 ## Coordination lifecycle
 
-The coordination lifecycle mirrors the domain procedures but layers cross-stream synchronisation points on top.
+The coordination lifecycle mirrors the domain procedures but layers cross-stream synchronization points on top.
 
 | Phase | Cross-stream activities | Outputs |
 | --- | --- | --- |
 | Preparation | Maintain the coordination roster, contact register, decision log template, communication templates, joint exercise schedule, and after-action format. | Coordination roster, register, templates, exercise log. |
 | Declaration | Confirm cross-domain trigger, appoint Incident Coordinator, declare participating domains, open the joint decision log, schedule the first coordination call. | Declaration record, joint decision log opened. |
 | Joint triage | Each participating domain confirms its own triage, severity, and immediate containment needs. Coordinator confirms domain assignments per the ownership decision rule. | Joint triage record, severity decision, ownership confirmation. |
-| Synchronised containment | Each domain executes containment per its own procedure; cross-stream decisions (e.g. service shutdown, supplier isolation, AI tool suspension) routed through the Coordinator. | Containment timeline, cross-stream decisions recorded. |
+| Synchronized containment | Each domain executes containment per its own procedure; cross-stream decisions (e.g. service shutdown, supplier isolation, AI tool suspension) routed through the Coordinator. | Containment timeline, cross-stream decisions recorded. |
 | Investigation | Each domain investigates within its scope; Coordinator owns the consolidated timeline, the shared evidence index, and the cross-domain root cause draft. | Consolidated timeline, joint evidence index, root cause draft. |
 | Notification and communication | Privacy and Legal own regulatory notification streams; Communications owns external messaging. All public statements approved by Executive Sponsor. | Notification records, communication log, approval evidence. |
 | Recovery and validation | Each domain validates within its scope; Coordinator confirms cross-domain dependencies are satisfied before return to service. | Recovery validation by domain, joint return-to-service approval. |
@@ -99,7 +99,7 @@ These checklists govern the transitions between streams. The Coordinator confirm
 3. List of affected data subjects, processing roles, and jurisdictions, to the extent known.
 4. Suspected attack vector and time-of-first-compromise estimate to support the "becoming aware" determination under GDPR Article 33.
 5. Containment status: whether the breach is contained and whether further data is at risk.
-6. Authorisation for the Privacy stream to take parallel actions (e.g. request supplier preservation, contact the Privacy regulator).
+6. Authorization for the Privacy stream to take parallel actions (e.g. request supplier preservation, contact the Privacy regulator).
 
 ### Security to Supplier hand-off (when a supplier or processor is implicated)
 
@@ -108,7 +108,7 @@ These checklists govern the transitions between streams. The Coordinator confirm
 3. Required preservation actions and the contractual deadline for them.
 4. Whether supplier access should be restricted or revoked, and the authority to do so.
 5. Evidence the supplier is expected to provide and the format and deadline.
-6. Communication boundary: who at the supplier and at the organisation may discuss the incident, and what is on or off the record.
+6. Communication boundary: who at the supplier and at the organization may discuss the incident, and what is on or off the record.
 
 ### Security to AI hand-off (when an AI system is implicated)
 
@@ -209,7 +209,7 @@ The Joint PIR is a single consolidated post-incident review that supersedes per-
 9. Risk register updates across the affected domains.
 10. Recommendations for procedure or control changes.
 
-The Joint PIR is owned by the Incident Coordinator, signed by the Executive Sponsor, and provided to Internal Audit. The PIR report classification follows the highest classification of its source domains, typically Restricted in adopting organisations.
+The Joint PIR is owned by the Incident Coordinator, signed by the Executive Sponsor, and provided to Internal Audit. The PIR report classification follows the highest classification of its source domains, typically Restricted in adopting organizations.
 
 ---
 
@@ -257,7 +257,7 @@ Maintain joint declaration record, coordination roster snapshot, joint decision 
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline for cross-stream coordination. Adopting organisations must define the named individual or role behind each Lead title, the contact register, the cadence calendar, the joint exercise scenarios, the communication channels, and the evidence repository. Regulatory notification windows referenced here are illustrative; adopting organisations must validate the windows applicable to their jurisdictions, sectors, processing roles, and contractual obligations.
+This procedure is a CC BY-SA 4.0 baseline for cross-stream coordination. Adopting organizations must define the named individual or role behind each Lead title, the contact register, the cadence calendar, the joint exercise scenarios, the communication channels, and the evidence repository. Regulatory notification windows referenced here are illustrative; adopting organizations must validate the windows applicable to their jurisdictions, sectors, processing roles, and contractual obligations.
 
 ---
 

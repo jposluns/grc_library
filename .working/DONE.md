@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #570: TODO 7.4 (decision executed) + 3.13 item-25: full Commonwealth-spelling harmonization + gate-2 coverage extension (2026-07-02)
+
+The maintainer-locked full-normalization decision executed: ~2000 "-isation"/"-ise"/"-yse" occurrences flipped to the Canadian forms across ~330 files under the high-assurance harness (classified research map, deterministic masked apply, verbatim-quote carve-outs for the GDPR Article 25(1) quote, the OECD name, and the WP216 title), with the pseudonymization standard renamed and gate 2 extended (39 new verb stems, a generic -isation noun check, the -yse family, the allow-span mask). Also batches the #569 QA rows.
+
 ### PR #569: L-d (M): verbless "ensure that" sentences repaired corpus-wide (2026-07-02)
 
 All 54 verbless "ensure(s) that + noun" carriers across 36 documents repaired by a deterministic scripted apply, the full-corpus 170-occurrence read having raised the enumerated 22 to the true 54 (each repair supplies the missing verb; none deletes "that"), with the in-repo mechanical-sweep root-cause hypothesis refuted: every traced carrier was introduced at the initial public-release commit. Also dispositions the eleven #568 sweep findings (decision-tree tokens and OT answer, linter rationale, portal schema-constant bump, seven more register cell rewordings, the stale DONE count).

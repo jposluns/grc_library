@@ -2,8 +2,8 @@
 
 **Document Title:** Observability and Telemetry Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-07-01\
+**Version:** 0.0.5\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines minimum observability and telemetry requirements for services operated by the organisation. It complements the security logging and monitoring standard (which focuses on security-relevant events) and the [`AI evaluation procedure`](../ai/procedure-ai-evaluation.md) (which focuses on model behaviour) by covering operational health, performance, reliability, and customer-experience signals.
+This standard defines minimum observability and telemetry requirements for services operated by the organization. It complements the security logging and monitoring standard (which focuses on security-relevant events) and the [`AI evaluation procedure`](../ai/procedure-ai-evaluation.md) (which focuses on model behaviour) by covering operational health, performance, reliability, and customer-experience signals.
 
 ---
 
@@ -26,13 +26,13 @@ This standard defines minimum observability and telemetry requirements for servi
 
 This standard applies to:
 
-1. Production and pre-production services operated by the organisation.
+1. Production and pre-production services operated by the organization.
 2. Customer-facing services and customer-impacting internal services.
 3. Background and batch processing systems that produce a customer or business outcome.
 4. Infrastructure components whose failure affects service health.
-5. Vendor-managed services whose health affects organisational outcomes.
+5. Vendor-managed services whose health affects organizational outcomes.
 
-It does not cover individual workstation telemetry (governed by the endpoint hardening standard) or experimental sandboxes that produce no organisational outcome.
+It does not cover individual workstation telemetry (governed by the endpoint hardening standard) or experimental sandboxes that produce no organizational outcome.
 
 ### 2.1 Scope boundary with the security logging and monitoring standard
 
@@ -50,7 +50,7 @@ This standard governs operational health signals (metrics, traces, logs of opera
 | Service ownership | The team that operates a service owns its telemetry |
 | Standard schemas | Common schemas across services to enable cross-service queries |
 | Retention by purpose | Retention is determined by the question the data answers, not by default |
-| Privacy by design | Telemetry minimisation; sensitive data not captured by default |
+| Privacy by design | Telemetry minimization; sensitive data not captured by default |
 | Cost-aware | Telemetry cost is reviewed alongside engineering and infrastructure cost |
 
 ---
@@ -169,7 +169,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 | Personal data | Personal data avoided in telemetry; where present, classification is recorded |
 | Data subject rights | Telemetry stores are evaluated for data-subject-rights obligations |
 | Cross-border | Telemetry storage location considered per the cross-border data flow register |
-| Anonymisation and pseudonymisation | Used where the analytical question allows |
+| Anonymization and pseudonymization | Used where the analytical question allows |
 | Customer-controlled signals | Customer telemetry preferences honoured |
 
 ---
@@ -247,7 +247,7 @@ Service-level objectives (SLOs) are defined per the service-level management sta
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Telemetry tooling and vendor capabilities change; the standard expresses requirements rather than vendor-specific implementations. Adopting organisations select tooling consistent with their cost, scale, and platform diversity.
+This standard is a CC BY-SA 4.0 baseline. Telemetry tooling and vendor capabilities change; the standard expresses requirements rather than vendor-specific implementations. Adopting organizations select tooling consistent with their cost, scale, and platform diversity.
 
 ---
 

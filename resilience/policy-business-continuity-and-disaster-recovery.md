@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Disaster Recovery Policy\
 **Document Type:** Policy\
-**Version:** 1.0.1\
-**Date:** 2026-07-01\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md)\
@@ -45,7 +45,7 @@ This policy applies to business processes, information systems, cloud services, 
 
 ## 4. Evidence requirements
 
-Adopting organisations should maintain business impact analyses, recovery objective registers, dependency maps, continuity plans, recovery plans, test reports, restoration logs, crisis action logs, supplier resilience evidence, corrective action logs, and risk acceptance records.
+Adopting organizations should maintain business impact analyses, recovery objective registers, dependency maps, continuity plans, recovery plans, test reports, restoration logs, crisis action logs, supplier resilience evidence, corrective action logs, and risk acceptance records.
 
 ---
 

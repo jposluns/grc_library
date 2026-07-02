@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Library Charter\
 **Document Type:** Charter\
-**Version:** 1.2.1\
-**Date:** 2026-06-23\
+**Version:** 1.2.2\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)\
@@ -20,7 +20,7 @@
 
 This charter establishes the authority model, document hierarchy, lifecycle, quality expectations, and licence boundary for the Governance, Risk, and Compliance Documentation Library.
 
-The library provides organisation-neutral governance artefacts that can be adopted or adapted by any organisation. It is not a record of one organisation's internal governance programme and must not contain organisation-specific names, evidence, systems, incidents, vendors, customers, or personal identifiers.
+The library provides organization-neutral governance artefacts that can be adopted or adapted by any organization. It is not a record of one organization's internal governance programme and must not contain organization-specific names, evidence, systems, incidents, vendors, customers, or personal identifiers.
 
 The library also serves as a reference implementation for AI-assisted maintenance of a governed corpus. The audit toolchain under [`tools/`](../tools/) and the operational pack under [`dev-security/claude-rules/`](../dev-security/claude-rules/) show how a CC BY-SA 4.0 GRC corpus can be maintained with Claude Code participating in PRs without losing internal consistency, metadata integrity, or audit-trail discipline. The pack is also documented as a standalone Claude Code baseline usable on any project, with or without a GRC corpus, distilled from the disciplines this library required to maintain itself. This charter governs the corpus; the operational layer is an artefact of the corpus's own maintenance, not an additional authority claim.
 
@@ -36,7 +36,7 @@ It governs:
 - Domain placement and canonical naming.
 - Role-based ownership and approval.
 - Use of third-party standards and framework references.
-- Exclusion of personal, proprietary, and organisation-specific information.
+- Exclusion of personal, proprietary, and organization-specific information.
 - Cross-framework and regulatory mapping conventions.
 - Review cadence and quality control.
 
@@ -44,7 +44,7 @@ It governs:
 
 ## Governance principles
 
-1. **Organisation neutrality:** Documents must be reusable without editing out company-specific or person-specific content.
+1. **Organization neutrality:** Documents must be reusable without editing out company-specific or person-specific content.
 2. **Role-based accountability:** Owners and approving authorities must be generic roles, not named individuals.
 3. **Licence compatibility:** Original repository content is CC BY-SA 4.0. Restrictively licensed material must not be copied into the repository.
 4. **Traceability:** Documents should identify parent artefacts, related artefacts, applicable domains, and evidence classes.
@@ -83,7 +83,7 @@ It governs:
 Each document follows this lifecycle:
 
 1. **Draft:** Initial content creation, metadata assignment, and domain placement.
-2. **Review:** Validation for structure, originality, licence compatibility, organisation neutrality, and framework accuracy.
+2. **Review:** Validation for structure, originality, licence compatibility, organization neutrality, and framework accuracy.
 3. **Approved:** Maintainer acceptance for publication under CC BY-SA 4.0.
 4. **Maintained:** Periodic review, correction, and version updates.
 5. **Deprecated:** Retained for history but no longer recommended.

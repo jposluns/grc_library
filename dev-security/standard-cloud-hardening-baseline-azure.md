@@ -2,14 +2,14 @@
 
 **Document Title:** Azure Cloud Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-07-01\
+**Version:** 0.0.8\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
 **Classification:** Public\
 **Category:** Developer Security\
-**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organisational use of new service classes\
+**Review Frequency:** Annual and upon material change to the cloud provider service catalogue, baseline benchmark releases, or organizational use of new service classes\
 **Repository Path:** [`dev-security/standard-cloud-hardening-baseline-azure.md`](standard-cloud-hardening-baseline-azure.md)\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the hardening baseline for Microsoft Azure environments operated by or on behalf of the organisation. It expresses outcomes and control intent in vendor-neutral language and references Azure service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
+This standard defines the hardening baseline for Microsoft Azure environments operated by or on behalf of the organization. It expresses outcomes and control intent in vendor-neutral language and references Azure service classes by their generic role rather than reproducing vendor configuration guidance verbatim.
 
 ---
 
@@ -26,22 +26,22 @@ This standard defines the hardening baseline for Microsoft Azure environments op
 
 This standard applies to:
 
-1. Azure tenants and subscriptions owned by the organisation.
-2. Management group hierarchies, landing zones, and Cloud Adoption Framework constructs used to host organisational workloads.
-3. Workloads operated by the organisation in Azure, regardless of whether the workload itself is open source or proprietary.
+1. Azure tenants and subscriptions owned by the organization.
+2. Management group hierarchies, landing zones, and Cloud Adoption Framework constructs used to host organizational workloads.
+3. Workloads operated by the organization in Azure, regardless of whether the workload itself is open source or proprietary.
 4. Azure infrastructure-as-code that provisions or configures the above.
 
 It does not cover the contractual relationship with the provider, which is governed by the supplier security and privacy assurance standard.
 
 ### 2.1 Scope boundary with the operations cloud configuration baseline
 
-This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organisation/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
+This standard governs workload-level cloud hardening: application accounts/subscriptions/projects, the IaC that provisions them, in-workload IAM, workload network segmentation, encryption, secrets, and operational hardening. Enterprise-tenant concerns (identity-provider tenant, organization/management-group hierarchy, tenant-wide policies, productivity SaaS, email and collaboration platforms, cross-tenant administration) are governed by [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md). A workload conforms to both: the enterprise-tenant rules in the operations baseline, and the workload-level rules here.
 
 ---
 
 ## 3. Baseline alignment
 
-The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the Microsoft Cloud Security Benchmark without reproducing benchmark content verbatim. Adopting organisations confirm current versions of those baselines at each review.
+The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the Microsoft Cloud Security Benchmark without reproducing benchmark content verbatim. Adopting organizations confirm current versions of those baselines at each review.
 
 ---
 
@@ -51,7 +51,7 @@ The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the 
 | --- | --- |
 | Management group hierarchy | Workloads, environments (production, non-production), and trust tiers separated; landing zone topology applied |
 | Subscription naming and ownership | Each subscription has a documented owner, environment, and purpose |
-| Identity provider | The organisation's Azure Active Directory tenant is the primary identity provider; identity federation centralized |
+| Identity provider | The organization's Azure Active Directory tenant is the primary identity provider; identity federation centralized |
 | Global administrator accounts | Standing global administrators minimized; break-glass accounts separated, multi-factor protected, and monitored |
 | Conditional access | Risk-based policies applied; legacy authentication blocked; device-trust requirements enforced for privileged access |
 | Privileged identity | Privileged Identity Management or equivalent used for just-in-time privilege; standing assignments prohibited for sensitive roles |
@@ -79,7 +79,7 @@ The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the 
 
 | Control area | Requirement |
 | --- | --- |
-| Azure Policy | Organisation-level policies enforce allowed services, regions, SKUs, and dangerous-action restrictions |
+| Azure Policy | Organization-level policies enforce allowed services, regions, SKUs, and dangerous-action restrictions |
 | Region restriction | Workloads constrained to approved regions matching the data residency profile |
 | Public access blocks | Default-blocking of public network access on storage and database services where supported |
 | Resource locks | Locks applied to critical resources to prevent accidental deletion |
@@ -161,7 +161,7 @@ The standard aligns to the CIS Microsoft Azure Foundations Benchmark and to the 
 
 | Control area | Requirement |
 | --- | --- |
-| Threat detection | Defender for Cloud plans enabled across resource types; custom detections aligned to the organisation's threat model |
+| Threat detection | Defender for Cloud plans enabled across resource types; custom detections aligned to the organization's threat model |
 | SIEM | The Azure-native SIEM (Sentinel) or equivalent ingests Azure telemetry; analytics rules tuned |
 | Alerting | Critical findings route to the SOC ticketing scheme; on-call paged where required |
 | Response automation | Pre-approved playbooks; automation accountability separated from response decision |

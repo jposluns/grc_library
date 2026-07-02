@@ -2,8 +2,8 @@
 
 **Document Title:** Mergers and Acquisitions Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-06-30\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`privacy/template-transfer-impact-assessment.md`](../privacy/template-transfer-impact-assessment.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -20,15 +20,15 @@
 
 ### 1.1 Purpose
 
-This procedure operationalizes the governance, risk, and compliance (GRC) due diligence required when the organisation acquires, merges with, or takes a controlling interest in another entity. The [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) names a merger, acquisition, or divestiture as a major-organisational-change trigger for a programme review, but provides no transaction-level checklist, pre-close instrument, or integration playbook. This procedure is that instrument: it defines the phases, the GRC dimensions to assess, the deal-breaker escalation path, and the hand-off into the organisation's standing controls.
+This procedure operationalizes the governance, risk, and compliance (GRC) due diligence required when the organization acquires, merges with, or takes a controlling interest in another entity. The [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) names a merger, acquisition, or divestiture as a major-organizational-change trigger for a programme review, but provides no transaction-level checklist, pre-close instrument, or integration playbook. This procedure is that instrument: it defines the phases, the GRC dimensions to assess, the deal-breaker escalation path, and the hand-off into the organization's standing controls.
 
 ### 1.2 Scope
 
-This procedure applies to the organisation's own inbound transactions (acquisitions, mergers, controlling investments). Divestitures are out of scope here: while they share several GRC dimensions, they require carve-out-specific handling (data segregation, records and obligation transfer-out, de-provisioning of the divested entity's access) that this version does not cover; run a divestiture through the triggered-review machinery with dimensions adapted to the carve-out. This procedure covers the GRC dimensions of due diligence; it does not replace the financial, tax, and commercial due diligence that the deal team and external advisers perform, and it does not constitute legal advice.
+This procedure applies to the organization's own inbound transactions (acquisitions, mergers, controlling investments). Divestitures are out of scope here: while they share several GRC dimensions, they require carve-out-specific handling (data segregation, records and obligation transfer-out, de-provisioning of the divested entity's access) that this version does not cover; run a divestiture through the triggered-review machinery with dimensions adapted to the carve-out. This procedure covers the GRC dimensions of due diligence; it does not replace the financial, tax, and commercial due diligence that the deal team and external advisers perform, and it does not constitute legal advice.
 
 It is distinct from supplier change-of-control monitoring: where an existing supplier is itself acquired, the [Supplier Due Diligence Procedure](../supply-chain/procedure-supplier-due-diligence.md) and the fourth-party and nth-party risk procedure govern, not this procedure.
 
-Deal-approval authority thresholds, materiality thresholds, due-diligence timelines, and the required regulatory-clearance list are organisation-specific and are populated by the adopting organisation; this procedure marks them as *[adopter-defined]* rather than asserting values.
+Deal-approval authority thresholds, materiality thresholds, due-diligence timelines, and the required regulatory-clearance list are organization-specific and are populated by the adopting organization; this procedure marks them as *[adopter-defined]* rather than asserting values.
 
 ## 2. Roles and responsibilities
 
@@ -43,7 +43,7 @@ Deal-approval authority thresholds, materiality thresholds, due-diligence timeli
 | Legal Counsel | Owns the legal-entity, contracts, litigation, IP, and regulatory-clearance assessment. |
 | Enterprise Risk Committee (ERC) | Reviews material findings and deal-breakers; advises the approving authority. |
 
-The assignment above is the default; an adopting organisation maps these to its own role inventory per [`governance/register-role-authority.md`](../governance/register-role-authority.md).
+The assignment above is the default; an adopting organization maps these to its own role inventory per [`governance/register-role-authority.md`](../governance/register-role-authority.md).
 
 ## 3. Transaction phases
 
@@ -52,7 +52,7 @@ The due diligence runs across four phases, each with a decision gate. A transact
 1. **Phase 1: screening and pre-LOI** (Section 4): a deal-breaker scan and scope-setting before a letter of intent.
 2. **Phase 2: pre-close due diligence** (Sections 5 and 6): the full GRC-dimension review against the target's data room, producing the due-diligence checklist outcomes and the red-flag register.
 3. **Phase 3: signing to close** (Section 7): conditions, covenants, representations and warranties, and regulatory clearances.
-4. **Phase 4: post-close integration** (Section 8): the hand-off into the organisation's standing controls and the integration playbook.
+4. **Phase 4: post-close integration** (Section 8): the hand-off into the organization's standing controls and the integration playbook.
 
 ## 4. Phase 1: Screening and pre-LOI
 
@@ -97,7 +97,7 @@ Findings that may alter or stop the transaction are recorded here and escalated;
 | Escalation | Deal-breaker and material findings are escalated to the Chief Risk Officer and the Enterprise Risk Committee; deal-breakers are escalated to the executive sponsor before any further commitment. |
 | Disposition | Withdraw / re-price or restructure / accept with conditions / accept with a post-close remediation plan. |
 
-A deal-breaker is not closed by acceptance alone: it is resolved by withdrawal, by a restructure that removes it, or by an explicit, authority-level risk acceptance recorded against the organisation's risk appetite.
+A deal-breaker is not closed by acceptance alone: it is resolved by withdrawal, by a restructure that removes it, or by an explicit, authority-level risk acceptance recorded against the organization's risk appetite.
 
 ## 7. Phase 3: Signing to close
 
@@ -111,13 +111,13 @@ Between signing and closing:
 
 ## 8. Phase 4: Post-close integration and hand-off
 
-On closing, the transaction hands off into the organisation's standing controls:
+On closing, the transaction hands off into the organization's standing controls:
 
-1. **Invoke the triggered review.** Record the completed transaction as a major-organisational-change trigger in the [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md), which assigns owners and a completion window for bringing the acquired entity into the programme.
-2. **Schedule the post-close audit.** The [Internal Audit Standard](standard-internal-audit.md) provides for an audit of the affected domains following a significant organisational change; schedule it within that window.
+1. **Invoke the triggered review.** Record the completed transaction as a major-organizational-change trigger in the [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md), which assigns owners and a completion window for bringing the acquired entity into the programme.
+2. **Schedule the post-close audit.** The [Internal Audit Standard](standard-internal-audit.md) provides for an audit of the affected domains following a significant organizational change; schedule it within that window.
 3. **Migrate findings into the risk register.** Open Phase 2 findings and accepted residual risks are recorded in the [risk register](../risk/procedure-risk-register.md) with owners and target dates.
-4. **Integrate the GRC artefacts.** Bring the acquired entity's records of processing, supplier inventory, obligation inventory, and incident history into the organisation's corresponding registers; re-run the relevant assessments (for example a [Transfer Impact Assessment](../privacy/template-transfer-impact-assessment.md) for any inherited restricted transfer) where the change of control affects their validity.
-5. **Close the integration playbook.** Track the integration actions to completion and confirm the acquired entity is operating within the organisation's governance, risk, and compliance framework.
+4. **Integrate the GRC artefacts.** Bring the acquired entity's records of processing, supplier inventory, obligation inventory, and incident history into the organization's corresponding registers; re-run the relevant assessments (for example a [Transfer Impact Assessment](../privacy/template-transfer-impact-assessment.md) for any inherited restricted transfer) where the change of control affects their validity.
+5. **Close the integration playbook.** Track the integration actions to completion and confirm the acquired entity is operating within the organization's governance, risk, and compliance framework.
 
 ## 9. Evidence and records
 
@@ -142,7 +142,7 @@ The due-diligence checklist outcomes, the red-flag and deal-breaker register, th
 
 ## 12. Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. It is not legal, financial, or tax advice, and it does not replace the transaction-specific due diligence performed by the deal team and external advisers. Adopting organisations must populate the materiality and approval thresholds, the regulatory-clearance list, and the timelines marked *[adopter-defined]*, and must extend the intellectual-property and litigation dimensions with their own records where this library has no dedicated instrument. The financial-crime and sanctions dimension (the lead deal-breaker in Phase 1) is governed by the [sanctions and export-control screening standard](standard-sanctions-and-export-control-screening.md), with the fourth-party and nth-party risk procedure covering supplier-tier exposure.
+This procedure is a CC BY-SA 4.0 baseline. It is not legal, financial, or tax advice, and it does not replace the transaction-specific due diligence performed by the deal team and external advisers. Adopting organizations must populate the materiality and approval thresholds, the regulatory-clearance list, and the timelines marked *[adopter-defined]*, and must extend the intellectual-property and litigation dimensions with their own records where this library has no dedicated instrument. The financial-crime and sanctions dimension (the lead deal-breaker in Phase 1) is governed by the [sanctions and export-control screening standard](standard-sanctions-and-export-control-screening.md), with the fourth-party and nth-party risk procedure covering supplier-tier exposure.
 
 ---
 

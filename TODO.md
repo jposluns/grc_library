@@ -121,7 +121,7 @@ Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 s
 
 ### 3.4 Backlog effort-sizing labels convention (M, S) (was 4.2)
 
-Backlog items now carry `(severity, effort)`; this item formalises the convention. Proposed scale:
+Backlog items now carry `(severity, effort)`; this item formalizes the convention. Proposed scale:
 
 | Label | Per-item effort | Bundleable per PR |
 |---|---|---|
@@ -168,7 +168,6 @@ Mechanical-coverage extensions the 2026-07-02 audit surfaced; each is a `tools/`
 
 - **(from item 4) Extend gate 55 `RETENTION_CHECKS`.** [`tools/lint-retention-consistency.py`](tools/lint-retention-consistency.py) tracks only three curated register/procedure retention pairs; extend it to the AI-audit, supplier-audit, privacy-breach, PIA, and AI-IA rows, whose canonical values the retention reconcile set (7-year audit floor; breach 7 years; PIA and AI-IA 7-or-system-decommission-plus-5 whichever is longer): widen the gate so it locks the reconciled values. Tooling note (#563 verifier): the D5 closure detector also misses the "section-N.M closed" phrasing AND the "items N-M and X-Y closed" multi-item form (#567 passed it vacuously); add both to the closure forms when D5 is next touched (same detection-width family as GR-12).
 - **(GR-P3 graduation, #565 retro, M, S) Partial-rewrite tension-marker check.** The late-adopted-fix propagation facet hit three occurrences (#563/#564/#565: a scope-adding fix or rewrite touching part of a block while hedges or stale framings survive elsewhere in the same block) and graduates to a gate proposal per the GR-P3 convention: a PR-time check that, for any diff hunk rewriting part of a TODO bullet or ledger row, re-lints the WHOLE containing block for tension markers ("likely", "NEEDS-UPSTREAM", "pending", "TBD") contradicting the block's own status framing (e.g. "upstream-CONFIRMED"). Design with GR-12 (both are residual-scan tooling).
-- **(from item 25) Extend `lint-language.py` spelling coverage.** `ISE_PATTERN` (:99-118) covers 18 verb stems, verb-forms only, no `-isation` noun forms and missing stems (authorise/anonymise/pseudonymise). Add a companion `-isation` noun pattern + the missing stems. `customisation` (37 governed-corpus carriers, `customise` IS a stem but the noun is uncaught) is the cleanest proof. Gated on the §7.4 `organisation` decision (which noun forms are in scope).
 - **(from item 9) COBIT + ISO 31000 citation coverage.** Gates 48/49/54/58 cover CCM/NIST/ISO-Annex-A control-code existence but not COBIT practice codes or ISO 31000 clause numbers, so the APO12.07 fabrication and the ISO 31000 clause swap in [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) were gate-blind (both fixed in the C6 PR; the coverage gap remains for future edits). Extend `/matrix-fit` coverage or add a dedicated existence check (needs held COBIT 2019 / ISO 31000:2018 reference data, which scratch does not currently hold, so this may be source-gated). Routed note (C6, extended by its verifier): the canonical-title corrections expose four semantic-fit questions for an ad-hoc `/matrix-fit` pass or this gate's design: in the matrix, APO12.01 "Collect data" on the framework-and-governance row, APO12.02 "Analyze risk" on the risk-appetite row (where ISO 31000's closest semantic home is arguably 6.3.4 Defining risk criteria), and APO12.03 "Maintain a risk profile" on the identification-and-analysis row; and in the exception policy, APO12.03 in the risk-assessment intent at three carriers that move together on any recode (the :130 framework bullet, now canonically titled, plus the bare codes at :66 and :144) where APO12.02 may fit better. Title-only corrections shipped; any recode is the fit pass's call.
 - **(from item 20) Positional-backlog-token lint.** Optional: a lint flagging `TODO P?N.M` positional tokens in gate-scanned corpus prose (they are renumber-fragile), nudging references toward stable FR-ids / topic names. Same class as the CLAUDE.md §N-orphan guard.
 
@@ -176,6 +175,7 @@ Mechanical-coverage extensions the 2026-07-02 audit surfaced; each is a `tools/`
 
 Cheap, mostly-mechanical corrections re-validated at source; bundle into one or a few small PRs. (One audit low-sev candidate, the glossary CalVer/PR, was REFUTED: the glossary carries the standard 13-field block like its peers, and no document carries a Library Version/PR in its metadata, so it is not a finding.)
 
+- **(M1 FN-verifier NIT, L, S) tools/ docstring and comment Commonwealth-spelling prose.** Non-emitted docstrings, comments, and assertion prose across about 15 `tools/*.py` files retain `-ise`/`-isation` forms (e.g. "normalised", "sanitiser-engine", "recognised"); flip the PROSE only; code identifiers (e.g. a `normalise` function name, a `NORMALISERS` constant) are excluded (renaming is behaviour-risk for no prose gain) and stay until a deliberate refactor.
 - **(item 15, XS) TLS 1.2 inline caveat.** [`dev-security/claude-rules/core/owasp.md`](dev-security/claude-rules/core/owasp.md):42,209 keeps the ASVS-baseline TLS 1.2 with no inline note that the project canonical mandate is TLS 1.3 ([`core/cryptography.md`](dev-security/claude-rules/core/cryptography.md):15,77 puts TLS 1.2 in the prohibited column). Add a one-line caveat; do not change the ASVS baseline.
 - **(item 22, XS) Rollout phasing.** [`docs/decision-tree.md`](docs/decision-tree.md):36 ("30 / 90 / 180 days") vs the implementation-roadmap 90/180/365 ([`docs/template-quickstart.md`](docs/template-quickstart.md):54, portal). Align the decision-tree outlier or note they are distinct phasings.
 - **(item 23, XS) Gate 55 absent from §5 grouping.** [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md):66-72 §5 category lists omit gate 55 (its §6 table row + prose exist); add it to the category-3 (content-drift) list.
@@ -211,14 +211,14 @@ Machinery findings from the 2026-07-02 guardrail review (gates, rules, skills, a
 
 ## Priority 4 — Adopter experience
 
-Capability and guidance for organisations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
+Capability and guidance for organizations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
 
 ### 4.1 Corpus-management discipline as a shareable skill (M, XL)
 
 Package the cumulative documentation-and-corpus discipline this project has accumulated as a standalone Claude Code skill that anyone managing a documentation corpus with an AI coding assistant could install.
 
 - **Distillation source**: the twelve `governance/` pack rules form the discipline core; `validation-sweep` and `library-fitness-review` form the periodic-review surface; the audit-programme architecture forms the mechanical-enforcement surface.
-- **Generalisation**: carry the patterns and discipline without the GRC-specific control-set citations; adopters supply their own document-type model and metadata-field set.
+- **Generalization**: carry the patterns and discipline without the GRC-specific control-set citations; adopters supply their own document-type model and metadata-field set.
 - **Open questions resolved 2026-06-22**: skill **family** (not omnibus); **prescriptive-only** (no linter scaffolds); **existing pack 1.x bump** (not a new pack). Sequencing: after the FR backlog closes.
 
 ### 4.2 Pack: dev-security/claude-rules language coverage review (M, M) (was 4.4)
@@ -342,7 +342,7 @@ Current matrix ([`governance/matrix-cross-framework-alignment.md`](governance/ma
 
 ### 6.4 CMMI capability levels alongside maturity levels (L) (was 6.5)
 
-Per maintainer direction 2026-06-22 (low priority, after the FR backlog completes). The corpus uses the 5-tier maturity-level scale at both organisation-wide and per-domain granularity; CMMI distinguishes the two (maturity levels 1-5 org-wide; capability levels 0-3 per practice area). Introducing capability levels would: (1) add a capability-level scheme to [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2; (2) update [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md) to use capability levels per domain and aggregate to maturity levels at the programme rollup; (3) possibly extend [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md) DTI thresholds with a capability-level surface.
+Per maintainer direction 2026-06-22 (low priority, after the FR backlog completes). The corpus uses the 5-tier maturity-level scale at both organization-wide and per-domain granularity; CMMI distinguishes the two (maturity levels 1-5 org-wide; capability levels 0-3 per practice area). Introducing capability levels would: (1) add a capability-level scheme to [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2; (2) update [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md) to use capability levels per domain and aggregate to maturity levels at the programme rollup; (3) possibly extend [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md) DTI thresholds with a capability-level surface.
 
 ### 6.5 Multi-cloud governance overlay (XL) (was 6.1)
 
@@ -353,7 +353,7 @@ Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. 
 
 ## Priority 7 — Awaiting maintainer decision
 
-Three open decisions pending (§7.1 the TODO audit-trail-only sections question / §3.10(c); §7.4 the "organisation" spelling convention; §7.5 the tracked O'Reilly EPUBs). The FR-104 / FR-130 entries are dropped-decision audit-trail records (see [`.working/design-decisions.md`](.working/design-decisions.md)).
+Two open decisions pending (§7.1 the TODO audit-trail-only sections question / §3.10(c); §7.5 the tracked O'Reilly EPUBs). The FR-104 / FR-130 entries are dropped-decision audit-trail records (see [`.working/design-decisions.md`](.working/design-decisions.md)).
 
 ### 7.1 Do the audit-trail-only sections belong in TODO? (§3.10(c))
 
@@ -366,10 +366,6 @@ Per-regulation context not pursued.
 ### 7.3 Portal reorder (FR-130)
 
 Portal reorder not pursued (README stays at decision-tree item 1).
-
-### 7.4 "organisation" spelling: Commonwealth exception vs harmonize (audit 2026-07-02, item 25)
-
-The corpus carries **~1026 governed-corpus `organisation`** against **3 `organization`**, contradicting the stated Canadian `-ize`/`-ization` convention (which `tools/lint-language.py` enforces for verb stems). This is an overwhelming de-facto Commonwealth house choice, not drift, so it is an authorial decision, not a mechanical sweep: **either** sanction `organisation` as an explicit documented Commonwealth exception in the language convention (and add it to the linter's allowed set), **or** harmonize the ~1026 instances to `organization`. Decide before the §3.13 `lint-language` noun-form extension lands (that extension's scope depends on this). Do NOT silently pick.
 
 ### 7.5 O'Reilly EPUBs tracked in git (audit 2026-07-02, item 33; scratch; H copyright)
 
@@ -410,14 +406,14 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - **"More PRs, keep each one clean"** — favor small focused PRs.
 - **"I prefer /validate, not /validation-sweep"** — short slash commands; skill names stay descriptive.
 - **"Don't explicitly name or link `.working/`"** in template-content files that adopters see.
-- **"Inference must be validated before committing or before anything else uses that information"** — operationalised in [`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md).
-- **Activity directories should be self-contained** — operationalised in the canonical `.working/<activity>/` layout.
-- **Zero-finding sweeps still need history rows but no detail files** — operationalised in the validation-sweep [`SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) step 9.
-- **Sweep history is project-application, not template content** — operationalised by keeping the history file in `.working/`.
-- **TODO is forward-looking; historical state rotates to DONE.md** — operationalised in [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) PR-finalization-protocol section.
-- **After completing a merge, list the upcoming next 5 planned PRs from TODO** — operationalised in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section and the same pack rule.
+- **"Inference must be validated before committing or before anything else uses that information"** — operationalized in [`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md).
+- **Activity directories should be self-contained** — operationalized in the canonical `.working/<activity>/` layout.
+- **Zero-finding sweeps still need history rows but no detail files** — operationalized in the validation-sweep [`SKILL.md`](dev-security/claude-rules/skills/validation-sweep/SKILL.md) step 9.
+- **Sweep history is project-application, not template content** — operationalized by keeping the history file in `.working/`.
+- **TODO is forward-looking; historical state rotates to DONE.md** — operationalized in [`change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) PR-finalization-protocol section.
+- **After completing a merge, list the upcoming next 5 planned PRs from TODO** — operationalized in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) PR-workflow section and the same pack rule.
 - **Validate cadence is 1-8 PRs per batch, not strictly 5** — the 5-PR cadence is default; the batch boundary is chosen at the natural seam.
-- **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)` so the two ledgers are scannable in the same shape. Harmonised in PR #163.
+- **DONE format mirrors TODO format** — DONE H3 headings carry `FR-N (severity)` so the two ledgers are scannable in the same shape. Harmonized in PR #163.
 - **Compute-don't-ask** (maintainer-flagged 2026-06-23) — before surfacing a question, apply a "can I compute/verify this myself?" gate; surface the result, not the raw question. (Codified 2026-06-30 into the `clarify-before-acting` rule's compute-first gate, #504.)
 
 ---
@@ -432,7 +428,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07
 - **P4 (adopter experience)**: 7 items (4.1-4.5, plus 4.6 adopter-experience enhancements and 4.7 the 2026-07-02 guardrail-review pack-design improvements).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
-- **P7 (awaiting decision)**: 3 pending (7.1, 7.4 organisation spelling, 7.5 O'Reilly EPUBs) + 2 dropped-decision audit-trail entries (7.2 / 7.3).
+- **P7 (awaiting decision)**: 2 pending (7.1, 7.5 O'Reilly EPUBs) + 2 dropped-decision audit-trail entries (7.2 / 7.3).
 - **Scratch reference-base work (`grc_library_scratch`)**: 5 items (SR-1 last_checked, SR-2 screening-record check, SR-3 validate.py binary-scan gaps, SR-4 catalogue/extract hygiene, SR-5 ETSI designation).
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Building Management Systems (BMS) Overlay Annex\
 **Document Type:** Annex\
-**Version:** 1.0.1\
-**Date:** 2026-06-22\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/register-ot-asset-inventory-and-lifecycle.md`](register-ot-asset-inventory-and-lifecycle.md), [`operations/standard-physical-security-of-it-infrastructure.md`](../standard-physical-security-of-it-infrastructure.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -79,7 +79,7 @@ The dominant concern in BMS security is that controls and incident response must
 ### 4.1 Non-interference principle
 
 - Cyber controls must be designed so that under any failure or attack condition, life-safety functions continue to operate or fail to a safe state per the fire code design.
-- Containment actions (network isolation, credential revocation, system shutdown) that could affect fire alarm transmission, evacuation signalling, or emergency lighting are not permitted without explicit authorisation from facilities management and, where required, the AHJ.
+- Containment actions (network isolation, credential revocation, system shutdown) that could affect fire alarm transmission, evacuation signalling, or emergency lighting are not permitted without explicit authorization from facilities management and, where required, the AHJ.
 - The incident response procedure ([`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md)) is extended for BMS incidents: any containment action affecting fire or life-safety systems requires Facilities Manager and (where local regulations require) AHJ notification.
 
 ### 4.2 Fire system integration constraints
@@ -149,21 +149,21 @@ BMS deployments are routinely multi-vendor: a primary BMS supplier integrates HV
 BMS routinely capture data that is privacy-relevant: badge events, presence sensing, occupancy heatmaps, in-suite environmental readings, energy consumption per tenant.
 
 - Where personal data is captured (badge identifiers tied to identifiable individuals, video footage, individual presence), the privacy policy ([`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)) applies and the BMS deployment must be reflected in the records-of-processing inventory.
-- Data minimisation is preferred: presence aggregation at floor or zone level is preferred over per-desk per-person tracking, unless a documented purpose requires the finer granularity.
+- Data minimization is preferred: presence aggregation at floor or zone level is preferred over per-desk per-person tracking, unless a documented purpose requires the finer granularity.
 - Retention of presence, occupancy, and badge-event data is recorded in the data-retention schedule with a retention period justified by purpose.
-- Where the BMS exports data to a vendor cloud (analytics, fault detection, energy optimisation), the cloud transfer is treated as a third-party data transfer with the supplier due-diligence procedure applied and contractual data-processing terms in place.
+- Where the BMS exports data to a vendor cloud (analytics, fault detection, energy optimization), the cloud transfer is treated as a third-party data transfer with the supplier due-diligence procedure applied and contractual data-processing terms in place.
 
 ---
 
 ## 9. Smart-building cloud integration
 
-Modern BMS frequently extend into vendor cloud services for analytics, predictive maintenance, fault detection, and energy optimisation.
+Modern BMS frequently extend into vendor cloud services for analytics, predictive maintenance, fault detection, and energy optimization.
 
 - The cloud integration is recorded in the asset inventory as a conduit per IEC 62443-3-2.
 - Cloud integration must terminate in the OT DMZ (Purdue level 3.5), not directly in OT zones.
 - The vendor cloud is subject to the supplier due-diligence procedure including cloud security configuration baseline applicability.
 - Data flowing to the cloud is subject to the data-classification and privacy controls.
-- Vendor remote access via the cloud is treated as remote access under the OT/ICS Security Standard §7.4: explicit authorisation per session, audit trail, time-bounded.
+- Vendor remote access via the cloud is treated as remote access under the OT/ICS Security Standard §7.4: explicit authorization per session, audit trail, time-bounded.
 
 ---
 

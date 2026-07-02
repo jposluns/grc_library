@@ -12,7 +12,7 @@ Invoke the `matrix-fit` skill defined in this project's pack at [`dev-security/c
 
 6. **Record and surface**: surface confirmed findings inline in chat (per-finding: row `path:line`, the wrong code and its source title, the proposed right code and its source title, fix-in-window vs routed). Write the run to the project's matrix-fit record location and append a history row; a zero-finding run still gets a history row (the proof-of-discipline), with no detail file. The pass terminates when the worklist is judged, the confirmed findings are routed or fixed, and the run is recorded; it is a single advisory pass, not a fix-to-fixed-point loop.
 
-Reject any judge finding that lacks an explicit `path:line` row location and a quoted source control title. A judgement without quoted evidence is a hypothesis, not a finding; re-dispatch with a re-emphasized evidence requirement before synthesising.
+Reject any judge finding that lacks an explicit `path:line` row location and a quoted source control title. A judgement without quoted evidence is a hypothesis, not a finding; re-dispatch with a re-emphasized evidence requirement before synthesizing.
 
 `matrix-fit` does NOT replace the existence gates 48/49/54 (which run on every PR); it is the semantic layer on top of them. A row must pass the gates first; this skill judges fit among rows that already pass. Passing the gates says nothing about fit.
 

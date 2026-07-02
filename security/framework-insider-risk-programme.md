@@ -2,8 +2,8 @@
 
 **Document Title:** Insider Risk Programme Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/procedure-security-disciplinary-process.md`](procedure-security-disciplinary-process.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](../governance/procedure-whistleblower-and-incident-reporting.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines the organisation's approach to insider risk: the risk that current or former employees, contractors, or trusted third parties act in ways (intentional or unintentional) that harm the organisation. It establishes the programme objectives, the governance model, the detection and response capabilities, the privacy and due-process safeguards, and the coordination with HR, Legal, Privacy, and Internal Audit.
+This framework defines the organization's approach to insider risk: the risk that current or former employees, contractors, or trusted third parties act in ways (intentional or unintentional) that harm the organization. It establishes the programme objectives, the governance model, the detection and response capabilities, the privacy and due-process safeguards, and the coordination with HR, Legal, Privacy, and Internal Audit.
 
 This framework is one of the highest-risk programmes to operate poorly. It is published as a controlled framework precisely to make the safeguards explicit.
 
@@ -29,7 +29,7 @@ This framework is one of the highest-risk programmes to operate poorly. It is pu
 This framework applies to:
 
 1. **Employees** in all roles, all locations, all employment types.
-2. **Contractors and consultants** with access to organisation systems or data.
+2. **Contractors and consultants** with access to organization systems or data.
 3. **Vendors and partners** with elevated trust including those with privileged access or sensitive-data exposure.
 4. **Departing personnel** during the notice period and offboarding window.
 5. **Former personnel** where retained access (alumni accounts, contractor return engagements) creates ongoing exposure.
@@ -151,7 +151,7 @@ The framework requires the following safeguards on every detection capability an
 | Anti-bias safeguards | Detection content reviewed for adverse impact on protected groups; statistical bias monitoring conducted |
 | False-positive handling | False positives logged; personnel falsely flagged informed where the false positive surfaced into HR or disciplinary process; programme corrective action |
 | Due process in discipline | Per the security disciplinary process procedure; representation and appeal rights upheld |
-| Cross-jurisdiction | Programme operates within the strictest applicable employment, privacy, and consultation rules across the organisation's footprint, including works councils and trade unions where applicable |
+| Cross-jurisdiction | Programme operates within the strictest applicable employment, privacy, and consultation rules across the organization's footprint, including works councils and trade unions where applicable |
 | Independent oversight | Internal Audit reviews the programme at minimum annually against these safeguards |
 
 ---
@@ -215,7 +215,7 @@ The framework deliberately does not include:
 
 ## Limitations
 
-This framework is a CC BY-SA 4.0 baseline. Insider risk programmes are operationally and culturally sensitive; the controls and the safeguards are equally important. Adopting organisations consult specialist HR, employment-law, and privacy counsel at every material decision and engage workforce representation where it exists. The framework is not a substitute for that engagement.
+This framework is a CC BY-SA 4.0 baseline. Insider risk programmes are operationally and culturally sensitive; the controls and the safeguards are equally important. Adopting organizations consult specialist HR, employment-law, and privacy counsel at every material decision and engage workforce representation where it exists. The framework is not a substitute for that engagement.
 
 ---
 

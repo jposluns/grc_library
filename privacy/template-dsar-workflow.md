@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -16,13 +16,13 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
 ## Purpose
 
-This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, an operational rendering of the identity verification ladder the procedure's Section 4.2 defines and governs, and the response artefact format that the procedure relies on. Adopting organisations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
+This template defines an operational workflow for handling Data Subject Access Requests (DSARs) and equivalent rights requests under GDPR, UK GDPR, LGPD, PIPEDA, PIPL, CCPA, and similar regimes. It complements the Data Subject Rights Management Procedure by providing the request-record structure, the stage gates, an operational rendering of the identity verification ladder the procedure's Section 4.2 defines and governs, and the response artefact format that the procedure relies on. Adopting organizations populate the placeholders, configure their own systems of record, and integrate the workflow with their case-management tooling.
 
 ---
 
@@ -153,7 +153,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Delivery within regulatory window | Percentage of requests with response delivered before the applicable deadline | 100% |
 | Extension rate | Percentage of requests requiring extension | Trend-monitored |
 | Appeals filed | Count of appeals initiated by subjects | Trend-monitored |
-| Supervisory authority complaints | Count of complaints lodged with regulators that reference the organisation | Trend-monitored |
+| Supervisory authority complaints | Count of complaints lodged with regulators that reference the organization | Trend-monitored |
 | First-pass identity verification rate | Percentage of requests where identity is verified at the appropriate verification level on the first attempt | At least 90% |
 
 ---
@@ -185,7 +185,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 baseline. Adopting organisations must integrate the workflow with their own case-management system, populate per-system search procedures, document jurisdictional exceptions, and validate response windows against the specific regimes applicable to each request. The template is not legal advice.
+This template is a CC BY-SA 4.0 baseline. Adopting organizations must integrate the workflow with their own case-management system, populate per-system search procedures, document jurisdictional exceptions, and validate response windows against the specific regimes applicable to each request. The template is not legal advice.
 
 ---
 

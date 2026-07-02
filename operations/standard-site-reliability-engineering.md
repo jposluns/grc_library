@@ -2,8 +2,8 @@
 
 **Document Title:** Site Reliability Engineering Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the site reliability engineering (SRE) practice for services operated by the organisation. It expresses outcomes and operating principles for reliability, not vendor-specific tooling. The standard complements the service-level management standard (which formalises the contract with the customer) and the observability and telemetry standard (which provides the measurement substrate).
+This standard defines the site reliability engineering (SRE) practice for services operated by the organization. It expresses outcomes and operating principles for reliability, not vendor-specific tooling. The standard complements the service-level management standard (which formalizes the contract with the customer) and the observability and telemetry standard (which provides the measurement substrate).
 
 ---
 
@@ -157,7 +157,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 | Per-recovery scenario runbook | Per the recovery runbook template; aligned with the resilience programme |
 | Runbook validation | Runbooks are exercised during game days; stale runbooks updated |
 | Searchability | Runbooks are searchable; linked from alerts and dashboards |
-| Localisation | Runbooks accessible to the global on-call population |
+| Localization | Runbooks accessible to the global on-call population |
 
 ---
 
@@ -167,7 +167,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 | --- | --- |
 | Model availability SLO | Availability targets stated separately from quality targets |
 | Quality SLO | Quality targets stated per the evaluation suite |
-| Provider degradation | Provider-side degradation is detected and surfaced separately from organisational service health |
+| Provider degradation | Provider-side degradation is detected and surfaced separately from organizational service health |
 | Cost runaway | Cost-anomaly detection per the AI inference cost governance standard |
 | Fallback paths | Fallback to alternate models or non-AI paths where the system supports it |
 | Safety classifier behaviour | Safety classifier output is part of the reliability picture |
@@ -193,7 +193,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 | --- | --- |
 | Reliability council | Reviews SLO portfolio, error-budget signals, repeat incidents, and platform-level reliability |
 | Reliability scorecards | Per service; reviewed quarterly |
-| Investment prioritisation | Reliability investments compete on equal footing with feature investments |
+| Investment prioritization | Reliability investments compete on equal footing with feature investments |
 | Customer feedback | Customer-perceived reliability signals (support tickets, NPS, social feedback) inform investment |
 | Cross-functional integration | Coordination with security, privacy, compliance, and product |
 
@@ -226,7 +226,7 @@ The error budget policy is owned by the service team in collaboration with SRE; 
 
 ## 17. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Reliability practice is rapidly evolving; specific tooling, SLO targets, and error-budget policies are organisation-specific. Adopting organisations confirm current practice with subject-matter experts and tune targets to their customer and regulatory profile.
+This standard is a CC BY-SA 4.0 baseline. Reliability practice is rapidly evolving; specific tooling, SLO targets, and error-budget policies are organization-specific. Adopting organizations confirm current practice with subject-matter experts and tune targets to their customer and regulatory profile.
 
 ---
 

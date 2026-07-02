@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-06-23\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This procedure governs key escrow and key recovery operations within the organisation. It distinguishes recovery of productivity-data keys (where business continuity favours recovery) from recovery of cryptographic root and signing keys (where recovery is governed by stricter ceremony and dual control). It defines the escrow architecture, the authority model, the recovery triggers, the ceremony, and the auditable evidence retained.
+This procedure governs key escrow and key recovery operations within the organization. It distinguishes recovery of productivity-data keys (where business continuity favours recovery) from recovery of cryptographic root and signing keys (where recovery is governed by stricter ceremony and dual control). It defines the escrow architecture, the authority model, the recovery triggers, the ceremony, and the auditable evidence retained.
 
 ---
 
 ## Scope
 
-This procedure applies to keys held in the organisation's secrets management service, hardware security modules, full-disk-encryption escrow, certificate authority key material, code-signing keys, secret-management keys, customer-managed cloud encryption keys, payment-related keys subject to PCI DSS scope, and equivalent. It distinguishes three categories with different recovery characteristics.
+This procedure applies to keys held in the organization's secrets management service, hardware security modules, full-disk-encryption escrow, certificate authority key material, code-signing keys, secret-management keys, customer-managed cloud encryption keys, payment-related keys subject to PCI DSS scope, and equivalent. It distinguishes three categories with different recovery characteristics.
 
 It does not cover ephemeral session keys, derived encryption keys without business-recoverability requirements, or backup data integrity keys whose recovery is implicit in the resilience programme.
 
@@ -96,7 +96,7 @@ Recovery is the exception; rotation is the default. Where rotation is feasible w
 
 | Recovery class | Minimum control |
 | --- | --- |
-| Category 1 routine self-service | Single authorised role with logged action; user-side authentication |
+| Category 1 routine self-service | Single authorized role with logged action; user-side authentication |
 | Category 1 departed-employee recovery | Two roles: requester (HR or IT Operations) and approver (CISO or delegate); logged action |
 | Category 1 investigation recovery | Three approvals: requester (investigator), Legal Counsel, Data Protection Officer; logged action |
 | Category 2 routine | Two roles: requester (service owner) and approver (security operations lead); logged action |
@@ -118,7 +118,7 @@ A Category 3 ceremony follows these steps. The ceremony is video-recorded where 
 | 3 | Confirm physical environment integrity (room sweep, device check) | Witness |
 | 4 | Retrieve sealed key shares from their secured storage | Custodians |
 | 5 | Reconstitute the key per the M-of-N scheme | Custodians under witness observation |
-| 6 | Perform the authorised operation (e.g. issue a new subordinate, re-sign, rotate) | Custodians |
+| 6 | Perform the authorized operation (e.g. issue a new subordinate, re-sign, rotate) | Custodians |
 | 7 | Destroy or re-seal shares per the documented protocol | Custodians under witness observation |
 | 8 | Document the ceremony record: participants, actions taken, outputs, evidence references | Witness |
 | 9 | Sign the ceremony record | All participants |
@@ -128,7 +128,7 @@ The ceremony record is retained for the lifetime of the key plus the documented 
 
 ---
 
-## Section 6: authorisation flow
+## Section 6: authorization flow
 
 For every recovery the procedure produces a request record with:
 
@@ -153,7 +153,7 @@ For every recovery the procedure produces a request record with:
 
 | Action | Required content |
 | --- | --- |
-| Operational recovery | The recovered key supports the authorised operation only; not retained beyond the operation |
+| Operational recovery | The recovered key supports the authorized operation only; not retained beyond the operation |
 | Forced rotation | Where the key was recovered for any reason other than break-glass continuity, the key is rotated as soon as the recovery operation completes |
 | Audit log review | All access to the key material around the recovery window reviewed |
 | Notification | Affected parties (data subjects, regulators, customers) notified per the applicable obligations where the recovery creates a notification trigger |
@@ -199,7 +199,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 ## Operating expectations
 
 1. The escrow service is treated as a tier-1 production service with the corresponding resilience, monitoring, and access posture.
-2. Recovery is rare and intentional; the procedure favours rotation, key zeroisation, or system rebuild over recovery where they meet the business need.
+2. Recovery is rare and intentional; the procedure favours rotation, key zeroization, or system rebuild over recovery where they meet the business need.
 3. Ceremony participants are trained on the ceremony script; ceremonies are not conducted ad hoc.
 4. Loss of key escrow integrity is treated with the same seriousness as loss of the key material itself.
 
@@ -215,7 +215,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 | NIST SP 800-152 | A Profile for U.S. Federal Cryptographic Key Management Systems | Federal profile reference |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM baseline |
 | CSA Cloud Controls Matrix v4.1 | CEK domain | Cloud cryptography |
-| ETSI EN 319 411 | Trust services for issuing certificates | Where the organisation operates a CA |
+| ETSI EN 319 411 | Trust services for issuing certificates | Where the organization operates a CA |
 | PCI DSS v4.0 | Requirement 3 | Payment-data cryptography where applicable |
 | RFC 5280 | X.509 PKI | CA operations |
 | Cryptographic Key Lifecycle Management Framework (internal) | Cross-walk | Authoritative cross-reference |
@@ -224,7 +224,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 
 ## Limitations
 
-This procedure is a CC BY-SA 4.0 baseline. Specific cryptographic and HSM configurations vary; the procedure expresses the control and ceremony requirements rather than vendor-specific settings. Adopting organisations select escrow tooling per the supplier programme and tune the ceremony script to their specific cryptographic suite. The procedure is not a substitute for HSM vendor documentation or PCI DSS QSA guidance where in scope.
+This procedure is a CC BY-SA 4.0 baseline. Specific cryptographic and HSM configurations vary; the procedure expresses the control and ceremony requirements rather than vendor-specific settings. Adopting organizations select escrow tooling per the supplier programme and tune the ceremony script to their specific cryptographic suite. The procedure is not a substitute for HSM vendor documentation or PCI DSS QSA guidance where in scope.
 
 ---
 

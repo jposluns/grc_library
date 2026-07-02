@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-01\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organisation are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
+This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organization are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
 The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42005:2025 (AI system impact assessment), NIST AI RMF, EU AI Act Annex IV, and OWASP LLM Top 10.
 
@@ -26,7 +26,7 @@ The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42005:2025 (AI system impact
 
 ## 2. Scope
 
-Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organisation. Includes both internally developed and third-party AI systems integrated into operational workflows.
+Applies to all AI systems, machine learning models, generative AI tools, and automated decision-making systems developed, procured, or deployed by the organization. Includes both internally developed and third-party AI systems integrated into operational workflows.
 
 ---
 

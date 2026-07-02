@@ -2,8 +2,8 @@
 
 **Document Title:** UK AEO IT Self-Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-05-28\
+**Version:** 1.0.2\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../../operations/procedure-endpoint-management-and-device-compliance.md), [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)\
@@ -22,7 +22,7 @@
 
 This procedure defines the process for completing the IT and cybersecurity elements of the annual Authorized Economic Operator (AEO) and AEO-S (Security and Safety) self-assessment submission to HMRC.
 
-The AEO-S programme, administered by HMRC and Border Force under the UK's implementation of the World Customs Organization (WCO) SAFE Framework of Standards, requires the organisation to demonstrate that adequate IT and cybersecurity controls are in place to protect trade systems, trade data, and the integrity of customs documentation.
+The AEO-S programme, administered by HMRC and Border Force under the UK's implementation of the World Customs Organization (WCO) SAFE Framework of Standards, requires the organization to demonstrate that adequate IT and cybersecurity controls are in place to protect trade systems, trade data, and the integrity of customs documentation.
 
 ### 1.2 Scope
 
@@ -62,7 +62,7 @@ Legal reviews the IT evidence package before submission to confirm that:
 
 - No personally identifiable information about individual employees is included.
 - No incident detail that could create legal exposure is included in the submission.
-- The package accurately represents the organisation's compliance position.
+- The package accurately represents the organization's compliance position.
 
 ### 2.4 CIO sign-off
 
@@ -167,7 +167,7 @@ Governing documents: [`compliance/policy-compliance-and-audit-management.md`](..
 
 | Evidence Item | Description | Source |
 |---|---|---|
-| Retention policy evidence | Reference to the organisation's records retention policy confirming that trade records are retained for required periods and that the policy is current | Legal / Compliance / CISO |
+| Retention policy evidence | Reference to the organization's records retention policy confirming that trade records are retained for required periods and that the policy is current | Legal / Compliance / CISO |
 | Audit log retention confirmation | Confirmation that audit logs for trade-relevant IT systems are retained for the required minimum period and are protected from tampering | CISO |
 
 Governing documents: [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md); [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md)
@@ -180,7 +180,7 @@ Governing documents: [`governance/standard-records-retention-and-destruction.md`
 
 The CISO assembles all collected evidence items into the IT evidence package. The package must:
 
-- Use a consistent format with a cover sheet identifying the organisation, assessment date, CISO name (role only in the submission version), and submission date.
+- Use a consistent format with a cover sheet identifying the organization, assessment date, CISO name (role only in the submission version), and submission date.
 - Include a table of contents listing each IT control area and the evidence items included.
 - Clearly label each evidence item with the control area it supports and the date of the evidence.
 - Include a CISO attestation statement confirming that the evidence accurately represents the state of IT controls as of the assessment date.

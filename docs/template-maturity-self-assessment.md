@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-06-29\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template is a guided self-assessment that lets an adopting organisation score its own programme maturity per library domain and overall. The result is a programme-shaped picture of where the adoption is mature and where it is shallow, with concrete next-step guidance per tier.
+This template is a guided self-assessment that lets an adopting organization score its own programme maturity per library domain and overall. The result is a programme-shaped picture of where the adoption is mature and where it is shallow, with concrete next-step guidance per tier.
 
 The existing [`docs/maturity-scorecard.md`](maturity-scorecard.md) rates each library document's stability (Mature, Baseline, Draft). This template rates the adopter's own **adoption maturity** across five tiers, modelled on the CMMI canonical process-maturity ladder (Initial, Managed, Defined, Quantitatively Managed, Optimized; aligned with [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md) §2 (Maturity assessment)). The two scorecards are complementary: the library scorecard tells the adopter which artefacts are stable enough to copy; the adopter assessment tells the adopter how mature their own use of those artefacts is.
 
@@ -30,8 +30,8 @@ Self-assessment is honest by design. Adopters are encouraged to score conservati
 
 This template applies to:
 
-- An adopting organisation conducting its first programme-maturity self-assessment after copying library artefacts.
-- An adopting organisation tracking maturity progression year-over-year.
+- An adopting organization conducting its first programme-maturity self-assessment after copying library artefacts.
+- An adopting organization tracking maturity progression year-over-year.
 - An external assessor or internal auditor conducting a programme-level review using the library as a reference framework.
 
 It does not replace a formal audit; it produces a directional picture of where a programme stands so the adopter can prioritize where to invest next.
@@ -46,7 +46,7 @@ The five tiers, modelled on the process-maturity ladder used in NIST CSF Tiers, 
 | --- | --- | --- |
 | 1 | Initial | Ad-hoc, reactive. Artefacts copied from the library exist but have not been customized. No assigned owner. Activity is incident-driven. |
 | 2 | Managed | Some artefacts customized. Ownership assigned for the core artefacts (policy, register). Activity is mostly reactive but a basic cadence exists; processes repeatable and tracked, with basic metrics defined. |
-| 3 | Defined | Artefacts customized to the organisation's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied; processes standardized and documented for organisation-wide consistency. |
+| 3 | Defined | Artefacts customized to the organization's operating model. Ownership assigned for all in-scope artefacts. Documented review cadence applied. Activity is repeatable and broadly applied; processes standardized and documented for organization-wide consistency. |
 | 4 | Quantitatively Managed | Quantitative metrics on programme health (review completion rate, control-test pass rate, finding-closure time, etc.). Programme adjustments driven by data, not by opinion; statistical controls applied to quantitative objectives. |
 | 5 | Optimized | Continuous improvement loop in place. Metrics drive targeted improvements; lessons learned feed back into artefact updates. The library-derived programme is itself a contributor to upstream improvement (issues filed against the library where the adopter has found gaps). |
 
@@ -75,7 +75,7 @@ For each statement, place your tier (1 to 5) in the response column. Per-stateme
 
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
-| G1 | A governance charter is in place, customized to our organisation's structure. | _ | |
+| G1 | A governance charter is in place, customized to our organization's structure. | _ | |
 | G2 | The document inventory (which artefacts we have adopted, where they live, who owns them) is current. | _ | |
 | G3 | Each artefact has a named owner and an approving authority defined in the metadata block. | _ | |
 | G4 | A documented review cadence is applied: artefacts that are due for review are reviewed on schedule. | _ | |
@@ -97,7 +97,7 @@ Per-statement scoring (apply to each statement above):
 
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
-| R1 | A risk register exists, populated with the organisation's actual top risks (not placeholder content). | _ | |
+| R1 | A risk register exists, populated with the organization's actual top risks (not placeholder content). | _ | |
 | R2 | Each risk has an owner, a likelihood and impact rating, and a treatment status. | _ | |
 | R3 | A documented risk-assessment methodology is followed when adding or updating risks. | _ | |
 | R4 | Risks are reviewed at least annually; high-rated risks at least quarterly. | _ | |
@@ -139,7 +139,7 @@ Per-statement scoring (apply to each statement above):
 | S1 | A security policy and an acceptable-use policy are published and acknowledged by staff. | _ | |
 | S2 | Access controls are documented and enforced; access reviews happen at least annually. | _ | |
 | S3 | Incident-response procedures are documented and tested annually. | _ | |
-| S4 | Vulnerability management has a documented cadence (scanning, prioritisation, remediation). | _ | |
+| S4 | Vulnerability management has a documented cadence (scanning, prioritization, remediation). | _ | |
 | S5 | Cryptography standards (TLS versions, hashing algorithms, key management) are documented and enforced. | _ | |
 | S6 | Logging and monitoring requirements are documented; SIEM or equivalent receives feeds. | _ | |
 | S7 | A security-awareness training programme runs at least annually. | _ | |
@@ -188,7 +188,7 @@ Per-statement scoring (apply to each statement above):
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
 | A1 | An architecture policy or framework is in place. | _ | |
-| A2 | Reference architectures exist for the recurring patterns the organisation builds. | _ | |
+| A2 | Reference architectures exist for the recurring patterns the organization builds. | _ | |
 | A3 | An architecture-review process applies to material changes. | _ | |
 | A4 | Architecture decisions are recorded (ADRs or equivalent). | _ | |
 | A5 | Architecture posture (cloud, identity, network) is reviewed at least annually. | _ | |
@@ -203,14 +203,14 @@ Per-statement scoring (apply to each statement above):
 | D2 | CI/CD pipelines include security gates (SAST, SCA, secret scanning, IaC scanning). | _ | |
 | D3 | Code reviews include a security checkpoint for changes to security-sensitive code paths. | _ | |
 | D4 | Branch-protection rules enforce review and gate-passing on protected branches. | _ | |
-| D5 | Developer awareness training covers the language stacks the organisation ships in. | _ | |
+| D5 | Developer awareness training covers the language stacks the organization ships in. | _ | |
 | D6 | AI coding assistant usage is governed by documented rules. | _ | |
 
 **Domain D score (median):** _
 
 ### Section 11: AI domain
 
-(Skip this section if AI systems are not operationally relevant to the organisation. Otherwise complete it.)
+(Skip this section if AI systems are not operationally relevant to the organization. Otherwise complete it.)
 
 | # | Statement | Your tier | Notes |
 | --- | --- | --- | --- |
@@ -269,7 +269,7 @@ Metric inflation is a Tier-4 trap; pick fewer than 10 metrics total and keep the
 Focus: close the improvement loop. The differentiator between Tier 4 and Tier 5 is **learning**. Tier-5 progression is best achieved by:
 
 - Running annual programme-improvement reviews that explicitly trace metric trends to artefact updates.
-- Filing issues against the library where the organisation has found gaps the library does not yet cover.
+- Filing issues against the library where the organization has found gaps the library does not yet cover.
 - Sharing lessons-learned externally where appropriate (industry forums, sector groups, regulator-led councils).
 
 A programme stays at Tier 4 if the metrics inform conversations but do not change artefacts.
@@ -280,7 +280,7 @@ The programme has reached the top of the standard ladder. Maintenance at this ti
 
 - Continuing to file upstream issues against the library.
 - Continuing the improvement loop with the existing cadence; do not let it lapse.
-- Mentoring or assisting other adopters where the organisation has capacity (sector forums, internal-audit communities, etc.).
+- Mentoring or assisting other adopters where the organization has capacity (sector forums, internal-audit communities, etc.).
 
 ---
 
@@ -291,7 +291,7 @@ Below is a template for recording the assessment. Replace the placeholders.
 ```
 Assessment date: <YYYY-MM-DD>
 Assessor: <name and role>
-Programme scope: <organisation, business unit, or programme>
+Programme scope: <organization, business unit, or programme>
 
 Domain scores:
 - Governance: <tier>
@@ -326,7 +326,7 @@ Keep prior assessments alongside the current one so progression is visible year 
 Before finalizing:
 
 1. Did we use the median (not the mean) for per-domain and overall scoring?
-2. Did we score conservatively where the organisation has a programme but cannot prove it operates consistently?
+2. Did we score conservatively where the organization has a programme but cannot prove it operates consistently?
 3. Did we record per-statement notes for any low scores so the next assessor sees the reasoning?
 4. Did we identify the top three investment priorities based on a combination of current tier and exposure (a Tier-1 score in a high-exposure domain is more urgent than a Tier-2 score in a low-exposure domain)?
 5. Did we file the assessment in the same location as prior years so progression is auditable?

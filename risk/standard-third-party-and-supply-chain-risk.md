@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.3\
-**Date:** 2026-07-01\
+**Version:** 1.1.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -26,7 +26,7 @@ This standard supersedes the prior `supply-chain/standard-third-party-risk.md` (
 
 ## 2. Scope
 
-This standard applies to all third-party relationships involving access to the organisation's data, systems, networks, facilities, or operational continuity, including:
+This standard applies to all third-party relationships involving access to the organization's data, systems, networks, facilities, or operational continuity, including:
 
 - Logistics and freight service providers
 - Technology and software vendors
@@ -49,7 +49,7 @@ All third-party relationships must be classified into one of the following tiers
 
 | Tier | Classification | Criteria | Review Frequency |
 |---|---|---|---|
-| **Tier 1: Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade-compliance dependency; revenue impact if unavailable; AI model or training-data supply for high-risk AI systems | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency where the organisation participates | Quarterly |
+| **Tier 1: Critical** | Single point of failure; direct access to sensitive data or critical systems; regulatory or trade-compliance dependency; revenue impact if unavailable; AI model or training-data supply for high-risk AI systems | Processes personal data at scale; sole-source provider; no contractual substitute; CTPAT / AEO-S / BASC dependency where the organization participates | Quarterly |
 | **Tier 2: High** | Significant operational dependency; access to systems or data; material revenue or compliance impact if unavailable; cloud or key service dependencies | Provides important but substitutable services; processes limited personal data; available alternatives exist | Semi-annually |
 | **Tier 3: Moderate** | Indirect operational dependency; limited data access; manageable impact if unavailable | Commercial relationships without system integration; standard commoditized services | Annually |
 | **Tier 4: Low** | Minimal operational dependency; no data access; low impact if relationship ends | Transactional suppliers; easily substituted; no integration | At renewal or every 2 years |
@@ -81,7 +81,7 @@ Third-party risks are scored using the same 5×5 likelihood × impact matrix as 
 
 In addition to inherent and residual scores, third-party risk assessments must capture:
 - **Concentration risk:** Degree to which multiple critical dependencies converge on a single supplier or geographic region
-- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organisation
+- **Fourth-party risk:** Key sub-dependencies of the third party that could cascade to the organization
 - **Substitutability:** Estimated time and cost to replace the supplier if the relationship fails
 
 ### 4.3 Risk register integration
@@ -102,7 +102,7 @@ All contracts with third parties must include risk-aligned provisions. Minimum c
 | Business continuity requirements | Documented BCP; tested annually | Documented BCP | Where applicable | Not required |
 | Sub-contractor approval | Written consent required | Written consent required | Notification | Not required |
 | Data return and deletion on exit | Mandatory; timelines defined | Mandatory | Mandatory if data shared | Not required |
-| Trade compliance programme membership | Mandatory for in-scope logistics where the organisation participates | Mandatory where applicable | Where applicable | Not required |
+| Trade compliance programme membership | Mandatory for in-scope logistics where the organization participates | Mandatory where applicable | Where applicable | Not required |
 | Right to terminate for cause | Mandatory | Mandatory | Mandatory | Standard |
 | Liability and indemnification | Negotiated; minimum defined | Negotiated; minimum defined | Standard | Standard |
 
@@ -176,12 +176,12 @@ Reference: [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](
 
 ### 8.1 Supplier security incident response
 
-When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organisation:
+When a Tier 1 or Tier 2 supplier experiences a security incident or data breach that may affect the organization:
 
-1. Require the supplier to notify the organisation within the contractually defined notification window
+1. Require the supplier to notify the organization within the contractually defined notification window
 2. Initiate the supplier incident assessment within 4 hours of notification
-3. Evaluate whether the incident triggers the organisation's own incident response obligations (regulatory notification, customer notification)
-4. Escalate to the enterprise incident response team if the incident affects the organisation's systems or data: follow [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)
+3. Evaluate whether the incident triggers the organization's own incident response obligations (regulatory notification, customer notification)
+4. Escalate to the enterprise incident response team if the incident affects the organization's systems or data: follow [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)
 5. Document the incident in the supplier's risk record; reassess residual risk rating
 6. Initiate a CAPA if the incident reveals systemic control gaps: [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)
 
@@ -195,10 +195,10 @@ Where an incident or performance failure necessitates terminating a supplier rel
 
 Upon contract termination or expiry, the third party must:
 
-1. Return or securely delete all organisational data in accordance with the contracted retention schedule.
+1. Return or securely delete all organizational data in accordance with the contracted retention schedule.
 2. Revoke all system access credentials within 24 hours of termination.
 3. Provide written confirmation of data destruction or return.
-4. Transfer or destroy any model artefacts, embeddings, fine-tuned weights, or evaluation data derived from the organisation's data, where the contract is AI-related.
+4. Transfer or destroy any model artefacts, embeddings, fine-tuned weights, or evaluation data derived from the organization's data, where the contract is AI-related.
 
 Residual risks identified during offboarding must be reviewed, documented, and logged in the appropriate risk register for closure validation. The supplier offboarding evidence template ([`supply-chain/template-supplier-offboarding-evidence.md`](../supply-chain/template-supplier-offboarding-evidence.md)) records the evidence collected.
 

@@ -62,7 +62,7 @@ The discipline is symmetric: developers regenerate before committing; CI verifie
 
 - **Hand-editing a generated file** to "save a regeneration round-trip." The next regeneration will silently overwrite the hand-edit; the divergence between source and artefact is invisible until then.
 - **Regenerating in CI** to bypass the `--check`. This defeats the drift check by construction: every run "passes" because CI just produced the file it is checking. See the gate-discipline rule.
-- **Stripping the generator-output `--check` job** from CI. Same anti-pattern, blunter. The check exists because the drift it catches is real; removing the check normalises the drift.
+- **Stripping the generator-output `--check` job** from CI. Same anti-pattern, blunter. The check exists because the drift it catches is real; removing the check normalizes the drift.
 - **Partial generation**: running the generator, then hand-fixing the parts it got wrong. The right fix is to the generator, not to the artefact.
 - **Committing the regenerated artefact without re-running** when the source has changed. The pre-commit drift check is the last line of defence against this; do not bypass it with `--no-verify`.
 

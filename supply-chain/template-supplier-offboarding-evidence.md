@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-06-30\
+**Version:** 1.0.7\
+**Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This template defines the evidence record produced at supplier offboarding to demonstrate that access has been revoked, organisational data has been returned or destroyed, residual obligations are documented, and the relationship has closed cleanly. The record is the auditable trail required by GDPR Article 28, DORA exit-strategy obligations, sector regulators, and the supplier exit procedure.
+This template defines the evidence record produced at supplier offboarding to demonstrate that access has been revoked, organizational data has been returned or destroyed, residual obligations are documented, and the relationship has closed cleanly. The record is the auditable trail required by GDPR Article 28, DORA exit-strategy obligations, sector regulators, and the supplier exit procedure.
 
 A populated offboarding record identifies real suppliers and is sensitive operational data. This CC BY-SA 4.0 template intentionally contains no example values.
 
@@ -26,7 +26,7 @@ A populated offboarding record identifies real suppliers and is sensitive operat
 
 ## Scope
 
-This template covers offboarding for all in-scope third-party relationships ending in any of the following ways: contract expiry, contract termination by either party, supplier insolvency, change of ownership requiring re-onboarding, organisational decision to exit, and forced exit due to non-remediable breach.
+This template covers offboarding for all in-scope third-party relationships ending in any of the following ways: contract expiry, contract termination by either party, supplier insolvency, change of ownership requiring re-onboarding, organizational decision to exit, and forced exit due to non-remediable breach.
 
 It does not cover offboarding of individual personnel from a continuing supplier relationship (that is governed by the supplier ongoing-monitoring procedure).
 
@@ -46,7 +46,7 @@ It does not cover offboarding of individual personnel from a continuing supplier
 | Personal data processed | Yes or no; data categories if yes |
 | Relationship start date | |
 | Relationship end date | |
-| Reason for offboarding | Expiry, organisation-initiated termination, supplier-initiated termination, insolvency, change of ownership, breach, mutual termination |
+| Reason for offboarding | Expiry, organization-initiated termination, supplier-initiated termination, insolvency, change of ownership, breach, mutual termination |
 | Notice period followed | Yes or no; if not, the contractual basis for waiving notice |
 | Offboarding initiated by | Role |
 | Offboarding owner | Supplier Relationship Owner (SRO) |
@@ -61,7 +61,7 @@ It does not cover offboarding of individual personnel from a continuing supplier
 | Network access | Firewall rule removal; VPN account revocation; private network connection termination | | |
 | Physical access | Badge deactivation; key return; biometric template removal | | |
 | Federated identity | Removal from the identity provider; revocation of any persistent SSO session | | |
-| Privileged access | PAM vault rotation of any credentials the supplier could have memorised | | |
+| Privileged access | PAM vault rotation of any credentials the supplier could have memorized | | |
 | Email and collaboration | Distribution-list removal; mailbox handoff or deactivation | | |
 | Code repository | Repository access revoked; outstanding tokens revoked | | |
 | Customer-facing access | Removal from customer-data viewing surfaces if the supplier had any |  | |
@@ -72,12 +72,12 @@ Access revocation target: within 24 hours of the formal offboarding declaration.
 
 | Data category | Action | Evidence | Confirmation timestamp |
 | --- | --- | --- | --- |
-| Personal data | Return to organisation OR destruction | Return: secure transfer log; destruction: certificate of destruction signed by the supplier | |
+| Personal data | Return to organization OR destruction | Return: secure transfer log; destruction: certificate of destruction signed by the supplier | |
 | Customer data | Return OR destruction | As above | |
 | Confidential business data | Return OR destruction | As above | |
 | Trade or regulated data (e.g. BASC, customs) | Return OR destruction per BASC retention rule | As above | |
 | Backup copies | Destruction within the contracted retention window after the operational data is returned or destroyed | Supplier attestation; backup-system log where accessible | |
-| Embeddings, vectors, derived data | Destruction or anonymisation | Supplier attestation describing the technical action | |
+| Embeddings, vectors, derived data | Destruction or anonymization | Supplier attestation describing the technical action | |
 | Logs and monitoring data | Retention per contract; destruction at end of retention | Supplier attestation | |
 | Documentation and configuration | Return or destruction | As above | |
 
@@ -106,7 +106,7 @@ The certificate of destruction states: the items destroyed, the method (e.g. the
 | Audit rights | Where the contract permits post-termination audit | Internal Audit | As needed | Per contract |
 | Source-code escrow | If applicable; release conditions | Procurement | Annual | Per escrow agreement |
 | Sub-processor obligations | Where the supplier was a processor; sub-processor offboarding cascade | Data Protection Officer | Until cascade complete | Per cascade |
-| Regulatory record retention | Records the organisation must keep beyond the relationship | Records Management | Annual | Per retention schedule |
+| Regulatory record retention | Records the organization must keep beyond the relationship | Records Management | Annual | Per retention schedule |
 | Insurance | Tail coverage where applicable | Insurance / Risk | Annual | Per policy |
 | Outstanding payment or refund | Per contract | Procurement | Until resolved | Until resolved |
 
@@ -153,7 +153,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 1. Each completed offboarding produces a record from this template; partial completions are escalated to the Supplier Risk Maintainer.
 2. The completed record is archived for at least seven years; longer where contractual or regulatory rules apply.
 3. The record is reviewed at the next supplier risk register review cycle and feeds the year-end supplier risk report.
-4. Forced exits (insolvency, breach) follow an abbreviated path where the supplier's cooperation cannot be assumed; the record documents the actions the organisation took unilaterally.
+4. Forced exits (insolvency, breach) follow an abbreviated path where the supplier's cooperation cannot be assumed; the record documents the actions the organization took unilaterally.
 
 ---
 
@@ -175,7 +175,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 structural baseline. Adopting organisations populate per-supplier evidence rows, integrate with their procurement and HR offboarding systems, and adapt the residual-obligations section to their contract templates. The template is not a substitute for legal review of an in-progress termination dispute and does not address insolvency-specific procedures (e.g. administration, liquidation) which require specialist counsel.
+This template is a CC BY-SA 4.0 structural baseline. Adopting organizations populate per-supplier evidence rows, integrate with their procurement and HR offboarding systems, and adapt the residual-obligations section to their contract templates. The template is not a substitute for legal review of an in-progress termination dispute and does not address insolvency-specific procedures (e.g. administration, liquidation) which require specialist counsel.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Global Regulatory Applicability Register\
 **Document Type:** Register\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Compliance Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](financial-services/annex-financial-services-sector-requirements.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](healthcare/annex-healthcare-sector-requirements.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](logistics/annex-logistics-sector-requirements.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This register provides an organisation-neutral structure for identifying regulatory applicability. It does not state that any specific law applies to an adopting organisation. Applicability depends on facts including jurisdiction, establishment, data residency, processing role, sector, customer commitments, regulated activity, data category, and service model.
+This register provides an organization-neutral structure for identifying regulatory applicability. It does not state that any specific law applies to an adopting organization. Applicability depends on facts including jurisdiction, establishment, data residency, processing role, sector, customer commitments, regulated activity, data category, and service model.
 
 ---
 
@@ -72,7 +72,7 @@ This register separates requirements as follows:
 1. Do not state that a law applies without a documented applicability basis.
 2. Do not state that the repository proves compliance.
 3. Do not include legal advice.
-4. Do not include organisation-specific facts.
+4. Do not include organization-specific facts.
 5. Do not copy statutory text unless the source is in the public domain (US government works, etc.) or is otherwise compatible with CC BY-SA 4.0 publication.
 6. Record uncertainty explicitly where deployment model, data residency, processing role, sector, or jurisdiction is unknown.
 

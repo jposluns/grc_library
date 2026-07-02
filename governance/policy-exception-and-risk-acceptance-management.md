@@ -2,7 +2,7 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-07-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,13 +18,13 @@
 
 ## Purpose
 
-This policy defines the organisation-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
+This policy defines the organization-wide process for managing security, risk, compliance, and operational exceptions. It consolidates the former Exception Process, Risk Acceptance Memo Procedure, Temporary Waiver Procedure, and Exception Tracking Log into one cohesive governance artefact.
 
 Its purpose is to ensure that all deviations from policy, control, or standard requirements are risk assessed, time bound, approved at the appropriate authority level, and tracked to closure. The policy aligns with **ISO/IEC 27001:2022 Annex A.5.36 Compliance with policies, rules and standards for information security**, **COBIT 2019 APO12.06 Respond to risk**, **Cloud Security Alliance (CSA)** guidance (CCM v4.1 GRC-04 Policy Exception Process), and **NIST SP 800-37 Revision 2 RMF Step 6 Authorize the System**.
 
 ## Scope
 
-- Applies to all employees, contractors, suppliers, and partners operating or supporting organisational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
+- Applies to all employees, contractors, suppliers, and partners operating or supporting organizational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
 - Covers exceptions to policies, standards, procedures, control requirements, and regulatory or contractual obligations. 
 - Includes control configuration baselines, temporary use of unapproved technology, or processes that could affect data integrity or regulated operations. 
 - Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
@@ -69,23 +69,23 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - **Medium risk:** CIO or delegate. 
 - **High or critical risk:** Executive Committee or Board Risk Committee. 
 - **Trade and customs-related exceptions:** applicable compliance officer co-approval and ERC notification. 
-2.3 Exceptions exceeding the organisation's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
-2.4 The approval pathway in §2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organisations may tune the tier thresholds in §2.2 (and the named bodies in §3.5 where they have no equivalent committee, per the §3.4 / §3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate.
+2.3 Exceptions exceeding the organization's defined risk appetite or those impacting trade or customs operations require explicit acceptance by executive authority and validation against trade and supply-chain programs.
+2.4 The approval pathway in §2.2 is the source of truth for the "Approve exception" row of the Role Authority Register RACI ([`governance/register-role-authority.md`](register-role-authority.md)); the register's row points back at this section so the two documents declare a single chain. The renewal-ceiling pathway in §3.5 extends this chain (original approver, then ERC, then Board Risk Committee) and is the source of truth for renewal authority. Adopting organizations may tune the tier thresholds in §2.2 (and the named bodies in §3.5 where they have no equivalent committee, per the §3.4 / §3.5 substitution clauses) to local governance structure without amending the RACI; the RACI row's reference to this section is what makes that local tuning propagate.
 
 ### 3. Duration and renewal
 3.1 Exceptions must be time-bound. The initial term must not exceed 180 days. 
 3.2 Renewals must undergo full re-approval and risk reassessment. 
 3.3 Expired exceptions must be remediated or escalated immediately.
 
-3.4 **Maximum cumulative duration (`max_duration`).** The cumulative lifetime of an exception, summed across the initial term and all renewals, must not exceed 540 days (three 180-day terms) unless an explicit higher cap has been recorded on the register entry and approved by the Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) at the time the exception was first registered. A `max_duration` recorded on the entry is a hard ceiling: when reached, the exception must be remediated, descoped, converted to a documented risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), or replaced by a re-baselined entry per §3.6. Further renewal is not permitted at any authority level.
+3.4 **Maximum cumulative duration (`max_duration`).** The cumulative lifetime of an exception, summed across the initial term and all renewals, must not exceed 540 days (three 180-day terms) unless an explicit higher cap has been recorded on the register entry and approved by the Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) at the time the exception was first registered. A `max_duration` recorded on the entry is a hard ceiling: when reached, the exception must be remediated, descoped, converted to a documented risk acceptance per [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md), or replaced by a re-baselined entry per §3.6. Further renewal is not permitted at any authority level.
 
-3.5 **Renewal count limit (`renewal_count_limit`) and renewal-ceiling escalation pathway.** Approval authority for a renewal does not, on its own, authorise an unbounded sequence of renewals. The following hard ceilings apply to every exception regardless of risk classification:
+3.5 **Renewal count limit (`renewal_count_limit`) and renewal-ceiling escalation pathway.** Approval authority for a renewal does not, on its own, authorize an unbounded sequence of renewals. The following hard ceilings apply to every exception regardless of risk classification:
 
 | Renewal number | Required approving authority | Additional requirement |
 |----------------|------------------------------|------------------------|
 | **1st renewal** | The same authority that approved the original exception under the §2 approval pathway | Documented justification, refreshed risk assessment, evidence that compensating controls remain effective |
 | **2nd renewal** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the requestor; confirmation that compensating controls have been re-validated within the prior 30 days; an explicit ERC determination that the residual exposure remains within risk appetite |
-| **3rd renewal** | Board Risk Committee (or, where the organisation has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-and-remediation-pathway memo (why has the underlying gap not been closed across two prior renewals? what is the binding remediation deadline?); explicit Board Risk Committee acceptance of the residual risk of continued non-closure; the Board Risk Committee may also require remediation by a fixed date, conversion to a formal risk acceptance, or descope of the underlying requirement in lieu of further renewal |
+| **3rd renewal** | Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-and-remediation-pathway memo (why has the underlying gap not been closed across two prior renewals? what is the binding remediation deadline?); explicit Board Risk Committee acceptance of the residual risk of continued non-closure; the Board Risk Committee may also require remediation by a fixed date, conversion to a formal risk acceptance, or descope of the underlying requirement in lieu of further renewal |
 | **4th renewal or beyond** | Not permitted under this policy | The exception must be closed (with the residual gap formally accepted as a risk under [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)), descoped (the underlying control requirement re-scoped or formally waived), or replaced by a re-baselined entry per §3.6. A 4th renewal must not be granted by any authority. |
 
 The `renewal_count_limit` field defaults to 3 (the value at which the 4th-renewal prohibition takes effect). A lower limit may be recorded on individual entries by the approving authority where the risk profile warrants a tighter cap. A higher limit must not be recorded; the absolute prohibition on a 4th renewal is policy-wide and cannot be raised through the entry field.
@@ -96,7 +96,7 @@ The renewal number and the approving authority must be recorded on the exception
 
 3.7 **Rationale for the specific numbers.** The 540-day `max_duration` default corresponds to three full 180-day terms and ensures that any exception still active after eighteen months has received governance attention at every approval tier (original approver, ERC, Board Risk Committee). The 2-renewal ERC threshold mirrors the equivalent threshold in [`compliance/procedure-capa.md`](../compliance/procedure-capa.md) §6.3.1 for CAPA extensions, so the two registers escalate on the same cadence when both have been opened against the same underlying gap. The 3-renewal Board Risk Committee threshold reflects that an exception which has been renewed three times is no longer a remediation-programme issue but a governance-risk issue requiring the highest oversight body's explicit acceptance of the residual exposure. The 4-renewal absolute prohibition forces a binary decision (close, descope, convert to risk acceptance, or re-baseline) rather than allowing indefinite drift through serial soft renewals.
 
-3.7.1 **Anchoring the 180-day baseline.** The 180-day initial term itself is a library convention rather than a number quoted from any single normative source. Neither NIST SP 800-53 Rev. 5 CA-6 (ongoing authorisation, whose monitoring frequency is organisation-defined) nor ISO/IEC 27001:2022 Clause 9.2 (internal audit "at planned intervals") prescribes a fixed interval; 180 days is chosen to fall within the semi-annual-to-annual band these controls' typical implementations use, so an exception's renewal point coincides with a scheduled control-evidence refresh. Adopters whose monitoring cadence is quarterly or annual may tune the initial term downward or upward respectively (the cumulative `max_duration` ceiling in §3.4 then tunes proportionally as three multiples of the chosen base); the renewal-ceiling pathway in §3.5 remains in force regardless of the chosen base term.
+3.7.1 **Anchoring the 180-day baseline.** The 180-day initial term itself is a library convention rather than a number quoted from any single normative source. Neither NIST SP 800-53 Rev. 5 CA-6 (ongoing authorization, whose monitoring frequency is organization-defined) nor ISO/IEC 27001:2022 Clause 9.2 (internal audit "at planned intervals") prescribes a fixed interval; 180 days is chosen to fall within the semi-annual-to-annual band these controls' typical implementations use, so an exception's renewal point coincides with a scheduled control-evidence refresh. Adopters whose monitoring cadence is quarterly or annual may tune the initial term downward or upward respectively (the cumulative `max_duration` ceiling in §3.4 then tunes proportionally as three multiples of the chosen base); the renewal-ceiling pathway in §3.5 remains in force regardless of the chosen base term.
 
 ### 4. Compensating controls and monitoring
 4.1 Requestors must implement compensating controls to mitigate risk exposure. 
@@ -114,7 +114,7 @@ The renewal number and the approving authority must be recorded on the exception
 6.2 Internal Audit, the CISO, and the CCO must validate closure before record archival. 
 
 ### 7. Machine-readable exception registry (recommended where automation is practical)
-7.1 Organisations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRC-04. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
+7.1 Organizations may implement a machine-readable, API-enabled exception registry aligned with CSA CCM v4.1 GRC-04. This is a recommended practice rather than a mandatory requirement; it is appropriate where the exception volume and integration with risk dashboards justify the automation investment.
 7.2 Where implemented, automated expiry alerts, metadata tagging, and integration with risk dashboards support near real-time oversight.
 
 ### 8. Continual improvement
@@ -151,7 +151,7 @@ The renewal number and the approving authority must be recorded on the exception
 
 ## Definitions
 
-Refer to the **Role Authority Register** for definitions of organisational roles and authorities.
+Refer to the **Role Authority Register** for definitions of organizational roles and authorities.
 
 
 

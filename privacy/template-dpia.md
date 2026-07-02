@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-06-30\
+**Version:** 1.0.5\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organisation uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customisation guidance.
+> **Role-name convention:** This document uses **Data Protection Officer (DPO)** as the canonical privacy-lead role title. Adopters whose organization uses **Chief Privacy Officer (CPO)** for the same accountability set should substitute that title in their fork; adopters maintaining both DPO and CPO as distinct roles add a separate CPO entry to their copy of [`governance/register-role-authority.md`](../governance/register-role-authority.md). See the role authority register for the canonical role definition and adopter-customization guidance.
 
 ---
 
@@ -28,7 +28,7 @@ This template defines the structure of a Data Protection Impact Assessment (DPIA
 2. The EDPB WP248 nine-criteria framework (the indicators that, when two or more apply, signal high risk requiring a DPIA).
 3. The Article 35(7) content checklist (what a complete DPIA must contain).
 
-A populated DPIA is operationally sensitive material and must not be published in this public CC BY-SA 4.0 repository. Adopting organisations populate the template internally, classify it under the organisation's information classification scheme, and retain it per the retention requirements of the operative procedure.
+A populated DPIA is operationally sensitive material and must not be published in this public CC BY-SA 4.0 repository. Adopting organizations populate the template internally, classify it under the organization's information classification scheme, and retain it per the retention requirements of the operative procedure.
 
 This template addresses Data Protection Impact Assessments only. Assessments of cross-border data transfers (Transfer Impact Assessments, TIAs) are out of scope and are addressed by a separate template ([`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md)); see [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) Step 4 for the controlling procedure.
 
@@ -36,7 +36,7 @@ This template addresses Data Protection Impact Assessments only. Assessments of 
 
 ## Scope
 
-This template applies wherever the organisation, acting as a controller (or as a joint controller jointly with another party), proposes to carry out, or has carried out, processing that is likely to result in a high risk to the rights and freedoms of natural persons. It applies before processing begins (the prior-assessment rule of Article 35(1)) and on each material change to the processing operation.
+This template applies wherever the organization, acting as a controller (or as a joint controller jointly with another party), proposes to carry out, or has carried out, processing that is likely to result in a high risk to the rights and freedoms of natural persons. It applies before processing begins (the prior-assessment rule of Article 35(1)) and on each material change to the processing operation.
 
 Where the processing involves an AI system, this template is used together with the AI System Impact Assessment Procedure (see [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)); the DPIA addresses the data protection limb and the AI System Impact Assessment addresses the AI-specific limb. The two assessments share evidence and reference each other.
 
@@ -86,7 +86,7 @@ The EDPB position is that, as a rule of thumb, where two or more criteria are me
 | C5 | Data processed on a large scale: the EDPB recommends that the following factors be considered in particular when determining whether processing is carried out on a large scale: the number of data subjects concerned (either as a specific number or as a proportion of the relevant population); the volume of data and the range of different data items being processed; the duration, or permanence, of the data processing activity; the geographical extent of the processing activity. | | |
 | C6 | Matching or combining datasets: for example originating from two or more data processing operations performed for different purposes and/or by different data controllers in a way that would exceed the reasonable expectations of the data subject. | | |
 | C7 | Data concerning vulnerable data subjects: the processing of this type of data is a criterion because of the increased power imbalance between the data subjects and the data controller. Vulnerable data subjects include children, employees, more vulnerable segments of the population requiring special protection (mentally ill persons, asylum seekers, the elderly, patients), and any case where an imbalance in the relationship between the position of the data subject and the controller can be identified. | | |
-| C8 | Innovative use or applying new technological or organisational solutions: like combining use of fingerprints and face recognition for improved physical access control. The EDPB notes that the use of such technology can involve novel forms of data collection and usage, possibly with a high risk to individuals' rights and freedoms. | | |
+| C8 | Innovative use or applying new technological or organizational solutions: like combining use of fingerprints and face recognition for improved physical access control. The EDPB notes that the use of such technology can involve novel forms of data collection and usage, possibly with a high risk to individuals' rights and freedoms. | | |
 | C9 | When the processing in itself prevents data subjects from exercising a right or using a service or a contract: this includes processing performed in a public area that people passing by cannot avoid, or processing that aims at allowing, modifying or refusing data subjects' access to a service or entry into a contract. | | |
 
 **Decision rule:**
@@ -125,7 +125,7 @@ Where a DPIA is required, the assessment must contain at least the four content 
 | --- | --- |
 | Necessity | Why the processing is necessary for the stated purpose; whether the purpose could be achieved with less personal data or by less intrusive means |
 | Proportionality | Whether the processing is proportionate to the purpose; whether the volume, retention, and access scope are limited to what is necessary |
-| Data minimisation | The data minimisation measures applied (Article 5(1)(c)) |
+| Data minimization | The data minimization measures applied (Article 5(1)(c)) |
 | Purpose limitation | How the controller prevents use of the data for incompatible purposes (Article 5(1)(b)) |
 | Storage limitation | The retention period and the deletion mechanism (Article 5(1)(e)); cross-reference to the data retention schedule |
 | Accuracy | Measures to ensure that the data is accurate and kept up to date (Article 5(1)(d)) |
@@ -140,7 +140,7 @@ For each identified risk:
 | Field | Required content |
 | --- | --- |
 | Risk identifier | Stable identifier within the DPIA |
-| Risk description | The specific risk to the rights and freedoms of data subjects (e.g., risk of unauthorised disclosure of health data leading to discrimination in employment) |
+| Risk description | The specific risk to the rights and freedoms of data subjects (e.g., risk of unauthorized disclosure of health data leading to discrimination in employment) |
 | Sources of risk | The threats and vulnerabilities giving rise to the risk |
 | Affected rights and freedoms | The Charter of Fundamental Rights articles and the GDPR rights potentially affected (e.g., Article 8 of the Charter, GDPR Article 17 right to erasure) |
 | Affected data subjects | The categories and approximate numbers of data subjects who could be affected; identify vulnerable data subjects separately |
@@ -148,7 +148,7 @@ For each identified risk:
 | Severity | Assessed severity (low / medium / high), with rationale; the severity reflects the impact on the data subject, not on the controller |
 | Inherent risk level | Combined likelihood and severity, before mitigation |
 
-Risks must include, at minimum: unauthorised access, unauthorised modification, unauthorised loss or destruction, unauthorised disclosure, unlawful processing, processing inconsistent with the data subject's reasonable expectations, and any AI-specific risk (bias, model opacity, automated decision error) where the processing involves an AI system.
+Risks must include, at minimum: unauthorized access, unauthorized modification, unauthorized loss or destruction, unauthorized disclosure, unlawful processing, processing inconsistent with the data subject's reasonable expectations, and any AI-specific risk (bias, model opacity, automated decision error) where the processing involves an AI system.
 
 ### 3.4. The measures envisaged to address the risks (Article 35(7)(d))
 
@@ -159,7 +159,7 @@ For each identified risk, the corresponding treatment:
 | Field | Required content |
 | --- | --- |
 | Risk identifier | Cross-reference to Section 3.3 |
-| Mitigation measure | The technical or organisational measure that addresses the risk |
+| Mitigation measure | The technical or organizational measure that addresses the risk |
 | Owner role | The role accountable for implementing the measure (role-based; not a named individual) |
 | Implementation date | The date by which the measure must be in place |
 | Residual likelihood | The likelihood remaining after the measure is implemented |
@@ -168,7 +168,7 @@ For each identified risk, the corresponding treatment:
 | Acceptance authority | Where the residual risk is accepted, the role that has the authority to accept it (cross-reference to the exception and risk acceptance policy) |
 | Article 36 consultation | Where the residual risk remains high, the date and outcome of the prior consultation with the supervisory authority |
 
-Measures must include, at minimum: technical measures (encryption at rest and in transit, access control, logging, pseudonymisation where appropriate, secure disposal), organisational measures (role-based access, training, contractual obligations on processors, audit), and procedural measures (incident response, data subject rights handling, breach notification).
+Measures must include, at minimum: technical measures (encryption at rest and in transit, access control, logging, pseudonymization where appropriate, secure disposal), organizational measures (role-based access, training, contractual obligations on processors, audit), and procedural measures (incident response, data subject rights handling, breach notification).
 
 ---
 
@@ -207,9 +207,9 @@ Measures must include, at minimum: technical measures (encryption at rest and in
 
 ## Limitations
 
-This template is a CC BY-SA 4.0 structural baseline. Adopting organisations must validate the template against the specific obligations of their applicable jurisdictions, the published guidance of their supervisory authority, and the requirements of any sectoral regulator. The template is not a substitute for legal advice. Where the supervisory authority publishes its own DPIA template or methodology, the supervisory authority's instrument prevails to the extent of any inconsistency.
+This template is a CC BY-SA 4.0 structural baseline. Adopting organizations must validate the template against the specific obligations of their applicable jurisdictions, the published guidance of their supervisory authority, and the requirements of any sectoral regulator. The template is not a substitute for legal advice. Where the supervisory authority publishes its own DPIA template or methodology, the supervisory authority's instrument prevails to the extent of any inconsistency.
 
-A populated DPIA contains operationally sensitive information (system architecture detail, identified risks, residual risk acceptances). This template provides no example values for any field and adopting organisations must store populated DPIAs under an appropriate confidentiality classification.
+A populated DPIA contains operationally sensitive information (system architecture detail, identified risks, residual risk acceptances). This template provides no example values for any field and adopting organizations must store populated DPIAs under an appropriate confidentiality classification.
 
 ---
 

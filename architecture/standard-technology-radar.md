@@ -2,8 +2,8 @@
 
 **Document Title:** Technology Radar Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-01\
+**Version:** 1.0.4\
+**Date:** 2026-07-02\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard governs how the organisation curates its technology choices over time. The technology radar is a structured way to evaluate, classify, and communicate the organisation's stance on specific technologies, techniques, platforms, languages, and tools.
+This standard governs how the organization curates its technology choices over time. The technology radar is a structured way to evaluate, classify, and communicate the organization's stance on specific technologies, techniques, platforms, languages, and tools.
 
 The radar supports deliberate, accountable technology selection and avoids both unchecked accretion and stagnation.
 
@@ -64,7 +64,7 @@ The radar uses four rings, consistent with the public ThoughtWorks radar convent
 | Assess | Worth investigating; not for production use without explicit approval |
 | Hold | Not for new use; existing use is expected to wind down |
 
-A placement at Hold does not mean a technology is wrong; it means the organisation is choosing not to invest further.
+A placement at Hold does not mean a technology is wrong; it means the organization is choosing not to invest further.
 
 ---
 
@@ -79,7 +79,7 @@ The radar organizes entries into quadrants:
 | Techniques | Architecture patterns, engineering practices |
 | AI and data | AI models, providers, data platforms, vector stores |
 
-Adopting organisations may add quadrants as warranted.
+Adopting organizations may add quadrants as warranted.
 
 ---
 
@@ -141,8 +141,8 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 | Criterion | Description |
 | --- | --- |
 | Maturity | The technology's market and engineering maturity |
-| Fit | How well the technology fits the organisation's architecture |
-| Engineering experience | Whether the organisation has the skills to operate the technology |
+| Fit | How well the technology fits the organization's architecture |
+| Engineering experience | Whether the organization has the skills to operate the technology |
 | Operability | The operational characteristics (reliability, observability, scalability) |
 | Security and privacy | Security and privacy posture of the technology and its supplier |
 | AI considerations | Where AI is involved, the AI risk profile |
@@ -162,7 +162,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 | Architecture decision records | Movement between rings is documented as an ADR |
 | Reference architectures | Reference architectures favour Adopt-ring technologies; Trial-ring technologies appear in reference architectures with conditions |
 | Software evaluation, acceptance, and lifecycle standard | The radar feeds the evaluation pipeline; the lifecycle standard handles individual product evaluation |
-| Software composition analysis | The radar informs the in-scope inventory the SCA standard analyses |
+| Software composition analysis | The radar informs the in-scope inventory the SCA standard analyzes |
 | Supplier security and privacy assurance | Trial and Adopt placements require supplier assurance evidence where the technology is supplier-supplied |
 | Acceptance into service | Acceptance reviews check alignment with the radar |
 | Foundation-model lifecycle | AI models are evaluated through the foundation-model lifecycle procedure; placement feeds the AI portion of the radar |
@@ -218,7 +218,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 
 ## 15. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. The radar's specific entries and their placements are organisation-specific and time-specific. The radar tooling and publication mechanism are organisation choices. The standard expresses how the radar operates, not the entries themselves.
+This standard is a CC BY-SA 4.0 baseline. The radar's specific entries and their placements are organization-specific and time-specific. The radar tooling and publication mechanism are organization choices. The standard expresses how the radar operates, not the entries themselves.
 
 ---
 

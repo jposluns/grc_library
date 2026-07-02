@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Resilience Framework\
 **Document Type:** Framework\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-02\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This framework defines an organisation-neutral model for business continuity, disaster recovery, crisis management, operational resilience, and recovery assurance.
+This framework defines an organization-neutral model for business continuity, disaster recovery, crisis management, operational resilience, and recovery assurance.
 
 The framework connects business impact, service dependency, recovery objectives, supplier exposure, technology recovery, communication, test evidence, corrective action, and governance reporting.
 
@@ -148,7 +148,7 @@ Recommended metrics include:
 
 ## Limitations
 
-This framework does not define an organisation's actual critical services or recovery tolerances. Adopting organisations must complete a business impact analysis, validate technical recovery capability, test assumptions, and formally accept residual risk.
+This framework does not define an organization's actual critical services or recovery tolerances. Adopting organizations must complete a business impact analysis, validate technical recovery capability, test assumptions, and formally accept residual risk.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Schedule Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-06-26\
+**Version:** 1.0.3\
+**Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](../governance/procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](../governance/template-document-review-record.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md)\
@@ -48,7 +48,7 @@ Each schedule entry has:
 | Domain | Owning domain |
 | Owner role | Owner role from the document's metadata block |
 | Last review date | The Date field from the document's metadata block, treated as the most recent material review |
-| Review frequency | The Review Frequency field from the document's metadata block, normalised to a number of months |
+| Review frequency | The Review Frequency field from the document's metadata block, normalized to a number of months |
 | Next review due | Computed from last review date plus review frequency |
 | Status | Current, due-soon, overdue, blocked, retired |
 | Lag | For overdue entries, the number of days past the due date |
@@ -58,11 +58,11 @@ The schedule is derived from the documents themselves; the documents are the sou
 
 ---
 
-## Review frequency normalisation
+## Review frequency normalization
 
-The Review Frequency field in document metadata is expressed in human-readable language. For scheduling, the values are normalised as follows.
+The Review Frequency field in document metadata is expressed in human-readable language. For scheduling, the values are normalized as follows.
 
-| Stated frequency | Normalised months | Comment |
+| Stated frequency | Normalized months | Comment |
 | --- | --- | --- |
 | Quarterly | 3 | |
 | 6 to 12 months | 12 | Lower-end window used for action threshold |
@@ -116,7 +116,7 @@ Schedule entries are kept consistent with document metadata; any divergence is a
 | Schedule recompute | On every CI run via the review-cadence checker |
 | Owner-role prompt | Owner roles are notified by the maintainer when documents enter the due-soon or overdue state |
 | Quarterly health report | Schedule status fed into the library health report |
-| Annual schema review | Schema and normalisation table reviewed annually |
+| Annual schema review | Schema and normalization table reviewed annually |
 
 ---
 
@@ -153,7 +153,7 @@ Where this register and the checker disagree, the checker output is treated as p
 2. Document owners receive prompts when their documents enter the due-soon and overdue states.
 3. Blocking conditions are recorded against documents; a document is not silently overdue.
 4. Schedule entries reconcile to document metadata; reconciliation drift is a finding.
-5. The schedule's schema and normalisation table are reviewed annually; the maintenance procedure approves any change.
+5. The schedule's schema and normalization table are reviewed annually; the maintenance procedure approves any change.
 
 ---
 
@@ -186,7 +186,7 @@ The fragment above is illustrative; the actual schedule is produced by tooling.
 
 ## Limitations
 
-This register is a CC BY-SA 4.0 baseline. The actual schedule values, the warning window, the action threshold, and the cadence checker's specific behaviour are organisation-specific. The register expresses the schema and the maintenance rules; the schedule itself is generated and refreshed continuously.
+This register is a CC BY-SA 4.0 baseline. The actual schedule values, the warning window, the action threshold, and the cadence checker's specific behaviour are organization-specific. The register expresses the schema and the maintenance rules; the schedule itself is generated and refreshed continuously.
 
 ---
 
