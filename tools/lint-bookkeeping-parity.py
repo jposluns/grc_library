@@ -40,7 +40,8 @@ headers. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
   (the Findings cell contains ``SKIPPED`` together with ``handoff``, or the
   phrase ``handoff-PR exception``).
 - A subsumption / maintainer-exception row (Findings cell contains
-  ``SUBSUMED``, ``NOT run``, or a maintainer-authorised exception) satisfies
+  ``SUBSUMED``, ``NOT run``, or a maintainer-authorised exception, in either
+  the ``-ised`` or ``-ized`` spelling) satisfies
   the validate-pr requirement and does NOT require a retro row (#328 is the
   canonical instance: its QA was force-stopped and subsumed by Sweep 42).
 - A handful of pre-INCEPTION-era handoff PRs were merged before the
@@ -124,10 +125,13 @@ HANDOFF_FINDINGS = re.compile(
 )
 
 # A row whose Findings cell marks the PR's QA as subsumed by a later sweep
-# or carried under an explicit maintainer-authorised exception. Satisfies
-# the validate-pr requirement; no retro row required.
+# or carried under an explicit maintainer-authorised exception (both the
+# -ised and -ized spellings are recognized: the history predates the
+# Canadian-spelling harmonization, so old rows carry -ised while new rows
+# follow the house -ized convention). Satisfies the validate-pr requirement;
+# no retro row required.
 SUBSUMPTION_FINDINGS = re.compile(
-    r"SUBSUMED|NOT\s+run|maintainer[-\s]authoris\w*",
+    r"SUBSUMED|NOT\s+run|maintainer[-\s]authori[sz]\w*",
     re.IGNORECASE,
 )
 

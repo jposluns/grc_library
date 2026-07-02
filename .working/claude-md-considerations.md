@@ -1,6 +1,6 @@
 # CLAUDE.md considerations (removal ledger)
 
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-02\
 **License:** CC BY-SA 4.0
 
@@ -297,7 +297,7 @@ failure the clarify rules forbid").
 
 ## RM-9: Throughput-pressure Sweep 22 corrective-action detail
 
-**Section:** `## Throughput pressure does not authorise QA abbreviation` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Throughput pressure does not authorize QA abbreviation` | **Removed in:** PR #441 | **Status:** open
 
 **Removed text (verbatim):**
 

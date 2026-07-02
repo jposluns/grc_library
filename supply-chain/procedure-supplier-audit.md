@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-07-02\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -126,6 +126,8 @@ A formal Supplier Audit Report must be issued within 15 business days of audit c
 - Comparison with prior audit results where available.
 
 All findings must be logged in the Corrective and Preventive Action (CAPA) Register. The Supplier Relationship Owner is responsible for tracking resolution progress and verifying closure of each finding. Critical or recurring findings must be escalated to the Enterprise Risk Committee.
+
+Supplier Audit Reports and their supporting evidence are retained for a minimum of 7 years, per the audit-records floor in [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 and the retention schedule register ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
 
 ### Step 5: Sector-programme trade-security compliance
 

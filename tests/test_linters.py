@@ -4144,7 +4144,10 @@ class BookkeepingParityTests(LinterTestCase):
 
     def test_findings_cell_handoff_classification(self) -> None:
         # The parser classifies a SKIPPED-handoff Findings cell as 'handoff'
-        # and a SUBSUMED cell as 'subsumption', from field 4.
+        # and a SUBSUMED cell as 'subsumption', from field 4. The
+        # maintainer-exception marker is recognized in BOTH spellings (the
+        # -ised rows predate the Canadian-spelling harmonization; new rows
+        # follow the house -ized convention; regex widened 2026-07-02).
         mod = self._load_module()
         text = (
             "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
@@ -4153,11 +4156,17 @@ class BookkeepingParityTests(LinterTestCase):
             "exception, loop-break)** | none | - | s |\n"
             "| 2026-06-25 | 98 | x | **NOT run; SUBSUMED by Sweep 42** | none | - | s |\n"
             "| 2026-06-25 | 97 | x | **0 findings (clean)** | none | - | s |\n"
+            "| 2026-06-25 | 96 | x | **maintainer-authorised exception: "
+            "carved out with rationale** | none | - | s |\n"
+            "| 2026-06-25 | 95 | x | **maintainer-authorized exception: "
+            "carved out with rationale** | none | - | s |\n"
         )
         status = mod.parse_validate_pr_status(text)
         self.assertEqual(status.get(99), "handoff")
         self.assertEqual(status.get(98), "subsumption")
         self.assertEqual(status.get(97), "normal")
+        self.assertEqual(status.get(96), "subsumption")
+        self.assertEqual(status.get(95), "subsumption")
 
     def test_todo_strikethrough_bullet_flagged(self) -> None:
         # A whole backlog bullet struck through is a rotation failure.
@@ -4426,9 +4435,13 @@ class RetentionConsistencyTests(LinterTestCase):
     """tools/lint-retention-consistency.py (gate 55)
 
     The gate is pointed at an isolated temporary repo root (``--root``) holding
-    a minimal Data Retention Schedule register and the three procedures it is
-    cross-referenced with, so a deliberate retention drift can be detected
-    without depending on the live corpus (which is clean).
+    a minimal Data Retention Schedule register and the eight procedures it is
+    cross-referenced with (seven distinct files: the privacy-impact procedure
+    serves both the PIA and AI-IA pairs), so a deliberate retention drift can
+    be detected without depending on the live corpus (which is clean). The
+    fixture tree mirrors the LIVE ``RETENTION_CHECKS`` set, including the
+    composed register values (7 years, or 5 years post-decommission, whichever
+    is longer) that compare on their leading floor figure.
     """
 
     REGISTER_REL = "governance/register-data-retention-schedule.md"
@@ -4436,12 +4449,27 @@ class RetentionConsistencyTests(LinterTestCase):
         "compliance/procedure-capa.md": "CAPA records",
         "compliance/standard-internal-audit.md": "Internal audit reports",
         "compliance/procedure-control-testing.md": "Control testing evidence",
+        "privacy/procedure-privacy-impact-and-cross-border-transfer.md": (
+            "Privacy impact assessments / AI Impact Assessments"
+        ),
+        "privacy/procedure-data-protection-and-privacy-breach-response.md": (
+            "Privacy breach notifications"
+        ),
+        "ai/procedure-ai-audit.md": "AI audit reports",
+        "supply-chain/procedure-supplier-audit.md": "Supplier audit reports",
     }
 
-    def _write_tree(self, d: str, *, capa_proc_years: int = 7, capa_anchor: bool = True) -> None:
+    def _write_tree(
+        self,
+        d: str,
+        *,
+        capa_proc_years: int = 7,
+        capa_anchor: bool = True,
+        pia_proc_years: int = 7,
+    ) -> None:
         root = Path(d)
-        (root / "governance").mkdir(parents=True, exist_ok=True)
-        (root / "compliance").mkdir(parents=True, exist_ok=True)
+        for sub in ("governance", "compliance", "privacy", "ai", "supply-chain"):
+            (root / sub).mkdir(parents=True, exist_ok=True)
         register = (
             "# Data Retention Schedule\n\n"
             "| Record category | Retention period | Basis |\n"
@@ -4449,6 +4477,14 @@ class RetentionConsistencyTests(LinterTestCase):
             "| CAPA records | 7 years after closure | Quality management |\n"
             "| Internal audit reports | 7 years | ISO 19011 |\n"
             "| Control testing evidence | 7 years | Audit support |\n"
+            "| Privacy impact assessments | 7 years, or 5 years after associated "
+            "system decommission, whichever is longer | GDPR; PIPEDA |\n"
+            "| Privacy breach notifications | 7 years | GDPR; PIPEDA |\n"
+            "| AI Impact Assessments | 7 years, or 5 years after associated "
+            "system decommission, whichever is longer | EU AI Act |\n"
+            "| AI audit reports | 7 years, or 5 years after the associated "
+            "system's decommission, whichever is longer | ISO 42001 |\n"
+            "| Supplier audit reports | 7 years | Compliance support |\n"
         )
         (root / self.REGISTER_REL).write_text(register, encoding="utf-8")
         bodies = {
@@ -4464,6 +4500,29 @@ class RetentionConsistencyTests(LinterTestCase):
             "compliance/procedure-control-testing.md": (
                 "# Control Testing\n\nEvidence is retained for a minimum of 7 years "
                 "per the records-retention standard.\n"
+            ),
+            # One procedure serves both the PIA and AI-IA pairs (the live
+            # corpus shape); its composed statement compares on the leading
+            # floor figure.
+            "privacy/procedure-privacy-impact-and-cross-border-transfer.md": (
+                "# Privacy Impact\n\nAll records retained for a minimum of "
+                f"**{pia_proc_years} years, or 5 years after the associated "
+                "system's decommission, whichever is longer** (matching the "
+                "retention schedule register).\n"
+            ),
+            "privacy/procedure-data-protection-and-privacy-breach-response.md": (
+                "# Breach Response\n\nAll breach evidence must be retained for a "
+                "minimum of 7 years, consistent with the retention schedule.\n"
+            ),
+            "ai/procedure-ai-audit.md": (
+                "# AI Audit\n\n5.4 Reports are retained for a minimum of 7 years "
+                "in the compliance document repository, per the audit-records "
+                "floor.\n"
+            ),
+            "supply-chain/procedure-supplier-audit.md": (
+                "# Supplier Audit\n\nSupplier Audit Reports and their supporting "
+                "evidence are retained for a minimum of 7 years, per the "
+                "audit-records floor.\n"
             ),
         }
         for rel, body in bodies.items():
@@ -4491,6 +4550,17 @@ class RetentionConsistencyTests(LinterTestCase):
             self._write_tree(d, capa_anchor=False)
             result = run_linter("tools/lint-retention-consistency.py", "--root", d)
             self.assertLinterFails(result, "retained for a minimum of")
+
+    def test_composed_row_mismatch_on_leading_floor_flagged(self) -> None:
+        # The privacy-impact procedure's leading floor drifts to 5 years while
+        # the composed register rows (PIA and AI-IA) still lead with 7: the
+        # comparison is on the FIRST period figure on each side, so both
+        # composed pairs must flag.
+        with tempfile.TemporaryDirectory() as d:
+            self._write_tree(d, pia_proc_years=5)
+            result = run_linter("tools/lint-retention-consistency.py", "--root", d)
+            self.assertLinterFails(result, "MISMATCH")
+            self.assertIn("2 retention-consistency issue(s)", result.stdout)
 
     def test_missing_procedure_file_flagged_gracefully(self) -> None:
         # A renamed / moved procedure must yield the graceful "cannot read" finding,
@@ -4773,11 +4843,15 @@ class TodoRotationOnPrTests(unittest.TestCase):
     ``asserts_todo_closure`` directly (the gate is otherwise a git-diff
     delta check verified behaviourally via run-pr-time-checks.sh). The
     trigger (broadened 2026-06-30 by the since-closed rotation-prevention
-    backlog item) must fire on three closure forms, the canonical
+    backlog item, and again 2026-07-02 after the #563 verifier's tooling
+    note) must fire on six closure forms, the canonical
     "clos(e|es|ed|ing) [the] TODO §", the coded-id CLOSED major-closure
-    marker (FR/GR/SR-style uppercase ids; widened by GR-13), and the prose-named
-    "clos... the ... (backlog item | TODO item | directive)" form, and NOT
-    on incidental TODO/FR mentions or past-closure narration.
+    marker (FR/GR/SR-style uppercase ids; widened by GR-13), the prose-named
+    "clos... the ... (backlog item | TODO item | directive)" form, the
+    section-name "section-N.M ... clos(ed|ure)" form, the item-number
+    "item(s) N ... closed" form, and the rotation-assertion "rotated to the
+    DONE ledger" form, and NOT on incidental TODO/FR mentions or
+    past-closure narration.
     """
 
     @staticmethod
@@ -4806,6 +4880,23 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "closes the maintainer-directed OT post-ingestion audit/validation directive; no FR row.",
             "Closes the P3 docs/ house-style enforcement-gap backlog item.",
             "Closes the deferred backlog item R2 by principle.",
+            # Section-name closure form (added 2026-07-02; the #567 vacuous
+            # pass used exactly these phrasings).
+            "Corpus fix (privacy): **section-1.8 closed**, the DSAR conflicts.",
+            "the section-3.14 remainder closed with the batch-B merge.",
+            "section-2.13 closure: the DSR clock item resolved at source.",
+            # Item-number closure form (the #567 multi-item shape).
+            "Corpus fix: **section-2.13 items 12-14 and 16-19 closed**.",
+            "items 11 and 12 closed at source with the register bump.",
+            "item 5 closed (the AI-audit anchor reword).",
+            # Rotation-assertion form: a line CLAIMING the rotation happened
+            # must be accompanied by the rotation surfaces in the diff (a
+            # true claim passes trivially; past-rotation narration uses the
+            # TodoRotation: trailer). This line lived in the negative fixture
+            # before the 2026-07-02 widening; the widening deliberately
+            # re-classifies it.
+            "GR-2 closed (rotated to the DONE ledger), the first machinery item.",
+            "the two flat-valued AI rows rotated to the DONE ledger.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
@@ -4828,13 +4919,24 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "FR-70 confirmed a significant gap, not expansion.",
             "per the FR-154 deepen-to-operational-depth decision.",
             # Lowercase coded-id narration stays excluded after the GR-13
-            # widening (case-sensitivity is the deliberate FP guard).
-            "GR-2 closed (rotated to the DONE ledger), the first machinery item.",
+            # widening (case-sensitivity is the deliberate FP guard); the
+            # former "GR-2 closed (rotated to the DONE ledger)" line moved to
+            # the positive fixture with the 2026-07-02 rotation-assertion form.
             "SR-5 upstream-CONFIRMED at #551, so not upstream-gated.",
             # "directive" inside a prepositional phrase, not the closure object
             # (the second-"the" guard excludes these).
             "closing the gap per the maintainer directive about scope.",
             "closes the loop for the maintainer directive on timing.",
+            # The generalized "clos... the section" form was census-tested for
+            # the 2026-07-02 widening and REJECTED (two historical FPs); the
+            # shipped form requires the hyphenated section-N.M token, so bare
+            # "section" narration stays excluded.
+            "closing the section on retention with a pointer to the register.",
+            "the items in section-3.13 remain open for the next batch.",
+            # The item-number form's character class admits only digits and
+            # punctuation between the numbers and "closed", so deferral
+            # narration cannot match.
+            "items 4-7 remain deferred, not closed, pending the source.",
         ):
             self.assertIsNone(
                 m.asserts_todo_closure([line]),
