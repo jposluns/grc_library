@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.18\
-**Date:** 2026-06-30\
+**Version:** 1.4.19\
+**Date:** 2026-07-02\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -287,7 +287,7 @@ Each breach register entry includes:
 
 ### 9.2 Evidence retention
 
-All breach evidence, forensic artefacts, SIEM log exports, investigation records, containment records, notification drafts and submissions, authority correspondence, PIR reports, and corrective action records, must be retained for a minimum of 7 years, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md).
+All breach evidence, forensic artefacts, SIEM log exports, investigation records, containment records, notification drafts and submissions, authority correspondence, PIR reports, and corrective action records, must be retained for a minimum of 7 years, consistent with the retention schedule register ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)) and the holds regime in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md).
 
 Records subject to regulatory investigation, litigation hold, or authority request are retained until the hold is formally lifted by Legal Counsel.
 

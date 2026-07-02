@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-06-23\
+**Version:** 1.0.7\
+**Date:** 2026-07-02\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -70,10 +70,10 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Privacy impact assessments | 5 years after associated system decommission | GDPR; PIPEDA accountability |
+| Privacy impact assessments | 7 years, or 5 years after associated system decommission, whichever is longer | GDPR; PIPEDA accountability; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) |
 | Data subject access request records | 3 years | GDPR Article 30; accountability |
 | Consent records | Duration of processing + 3 years | GDPR Article 7 |
-| Privacy breach notifications | 5 years | GDPR; PIPEDA; regulatory requirements |
+| Privacy breach notifications | 7 years | GDPR; PIPEDA; regulatory requirements; matches the breach-evidence minimum in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) Section 9.2 |
 | Processing records (Article 30 ROPA) | Active + 5 years | GDPR Article 30 |
 
 ### 5. Audit and compliance records
@@ -101,8 +101,8 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO 42001 accountability |
-| AI Impact Assessments | Model decommission + 5 years | EU AI Act Article 9 |
-| AI audit reports | 5 years | ISO 42001; regulatory compliance |
+| AI Impact Assessments | 7 years, or 5 years after model decommission, whichever is longer | EU AI Act Article 9; matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report) |
+| AI audit reports | 7 years | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years | EU AI Act; regulatory requirements |
 | AI decision and detection logs (inputs, outputs, model version, confidence scores) | 7 years | ISO/IEC 42001; EU AI Act Annex IV; AI-decision accountability (longer than the general SIEM event tier) |
@@ -123,7 +123,7 @@ This register defines the mandatory retention periods for each category of organ
 | --- | --- | --- |
 | Supplier contracts | Term + 7 years | Legal and contractual obligations |
 | Supplier security assessments | Assessment date + 5 years | Supply chain security governance |
-| Supplier audit reports | 5 years | Compliance and certification support |
+| Supplier audit reports | 7 years | Compliance and certification support; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 seven-year audit-records floor governs |
 | Data processing agreements | Term + 5 years | GDPR Article 28 |
 
 ---
