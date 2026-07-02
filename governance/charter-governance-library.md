@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Library Charter\
 **Document Type:** Charter\
-**Version:** 1.2.2\
+**Version:** 1.2.3\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -86,7 +86,7 @@ Each document follows this lifecycle:
 2. **Review:** Validation for structure, originality, licence compatibility, organization neutrality, and framework accuracy.
 3. **Approved:** Maintainer acceptance for publication under CC BY-SA 4.0.
 4. **Maintained:** Periodic review, correction, and version updates.
-5. **Deprecated:** Retained for history but no longer recommended.
+5. **Superseded:** Retained for history but no longer recommended; marked with the dedicated `Status: Superseded` metadata marker.
 6. **Retired:** Removed from the active document index while preserved in repository history.
 
 ---

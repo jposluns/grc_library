@@ -65,7 +65,7 @@ LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
 
 
 def iter_all_docs() -> list[Path]:
-    """Active governance artefacts (not READMEs, not exempt dirs, not deprecated)."""
+    """Active governance artefacts (not READMEs, not exempt dirs, not superseded)."""
     files: list[Path] = []
     for domain in DOMAINS:
         base = REPO_ROOT / domain

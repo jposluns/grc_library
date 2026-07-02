@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-02, Library Version 2026.07.73, PR #585
+
+Lifecycle vocabulary aligned to "Superseded" across the four supersession-vocabulary carriers, per the maintainer's 2026-07-02 return-round answer to the routed #579 sweep L-2 fork; "Retired" kept as the distinct removal stage. Closes the routed section-3.14 lifecycle-vocabulary item (rotated to the DONE ledger). Batches the #584 QA rows (one Low: the #583 retro cell's "window's first zero-actionable sweep" superlative, scoped in this PR to "since the maintainer's return round" after verification against the #577-#582 rows; the frozen root #584 lead stays as shipped per the #582-precedent log-only disposition).
+
+### Changed
+
+- [`governance/charter-governance-library.md`](../../governance/charter-governance-library.md) (1.2.2 to 1.2.3): lifecycle stage 5 renamed "Deprecated" to "Superseded" and anchored to the dedicated `Status: Superseded` metadata marker (the #579 sweep L-2 observation was that the marker value had no anchor in the charter's stage enumeration); stage 6 "Retired" unchanged (removal from the active index is a distinct event from supersession).
+- [`governance/template-library-health-report.md`](../../governance/template-library-health-report.md) (1.0.4 to 1.0.5): Section D count row "Documents deprecated" renamed "Documents superseded"; the "Documents retired" row and the "content additions and retirements" heading unchanged (distinct removal sense).
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (1.3.8 to 1.3.9): the jurisdiction-scope customization row's "mark them deprecated in the index" advice re-pointed at the `Status: Superseded` lifecycle marker (the old advice instructed the pre-migration index-marking mechanism the L-j migration retired).
+- [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py): the `iter_all_docs` docstring's "not deprecated" becomes "not superseded" (the exclusion it describes, `EXEMPT_FROM_INDEX`, holds exactly the `Status: Superseded` stub).
+- [`TODO.md`](../../TODO.md): the routed section-3.14 lifecycle-vocabulary bullet deleted and the section intro updated to name only the remaining coverage-gaps batch; entry added to [`DONE.md`](../DONE.md).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (version-bump pickup; [`docs/portal.md`](../../docs/portal.md) unchanged by content).
+
+### Verification
+
+All 60 audit gates pass standalone (exit code echoed, unpiped); linter regression suite 276 OK; both generators check-clean; pre-push guard green. A refute-briefed pre-push verifier ran on the diff (substantive tier: corpus-document body changes): no blockers; its SF-1 (a pre-existing dangling lifecycle pointer in the quality-cadence procedure's Supersede row, out-of-window for this diff) validated and routed to [`TODO.md`](../../TODO.md) section 3.14; its N-2 applied (the handoff's version anchor advanced to at-#584); its N-1 and N-3 are design observations inherent in the maintainer's directive and the pre-existing stage model, no change.
+
 ## 2026-07-02, Library Version 2026.07.72, PR #584
 
 `.claude/` and working-state changes for local project (the maintainer-authorized CLAUDE.md batch, "ship all three"): **the advisory-directive codification lands in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**, the D5 step-7 description refreshes to six forms, the 60-second background-task check SOP is codified, and the eight resolved pending-decisions entries rotate to a Resolved section. Library 2026.07.71 to 2026.07.72; README 1.9.432 to 1.9.433.

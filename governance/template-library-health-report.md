@@ -2,7 +2,7 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -84,7 +84,7 @@ For each non-pass: brief description, file(s) affected, remediation plan, target
 | Documents added in the period | N | List of new documents |
 | Documents materially revised (minor or major version bump) | N | List with rationale |
 | Documents patched (patch version increment) | N | List with rationale |
-| Documents deprecated | N | List with rationale |
+| Documents superseded | N | List with rationale |
 | Documents retired | N | List with rationale |
 | Tooling additions or changes | N | List with rationale |
 
