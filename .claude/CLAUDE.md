@@ -263,6 +263,19 @@ is external. Two mechanisms:
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way (the #495 miss; see
      PR-workflow step 7).
+   - **Worker-brief coverage pairing** (the staged-brief sync, TODO section 4.4's
+     standing whole-backlog-coverage design): if this PR's diff changes `TODO.md`'s item
+     set (adds, closes, renumbers, or materially rescopes an item), the scratch coverage
+     sync is queued or done in the same close-out: each NEW item gets a staged brief or
+     an eligibility verdict in `grc_library_scratch`'s `research/COVERAGE.md`, each
+     closed item's brief directory is removed and its row deleted, and a renumber
+     updates the affected rows' section anchors (the stable id is the durable key).
+     Briefs are a wipeable derived projection of TODO; TODO wins on any conflict. The
+     sync ships as a scratch PR. Advisory instrument (orchestrator-side, not a CI gate,
+     because neither repo's CI can see the other):
+     [`tools/audit-brief-freshness.py`](../tools/audit-brief-freshness.py) reports the
+     index's PRs-behind age, dead brief target paths, and dead coverage-row TODO
+     anchors.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
      prose count of that collection was checked for staleness (prose counts are not
      gated).
