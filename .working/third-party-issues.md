@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.5\
-**Date:** 2026-06-28\
+**Version:** 1.0.6\
+**Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,16 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-07-03: execution-environment VM reclaimed/paused mid-session; clean resume with working tree intact
+
+**Observed.** During the 2026-07-03 resumed session (mid-way through the PR #618 post-merge QA cycle), the remote execution VM stopped: one in-flight tool call failed with `Tool permission request failed: Error: Tool permission stream closed before response received`, and the maintainer's iOS client showed "allocating sandbox" and restarted the VM on return.
+
+**Diagnosis.** The remote execution environment runs sessions in isolated ephemeral containers that the platform reclaims after a period of inactivity (documented platform behaviour, not a project defect). The failed permission-stream call at the pause boundary matches the known transient harness-instability class (see the 2026-06-26 `AskUserQuestion` entry). Whether this instance was idle reclamation or a client-triggered reconnect is not observable from inside the container.
+
+**How it was distinguished from a real defect.** Post-restart verification: branch, HEAD, uncommitted working-tree files (the PR-618 `/validate-pr` record and both in-window fixes), and git state were all intact; no corpus or tooling gate regressed.
+
+**Impact / resolution.** None lost; the session resumed and completed the QA cycle. Standing mitigation is the project's durable-state design (stop-hook auto-commit/push at turn-end, the session handoff, the concurrency lease): container reclamation is expected, and recovery cost is a short "allocating sandbox" restart on the client. No preventive action available or needed project-side.
 
 ### 2026-06-27: scratch-repo `ref/standards` seeded on `main` via the MCP-PR transport (git-proxy 403 recurred)
 

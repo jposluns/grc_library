@@ -159,8 +159,11 @@ drive end-to-end on the maintainer's behalf:
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
    <branch>`. Run the guard STANDALONE and UNPIPED (never `guard | tail && push` or any
    other pipe): a pipe masks the guard's exit code so the chained push proceeds past a
-   failing guard, the RM-10 failure shape (four pipe-masked incidents: #569, #583, the
-   #608 push, and a fourth self-caught before the #615 push). Read the guard's own terminal PASS/FAIL line before
+   failing guard, the RM-10 failure shape (six pipe-masked incidents: #569, #583, the
+   #608 push, a fourth self-caught before the #615 push, a fifth display-only pipe
+   self-caught before the post-#618 branch push, and a sixth post-commit
+   `run_all_audits | tail` with a pipe-masked exit capture, self-caught in the slice-3
+   build). Read the guard's own terminal PASS/FAIL line before
    relying on the chain. On a green guard, open the PR via `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` below; on failure, fix and re-push.
@@ -262,6 +265,19 @@ is external. Two mechanisms:
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way (the #495 miss; see
      PR-workflow step 7).
+   - **Worker-brief coverage pairing** (the staged-brief sync, TODO section 4.4's
+     standing whole-backlog-coverage design): if this PR's diff changes `TODO.md`'s item
+     set (adds, closes, renumbers, or materially rescopes an item), the scratch coverage
+     sync is queued or done in the same close-out: each NEW item gets a staged brief or
+     an eligibility verdict in `grc_library_scratch`'s `research/COVERAGE.md`, each
+     closed item's brief directory is removed and its row deleted, and a renumber
+     updates the affected rows' section anchors (the stable id is the durable key).
+     Briefs are a wipeable derived projection of TODO; TODO wins on any conflict. The
+     sync ships as a scratch PR. Advisory instrument (orchestrator-side, not a CI gate,
+     because neither repo's CI can see the other):
+     [`tools/audit-brief-freshness.py`](../tools/audit-brief-freshness.py) reports the
+     index's PRs-behind age, dead brief target paths, and dead coverage-row TODO
+     anchors.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
      prose count of that collection was checked for staleness (prose counts are not
      gated).
