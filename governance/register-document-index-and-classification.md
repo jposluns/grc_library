@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.53\
+**Version:** 1.27.54\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,7 +74,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Governance | Matrix | Reverse Framework Control Crosswalk Matrix | [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md) | Control Framework Maintainer | 6 to 12 months | ISO 27001, ISO 42001, NIST CSF 2.0, NIST SP 800-53, NIST AI RMF, CSA CCM v4.1, EU AI Act, GDPR, DORA, NIS 2, OWASP LLM Top 10, MITRE ATLAS, CTPAT, BASC, WCO SAFE | template |
 | Governance | Policy | Exception and Risk Acceptance Management Policy | [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md) | Chief Risk Officer | Annual | Exceptions, deviations, compensating controls, expiry | template |
 | Governance | Standard | Records Retention and Destruction Standard | [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) | Governance Library Maintainer | Annual | ISO 15489, NIST SP 800-88, GDPR Art 17, BASC 5-year retention | template |
-| Governance | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) | GRC Programme Manager | Annual | ISO 37301 §9, ISO 27001 §9.3, ISO 31000 §6.7, COBIT 2019 APO01 | template |
+| Governance | Procedure | GRC Programme Management and Annual Review Procedure | [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md) | GRC Programme Manager | Annual | ISO 37301 §9, ISO 27001 §9.3, ISO 31000 §6.6, COBIT 2019 APO01 | template |
 | Governance | Register | Digital Trust and Assurance Metrics Register | [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) | Assurance Metrics Maintainer | 6 to 12 months | COBIT 2019 MEA01/MEA02, ISO 9001 §9 to 10, ISO 42001 §10, Digital Trust Index | template |
 | Risk | Policy | Enterprise Governance and Risk Management Policy | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | Chief Risk Officer | Annual | ISO 31000, ISO 23894, NIST AI RMF, COBIT APO12, BASC Latin America | template |
 | Risk | Standard | Enterprise Risk Management Standard | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | Chief Risk Officer | Annual | Risk taxonomy, assessment, treatment, reporting, AI risk | template |

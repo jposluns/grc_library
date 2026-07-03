@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -99,7 +99,7 @@ COBIT 2019 Digital Trust Indicators are applied across data, process, and techno
 | ISO 9001:2015 | §9 to 10: Performance Evaluation and Improvement | PDCA cycle, management review |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security governance improvement |
 | ISO/IEC 42001:2023 | §10: AI Governance Improvement | AI maturity KPIs |
-| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
+| COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | COBIT 2019 | Digital Trust Indicators | Maturity and stakeholder confidence |
 
 ---

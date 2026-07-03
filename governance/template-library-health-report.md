@@ -2,7 +2,7 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -204,7 +204,7 @@ A full report would include the per-audit table, per-document review status, per
 | ISO 9001:2015 | §9 Performance evaluation | Quality management |
 | ISO/IEC 27001:2022 | §9.3 Management review | Information security management review |
 | ISO/IEC 42001:2023 | §9.3 Management review | AI management system review |
-| COBIT 2019 | MEA01 Monitor, Evaluate and Assess Performance and Conformance | Governance of enterprise IT |
+| COBIT 2019 | MEA01 Managed Performance and Conformance Monitoring | Governance of enterprise IT |
 | ITIL 4 | Continual improvement | Service management |
 
 ---

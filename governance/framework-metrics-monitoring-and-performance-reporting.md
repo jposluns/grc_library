@@ -2,7 +2,7 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -80,7 +80,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | ISO/IEC 27004:2022 | Information Security Measurement and Metrics | Security metric design and reporting |
 | ISO/IEC 42001:2023 | §10: AI Management System Performance Indicators | AI governance KPIs |
 | ISO 22301:2019 | Business continuity performance | BCP/DR metrics |
-| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance |
+| COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | COBIT 2019 | Digital Trust Indicators | Stakeholder confidence and service quality |
 | BASC v6 (2022) | Trade-Security Performance Measurement | BASC KPI and customs incident reporting |
 | WCO SAFE Framework (2021) | AEO performance standards | Trade security performance measurement |
