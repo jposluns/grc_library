@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/worker-onboarding-review-2r8kn2
 
-**Status:** released
+**Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T19:45:00Z
+**Last-heartbeat-UTC:** 2026-07-03T20:12:12Z
 
-**Current-task:** none (session closed at the #617 combined Sweep-83-close-out + handoff PR; maintainer-directed wind-down on usage budget; next session runs the maintainer-authorized THIN resume per the handoff, starting at the section-1.9 RM-10 hardening PR)
+**Current-task:** worker-ready brief staging, slice 1 (the TODO section-4.4 expansion, runbook subsection, and design record; maintainer-directed at the 2026-07-03 thin resume, superseding the recorded section-1.9 queue head)
 
 **Worker-dispatches:** none
 

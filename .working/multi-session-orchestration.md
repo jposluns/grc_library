@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.10\
+**Version:** 1.1.0\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -136,6 +136,58 @@ ready but inactive; in-session fan-out (4a) covers partitionable work meanwhile.
   as `action-before-explanation-of-inaction.md` and the API-polling guardrails in
   `evidence-grounded-completion.md`). Absent an event primitive, use human-on-demand.
 
+### 5.1 Worker-ready brief staging (the standing input channel; design 2026-07-03, build queued as TODO section 4.4)
+
+The standing target state: every TODO item has, in scratch, either a worker-ready brief
+at `research/<work-unit-id>/brief.md` or a recorded not-eligible verdict in the coverage
+index `research/COVERAGE.md`, so a worker session can pick up any unclaimed eligible item
+without waiting on the orchestrator. The full decision record (the maintainer's three
+answers plus the accepted design adjustments) is in
+[`design-decisions.md`](design-decisions.md) under "Worker-ready brief staging"; the
+operational rules once built:
+
+- **Coverage rule (the TODO-add pairing).** When a TODO item is added, the orchestrator
+  authors either its brief or its not-eligible verdict (with the reason) in the same
+  close-out sync. Coverage is "every eligible item, verdict for the rest": corpus-wide
+  sweeps, renames, convention migrations, and single-indivisible-artefact work are never
+  briefed (section 3 eligibility governs). Verdicts are orchestrator-authored; workers
+  may draft briefs, and the orchestrator verifies every brief before it lands.
+- **Brief shape: pointer-heavy, content-light.** A brief carries the task statement, the
+  exact main-repo target paths, the verified-disjoint partition, the `path:line` evidence
+  requirement, the deliverable shape (research, not final prose), and a pointer to the
+  scratch worker `CLAUDE.md` contract; it carries NO quoted lines, version numbers, or
+  counts. The worker's mandatory fresh-read of live `main` carries semantic currency; the
+  validate-then-apply gate (section 2) remains the correctness control, so a brief that
+  lags a few PRs is safe to pick up.
+- **Freshness stamp.** Each brief carries a `Verified-against:` line naming the main-repo
+  PR number (or merge SHA) it was verified against plus the UTC date; the PR number makes
+  staleness computable as "N PRs behind".
+- **State is derived from artefacts, never a status field.** Brief present = ready; a
+  `claims-ledger.md` row = claimed (the ledger is the single claim authority); a delivery
+  in `inbox/<worker-id>/` = delivered pending apply; the orchestrator removes the brief in
+  the same sync that rotates the TODO item to DONE = closed.
+- **TODO is authoritative; briefs are a wipeable derived projection.** TODO wins on any
+  conflict; this is what makes whole-backlog staging safe in a wipeable repo.
+- **Sync cadence.** The orchestrator syncs the scratch brief tree whenever a main-repo PR
+  carries a non-empty TODO delta (add, close, or material change), batched into that PR's
+  close-out and shipped via the MCP-PR transport (the persist-to-`main` discipline in
+  section 6). Bookkeeping-only PRs generate no sync.
+- **Refresh: targeted-first, mechanical backstop.** The per-PR sync re-stamps the briefs
+  it touches. A cross-repo advisory freshness check (target paths still exist on `main`,
+  the TODO item still exists, stamp-age report) runs at `/resume` and on the maintainer's
+  every-5-to-10-items cadence; it is orchestrator-side, not a CI gate, because neither
+  repo's CI can see the other. A full re-verify pass runs only for briefs the check flags
+  or whose stamp age exceeds the threshold (initially 15 to 20 PRs behind), plus after any
+  structural TODO change (a renumber, a reorganization).
+- **Enforcement is layered.** The scratch `validate.py` shape-checks briefs and the
+  coverage index (same-repo, mechanical); the main-repo close-out checklist carries the
+  pairing line; the `/resume` freshness check catches a missed sync at the next session
+  boundary.
+
+Until the TODO section-4.4 slices land, briefs are staged ad hoc per the scratch
+`WORKER-ONBOARDING.md` and this subsection is the design of record, not yet the live
+mechanism.
+
 ---
 
 ## 6. The reference knowledge base (`ref/` in scratch)
@@ -252,7 +304,7 @@ On discovering upstream is newer than scratch holds, the superseded-archival wor
 2. Keep the old version but move its files (extracted text plus the original binary) into scratch's
    retained-version store `ref/.superseded/` (bucket-mirrored layout and `REGISTER.md` per scratch `CONTRIBUTING.md`).
 3. Update `ref/catalogue.yml` and the index docs to the new version; record the upstream-check
-   location and the last-verified date (the version-currency register, TODO §4.26).
+   location and the last-verified date (the version-currency register, TODO §1.5).
 4. The scratch write goes via a GitHub MCP PR (the proxy-403 transport restriction above).
 
 If the new version requires a license or a maintainer download (it cannot be auto-fetched, or
