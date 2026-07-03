@@ -436,3 +436,30 @@ Two-tier, and the maintainer's instinct is correct: **git commit / PR timestamps
 - **Staleness window value** (proposed default: 60 minutes; long enough not to false-positive on a session that is thinking or waiting on CI, short enough that a truly-dead session does not block for hours).
 - **Hard-block vs advisory-warn** on a fresh-heartbeat `active` lease (proposed: advisory HOLD requiring explicit maintainer confirmation, because the assistant cannot truly know the other session is dead, and a hard block would strand the maintainer if a session crashed without releasing).
 - **Whether to add the well-formedness gate now or defer** it as a follow-up.
+
+---
+
+## Worker-ready brief staging for the whole eligible backlog (decided 2026-07-03, maintainer)
+
+_Captured at the maintainer's request during the 2026-07-03 design conversation preceding this session's thin resume. The maintainer's goal: the orchestrator keeps a task in scratch ready for every TODO item so a worker can just start working, with the brief-needed information prepared when a TODO item is added, and the scratch worker-ready files managed as part of the orchestrator's normal PR process. The design below was settled in one AskUserQuestion round plus a follow-up advisory exchange; the build is queued as the expanded TODO section 4.4 and executes in slices (this entry lands with slice 1, the codification)._
+
+### The three maintainer answers
+
+1. **Seeding scope: the whole backlog**, with a freshness stamp on each brief so a periodic refresh task can update stale ones. Execution is tier-sized (a few priority-tier-scoped scratch PRs), but coverage is total: every TODO item gets either a brief or a recorded not-eligible verdict.
+2. **Verdict home: a scratch coverage index** (`research/COVERAGE.md`), not marker lines in TODO. TODO stays lean; the scratch gate can shape-check the index.
+3. **Scope: absorb TODO section 4.4 fully** (the brief convention AND the `/subagent` entry command AND the maintainer quick start ship as one coherent series).
+
+### The accepted design adjustments (assistant-advised, maintainer-accepted)
+
+- **Coverage is "every eligible item", never "every item"**: corpus-wide sweeps, renames, convention migrations, and single-indivisible-artefact work are standing not-worker-tasks, so briefing them would invite forbidden work. The pairing rule produces, per TODO item, exactly one of: a brief (eligible) or a not-eligible verdict with the reason, recorded in the coverage index. Eligibility verdicts are orchestrator-authored (workers may draft briefs; there is no trusted-worker fast path on verdicts).
+- **Briefs are pointer-heavy and content-light** so staleness is bounded by design: the task statement, exact target paths, the partition boundary, the evidence requirement, the deliverable shape, and a pointer to the scratch worker contract. NO quoted lines, version numbers, or counts (those rot; the worker's mandatory fresh-read of live main carries semantic currency, and the orchestrator's validate-then-apply remains the correctness control).
+- **The freshness stamp is a `Verified-against:` line** carrying the main-repo PR number (or merge SHA) plus the UTC date: the PR number is monotonic on `main` history, so staleness is computable ("N PRs behind") rather than judged from a date. Same shape as the handoff's green-at-sha baseline, per brief.
+- **Worker-visible state is derived from artefacts, never a status field**: brief present in `research/<work-unit-id>/` = ready; a `claims-ledger.md` row = claimed (the ledger stays the single claim authority); a delivery in `inbox/<worker-id>/` = delivered pending apply; the orchestrator deletes the brief in the same sync that rotates TODO to DONE = closed. A status field inside the brief would be a second source of truth that drifts.
+- **TODO remains authoritative; briefs are a wipeable derived projection of it** (TODO wins on any conflict). This is what makes whole-backlog staging safe in a wipeable repo.
+- **Sync cadence: on non-empty TODO deltas, batched into the PR close-out**, not a scratch PR per main PR (scratch writes go via the MCP-PR transport per the third-party-issues log, so each sync has real overhead, and pointer-light briefs tolerate bounded lag). Bookkeeping-only PRs generate no sync.
+- **Refresh is targeted-first with a mechanical backstop**: (a) the per-PR TODO-delta sync re-stamps the briefs it touches; (b) a cross-repo advisory freshness check (target paths still exist on main, TODO item still exists, stamp-age report) runs at `/resume` and on the maintainer's every-5-to-10-items cadence, orchestrator-side because neither repo's CI can see the other; (c) a full re-verify pass only for briefs the check flags or whose stamp age exceeds a threshold (start at 15 to 20 PRs behind), plus an explicit refresh after any structural TODO change (a renumber, a reorganization). A blanket periodic rewrite of all briefs was considered and rejected as the expensive form.
+- **Enforcement is layered, not cross-repo-gated**: the scratch `validate.py` shape-checks briefs and the coverage index (same-repo, mechanical); the main-repo close-out checklist carries the pairing line (TODO delta pairs with a queued-or-done brief sync plus an eligibility verdict for new items); the `/resume` freshness check catches a missed sync at the next session boundary.
+
+### Build slices (the expanded TODO section 4.4 carries the deliverables)
+
+Slice 1 (this PR): the codification (TODO section-4.4 rewrite, the runbook subsection, this record). Slice 2: the scratch machinery (`research/` tree, coverage index, gate extension, worker-doc pointers). Slice 3: the main-repo wiring (checklist line, `/resume` step, advisory freshness tool). Slice 4: the `/subagent` entry command plus the maintainer quick start. Slice 5: the tier-sized whole-backlog seeding, guard-first (the scratch gate extension lands before the briefs it validates).
