@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #589: small fixes: retention approval re-target + lifecycle pointer + GR-8(a) RM disposition pass (2026-07-03)
+
+The retention standard's 7-year approval gate re-targeted to ad-hoc extensions beyond the schedule (the answered section-2.13 note), the quality-cadence Supersede pointer re-pointed at the charter, and all 15 removal-ledger entries dispositioned (12 reviewed-keep-out, RM-6 and RM-8 inspired-change, RM-10 held open on a morning item).
+
 ### PR #588: COBIT fit-pass recodes + ISO 31000 6.6 swap + MEA01 titles (2026-07-02)
 
-The seven maintainer-pre-authorized COBIT semantic-fit recodes applied (cross-framework matrix rows to EDM03/EDM03.01/APO12.02 with the ISO appetite cell to 6.3.4, the exception policy's three APO12.03 carriers to APO12.02, the four BAI05.02 supplier carriers to APO10.05), plus the #587 verifier's ISO 31000 6.7-to-6.6 correction on three carriers and the two MEA01 title fixes.
+The seven maintainer-pre-authorized COBIT semantic-fit recodes applied (cross-framework matrix rows to EDM03/EDM03.01/APO12.02 with the ISO appetite cell to 6.3.4, the exception policy's three APO12.03 carriers to APO12.02, the four BAI05.02 supplier carriers to APO10.05), plus the #587 verifier's ISO 31000 6.7-to-6.6 correction on three carriers, four MEA01 practice-title restores, and the nine-carrier MEA01 objective-title canonicalization.
 
 ### PR #587: gate 61 shipped, COBIT + ISO 31000 citation existence, both halves of the section-3.13 build (2026-07-02)
 

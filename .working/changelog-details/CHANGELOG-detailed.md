@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.77, PR #589
+
+The small-fixes batch: two answered corpus corrections and the GR-8(a) removal-ledger disposition pass, plus the #588 QA trio and its sweep's in-window fixes. Overnight mode begins at this PR's close (maintainer-confirmed).
+
+### Changed
+
+- [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md) (1.4.13 to 1.4.14): the section-5 blockquote now reads that ad-hoc retention beyond the schedule for longer than 7 years requires Legal Counsel approval, while schedule-defined periods (including composed whichever-is-longer values) are approved through the schedule's own change control; this executes the maintainer's 2026-07-02 overnight answer to the routed #580 verifier N-4 tension and keeps the approval gate's real target. Sibling grep: the old sentence had exactly one carrier.
+- [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) (1.0.15 to 1.0.16): the Supersede disposition row now points at the lifecycle in the governance library charter (whose Document lifecycle section carries the stage list) instead of the document architecture framework (which carries none); the routed #585 verifier SF-1, re-point option taken per the maintainer's answer.
+- [`claude-md-considerations.md`](../claude-md-considerations.md) (1.0.2 to 1.0.3): all 15 RM entries dispositioned from researched evidence (a worker hunted each entry's watch-signal across the improvement log, the validate-pr records, pending-decisions, DONE, design-decisions, and the CHANGELOG; the orchestrator judged each): RM-1/2/3/4/5/7/9/11/12/13/14/15 reviewed-keep-out (signals absent, mechanically caught without confusion, or near-moot against retained CLAUDE.md text); RM-6 inspired-change (three of its five war-story classes recurred and were answered by gate 57, the D5 delta check and its #501/#576 broadenings, and new inline war-stories; the #580 violation-beside-its-inline-story is the evidence restoration would not help); RM-8 inspired-change (the #460 wind-down rewrite superseded the removed provenance); RM-10 stays open with a dated review note, its uncodified unpiped-guard remedy queued in [`pending-decisions.md`](../pending-decisions.md) as a protected-tree morning decision. The gate-57 coverage-gap special item is recorded as closed-and-twice-re-closed at the pattern edge (D5 three forms #501, six forms #576).
+- Sweep in-window fixes: a dated addendum on the #588 mirror entry (the lead's five-document count was commit-2-scoped, and the supplier bullet's parenthetical attributed the BAI05 objective title to the practice code); the handoff PROGRESS block's two pre-merge-state carriers reconciled; the #588 [`DONE.md`](../DONE.md) entry body updated to the full shipped scope.
+- [`TODO.md`](../../TODO.md): the section-2.13 retention note and the section-3.14 lifecycle-pointer bullet rotated out with their intros re-counted against post-diff contents; the GR-8 bullet trimmed to its remaining half (b).
+
+### Discipline observations
+
+The pre-push verifier's B-1 caught the exact class this PR's own RM-2 disposition quotes: the UTC date rolled mid-PR and three Version-bumped surfaces (the two QA ledgers and the README) kept Date 2026-07-02, which D4 blocks; fixed before push, the recurrence noted against RM-2's keep-out reasoning (the mechanical catch again did the work). Its S-1 normalized RM-6's Status to the ledger's declared vocabulary, and its N-2 (a pre-existing retirement-recording claim in the quality-cadence procedure) is routed to section 3.14, not silently fixed.
+
+### Verification
+
+All 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green. The two corpus rewords were validated for sibling echoes with bare-token greps (one carrier each, zero residual). The RM dispositions are evidence-cited per entry; the research and the judgment are separated in the record (worker research, orchestrator dispositions).
+
 ## 2026-07-02, Library Version 2026.07.76, PR #588
 
 The routed COBIT fit-pass recode worklist executes in full, extended by the #587 post-merge sweep's whole-table finding and two pre-push verifier catches: the control-code and title corrections span five corpus documents, the ISO 31000 clause-number swap is fixed on its three carriers, and gate 2 gains a narrow span-mask exemption for verbatim external titles. Batches the #587 QA trio and the sweep's five in-window fixes.
@@ -25,6 +45,8 @@ The routed COBIT fit-pass recode worklist executes in full, extended by the #587
 ### Verification
 
 Every replacement code and title re-verified at apply time against the held COBIT 2019 extract (objective and practice titles quoted at their extract lines) and the reference module; the apply ran as a count-guarded deterministic script (each edit asserts exactly one occurrence before any write) with a zero-residual post-apply re-parse over the six touched files. All 61 audit gates pass standalone after each commit; linter regression suite 286 OK; both generators check-clean; pre-push guard green. The gate-2 exemption was validated in both directions (the verbatim title passes; a bare violation sharing the line still fails).
+
+Addendum (2026-07-03, recorded at the #588 post-merge sweep and batched into #589): the lead's "span five corpus documents" was written at commit-2 state and not re-counted after the commit-4 fold-in; the corrections span ten documents (twelve with the ISO-swap carriers); the Changed bullets are accurate. And the supplier bullet's parenthetical mis-attributes the objective title to the practice code: BAI05, the objective, is Managed Organizational Change; BAI05.02 is Form an effective implementation team; the fit reasoning and the applied recode stand.
 
 ### Discipline observations
 

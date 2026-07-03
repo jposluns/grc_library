@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
-**Date:** 2026-07-02\
+**Version:** 1.0.16\
+**Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -79,7 +79,7 @@ For each document under review, the responsible owner role conducts the followin
 | No change | Date stays the same; review record states the document remains current; the next review due date is calculated from the original Date |
 | Minor revision | Patch version increment (0.0.x); document content updated; commit references the review |
 | Material revision | Minor version increment (0.x.0) where consistent with the library version-bump rules; document content updated; commit references the review |
-| Supersede | A successor document is produced; the predecessor's status changes per the lifecycle in the document architecture framework |
+| Supersede | A successor document is produced; the predecessor's status changes per the lifecycle in the governance library charter |
 | Retire | The document is removed from the active set per the retirement procedure; archived per the records retention schedule |
 
 ### Step 5: Maintain auto-generated artefacts
