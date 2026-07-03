@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T16:57:56Z
+**Last-heartbeat-UTC:** 2026-07-03T17:44:06Z
 
-**Current-task:** section-3.15 guardrail hygiene batch PR (GR-9 + S-4 + GR-11 + r3 O-F2, plus both #613 sweep fixes and the #613 QA trio), then GR-4 and the GR-6 gate behind its /guardrails prerequisite
+**Current-task:** the #614 sweep-fix PR (runbook obligation-1 currency, matrix-fit command module list, env-var hardening, boundary-token wording, plus the #614 QA trio), then GR-4 and the GR-6 gate behind its /guardrails prerequisite
 
 **Worker-dispatches:** none
 

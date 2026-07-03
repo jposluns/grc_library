@@ -10,18 +10,19 @@ Patterns currently detected (PATTERNS):
   - Words: ``TODO``, ``TBD``, ``FIXME``, ``XXX``, ``Coming soon``,
     ``(placeholder)``.
   - Markers: ``[Unverified]``.
-
-Boundary with the shall-near-uncertainty audit
-(``lint-shall-near-uncertainty.py``): the two linters share six marker tokens
-(TODO, TBD, FIXME, XXX, placeholder, [Unverified]) but split by PRESENCE vs
-CONJUNCTION: this linter flags a marker's mere presence in a scanned document,
-while that one flags only a MANDATORY marker within the window of an
-uncertainty marker. Each maintains its own token list and exempt set, so a
-token added to one is not automatically checked by the other; extend both
-deliberately.
   - Angle-bracket placeholders: ``<YYYY-MM-DD>``, ``<role>``,
     ``<organisation>``, ``<organization>``, ``<name>``, ``<date>``,
     ``<version>``.
+
+Boundary with the shall-near-uncertainty audit
+(``lint-shall-near-uncertainty.py``): the two linters share five identical
+marker tokens (TODO, TBD, FIXME, XXX, [Unverified]) plus a sixth in differing
+forms (this linter matches only the parenthesized ``(placeholder)``; that one
+matches bare ``placeholder``), and split by PRESENCE vs CONJUNCTION: this
+linter flags a marker's mere presence in a scanned document, while that one
+flags only a MANDATORY marker within the window of an uncertainty marker.
+Each maintains its own token list and exempt set, so a token added to one is
+not automatically checked by the other; extend both deliberately.
 
 Exemptions are layered:
 

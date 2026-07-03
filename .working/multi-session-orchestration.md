@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -201,15 +201,17 @@ encoding).** When `ref/standards/` or `ref/frameworks/` content informs corpus w
 mappings, the FR-167 matrix batches are the recurring case), the source extracts are the
 ground truth and the in-repo validator modules
 ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py),
-[`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py)) are a *derived encoding* of
-codes and titles. Two obligations follow, because the gates (48, 49, 54) enforce only the
-derived encoding:
+[`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py),
+[`tools/cobit_iso31000_reference.py`](../tools/cobit_iso31000_reference.py)) are a
+*derived encoding* of codes and titles. Two obligations follow, because the citation gates
+(48, 49, 54, 58, and 61) enforce only the derived encoding:
 
 1. **Code-set parity (mechanical).** Run
    [`tools/verify-reference-modules.py`](../tools/verify-reference-modules.py) when doing
    standards work or when the scratch base is refreshed: it confirms the modules' code sets
-   match the source CSV / text extracts in both directions (CCM v4.1.0, AICM v1.1.0, NIST
-   CSF 2.0). It is a dev-aid, not a CI gate (the scratch source is not present in CI), and
+   match the source extracts (CCM v4.1.0, AICM v1.1.0, and NIST CSF 2.0 in both directions;
+   COBIT 2019 objectives in both directions plus practice-range closure; ISO 31000:2018 in
+   the module-to-source direction only, per the aid's docstring). It is a dev-aid, not a CI gate (the scratch source is not present in CI), and
    it skips cleanly when the scratch base is absent. A drift means the modules (and so the
    gates that trust them) have diverged from the source; reconcile the module to the source.
 2. **Semantic-fit against the source title, not the code number (judgment).** A code that
