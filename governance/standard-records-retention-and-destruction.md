@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.13\
-**Date:** 2026-07-02\
+**Version:** 1.4.14\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -81,7 +81,7 @@ The Records Retention Schedule (RRS) defines minimum retention periods based on:
 
 Sector-specific retention categories (for example, trade and customs records under BASC, healthcare records under HIPAA, financial-services records under sector-specific regulation) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
-> Retention periods longer than 7 years require written approval from Legal Counsel.
+> Ad-hoc retention beyond the schedule for longer than 7 years requires written approval from Legal Counsel. Periods that the records retention schedule itself defines (including composed whichever-is-longer values) are approved through the schedule's own change control and need no per-instance approval.
 
 ---
 
