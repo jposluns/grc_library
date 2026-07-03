@@ -59,11 +59,23 @@ and is NOT flagged; the markers are the uppercase ``SHIPPED in #N`` /
 ``[done]`` / ``[shipped]`` / ``[x]`` checkbox/suffix marker, or a
 strikethrough ``~~...~~`` on a list item.
 
-**Check 3, worker-provenance (dormant stub).** A no-op until a
-"worker-delivered" marking convention and the external-collaborator worker
-primitive both exist; there is no surface to test against yet, so the gate
-does not fabricate an attestation format. ``worker_provenance_findings()``
-documents its activation condition and returns no findings.
+**Check 3, worker-provenance (ACTIVE since the section-3.6 codification).**
+Both activation conditions now hold: the external-collaborator worker
+primitive exists (a Model-B worker session delivers research to the scratch
+repository's ``inbox/<worker-id>/`` with a ``MANIFEST.md``, per the scratch
+``WORKER-ONBOARDING.md`` and the multi-session runbook), and the marking
+convention is: a PR that applies a scratch-inbox delivery carries a
+``**Worker provenance:**`` line in its detailed-mirror CHANGELOG entry
+naming the delivery path. This check validates every such marker line in
+[`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md):
+the line must reference an ``inbox/<worker-id>/`` path (the attestation
+names WHERE the delivery lives so the orchestrator's apply-time
+verification is traceable to it). Presence-not-correctness, per the gate's
+framing: a well-formed marker attests that provenance was recorded, not
+that the apply-time verification was sound; and an UNMARKED worker
+application is free prose no gate can detect, guarded instead by the
+CLAUDE.md close-out checklist (the same convention-level residual as the
+QA-abbreviation half of Check 1).
 
 **Check 4, version-history parity (the former §4.6 #376 surface).** For every
 tracked file that carries BOTH a metadata ``**Version:**`` field AND a
@@ -96,6 +108,7 @@ from lint_common import DEFAULT_EXEMPT_DIRS, read_text_safe
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 CHANGELOG_PATH = "CHANGELOG.md"
+DETAILED_CHANGELOG_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 VALIDATE_PR_HISTORY = ".working/validate-pr/history.md"
 IMPROVEMENT_LOG = ".working/improvement-log.md"
 TODO_PATH = "TODO.md"
@@ -372,18 +385,42 @@ def version_history_parity_findings(files: list[tuple[str, str]]) -> list[str]:
     return findings
 
 
-def worker_provenance_findings() -> list[str]:
-    """Check 3 (dormant stub): worker-delivered-diff provenance attestation.
+WORKER_PROVENANCE_RE = re.compile(
+    r"^(?:[-*][ \t]+)?\*\*Worker provenance:\*\*(.*)$", re.MULTILINE
+)
 
-    Activation condition: a "worker-delivered" marking convention on applied
-    diffs PLUS the separate-session external-collaborator worker primitive
-    (read `grc_library` / write `grc_library_scratch` only). Until both exist
-    there is no surface to attest against, so this check is a documented
-    no-op rather than a fabricated attestation format. See the
-    "Bookkeeping-parity gate, pinned design" entry in
+INBOX_PATH_RE = re.compile(r"\binbox/[A-Za-z0-9._-]+/\S*")
+
+
+def worker_provenance_findings(detailed_text: str) -> list[str]:
+    """Check 3 (active): worker-delivered-diff provenance attestation.
+
+    A PR that applies a scratch-inbox worker delivery marks its
+    detailed-mirror CHANGELOG entry with a ``**Worker provenance:**`` line
+    naming the delivery path (``inbox/<worker-id>/...``, normally the
+    ``MANIFEST.md``). This check validates each marker line's shape,
+    whether written standalone or as a list bullet (``- **Worker
+    provenance:** ...``, the mirror's natural authoring form): the
+    same-line remainder must reference an ``inbox/<worker-id>/`` path so
+    the attestation is traceable to the delivery (a value on a FOLLOWING
+    line does not count; an empty remainder is a finding). It enforces presence and well-formedness,
+    never the apply-time verification's semantic soundness; an unmarked
+    worker application is free prose, guarded by the CLAUDE.md close-out
+    checklist. Formerly a dormant stub; activated by the section-3.6
+    codification once the external-collaborator primitive (the scratch
+    WORKER-ONBOARDING flow) and this marking convention both existed. See
+    the "Bookkeeping-parity gate, pinned design" entry in
     .working/design-decisions.md.
     """
-    return []
+    findings: list[str] = []
+    for match in WORKER_PROVENANCE_RE.finditer(detailed_text):
+        value = match.group(1).strip()
+        if not INBOX_PATH_RE.search(value):
+            findings.append(
+                f"worker-provenance marker does not name an "
+                f"inbox/<worker-id>/ delivery path: `{value}`"
+            )
+    return findings
 
 
 def main() -> int:
@@ -392,6 +429,7 @@ def main() -> int:
         vp_status = parse_validate_pr_status(read(VALIDATE_PR_HISTORY))
         retros = parse_retro_prs(read(IMPROVEMENT_LOG))
         todo_text = read(TODO_PATH)
+        detailed_text = read(DETAILED_CHANGELOG_PATH)
     except FileNotFoundError as exc:
         print(f"ERROR: required file missing: {exc}", file=sys.stderr)
         return 2
@@ -403,13 +441,13 @@ def main() -> int:
     all_findings.extend(qa_cadence_findings(changelog, vp_status, retros))
     all_findings.extend(todo_rotation_findings(todo_text))
     all_findings.extend(version_history_parity_findings(discover_version_history_files()))
-    all_findings.extend(worker_provenance_findings())
+    all_findings.extend(worker_provenance_findings(detailed_text))
 
     if not all_findings:
         print(
             "OK: bookkeeping-parity audit clean "
             f"(QA-cadence parity from PR #{INCEPTION}; TODO/DONE rotation; "
-            "version-history parity; worker-provenance dormant)."
+            "version-history parity; worker-provenance attestation)."
         )
         return 0
 

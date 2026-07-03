@@ -3856,6 +3856,17 @@ class SessionStateTests(LinterTestCase):
             any("appears 2 times" in message for message in invalid)
         )
 
+    def test_missing_field_and_value_error_both_reported(self) -> None:
+        # A missing field must not suppress a coexisting value error
+        # (the #611 sweep's I-1: both classes report in one run).
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Worker-dispatches:** none\n", ""
+        ).replace("**Status:** active", "**Status:** paused")
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(len(missing), 1)
+        self.assertTrue(any("paused" in message for message in invalid))
+
 
 class CcmAicmCitationTests(LinterTestCase):
     """tools/lint-ccm-aicm-citations.py"""
@@ -4566,6 +4577,65 @@ class BookkeepingParityTests(LinterTestCase):
             mod.version_history_parity_findings(files), [],
             "extra historical rows must be tolerated",
         )
+
+    def test_worker_provenance_wellformed_marker_not_flagged(self) -> None:
+        # Check 3: a marker naming an inbox/<worker-id>/ delivery path is
+        # well-formed: must NOT flag.
+        mod = self._load_module()
+        text = (
+            "## 2026-07-03, Library Version 2026.07.100, PR #612\n\n"
+            "Lead paragraph.\n\n"
+            "**Worker provenance:** inbox/w-2026-07-03-a/MANIFEST.md, "
+            "validated at apply-time per the research-assistant discipline.\n"
+        )
+        self.assertEqual(
+            mod.worker_provenance_findings(text), [],
+            "a marker naming an inbox delivery path must not flag",
+        )
+
+    def test_worker_provenance_pathless_marker_flagged(self) -> None:
+        # Check 3: a marker with no inbox/<worker-id>/ path is malformed.
+        mod = self._load_module()
+        text = (
+            "## 2026-07-03, Library Version 2026.07.100, PR #612\n\n"
+            "**Worker provenance:** worker research applied, trust me.\n"
+        )
+        findings = mod.worker_provenance_findings(text)
+        self.assertTrue(findings, "a pathless marker should flag")
+        self.assertIn("inbox/<worker-id>/", findings[0])
+
+    def test_worker_provenance_no_markers_no_findings(self) -> None:
+        # Check 3: entries with no markers produce no findings (prose
+        # mentioning workers without the marker line is out of scope).
+        mod = self._load_module()
+        text = (
+            "## 2026-07-03, Library Version 2026.07.100, PR #612\n\n"
+            "A worker delivered research to the inbox and it was applied.\n"
+        )
+        self.assertEqual(mod.worker_provenance_findings(text), [])
+
+    def test_worker_provenance_bullet_form_marker_validated(self) -> None:
+        # Check 3: the mirror's natural list-bullet authoring form is
+        # validated too (the #612 verifier's F2): well-formed passes,
+        # pathless flags.
+        mod = self._load_module()
+        good = "- **Worker provenance:** inbox/w-2026-07-03-a/MANIFEST.md\n"
+        self.assertEqual(mod.worker_provenance_findings(good), [])
+        bad = "- **Worker provenance:** applied from a delivery, path lost.\n"
+        findings = mod.worker_provenance_findings(bad)
+        self.assertTrue(findings, "a pathless bullet marker should flag")
+
+    def test_worker_provenance_value_on_next_line_flagged(self) -> None:
+        # Check 3: the value must be on the SAME line as the marker (the
+        # #612 verifier's F4); a bare marker line flags rather than
+        # capturing the following line.
+        mod = self._load_module()
+        text = (
+            "**Worker provenance:**\n"
+            "inbox/w-2026-07-03-a/MANIFEST.md\n"
+        )
+        findings = mod.worker_provenance_findings(text)
+        self.assertTrue(findings, "a value-less marker line should flag")
 
 
 class WorkingProseHygieneTests(LinterTestCase):
