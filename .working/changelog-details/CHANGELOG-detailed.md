@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.96, PR #608
+
+Morning-processing PR closing the 2026-07-03 overnight run (eighteen first-run-green merges, #590 through #607, FR-48 completed) and executing the maintainer's morning decision rounds: [`../overnight-pr.md`](../overnight-pr.md) routed and reset to stub (the mode switched to daytime-unattended at the maintainer's return); the four #590 DPO proceeded defaults maintainer-CONFIRMED and the [`../pending-decisions.md`](../pending-decisions.md) entries rotated to resolved along with the seven queue-de-blocking morning directives; closing TODO §3.8 (orchestrator-token instrumentation, `not instrumented` accepted as the permanent state) and TODO §3.10 (TODO hygiene, the audit-trail-only sections KEEP by design, the former Priority-7 item 7.1 resolved the same way), both rotated to [`../DONE.md`](../DONE.md) with the keep decision recorded in [`../design-decisions.md`](../design-decisions.md); the new TODO section 1.6 intakes the authorized D5/CLAUDE.md codifications (the seventh D5 closure form, the step-7 description refresh, the RM-10 unpiped-guard sentence). Batches the #607 [`/validate-pr`](../validate-pr/history.md) and [`/retro`](../improvement-log.md) rows (the #607 sweep returned ZERO findings; the retro row patterns the D5 space-separated-closure detection gap). Library 2026.07.95 to 2026.07.96; README 1.9.456 to 1.9.457.
+
+### Changed
+
+- [`.working/overnight-pr.md`](../overnight-pr.md): `Status: in-flight` to `Status: stub` with the run's closure note (routing map: per-PR progress to CHANGELOG/DONE/git history; the DPO defaults to pending-decisions, confirmed; the separator-tolerance codification already shipped in #607; the morning rounds to pending-decisions; the forward queue to TODO and the handoff). The awake-early exception applies (maintainer returned and redirected in person), so the `done`-state round-trip is skipped per the protocol's exception path.
+- [`.working/pending-decisions.md`](../pending-decisions.md): Status line rewritten to the 2026-07-03 morning-round state; the three held entries (D5 form-description refresh, the DPO four defaults, RM-10) marked RESOLVED with their resolutions; a new `## Resolved at the maintainer's 2026-07-03 morning round` section records all ten answers (the three entries plus the seven directives: P2 values with logged defaults, scratch self-merge on green, the protected-tree one-liner class, TODO sections KEEP, the 2.5 methodology-doc shape, the 3.8 closure, the standing egress deferrals).
+- [`TODO.md`](../../TODO.md): sections 3.8 and 3.10 deleted (closed by decision); the former Priority-7 item 7.1 deleted with the P7 intro updated (0 pending); the new section 1.6 (the authorized D5/CLAUDE.md codifications) added under Priority 1; the section-2.5 shape decision annotated; the GR-8 clause updated (RM-10 authorized, ships in the D5 PR); the section-1.5 deferral note reaffirmed 2026-07-03; the Backlog totals updated (P1 3 items, P3 7 items, P7 0 pending).
+- [`.working/DONE.md`](../DONE.md): the #608 entry (sections 3.8, 3.10, and former-7.1 closed by decision; the run routed).
+- [`.working/design-decisions.md`](../design-decisions.md): new entry "TODO audit-trail sections stay in TODO by design (decided 2026-07-03, maintainer)".
+- [`.working/session-handoff.md`](../session-handoff.md): PROGRESS header advanced (run closed at #607, FR-48 COMPLETE, daytime-unattended, #608 in flight); the morning-round answers and the day queue recorded; the resolved section-7.1 item removed from the still-pending list; versions extended to #608.
+- [`README.md`](../../README.md): Library CalVer 2026.07.95 to 2026.07.96; README Version 1.9.456 to 1.9.457.
+
+### Added
+
+- [`.working/validate-pr/2026-07-03-PR-607.md`](../validate-pr/2026-07-03-PR-607.md): the #607 post-merge sweep record (ZERO findings at any severity; the series-closing spot-check on three earlier entangled docs clean; the FR-48 series QA chain closes with zero escaped renumber defects across all 13 PRs) plus its [`history.md`](../validate-pr/history.md) row (1.2.386) and the #607 [`improvement-log.md`](../improvement-log.md) row (1.0.333, patterning the D5 space-separated-closure detection gap and routing its widening to TODO section 1.6).
+
+### Verification
+
+Bookkeeping-tier change (working-state routing, TODO/DONE rotation, version surfaces; no corpus-document body change): no standing verifier per the tiered standard. All 61 gates pass standalone after the commit; the pre-push guard (both runners) green; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before the commit. The D5 check's six forms detect this entry's form-1 phrasing ("closing TODO §3.8 and §3.10"), and both TODO.md and DONE.md are in the diff.
+
+### Discipline observations
+
+The #607 retro's D5 detection-form gap (the space-separated `section N.M ... closed` phrasing missed by all six forms on #607 itself) is intaken as TODO section 1.6 rather than fixed here, per always-split: this PR is routing and bookkeeping; the D5 widening is a gate-logic change with fixtures and its own PR (authorized, next in queue). This entry's own closure phrasing deliberately uses the canonical form-1 shape so the check fires.
+
 ## 2026-07-03, Library Version 2026.07.95, PR #607
 
 FR-48 document 13 of 13, the information-security renumber (33 clauses lockstep, zero citers) plus the carried 27002 cell fix and the routed separator-tolerance checklist addition; TODO section 1.1 closed and rotated; the #606 QA trio. The SERIES-COMPLETING PR of the 2026-07-03 overnight run's FR-48 arc.

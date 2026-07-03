@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #608: morning processing: overnight run routed, sections 3.8, 3.10, and former-7.1 closed at the 2026-07-03 decision rounds (2026-07-03)
+
+The 18-merge overnight run's file routed and reset to stub; the #607 QA trio recorded (zero-finding sweep); the maintainer's morning rounds confirmed the four DPO defaults and closed three backlog items by decision: section 3.8 (orchestrator tokens stay honestly not-instrumented, permanent), section 3.10 (the audit-trail-only TODO sections KEEP by design, its accretion-guard half already shipped), and the former Priority-7 item 7.1 (the same keep decision). The seven queue-de-blocking directives are recorded in pending-decisions.
+
 ### PR #607: FR-48 (section 1.1): H2 numbering-pattern entangled residual, series complete (2026-07-03)
 
 The final entangled document (information-security policy, 33 clauses plus the carried 27002 cell fix) renumbered in #607, completing the 38-document FR-48 deferred worklist: the first 25 deferred docs through #548, the internal-audit standard confirmed canonical in #594, and the 12 entangled docs one per PR in #596 through #607 under the full HA harness (the separate 28-doc safe subset was normalized in #520). Section 1.1 closed and rotated.
