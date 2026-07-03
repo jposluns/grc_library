@@ -1837,7 +1837,7 @@ class GateCountConsistencyTests(LinterTestCase):
     def test_stale_wordform_audit_gates_flagged(self) -> None:
         # P9 (word-form): "ninety-nine audit gates" can never match the
         # canonical gate count (58), so the word-form gate-count check must
-        # flag it. (TODO §1.3-B: the gate-39-blind word-form class.)
+        # flag it. (The gate-39-blind word-form class; the backlog item that queued it has rotated out.)
         fixture = self.make_fixture(
             "standard-bad-wordform-gates.md",
             "# X\n\nThis stub mentions the ninety-nine audit gates in the suite.\n",

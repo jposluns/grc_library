@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.78, PR #590
+
+The section-1.3 DPO role-separation sweep executes in full: ten documents, 75 count-guarded scripted edits, zero composite residual corpus-wide, plus the section-2.13 PIA acceptance-authority fix and the #589 QA trio. First PR of the 2026-07-03 overnight run.
+
+### Changed
+
+- Role separation across the five core privacy documents: the composite role-table rows split into CIO-proper (executive accountability, escalation) and DPO-proper (regulatory representation, denial sign-off, notification decisions, PIA/transfer review) entries; every "CIO (acting DPO)" sign-off, review, and notification line re-assigned to the DPO; the DSR procedure's Acting-DPO-status subsection deleted with its dependent rationale sentence re-authored; the DSR register line's sign-off attribution co-changed (a carrier the census missed, caught at the orchestrator read).
+- [`privacy/charter-privacy-management-programme.md`](../../privacy/charter-privacy-management-programme.md): the Interim-Accountability note and the interim-CIO-as-DPO conflict block reframed as generic adopter guidance (an adopter operating an interim executive-as-DPO arrangement), preserving the WP243-sourced Article 38(3)/38(6) mitigation table and the canonical-citations anchor while removing the composite as the library's own model.
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md): notification authority aligned to the charter's Article 38(3) row: the DPO decides and submits supervisory-authority notifications with Legal Counsel content review; the CIO retains programme-level executive accountability and immediate P1/P2 notification (a logged proceeded default; see the pending-decisions entry).
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md): the answered authority applied (the DPO provides a written advisory opinion; the Executive Committee accepts high residual risk), the internal escalation pathway rewired from ERC sign-off to Executive Committee acceptance with the ERC narrowed to its role-register oversight function, and the Step 5.3 evidence row now naming the DPO opinion and the Executive Committee signature.
+- [`governance/procedure-grc-programme-management-and-annual-review.md`](../../governance/procedure-grc-programme-management-and-annual-review.md): the 10.3.1 "CIO or above" acceptance clause and the 10.3.3 ERC-level reporting clause aligned to the canonical chain (Executive Committee or Board Risk Committee for High or Critical).
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md): the three-way Privacy Lead / Acting DPO / CIO-acting-DPO naming drift harmonized to the DPO across the role table, the notification-obligations table, and the assessment steps (the FR-47 class).
+- The three assessment templates ([`privacy/template-dpia.md`](../../privacy/template-dpia.md) 1.0.6, [`privacy/template-transfer-impact-assessment.md`](../../privacy/template-transfer-impact-assessment.md) 1.0.2, [`privacy/template-legitimate-interest-assessment.md`](../../privacy/template-legitimate-interest-assessment.md) 1.0.3): the "(or acting DPO)" hedges removed.
+- Owner metadata on the five core privacy documents reconciled to [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Data Protection Officer); regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+- [`TODO.md`](../../TODO.md): sections 1.3 and 2.13 closed and deleted (whole-repo reference greps clean; the P2 totals line re-counted); [`overnight-pr.md`](../overnight-pr.md) transitioned stub to in-flight with the run's authorization scope; four proceeded defaults logged in [`pending-decisions.md`](../pending-decisions.md) for morning confirm-or-redirect.
+- The #589 sweep's two Lows fixed: the section-2.13 heading count closed with the section; the handoff's #588-disposition overstatement corrected in the refresh.
+
+### Verification
+
+Every edit applied by a count-guarded deterministic script (staged in memory, aborting on any count mismatch) with a zero-residual re-parse over the ten files and a corpus-wide composite grep (zero live hits of any acting-DPO variant). The research census (every DPO mention corpus-wide, classified) and the orchestrator's judgment on the five flagged non-mechanical items are separated in the record. All 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green.
+
+### Discipline observations
+
+The pre-push verifier's refutation pass extended the sweep by six lines it caught: the DSR procedure's metrics row and retention clause still carried the old CIO denial-sign-off concept (its B-1, the full-file-grep class at the CONCEPT level rather than the token level); two more live carriers of the Privacy-Lead naming drift (the media-handling procedure and the business-continuity plan); and two composite-era personal-data-breach notification routes in the dev-security quick references, all separated in the same commit. A dead test-comment pointer to the closed section 1.3 was also reworded.
+
+Four judgment points were resolved with logged canonical-source-supported defaults rather than guesses (the charter reframe, the breach-notification authority, the Executive-Committee rewiring, the Owner reconciliation), each recorded in pending-decisions with its revert context for the maintainer's morning. The census missed one carrier (the DSR register line's "CIO sign-off") that the orchestrator's full-section read caught at apply time, the research-assistant discipline's apply-time correction working as designed.
+
 ## 2026-07-03, Library Version 2026.07.77, PR #589
 
 The small-fixes batch: two answered corpus corrections and the GR-8(a) removal-ledger disposition pass, plus the #588 QA trio and its sweep's in-window fixes. Overnight mode begins at this PR's close (maintainer-confirmed).

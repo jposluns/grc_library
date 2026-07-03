@@ -2,8 +2,8 @@
 
 **Document Title:** Transfer Impact Assessment (TIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`privacy/jurisdictions/annex-privacy-european-union.md`](jurisdictions/annex-privacy-european-union.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
@@ -125,7 +125,7 @@ Re-run this assessment:
 | Cross-border data flow register reference | The register entry whose TIA-reference field points to this assessment. |
 | Assessor | Role that completed the TIA. |
 | Date completed | |
-| DPO review | Date of DPO (or acting DPO) review and the DPO's opinion on whether the transfer may proceed. |
+| DPO review | Date of DPO review and the DPO's opinion on whether the transfer may proceed. |
 | Approver | Role with authority to approve the transfer on the basis of this TIA. |
 | Date approved | |
 | Date of next scheduled review | Per Section 6. |

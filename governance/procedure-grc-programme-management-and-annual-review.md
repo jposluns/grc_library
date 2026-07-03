@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-03\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -259,11 +259,11 @@ Each quarterly report must include the following:
 
 ### 10.3 Residual risk acceptance
 
-10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organization's risk appetite threshold, the residual risk must be formally accepted in writing by the CIO or above.
+10.3.1 Where a risk treatment plan is concluded and a residual risk remains above the organization's risk appetite threshold, the residual risk must be formally accepted in writing by the authority the canonical acceptance chain assigns to the risk's severity (Executive Committee or Board Risk Committee for High or Critical residual risk; see [`governance/policy-exception-and-risk-acceptance-management.md`](policy-exception-and-risk-acceptance-management.md)).
 
 10.3.2 Written risk acceptance records are retained as evidence of informed decision-making. They are retained for 7 years and referenced in the risk register.
 
-10.3.3 Residual risks accepted at ERC level are reported in the annual GRC programme report.
+10.3.3 Residual risks accepted at Executive Committee or Board Risk Committee level are reported in the annual GRC programme report.
 
 ---
 

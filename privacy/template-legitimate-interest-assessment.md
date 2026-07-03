@@ -2,8 +2,8 @@
 
 **Document Title:** Legitimate Interest Assessment (LIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
@@ -107,7 +107,7 @@ Necessity is assessed against Recital 39 and the data-minimization principle: if
 | Record of Processing Activities reference | The activity identifier this LIA is linked from. |
 | Assessor | Role that completed the LIA. |
 | Date completed | |
-| DPO review | Date of DPO (or acting DPO) review and the DPO's opinion on whether the basis is available. |
+| DPO review | Date of DPO review and the DPO's opinion on whether the basis is available. |
 | Approver | Role with authority to approve reliance on the basis. |
 | Date approved | |
 | Date of next scheduled review | At minimum annual; sooner upon material change (per Section 4). |

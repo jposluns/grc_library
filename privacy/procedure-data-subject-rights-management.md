@@ -2,9 +2,9 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.4\
-**Date:** 2026-07-02\
-**Owner:** Chief Information Officer\
+**Version:** 1.6.6\
+**Date:** 2026-07-03\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
 **Classification:** Public\
@@ -44,18 +44,12 @@ The procedure is aligned to ISO/IEC 27701:2025 (PII principals' rights; section 
 
 | Role | Responsibilities |
 | --- | --- |
-| **Chief Information Officer (CIO, acting DPO)** | Accountable executive for the data subject rights programme. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Assumes DPO responsibilities until a formal DPO is appointed. Represents the organization in regulatory matters relating to data subject rights. |
-| **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. |
+| **Chief Information Officer (CIO)** | Accountable executive for the data subject rights programme. Escalation point for complex or contentious requests. |
+| **Data Protection Officer** | Operational ownership of the DSR process. Manages the DSR register, coordinates fulfilment, reviews responses for accuracy and completeness, and escalates complex or contentious requests to the CIO. Signs off on all denials, each carrying the mandatory independent Legal Counsel concurrence per Section 7.3. Represents the organization in regulatory matters relating to data subject rights. |
 | **Legal Counsel** | Advises on exemptions, applicable law, and denial justifications. Reviews and approves responses involving potentially litigation-sensitive information or novel legal questions. |
 | **CISO** | Ensures that technical measures are available to locate, extract, restrict, and delete personal data across systems. Provides guidance on AI system data retrieval and AI-derived data scope. |
 | **IT Operations / System Owners** | Execute data location, extraction, restriction, and deletion actions as directed by the Data Protection Officer within defined timeframes. |
 | **All Employees** | Forward any received data subject request to the Data Protection Officer immediately upon receipt. No employee may respond to, dismiss, or take action on a DSR without Data Protection Officer involvement. |
-
-### 2.2 Acting DPO status
-
-The CIO currently assumes all responsibilities normally assigned to a Data Protection Officer (DPO) as documented in [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §Governance and [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md). All references to DPO in this procedure refer to the CIO in that acting capacity until a formal appointment is made.
-
----
 
 ## 3. Rights catalogue
 
@@ -289,12 +283,12 @@ When the joint controllers or processors operate across multiple regimes, the st
 ### 7.3 Denial process
 
 1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
-2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: while the DPO role is exercised by the CIO in an acting capacity (Section 2.2), the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
-3. The CIO (acting DPO) signs off on the denial in writing before notification is sent to the data subject.
+2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
+3. The DPO signs off on the denial in writing before notification is sent to the data subject.
 4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (ICO, OPC, CAI, or other applicable authority).
-5. The denial, its grounds, the Legal Counsel concurrence, and the CIO sign-off are recorded in the DSR register.
+5. The denial, its grounds, the Legal Counsel concurrence, and the DPO sign-off are recorded in the DSR register.
 
-All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the CIO (acting DPO) before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
+All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the DPO before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
 
 ---
 
@@ -336,7 +330,7 @@ The Data Protection Officer maintains the DSR register as a living record of all
 
 ### 9.2 Retention
 
-DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and CIO sign-off records, are retained for 3 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 3 years post-closure).
+DSR records, including intake records, identity verification evidence, internal assessments, response copies, denial documentation, and DPO sign-off records, are retained for 3 years following the closure date of each request, consistent with the retention schedule in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) (Privacy / Data Subject Requests: 3 years post-closure).
 
 Records subject to regulatory investigation, litigation hold, or supervisory authority inquiry are retained until the hold is formally lifted by Legal Counsel, regardless of the standard retention period.
 
@@ -365,7 +359,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | **Average Response Time (days)** | Mean number of calendar days from request receipt to response delivery | Target: ≤ 25 days (ahead of the one-month deadline) |
 | **Identity Verification Failure Rate (%)** | Percentage of requests suspended or closed due to failure to verify identity | Tracked; used to assess intake process usability |
 | **AI-Related DSR Rate (%)** | Percentage of SARs that included AI-derived data elements in scope | Tracked; informs AI data governance programme |
-| **Escalations to CIO** | Number of requests escalated to CIO for denial sign-off or complex legal determination | Tracked |
+| **Escalations to CIO** | Number of requests escalated to CIO as complex or contentious | Tracked |
 
 ---
 

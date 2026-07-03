@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.14\
-**Date:** 2026-07-02\
+**Version:** 1.3.15\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -51,7 +51,7 @@ This procedure applies to:
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |
 | **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organization participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
-| **Privacy Lead / Acting DPO** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, and PIPL. |
+| **Data Protection Officer (DPO)** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, and PIPL. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
@@ -172,18 +172,18 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
-| **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours from confirmation | CISO / Privacy Lead to relevant supervisory authority; individuals where high risk |
-| **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | CIO (acting DPO) to Privacy Commissioner of Canada |
-| **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | CIO (acting DPO) |
-| **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / Privacy Lead to relevant authority |
+| **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours from confirmation | CISO / DPO to relevant supervisory authority; individuals where high risk |
+| **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | DPO to Privacy Commissioner of Canada |
+| **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | DPO |
+| **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | CISO / DPO to relevant authority |
 
 Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organization participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
 ### 6.2 GDPR and PIPEDA notification process
 
-1. The Privacy Lead assesses whether the incident involves personal data and whether the risk threshold for notification is met.
+1. The DPO assesses whether the incident involves personal data and whether the risk threshold for notification is met.
 2. Legal Counsel reviews and approves notification content before submission.
-3. The CIO (acting DPO) submits the regulatory notification and retains a copy in the incident record.
+3. The DPO submits the regulatory notification and retains a copy in the incident record.
 4. If notification cannot be completed within the regulatory window, the delay must be documented with reasons, and partial information submitted where permitted.
 
 ### 6.3 Sector-programme anomalies
@@ -294,13 +294,13 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 - Complete evidence capture: memory acquisition, disk images, SIEM exports, authentication and EDR telemetry (§5.2, §8.1).
 - Begin eradication once scope is confirmed: remove malware, persistence mechanisms, backdoors, and unauthorized accounts; rotate exposed credentials, API keys, and certificates; patch the root vulnerability (§5.3).
 - For a P1, engage the IR partner, authorized by the CISO (§3.1).
-- If personal data is involved, the Privacy Lead assesses impact and coordinates with the breach-response procedure (§2.1; see [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)).
+- If personal data is involved, the DPO assesses impact and coordinates with the breach-response procedure (§2.1; see [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)).
 
 **By 24 hours: recover, engage notification, track closure**
 
 - Validate eradication with a follow-on scan or forensic review before recovery (§5.3).
 - Recover: restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
-- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR 72 hours from awareness); Legal Counsel approves the content and the CIO, as acting DPO, submits (§6).
+- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR 72 hours from awareness); Legal Counsel approves the content and the DPO submits (§6).
 - Document the return-to-service date and the basis for confirming eradication (§5.4).
 - Initiate the post-incident review track, mandatory for P1 and P2, due within 5 business days of closure (§7.1).
 

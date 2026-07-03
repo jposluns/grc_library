@@ -2,9 +2,9 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.6\
-**Date:** 2026-07-02\
-**Owner:** Chief Information Officer\
+**Version:** 1.5.7\
+**Date:** 2026-07-03\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
 **Classification:** Public\
@@ -38,12 +38,12 @@ This procedure defines the process for conducting Privacy Impact Assessments (PI
 
 | Role | Responsibility |
 |---|---|
-| CIO (acting DPO) | Accountable for ensuring PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
+| Data Protection Officer (DPO) | Accountable for ensuring that PIAs and cross-border transfer reviews are completed in compliance with global privacy laws. |
 | CISO | Ensures that technical and organizational measures are implemented to mitigate identified risks. |
 | AIGC | Reviews AI-related impact assessments for ethical, transparency, and accountability alignment. |
-| Enterprise Risk Committee (ERC) | Approves high-risk processing activities requiring escalation beyond the CIO. |
+| Enterprise Risk Committee (ERC) | Oversight forum for high-risk processing activities; reviews escalations and monitors residual-risk acceptance decisions taken by the Executive Committee. |
 
-High-risk processing activities require CIO approval and ERC escalation.
+High-risk processing activities require DPO review and, where residual risk is accepted, Executive Committee acceptance per the canonical chain in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md).
 
 ---
 
@@ -58,7 +58,7 @@ High-risk processing activities require CIO approval and ERC escalation.
 - Introduction of AI or ML components.
 - Expansion of processing to new jurisdictions.
 
-The Project Owner must notify the Privacy Office or CIO (acting DPO) before data collection or processing begins. Where the processing is subject to GDPR (or an equivalent regime), the Project Owner must work through the Article 35(1) trigger checklist and the EDPB WP248 nine-criteria framework set out in Section 1 and Section 2 of [`privacy/template-dpia.md`](template-dpia.md) before concluding whether a DPIA is required.
+The Project Owner must notify the DPO before data collection or processing begins. Where the processing is subject to GDPR (or an equivalent regime), the Project Owner must work through the Article 35(1) trigger checklist and the EDPB WP248 nine-criteria framework set out in Section 1 and Section 2 of [`privacy/template-dpia.md`](template-dpia.md) before concluding whether a DPIA is required.
 
 ---
 
@@ -172,9 +172,9 @@ This step has **two distinct pathways**: an internal governance pathway and a re
 
 #### Step 5.1: Internal escalation pathway (organization governance)
 
-- The CIO (acting DPO) reviews all completed PIAs and transfer assessments.
+- The DPO reviews all completed PIAs and transfer assessments.
 - For AI systems or high-risk processing, the AIGC conducts additional review per ISO/IEC 42005:2025 and EU AI Act Annex IV.
-- If residual risk remains **high**, executive sign-off by the ERC and Legal Counsel is required before go-live.
+- If residual risk remains **high**, the DPO provides a written advisory opinion and the Executive Committee accepts the residual risk, with Legal Counsel sign-off, before go-live (the ERC monitors the escalation).
 
 This is the organization's internal governance check. It is necessary but not sufficient where the Article 36 regulatory pathway in Step 5.2 also applies.
 
@@ -202,12 +202,12 @@ The Article 36 trigger is distinct from the internal Step 5.1 trigger. The inter
 **Interaction with the internal escalation pathway (Step 5.1).** The order of operations for a processing activity that triggers both pathways:
 
 1. DPIA complete with residual-risk assessment.
-2. Where residual risk is high, the CIO (acting DPO) initiates Article 36 prior consultation with the lead supervisory authority (per the one-stop-shop mechanism for cross-border processing, or with each affected supervisory authority for processing not subject to the one-stop-shop).
+2. Where residual risk is high, the DPO initiates Article 36 prior consultation with the lead supervisory authority (per the one-stop-shop mechanism for cross-border processing, or with each affected supervisory authority for processing not subject to the one-stop-shop).
 3. Supervisory authority responds with written advice or corrective measures within the Article 36(2) timeline.
 4. Controller adjusts the processing per the supervisory authority's response, or decides to abandon the processing.
-5. Internal ERC sign-off on the adjusted processing for go-live (Step 5.1).
+5. Internal Executive Committee acceptance of the adjusted processing for go-live (Step 5.1).
 
-The Article 36 pathway is regulatory and external; the ERC pathway is governance and internal. Both must be cleared before high-residual-risk processing begins.
+The Article 36 pathway is regulatory and external; the internal escalation pathway is governance and organizational. Both must be cleared before high-residual-risk processing begins.
 
 **Non-EU equivalents.** Other jurisdictions have analogous prior-consultation regimes; consult the per-jurisdiction triggers and timelines in [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md). Notable examples: LGPD Article 38 (Brazil, ANPD prior consultation); PIPL Articles 55-56 (China, CAC security assessment for high-risk transfers); UK GDPR Article 36 (post-Brexit retained equivalent). The trigger thresholds, content requirements, and timelines vary by regime.
 
@@ -217,7 +217,7 @@ Both pathways must be evidenced. Records retained per Step 6:
 
 | Pathway | Required records |
 |---|---|
-| Step 5.1 (internal escalation) | ERC meeting minutes recording the high-residual-risk processing; Legal Counsel sign-off memo; residual-risk acceptance signature by the CIO (acting DPO) |
+| Step 5.1 (internal escalation) | ERC meeting minutes recording the high-residual-risk processing; the DPO's written advisory opinion; Legal Counsel sign-off memo; residual-risk acceptance signature by the Executive Committee |
 | Step 5.2 (Article 36 prior consultation) | Article 36(3) consultation packet as sent to the supervisory authority; supervisory authority's written response (advice or corrective measures); the controller's response to the supervisory authority (adjustments made or decision to abandon); evidence of adjustment to processing prior to go-live |
 
 ---
