@@ -56,7 +56,9 @@ guardrail set. Ship (a) and (b) together as one small tooling PR at the head of 
   runners directly). Defence in depth under (a).
 - **(c) (L, XS) CLAUDE.md widening (authorized-touch bundle).** Widen the RM-10 clause from
   the guard to any verification command, naming the wrapper and hook; bundle with the #614
-  retro's enumeration-grep checklist example on the same authorized CLAUDE.md touch.
+  retro's enumeration-grep checklist example on the same authorized CLAUDE.md touch. (The
+  clause's incident count, the Sweep 83 F2 note finding, was already refreshed to four in
+  the Sweep-83 close-out PR under the pre-authorized factual one-liner class.)
 
 ## Priority 2 — Fill significant gaps
 

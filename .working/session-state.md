@@ -4,9 +4,9 @@
 
 **Status:** released
 
-**Last-heartbeat-UTC:** 2026-07-03T18:18:51Z
+**Last-heartbeat-UTC:** 2026-07-03T19:45:00Z
 
-**Current-task:** none (session closed at the #616 handoff PR; maintainer-directed wind-down, next primary account takes over)
+**Current-task:** none (session closed at the #617 combined Sweep-83-close-out + handoff PR; maintainer-directed wind-down on usage budget; next session runs the maintainer-authorized THIN resume per the handoff, starting at the section-1.9 RM-10 hardening PR)
 
 **Worker-dispatches:** none
 
