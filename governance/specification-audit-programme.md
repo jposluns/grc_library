@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.16.40\
+**Version:** 1.16.41\
 **Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ The gates fall into the following functional categories:
 6. **Security and privacy** (gates 12, 21, 22, 23): placeholder leakage, secret patterns, PII patterns, internal-environment leakage (cloud regions, hostnames, deployment identifiers).
 7. **Freshness and lifecycle** (gates 10, 27, 28, 29, 30, 31, 33, 34, 43, 45, 46): document review cadence, citation-verification freshness, tooling-provenance freshness, auto-generated taxonomy in sync (gate 33), auto-generated adopter portal and maturity scorecard in sync (gate 34), metadata Date staleness against the file's most-recent git commit date (gate 31, which also fails loud on a present-but-malformed Date value rather than skipping the file), follow-up ageing in the validation-sweep history register, verifying that each deferred-finding entry's re-triage-by deadline has not lapsed without a fresh re-triaged trailer (gate 43, mechanizes Rule 3 of the maintenance-tag dating discipline introduced in PR #90), TODO staleness, verifying that [`TODO.md`](../TODO.md) does not still reference a queued PR that has merged and that the resume cursor in [`.working/session-handoff.md`](../.working/session-handoff.md) is not behind the most-recent [`.working/validate-sweeps/history.md`](../.working/validate-sweeps/history.md) row (gate 45, added after four consecutive validation sweeps surfaced the same TODO-drift pattern), and overnight-work-file enforcement, verifying that [`.working/overnight-pr.md`](../.working/overnight-pr.md) carries a `Status:` value of `stub` (no overnight in flight) or `in-flight` (overnight session active), failing on `done` (overnight session ended but morning processing PR has not yet routed the file's content into the appropriate working-state ledgers; gate 46, codifies the overnight-work protocol).
 
-Categorization is descriptive, not prescriptive: a gate may bear on multiple categories. Categories exist to help reviewers reason about coverage. The category list is orthogonal to the §6 numeric order: gates are numbered by **append order** (each new gate takes the next free number at the tail of §6, so adding one never renumbers the meta-gates above it), not regrouped by category, so a category's gate list is non-contiguous by design (for example category 3 holds gates 5, 6, 25, 48, 49, 54, 55, 58). §5 is the functional view; §6 is the canonical numbered inventory.
+Categorization is descriptive, not prescriptive: a gate may bear on multiple categories. Categories exist to help reviewers reason about coverage. The category list is orthogonal to the §6 numeric order: gates are numbered by **append order** (each new gate takes the next free number at the tail of §6, so adding one never renumbers the meta-gates above it), not regrouped by category, so a category's gate list is non-contiguous by design (for example category 3 holds gates 5, 6, 25, 48, 49, 54, 55, 58, 61). §5 is the functional view; §6 is the canonical numbered inventory.
 
 ## 6. Gate inventory (current)
 

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #595: 3.15 machinery wave 2a: D5 closure-form widening, gate-60 scoped parse, gate-39 vanished-file tolerance (2026-07-03)
+
+Three routed section-3.15 tooling bullets closed in one mechanical batch: D5's form 3 gains the bullet(s) noun and a decimal-dot-tolerant clause run (census: three new hits, all true positives) with form 6's short guarded rotation assertion, gate 60 counts only section-6 inventory rows, and gate 39 skips files that vanish mid-scan. The GR-6 census results are recorded on its TODO bullet with the gate-60 sequencing prerequisite.
+
 ### PR #593: MEA02 title-and-fit pass: two title fixes + four MEA04 recodes; section 3.14 closed (2026-07-03)
 
 The routed MEA02 finding judged per carrier at the held extract: the CAPA procedure and document-review template keep MEA02 with the canonical title, the audit-planning procedure, internal-audit standard, assurance-map register (with its doc-index companion), and AI-audit procedure recode to MEA04 Managed Assurance; the low-severity cleanup batch (section 3.14) fully closed and rotated.
