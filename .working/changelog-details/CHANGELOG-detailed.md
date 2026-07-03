@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.88, PR #600
+
+FR-48 document 6 of 13, the IAM-policy hybrid-SHIFT renumber with the 31-clause inline lockstep and zero citer edits, plus the #599 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) (1.3.4 to 1.3.5): the hybrid-SHIFT renumber with inline-clause lockstep: 5 unnumbered H2s prefix-added in document order (`## 1. Purpose`, `## 2. Scope`, `## 3. Governance and accountability`, `## 4. Policy statements`, `## 5. Framework alignment`); the ten `### 1.` to `### 10.` H3s under Policy statements become `### 4.1` to `### 4.10`; all 31 line-initial inline prose clauses remap `N.M` to `4.N.M` (`1.1` to `4.1.1` through `10.2` to `4.10.2`; maximum depth three levels, no IPv4-shaped token arises). 48 changed lines total, exactly the keyed set: 15 headings + 31 clauses + Version/Date. The external collision field verified intact by the 17-pattern invariant re-parse: the framework table's ISO/IEC 27002 `§8.2`/`§8.3`/`9.1 to 9.4` collide byte-identically with the document's old clause tokens 8.2/8.3/9.1 and were protected by the line-start-anchored, line-keyed apply; `A.8.2`/`A.8.5` and the other Annex A codes, NIST `SP 800-63B`/`SP 800-53 AC-2, AC-6`, CSA CCM `IAM-01 to 09`/`IAM-10`/`IAM-14`, the `DSS05` codes, the `2 years`/`24 hours`/`15 business days` retention and SLA values, and `BASC Section 6` (in clause 4.3.1) all count-unchanged; the Scope markdown list markers `1.` to `4.` stay per the doc-5 precedent.
+- No citer edits: the census (55 path-reference lines across 29 files plus 15 additional non-path title-phrase lines, every line read) found ZERO inbound section-number citations of this document; the register and matrix `§8.3`/`§8.5` candidates were refuted as external BASC chapter row keys, the OT standard's `7.1.2` as its own clause, and the "Identity and Access Management Policy and Procedures" strings in [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) and the gap register as the CSA CCM IAM-01 control's own title (untouched).
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): document 6 annotated done; 7 of 13 remain (31 checked, 7 unchecked, 38 total). [`TODO.md`](../../TODO.md): the section-1.1 residual count re-anchored to 7 and the identity-and-access-management renumber added to the completed enumeration (#596 through #600).
+
+### Verification
+
+The high-assurance harness ran: stage-1 research with the full heading/clause/citer census (the HEADINGS and CLAUSES dicts and the lookalike-invariant table populated from fresh greps at authoring time per the #598 lesson); a dry-run-validated, line-keyed deterministic apply with per-line pre-asserts, a changed-line-set equality check, and a post-apply invariant re-parse (H2 sequence 1 to 5, H3s 4.1 to 4.10 sequential, 31 new-form clauses, zero old-form residual, zero IPv4-shaped tokens, all 17 lookalike counts unchanged, Scope list markers untouched); two independent adversarial verifiers (false-negative and false-positive lenses, foreground-mandated with the new persisted-output rail) ran post-apply pre-push. All 61 gates pass standalone; suite 287 OK; generators regenerated in order (taxonomy first) and check-clean; pre-push guard green.
+
+### Discipline observations
+
+The #599 sweep's first dispatch surfaced a NEW background-agent stall shape (documented in the #599 retro row): a consolidated diff overflowed to a persisted-output file outside the agent's sandbox, the follow-up read was permission-rejected, and the rejection's wait-for-user instruction halted the unattended agent. Detection was the standing 60/90-second liveness SOP; recovery was probe-then-RESUME (context preserved, the four verified steps not re-run), cheaper than the kill-and-redispatch the self-backgrounded-command shape requires. Sweep and verifier briefs now carry a rail: never read persisted-output paths outside the sandbox; re-run the command scoped smaller inside the repo.
+
 ## 2026-07-03, Library Version 2026.07.87, PR #599
 
 FR-48 document 5 of 13, the hybrid-SHIFT renumber of the encryption policy with three citer remaps and the pack co-bump, plus the #598 QA trio. Continues the 2026-07-03 overnight run.
