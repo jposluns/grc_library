@@ -157,6 +157,7 @@ run_gate "Per-document ISO Annex A validity audit"       python3 tools/lint-docu
 run_gate "CHANGELOG mirror header-parity audit"          python3 tools/lint-changelog-mirror-header-parity.py
 run_gate "Guardrail-review cadence audit"                python3 tools/lint-guardrail-cadence.py
 run_gate "COBIT/ISO 31000 citation-existence audit"      python3 tools/lint-cobit-iso31000-citations.py
+run_gate "Cross-file section-reference audit"            python3 tools/lint-cross-file-section-refs.py
 
 # ----------------------------------------------------------------------
 # Summary

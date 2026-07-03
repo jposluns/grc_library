@@ -5,7 +5,8 @@ Validates that every relative markdown link target inside the repository
 resolves to a file that exists. External-scheme targets (``http://``,
 ``https://``, ``mailto:``, ``tel:``, ``ftp:``) are treated as external
 and skipped. Anchors after ``#`` are not validated (gate 17,
-lint-section-anchors.py, validates intra-doc anchor resolution).
+lint-section-anchors.py, validates anchor resolution, same- and
+cross-document).
 
 Fenced code blocks are skipped: link-like text inside ```` ``` ```` is
 documentation of link syntax, not a real link.
