@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T13:59:55Z
+**Last-heartbeat-UTC:** 2026-07-03T15:04:35Z
 
-**Current-task:** section-3.7 concurrency-lease PR (lease file + gate + resume step 0), then the section-3.6 worker-provenance gate
+**Current-task:** section-3.6 close-out PR (worker-provenance attestation activated in gate 50), then the section-3.15 wave-2 remainder
 
 **Worker-dispatches:** none
 

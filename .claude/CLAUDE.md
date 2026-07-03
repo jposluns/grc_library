@@ -271,6 +271,12 @@ is external. Two mechanisms:
      [`.working/session-metrics.md`](../.working/session-metrics.md) row are refreshed too
      (scoped to what this session actually verified; orchestrator main-loop tokens
      recorded as `not instrumented`, never fabricated; never placed in `CHANGELOG.md`).
+   - **Worker-provenance marker** (the gate-50 check-3 convention): if this PR applied a
+     scratch-inbox worker delivery, the detailed-mirror CHANGELOG entry carries a
+     `**Worker provenance:**` line naming the delivery path (normally
+     `inbox/<worker-id>/MANIFEST.md`). Gate 50 validates the marker's shape; whether an
+     application is MARKED at all is this checklist line's job (free prose, not
+     mechanizable), the same convention-level residual as the QA-abbreviation half.
    - The **session-concurrency lease** [`.working/session-state.md`](../.working/session-state.md)
      heartbeat is re-stamped (`date -u +%Y-%m-%dT%H:%M:%SZ`) in the same refresh batch, and
      its `Current-task` / `Worker-dispatches` lines are updated if stale. Lifecycle:

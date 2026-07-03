@@ -142,14 +142,17 @@ def main() -> int:
 
     missing, invalid = check_text(text)
 
+    # Report BOTH classes before exiting so coexisting defects surface in
+    # one run; a missing field still takes exit-code precedence (2 over 1).
+    for message in missing:
+        print(f"ERROR: {rel}: {message}", file=sys.stderr)
+    for message in invalid:
+        print(f"FAIL: {rel}: {message}", file=sys.stderr)
+
     if missing:
-        for message in missing:
-            print(f"ERROR: {rel}: {message}", file=sys.stderr)
         return 2
 
     if invalid:
-        for message in invalid:
-            print(f"FAIL: {rel}: {message}", file=sys.stderr)
         return 1
 
     print(f"OK: {rel} lease is well-formed.")
