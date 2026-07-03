@@ -1820,6 +1820,22 @@ class GateCountConsistencyTests(LinterTestCase):
         result = run_linter("tools/lint-gate-count-consistency.py", fixture)
         self.assertLinterFails(result)
 
+    def test_vanished_file_skipped(self) -> None:
+        # A file can vanish between rglob discovery and read when the
+        # regression suite runs concurrently in the same tree (the routed
+        # #577 sweep I2); scan_file must skip it, not crash. Exercised at
+        # the unit level: scan_file on a nonexistent path returns no
+        # findings instead of raising FileNotFoundError.
+        import importlib.util
+        lpath = REPO_ROOT / "tools" / "lint-gate-count-consistency.py"
+        spec = importlib.util.spec_from_file_location("lint_gate_count_consistency", lpath)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        ghost = REPO_ROOT / "tests" / "no-such-transient-fixture.md"
+        self.assertFalse(ghost.exists())
+        counts = {"gate": 1, "rule": 1, "skill": 1}
+        self.assertEqual(mod.scan_file(ghost, counts), [])
+
     def test_stale_automated_audits_count_flagged(self) -> None:
         # P8: the "N automated audits" idiom (the audit programme
         # referred to by its audits rather than its gates). "0 automated
@@ -4979,8 +4995,14 @@ class GuardrailCadenceTests(LinterTestCase):
             (root / f"dev-security/claude-rules/governance/{name}.md").write_text("# r\n", encoding="utf-8")
         (root / ".claude/commands/one.md").write_text("# c\n", encoding="utf-8")
         spec_rows = "".join(f"| {n} | Gate {n} | x |\n" for n in range(1, gates + 1))
+        # The gate count is parsed from the section-6 region only (mirroring
+        # gates 35 and 39); the trailing decoy table pins the scoping: its
+        # numeric-first-cell rows sit outside section 6 and must not count.
         (root / "governance/specification-audit-programme.md").write_text(
-            "# Spec\n\n| # | Gate | Script |\n|---|---|---|\n" + spec_rows, encoding="utf-8"
+            "# Spec\n\n## 6. Gate inventory (current)\n\n"
+            "| # | Gate | Script |\n|---|---|---|\n" + spec_rows
+            + "\n## 7. Notes\n\n| # | Thing |\n|---|---|\n| 99 | decoy |\n| 98 | decoy |\n",
+            encoding="utf-8",
         )
         row = f"| 2026-07-02 | r1 | lenses | f | pr | d | Baseline; {recorded}. |\n" if with_row else ""
         (root / self.HISTORY_REL).write_text(
@@ -5221,6 +5243,13 @@ class TodoRotationOnPrTests(unittest.TestCase):
             # re-classifies it.
             "GR-2 closed (rotated to the DONE ledger), the first machinery item.",
             "the two flat-valued AI rows rotated to the DONE ledger.",
+            # Widened form 3 (2026-07-03): the "bullet(s)" noun plus the
+            # decimal-dot-tolerant clause run (the #592 mirror evasion, where
+            # "section-3.14"'s dots blocked the old [^.\n] run outright).
+            "Closes the section-3.14 fit-pass and retirement-recording bullets.",
+            "Closes the \u00a75.3 deferred-classifications backlog item.",
+            # Widened form 6 (2026-07-03): the short rotation assertion.
+            "the third-batch bullet rotated to DONE with the intro re-counted.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
@@ -5231,6 +5260,10 @@ class TodoRotationOnPrTests(unittest.TestCase):
         m = self._load()
         for line in (
             "rotated TODO §4.5 S4 into DONE.md, closing the #466 finding.",
+            # The form-6 not-negation guard (2026-07-03): negated narration is
+            # not a rotation assertion (the two census hits).
+            "TODO §1.5 is NOT rotated to DONE (the ATLAS residual holds it open).",
+            "Recorded in TODO; not rotated to DONE.",
             "TODO §4.10 + P3 docs updated; the complementary check remains.",
             "the close-TODO-to-DONE rotation discipline",
             "Resolves the two pending maintainer decisions.",

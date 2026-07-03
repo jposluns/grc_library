@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.83, PR #595
+
+Section-3.15 machinery wave 2a: the D5 closure-form widening, the gate-60 scoped parse, the gate-39 vanished-file tolerance, and the #594 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py) (D5): form 3's noun set gains `bullets?` and its tempered clause run admits a dot between digits only (the #592 mirror's "Closes the section-3.14 fit-pass and retirement-recording bullets" evaded BOTH ways: the noun was missing and the section token's dots blocked the old `[^.\n]` run outright; the widened census over both CHANGELOG files found three new hits, all true positives, including a second recovered historical evasion whose section-sign token had blocked the existing noun set). Form 6 gains the short "rotated to DONE" variant behind a fixed-width not-lookbehind (the 22-hit census: 20 genuine same-PR rotation assertions, 2 "NOT rotated to DONE" negations the guard excludes). Docstring form descriptions updated; three positive and two negation unit cases added.
+- [`tools/lint-guardrail-cadence.py`](../../tools/lint-guardrail-cadence.py) (gate 60): the live gate count is scoped to the section-6 inventory region (the same region gates 35 and 39 parse), closing the routed #577 sweep L2 (a future numeric-first-cell table elsewhere in the spec would have inflated the count and manufactured spurious drift). The regression fixture's synthetic spec gains the section-6 heading and a trailing decoy table that pins the scoping (a whole-file count would now warn in the zero-drift test). Live behaviour unchanged today (drift 2, warning state, verified pre- and post-change).
+- [`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py) (gate 39): `scan_file` tolerates `FileNotFoundError` (the routed #577 sweep I2: a transient tests fixture vanishing between rglob discovery and read crashed a concurrent run; serial CI unaffected), and the word-map comment drops its line-wrapped stale collection counts (the census worker's incidental catch: the wrap put the digit and its noun on different lines, invisible to gate 39's own line-based patterns).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.40 to 1.16.41): the section-5 category-3 example list gains 61 (it was exhaustive when written and read as stale after gate 61 shipped; the census worker's second incidental catch).
+- [`TODO.md`](../../TODO.md): the three closed section-3.15 tooling bullets rotated to [`DONE.md`](../DONE.md); the GR-6 bullet gains the census results (description floor 35, appended floor 47, the gates-43/44 backfill note, and the sequencing prerequisite that a /guardrails review must land before or with the new gate because the machinery drift would reach the gate-60 fail threshold).
+- [`tests/test_linters.py`](../../tests/test_linters.py): suite 286 to 287 (the gate-39 vanished-file unit test; the D5 cases live inside the existing positive and negative methods; the gate-60 fixture decoy is pinned by the existing zero-drift assertion).
+
+### Verification
+
+The two D5 widenings were census-tested over the full CHANGELOG history before shipping (form 3: three new hits, zero false positives; form 6: two negations surfaced and excluded by the guard). All three modified gates re-run against the live repo with unchanged pass/warn behaviour; suite 287 OK; all 61 gates pass standalone; generators check-clean; pre-push guard green.
+
+### Discipline observations
+
+The #594 retro row carries the sweep's L-1 lesson: Sweep 33 flagged the licence duplication in June and the refutation grep was formatting-sensitive (it searched the plain token pair and could not match the bold-marked text), so a true positive was recorded as a refuted hallucination and the defect shipped five more weeks; a refutation search is subject to the same bare-token/pattern-width rule as a completion search. The census-first shape (mandated by the routed bullets) caught a latent form-3 under-match that the named widening alone would not have fixed.
+
 ## 2026-07-03, Library Version 2026.07.82, PR #594
 
 FR-48 document 1 of 13: the internal-audit standard's intra-refs to canonical form, plus the #593 sweep's two in-window fixes and the #593 QA trio. Continues the 2026-07-03 overnight run.

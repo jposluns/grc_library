@@ -84,6 +84,8 @@ DATA_ROW_RE = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
 # A section-6 inventory table data row: "| <gate number> | ...".
 GATE_ROW_RE = re.compile(r"^\|\s*\d+\s*\|")
+SECTION_6_RE = re.compile(r"^## 6\.")
+SECTION_END_RE = re.compile(r"^## ")
 
 
 def recorded_inventory(text: str) -> tuple[dict[str, int], str] | None:
@@ -111,7 +113,19 @@ def live_inventory(root: Path) -> dict[str, int] | None:
     spec_text = read_text_safe(root / SPEC) if (root / SPEC).is_file() else None
     if spec_text is None:
         return None
-    gates = sum(1 for ln in spec_text.splitlines() if GATE_ROW_RE.match(ln))
+    # Scope the row count to the section-6 inventory (the same region gates
+    # 35 and 39 parse): a future numeric-first-cell table elsewhere in the
+    # spec must not inflate the live gate count (the routed #577 sweep L2).
+    gates = 0
+    in_section_6 = False
+    for ln in spec_text.splitlines():
+        if SECTION_6_RE.match(ln):
+            in_section_6 = True
+            continue
+        if in_section_6 and SECTION_END_RE.match(ln):
+            break
+        if in_section_6 and GATE_ROW_RE.match(ln):
+            gates += 1
     rules = len(list((root / RULES_DIR).glob("*.md")))
     skills = len(list((root / SKILLS_DIR).glob("*/SKILL.md")))
     commands = len(list((root / COMMANDS_DIR).glob("*.md")))
