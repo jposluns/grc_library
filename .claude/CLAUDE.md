@@ -365,9 +365,9 @@ is external. Two mechanisms:
      pipe-permitting proximity form (`grep -E 'TOKEN1.{0,80}TOKEN2'`, plus the reversed
      window where token order can vary), never as an adjacent-phrase literal, because a
      table-cell pipe, a parenthesis, or a word-order variant defeats the literal phrase
-     while the defect survives (the #603 and #606 first-commit zero-residual claims were
-     both refuted pre-push this way; in #606 the literal grep missed four carriers that
-     the proximity form caught).
+     while the defect survives (first-commit zero-residual claims were refuted pre-push in
+     both #603 and #606; in #606 specifically the adjacent-phrase-literal grep was
+     pipe-defeated by table cells and missed four carriers the proximity form caught).
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py

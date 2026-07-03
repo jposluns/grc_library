@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #607: FR-48 (section 1.1): H2 numbering-pattern entangled residual, series complete (2026-07-03)
 
-The final entangled document (information-security policy, 33 clauses plus the carried 27002 cell fix) renumbered in #607, completing the 38-document FR-48 worklist: 25 safe-subset docs through #548, the internal-audit standard confirmed canonical in #594, and the 12 entangled docs one per PR in #596 through #607 under the full HA harness. Section 1.1 closed and rotated.
+The final entangled document (information-security policy, 33 clauses plus the carried 27002 cell fix) renumbered in #607, completing the 38-document FR-48 deferred worklist: the first 25 deferred docs through #548, the internal-audit standard confirmed canonical in #594, and the 12 entangled docs one per PR in #596 through #607 under the full HA harness (the separate 28-doc safe subset was normalized in #520). Section 1.1 closed and rotated.
 
 ### PR #595: 3.15 machinery wave 2a: D5 closure-form widening, gate-60 scoped parse, gate-39 vanished-file tolerance (2026-07-03)
 
