@@ -1,7 +1,7 @@
 # CLAUDE.md considerations (removal ledger)
 
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
 ## Purpose
@@ -45,7 +45,7 @@ The pointer from CLAUDE.md to this file is the condense note at the top of
 
 ## RM-1: PRIMORDIAL RULE provenance and checkpoint-calibration aside
 
-**Section:** `## PRIMORDIAL RULE` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## PRIMORDIAL RULE` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -67,11 +67,13 @@ this rule exists".
 
 **Evidence the removal was wrong (watch for):** a proposal to add per-operation integrity-check triggers, or confusion about why the checkpoint list is only four items. If seen, restore the calibration parenthetical.
 
+**Disposition pass (2026-07-03, GR-8(a)):** No proposal for per-operation triggers and no checkpoint-list confusion in any post-#441 record (improvement-log #442 to #588 searched).
+
 ---
 
 ## RM-2: Date/timezone PR #187 gate-31 war-story
 
-**Section:** `## Date and timezone convention` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Date and timezone convention` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -91,11 +93,13 @@ day, and the visible "drift" is one of presentation only.
 
 **Evidence the removal was wrong (watch for):** a recurrence of gate-31 date-boundary confusion, or a maintainer or agent re-litigating "local or UTC?", that the retained one-liner did not prevent. If seen, restore the example or add a `(see PR #187)` pointer.
 
+**Disposition pass (2026-07-03, GR-8(a)):** The #187 edge class recurred once (#547: the UTC date rolled mid-commit) and the pre-push guard's D4 caught it mechanically with no re-litigation of the UTC rule; the retained convention sufficed.
+
 ---
 
 ## RM-3: PR-workflow step 1 commit-graph-gate rationale
 
-**Section:** `## PR workflow` step 1 | **Removed in:** PR #441 | **Status:** open
+**Section:** `## PR workflow` step 1 | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -124,11 +128,13 @@ Git-history-aware gates
 
 **Evidence the removal was wrong (watch for):** a recurrence of a gate-40 or gate-31 failure traced to running the audit only on the final working tree rather than after each commit, or an agent asking why the pre-push runner re-invokes gates that `run_all_audits.sh` already ran. If seen, restore the commit-graph explanation.
 
+**Disposition pass (2026-07-03, GR-8(a)):** Near-moot: the compressed rationale survives in PR-workflow step 1 (the history-aware gates 40/31/45 see only committed state). The one between-commits lapse (#516) was a discipline slip, not a comprehension gap, and was self-caught pre-push.
+
 ---
 
 ## RM-4: PR-workflow step 5a handoff-PR loop mechanics
 
-**Section:** `## PR workflow` step 5a | **Removed in:** PR #441 | **Status:** open
+**Section:** `## PR workflow` step 5a | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -158,11 +164,13 @@ full reasoning. This is de-duplication, not a content cut.
 
 **Evidence the removal was wrong (watch for):** an agent running `/validate-pr` on a session-closing handoff PR (the exact loop the exception prevents), or asking why the handoff PR skips QA. If seen, the pointer to item 3 was insufficient; restore the inline explanation in 5a.
 
+**Disposition pass (2026-07-03, GR-8(a)):** No handoff PR ran the trailing QA and no one questioned the exception. The #450/#451 marker-cell recurrence was a different defect in the same neighbourhood, closed by the #452 step-5a rewrite.
+
 ---
 
 ## RM-5: PR-workflow step 5c compensating-signal rationale
 
-**Section:** `## PR workflow` step 5c | **Removed in:** PR #441 | **Status:** open
+**Section:** `## PR workflow` step 5c | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -186,11 +194,13 @@ why; the full reasoning is also in `## Session migration` item 3.
 
 **Evidence the removal was wrong (watch for):** a proposal to run a second corpus-wide `/validate` at session close, or confusion about what the asserted-expectations section is for. If seen, restore the rationale.
 
+**Disposition pass (2026-07-03, GR-8(a)):** No second-close-time-sweep proposal appeared, and the asserted-expectations cross-check demonstrably functioned as designed (#458: Sweep 75 escalated against the #457 handoff assertion).
+
 ---
 
 ## RM-6: Session-migration checklist inline war-stories
 
-**Section:** `## Session migration and PR close-out checklist` item 2 | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Session migration and PR close-out checklist` item 2 | **Removed in:** PR #441 | **Status:** inspired-change (PR #576, 2026-07-02)
 
 **Removed text (verbatim):**
 
@@ -233,11 +243,13 @@ P4.6-companion framing) is retained; the "added after two misses" provenance is 
 
 **Evidence the removal was wrong (watch for):** a recurrence of any of the named failure classes (metadata-Version without a history row; a coded-value migration leaving stale description prose; a same-file convention-revision missing a sibling cell; an em-dash or British -ise in new pack prose; a paired-bookkeeping-surface miss), which would mean the de-motivated check stopped being followed. If any recurs, restore that item's war-story parenthetical.
 
+**Disposition pass (2026-07-03, GR-8(a)):** Three of the five war-story classes recurred (sibling-carrier survivals #568/#571/#579/#587; the #580 bare-token violation on the same register family #443 taught; the repeated paired-surface misses #495/#569). The durable answers were mechanical (gate 50, gate 57 in #468, the D5 PR-time closure check in #469 broadened to three forms in #501 and six in #576) plus new, more specific inline war-stories in the current checklist. #580, a violation of a rule whose war-story sat inline beside it, is the evidence that restoring the OLD parentheticals would not prevent recurrence; the text stays out and the class is answered by gates.
+
 ---
 
 ## RM-7: Session-migration item 3 byte-identical-corpus rationale
 
-**Section:** `## Session migration and PR close-out checklist` item 3 | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Session migration and PR close-out checklist` item 3 | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -259,11 +271,13 @@ asserted-expectations and green-at-sha; `/resume` cross-checks). De-duplication.
 
 **Evidence the removal was wrong (watch for):** same signal as RM-5 (a proposal to add a second close-time sweep). If seen, restore one of RM-5 or RM-7.
 
+**Disposition pass (2026-07-03, GR-8(a)):** Same searches as RM-5; no occurrence.
+
 ---
 
 ## RM-8: Wind-down framework opening war-story and provenance
 
-**Section:** `## Wind-down decision framework` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Wind-down decision framework` | **Removed in:** PR #441 | **Status:** inspired-change (PR #460, 2026-06-29)
 
 **Removed text (verbatim):**
 
@@ -293,11 +307,13 @@ failure the clarify rules forbid").
 
 **Evidence the removal was wrong (watch for):** a wind-down surfaced on an un-instrumented "context is heavy / feels long" justification (the exact 2026-06-28 incident), or a silent handoff with no surfaced decision. If seen, restore the provenance that anchored the un-observable-state bar.
 
+**Disposition pass (2026-07-03, GR-8(a)):** The signal fired in full (the maintainer's 13-of-15 observation, two in-session wind-down proposals) and #460 rewrote the wind-down framework (continue-by-default, the invalid-trigger list, the calibration bar), superseding the removed provenance outright.
+
 ---
 
 ## RM-9: Throughput-pressure Sweep 22 corrective-action detail
 
-**Section:** `## Throughput pressure does not authorize QA abbreviation` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Throughput pressure does not authorize QA abbreviation` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -319,6 +335,8 @@ a one-line reference to Sweep 22 as the motivating incident.
 **Potential risk:** A reader loses the specifics (four errors, 11 PRs, the "abbreviated spot-check" phrasing) that make the prohibition vivid, and might rationalize an abbreviated check.
 
 **Evidence the removal was wrong (watch for):** any "abbreviated /validate-pr, 0 findings" or equivalent informal-substitute record reappearing in a history row. If seen, restore the Sweep 22 detail.
+
+**Disposition pass (2026-07-03, GR-8(a)):** No post-#441 abbreviated-QA record exists (every 'abbreviated' history row is the pre-#441 Sweep-22 era); near-moot besides, the Throughput section retains the Sweep-22 substance.
 
 ---
 
@@ -360,11 +378,13 @@ Option-A payoff (the guard first lets the prose collapse to a pointer).
 
 **Evidence the removal was wrong (watch for):** a gate-40 or gate-31 or D2 or D4 failure reaching CI (meaning the guard did not catch it and the manual prompt was not there as backup), or an agent pushing without the guard. If seen, restore the four-question operationalization as the documented fallback.
 
+**Disposition pass (2026-07-03, GR-8(a)):** Reviewed 2026-07-03, stays open: two pipe-masked guard exits let pushes past a FAILING guard (#569, #583), a variant the removed four questions would not have prevented (they ask whether the runners passed, and the masked output is exactly what misled). The uncodified remedy (run the guard standalone and unpiped, read its exit before the chained push) is queued as a morning decision (protected-tree CLAUDE.md edit; pending-decisions entry 2026-07-03).
+
 ---
 
 ## RM-11: Behavioral-rule clarify rationale and Karpathy provenance
 
-**Section:** `## Behavioral rule: clarify before acting` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Behavioral rule: clarify before acting` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -391,11 +411,13 @@ attribution remains in the pack rule's own provenance.
 
 **Evidence the removal was wrong (watch for):** a licence or attribution question about the clarify rule's origin, or confusion about how this section relates to the audit programme. If seen, restore the attribution line.
 
+**Disposition pass (2026-07-03, GR-8(a)):** Zero post-#441 hits for the provenance question across every durable record.
+
 ---
 
 ## RM-12: Communication-conventions provenance line
 
-**Section:** `## Communication conventions` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Communication conventions` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -411,11 +433,13 @@ Added 2026-06-28 by maintainer direction (the no-intensifier and `IMPORTANT:` co
 
 **Evidence the removal was wrong (watch for):** unlikely; a maintainer asking when these conventions were set. If seen, the date is in CHANGELOG.
 
+**Disposition pass (2026-07-03, GR-8(a)):** No dating question arose; the section grew two new maintainer-directed bullets (#584) without the removed date being needed.
+
 ---
 
 ## RM-13: Security-and-governance per-rule long descriptions and pack version-history narrative
 
-**Section:** `## Security and governance requirements` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Security and governance requirements` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 This is the single largest removal: each of the eleven `governance/` pack rules carried a
 multi-line description, and the section closed with a paragraph narrating the pack version
@@ -566,11 +590,13 @@ trust-recovery finding because the one-liner did not carry the "none dropped" in
 or repeatedly opening the same rule file because the one-liner was insufficient to act on.
 If seen, restore that specific rule's fuller description (not necessarily all eleven).
 
+**Disposition pass (2026-07-03, GR-8(a)):** No trust-recovery run occurred post-#441; the current one-liner already carries the none-dropped invariant, and the workflow-disciplines bullet was re-expanded for new content (#461), not for this removal's signal.
+
 ---
 
 ## RM-14: PR-activity-subscription cadence rationale (light)
 
-**Section:** `## PR activity subscription discipline` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## PR activity subscription discipline` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -596,11 +622,13 @@ one-clause "balances latency against API cost" is kept.
 
 **Evidence the removal was wrong (watch for):** a change to the fallback-timer cadence that hammers the API or leaves CI hanging, or a question about why 60 seconds. If seen, restore the cadence rationale.
 
+**Disposition pass (2026-07-03, GR-8(a)):** The only cadence change was the maintainer-directed 60-second background-task SOP (#584 codification after the #582 stall), a deliberate extension, not a misunderstanding the removed rationale would have prevented.
+
 ---
 
 ## RM-15: Attended-autonomous provenance asides (light)
 
-**Section:** `## Attended-autonomous operating mode` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Attended-autonomous operating mode` | **Removed in:** PR #441 | **Status:** reviewed-keep-out (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -626,6 +654,8 @@ gate) are retained in full, including the roughly-2-minute timer.
 **Potential risk:** Low; the rules are intact. A reader loses the explicit "this is clarify-before-acting refined" framing.
 
 **Evidence the removal was wrong (watch for):** confusion about how attended-autonomous relates to the clarify rule, or a timeout being converted into a silent authorial pick (the failure the closing sentence warned against). If seen, restore the framing sentence.
+
+**Disposition pass (2026-07-03, GR-8(a)):** No timeout was converted into a silent authorial pick; the defer paths were used correctly (the section-4.10 hold in pending-decisions), and the 2-minute / background-sleep fragments are retained in the attended-autonomous section.
 
 ---
 
