@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T18:40:00Z
+**Last-heartbeat-UTC:** 2026-07-03T18:54:08Z
 
-**Current-task:** /resume step sequence (Sweep 83 corpus-wide /validate over the #553..#616 deltas; then the maintainer-directed queue: P1 minus egress-deferred, then P3, then QA-strategy pause)
+**Current-task:** Sweep 83 close-out PR (F1 fix + records + handoff prune); next: the section-1.9 RM-10 hardening PR, then the S3 design round, then the P3 pass (maintainer queue directive at this resume)
 
 **Worker-dispatches:** none
 
