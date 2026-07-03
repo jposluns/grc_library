@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #591: coverage-gaps third batch: eight re-grades + the Brazil OEA row (2026-07-03)
+
+The routed #586-sweep residue executed: Mexico NEEC and the five candidates-list programmes to Referenced, China generative-AI and the PQC migration playbook to Partial, the Brazil OEA row added with mutual-recognition evidence, every grade leaning on a named batch-2 precedent; plus the sec-IR authority-residual fix and the #590 QA trio.
+
 ### PR #590: section-1.3 DPO role-separation sweep + section-2.13 PIA acceptance authority (2026-07-03)
 
 The maintainer-directed sweep separated the CIO/DPO composite across all ten carrier documents plus four verifier-caught siblings (81 edits: role tables, sign-off chains, notification authorities, Owner fields per the document index), reframed the charter's interim block as adopter guidance, and applied the answered PIA authority (DPO advises, Executive Committee accepts) with the two GRC-programme siblings aligned to the canonical chain. Sections 1.3 and 2.13 closed.
