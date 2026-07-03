@@ -21,6 +21,17 @@ failure allows (fail-open): this hook is a guardrail against one known
 mistake shape, not a security boundary, and a hook that could block all
 Bash on a malformed payload would be worse than the mistake it prevents.
 
+Acknowledged residuals (guardrail, not a parser): (1) a quoted or heredoc
+line whose text itself starts with a verification invocation still blocks
+(quote-blind by design; plain mentions as arguments pass via the
+command-position anchor); (2) `set -o pipefail` pipes still block even
+though pipefail unmasks the exit (uniformity is worth more than the edge);
+(3) piping the WRAPPER's own output truncates only display (it prints
+EXIT=<code>), allowed; (4) runners outside the named six (for example
+run-linter-regression.py, build-*.py --check, and non-truncating sinks
+like tee or wc) are uncovered here and belong to the TODO section-1.9(c)
+widening.
+
 Self-test: `python3 .claude/hooks/block-verification-pipes.py --self-test`.
 """
 
@@ -33,16 +44,34 @@ VERIFICATION = (
     r'|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py)'
 )
 FILTERS = r'(?:tail|head|grep|sed|awk)\b'
-# The verification command, then anything within the same pipeline segment
-# (no |, ;, or newline; & only as part of an fd redirect like 2>&1), then a
-# pipe straight into a truncating filter.
+# The verification command must sit at COMMAND POSITION in its pipeline
+# segment: at segment start (or after && / || / ; / & / newline / an
+# opening subshell or brace), optionally preceded by env assignments, an
+# interpreter (python3 [-m] / bash / sh / env), and a path prefix. This is
+# what distinguishes EXECUTING a verification command from merely
+# mentioning its filename as an argument (`grep -n X tools/lint-foo.py |
+# head` inspects a file and masks nothing; it must pass).
+COMMAND_POS = (
+    r'(?:^|[;&\n(]\s*|&&\s*|\|\|\s*|\{\s+)'
+    r'(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*'          # env assignments
+    r'(?:timeout\s+[\w.]+\s+|env\s+)?'             # common runners
+    r'(?:python3?\s+(?:-m\s+)?|bash\s+|sh\s+)?'    # interpreter
+    r'(?:[\w.~-]*/)*'                              # path prefix (tools/, ./)
+)
+# Then anything within the same pipeline segment (no |, ;, or newline; &
+# only as part of an fd redirect like 2>&1), then a pipe straight into a
+# truncating filter.
 SEGMENT = r'(?:[^|;&\n]|\d?>&\d?)*'
-PIPED = re.compile(VERIFICATION + SEGMENT + r'\|[|&]?\s*' + FILTERS)
+PIPED = re.compile(COMMAND_POS + VERIFICATION + SEGMENT + r'\|[|&]?\s*' + FILTERS,
+                   re.MULTILINE)
 
 
 def command_is_blocked(command: str) -> bool:
-    if 'tail-safe.sh' in command:
-        return False  # the sanctioned wrapper is the fix, never the trigger
+    # No whole-command exemption for tail-safe.sh: under the wrapper the
+    # verification name sits mid-segment (after `--`), not at command
+    # position, so wrapper invocations pass this regex naturally, and a
+    # wrapper mention elsewhere in a compound cannot whitelist a masked
+    # pipe in another segment.
     return bool(PIPED.search(command))
 
 
@@ -74,6 +103,9 @@ def self_test() -> int:
         'python3 -m unittest | tail -2',
         'python3 tools/preflight-changelog.py | sed -n 1p',
         'cd /x && ./tools/run_all_audits.sh | awk "END{print}"',
+        'bash tools/run_all_audits.sh | tail -3',
+        'FOO=1 ./tools/pre-push-guard.sh 2>&1 | tail -1',
+        './tools/run_all_audits.sh |& tail -3',
     ]
     allowed = [
         './tools/run_all_audits.sh',
@@ -83,6 +115,14 @@ def self_test() -> int:
         'echo run_all_audits.sh is green',  # no pipe at all
         'git log --oneline | head -5',      # not a verification command
         './tools/run_all_audits.sh; grep -c OK /tmp/a.log',  # ; ends the segment
+        # mention-not-execution: the name is an ARGUMENT, not the command
+        "grep -n 'P7' tools/lint-gate-count-consistency.py | head -5",
+        'wc -l tools/lint-citations.py | tail -1',
+        'cat tools/lint-language.py | head -40',
+        'git log --oneline -- tools/lint-language.py | head -3',
+        'grep -rn unittest tests/ | head -5',
+        'echo "run_all_audits.sh | tail is forbidden"',
+        'git commit -m "block the run_all_audits.sh | tail shape"',
     ]
     ok = True
     for c in blocked:

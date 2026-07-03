@@ -48,7 +48,10 @@ section stays open on (c) plus the next-session hook-firing validation noted bel
 
 - **(a) and (b) SHIPPED 2026-07-03** (the hook [`.claude/hooks/block-verification-pipes.py`](.claude/hooks/block-verification-pipes.py) wired in [`.claude/settings.json`](.claude/settings.json), the wrapper [`tools/tail-safe.sh`](tools/tail-safe.sh) with inline self-test, and the guard pipe self-defence in [`tools/pre-push-guard.sh`](tools/pre-push-guard.sh) with the documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; the tty check shipped as a `[ -p /dev/stdout ]` PIPE check because in this execution environment a plain invocation's stdout is a harness capture FILE, so the spec's literal tty test would refuse every sanctioned run while the pipe test refuses exactly the masking shape). **One residual validation**: hooks load at session start, so the deliberate blocked invocation could not fire in the shipping session (script-level block/allow/malformed cases all validated directly); the NEXT session re-runs one deliberate piped verification command and records the hook firing.
 - **(c) (L, XS) CLAUDE.md widening (authorized-touch bundle).** Widen the RM-10 clause from
-  the guard to any verification command, naming the wrapper and hook; bundle with the #614
+  the guard to any verification command, naming the wrapper and hook; consider widening the
+  hook's named-command list to the other runners the #620 verifier flagged as uncovered
+  (the linter-regression runner, the generator `--check` runs, and non-truncating sinks
+  such as `tee` and `wc`); bundle with the #614
   retro's enumeration-grep checklist example on the same authorized CLAUDE.md touch. (The
   clause's incident count, the Sweep 83 F2 note finding, was already refreshed to four in
   the Sweep-83 close-out PR under the pre-authorized factual one-liner class.)

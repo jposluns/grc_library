@@ -37,8 +37,10 @@
 #   tools/pre-push-guard.sh && git push -u origin <branch>
 #   BASE_REF=origin/develop tools/pre-push-guard.sh   # non-default base
 #
-# Exit codes: 0 only if BOTH runners pass; the first non-zero rc on
-# failure (the failing runner's own diagnostics are printed above).
+# Exit codes: 0 only if BOTH runners pass; 3 if the guard REFUSES to run
+# because stdout is piped (the RM-10 self-defence below, before any runner
+# starts); otherwise the first failing runner's non-zero rc (that runner's
+# own diagnostics are printed above).
 
 set -u
 
@@ -56,7 +58,9 @@ set -u
 #   PRE_PUSH_GUARD_ALLOW_PIPE=1 tools/pre-push-guard.sh | ...
 # The sanctioned display-truncation path is tools/tail-safe.sh, which
 # captures to a regular file (so it passes this check) and preserves the
-# real exit code.
+# real exit code. Note: command substitution (out=$(guard)) is also
+# refused (its stdout is a pipe) even though it preserves the exit code;
+# use a file-redirect capture instead, or the override deliberately.
 if [ -p /dev/stdout ] && [ -z "${PRE_PUSH_GUARD_ALLOW_PIPE:-}" ]; then
   echo "pre-push-guard: REFUSING to run with stdout piped (RM-10: a pipe masks this guard's exit code). Run it standalone, use a file-redirect capture, or use tools/tail-safe.sh -- tools/pre-push-guard.sh. Deliberate override: PRE_PUSH_GUARD_ALLOW_PIPE=1." >&2
   exit 3
