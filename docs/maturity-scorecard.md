@@ -125,7 +125,7 @@ _98 documents._
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.1 | 2026-07-02 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.3 | 2026-07-02 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.9 | 2026-07-03 |
-| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.4 | 2026-07-02 |
+| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.5 | 2026-07-03 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.10 | 2026-07-02 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.5 | 2026-07-02 |
 | [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.1 | 2026-07-02 |
