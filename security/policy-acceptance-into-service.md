@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy establishes a standardized framework for evaluating, approving, and transitioning new or changed systems, services, and AI solutions into operational production environments. It ensures that all deliverables meet readiness, compliance, security, and risk requirements before formal acceptance.
 
@@ -28,7 +28,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all new, modified, or upgraded systems, services, applications, infrastructure components, and AI models transitioning into the production environment.
 2. Covers both internal and third-party delivered services, including cloud and SaaS integrations.
@@ -37,16 +37,16 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
-### Executive oversight
+### 3.1 Executive oversight
 
 1. The Chief Information Officer (CIO) is accountable for enforcing the AIS process and ensuring integration with enterprise governance, risk, and compliance frameworks.
 2. The Chief Information Security Officer (CISO) validates that security, privacy, and risk management controls are satisfied prior to production approval.
 3. The Enterprise Architecture and Service Management Offices jointly verify operational readiness, documentation, and support model adequacy.
 4. The AI Governance Council (AIGC) reviews AI-related AIS submissions for ethical, risk, and safety conformance.
 
-### Roles and responsibilities
+### 3.2 Roles and responsibilities
 
 | Role | Responsibility |
 | --- | --- |
@@ -60,46 +60,46 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 ---
 
-## Policy statements
+## 4. Policy statements
 
-### 1. Acceptance framework
+### 4.1 Acceptance framework
 
-1.1 All systems, services, and AI models must complete the AIS process prior to entering production.
+4.1.1 All systems, services, and AI models must complete the AIS process prior to entering production.
 
-1.2 Acceptance reviews must verify compliance with design, security, privacy, and operational standards.
+4.1.2 Acceptance reviews must verify compliance with design, security, privacy, and operational standards.
 
-1.3 No service must be deployed to production without documented AIS approval by the CIO and CISO.
+4.1.3 No service must be deployed to production without documented AIS approval by the CIO and CISO.
 
-### 2. Readiness review
+### 4.2 Readiness review
 
-2.1 A Readiness Review must confirm that:
+4.2.1 A Readiness Review must confirm that:
 
 - Functional and non-functional requirements have been met.
 - Security testing and vulnerability remediation are complete.
 - Backout and recovery procedures have been validated.
 - Documentation, monitoring, and service support plans are in place.
 
-2.2 AI systems must include risk tier classification and AI Impact Assessment results prior to approval.
+4.2.2 AI systems must include risk tier classification and AI Impact Assessment results prior to approval.
 
-### 3. Risk and compliance validation
+### 4.3 Risk and compliance validation
 
-3.1 AIS submissions must include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4 to 6.
+4.3.1 AIS submissions must include risk assessment outcomes aligned with NIST SP 800-37 RMF Steps 4 to 6.
 
-3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
+4.3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
 
-3.3 AI solutions must demonstrate conformance to ISO/IEC 42001 §8 and the AI Security and Risk Standard.
+4.3.3 AI solutions must demonstrate conformance to ISO/IEC 42001 §8 and the AI Security and Risk Standard.
 
-### 4. AI risk classification and impact validation
+### 4.4 AI risk classification and impact validation
 
-4.1 All AI systems must be classified according to the organizational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
+4.4.1 All AI systems must be classified according to the organizational AI risk taxonomy: Minimal, Limited, High, or Unacceptable.
 
-4.2 High-risk AI systems require additional ethical and safety validation by the AIGC prior to deployment.
+4.4.2 High-risk AI systems require additional ethical and safety validation by the AIGC prior to deployment.
 
-4.3 AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO/IEC 42005:2025 and EU AI Act Annex IV.
+4.4.3 AI Impact Assessments must evaluate transparency, fairness, and explainability per ISO/IEC 42005:2025 and EU AI Act Annex IV.
 
-### 5. Documentation and evidence
+### 4.5 Documentation and evidence
 
-5.1 Each AIS submission must include:
+4.5.1 Each AIS submission must include:
 
 - Solution architecture and configuration documentation.
 - Security and compliance test results.
@@ -107,35 +107,35 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 - Operational support procedures and monitoring dashboards.
 - AI validation reports where applicable.
 
-5.2 All AIS evidence must be stored in the central compliance repository with version control and audit traceability.
+4.5.2 All AIS evidence must be stored in the central compliance repository with version control and audit traceability.
 
-### 6. Approval and sign-off
+### 4.6 Approval and sign-off
 
-6.1 The CIO provides final authorization for service go-live after confirming successful completion of all reviews.
+4.6.1 The CIO provides final authorization for service go-live after confirming successful completion of all reviews.
 
-6.2 The CISO and AIGC must co-approve any AI-related AIS submission.
+4.6.2 The CISO and AIGC must co-approve any AI-related AIS submission.
 
-6.3 The CAB must authorize the final change release prior to deployment.
+4.6.3 The CAB must authorize the final change release prior to deployment.
 
-### 7. Post-implementation review
+### 4.7 Post-implementation review
 
-7.1 A review must occur within 30 days of deployment to evaluate system stability, incident trends, and user feedback.
+4.7.1 A review must occur within 30 days of deployment to evaluate system stability, incident trends, and user feedback.
 
-7.2 Lessons learned must be captured in the Continuous Improvement Register and shared with project teams.
+4.7.2 Lessons learned must be captured in the Continuous Improvement Register and shared with project teams.
 
-7.3 Deficiencies identified post-implementation must trigger corrective action plans and potential rollback where required.
+4.7.3 Deficiencies identified post-implementation must trigger corrective action plans and potential rollback where required.
 
-### 8. Continual improvement
+### 4.8 Continual improvement
 
-8.1 The AIS process must be reviewed annually to reflect updated frameworks, emerging risks, and AI compliance changes.
+4.8.1 The AIS process must be reviewed annually to reflect updated frameworks, emerging risks, and AI compliance changes.
 
-8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) must be analyzed quarterly.
+4.8.2 Performance metrics (time-to-acceptance, post-implementation incidents, audit findings) must be analyzed quarterly.
 
-8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 maturity progression is maintained.
+4.8.3 Feedback loops must ensure that alignment with COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-05 maturity progression is maintained.
 
 ---
 
-## Framework alignment
+## 5. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
