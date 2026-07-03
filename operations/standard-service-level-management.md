@@ -2,8 +2,8 @@
 
 **Document Title:** Service Level Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -16,13 +16,13 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This standard defines the requirements for establishing, monitoring, reviewing, and managing Service Level Agreements (SLAs) and Operational Level Agreements (OLAs) across all IT services. It establishes how service targets are set, how breaches are detected and escalated, how SLA performance is reported, and how SLAs are maintained over the service lifecycle. It supports ISO/IEC 20000-1:2018 §8.3, ITIL 4 Service Level Management practice, and COBIT 2019 DSS02.
 
 ---
 
-## Scope
+## 2. Scope
 
 This standard applies to:
 
@@ -35,13 +35,13 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-## Requirements
+## 3. Requirements
 
-### 1: Service catalogue and service classification
+### 3.1 Service catalogue and service classification
 
-1.1 The Service Management Office must maintain a current service catalogue listing all in-scope IT services with their service classification, support tier, business criticality, and assigned Service Owner.
+3.1.1 The Service Management Office must maintain a current service catalogue listing all in-scope IT services with their service classification, support tier, business criticality, and assigned Service Owner.
 
-1.2 Services must be classified as one of the following tiers to determine the applicable SLA baseline:
+3.1.2 Services must be classified as one of the following tiers to determine the applicable SLA baseline:
 
 | Tier | Classification | Definition |
 | --- | --- | --- |
@@ -50,15 +50,15 @@ This standard does not apply to external services where the organization is the 
 | Tier 3 | Standard | Service failure has limited impact; workarounds are available or impact is contained to a subset of users. |
 | Tier 4 | Non-Critical | Service failure has minimal impact; resolution can be deferred without business harm. |
 
-1.3 Service classification must be reviewed annually and whenever a service's business criticality, regulatory status, or user base changes materially.
+3.1.3 Service classification must be reviewed annually and whenever a service's business criticality, regulatory status, or user base changes materially.
 
 ---
 
-### 2: SLA establishment requirements
+### 3.2 SLA establishment requirements
 
-2.1 Every Tier 1 and Tier 2 service must have a documented and approved SLA before entering production. SLAs for Tier 3 and Tier 4 services are recommended but not mandatory.
+3.2.1 Every Tier 1 and Tier 2 service must have a documented and approved SLA before entering production. SLAs for Tier 3 and Tier 4 services are recommended but not mandatory.
 
-2.2 Each SLA must specify:
+3.2.2 Each SLA must specify:
 
 - Service name, description, and scope.
 - Service hours (planned availability window or 24/7 requirement).
@@ -71,29 +71,29 @@ This standard does not apply to external services where the organization is the 
 - SLA owner and approving authority.
 - SLA effective date and scheduled review date.
 
-2.3 SLAs must be approved by the Service Owner and acknowledged by the service consumer before activation.
+3.2.3 SLAs must be approved by the Service Owner and acknowledged by the service consumer before activation.
 
-2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organization's service targets. Gaps must be identified and risk-accepted before service activation.
-
----
-
-### 3: Operational level agreements
-
-3.1 Where a service depends on support from one or more internal IT teams, an Operational Level Agreement must be established between the Service Owner and each supporting team.
-
-3.2 Each OLA must define the internal team's support obligations, response targets, escalation contacts, and dependencies that underpin the service SLA.
-
-3.3 OLA targets must be sufficient to support the upstream SLA target, accounting for handover and coordination time.
-
-3.4 OLAs must be reviewed annually and whenever the service SLA is revised or the supporting team structure changes.
+3.2.4 Where a service is delivered by an external supplier, the supplier's contracted service terms must be reviewed against the internal SLA to confirm the supplier's obligations support the organization's service targets. Gaps must be identified and risk-accepted before service activation.
 
 ---
 
-### 4: SLA monitoring and measurement
+### 3.3 Operational level agreements
 
-4.1 Service availability and performance must be measured continuously using the organization's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
+3.3.1 Where a service depends on support from one or more internal IT teams, an Operational Level Agreement must be established between the Service Owner and each supporting team.
 
-4.2 The Service Management Office must produce a monthly SLA compliance report for all Tier 1 and Tier 2 services. The report must include:
+3.3.2 Each OLA must define the internal team's support obligations, response targets, escalation contacts, and dependencies that underpin the service SLA.
+
+3.3.3 OLA targets must be sufficient to support the upstream SLA target, accounting for handover and coordination time.
+
+3.3.4 OLAs must be reviewed annually and whenever the service SLA is revised or the supporting team structure changes.
+
+---
+
+### 3.4 SLA monitoring and measurement
+
+3.4.1 Service availability and performance must be measured continuously using the organization's monitoring toolset. Manual measurements are permitted only where automated monitoring is not feasible and must be documented as a known limitation.
+
+3.4.2 The Service Management Office must produce a monthly SLA compliance report for all Tier 1 and Tier 2 services. The report must include:
 
 - Achieved availability percentage versus target.
 - Count of incidents by priority tier and SLA compliance rate per tier.
@@ -101,19 +101,19 @@ This standard does not apply to external services where the organization is the 
 - Open corrective actions from prior breaches.
 - Trend comparison against the prior three months.
 
-4.3 KPI results related to service levels must be recorded in the IT Operations KPI register ([`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md)) and reported to the CIO monthly.
+3.4.3 KPI results related to service levels must be recorded in the IT Operations KPI register ([`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md)) and reported to the CIO monthly.
 
-4.4 SLA measurement methodology must be consistent month-to-month. Changes to measurement method require Service Owner approval and must be documented in the service record.
+3.4.4 SLA measurement methodology must be consistent month-to-month. Changes to measurement method require Service Owner approval and must be documented in the service record.
 
 ---
 
-### 5: Breach detection and escalation
+### 3.5 Breach detection and escalation
 
-5.1 A breach occurs when a service availability or resolution target is not met within the measurement period and is not attributable to an approved exclusion.
+3.5.1 A breach occurs when a service availability or resolution target is not met within the measurement period and is not attributable to an approved exclusion.
 
-5.2 The Service Management Office must detect and log breaches within one business day of the breach occurring.
+3.5.2 The Service Management Office must detect and log breaches within one business day of the breach occurring.
 
-5.3 Breach escalation must follow this path:
+3.5.3 Breach escalation must follow this path:
 
 | Breach Type | Initial Escalation | Secondary Escalation | Governing Body |
 | --- | --- | --- | --- |
@@ -123,13 +123,13 @@ This standard does not apply to external services where the organization is the 
 | Availability below 99.0% for a Tier 1 service | CIO notified immediately | ERC notified within 3 business days | ERC review at next scheduled meeting |
 | Three consecutive months of SLA breach (any tier) | CIO notified immediately | ERC notified within 3 business days | Formal service review mandated |
 
-5.4 Every breach must result in a documented corrective action or a formal risk acceptance with a stated residual risk and review date.
+3.5.4 Every breach must result in a documented corrective action or a formal risk acceptance with a stated residual risk and review date.
 
 ---
 
-### 6: SLA review
+### 3.6 SLA review
 
-6.1 All SLAs must be reviewed at least annually. The review must assess:
+3.6.1 All SLAs must be reviewed at least annually. The review must assess:
 
 - SLA compliance performance over the prior 12 months.
 - Whether current targets remain appropriate given changes to business criticality, user base, technology, or regulatory obligations.
@@ -137,9 +137,9 @@ This standard does not apply to external services where the organization is the 
 - Whether supplier SLAs continue to support internal targets.
 - Open corrective actions from breaches.
 
-6.2 The Service Owner and service consumer must formally acknowledge and approve any changes to SLA targets resulting from the review.
+3.6.2 The Service Owner and service consumer must formally acknowledge and approve any changes to SLA targets resulting from the review.
 
-6.3 SLA reviews must be triggered outside the annual cycle when:
+3.6.3 SLA reviews must be triggered outside the annual cycle when:
 
 - A Tier 1 service experiences three consecutive months of availability below target.
 - A major infrastructure change, migration, or cloud transition affects the service.
@@ -148,15 +148,15 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 7: Supplier SLA governance
+### 3.7 Supplier SLA governance
 
-7.1 Where an external supplier is responsible for delivering or supporting a service, the organization must hold the supplier accountable to the contracted SLA through the supplier governance process defined in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
+3.7.1 Where an external supplier is responsible for delivering or supporting a service, the organization must hold the supplier accountable to the contracted SLA through the supplier governance process defined in [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md).
 
-7.2 Supplier SLA performance must be reviewed at least quarterly. Material or repeated supplier SLA breaches must be escalated to the Supplier Owner and documented in the supplier risk register.
+3.7.2 Supplier SLA performance must be reviewed at least quarterly. Material or repeated supplier SLA breaches must be escalated to the Supplier Owner and documented in the supplier risk register.
 
-7.3 Where a supplier SLA breach causes an internal SLA breach, both must be recorded separately, and the root cause must identify whether the failure originated with the supplier.
+3.7.3 Where a supplier SLA breach causes an internal SLA breach, both must be recorded separately, and the root cause must identify whether the failure originated with the supplier.
 
-7.4 Supplier contracts must include provisions for:
+3.7.4 Supplier contracts must include provisions for:
 
 - Availability targets, measurement method, and reporting frequency.
 - Breach notification and escalation requirements.
@@ -165,32 +165,32 @@ This standard does not apply to external services where the organization is the 
 
 ---
 
-### 8: Cloud provider service agreement management
+### 3.8 Cloud provider service agreement management
 
-8.1 Where cloud infrastructure or platform services underpin a Tier 1 or Tier 2 internal service, the relevant cloud provider service agreement must be reviewed to identify:
+3.8.1 Where cloud infrastructure or platform services underpin a Tier 1 or Tier 2 internal service, the relevant cloud provider service agreement must be reviewed to identify:
 
 - Published availability SLA percentage and any service-level credits.
 - Exclusions from the provider's SLA guarantee (shared responsibility model).
 - Notification requirements for provider-side incidents.
 - Geographic or zone-specific availability commitments.
 
-8.2 Cloud provider SLA availability must be factored into the organization's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
+3.8.2 Cloud provider SLA availability must be factored into the organization's internal SLA design. Where the cloud provider's SLA is lower than the internal service target, a compensating architecture (multi-region, failover, redundancy) must be documented.
 
-8.3 Cloud provider service agreement terms must be reviewed when contracts are renewed and whenever a material architecture change affects the service.
-
----
-
-### 9: Continuous improvement
-
-9.1 Breach trends, repeat failures, and SLA performance patterns must be reviewed at the quarterly SLA governance meeting and fed into the ITIL 4 continual improvement cycle operated under the IT Service Management Framework.
-
-9.2 Improvement actions arising from SLA reviews must be tracked in the Service Management Office's CAPA log and reported to the CIO.
-
-9.3 The Service Management Office must maintain a register of all current SLAs and OLAs, including their version history, review dates, and approval status.
+3.8.3 Cloud provider service agreement terms must be reviewed when contracts are renewed and whenever a material architecture change affects the service.
 
 ---
 
-## Evidence requirements
+### 3.9 Continuous improvement
+
+3.9.1 Breach trends, repeat failures, and SLA performance patterns must be reviewed at the quarterly SLA governance meeting and fed into the ITIL 4 continual improvement cycle operated under the IT Service Management Framework.
+
+3.9.2 Improvement actions arising from SLA reviews must be tracked in the Service Management Office's CAPA log and reported to the CIO.
+
+3.9.3 The Service Management Office must maintain a register of all current SLAs and OLAs, including their version history, review dates, and approval status.
+
+---
+
+## 4. Evidence requirements
 
 Adopting organizations should retain:
 
@@ -203,7 +203,7 @@ Adopting organizations should retain:
 
 ---
 
-## Framework alignment
+## 5. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
@@ -215,13 +215,13 @@ Adopting organizations should retain:
 
 ---
 
-## Limitations
+## 6. Limitations
 
 This standard provides a governance baseline. Adopting organizations must define their own service availability targets, breach thresholds, and escalation paths based on their service catalogue, customer contracts, regulatory obligations, and risk appetite. SLA targets in illustrative tables are placeholders only.
 
 ---
 
-## Maintenance
+## 7. Maintenance
 
 This standard must be reviewed annually and upon material change to the service catalogue, IT sourcing model, regulatory obligations, or risk appetite. The Chief Information Officer is accountable for approving revisions.
 
