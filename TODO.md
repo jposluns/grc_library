@@ -94,7 +94,7 @@ covering intake screening (provenance, integrity, instruction-like-content detec
 the OWASP LLM prompt-injection / improper-output-handling guidance the corpus already
 cites), an assess-and-tag step (relevant/useful vs discard; corroborate load-bearing
 claims against a `standards/` source), and a recorded assessment per publication. Pairs
-with the §3.6 multi-session track (the scratch ref base is part of that capability) and
+with the multi-session capability (closed as section 3.6 in the DONE ledger; the scratch ref base is part of it) and
 the existing `governance/` trust disciplines. Honest-backstop framing: the process raises
 the bar against poisoned reference input; it does not by itself guarantee detection.
 
@@ -124,17 +124,6 @@ Backlog items now carry `(severity, effort)`; this item formalizes the conventio
 | **XL** (new domain, library-wide reshape) | 1-3 days | 1 item, may split |
 
 **Surfaces to update when the convention formally lands**: `library-fitness-review/SKILL.md`; `validation-sweep/SKILL.md`; this file (already in use); `.working/DONE.md` heading shape; future fitness-review templates and sweep detail files. Schedule: after the current FR backlog closes.
-
-### 3.6 Multi-session / multi-worker orchestration codification (M, L) — track; maintainer-scheduled (was 4.11)
-
-Stand up the parallel-worker capability per the **"Multi-session / multi-worker orchestration model"** entry in [`.working/design-decisions.md`](.working/design-decisions.md) (the authoritative design; recovered to `main` in #316). A deliberately-scheduled meta/process track, not a routine backlog fix.
-
-Deliverables 1-3 have shipped: the runbook [`.working/multi-session-orchestration.md`](.working/multi-session-orchestration.md), the Model-B worker section in [`.working/worker-brief-template.md`](.working/worker-brief-template.md), and the light-SOP default in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) + the [`ai-assistant-workflow-disciplines`](dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) rule. **Remaining (the residue):**
-
-4. A **worker-provenance audit gate**, co-designed with the shipped bookkeeping-parity gate family (gate 50 QA-cadence parity, plus gate 57 and the D5 PR-time check for rotation) as one "bookkeeping-parity" gate family, built the project way (`tools/lint-*.py` + four-surface wiring + regression fixture), honest-backstop framing per [`gate-discipline`](dev-security/claude-rules/governance/gate-discipline.md) (it enforces the PRESENCE of the verification record and provenance attestation, not semantic correctness). The separate pre-push-runner gate (folding gate-40/gate-31 into [`tools/run-pr-time-checks.sh`](tools/run-pr-time-checks.sh)) already shipped in #333, so this gate extends rather than duplicates it. The codification PR is itself NOT partitionable (single orchestrator session).
-
-- **Feasibility note:** `grc_library_scratch` is in scope, reachable, and now populated (the `ref/` base). The in-session subagent primitive is exercised; the separate-session external-collaborator primitive and harness support for repo-event subscription remain to confirm at implementation time (the design gates event-driven triggering as opt-in, not the default).
-- **SCHEDULING (maintainer decides when):** default is to implement this AFTER the Priority 1 and Priority 2 backlog items are addressed. **Standing exception (do NOT self-authorize):** if at any point the orchestrator judges that standing up this capability would clear the REMAINING P1/P2 backlog faster than working solo on those items, net of the codification cost and counting only partitionable remaining work, surface a pull-forward recommendation with the reasoning (estimated remaining partitionable volume, expected speedup, build cost) and let the maintainer decide.
 
 ### 3.12 CLAUDE.md removal-ledger review cadence (standing) — added 2026-06-28, PR #441 (was 4.27)
 
@@ -193,14 +182,14 @@ Deferred to a future session (maintainer-directed 2026-06-22). For longer unatte
 
 ### 4.4 Multi-session research-brief staging + `/subagent` external-worker entry (M, M) — maintainer-requested 2026-06-26 (was 4.16)
 
-Stand up the INPUT half of the §3.6 multi-session capability so separate-session / separate-account workers can pick up research tasks (the existing §3.6 work delivered the runbook, the worker `CLAUDE.md` contract, the light SOP, and the bookkeeping-parity gate; this adds the brief-staging input channel and the worker entry command). Design advised 2026-06-26; deliverables:
+Stand up the INPUT half of the multi-session capability (its codification closed as section 3.6 in the DONE ledger) so separate-session / separate-account workers can pick up research tasks (the closed work delivered the runbook, the worker `CLAUDE.md` contract, the light SOP, and the bookkeeping-parity gate; this adds the brief-staging input channel and the worker entry command). Design advised 2026-06-26; deliverables:
 
 1. **A `research/<work-unit-id>/brief.md` convention in [`grc_library_scratch`](https://github.com/jposluns/grc_library_scratch)** (one brief per partitionable TODO or per FR-167 batch), orchestrator-authored from [`.working/worker-brief-template.md`](.working/worker-brief-template.md): the task, the exact main-repo target paths, the verified-disjoint partition, the `path:line` evidence requirement, the deliverable shape (research, not final prose), the stop-don't-merge and verify-against-live-main invariants, and a pointer to the scratch worker `CLAUDE.md` for the general contract (reference, do not duplicate). Workers deliver findings to the existing `inbox/<worker-id>/`.
 2. **A `/subagent` slash command** as the external-worker entry point: read the assigned brief, claim it in `claims-ledger.md`, read the named main-repo files read-only, produce findings, deliver to `inbox/`, stop. **Read-only-on-main MUST be enforced by the worker GitHub account's permissions, not by the prompt** (a prompt is not a security boundary, per [`.claude/rules/secrets.md`](.claude/rules/secrets.md) / the security rules).
 3. **Codify both** in the runbook [`.working/multi-session-orchestration.md`](.working/multi-session-orchestration.md); add the `/subagent` command file.
 4. **A maintainer-facing quick start** in the runbook (a "Quick start (maintainer, external worker)" section): provision the account, point the worker session at scratch, stage a brief, collect from `inbox/<worker-id>/`, one walkthrough (maintainer-suggested 2026-07-02; today the story is spread across the runbook, the scratch worker `CLAUDE.md`, and the brief template).
 
-**Gating maintainer action**: provision the least-privilege worker account (read `grc_library` / write `grc_library_scratch` only). In-session `Agent` fan-out works today (shares the orchestrator's credentials, spends its budget); the external-worker path needs the account. **Partitionability**: the decided-content TODOs (the FR-59 / FR-60 deepenings and the deepen-baselines cluster, separate files) are the cleanest fit; a corpus-wide sweep, rename, or single matrix stays single-session. **The apply stage stays single-session with full QA regardless** (the validate-then-apply no-bypass invariant: worker provenance never reduces the QA a change receives). Pairs with §3.6 and §2.11 (the publications-assessment process).
+**Gating maintainer action**: provision the least-privilege worker account (read `grc_library` / write `grc_library_scratch` only). In-session `Agent` fan-out works today (shares the orchestrator's credentials, spends its budget); the external-worker path needs the account. **Partitionability**: the decided-content TODOs (the FR-59 / FR-60 deepenings and the deepen-baselines cluster, separate files) are the cleanest fit; a corpus-wide sweep, rename, or single matrix stays single-session. **The apply stage stays single-session with full QA regardless** (the validate-then-apply no-bypass invariant: worker provenance never reduces the QA a change receives). Pairs with the closed section-3.6 codification (see the DONE ledger) and §2.11 (the publications-assessment process).
 
 ### 4.5 Fork-facing guidance + scripts for building an own reference base (L, L) — maintainer-directed 2026-06-27 (was 4.21)
 
@@ -372,7 +361,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07
 
 - **P1 (fix errors and prevent recurrence)**: 2 items (1.4 audit-gate candidates, 1.5 reference version-currency; the 2026-07-02 audit P1 cluster is fully closed; FR-48 completed in #596 through #607; the section-1.6 D5/CLAUDE.md codifications closed same-day).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment; sections 2.12, 2.13, and 2.14 fully closed).
-- **P3 (clean up and tooling)**: 6 items (3.1, 3.4, 3.6, 3.12, plus 3.13 audit tooling extensions and 3.15 the 2026-07-02 guardrail-review machinery extensions; sections 3.7, 3.8, 3.10, and 3.14 fully closed).
+- **P3 (clean up and tooling)**: 5 items (3.1, 3.4, 3.12, plus 3.13 audit tooling extensions and 3.15 the 2026-07-02 guardrail-review machinery extensions; sections 3.6, 3.7, 3.8, 3.10, and 3.14 fully closed).
 - **P4 (adopter experience)**: 7 items (4.1-4.5, plus 4.6 adopter-experience enhancements and 4.7 the 2026-07-02 guardrail-review pack-design improvements).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).

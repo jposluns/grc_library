@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.0.6\
-**Date:** 2026-06-28\
+**Version:** 1.0.7\
+**Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -307,7 +307,14 @@ something; CI + `/validate-pr` + the maintainer catch it.
    pipeline + `/validate-pr` + `/retro` per PR.
 
 For separate-session external workers (4b), the same loop applies, with the worker
-delivering to `inbox/<worker-id>/` in scratch and the orchestrator pulling from there.
+delivering to `inbox/<worker-id>/` in scratch (a `MANIFEST.md` naming each target file,
+the proposed change, and the evidence, per the scratch `WORKER-ONBOARDING.md`) and the
+orchestrator pulling from there. **Marking convention (the gate-50 check-3 attestation):**
+a PR that applies a scratch-inbox delivery carries a `**Worker provenance:**` line in its
+detailed-mirror CHANGELOG entry naming the delivery path (normally
+`inbox/<worker-id>/MANIFEST.md`), so provenance is traceable from the audit trail to the
+delivery; gate 50 validates the marker's shape, and the close-out checklist guards the
+unmarked-application residual.
 
 ---
 
