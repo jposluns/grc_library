@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #607: FR-48 (section 1.1): H2 numbering-pattern entangled residual, series complete (2026-07-03)
+
+The final entangled document (information-security policy, 33 clauses plus the carried 27002 cell fix) renumbered in #607, completing the 38-document FR-48 worklist: 25 safe-subset docs through #548, the internal-audit standard confirmed canonical in #594, and the 12 entangled docs one per PR in #596 through #607 under the full HA harness. Section 1.1 closed and rotated.
+
 ### PR #595: 3.15 machinery wave 2a: D5 closure-form widening, gate-60 scoped parse, gate-39 vanished-file tolerance (2026-07-03)
 
 Three routed section-3.15 tooling bullets closed in one mechanical batch: D5's form 3 gains the bullet(s) noun and a decimal-dot-tolerant clause run (census: three new hits, all true positives) with form 6's short guarded rotation assertion, gate 60 counts only section-6 inventory rows, and gate 39 skips files that vanish mid-scan. The GR-6 census results are recorded on its TODO bullet with the gate-60 sequencing prerequisite.
