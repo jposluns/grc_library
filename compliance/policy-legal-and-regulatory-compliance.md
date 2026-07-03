@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.8\
-**Date:** 2026-07-02\
+**Version:** 1.0.9\
+**Date:** 2026-07-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy establishes the framework for identifying, interpreting, tracking, implementing, and reporting compliance with legal and regulatory obligations across all jurisdictions where the organization operates.
 
@@ -24,7 +24,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## Scope
+## 2. Scope
 
 1. **Jurisdictional Coverage**: Applies globally to all organizational entities, subsidiaries, and business operations, including BASC-certified logistics and customs operations.
 2. **Domains of Compliance**: Data protection and privacy; information security, cybersecurity, and business resilience; artificial intelligence, automation, and algorithmic transparency; trade, customs, and supply-chain security (BASC and ISO 28000); sector-specific and contractual compliance.
@@ -32,7 +32,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -47,93 +47,93 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ---
 
-## 1. Compliance management system
+## 4. Compliance management system
 
-1.1 The organization must operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
+4.1 The organization must operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
 
-1.2 The CMS must maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
+4.2 The CMS must maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
 
-1.3 Each obligation must have an assigned owner, mapped controls, and evidence linkages validated by Internal Audit.
-
----
-
-## 2. Regulatory horizon scanning and change management
-
-2.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organization participates).
-
-2.2 AI-related regulatory tracking must capture EU AI Act obligations, AIDA conformity updates, and supervisory guidance.
-
-2.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organization participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`compliance/`](../compliance/).
-
-2.4 All updates must be logged in the ROR and routed through the Change Management and Configuration Control Procedure.
+4.3 Each obligation must have an assigned owner, mapped controls, and evidence linkages validated by Internal Audit.
 
 ---
 
-## 3. Risk assessment and treatment
+## 5. Regulatory horizon scanning and change management
 
-3.1 Compliance risks must be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
+5.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organization participates).
 
-3.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
+5.2 AI-related regulatory tracking must capture EU AI Act obligations, AIDA conformity updates, and supervisory guidance.
 
-3.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) require co-approval by the CISO and the sector-conditional role defined by the relevant sector annex.
+5.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organization participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`compliance/`](../compliance/).
 
----
-
-## 4. Control design and evidence management
-
-4.1 Each obligation must be mapped to one or more documented and tested controls.
-
-4.2 Evidence of compliance (audits, logs, reports) must be retained in the GRC repository for a minimum of seven years.
-
-4.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](../compliance/).
-
-4.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
+5.4 All updates must be logged in the ROR and routed through the Change Management and Configuration Control Procedure.
 
 ---
 
-## 5. Reporting and notification obligations
+## 6. Risk assessment and treatment
 
-5.1 All regulatory notifications must follow the Security Incident Reporting and Escalation Procedure.
+6.1 Compliance risks must be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
 
-5.2 Sector-programme incidents (for example, BASC and customs incidents where the organization participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex within the annex's stated timeframe, with onward notifications to the sector body following the annex's escalation path; see [`compliance/`](../compliance/).
+6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
-5.3 Data breaches must be reported to supervisory authorities within required periods (GDPR: 72 hours; NIS 2: 24 hours).
-
-5.4 AI serious incidents or malfunctions must be reported per EU AI Act Article 65 to 74 obligations.
+6.3 Sector-programme compliance deviations (for example, trade and customs deviations under BASC) require co-approval by the CISO and the sector-conditional role defined by the relevant sector annex.
 
 ---
 
-## 6. Supplier and trade compliance
+## 7. Control design and evidence management
 
-6.1 Suppliers must maintain certifications including ISO 27001, ISO 27018, SOC 2, and BASC (for trade and logistics partners).
+7.1 Each obligation must be mapped to one or more documented and tested controls.
 
-6.2 Trade suppliers must meet WCO SAFE Authorized Economic Operator (AEO) requirements and undergo annual audits.
+7.2 Evidence of compliance (audits, logs, reports) must be retained in the GRC repository for a minimum of seven years.
 
-6.3 Supplier performance and trade-compliance results feed into the Supplier Audit Procedure and GRC metrics reporting.
+7.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](../compliance/).
 
----
-
-## 7. Monitoring, metrics, and review
-
-7.1 The Compliance Steering Group must review compliance KPIs quarterly, including AI governance and BASC metrics.
-
-7.2 KPIs include: obligation coverage completeness; audit success rate; notification timeliness; BASC audit pass percentage; AI regulatory readiness score.
-
-7.3 Results are presented to the Enterprise Risk Committee (ERC) and Board Audit and Risk Committee.
+7.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
 
 ---
 
-## 8. Continuous improvement
+## 8. Reporting and notification obligations
 
-8.1 Gaps identified through audits, incidents, or BASC assessments must be documented in the CAPA Procedure and compliance controls register.
+8.1 All regulatory notifications must follow the Security Incident Reporting and Escalation Procedure.
 
-8.2 Corrective actions (CAPAs) must include root cause, remediation, and verification evidence.
+8.2 Sector-programme incidents (for example, BASC and customs incidents where the organization participates in BASC) must be reported to the sector-conditional role defined by the relevant sector annex within the annex's stated timeframe, with onward notifications to the sector body following the annex's escalation path; see [`compliance/`](../compliance/).
 
-8.3 Annual management review must evaluate compliance with ISO 37301, BASC, and AI regulatory frameworks.
+8.3 Data breaches must be reported to supervisory authorities within required periods (GDPR: 72 hours; NIS 2: 24 hours).
+
+8.4 AI serious incidents or malfunctions must be reported per EU AI Act Article 65 to 74 obligations.
 
 ---
 
-## Framework alignment
+## 9. Supplier and trade compliance
+
+9.1 Suppliers must maintain certifications including ISO 27001, ISO 27018, SOC 2, and BASC (for trade and logistics partners).
+
+9.2 Trade suppliers must meet WCO SAFE Authorized Economic Operator (AEO) requirements and undergo annual audits.
+
+9.3 Supplier performance and trade-compliance results feed into the Supplier Audit Procedure and GRC metrics reporting.
+
+---
+
+## 10. Monitoring, metrics, and review
+
+10.1 The Compliance Steering Group must review compliance KPIs quarterly, including AI governance and BASC metrics.
+
+10.2 KPIs include: obligation coverage completeness; audit success rate; notification timeliness; BASC audit pass percentage; AI regulatory readiness score.
+
+10.3 Results are presented to the Enterprise Risk Committee (ERC) and Board Audit and Risk Committee.
+
+---
+
+## 11. Continuous improvement
+
+11.1 Gaps identified through audits, incidents, or BASC assessments must be documented in the CAPA Procedure and compliance controls register.
+
+11.2 Corrective actions (CAPAs) must include root cause, remediation, and verification evidence.
+
+11.3 Annual management review must evaluate compliance with ISO 37301, BASC, and AI regulatory frameworks.
+
+---
+
+## 12. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
