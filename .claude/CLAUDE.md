@@ -157,7 +157,11 @@ drive end-to-end on the maintainer's behalf:
    commit`); an "intermediate" push that skips the guard is the momentum-bypass failure
    the guard closes (improvement-log #438/#439).
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
-   <branch>`. On a green guard, open the PR via `mcp__github__create_pull_request`.
+   <branch>`. Run the guard STANDALONE and UNPIPED (never `guard | tail && push` or any
+   other pipe): a pipe masks the guard's exit code so the chained push proceeds past a
+   failing guard, the RM-10 failure shape (three pipe-masked incidents: #569, #583, and
+   the #608 push, each self-caught). Read the guard's own terminal PASS/FAIL line before
+   relying on the chain. On a green guard, open the PR via `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` below; on failure, fix and re-push.
 4. On green CI, merge via `mcp__github__merge_pull_request`. The maintainer does not
@@ -211,14 +215,19 @@ drive end-to-end on the maintainer's behalf:
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
    validation", a maintainer directive captured as a backlog line) all rotate the same way.
    The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
-   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects SIX
-   closure forms (three since the 2026-06-30 broadening, widened to six by #576): (1) the canonical section form
+   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects SEVEN
+   closure forms (three since the 2026-06-30 broadening, widened to six by #576 and to
+   seven after the #607 miss): (1) the canonical section form
    `clos... TODO §`; (2) the coded-id `XX-N CLOSED` marker (any two-to-four-letter
    uppercase id, e.g. `FR-58 CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by
-   GR-13 in #559); (3) the prose `clos... the ... item/directive` form; (4) the
-   section-name closure form (`section-N.M ... closed/closure`); (5) the item-number
-   closure form (`items N and M closed`); and (6) the rotation-assertion form
-   (`rotated to the DONE ledger`).
+   GR-13 in #559); (3) the prose `clos... the ... item/directive` form, which also
+   matches the `TODO item` and `bullet(s)` nouns with a decimal-dot-tolerant clause run
+   (the #595 widening); (4) the section-name closure form (`section-N.M ...
+   closed/closure`, hyphenated); (5) the item-number closure form (`items N and M
+   closed`); (6) the rotation-assertion form (`rotated to the DONE ledger`, plus the
+   guarded short `rotated to DONE` with negations excluded, the #595 widening); and
+   (7) the space-separated `TODO section N.M ... closed/closure` form (case-insensitive,
+   forward-only window; the #607 lead's phrasing, which forms 1, 4, and 6 all missed).
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR

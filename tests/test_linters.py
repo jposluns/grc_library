@@ -5195,14 +5195,16 @@ class TodoRotationOnPrTests(unittest.TestCase):
     ``asserts_todo_closure`` directly (the gate is otherwise a git-diff
     delta check verified behaviourally via run-pr-time-checks.sh). The
     trigger (broadened 2026-06-30 by the since-closed rotation-prevention
-    backlog item, and again 2026-07-02 after the #563 verifier's tooling
-    note) must fire on six closure forms, the canonical
+    backlog item, again 2026-07-02 after the #563 verifier's tooling
+    note, and again 2026-07-03 after the #607 miss) must fire on seven
+    closure forms, the canonical
     "clos(e|es|ed|ing) [the] TODO §", the coded-id CLOSED major-closure
     marker (FR/GR/SR-style uppercase ids; widened by GR-13), the prose-named
     "clos... the ... (backlog item | TODO item | directive)" form, the
     section-name "section-N.M ... clos(ed|ure)" form, the item-number
-    "item(s) N ... closed" form, and the rotation-assertion "rotated to the
-    DONE ledger" form, and NOT on incidental TODO/FR mentions or
+    "item(s) N ... closed" form, the rotation-assertion "rotated to the
+    DONE ledger" form, and the space-separated "TODO section N.M ...
+    clos(ed|ure)" form, and NOT on incidental TODO/FR mentions or
     past-closure narration.
     """
 
@@ -5256,6 +5258,13 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "Closes the \u00a75.3 deferred-classifications backlog item.",
             # Widened form 6 (2026-07-03): the short rotation assertion.
             "the third-batch bullet rotated to DONE with the intro re-counted.",
+            # Form 7 (2026-07-03): the space-separated TODO-section closure,
+            # the #607 lead shape that evaded forms 1 (no §), 4 (no hyphen),
+            # and 6 (the rotation target was a markdown link, not the literal
+            # DONE token). Case-insensitive on the closure word.
+            "With all 38 worklist documents done, TODO section 1.1 is CLOSED and rotated to [`DONE.md`](x).",
+            "The low-severity cleanup batch, TODO section 3.14, is fully closed.",
+            "todo section 2.13 closure recorded with the register bump.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
@@ -5300,6 +5309,11 @@ class TodoRotationOnPrTests(unittest.TestCase):
             # punctuation between the numbers and "closed", so deferral
             # narration cannot match.
             "items 4-7 remain deferred, not closed, pending the source.",
+            # Form 7's forward-only window: past-closure narration where the
+            # closure word PRECEDES the "TODO section N.M" token stays
+            # excluded (the #594 lead's shape).
+            "the audit spec's last live pointer to the closed TODO section 3.14 reworded.",
+            "TODO section 1.5 stays deferred pending the egress instance.",
         ):
             self.assertIsNone(
                 m.asserts_todo_closure([line]),
