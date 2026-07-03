@@ -1,6 +1,6 @@
 # Worker Brief Template
 
-**Version:** 1.4.1\
+**Version:** 1.4.2\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -131,7 +131,7 @@ Your research (candidate framework mappings for a domain's documents) must produ
 - Any control identifier you could not confirm in corpus use flagged "needs-verification" (per DO rail 6).
 (Caught at PR #275: worker-proposed `IPY-02`/`DSP-10` corrected at apply-time; a wrong control mapping in an adopter-facing matrix is NOT gate-caught, so apply-time verification of every cell is mandatory.)
 
-After the batch merges, the orchestrator runs `/matrix-fit` over the batch's worklist (the cadenced semantic-fit audit, the [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md) skill) to catch any valid-but-wrong control code the existence gates 48/49/54 pass; this is an orchestrator cadence step (per `.claude/CLAUDE.md` `## Compliance-matrix semantic-fit cadence`), not a worker task. The worker's job is still to validate fit at authoring time per DO rail 9; `/matrix-fit` is the post-batch backstop.
+After the batch merges, the orchestrator runs `/matrix-fit` over the batch's worklist (the cadenced semantic-fit audit, the [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md) skill) to catch any valid-but-wrong control code the existence gates 48/49/54/58/61 pass; this is an orchestrator cadence step (per `.claude/CLAUDE.md` `## Compliance-matrix semantic-fit cadence`), not a worker task. The worker's job is still to validate fit at authoring time per DO rail 9; `/matrix-fit` is the post-batch backstop.
 ```
 
 ---
