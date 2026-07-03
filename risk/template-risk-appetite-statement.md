@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Appetite Statement Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-03\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Board of Directors\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/register-key-risk-indicators.md`](register-key-risk-indicators.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -65,7 +65,7 @@ The following quantitative boundaries define the outer limits of acceptable resi
 |---|---|---|
 | **Maximum residual risk score for open risks** | No risk rated Critical (score 17 to 25) to remain open without a Board-approved treatment plan for more than *[define days]* | All categories |
 | **Maximum High risks without treatment plans** | No more than *[define number]* High-rated risks without active treatment plans | All categories |
-| **Mandatory acceptance authority** | Residual risks rated High or Critical require Executive Committee or Board Risk Committee acceptance, the canonical High/critical authority defined in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §2.2 (adopters tune the named bodies there) | All categories |
+| **Mandatory acceptance authority** | Residual risks rated High or Critical require Executive Committee or Board Risk Committee acceptance, the canonical High/critical authority defined in [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 (adopters tune the named bodies there) | All categories |
 | **Financial loss tolerance** | Single incident: *[define]*: Aggregate annual: *[define]* | Financial; Operational; Cybersecurity |
 | **Data records tolerance** | Zero records for which retention periods have been exceeded without documented justification | Privacy; Legal and Regulatory |
 
