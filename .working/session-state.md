@@ -4,11 +4,11 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T20:12:12Z
+**Last-heartbeat-UTC:** 2026-07-03T21:46:08Z
 
-**Current-task:** worker-ready brief staging, slice 1 (the TODO section-4.4 expansion, runbook subsection, and design record; maintainer-directed at the 2026-07-03 thin resume, superseding the recorded section-1.9 queue head)
+**Current-task:** worker-ready brief staging, slice 5 seeding (wave 1, all P1+P2 items, landed as scratch PR #51; waves 2 and 3 research in flight; slices 3 and 4 queued)
 
-**Worker-dispatches:** none
+**Worker-dispatches:** four in-session research subagents (wave 2: P3 and P4 eligibility/brief drafting; wave 3: P5 and P6/P7/SR), read-only, delivering to the session scratchpad
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
