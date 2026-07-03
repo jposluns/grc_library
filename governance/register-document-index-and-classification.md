@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.55\
+**Version:** 1.27.56\
 **Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -237,7 +237,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Compliance | Procedure | Mergers and Acquisitions Due Diligence Procedure | [`compliance/procedure-mergers-acquisitions-due-diligence.md`](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Chief Compliance Officer | Annual | ISO 31000:2018, ISO 37301:2021, COBIT 2019 EDM03/APO12/BAI05, NIST CSF 2.0 GV | template |
 | Compliance | Template | Regulator Interaction Templates | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) | Chief Compliance Officer | Annual | Five sub-templates (breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response); shape-only with cross-references to jurisdiction- and sector-specific framework requirements | template |
 | Compliance | Template | Audit Evidence Package Template | [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) | Chief Compliance Officer | Annual | Packages per-control evidence into an audit-ready bundle: cover page, control inventory index, per-control sections, optional per-domain summaries, optional cross-reference index, package-level sign-off | template |
-| Security | Policy | Acceptance Into Service Policy | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | Chief Information Officer | Annual | ISO 42001 §8, NIST SP 800-37 RMF Step 6, COBIT BAI07, CSA CCM AIS-01 | template |
+| Security | Policy | Acceptance Into Service Policy | [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md) | Chief Information Officer | Annual | ISO 42001 §8, NIST SP 800-37 RMF Step 6, COBIT BAI07, CSA CCM CCC-01, CCC-02, CCC-05 | template |
 | Security | Framework | Cryptographic Key Lifecycle Management Framework | [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md) | Chief Information Security Officer | Annual | ISO 27002 §8.24 to 28, NIST SP 800-57, NIST FIPS 203/204, BASC v6, WCO SAFE | template |
 | Security | Procedure | Access Control Procedure | [`security/procedure-access-control.md`](../security/procedure-access-control.md) | Chief Information Security Officer | Annual | ISO 27001 Annex A.5.15 to 18, NIST SP 800-53 AC, CSA CCM IAM, NIST SP 800-207 | template |
 | Security | Procedure | Cryptographic Key Operations Procedure | [`security/procedure-cryptographic-key-operations.md`](../security/procedure-cryptographic-key-operations.md) | Chief Information Security Officer | Annual | ISO 27002 §8.24 to 28, NIST SP 800-57, NIST FIPS 140-3, CSA CCM CEK | template |
