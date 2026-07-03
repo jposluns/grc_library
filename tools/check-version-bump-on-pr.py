@@ -39,10 +39,11 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import subprocess
 import sys
 from pathlib import Path
+
+from lint_common import head_version
 
 
 # Files exempt from the version-bump requirement.
@@ -62,20 +63,6 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "__pycache__/",
 )
 
-# Match a metadata-block Version line. The pattern requires the line
-# to be one of the first 30 lines of the file (the metadata block) so
-# that documentation prose elsewhere demonstrating the metadata format
-# (e.g. ``**Version:** <x.y.z: ...>`` in a README's "How to add a
-# document" section) does not match. The 30-line cap is generous;
-# metadata blocks in this corpus are typically 13 fields plus a leading
-# title and blank line, well under 30 lines.
-METADATA_HEAD_LINES = 30
-VERSION_LINE_PATTERN = re.compile(
-    r"^\s*\*\*(?:Library )?Version:\*\*\s+(\S.*?)\s*\\?\s*$",
-    re.MULTILINE,
-)
-
-
 def git(*args: str) -> str:
     """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
     return subprocess.check_output(["git", *args], text=True).strip()
@@ -92,21 +79,6 @@ def git_show(ref: str, path: str) -> str | None:
     except subprocess.CalledProcessError:
         return None
 
-
-def extract_version(text: str | None) -> str | None:
-    """Return the metadata-block Version: (or Library Version:) field
-    value from text, or ``None`` if the file has no metadata-block
-    version. The match is restricted to the first ``METADATA_HEAD_LINES``
-    lines so documentation prose elsewhere in the file demonstrating
-    the metadata format does not match.
-    """
-    if text is None:
-        return None
-    head = "\n".join(text.splitlines()[:METADATA_HEAD_LINES])
-    match = VERSION_LINE_PATTERN.search(head)
-    if match is None:
-        return None
-    return match.group(1).strip()
 
 
 def is_exempt(path: str) -> bool:
@@ -196,24 +168,24 @@ def main(argv: list[str]) -> int:
         # File deleted in the PR (no head content): not relevant.
         if head_content is None:
             continue
-        base_version = extract_version(base_content)
-        head_version = extract_version(head_content)
+        base_version = head_version(base_content)
+        head_version_value = head_version(head_content)
         # File has no Version field at either ref: exempt by design.
-        if base_version is None and head_version is None:
+        if base_version is None and head_version_value is None:
             skipped_no_version += 1
             continue
         # File has a Version field at head but not at base (or vice versa):
         # the file gained or lost its Version field, which is a metadata
         # change that itself counts as a version event.
-        if base_version is None or head_version is None:
+        if base_version is None or head_version_value is None:
             versioned_checked += 1
             continue
         versioned_checked += 1
-        if base_version == head_version:
+        if base_version == head_version_value:
             findings.append(
                 (
                     path,
-                    f"Version field is `{head_version}` at both {merge_base[:8]} "
+                    f"Version field is `{head_version_value}` at both {merge_base[:8]} "
                     f"and {head}; the file's body changed but Version did not bump.",
                 )
             )

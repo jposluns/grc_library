@@ -331,6 +331,40 @@ def parse_iso_date(value: str) -> datetime.date | None:
         return None
 
 
+def head_version(text: str | None, *, head_lines: int = METADATA_HEAD_LINES) -> str | None:
+    """Return the head-window ``Version`` or ``Library Version`` value, or ``None``.
+
+    The Version-window trio's shared extraction (GR-3 wave 2: gate 40
+    plus the D2 and D4 delta checks retired their identical private
+    regex for this helper). Reads via :func:`parse_metadata_block`, so
+    the corpus in-scope rule the trio shares is centralized here:
+
+    - The ``Version`` field wins, then ``Library Version`` (the README's
+      CalVer line); ``README Version`` is a DISTINCT field and never
+      matches, exactly as the retired private regex behaved.
+    - An EMPTY value is treated as absent (``None``), preserving the
+      trio's scope rule that only a non-empty version value brings a
+      file into scope.
+    - Line-initial fields only: the retired regex tolerated leading
+      whitespace before ``**Version:**``; this helper narrows to the
+      canonical line-initial shape (the documented wave-2 narrowing;
+      no corpus file carries an indented metadata field).
+    - Three further edge-case divergences from the retired regex, each
+      confirmed corpus-neutral at migration time (zero live instances):
+      a no-separator value (``**Version:**1.0``) now parses (the old
+      regex required whitespace before the value); precedence between
+      ``Version`` and ``Library Version`` is by field name rather than
+      by position in the window; and an empty first ``Version`` line no
+      longer falls through to a later non-empty ``Version`` line in the
+      same window.
+    """
+    if text is None:
+        return None
+    fields = parse_metadata_block(text, head_lines=head_lines).fields
+    value = fields.get("Version") or fields.get("Library Version")
+    return value or None
+
+
 def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     """Yield ``(lineno, line)`` for each line outside a fenced code block.
 

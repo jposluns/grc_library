@@ -72,9 +72,10 @@ from __future__ import annotations
 import argparse
 import datetime
 import os
-import re
 import subprocess
 import sys
+
+from lint_common import head_version, parse_iso_date, parse_metadata_block
 
 
 # Files exempt from the co-bump requirement (same set as D2).
@@ -94,26 +95,16 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "__pycache__/",
 )
 
-# Restrict metadata-field extraction to the first 30 lines (the metadata
-# block) so prose elsewhere demonstrating the metadata format does not
-# match. Same constraint as D2 and the corpus linters.
-METADATA_HEAD_LINES = 30
-
-VERSION_LINE_PATTERN = re.compile(
-    r"^\s*\*\*(?:Library )?Version:\*\*\s+(\S.*?)\s*\\?\s*$",
-    re.MULTILINE,
-)
-
-# Canonical metadata Date line: ``**Date:** YYYY-MM-DD`` with an optional
-# trailing hard-line-break backslash. Gate 31 retired its equivalent
-# private regex for the shared lint_common parser (GR-3 wave 1, with
-# fail-loud malformed-Date semantics); this delta check still parses
-# privately and treats an annotated Date as a missing canonical line
-# (a FAIL for a changed versioned file), pending the wave-2 migration.
-DATE_LINE_PATTERN = re.compile(
-    r"^\s*\*\*Date:\*\*\s+(?P<date>\d{4}-\d{2}-\d{2})\\?\s*$",
-    re.MULTILINE,
-)
+# Field extraction is shared with the corpus linters (GR-3 wave 2:
+# ``lint_common.head_version`` for the Version window, and
+# ``parse_metadata_block`` + ``parse_iso_date`` for the Date). An
+# annotated or malformed Date value (``parse_iso_date`` returns
+# ``None``) is treated as a missing canonical line, a FAIL for a
+# bumped file, as under the retired private regex. One finding-text
+# delta: a shape-valid but calendar-invalid Date (e.g. 2026-02-30)
+# previously drew its own "not a valid ISO date" message; it now folds
+# into the missing-canonical-line message. The failing exit is the
+# same either way.
 
 
 def git(*args: str) -> str:
@@ -131,18 +122,6 @@ def git_show(ref: str, path: str) -> str | None:
         )
     except subprocess.CalledProcessError:
         return None
-
-
-def extract_field(text: str | None, pattern: re.Pattern[str], group: int | str) -> str | None:
-    """Return a metadata-block field value from ``text``, restricted to the
-    first ``METADATA_HEAD_LINES`` lines, or ``None`` if absent."""
-    if text is None:
-        return None
-    head = "\n".join(text.splitlines()[:METADATA_HEAD_LINES])
-    match = pattern.search(head)
-    if match is None:
-        return None
-    return match.group(group).strip()
 
 
 def bump_commit_date_utc(merge_base: str, head: str, path: str) -> datetime.date | None:
@@ -253,25 +232,32 @@ def main(argv: list[str]) -> int:
         # File added (no base) or deleted (no head) in the PR: not a bump event.
         if base_content is None or head_content is None:
             continue
-        base_version = extract_field(base_content, VERSION_LINE_PATTERN, 1)
-        head_version = extract_field(head_content, VERSION_LINE_PATTERN, 1)
+        base_version = head_version(base_content)
+        head_version_value = head_version(head_content)
         # No Version field at either ref: not a versioned document.
-        if base_version is None and head_version is None:
+        if base_version is None and head_version_value is None:
             skipped_no_version_event += 1
             continue
         # A Version event in this PR = the Version field changed value, or
         # was gained / lost. If unchanged, this gate has nothing to assert
         # (D2 governs whether a missing bump is itself a defect).
-        if base_version == head_version:
+        if base_version == head_version_value:
             skipped_no_version_event += 1
             continue
         bumped_checked += 1
-        head_date_str = extract_field(head_content, DATE_LINE_PATTERN, "date")
-        if head_date_str is None:
+        head_date_raw = parse_metadata_block(head_content).fields.get("Date")
+        head_date = (
+            parse_iso_date(head_date_raw) if head_date_raw is not None else None
+        )
+        # An absent Date line AND an annotated / malformed value both land
+        # here: parse_iso_date returns None on anything but a bare ISO
+        # date, matching the retired private regex, which only ever
+        # matched the canonical `**Date:** YYYY-MM-DD` shape.
+        if head_date is None:
             findings.append(
                 (
                     path,
-                    f"Version bumped to `{head_version}` but the file has no "
+                    f"Version bumped to `{head_version_value}` but the file has no "
                     f"canonical `**Date:** YYYY-MM-DD` metadata line to co-bump.",
                 )
             )
@@ -281,22 +267,11 @@ def main(argv: list[str]) -> int:
             # Defensive: the file is in the diff but no range commit touched
             # it (e.g. a merge artefact). Nothing reliable to compare against.
             continue
-        try:
-            head_date = datetime.date.fromisoformat(head_date_str)
-        except ValueError:
-            findings.append(
-                (
-                    path,
-                    f"Version bumped to `{head_version}` but the Date value "
-                    f"`{head_date_str}` is not a valid ISO date.",
-                )
-            )
-            continue
         if head_date != commit_date:
             findings.append(
                 (
                     path,
-                    f"Version bumped to `{head_version}` but Date is "
+                    f"Version bumped to `{head_version_value}` but Date is "
                     f"`{head_date.isoformat()}`, not the bump commit's UTC date "
                     f"`{commit_date.isoformat()}`; co-bump the Date in the same "
                     f"change.",
