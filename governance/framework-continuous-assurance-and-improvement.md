@@ -2,7 +2,7 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-07-02\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -173,7 +173,7 @@ Performance data from all assurance activities feed into the Governance Performa
 | ISO 9001:2015 | §10: Continual Improvement | Improvement cycle structure |
 | ISO/IEC 42001:2023 | §10: AI Management System Performance and Improvement | AI governance maturity KPIs |
 | ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
-| COBIT 2019 | MEA01: Monitor, Evaluate, and Assess Performance | Performance governance, digital trust |
+| COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance, digital trust |
 | COBIT 2019 | Digital Trust Indicators | Governance maturity metrics |
 | CSA CCM v4.1 | A&A-01, A&A-05: Audit and Assurance Policy and Procedures; Audit Management Process | Cloud control assurance |
 | BASC v6 (2022) | Trade and Customs Assurance Governance | Regional trade compliance integration |

@@ -1,12 +1,12 @@
 # Matrix Semantic-Fit Audit History
 
-**Version:** 1.0.5\
-**Date:** 2026-06-30\
+**Version:** 1.0.6\
+**Date:** 2026-07-02\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/matrix-fit` invocation against this library. New rows on top. Each row summarises one cadenced semantic-fit audit of the compliance matrix (and per-document framework-alignment tables); detail for findings-producing runs lives in a per-run file `YYYY-MM-DD-<scope>.md` linked from the **Detail** column. A zero-mismatch run gets a history row with `Detail` = `none`.
 
-`/matrix-fit` judges the gate-blind "valid code, wrong control" class (a control identifier that exists in its catalogue, so gates 48/49/54 pass it, but is the wrong control for the row's document). It is the semantic layer on top of the existence gates, not a substitute for them. See the [`matrix-fit` SKILL](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) for the six-step process and the [`/matrix-fit`](../../.claude/commands/matrix-fit.md) slash command. Cadence: after each FR-167 matrix-expansion batch, once at matrix completion, and ad-hoc.
+`/matrix-fit` judges the gate-blind "valid code, wrong control" class (a control identifier that exists in its catalogue, so gates 48/49/54/58/61 pass it, but is the wrong control for the row's document). It is the semantic layer on top of the existence gates, not a substitute for them. See the [`matrix-fit` SKILL](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) for the six-step process and the [`/matrix-fit`](../../.claude/commands/matrix-fit.md) slash command. Cadence: after each FR-167 matrix-expansion batch, once at matrix completion, and ad-hoc.
 
 This file is maintainer working state, exempt from corpus audit gates.
 

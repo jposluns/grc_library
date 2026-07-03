@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #588: COBIT fit-pass recodes + ISO 31000 6.6 swap + MEA01 titles (2026-07-02)
+
+The seven maintainer-pre-authorized COBIT semantic-fit recodes applied (cross-framework matrix rows to EDM03/EDM03.01/APO12.02 with the ISO appetite cell to 6.3.4, the exception policy's three APO12.03 carriers to APO12.02, the four BAI05.02 supplier carriers to APO10.05), plus the #587 verifier's ISO 31000 6.7-to-6.6 correction on three carriers and the two MEA01 title fixes.
+
 ### PR #587: gate 61 shipped, COBIT + ISO 31000 citation existence, both halves of the section-3.13 build (2026-07-02)
 
 The section-3.13 citation-coverage item closed per the maintainer's both-in-one-PR answer: a new reference module derived deterministically from the held scratch extracts (40 objectives, 231 practices, the ISO 31000:2018 clause tree), the gate wired four-surface with eight fixtures, the /matrix-fit worklist tool extended to COBIT and ISO 31000, and the gate's three day-one catches fixed (two fabricated practice codes, one wrong designation). The seven fit-pass recode verdicts routed to their own PR.

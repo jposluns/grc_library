@@ -307,6 +307,30 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "ensure")
 
+    def test_verbatim_ensure_title_exempt(self) -> None:
+        # The 2026-07-02 verbatim-external-title exemption: the canonical
+        # COBIT 2019 MEA01.05 practice title carries a bare imperative
+        # "Ensure" and is masked (VERBATIM_ENSURE_TITLES), while a bare
+        # "ensure" elsewhere on the same line still fails.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure.md",
+            VALID_METADATA + "\n\nThe row cites MEA01.05 Ensure the "
+            "implementation of corrective actions as its COBIT practice.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_verbatim_ensure_title_does_not_shadow_bare_ensure(self) -> None:
+        # A line carrying BOTH the masked verbatim title and a separate bare
+        # "ensure" must still fail: the mask is span-scoped, not line-scoped.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-plus-bare.md",
+            VALID_METADATA + "\n\nTeams ensure alignment with MEA01.05 Ensure "
+            "the implementation of corrective actions across audits.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertLinterFails(result, "ensure")
+
     def test_en_dash_flagged(self) -> None:
         # En dash is also disallowed by the same rule as em dash.
         fixture = self.make_fixture(
