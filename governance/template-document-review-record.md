@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Record Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md)\
@@ -184,7 +184,7 @@ Actions that exceed a defined ageing threshold escalate per the library quality 
 | ISO 19011:2018 | Guidelines for auditing management systems | Audit and review baseline |
 | ISO 30301 | Management systems for records | Records discipline |
 | ISO/IEC 42001:2023 | §9.3 Management review | AI management system cross-walk |
-| COBIT 2019 | MEA02 Managed assurance | Governance of enterprise IT |
+| COBIT 2019 | MEA02 Managed system of internal control | Monitoring and self-assessment of documented controls |
 | ITIL 4 | Continual improvement | Service management |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -150,7 +150,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 | ISO 19011:2018 | Guidelines for Auditing Management Systems | Audit methodology |
 | EU AI Act (2024) | Article 43: Conformity Assessment | High-risk AI audit obligations |
 | NIST AI RMF (2023) | MEASURE function | AI audit and measurement |
-| COBIT 2019 | MEA02: Manage System of Internal Controls | Internal control assurance |
+| COBIT 2019 | MEA04: Managed Assurance | Independent assurance over AI internal controls |
 
 ---
 
