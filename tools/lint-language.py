@@ -91,7 +91,7 @@ GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md"})
 # emitted-prose string literals are scanned for the three prose house-style
 # rules (dash, -ise, ensure that) so a house-style violation in
 # generator-authored prose is caught at gate time rather than only at the
-# next corpus-wide sweep (TODO 3.14 / Sweep 78 B-1: a Commonwealth
+# next corpus-wide sweep (Sweep 78 B-1, the low-severity cleanup batch: a Commonwealth
 # `customised` was hard-coded in build-portal.py, blind to the .md scan).
 GENERATOR_SOURCES = (
     "tools/build-portal.py",

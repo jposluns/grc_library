@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.54\
-**Date:** 2026-07-02\
+**Version:** 1.27.55\
+**Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -305,7 +305,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Risk | Template | Operational Risk Register Template | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | Chief Risk Officer | Annual | ISO 31000:2018, ISO/IEC 27005:2022, COSO ERM 2017, Basel Committee Operational Risk Principles, ORX Reference Taxonomy, FAIR, COBIT 2019 EDM03, NIST CSF 2.0 | template |
 | Risk | Register | Scenario Risk Catalogue | [`risk/register-scenario-risk-catalogue.md`](../risk/register-scenario-risk-catalogue.md) | Chief Risk Officer | Annual | ISO 31000:2018, ISO 22301:2019, ISO/IEC 27005:2022, Basel Committee Operational Resilience Principles, PRA SS1/21, DORA Arts 24-27, TIBER-EU, NIST CSF 2.0, ENISA Guidelines | template |
 | Risk | Template | Board Risk Report Template | [`risk/template-board-risk-report.md`](../risk/template-board-risk-report.md) | Chief Risk Officer | Annual | ISO 31000:2018, COSO ERM 2017, COBIT 2019 EDM/APO, ISO 27001 Annex A.5.4, OECD G20 Principles of Corporate Governance, FRC UK Corporate Governance Code, NIST CSF 2.0, Basel Committee Corporate Governance Principles | template |
-| Risk | Register | Assurance Map Register | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | Chief Risk Officer | Annual | IIA Three Lines Model 2020, ISO 31000:2018, COSO ERM 2017, COBIT 2019 MEA02, ISO 27001 Annex A.5.35, ISO 42001:2023, Basel Committee Operational Risk Principles, FRC UK Corporate Governance Code | template |
+| Risk | Register | Assurance Map Register | [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) | Chief Risk Officer | Annual | IIA Three Lines Model 2020, ISO 31000:2018, COSO ERM 2017, COBIT 2019 MEA04, ISO 27001 Annex A.5.35, ISO 42001:2023, Basel Committee Operational Risk Principles, FRC UK Corporate Governance Code | template |
 | Supply Chain | Standard | Supplier Security and Privacy Assurance Standard | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Risk Maintainer | Annual | ISO 27001 Annex A.5.19 to 22, ISO 27036, GDPR Art 28, NIST SP 800-53 SA-9 | template |
 | Supply Chain | Procedure | Supplier Onboarding Security Review Procedure | [`supply-chain/procedure-supplier-onboarding-security-review.md`](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Risk Maintainer | Annual | ISO 27036, NIST SP 800-53 SA-9, GDPR Art 28, WCO SAFE Framework | template |
 | Supply Chain | Procedure | Supplier Ongoing Monitoring Procedure | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Risk Maintainer | Annual | ISO 27036, NIST SP 800-53 SA-9, GDPR Art 28, ISO 28000 | template |

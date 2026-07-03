@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.81, PR #593
+
+The MEA02 per-carrier pass: two title fixes, four recodes (three with paired-cell rewords), the section-3.14 close, and the #592 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- KEEP verdicts (the title was the error): [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (1.0.8 to 1.0.9; MEA02's description, control-deficiency identification and improvement actions, is CAPA territory nearly verbatim; the mapping cell's "Assurance-linked" tilt reworded with it) and [`governance/template-document-review-record.md`](../../governance/template-document-review-record.md) (1.0.3 to 1.0.4; a cadenced owner review is first-line self-assessment, MEA02.01/.03, not an independent engagement; the vacuous relevance cell reworded).
+- RECODE verdicts (the intent was MEA04's assurance-engagement lifecycle): [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md) (1.0.3 to 1.0.4; risk-based planning, work programs, and reporting are MEA04.02/.05/.08, and the parent policy's audit row already carries MEA04 post-#592), [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md) (1.0.4 to 1.0.5; independent assurance is MEA04's defining phrase, and the mapping cell's "MEA02 objectives" echo moved with the code), [`risk/register-assurance-map.md`](../../risk/register-assurance-map.md) (1.1.2 to 1.1.3; an assurance map is the instrument of MEA04.02 risk-based assurance planning) with the [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.54 to 1.27.55) assurance-map framework cell moved in the same commit (the cross-file companion the routed bullet missed and the research caught), and [`ai/procedure-ai-audit.md`](../../ai/procedure-ai-audit.md) (1.1.2 to 1.1.3; the engagement-lifecycle reading over the near-canonical-variant reading, with the relevance cell re-worded to independent assurance).
+- [`TODO.md`](../../TODO.md): the MEA02 bullet rotated and section 3.14 closed wholesale (the orphan pass ultimately surfaced three live pointers to the dead section, two provenance comments, [`tools/lint-language.py`](../../tools/lint-language.py) and [`tests/test_linters.py`](../../tests/test_linters.py), plus the GR-6 bullet's evidence clause, all reworded; the fixture and docstring example strings deliberately retained; the first orphan grep missed the GR-6 clause and the pre-push verifier caught it, with the section-3.15 intro and P3 totals over-closure, which had wrongly marked the still-open section 3.13 closed, corrected in the same fix); the P3 totals line re-counted to 9 items, section 3.13 retained on its one optional bullet and only 3.14 marked fully closed; blank-line tidy (the #592 sweep's I-3).
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (1.3.17 to 1.3.18): the section-6.2 heading re-scoped from "GDPR and PIPEDA notification process" to "Regulatory notification process" (the under-scope two consecutive sweeps noted; the section serves four regimes).
+
+### Verification
+
+Every verdict grounded in the extract's objective descriptions and practice lists (MEA02 and MEA04 purpose statements read in full, quoted per carrier in the research record); the whole-scope sweep confirmed no seventh carrier and no mis-attached Managed-Assurance string on any other code; per-document coherence checked (no document now cites both objectives inconsistently). All 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green.
+
+### Discipline observations
+
+The routed bullet's own carrier list missed the assurance-map's doc-index companion row; the research worker's coherence check caught it (the cross-file half of the whole-scope lesson). The two KEEP verdicts are the pass's value over a mechanical re-title: a blanket recode to MEA04 would have been wrong for the CAPA and document-review carriers, whose lines genuinely describe MEA02's self-assessment territory.
+
 ## 2026-07-03, Library Version 2026.07.80, PR #592
 
 The routed ad-hoc fit pass: three recodes and two rewords judged at the held extract, the #591 sweep's sec-IR fixes, and a new routed finding. Closes the section-3.14 fit-pass and retirement-recording bullets.

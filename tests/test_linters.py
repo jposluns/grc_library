@@ -354,7 +354,7 @@ class LanguageLinterTests(LinterTestCase):
 
     def test_generator_emitted_prose_ise_flagged(self) -> None:
         # Gate 2 also scans the build-*.py generators' emitted-prose string
-        # literals (TODO 3.14 / Sweep 78 B-1): the generated docs/ output is
+        # literals (Sweep 78 B-1, the low-severity cleanup batch): the generated docs/ output is
         # excluded from the .md scan and the .py source is never scanned as
         # markdown, so a Commonwealth -ise spelling in a generator's emitted
         # prose (not a docstring) was doubly blind. It must now be flagged.
