@@ -42,6 +42,26 @@
 
 set -u
 
+# RM-10 pipe self-defence (TODO section 1.9(b), maintainer-approved
+# 2026-07-03): refuse to run with stdout PIPED into another command, the
+# shape that masks this guard's exit code (`guard | tail && push` pushes
+# past a failing guard). Detection is `[ -p /dev/stdout ]`, not the
+# spec's literal `[ -t 1 ]`: in this execution environment a plain
+# invocation's stdout is a regular FILE (the harness capture), so a
+# tty-check would fail every sanctioned run, while a pipe-check fails
+# exactly the masking shape and passes both sanctioned patterns (plain
+# run, and file-redirect capture `guard > log; CODE=$?`). CI is
+# unaffected (it invokes the runners directly, and its stdout is not this
+# guard's concern). Documented override for a deliberate, judged pipe:
+#   PRE_PUSH_GUARD_ALLOW_PIPE=1 tools/pre-push-guard.sh | ...
+# The sanctioned display-truncation path is tools/tail-safe.sh, which
+# captures to a regular file (so it passes this check) and preserves the
+# real exit code.
+if [ -p /dev/stdout ] && [ -z "${PRE_PUSH_GUARD_ALLOW_PIPE:-}" ]; then
+  echo "pre-push-guard: REFUSING to run with stdout piped (RM-10: a pipe masks this guard's exit code). Run it standalone, use a file-redirect capture, or use tools/tail-safe.sh -- tools/pre-push-guard.sh. Deliberate override: PRE_PUSH_GUARD_ALLOW_PIPE=1." >&2
+  exit 3
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
