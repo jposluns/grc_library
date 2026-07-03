@@ -106,6 +106,10 @@ The EPUB history-purge instruction queue is dropped as moot; the TODO 7.5 item r
 
 When a session switches AWAY from overnight mode (to daytime-unattended or attended), the standing work priority is: (1) **overnight cleanup** first (route and reset the overnight ledger, batch the pending QA rows, fix what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3) then **tooling and protections** (gates, guardrails, machinery); (4) then **new work**. Codified in `.claude/CLAUDE.md`'s attended-autonomous section (a maintainer-directed protected-file touch, logged per the touch-log convention) so future mode exits follow the ordering without re-asking.
 
+## TODO audit-trail sections stay in TODO by design (decided 2026-07-03, maintainer)
+
+The `## Standing conventions`, `## Backlog totals`, and `## Priority 7` sections of [`TODO.md`](../TODO.md) are non-forward-looking but stay in TODO: they are load-bearing at queue-reading time (the conventions govern queueing behaviour, the totals sanity-check the list, the P7 audit-trail entries prevent re-litigating dropped decisions). This closes the former TODO section 3.10(c) and Priority-7 item 7.1 as keep-by-design; the rotation discipline continues to apply to everything else in TODO.
+
 ## Model tiering for multi-session orchestration (maintainer direction 2026-07-02; enabler work queued)
 
 After the 18-PR overnight run, the maintainer directed (consider-and-advise, assessment delivered in chat and endorsed) that once the overnight cleanup lands, the multi-session TODO items (§3.6, §3.7, §3.8, plus supporting QA and guardrails) be prioritized so multi-session runs can use the highest-capability model tier as the ORCHESTRATOR and a lighter tier (Opus-class) for worker tasks that do not require that capability. The assessment's load-bearing points, recorded so the enabler wave builds against them:
