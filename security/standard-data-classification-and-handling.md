@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.2\
-**Date:** 2026-07-02\
+**Version:** 1.4.3\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -18,13 +18,13 @@ This standard defines the classification, labelling, protection, retention, and 
 
 ---
 
-## Purpose
+## 1. Purpose
 
 To ensure that information is handled consistently according to its sensitivity, regulatory obligations, and business impact, while supporting confidentiality, integrity, and availability. Aligns with ISO/IEC 27002:2022 §§5.12 to 5.15, COBIT 2019 DSS05, CSA CCM v4.1 DSP-02, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion; section numbering changed in 2025 standalone revision), and BASC International Standard (v6 2022).
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all information assets owned, controlled, or processed, including digital and physical records, databases, documents, emails, collaboration tools, backups, and AI datasets and model artifacts.
 2. Applies to all employees, contractors, suppliers, and partners with access to systems or data.
@@ -33,7 +33,7 @@ To ensure that information is handled consistently according to its sensitivity,
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -48,7 +48,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ---
 
-## Data classification levels
+## 4. Data classification levels
 
 | Classification | Definition | Handling Requirements | Examples |
 | --- | --- | --- | --- |
@@ -60,17 +60,17 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ---
 
-## 1. Classification and labelling
+## 5. Classification and labelling
 
-1.1 Data Owners are responsible for classifying data upon creation or receipt.
-1.2 All digital files must display classification labels within document metadata, filenames, or headers.
-1.3 Automated classification and handling enforcement via the data classification platform is required (cloud productivity platform).
-1.4 Physical records must be stamped or marked with classification level on each page or cover.
-1.5 System-generated or AI-derived data inherits the classification of its source unless explicitly reclassified.
+5.1 Data Owners are responsible for classifying data upon creation or receipt.
+5.2 All digital files must display classification labels within document metadata, filenames, or headers.
+5.3 Automated classification and handling enforcement via the data classification platform is required (cloud productivity platform).
+5.4 Physical records must be stamped or marked with classification level on each page or cover.
+5.5 System-generated or AI-derived data inherits the classification of its source unless explicitly reclassified.
 
 ---
 
-## 2. Handling requirements
+## 6. Handling requirements
 
 | Control Area | Requirement |
 | --- | --- |
@@ -84,30 +84,30 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ---
 
-## 3. AI data classification and handling
+## 7. AI data classification and handling
 
-3.1 AI datasets, model artifacts, and logs must follow equivalent or stricter handling than Confidential data.
-3.2 Datasets containing personal or proprietary information must be anonymized, pseudonymized, or encrypted.
-3.3 AI model weights, training scripts, and inference APIs classified as Restricted must reside in secure, access-controlled repositories.
-3.4 Model outputs with potential regulatory or ethical implications (e.g., automated decision logs) must be preserved per the Records Retention Standard.
-3.5 For AI systems supporting BASC or customs automation:
+7.1 AI datasets, model artifacts, and logs must follow equivalent or stricter handling than Confidential data.
+7.2 Datasets containing personal or proprietary information must be anonymized, pseudonymized, or encrypted.
+7.3 AI model weights, training scripts, and inference APIs classified as Restricted must reside in secure, access-controlled repositories.
+7.4 Model outputs with potential regulatory or ethical implications (e.g., automated decision logs) must be preserved per the Records Retention Standard.
+7.5 For AI systems supporting BASC or customs automation:
 - Training and operational data must comply with BASC confidentiality controls and ISO 28000 trade data requirements.
 - AI model audit logs must be tamper-proof and available for customs review.
 
 ---
 
-## 4. Retention and destruction
+## 8. Retention and destruction
 
-4.1 Data retention periods are defined in the Records Retention and Destruction Standard.
-4.2 Upon expiration of retention, data must be securely destroyed via:
+8.1 Data retention periods are defined in the Records Retention and Destruction Standard.
+8.2 Upon expiration of retention, data must be securely destroyed via:
 - Cryptographic erasure for digital data (per NIST SP 800-88).
 - Cross-cut shredding for physical media.
-4.3 Certificates of Destruction must be logged and archived for seven years.
-4.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity is preserved.
+8.3 Certificates of Destruction must be logged and archived for seven years.
+8.4 AI datasets and BASC trade data must undergo destruction validation to ensure that data lineage tracking integrity is preserved.
 
 ---
 
-## 5. Encryption requirements
+## 9. Encryption requirements
 
 | Classification | Encryption Requirement |
 | --- | --- |
@@ -121,22 +121,22 @@ Encryption keys must be managed under the Encryption and Key Management Policy.
 
 ---
 
-## 6. Sector-programme data handling overlays
+## 10. Sector-programme data handling overlays
 
 Where the organization participates in a sector programme that imposes additional handling requirements on programme-specific data (for example, BASC for customs, cargo, and personnel data classified as Restricted by default; healthcare regulation for PHI; financial-services regulation for payment-card or fraud data), the corresponding sector annex states the additional classification, storage, physical-copy, and incident-treatment requirements. See [`compliance/`](../compliance/).
 
 ---
 
-## 7. Monitoring and compliance
+## 11. Monitoring and compliance
 
-7.1 The CISO and Compliance Manager perform quarterly reviews of classification and handling adherence.
-7.2 Automated DLP reports must be analyzed monthly to detect potential misclassifications or policy breaches.
-7.3 Noncompliance or mishandling triggers investigation and remediation under the Corrective and Preventive Action Procedure.
-7.4 Annual ISO and BASC audits verify adherence to classification standards and encryption controls.
+11.1 The CISO and Compliance Manager perform quarterly reviews of classification and handling adherence.
+11.2 Automated DLP reports must be analyzed monthly to detect potential misclassifications or policy breaches.
+11.3 Noncompliance or mishandling triggers investigation and remediation under the Corrective and Preventive Action Procedure.
+11.4 Annual ISO and BASC audits verify adherence to classification standards and encryption controls.
 
 ---
 
-## Framework alignment
+## 12. Framework alignment
 
 | Control Area | ISO/IEC 27002 | COBIT 2019 | CSA CCM v4.1 | Legal / Regulatory |
 | --- | --- | --- | --- | --- |
