@@ -93,8 +93,8 @@ RULES_DIR = REPO_ROOT / "dev-security" / "claude-rules" / "governance"
 SKILLS_DIR = REPO_ROOT / "dev-security" / "claude-rules" / "skills"
 
 # Word-number map for the word-form count patterns (P9-P12 below), covering
-# 1-99: enough for every current collection size (12 rules, 17 skills, 58
-# gates) with headroom. Built from units, teens, and tens plus hyphenated
+# 1-99: enough for every current collection size with ample headroom (exact
+# counts drift as collections grow; the canonical values are parsed live). Built from units, teens, and tens plus hyphenated
 # compounds (e.g. "fifty-eight"). Used both to build the regex alternation
 # and to resolve a captured word to its integer value.
 _UNITS = {
@@ -434,7 +434,14 @@ def scan_file(path: Path, counts: dict[str, int]) -> list[Finding]:
     ``"skill"``) to its canonical count. Each match resolves to a
     (target, captured) pair via ``resolve_match``; a mismatch against that
     target's canonical count is a finding."""
-    text = read_text_safe(path)
+    try:
+        text = read_text_safe(path)
+    except FileNotFoundError:
+        # A file can vanish between rglob discovery and read when the
+        # regression suite runs concurrently in the same tree and drops a
+        # temp fixture (the routed #577 sweep I2); serial CI is unaffected.
+        # Treat exactly like an unreadable file: skip.
+        return []
     if text is None:
         return []
     findings: list[Finding] = []

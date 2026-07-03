@@ -27,13 +27,18 @@ two-to-four-letter uppercase id then uppercase CLOSED (e.g. "FR-58 CLOSED",
 class brushes the NIST-style control-id families, an accepted collision
 surface bounded by the added-CHANGELOG-lines-only scan and the standalone
 uppercase-CLOSED flag); (3) the explicit backlog-item form
-``clos(e|es|ed|ing) the <...> (backlog item | TODO item | directive)`` (e.g.
-"closes the maintainer-directed ... validation directive", the #495 prose-named
-shape); (4) the section-name closure form ``section-N.M <...> clos(ed|ure)``
+``clos(e|es|ed|ing) the <...> (backlog item | TODO item | directive | bullet(s))``
+(e.g. "closes the maintainer-directed ... validation directive", the #495
+prose-named shape; "bullet(s)" and the decimal-dot tolerance added 2026-07-03
+after the #592 mirror's "Closes the ... bullets" evaded the noun set AND the
+intervening "section-3.14" token's dots blocked the clause run); (4) the section-name closure form ``section-N.M <...> clos(ed|ure)``
 (e.g. "the section-3.14 remainder closed"); (5) the item-number closure form
 ``item(s) N [and M ...] closed`` (e.g. "items 11 and 12 closed"); or (6) the
-rotation-assertion form ``rotated to the DONE ledger`` (a line claiming the
-rotation happened must be accompanied by the rotation surfaces in the diff).
+rotation-assertion form ``rotated to [the] DONE [ledger]`` (a line claiming
+the rotation happened must be accompanied by the rotation surfaces in the
+diff; the short "rotated to DONE" variant added 2026-07-03, with a
+not-negation guard so "NOT rotated to DONE" narration stays exempt, the two
+historical negation lines the census surfaced).
 Forms 4 to 6 were added 2026-07-02 after the #563 pre-push verifier showed
 that #567's section-and-item closure phrasings passed the gate vacuously.
 It does NOT match incidental mentions ("closing the #466 finding",
@@ -118,9 +123,16 @@ CLOSURE_PATTERNS = (
     # The tempered run forbids a SECOND "the": a second "the" signals a new noun
     # phrase or a prepositional object ("closing the gap per the maintainer
     # directive"), where the trailing item/directive word is NOT the closure's
-    # direct object, so it is excluded as a false positive.
+    # direct object, so it is excluded as a false positive. The run admits a
+    # dot ONLY between digits (a decimal / section token such as "section-3.14"
+    # or "\u00a75.3") while a sentence-ending period still terminates the clause:
+    # the 2026-07-03 census showed the plain [^.\n] run could never match a
+    # closure whose intervening text carries a section number (two genuine
+    # historical closures were invisible). "bullet(s)" joins the noun set (the
+    # #592 mirror evasion); the widened form's census found three new hits,
+    # all true positives, zero false positives.
     re.compile(
-        r"\bclos(?:e|es|ed|ing)\b\s+the\s+(?:(?!\bthe\b)[^.\n]){0,70}?\b(?:backlog item|TODO item|directive)\b",
+        r"\bclos(?:e|es|ed|ing)\b\s+the\s+(?:(?!\bthe\b)(?:[^.\n]|(?<=\d)\.(?=\d))){0,70}?\b(?:backlog item|TODO item|directive|bullets?)\b",
         re.IGNORECASE,
     ),
     # (4) the section-name closure form: a hyphenated `section-N.M` token then
@@ -139,7 +151,11 @@ CLOSURE_PATTERNS = (
     # happened. If the claim is true the gate passes trivially (both surfaces
     # are in the diff); a line NARRATING a past PR's rotation is covered by
     # the TodoRotation: opt-out trailer, the same escape hatch as form 1.
-    re.compile(r"\brotated to the DONE ledger\b"),
+    # Widened 2026-07-03 with the short "rotated to DONE" variant (22 census
+    # hits: 20 genuine same-PR rotation assertions, 2 negations); the
+    # fixed-width not-lookbehind excludes the negation narration ("is NOT
+    # rotated to DONE") the census surfaced.
+    re.compile(r"(?<![Nn][Oo][Tt] )\brotated to (?:the DONE ledger|DONE)\b"),
 )
 
 TRAILER_PATTERN = re.compile(
