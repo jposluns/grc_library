@@ -1,7 +1,7 @@
 # Session Metrics
 
-**Version:** 1.0.32\
-**Date:** 2026-07-02\
+**Version:** 1.0.33\
+**Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
 A per-session ledger of the measurable cost of each working session: subagent
@@ -62,6 +62,7 @@ Row schema:
 A worked-example row (illustrative format only, not session data):
 
 ```
+| 2026-07-02/03 (resume from handoff #552; overnight run then the 2026-07-03 day queue) | not fully captured (the session spans the 2026-07-02 overnight window through 2026-07-03 ~18:20 UTC; the start and the pre-compaction middle fell in compacted windows, so no single measured span is re-verifiable) | #553 to #615 (63 merged PRs) + this session-closing handoff #616 | 8 measured post-compaction (the #613 verifier, re-verifier, and sweep; the #614 verifier, re-verifier, and sweep; the #615 verifier and sweep); the overnight and morning windows' subagent returns fell in compacted windows and were not captured (the known gap class) | **partial: 2,356,374 across the 8 measured** (#613: 338,743 + 304,267 + 330,886; #614: 316,177 + 300,386 + 230,167; #615: 324,655 + 211,093) | not instrumented | The FR-48-completion-plus-machinery marathon: the overnight run closed FR-48 at #607 (eighteen merges); the 2026-07-03 day queue landed #608 to #615 (morning processing, D5/CLAUDE.md codifications, gate 62 + r3, gate 63 + lease, gate-50 check-3 activation, GR-3 wave 2, the guardrail hygiene batch with the verify-reference-modules repair, and the sweep riders). Every day-queue PR merged first-run-green with full per-PR QA; the pre-push verifier loop caught 1 High-equivalent Medium and a dozen Lows across the window, all fixed pre-push. Maintainer-directed wind-down at #616 (account switch for the usage reset), lease RELEASED. Orchestrator main-loop tokens not instrumented, per the permanent section-3.8 decision. |
 | 2026-06-26 | ~3h elapsed (incl. CI + idle) | #362, #363 | 4 | ~1.0M (sweeps 766k + PR-validate ~250k) | not instrumented | QA subagents were the majority of token weight |
 ```
 

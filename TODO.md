@@ -35,6 +35,29 @@ The §1.5 reference version-currency register **shipped in #505** (the `Upstream
 
 - The **51 `needs-reconfirm` rows** (iso.org, the IEC webstore, and several government sources block automated fetch) await a browser or different-egress reconfirm pass to fill their `Upstream check location` URLs and stamp a verified date. **Maintainer 2026-07-02: DEFERRED until the new process (the maintainer's egress instance) is ready** (reaffirmed 2026-07-03), alongside the FR-70 and ISO-31000 deferrals; the FR-48 renumber series completed in #596 through #607.
 
+### 1.9 RM-10 pipe-guardrail hardening (maintainer-directed 2026-07-03) (M, S total)
+
+The maintainer observed that pipe-masked verification output (`guard | tail`, truncated gate
+runs) is the session's most recurrent mechanical error class (four RM-10 incidents: #569,
+#583, #608, and a fourth self-caught before the #615 push) and accepted the assessed
+guardrail set. Ship (a) and (b) together as one small tooling PR at the head of the queue.
+
+- **(a) (M, S) PreToolUse Bash hook + `tools/tail-safe.sh` wrapper.** A project hook that
+  rejects any Bash command piping the named verification commands (`pre-push-guard.sh`,
+  `run_all_audits.sh`, `run-pr-time-checks.sh`, `unittest`, `lint-*.py`,
+  `preflight-changelog.py`) into a truncating filter (`tail`, `head`, `grep`, `sed`, `awk`),
+  pointing at the sanctioned wrapper; the wrapper runs the command unpiped, prints the last
+  N lines plus an explicit `EXIT=<code>` line, and exits with the real code (display
+  truncation without exit-code loss). Wrapper gets a fixture; the hook is validated by a
+  deliberate blocked invocation.
+- **(b) (M, XS; was section-3.15 r3 G-F1, maintainer-APPROVED 2026-07-03) Pre-push guard
+  tty self-defence.** A `[ -t 1 ]` check at guard start failing loud on piped stdout, with a
+  documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; CI is unaffected (it invokes the
+  runners directly). Defence in depth under (a).
+- **(c) (L, XS) CLAUDE.md widening (authorized-touch bundle).** Widen the RM-10 clause from
+  the guard to any verification command, naming the wrapper and hook; bundle with the #614
+  retro's enumeration-grep checklist example on the same authorized CLAUDE.md touch.
+
 ## Priority 2 — Fill significant gaps
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities. The deepen-baselines cluster (FR-15 / 23 / 63 / 74 / 99 / 154 / 41) was decided for operational deepening (maintainer 2026-06-25).
@@ -146,7 +169,6 @@ Machinery findings from the 2026-07-02 guardrail review (gates, rules, skills, a
 - **(GR-8, M, S; half (a), the removal-ledger disposition pass, is COMPLETE: 14 of 15 entries dispositioned in the small-fixes PR and RM-10 dispositioned-codified in the section-1.6 D5 PR) Close the remaining watch-loop.** Retro proposed-improvements closure: [`.working/improvement-log.md`](.working/improvement-log.md) proposals accumulate un-codified and their classes recur (#446 then #450; #471 then #472); adopt a closure discipline so each proposal is codified, rejected, or expired.
 - **(GR-10, L, S) History-aware gate subprocess batching.** Gate 31 spawns a git subprocess per document (200-plus spawns, run twice per pre-push via the guard) and gate 40 is heavier; a batched `git log --name-only` pass would trade `--follow` fidelity for one subprocess. Optimization only; correctness unaffected; queue behind the functional items.
 - **(r3 O-F1, [guardrails], L, S) Gate-18 trailing-link seam.** [`tools/lint-intra-doc-refs.py`](tools/lint-intra-doc-refs.py)'s cross-doc filter checks only the PRECEDING 60-char window for a `.md` link, while gate 62 claims links on either side: a `see §5.4 in [foo](foo.md)` line (link after the reference) is claimed by both gates with different resolution targets. Latent, not live (the doctype-word scan catches real phrasings). Fix: extend the filter to a trailing window (mirroring gate 62's bidirectional adjacency) plus a regression fixture, or document the residual in both docstrings.
-- **(r3 G-F1, [guardrails], M, XS) Pre-push guard pipe self-defence.** [`tools/pre-push-guard.sh`](tools/pre-push-guard.sh) has no tty detection, so the RM-10 pipe-mask class (three incidents: #569, #583, #608) is convention-only. Proposal: a `[ -t 1 ]` check at guard start failing loud on piped stdout, with a documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; CI is unaffected (it invokes the runners directly). Maintainer decision: a machinery change to the guard itself.
 - **(r3, [guardrails], M, M) Cross-file section-reference gate, names phase.** The second PR of the two-PR plan in [`.working/cross-file-section-ref-gate-design.md`](.working/cross-file-section-ref-gate-design.md): a reference pairing a number with a quoted heading title must match the target's actual heading (FP-tuned). The numbers phase shipped as gate 62.
 - **(r3, [guardrails], L, S) D6 candidate: TODO section-close orphan check.** A PR-time check failing when a TODO `###` heading deletion leaves live `§N` / `section N.M` references on gate-exempt surfaces (three logged misses: #469, #471, the #593 carrier pair). The close-out checklist's whole-repo grep is the convention it would mechanize; gate 62 does not cover bare refs or gate-exempt trees.
 - **(r3, [guardrails], L, XS) D-check candidate: pack-README Version / version-history co-bump.** A D2/D4-shaped delta check: a diff touching the pack README's Version line must add a matching version-history row in the same diff (the paired-surface checklist instance (a), trivially mechanizable, low-FP).
@@ -356,7 +378,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07-02 audit intake (the priority sections themselves are the source of truth; these drift).
 
-- **P1 (fix errors and prevent recurrence)**: 2 items (1.4 audit-gate candidates, 1.5 reference version-currency; the 2026-07-02 audit P1 cluster is fully closed; FR-48 completed in #596 through #607; the section-1.6 D5/CLAUDE.md codifications closed same-day).
+- **P1 (fix errors and prevent recurrence)**: 3 items (1.4 audit-gate candidates, 1.5 reference version-currency, 1.9 the RM-10 pipe-guardrail hardening (maintainer-directed 2026-07-03, absorbing the section-3.15 r3 G-F1 bullet); the 2026-07-02 audit P1 cluster is fully closed; FR-48 completed in #596 through #607; the section-1.6 D5/CLAUDE.md codifications closed same-day).
 - **P2 (fill significant gaps)**: 11 items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, plus 2.11 publications-assessment; sections 2.12, 2.13, and 2.14 fully closed).
 - **P3 (clean up and tooling)**: 5 items (3.1, 3.4, 3.12, plus 3.13 audit tooling extensions and 3.15 the 2026-07-02 guardrail-review machinery extensions; sections 3.6, 3.7, 3.8, 3.10, and 3.14 fully closed).
 - **P4 (adopter experience)**: 7 items (4.1-4.5, plus 4.6 adopter-experience enhancements and 4.7 the 2026-07-02 guardrail-review pack-design improvements).
