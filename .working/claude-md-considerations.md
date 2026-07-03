@@ -342,7 +342,7 @@ a one-line reference to Sweep 22 as the motivating incident.
 
 ## RM-10: Version-bump four-questions operationalization
 
-**Section:** `## Version-bump discipline` | **Removed in:** PR #441 | **Status:** open
+**Section:** `## Version-bump discipline` | **Removed in:** PR #441 | **Status:** dispositioned-codified (2026-07-03)
 
 **Removed text (verbatim):**
 
@@ -379,6 +379,8 @@ Option-A payoff (the guard first lets the prose collapse to a pointer).
 **Evidence the removal was wrong (watch for):** a gate-40 or gate-31 or D2 or D4 failure reaching CI (meaning the guard did not catch it and the manual prompt was not there as backup), or an agent pushing without the guard. If seen, restore the four-question operationalization as the documented fallback.
 
 **Disposition pass (2026-07-03, GR-8(a)):** Reviewed 2026-07-03, stays open: two pipe-masked guard exits let pushes past a FAILING guard (#569, #583), a variant the removed four questions would not have prevented (they ask whether the runners passed, and the masked output is exactly what misled). The uncodified remedy (run the guard standalone and unpiped, read its exit before the chained push) is queued as a morning decision (protected-tree CLAUDE.md edit; pending-decisions entry 2026-07-03).
+
+**CODIFIED (2026-07-03, the D5 PR):** the maintainer authorized the remedy at the 2026-07-03 morning round and the unpiped-guard sentence now lives in the CLAUDE.md PR-workflow step 2 (standalone, unpiped, read the terminal PASS/FAIL line; the incident lineage cites #569, #583, and the #608 push, a third self-caught instance that occurred the same morning the sentence was authorized). This entry closes as dispositioned-codified: the watch signal fired, the codification landed, and the residual (a guard bypassed entirely) remains covered by the D2/D4 CI gates as the entry's risk paragraph notes.
 
 ---
 
