@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.87, PR #599
+
+FR-48 document 5 of 13, the hybrid-SHIFT renumber of the encryption policy with three citer remaps and the pack co-bump, plus the #598 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) (1.3.8 to 1.3.9): the hybrid-SHIFT renumber (the devops-security precedent class): `## Purpose`/`## Scope`/`## Governance and accountability` prefix-added as `## 1.` to `## 3.`; the old numbered body `## 1. Encryption standards` through `## 9. Continual improvement` shifted to `## 4.` through `## 12.`; `## Framework alignment` numbered `## 13.`; all 20 H3s shifted in lockstep with their parents (e.g. the FR-176 reciprocal-cadence carrier `### 2.4 Key rotation` travels to `### 5.4`). Zero inline clauses (the Scope ordered list stays a list per the minimal-mandate precedent); zero intra numeric self-refs (the external ISO/IEC 27002 clause range and BASC Section 6 both verified gate-18 heuristic-exempt before and after). The crypto lookalike field (TLS 1.3 twice, FIPS 140-3/203/204, key parameters, `§§8.24 to 8.28`) verified intact by the invariant re-parse.
+- Three inbound `§1` citers remapped to `§4 (Encryption standards)`, each a single-token digit change with the parenthetical title kept: [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) (1.1.3 to 1.1.4), [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md) (0.0.9 to 0.0.10), and the pack [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) with the paired [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) bump (1.53.14 to 1.53.15) and its version-history row (the update-one-of-a-pair guard). The pack README's own version-history `§1` mentions (two rows narrating past PRs) stay frozen historical per the #546 precedent and gate 39's Version-history exemption. The compliance-matrix `§8.4` candidate was refuted at apply time as a BASC v6 chapter reference per the matrix column legend.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): document 5 annotated done; 8 of 13 remain. [`TODO.md`](../../TODO.md): the section-1.1 residual count re-anchored to 8 and the completed doc rotated out of the class-(a) example list.
+
+### Verification
+
+The high-assurance harness ran: stage-1 research with the full heading/citer enumeration and the crypto-lookalike hazard table; a dry-run-validated, line-keyed deterministic apply with per-line pre-asserts and a post-apply invariant re-parse (H2 sequence 1 to 13, 20 H3s each sequential under its parent, zero IPv4-shaped tokens, external tokens intact); the orchestrator's own census-invariant slip (expecting one TLS 1.3 where the file holds two) was caught by the dry run before any write, the counted-claim lesson now recorded in the #598 retro row; two independent adversarial verifiers (false-negative and false-positive lenses, foreground-mandated) ran post-apply pre-push. All 61 gates pass standalone; suite 287 OK; generators regenerated in order and check-clean; pre-push guard green.
+
+### Discipline observations
+
+The #598 retro row records the lookalike-census lesson from both directions (the worker over-counted on doc 4; the orchestrator under-counted on doc 5; both caught by the count guards): census constants in apply scripts are now populated from a fresh grep at authoring time. The #598 sweep was the FR-48 run's first zero-actionable sweep.
+
 ## 2026-07-03, Library Version 2026.07.86, PR #598
 
 FR-48 document 4 of 13, the third inline-clause-class renumber, plus the verified register alignment-cell fix, the #597 sweep fixes, and the #597 QA trio. Continues the 2026-07-03 overnight run.

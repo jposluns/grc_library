@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.14\
-**Date:** 2026-07-02\
+**Version:** 1.53.15\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.15 | 2026.07.87 | 2026-07-03 | Corpus-citation sync: the pack [`CLAUDE.md`](CLAUDE.md) TLS row's encryption-policy citation renumbered from §1 to §4 (Encryption standards) in lockstep with the FR-48 renumber of [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md); no rule-content change. |
 | 1.53.14 | 2026.07.75 | 2026-07-02 | [`skills/matrix-fit/SKILL.md`](skills/matrix-fit/SKILL.md) existence-gate enumeration widened (48/49/54 to 48/49/54/58/61: the per-document ISO Annex A gate and the new COBIT/ISO 31000 citation-existence gate join the family the skill layers on) and the validator-module list extended with [`tools/cobit_iso31000_reference.py`](../../tools/cobit_iso31000_reference.py); the pack README tree blurb widened to match; the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty to sixty-one, gate-39 keyed). Patch; prose-accuracy only, no step or procedure change. |
 | 1.53.13 | 2026.07.65 | 2026-07-02 | Guardrail-review SKILL gate-count currency: the Overview growth narrative's gate figure updated to sixty alongside the gate-60 cadence audit shipping in the consuming project (the count is narrative currency, not a behaviour change). |
 | 1.53.12 | 2026.07.61 | 2026-07-02 | TLS-baseline caveat in [`core/owasp.md`](core/owasp.md): the two ASVS TLS 1.2 lines (the checklist bullet and the V9 level-progression table) now carry inline notes that the pack's canonical transport floor is TLS 1.3 per [`core/cryptography.md`](core/cryptography.md), with TLS 1.2 and earlier prohibited; the ASVS baseline text itself is unchanged. Closes the parent library's audit item 15. Pack `1.53.11` to `1.53.12` (patch; clarifying caveat only). |
