@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.5\
-**Date:** 2026-07-02\
+**Version:** 1.1.6\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -16,7 +16,7 @@
 
 ---
 
-## Purpose
+## 1. Purpose
 
 This policy defines the technical and procedural controls for securing organizational networks across on-premise, cloud, and hybrid environments.
 
@@ -24,7 +24,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all networks, connections, and communication channels that transmit or store organizational data.
 2. Covers:
@@ -37,7 +37,7 @@ It establishes requirements for network segmentation, firewall configuration, in
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 | Role | Responsibility |
 | --- | --- |
@@ -52,95 +52,95 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who en
 
 ---
 
-## 1. Network segmentation and architecture
+## 4. Network segmentation and architecture
 
-1.1 The network must be segmented into zones based on business function, sensitivity, and regulatory requirements. Sector-programme zones (for example, BASC customs and logistics segments) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+4.1 The network must be segmented into zones based on business function, sensitivity, and regulatory requirements. Sector-programme zones (for example, BASC customs and logistics segments) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
-1.2 Segmentation must isolate:
+4.2 Segmentation must isolate:
 - Corporate systems.
 - AI and analytics environments.
 - Public-facing services and DMZ.
 - Sector-programme systems (where the organization participates in a covered programme, per the relevant sector annex).
 
-1.3 Inter-zone communication must be restricted and logged, requiring explicit access rules approved by the CISO.
+4.3 Inter-zone communication must be restricted and logged, requiring explicit access rules approved by the CISO.
 
 ---
 
-## 2. Firewall and perimeter security
+## 5. Firewall and perimeter security
 
-2.1 All perimeter gateways must enforce deny-by-default rules and allow only approved, documented traffic.
+5.1 All perimeter gateways must enforce deny-by-default rules and allow only approved, documented traffic.
 
-2.2 Firewalls must support stateful inspection, intrusion prevention, and content filtering.
+5.2 Firewalls must support stateful inspection, intrusion prevention, and content filtering.
 
-2.3 Configuration changes must be approved through change-management workflows per the Change Management and Configuration Control Procedure.
+5.3 Configuration changes must be approved through change-management workflows per the Change Management and Configuration Control Procedure.
 
-2.4 Sector-programme communication channels (for example, customs EDI and customs API gateways where the organization participates in BASC) must be secured per the relevant sector annex's requirements (typically TLS 1.3 or stronger with validated PKI certificates); see [`compliance/`](../compliance/).
+5.4 Sector-programme communication channels (for example, customs EDI and customs API gateways where the organization participates in BASC) must be secured per the relevant sector annex's requirements (typically TLS 1.3 or stronger with validated PKI certificates); see [`compliance/`](../compliance/).
 
-2.5 Firewall configurations for sector-programme operations must include the logging policies stated by the relevant sector annex.
-
----
-
-## 3. Intrusion detection, prevention, and monitoring
-
-3.1 IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
-
-3.2 SOC must investigate alerts within 15 minutes for high-severity and 1 hour for medium-severity events.
-
-3.3 Sector-programme networks (for example, BASC logistics and customs networks where the organization participates in BASC) must have the additional intrusion-detection sensors and retention periods stated by the relevant sector annex; see [`compliance/`](../compliance/).
+5.5 Firewall configurations for sector-programme operations must include the logging policies stated by the relevant sector annex.
 
 ---
 
-## 4. Secure connectivity and remote access
+## 6. Intrusion detection, prevention, and monitoring
 
-4.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
+6.1 IDS and IPS systems must monitor all network traffic and integrate with the central SIEM.
 
-4.2 Direct remote access to networks operating under a sector programme that requires elevated authorization (for example, BASC trade or customs networks where the organization participates in BASC) is prohibited unless authorized in writing by the CISO and the sector-conditional role defined by the relevant sector annex; see [`compliance/`](../compliance/).
+6.2 SOC must investigate alerts within 15 minutes for high-severity and 1 hour for medium-severity events.
 
-4.3 Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
-
-4.4 Wireless access points within sensitive operational facilities (for example, those covered by a sector programme such as BASC logistics or customs facilities) must use WPA3-Enterprise encryption and maintain logs for all authenticated sessions per the relevant sector annex; see [`compliance/`](../compliance/).
+6.3 Sector-programme networks (for example, BASC logistics and customs networks where the organization participates in BASC) must have the additional intrusion-detection sensors and retention periods stated by the relevant sector annex; see [`compliance/`](../compliance/).
 
 ---
 
-## 5. Encryption and data protection
+## 7. Secure connectivity and remote access
 
-5.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256).
+7.1 All remote connections must use VPN or Zero-Trust Network Access (ZTNA) solutions enforcing device health, MFA, and continuous session validation.
 
-5.2 Cryptographic controls must follow the Encryption and Key Management Policy.
+7.2 Direct remote access to networks operating under a sector programme that requires elevated authorization (for example, BASC trade or customs networks where the organization participates in BASC) is prohibited unless authorized in writing by the CISO and the sector-conditional role defined by the relevant sector annex; see [`compliance/`](../compliance/).
 
-5.3 Where the organization participates in a sector programme that mandates additional cryptographic controls (for example, BASC-approved PKI or WCO SAFE-compliant authority for customs communications), the corresponding sector annex states the additional requirements, key custody, and routing controls; see [`compliance/`](../compliance/).
+7.3 Partner and supplier connections must be isolated using virtual network peering, firewalls, or secure APIs.
 
----
-
-## 6. AI-assisted network defence
-
-6.1 AI analytics must continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
-
-6.2 AI tools must produce explainable results for all autonomous actions and integrate with SOC dashboards.
-
-6.3 AI-driven alerts involving sector-programme networks (for example, BASC trade or customs networks where the organization participates in BASC) must be labelled according to the sector annex's classification scheme and escalated to the sector-conditional role defined by the annex for verification; see [`compliance/`](../compliance/).
+7.4 Wireless access points within sensitive operational facilities (for example, those covered by a sector programme such as BASC logistics or customs facilities) must use WPA3-Enterprise encryption and maintain logs for all authenticated sessions per the relevant sector annex; see [`compliance/`](../compliance/).
 
 ---
 
-## 7. Sector-programme network security overlays
+## 8. Encryption and data protection
+
+8.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256).
+
+8.2 Cryptographic controls must follow the Encryption and Key Management Policy.
+
+8.3 Where the organization participates in a sector programme that mandates additional cryptographic controls (for example, BASC-approved PKI or WCO SAFE-compliant authority for customs communications), the corresponding sector annex states the additional requirements, key custody, and routing controls; see [`compliance/`](../compliance/).
+
+---
+
+## 9. AI-assisted network defence
+
+9.1 AI analytics must continuously evaluate traffic for anomaly detection, drift patterns, or suspicious behaviour consistent with adversarial AI attacks.
+
+9.2 AI tools must produce explainable results for all autonomous actions and integrate with SOC dashboards.
+
+9.3 AI-driven alerts involving sector-programme networks (for example, BASC trade or customs networks where the organization participates in BASC) must be labelled according to the sector annex's classification scheme and escalated to the sector-conditional role defined by the annex for verification; see [`compliance/`](../compliance/).
+
+---
+
+## 10. Sector-programme network security overlays
 
 Where the organization participates in a sector programme that imposes additional network-security controls (for example, BASC and WCO SAFE for trade and logistics networks requiring perimeter monitoring, cargo and seal-tracking telemetry, customs-document integrity verification, and PKI controls for customs communications), the corresponding sector annex defines the additional control requirements, audit cadence, and incident-response timeframes. See [`compliance/`](../compliance/) for the sector annex applicable to the organization's covered programmes.
 
 ---
 
-## 8. Monitoring, testing, and continuous improvement
+## 11. Monitoring, testing, and continuous improvement
 
-8.1 The SOC must continuously monitor performance, intrusion alerts, and access logs.
+11.1 The SOC must continuously monitor performance, intrusion alerts, and access logs.
 
-8.2 Penetration tests and vulnerability scans must occur at least annually; sector-programme inspections occur at the cadence stated in the relevant sector annex.
+11.2 Penetration tests and vulnerability scans must occur at least annually; sector-programme inspections occur at the cadence stated in the relevant sector annex.
 
-8.3 Quarterly reviews must validate ZTNA configuration effectiveness.
+11.3 Quarterly reviews must validate ZTNA configuration effectiveness.
 
-8.4 Lessons learned and audit findings feed into the Continuous Improvement programme and CAPA process.
+11.4 Lessons learned and audit findings feed into the Continuous Improvement programme and CAPA process.
 
 ---
 
-## Framework alignment
+## 12. Framework alignment
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
