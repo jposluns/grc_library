@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.8\
+**Version:** 1.11.9\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This matrix maps GRC library documents to the control domains and section refere
 
 | Column | Framework | Reference Basis |
 | --- | --- | --- |
-| CSA CCM v4.1 | Cloud Security Alliance Cloud Controls Matrix v4 | Control domain identifiers (e.g., IAM, SEF, DSP) |
+| CSA CCM v4.1 | Cloud Security Alliance Cloud Controls Matrix v4.1 | Control domain identifiers (e.g., IAM, SEF, DSP) |
 | CSA AICM v1.1 | Cloud Security Alliance AI Controls Matrix v1.1, the AI-focused extension of CCM v4.1 | AI-specific control identifiers only (the AICM-only delta: the MDS Model Security domain plus the AI-specific AIS, GRC, DSP, HRS, IAM, LOG, and TVM controls). CCM-base controls remain in the CSA CCM v4.1 column; this column carries the AI-specific additions, so it is N/A for documents with no AI dimension |
 | ISO 27001:2022 | ISO/IEC 27001:2022 | Annex A control numbers and §4 to §10 clauses |
 | NIST CSF 2.0 | NIST Cybersecurity Framework 2.0 | Core Functions (GV, ID, PR, DE, RS, RC) |
