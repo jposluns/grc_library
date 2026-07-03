@@ -43,22 +43,15 @@ runs) is the session's most recurrent mechanical error class (six RM-10 incident
 self-caught before the post-#618 branch push, and a sixth post-commit audit run piped
 to `tail` with a pipe-masked exit capture, self-caught in the slice-3 build) and
 accepted the assessed
-guardrail set. Ship (a) and (b) together as one small tooling PR at the head of the queue.
+guardrail set. Parts (a) and (b) shipped together as one small tooling PR (2026-07-03); the
+section stays open on (c) plus the next-session hook-firing validation noted below.
 
-- **(a) (M, S) PreToolUse Bash hook + `tools/tail-safe.sh` wrapper.** A project hook that
-  rejects any Bash command piping the named verification commands (`pre-push-guard.sh`,
-  `run_all_audits.sh`, `run-pr-time-checks.sh`, `unittest`, `lint-*.py`,
-  `preflight-changelog.py`) into a truncating filter (`tail`, `head`, `grep`, `sed`, `awk`),
-  pointing at the sanctioned wrapper; the wrapper runs the command unpiped, prints the last
-  N lines plus an explicit `EXIT=<code>` line, and exits with the real code (display
-  truncation without exit-code loss). Wrapper gets a fixture; the hook is validated by a
-  deliberate blocked invocation.
-- **(b) (M, XS; was section-3.15 r3 G-F1, maintainer-APPROVED 2026-07-03) Pre-push guard
-  tty self-defence.** A `[ -t 1 ]` check at guard start failing loud on piped stdout, with a
-  documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; CI is unaffected (it invokes the
-  runners directly). Defence in depth under (a).
+- **(a) and (b) SHIPPED 2026-07-03** (the hook [`.claude/hooks/block-verification-pipes.py`](.claude/hooks/block-verification-pipes.py) wired in [`.claude/settings.json`](.claude/settings.json), the wrapper [`tools/tail-safe.sh`](tools/tail-safe.sh) with inline self-test, and the guard pipe self-defence in [`tools/pre-push-guard.sh`](tools/pre-push-guard.sh) with the documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; the tty check shipped as a `[ -p /dev/stdout ]` PIPE check because in this execution environment a plain invocation's stdout is a harness capture FILE, so the spec's literal tty test would refuse every sanctioned run while the pipe test refuses exactly the masking shape). **One residual validation**: hooks load at session start, so the deliberate blocked invocation could not fire in the shipping session (script-level block/allow/malformed cases all validated directly); the NEXT session re-runs one deliberate piped verification command and records the hook firing.
 - **(c) (L, XS) CLAUDE.md widening (authorized-touch bundle).** Widen the RM-10 clause from
-  the guard to any verification command, naming the wrapper and hook; bundle with the #614
+  the guard to any verification command, naming the wrapper and hook; consider widening the
+  hook's named-command list to the other runners the #620 verifier flagged as uncovered
+  (the linter-regression runner, the generator `--check` runs, and non-truncating sinks
+  such as `tee` and `wc`); bundle with the #614
   retro's enumeration-grep checklist example on the same authorized CLAUDE.md touch. (The
   clause's incident count, the Sweep 83 F2 note finding, was already refreshed to four in
   the Sweep-83 close-out PR under the pre-authorized factual one-liner class.)

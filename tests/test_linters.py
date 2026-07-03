@@ -1559,12 +1559,23 @@ class PrePushGuardTests(unittest.TestCase):
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return tmp, shutil
 
-    def _run_guard(self, tmp: Path):
+    def _run_guard(self, tmp: Path, allow_pipe: bool = True):
+        import os
         import subprocess as sp
 
+        # capture_output wires the guard's stdout to a PIPE, which the
+        # RM-10 self-defence (TODO 1.9(b), PR #620) refuses by design; the
+        # documented override is the sanctioned way to run a deliberate,
+        # judged pipe, which is exactly what this harness capture is. The
+        # refusal path itself is pinned by test_piped_stdout_refused.
+        env = dict(os.environ)
+        if allow_pipe:
+            env["PRE_PUSH_GUARD_ALLOW_PIPE"] = "1"
+        else:
+            env.pop("PRE_PUSH_GUARD_ALLOW_PIPE", None)
         return sp.run(
             ["bash", str(tmp / "tools" / "pre-push-guard.sh")],
-            capture_output=True, text=True, cwd=str(tmp),
+            capture_output=True, text=True, cwd=str(tmp), env=env,
         )
 
     def test_first_runner_failure_blocks_and_skips_second(self) -> None:
@@ -1608,6 +1619,25 @@ class PrePushGuardTests(unittest.TestCase):
                 f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
             self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_piped_stdout_refused(self) -> None:
+        """RM-10 self-defence (TODO 1.9(b)): piped stdout without the
+        override refuses with exit 3 before any runner runs."""
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            result = self._run_guard(tmp, allow_pipe=False)
+            self.assertEqual(
+                result.returncode, 3,
+                f"guard should refuse piped stdout with exit 3; got "
+                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("REFUSING", result.stderr)
+            self.assertFalse(
+                (tmp / "second-ran.marker").exists(),
+                "no runner may run on the refusal path",
+            )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
