@@ -64,16 +64,29 @@ STAMP_RE = re.compile(
 MERGE_PR_RE = re.compile(r'\(#(\d+)\)')
 PATH_BULLET_RE = re.compile(r'^- `([^`]+\.(?:md|py|sh|yml|yaml|csv))`', re.M)
 SECTION_ANCHOR_RE = re.compile(r'§(\d+\.\d+)')
-SR_ANCHOR_RE = re.compile(r'\bSR-(\d)\b')
+SR_ANCHOR_RE = re.compile(r'\bSR-(\d+)\b')
 ADVISORY_PRS_BEHIND = 15
 
 
 def find_scratch(cli_path):
-    """Resolve the scratch checkout path, or None if not found."""
-    for cand in (cli_path, os.environ.get("GRC_SCRATCH_PATH"),
-                 str(REPO_ROOT.parent / "grc_library_scratch")):
-        if cand and Path(cand).is_dir() and (Path(cand) / "research").is_dir():
-            return Path(cand)
+    """Resolve the scratch checkout path, or None if not found.
+
+    An EXPLICITLY named path (--scratch or GRC_SCRATCH_PATH) that does not
+    resolve is reported and NOT silently substituted with the sibling default:
+    a report attributed to a checkout the operator did not name is worse than
+    no report.
+    """
+    for label, cand in (("--scratch", cli_path),
+                        ("GRC_SCRATCH_PATH", os.environ.get("GRC_SCRATCH_PATH"))):
+        if cand:
+            if Path(cand).is_dir() and (Path(cand) / "research").is_dir():
+                return Path(cand)
+            print(f"advisory: {label}={cand} is not a scratch checkout with a "
+                  "research/ tree; not falling back to the sibling default.")
+            return None
+    default = REPO_ROOT.parent / "grc_library_scratch"
+    if default.is_dir() and (default / "research").is_dir():
+        return default
     return None
 
 
@@ -111,7 +124,7 @@ def todo_anchors():
     """Live ``### N.M`` and ``### SR-N`` heading anchors in TODO.md."""
     todo = (REPO_ROOT / "TODO.md").read_text(errors="replace")
     sections = set(re.findall(r'^### (\d+\.\d+)\s', todo, re.M))
-    srs = set(re.findall(r'^### (SR-\d)\s', todo, re.M))
+    srs = set(re.findall(r'^### (SR-\d+)\s', todo, re.M))
     return sections, srs
 
 

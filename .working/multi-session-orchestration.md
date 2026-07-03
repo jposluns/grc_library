@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -184,9 +184,14 @@ operational rules once built:
   pairing line; the `/resume` freshness check catches a missed sync at the next session
   boundary.
 
-Until the TODO section-4.4 slices land, briefs are staged ad hoc per the scratch
-`WORKER-ONBOARDING.md` and this subsection is the design of record, not yet the live
-mechanism.
+This subsection is the LIVE mechanism as of 2026-07-03: slices 1, 2, 3, and 5 of the
+TODO section-4.4 build are shipped (the scratch `research/` tree, the coverage index
+mapping the whole backlog, the gate shape-checks, the close-out pairing line, the
+`/resume` freshness check, and the advisory freshness tool
+`tools/audit-brief-freshness.py`). Workers pick up staged briefs per the scratch
+`WORKER-ONBOARDING.md`; the ad hoc path remains only as the fallback for an item whose
+brief has not yet been synced. Slice 4 (the `/subagent` entry command and the
+least-privilege worker account) remains queued.
 
 ---
 
