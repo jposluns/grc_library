@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Crisis Management Plan\
 **Document Type:** Plan\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-07-03\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/procedure-backup-and-recovery.md`](procedure-backup-and-recovery.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md)\
@@ -76,7 +76,7 @@ Activation should be considered when one or more conditions exist:
 | Operations Lead | Coordinates affected business functions and continuity workarounds. |
 | Technology Lead | Coordinates technology recovery, infrastructure, applications, identity, data, and service restoration. |
 | Security Lead | Coordinates security investigation, containment, threat response, and evidence preservation. |
-| Privacy Lead | Coordinates privacy assessment, data subject impact, and breach response where applicable. |
+| Data Protection Officer (DPO) | Coordinates privacy assessment, data subject impact, and breach response where applicable. |
 | Legal and Compliance Lead | Coordinates legal interpretation, contractual obligations, regulatory positioning, and privilege considerations. |
 | Communications Lead | Coordinates approved internal and external messaging. |
 | Supplier Lead | Coordinates third-party provider escalation, evidence, restoration commitments, and exit considerations. |

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-07-02\
+**Version:** 1.1.7\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -195,7 +195,7 @@ Logs must not be modifiable by the actor that generated them. SIEM workspace del
 - Report any suspected incident immediately to the security team. No silent remediation.
 - Preserve evidence. Do not reimage, restart, or modify affected systems without IR team instruction.
 - A designated SOC/IR partner or internal incident response capability should be engaged by the CIO/CISO for Priority 1 incidents.
-- Regulatory breach notification under PIPEDA and Quebec Law 25 is time-critical. 72 hours for high-risk breaches under Quebec Law 25. CIO must be notified immediately on any suspected breach involving personal data.
+- Regulatory breach notification under PIPEDA and Quebec Law 25 is time-critical. 72 hours for high-risk breaches under Quebec Law 25. The DPO must be notified immediately on any suspected breach involving personal data.
 
 ---
 

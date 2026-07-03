@@ -2,9 +2,9 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.5\
-**Date:** 2026-07-02\
-**Owner:** Chief Information Officer\
+**Version:** 1.5.6\
+**Date:** 2026-07-03\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
 **Classification:** Public\
@@ -46,7 +46,7 @@ The following roles hold defined accountability within the Privacy Management Pr
 | **Legal Counsel** | Advises on regulatory notification obligations; manages regulatory relationships; reviews Data Processing Agreement (DPA) documentation. |
 | **Human Resources** | Manages employee personal data; ensures that HR data processing complies with applicable employment privacy law. |
 
-> **Interim Accountability:** Where a formal Data Protection Officer (DPO) has not yet been designated, the CIO assumes these responsibilities as interim accountability. See the DPO independence and conflict-of-interest section below for the constraints the interim arrangement creates and the mitigations adopters must apply.
+> **Adopter note:** This library's model keeps the CIO and DPO roles separate. Where an adopter has not yet designated a formal DPO and an executive (commonly the CIO) holds the responsibilities in the interim, see the DPO independence and conflict-of-interest section below for the constraints such an arrangement creates and the mitigations the adopter must apply.
 
 ### DPO independence and conflict of interest (GDPR Articles 38(3) and 38(6))
 
@@ -75,7 +75,7 @@ GDPR Article 38 imposes two structural protections on the DPO role that adopters
 
 This list is not exhaustive; the test is whether the secondary role results in the DPO determining (in whole or part) the purposes and means of the processing the DPO is supposed to oversee.
 
-**Interim CIO-as-DPO arrangement: known conflict.** The interim accountability note above explicitly creates an Article 38(6) conflict: the CIO determines purposes and means of IT processing AND advises on its privacy compliance. The library makes this conflict visible rather than silent. Adopters must either:
+**Interim executive-as-DPO arrangements: known conflict (adopter guidance).** Where an adopter operates an interim arrangement in which an executive who determines the purposes and means of processing (commonly the CIO) also holds the DPO responsibilities, an Article 38(6) conflict arises: the same officer determines purposes and means of IT processing AND advises on its privacy compliance. The library's own model keeps the roles separate; an adopter operating such an interim arrangement must either:
 
 1. **Designate a formal DPO** (the preferred path; the formal designation triggers Article 37-39 protections and resolves the Article 38(6) conflict);
 2. **Implement mitigation controls** while the interim arrangement persists, naming each control to the supervisory authority in any DPIA, ROPA, or Article 36 prior consultation; OR
@@ -85,11 +85,11 @@ This list is not exhaustive; the test is whether the secondary role results in t
 
 | Control | Purpose |
 |---|---|
-| Independent privacy-decision escalation path: the acting DPO's privacy advice is reviewed by Legal Counsel and the audit committee before any decision that would be vetoed by IT-operations interests | Mitigates Article 38(3) instruction-on-tasks risk |
-| Documented separation of "CIO acting in operations capacity" vs "CIO acting as DPO" in meeting minutes, sign-offs, and supervisory-authority communications | Mitigates Article 38(6) role-blending risk |
-| External privacy counsel retained on standing brief for any matter where the CIO's operations interest and DPO advice would diverge | Provides arms-length advice channel |
+| Independent privacy-decision escalation path: the interim role-holder's privacy advice is reviewed by Legal Counsel and the audit committee before any decision that would be vetoed by IT-operations interests | Mitigates Article 38(3) instruction-on-tasks risk |
+| Documented separation of "acting in operations capacity" vs "acting in the DPO capacity" in meeting minutes, sign-offs, and supervisory-authority communications | Mitigates Article 38(6) role-blending risk |
+| External privacy counsel retained on standing brief for any matter where the executive's operations interest and DPO advice would diverge | Provides arms-length advice channel |
 | Annual independent review of the interim arrangement's effectiveness, with a documented decision to renew or replace the arrangement | Maintains discipline against indefinite reliance on the interim arrangement |
-| Public statement in the privacy notice and the Article 30 ROPA that the acting-DPO arrangement is interim | Transparency to data subjects and supervisory authorities |
+| Public statement in the privacy notice and the Article 30 ROPA that the interim arrangement is in place and time-bounded | Transparency to data subjects and supervisory authorities |
 
 **Cross-regime independence equivalents.**
 

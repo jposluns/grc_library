@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #590: section-1.3 DPO role-separation sweep + section-2.13 PIA acceptance authority (2026-07-03)
+
+The maintainer-directed sweep separated the CIO/DPO composite across all ten carrier documents plus four verifier-caught siblings (81 edits: role tables, sign-off chains, notification authorities, Owner fields per the document index), reframed the charter's interim block as adopter guidance, and applied the answered PIA authority (DPO advises, Executive Committee accepts) with the two GRC-programme siblings aligned to the canonical chain. Sections 1.3 and 2.13 closed.
+
 ### PR #589: small fixes: retention approval re-target + lifecycle pointer + GR-8(a) RM disposition pass (2026-07-03)
 
 The retention standard's 7-year approval gate re-targeted to ad-hoc extensions beyond the schedule (the answered section-2.13 note), the quality-cadence Supersede pointer re-pointed at the charter, and all 15 removal-ledger entries dispositioned (12 reviewed-keep-out, RM-6 and RM-8 inspired-change, RM-10 held open on a morning item).
