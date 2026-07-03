@@ -892,6 +892,46 @@ class IntraDocRefTests(LinterTestCase):
         self.assertLinterFails(result)
 
 
+class CrossFileSectionRefTests(LinterTestCase):
+    """tools/lint-cross-file-section-refs.py (gate 62)
+
+    The adjacent-link class: a §N reference with a markdown link to the
+    target in the same clause must name a real numbered heading OR a
+    line-initial inline clause (the canonical section model's citable
+    non-heading identifiers) in the resolved target.
+    """
+
+    TARGET_BODY = (
+        VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+        + "\n\n## 2. Scope\n\n2.1 The requirement statement this fixture makes citable.\n"
+    )
+
+    def test_stale_cross_file_ref_flagged(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = (
+            VALID_METADATA
+            + "\n\nSee [the target](standard-xref-target.md) §9.9 for the missing detail.\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertLinterFails(result, "9.9")
+
+    def test_resolving_heading_and_inline_clause_refs_pass(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = (
+            VALID_METADATA
+            + "\n\nSee [the target](standard-xref-target.md) §2 for scope and"
+            + " [the target](standard-xref-target.md) §2.1 for the clause.\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"resolving refs should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class RequiredSectionsTests(LinterTestCase):
     """tools/lint-required-sections.py"""
 
