@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #593: MEA02 title-and-fit pass: two title fixes + four MEA04 recodes; section 3.14 closed (2026-07-03)
+
+The routed MEA02 finding judged per carrier at the held extract: the CAPA procedure and document-review template keep MEA02 with the canonical title, the audit-planning procedure, internal-audit standard, assurance-map register (with its doc-index companion), and AI-audit procedure recode to MEA04 Managed Assurance; the low-severity cleanup batch (section 3.14) fully closed and rotated.
+
 ### PR #592: ad-hoc /matrix-fit pass: three recodes + two rewords; sec-IR authority residuals closed (2026-07-03)
 
 The routed fit candidates judged at the held extract: due-diligence BAI05 to APO10 Managed Vendors, the compliance-governance row to EDM01, the audit-planning row to MEA04 Managed Assurance, the digital-trust gloss and retirement pointer reworded; the #591 sweep's sharing-list and Incident-Commander carve-out fixes; a five-carrier MEA02 mis-title finding routed. Closes the section-3.14 fit-pass and retirement-recording bullets.

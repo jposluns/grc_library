@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-03\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -434,7 +434,7 @@ Audit findings are not closed in the audit register until the corresponding CAPA
 |----------------------|---------------------------|---------|
 | ISO/IEC 27001:2022 | §9.2 Internal Audit | This standard operationalizes the internal audit requirements of the ISMS |
 | ISO 19011:2018 | All clauses | Primary methodological reference for audit principles, programme management, and auditor competency |
-| COBIT 2019 | MEA02 (Managed Assurance) | Audit programme management and assurance reporting align to MEA02 objectives |
+| COBIT 2019 | MEA04 (Managed Assurance) | Audit programme management and assurance reporting align to MEA04 objectives |
 | CSA Cloud Controls Matrix | A&A-01 through A&A-06 (Audit and Assurance) | Audit planning, scope, independence, results, metrics, and remediation |
 | NIST Cybersecurity Framework 2.0 | DE.AE (Adverse Event Analysis) | Audit of detection and analysis controls |
 | BASC Standard | §9.2 Internal Audit | Internal audit requirements for BASC certification scope |

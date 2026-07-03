@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-07-02\
+**Version:** 1.0.9\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -469,7 +469,7 @@ Records are stored in the designated secure GRC document repository. Access is r
 |----------------------|---------------------------|---------|
 | ISO 9001:2015 | §10.2 Nonconformity and corrective action; §10.3 Continual improvement | Primary source for corrective and preventive action requirements; this procedure operationalizes these clauses |
 | ISO/IEC 27001:2022 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | ISMS-specific requirements for nonconformity treatment and improvement |
-| COBIT 2019 | MEA02 (Managed Assurance) | Assurance-linked corrective action and monitoring requirements |
+| COBIT 2019 | MEA02 (Managed System of Internal Control) | Control-deficiency identification, corrective action, and monitoring requirements |
 | CSA Cloud Controls Matrix | A&A-06 (Audit and Assurance: Remediation) | Requirements for tracking and remediating audit findings |
 | BASC Standard | §10 Improvement | Corrective action and improvement requirements within the BASC management system |
 | NIST Cybersecurity Framework 2.0 | ID.IM (Identify: Improvement) | Incorporating lessons learned into corrective-action and GRC programme improvement |

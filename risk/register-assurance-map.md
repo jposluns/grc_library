@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-03\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -223,7 +223,7 @@ The assurance plan is the prospective view; the map is the current state.
 | IIA Three Lines Model 2020 | Three lines model | Lines of defence |
 | ISO 31000:2018 | Risk management principles | Risk management baseline |
 | COSO ERM 2017 | Enterprise risk management | Enterprise risk integration |
-| COBIT 2019 | MEA02 Managed assurance | Governance of enterprise IT |
+| COBIT 2019 | MEA04 Managed assurance | Risk-based planning of assurance coverage |
 | ISO/IEC 27001:2022 | A.5.35 Independent review of information security | Independent review |
 | ISO/IEC 42001:2023 | Management system assurance | AI management system |
 | Basel Committee Operational Risk Principles | Three lines | Operational risk governance |

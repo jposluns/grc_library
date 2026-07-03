@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.17\
+**Version:** 1.3.18\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -179,7 +179,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 
 Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organization participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
-### 6.2 GDPR and PIPEDA notification process
+### 6.2 Regulatory notification process
 
 1. The DPO assesses whether the incident involves personal data and whether the risk threshold for notification is met.
 2. Legal Counsel reviews and approves notification content before submission.
