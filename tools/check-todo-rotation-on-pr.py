@@ -94,9 +94,10 @@ DONE_PATH = ".working/DONE.md"
 
 # Closure-assertion phrasings, broadened 2026-06-30 (the rotation-prevention
 # backlog item, since closed) beyond the original `TODO §` form to also catch the
-# prose-named and FR-N closures the #495 miss exposed, and again 2026-07-02
+# prose-named and FR-N closures the #495 miss exposed, again 2026-07-02
 # (forms 4 to 6, the #563 verifier's tooling note after #567's section-and-item
-# phrasings passed vacuously), while staying false-positive-free. The six forms
+# phrasings passed vacuously), and again 2026-07-03 (form 7, the #607 miss),
+# while staying false-positive-free. The seven forms
 # below were chosen empirically: tested
 # against the entire CHANGELOG history (root + detailed mirror, ~14k lines),
 # each matched only genuine current-PR closures with ZERO past-closure-narration
@@ -168,7 +169,8 @@ CLOSURE_PATTERNS = (
     # `section-N.M`, and the rotation clause's markdown link defeated form 6's
     # literal "rotated to DONE". The `TODO ` anchor is the FP guard that the
     # census-rejected generalized bare-"section" form lacked: the full-history
-    # census found exactly 4 hits (the #593 and #607 leads and mirrors), all
+    # census found exactly 4 hits (the #593 and #607 root leads plus two #607
+    # mirror lines; the #593 mirror carries no such token), all
     # genuine same-PR closures, 0 false positives; the forward-only window
     # correctly excludes past-closure narration where the closure word
     # PRECEDES the token ("the closed TODO section 3.14 reworded", #594).
