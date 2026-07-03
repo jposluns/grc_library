@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T15:04:35Z
+**Last-heartbeat-UTC:** 2026-07-03T15:56:34Z
 
-**Current-task:** section-3.6 close-out PR (worker-provenance attestation activated in gate 50), then the section-3.15 wave-2 remainder
+**Current-task:** section-3.15 GR-3 wave-2 PR (Version-window trio migrated onto the shared `head_version()` parser), then the remaining section-3.15 guardrail bullets
 
 **Worker-dispatches:** none
 

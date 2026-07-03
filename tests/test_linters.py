@@ -3211,6 +3211,46 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertIsNone(lc.parse_iso_date("2026-13-01"))
         self.assertIsNone(lc.parse_iso_date("not-a-date"))
 
+    def test_head_version_field_precedence(self) -> None:
+        # GR-3 wave 2: `Version` wins, `Library Version` matches, and
+        # `README Version` is a distinct field that never matches (the
+        # retired trio regex's behaviour, centralized).
+        lc = self._lint_common()
+        self.assertEqual(lc.head_version("**Version:** 1.2.3\\\n"), "1.2.3")
+        self.assertEqual(
+            lc.head_version(
+                "**Library Version:** 2026.07.100 (CalVer)\\\n"
+                "**README Version:** 1.9.461\n"
+            ),
+            "2026.07.100 (CalVer)",
+        )
+        self.assertIsNone(lc.head_version("**README Version:** 1.9.461\n"))
+        # The precedence proper: with BOTH fields present (Library Version
+        # listed first), `Version` still wins, pinning name-precedence
+        # over positional order.
+        self.assertEqual(
+            lc.head_version(
+                "**Library Version:** 2026.07.100\\\n"
+                "**Version:** 1.2.3\n"
+            ),
+            "1.2.3",
+        )
+
+    def test_head_version_empty_and_absent_out_of_scope(self) -> None:
+        # An empty value and an absent field both return None (the trio's
+        # in-scope rule: only a non-empty version brings a file in).
+        lc = self._lint_common()
+        self.assertIsNone(lc.head_version("**Version:**\n"))
+        self.assertIsNone(lc.head_version("# Title\n\nNo metadata here.\n"))
+        self.assertIsNone(lc.head_version(None))
+
+    def test_head_version_head_window_only(self) -> None:
+        # A Version-shaped line past the head window is body prose (a
+        # documented placeholder), not metadata.
+        lc = self._lint_common()
+        text = "\n" * 35 + "**Version:** 9.9.9\n"
+        self.assertIsNone(lc.head_version(text))
+
     def test_tilde_fence_toggles(self) -> None:
         # GR-4: a ~~~ fence must exclude its contents exactly as a
         # backtick fence does (previously it silently suppressed
