@@ -207,6 +207,9 @@ jobs:
       - name: Cross-file section-reference audit
         run: python3 tools/lint-cross-file-section-refs.py
 
+      - name: Session-state lease audit
+        run: python3 tools/lint-session-state.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

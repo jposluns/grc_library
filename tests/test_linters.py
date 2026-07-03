@@ -3739,6 +3739,124 @@ class OvernightFileTests(LinterTestCase):
         self.assertIn("done", mod.VALID_FAIL_STATUSES)
 
 
+class SessionStateTests(LinterTestCase):
+    """tools/lint-session-state.py (gate 63)
+
+    Well-formedness of the session-concurrency lease: five required
+    field lines, a valid Status value, a parseable UTC heartbeat, and
+    status/branch coherence. All three status values pass when
+    coherent (the interlock decision lives in the /resume step-0
+    procedure, not in CI).
+    """
+
+    VALID_LEASE = (
+        "# Session State (concurrency lease)\n\n"
+        "**Active-session:** claude/example-branch\n\n"
+        "**Status:** active\n\n"
+        "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z\n\n"
+        "**Current-task:** example task\n\n"
+        "**Worker-dispatches:** none\n"
+    )
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        # Smoke test: the session-state.md lease at HEAD is well-formed.
+        result = run_linter("tools/lint-session-state.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; "
+            f"the session-state.md lease should be well-formed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_lint_session_state",
+            REPO_ROOT / "tools/lint-session-state.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_valid_lease_passes(self) -> None:
+        mod = self._load_module()
+        missing, invalid = mod.check_text(self.VALID_LEASE)
+        self.assertEqual(missing, [])
+        self.assertEqual(invalid, [])
+
+    def test_released_lease_with_none_session_passes(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Active-session:** claude/example-branch",
+            "**Active-session:** none",
+        ).replace("**Status:** active", "**Status:** released")
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertEqual(invalid, [])
+
+    def test_missing_field_line_reported(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Worker-dispatches:** none\n", ""
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(len(missing), 1)
+        self.assertIn("Worker-dispatches", missing[0])
+
+    def test_invalid_status_value_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Status:** active", "**Status:** paused"
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(any("paused" in message for message in invalid))
+
+    def test_malformed_heartbeat_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z",
+            "**Last-heartbeat-UTC:** yesterday",
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(any("yesterday" in message for message in invalid))
+
+    def test_released_with_branch_incoherence_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Status:** active", "**Status:** released"
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(
+            any("released" in message for message in invalid)
+        )
+
+    def test_active_with_none_session_incoherence_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Active-session:** claude/example-branch",
+            "**Active-session:** none",
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(any("none" in message for message in invalid))
+
+    def test_duplicate_field_line_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE + "\n**Status:** released\n"
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(
+            any("appears 2 times" in message for message in invalid)
+        )
+
+
 class CcmAicmCitationTests(LinterTestCase):
     """tools/lint-ccm-aicm-citations.py"""
 

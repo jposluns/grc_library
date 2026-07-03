@@ -2,6 +2,34 @@ Resume the previous session from the durable handoff record. This is the single 
 
 Execute these steps in order:
 
+0. **Concurrency lease check (before reading the handoff or touching anything).** This is
+   the two-part interlock from the "Session-concurrency safety" design in
+   [`.working/design-decisions.md`](../../.working/design-decisions.md); gate 63
+   (`tools/lint-session-state.py`) guards the lease file's shape, but the interlock
+   DECISION lives here because CI runs per-branch and cannot see across sessions.
+   1. `git fetch origin`, then read [`.working/session-state.md`](../../.working/session-state.md)
+      from `main` (the declared half).
+   2. If its `Status` is not `released` AND its `Last-heartbeat-UTC` is within the
+      **60-minute staleness window**: a session is likely live. **HOLD and surface**
+      ("branch X looks active, last heartbeat T, N minutes ago; confirm it is closed
+      before I proceed"). This is an advisory HOLD requiring explicit maintainer
+      confirmation; do NOT proceed on a timeout (the graceful-degradation timer never
+      auto-proceeds here, because proceeding is the potentially destructive path).
+   3. Cross-check git (the external half, the crash net for a session that died without
+      releasing): list `origin/claude/*` branches ahead of `main`; for any branch other
+      than the one being resumed, read its newest commit time. A commit inside the
+      60-minute window triggers the same HOLD + surface.
+   4. If the lease is `released` (or its heartbeat is stale beyond the window) AND no
+      recent unmerged sibling branch exists: safe. A not-`released` lease with a STALE
+      heartbeat is surfaced as an abandoned-session takeover decision ("prior session
+      appears abandoned, heartbeat N old, branch unmerged; take over? (recommended) /
+      investigate / leave it") rather than auto-blocking. On proceeding, ACQUIRE the
+      lease: write `Active-session: <this branch>`, `Status: active`, and a fresh
+      `date -u +%Y-%m-%dT%H:%M:%SZ` heartbeat (the write lands on `main` with the first
+      PR; the stop-hook push makes the branch-local copy visible to the git cross-check
+      in the meantime). Refresh the heartbeat at each PR close-out and RELEASE
+      (`Status: released`, `Active-session: none`) in the session-closing handoff PR.
+
 1. **Read [`.working/session-handoff.md`](../../.working/session-handoff.md) in full**, including its **"Known environment behaviours"** section. It is the as-of-last-refresh snapshot of branch, versions, counts, last-merged PRs, trust-recovery state, the next-actions queue, open decisions awaiting the maintainer, the known environment behaviours, and the standing disciplines. The known-behaviours section matters: the stop-hook auto-commits and pushes uncommitted changes on turn-end (the working tree is auto-persisted, not held locally), so verify `git log` rather than assuming the tree is uncommitted.
 
 2. **Read [`.claude/CLAUDE.md`](../CLAUDE.md)** (the PRIMORDIAL RULE and project disciplines), the most recent few entries of [`CHANGELOG.md`](../../CHANGELOG.md) to ground recent history, and **[`.working/third-party-issues.md`](../../.working/third-party-issues.md)** (the log of execution-environment / third-party-service issues) so a recurring environment flake (e.g. a commit-signing-server 503 reddening gate 36) is recognized as an artefact, not chased as a corpus regression.
