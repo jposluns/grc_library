@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.80, PR #592
+
+The routed ad-hoc fit pass: three recodes and two rewords judged at the held extract, the #591 sweep's sec-IR fixes, and a new routed finding. Closes the section-3.14 fit-pass and retirement-recording bullets.
+
+### Changed
+
+- [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md) (1.1.7 to 1.1.8): BAI05 (Managed Organizational Change, the mis-fit family the #588 recode fixed in the sibling audit procedure) recoded to APO10 Managed Vendors on both carriers (the alignment sentence and the references entry); objective level because the procedure spans APO10.01/.02/.04/.05 (pre-qualification, selection, risk tiering, re-audit), unlike the monitoring-only sibling that correctly carries the single practice APO10.05. The adjacent STA-01 reference re-titled from the domain name to the control title (Supply Chain Risk Management Policies and Procedures), the same domain-name-as-title class as the MEA01 suffix fixed in #588.
+- [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) (1.0.11 to 1.0.12): the Compliance-governance row recoded MEA01.01 to EDM01 Ensured Governance Framework Setting and Maintenance (the governance objective whose purpose statement carries explicit compliance-confirmation language; MEA01.01 is monitoring-programme setup); the Audit-planning-and-execution row recoded MEA01.02 to MEA04 Managed Assurance (whose practice list spans risk-based planning, scoping, work programs, execution, and reporting; MEA01.02 is target-setting). The rows' co-citations (ISO 37301 Leadership, CSF Govern; CSA A&A 01 to 04, NIST CA-2/CA-5) corroborate both moves.
+- [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md) (1.0.3 to 1.0.4): the MEA01/MEA02 gloss reworded from "Performance, compliance, and assurance management" (assurance is MEA04's territory) to the canonical "Performance and conformance monitoring; system of internal control"; codes kept, both fit the row's KPI-governance intent.
+- [`governance/procedure-library-quality-and-review-cadence.md`](../../governance/procedure-library-quality-and-review-cadence.md) (1.0.16 to 1.0.17): the retirement-recording claim re-pointed from the document architecture framework (which carries no recording mechanism) to the document index register, which the GRC-programme procedure names as the system of record for retired documents; the sole carrier, already in the procedure's related documents.
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (1.3.16 to 1.3.17), the #591 sweep's findings: the DPO added to the section-6.4 authorized-sharing list (the M-1 token-free authority residual: the role that drafts, submits, and retains the notification was absent from it); the Incident Commander's external-communications authority carved out for regulatory notifications on both carriers (the role-table row and the section-2.2 authority bullet); Quebec Law 25 added to the DPO row's jurisdiction enumeration.
+- [`TODO.md`](../../TODO.md): the fit-pass-candidates and retirement-recording bullets rotated to [`DONE.md`](../DONE.md) with the section-3.14 intro re-counted; a NEW routed bullet for the pass's five-carrier MEA02 mis-title finding (Managed System of Internal Control mis-glossed as Managed Assurance; a title error carrying a latent fit question, judged per carrier before any recode).
+- [`matrix-fit/history.md`](../matrix-fit/history.md) (1.0.6 to 1.0.7): the ad-hoc pass's history row per the cadence.
+
+### Verification
+
+Every verdict grounded in quoted held-extract text (objective and practice titles at their extract lines), spot-re-verified by the orchestrator at apply time (EDM01, APO10, MEA02, MEA04 titles confirmed at the extract); the count-guarded apply aborted-on-mismatch; all 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green.
+
+### Discipline observations
+
+The #591 sweep's M-1 was the fourth token-free authority residual in the same document across two sweeps; the retro row extends the authority-model re-read to whole-document scope (sharing lists, confidentiality clauses, and delegation bullets are carriers just as role tables are). The pass's new MEA02 finding was routed, not silently fixed: the five carriers need per-carrier fit judgment (MEA04 is plausibly the righter objective for the audit documents), the whole-table lesson applied at the finding's own scope.
+
 ## 2026-07-03, Library Version 2026.07.79, PR #591
 
 The routed coverage-gaps third batch: eight re-grades and one row addition, every grade leaning on a named batch-2 precedent with the evidence verified at file; plus the #590 sweep's two in-window fixes and QA trio.

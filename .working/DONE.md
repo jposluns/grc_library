@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #592: ad-hoc /matrix-fit pass: three recodes + two rewords; sec-IR authority residuals closed (2026-07-03)
+
+The routed fit candidates judged at the held extract: due-diligence BAI05 to APO10 Managed Vendors, the compliance-governance row to EDM01, the audit-planning row to MEA04 Managed Assurance, the digital-trust gloss and retirement pointer reworded; the #591 sweep's sharing-list and Incident-Commander carve-out fixes; a five-carrier MEA02 mis-title finding routed. Closes the section-3.14 fit-pass and retirement-recording bullets.
+
 ### PR #591: coverage-gaps third batch: eight re-grades + the Brazil OEA row (2026-07-03)
 
 The routed #586-sweep residue executed: Mexico NEEC and the five candidates-list programmes to Referenced, China generative-AI and the PQC migration playbook to Partial, the Brazil OEA row added with mutual-recognition evidence, every grade leaning on a named batch-2 precedent; plus the sec-IR authority-residual fix and the #590 QA trio.

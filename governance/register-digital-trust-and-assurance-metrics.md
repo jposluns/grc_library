@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-03\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -122,7 +122,7 @@ Each metric should define:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| COBIT 2019 | MEA01, MEA02: Performance, compliance, and assurance management | KPI governance, digital trust indicators |
+| COBIT 2019 | MEA01, MEA02: Performance and conformance monitoring; system of internal control | KPI governance, digital trust indicators |
 | ISO 9001:2015 | §9 to 10: Measurement, analysis, and improvement | Continual improvement metrics |
 | ISO/IEC 42001:2023 | §10: AI performance and continual improvement | AI governance KPIs |
 | ISO/IEC 27014 | Governance of information security | Security governance performance measurement |
