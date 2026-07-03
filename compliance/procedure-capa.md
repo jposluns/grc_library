@@ -2,7 +2,7 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -340,7 +340,7 @@ CAPAs are not closed until verification is complete. The domain owner's assertio
 
 ### 7.5 Post-implementation effectiveness validation
 
-Closure verification (§7.2) confirms that corrective actions were implemented and that the control operates as intended at the point of closure. In addition, the effectiveness of each CAPA is independently validated by Internal Audit or Compliance within **90 days of implementation**, consistent with the Compliance and Audit Management Policy (compliance/policy-compliance-and-audit-management.md §4.3). This post-implementation validation confirms that the corrective action remains effective in sustained operation, not only at the moment of closure, and is distinct from the GRC Manager's closure verification. Where the validation finds that the corrective action has not held, the original CAPA is re-opened or a new CAPA is raised, and the recurrence is captured in the annual pattern analysis (§9.2).
+Closure verification (§7.2) confirms that corrective actions were implemented and that the control operates as intended at the point of closure. In addition, the effectiveness of each CAPA is independently validated by Internal Audit or Compliance within **90 days of implementation**, consistent with the Compliance and Audit Management Policy (compliance/policy-compliance-and-audit-management.md §4.4.3). This post-implementation validation confirms that the corrective action remains effective in sustained operation, not only at the moment of closure, and is distinct from the GRC Manager's closure verification. Where the validation finds that the corrective action has not held, the original CAPA is re-opened or a new CAPA is raised, and the recurrence is captured in the annual pattern analysis (§9.2).
 
 ---
 

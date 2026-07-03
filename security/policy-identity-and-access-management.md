@@ -2,7 +2,7 @@
 
 **Document Title:** Identity and Access Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.7\
+**Version:** 1.3.8\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,7 +115,7 @@ To ensure that all users, human, service, and machine, are uniquely identified, 
 
 | Control Area | ISO/IEC 27001 | ISO/IEC 27002:2022 | NIST | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
-| Identity Management | A.5.15 to A.5.20 | §5.16 to 5.17 | SP 800-63 | DSS05 | IAM-01 to 09 |
+| Identity Management | A.5.15 to A.5.18 | §5.16 to 5.17 | SP 800-63 | DSS05 | IAM-01 to 09 |
 | Authentication | A.8.5 | §8.5 | SP 800-63B | DSS05.04 | IAM-06, IAM-08 |
 | Privileged Access | A.8.2 | §8.2 | SP 800-53 AC-2, AC-6 | DSS05.04 | IAM-02, IAM-04 |
 | Access Review | A.5.18 | §5.18 | SP 800-53 AC-2 | MEA01 | IAM-10 |

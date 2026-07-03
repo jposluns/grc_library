@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-07-02\
+**Version:** 1.0.10\
+**Date:** 2026-07-03\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -127,7 +127,7 @@ A formal Supplier Audit Report must be issued within 15 business days of audit c
 
 All findings must be logged in the Corrective and Preventive Action (CAPA) Register. The Supplier Relationship Owner is responsible for tracking resolution progress and verifying closure of each finding. Critical or recurring findings must be escalated to the Enterprise Risk Committee.
 
-Supplier Audit Reports and their supporting evidence are retained for a minimum of 7 years, per the audit-records floor in [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 7.1 and the retention schedule register ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
+Supplier Audit Reports and their supporting evidence are retained for a minimum of 7 years, per the audit-records floor in [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 4.7.1 and the retention schedule register ([`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)).
 
 ### Step 5: Sector-programme trade-security compliance
 
