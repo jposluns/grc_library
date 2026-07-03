@@ -38,9 +38,11 @@ The §1.5 reference version-currency register **shipped in #505** (the `Upstream
 ### 1.9 RM-10 pipe-guardrail hardening (maintainer-directed 2026-07-03) (M, S total)
 
 The maintainer observed that pipe-masked verification output (`guard | tail`, truncated gate
-runs) is the session's most recurrent mechanical error class (five RM-10 incidents: #569,
-#583, #608, a fourth self-caught before the #615 push, and a fifth display-only pipe
-self-caught before the post-#618 branch push) and accepted the assessed
+runs) is the session's most recurrent mechanical error class (six RM-10 incidents: #569,
+#583, #608, a fourth self-caught before the #615 push, a fifth display-only pipe
+self-caught before the post-#618 branch push, and a sixth post-commit audit run piped
+to `tail` with a pipe-masked exit capture, self-caught in the slice-3 build) and
+accepted the assessed
 guardrail set. Ship (a) and (b) together as one small tooling PR at the head of the queue.
 
 - **(a) (M, S) PreToolUse Bash hook + `tools/tail-safe.sh` wrapper.** A project hook that
