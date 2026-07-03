@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.23\
-**Date:** 2026-07-02\
+**Version:** 1.1.24\
+**Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -101,12 +101,13 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 | UK AEO | Substantive | In library | n/a | Annex + self-assessment procedure |
 | Canada PIP | Substantive | In library | n/a | IT controls register |
 | EU AEO (27 member states) | Referenced | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; covers all EU. Re-graded None to Referenced 2026-07-02: mutual-recognition prose in the Canada PIP controls register and AEO (EU) columns and rows in the supply-chain programme-alignment matrix (the Union Customs Code row, the CTPAT and AEO-S mutual-recognition rows); arguably Partial on the matrix evidence, kept at the conservative grade until the dedicated annex ships |
-| Mexico NEEC / OEA | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; NAFTA/USMCA partner |
-| Australia ATT (Australian Trusted Trader) | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
-| Singapore STP / STP-Plus | None | Planned | TODO backlog: logistics country / programme expansion | High-priority addition |
-| Japan AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
-| Korea AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
-| New Zealand SES (Secure Exports Scheme) | None | Planned | TODO backlog: logistics country / programme expansion |  |
+| Mexico NEEC / OEA | Referenced | Planned | TODO backlog: logistics country / programme expansion | High-priority addition; NAFTA/USMCA partner. Re-graded None to Referenced 2026-07-03 (the #586 sweep's M-1): the supply-chain programme-alignment matrix carries a full NEEC programme-profile row, a NEEC domain column, shared-evidence rows, and application-priority and contacts rows (the columns-and-rows class that re-graded EU AEO), and the logistics README's candidates list and the glossary name the programme; unlike EU AEO it has no mutual-recognition pair rows, so the conservative grade holds until the dedicated annex ships |
+| Brazil OEA (Operador Econômico Autorizado) | Referenced | Planned | TODO backlog: logistics country / programme expansion | Row added 2026-07-03 (the #586 sweep's M-1): the supply-chain programme-alignment matrix carries a full OEA programme-profile row, an OEA domain column, shared-evidence rows, two mutual-recognition rows (the AEO-S and EU AEO pairs), and application-priority and contacts rows (the columns-and-rows class that re-graded EU AEO, here including the pair rows EU AEO's own grade rested on); distinct from Mexico's programme of the same OEA name; kept at the conservative grade until the dedicated annex ships |
+| Australia ATT (Australian Trusted Trader) | Referenced | Planned | TODO backlog: logistics country / programme expansion | High-priority addition. Re-graded None to Referenced 2026-07-03 (the #586 sweep's L-2): named in the logistics README's future-addition candidates list and the glossary (the candidates-list class that re-graded My Health Records); no operational detail |
+| Singapore STP / STP-Plus | Referenced | Planned | TODO backlog: logistics country / programme expansion | High-priority addition. Re-graded None to Referenced 2026-07-03 (the #586 sweep's L-2): named in the logistics README's candidates list (STP) and the glossary (both STP and the STP-Plus enhanced tier); no operational detail |
+| Japan AEO | Referenced | Planned | TODO backlog: logistics country / programme expansion | Re-graded None to Referenced 2026-07-03 (the #586 sweep's L-2): named in the logistics README's candidates list and in the supply-chain matrix's CTPAT mutual-recognition cell; no operational detail |
+| Korea AEO | Referenced | Planned | TODO backlog: logistics country / programme expansion | Re-graded None to Referenced 2026-07-03 (the #586 sweep's L-2): named in the logistics README's candidates list and in the supply-chain matrix's CTPAT mutual-recognition cell; no operational detail |
+| New Zealand SES (Secure Exports Scheme) | Referenced | Planned | TODO backlog: logistics country / programme expansion | Re-graded None to Referenced 2026-07-03 (the #586 sweep's L-2): named in the logistics README's candidates list and the glossary; no operational detail |
 | China AEO | None | Planned | TODO backlog: logistics country / programme expansion |  |
 | ~80 other WCO Member AEO programmes | None | Deferred | n/a | Cataloged in WCO AEO Compendium; added as adopters require |
 
@@ -146,7 +147,7 @@ The library cites the EU AI Act extensively in the AI domain but lacks dedicated
 | Canada AIDA | Referenced | Planned | TODO backlog: AI jurisdiction overlays |  |
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | US state-by-state (Colorado AI Act, NYC bias audit, etc.) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Referenced 2026-07-02: the Colorado AI Act carries a canonical-citations register row, a privacy jurisdiction-index cell, and a US privacy-annex legislative-status bullet; the NYC bias-audit law is not yet cited in any corpus document, so the grade rests on Colorado alone |
-| China generative AI rules | None | Planned | TODO backlog: AI jurisdiction overlays |  |
+| China generative AI rules | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-03 (the #586 sweep's M-2): the China privacy annex carries a described-obligations bullet for the Interim Measures for the Management of Generative AI Services plus dedicated Generative-AI obligations and enforcement subsections (the UK-AI-framework adjacent-dedicated-subsection pattern), and the jurisdiction index carries Generative-AI cells in its file, regime, and developments tables; unlike the Colorado basis there is no canonical-citations row, and the EU AI Act row's Referenced-on-heavy-citation stands as the disclosed neighbouring tension; the dedicated AI jurisdiction annex remains the gap |
 | Korea AI framework | None | Planned | TODO backlog: AI jurisdiction overlays |  |
 
 ---
@@ -198,7 +199,7 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | Customer Identity (CIAM) | Referenced | Deferred | TODO backlog: identity-specific content depth | Adopter UX and consumer-data dimensions |
 | Federated identity (SAML, OIDC) | Partial | In library | n/a | Referenced in IAM standards; dedicated patterns deferred |
 | Quantum cryptography readiness | Substantive | In library | n/a | PQC roadmap exists; deepening is queued in the TODO backlog (quantum cryptography readiness deepening) |
-| Post-quantum crypto migration playbook | None | Deferred | TODO backlog: quantum cryptography readiness deepening |  |
+| Post-quantum crypto migration playbook | Partial | Deferred | TODO backlog: quantum cryptography readiness deepening | Re-graded None to Partial 2026-07-03 (the #586 sweep's L-3): the shipped PQC roadmap carries a migration-scope table (per-function PQC targets and priorities) and a six-phase migration roadmap (per-phase deliverables through phase 5) (the Manufacturing adjacent-dedicated pattern; the sibling readiness row grades the same roadmap Substantive); the dedicated runbook-level migration playbook remains the gap |
 | Crypto-agility patterns | None | Deferred | TODO backlog: quantum cryptography readiness deepening |  |
 | AI/ML governance | Substantive | In library | n/a | Throughout AI domain |
 | AI red-team methodology depth | Substantive | In library | n/a | Adversarial test reference, red team report template, agentic security standard with 16 threat classes, classical ML adversarial taxonomy, AI-driven offensive tool governance (§33 of agentic standard) all expanded across Phase 23 sub-phases |
