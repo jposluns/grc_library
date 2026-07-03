@@ -19,9 +19,10 @@ covering the case where a body change landed without a Version bump
 through any path (squash commit, direct push, batch merge).
 
 Scope: ``*.md`` files under the repository root, minus the exempt set.
-The linter requires a versioned-metadata field (extract_version returns
-non-None) to bring a file into scope; files without a Version field are
-silently skipped.
+The linter requires a versioned-metadata field (the shared
+``lint_common.head_version`` helper returns non-None; GR-3 wave 2
+retired this file's private window regex for it) to bring a file into
+scope; files without a Version field are silently skipped.
 
 Exempt: CHANGELOG.md (the file is itself the version history;
 metadata is not bumped per change); generated artefacts (taxonomy.yml,
@@ -34,12 +35,11 @@ Exit codes: 0 pass, 1 findings, 2 internal error (git failure).
 from __future__ import annotations
 
 import argparse
-import re
 import subprocess
 import sys
 from pathlib import Path
 
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, read_text_safe
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, head_version, read_text_safe
 
 
 # Files exempt from the recency requirement.
@@ -52,17 +52,6 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     }
 )
 
-# How many lines from the top of the file constitute the metadata
-# block. The Version-field extraction is constrained to this window so
-# documentation prose elsewhere demonstrating the metadata format does
-# not match. (Same constraint as in check-version-bump-on-pr.py.)
-METADATA_HEAD_LINES = 30
-
-VERSION_LINE_PATTERN = re.compile(
-    r"^\s*\*\*(?:Library )?Version:\*\*\s+(\S.*?)\s*\\?\s*$",
-    re.MULTILINE,
-)
-
 # Regex (passed to ``git log -G``) that matches a Version metadata line
 # at the start of a line. The double-escape (``\\*``) is correct: git
 # log's regex backend reads a single backslash.
@@ -71,16 +60,6 @@ GIT_VERSION_REGEX = r"^\*\*(Library )?Version:\*\*"
 
 def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], text=True).strip()
-
-
-def extract_version(text: str | None) -> str | None:
-    if text is None:
-        return None
-    head = "\n".join(text.splitlines()[:METADATA_HEAD_LINES])
-    match = VERSION_LINE_PATTERN.search(head)
-    if match is None:
-        return None
-    return match.group(1).strip()
 
 
 def iter_targets(root: Path) -> list[Path]:
@@ -97,7 +76,7 @@ def iter_targets(root: Path) -> list[Path]:
             continue
         if rel in EXEMPT_FILES:
             continue
-        if extract_version(read_text_safe(path)) is None:
+        if head_version(read_text_safe(path)) is None:
             continue
         targets.append(path)
     return sorted(targets)

@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #612: section 3.6: multi-session codification complete, worker-provenance attestation activated in gate 50 (2026-07-03)
 
-The last section-3.6 deliverable (the worker-provenance audit gate): gate 50's dormant check 3 activated, validating the new `**Worker provenance:**` marking convention (a detailed-mirror CHANGELOG line naming the scratch `inbox/<worker-id>/` delivery path) now that both preconditions exist (the marking convention this PR defines; the external-collaborator primitive via the scratch WORKER-ONBOARDING flow). Runbook, CLAUDE.md checklist, spec narrative, and three fixtures shipped with it; both #611 sweep findings fixed in-window. Second injected concurrency priority: with #611, the second-session prerequisites are complete.
+The last section-3.6 deliverable (the worker-provenance audit gate): gate 50's dormant check 3 activated, validating the new `**Worker provenance:**` marking convention (a detailed-mirror CHANGELOG line naming the scratch `inbox/<worker-id>/` delivery path) now that both preconditions exist (the marking convention this PR defines; the external-collaborator primitive via the scratch WORKER-ONBOARDING flow). Runbook, CLAUDE.md checklist, spec narrative, and five fixtures shipped with it; both #611 sweep findings fixed in-window. Second injected concurrency priority: with #611, the second-session prerequisites are complete.
 
 ### PR #611: section 3.7: session-concurrency lease + git cross-check, shipped with gate 63 (2026-07-03)
 
