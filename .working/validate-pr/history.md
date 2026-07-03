@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.371\
+**Version:** 1.2.372\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-07-03 | 593 | 22 files: the MEA02 per-carrier pass (2 KEEP title fixes, 4 MEA04 recodes with the doc-index companion), section 3.14 closed, the sec-IR 6.2 heading re-scope, the #592 QA trio, CHANGELOG pair, README 2026.07.81/1.9.442, regen | 1 Medium + 1 Low + 1 Informational | None (M-1 and L-1 fixed in-window in #594, I-1 log-only) | [2026-07-03-PR-593.md](2026-07-03-PR-593.md) | Full formal dispatch; baseline green at 5cbfeff (61 gates, suite 286, generators check-clean); all seven cells re-verified at the extract with a clean corpus-wide title census; the M-1 fourth orphan pointer is the double-miss the retro row patterns. |
 | 2026-07-03 | 592 | 18 files: the ad-hoc fit pass (three recodes, two rewords, the STA-01 title), the sec-IR residual fixes (1.3.17), the MEA02 finding routed, the matrix-fit history row, the #591 QA trio, CHANGELOG pair, README 2026.07.80/1.9.441, regen | 4 Informational (no High/Medium/Low) | None (I-3/I-4 fixed in-window in #593, I-1/I-2 log-only) | [2026-07-03-PR-592.md](2026-07-03-PR-592.md) | Full formal dispatch; baseline green at 63a72fc (61 gates, suite 286, generators check-clean); every verdict re-verified at the extract and CCM catalogue; zero old-code echoes corpus-wide; the sec-IR whole-document authority re-read clean. |
 | 2026-07-03 | 591 | 14 files: the coverage-gaps third batch (register 1.1.24: eight re-grades + the Brazil OEA row), the TODO enumeration companion + rotation, the sec-IR authority fixes (1.3.16), the #590 QA trio + mirror addendum, CHANGELOG pair, README 2026.07.79/1.9.440, regen | 5 (1 Medium, 1 Low, 3 Informational) | None (M-1/L-1/I-1 fixed in-window in #592, I-2 moot, I-3 standing) | [2026-07-03-PR-591.md](2026-07-03-PR-591.md) | Full formal dispatch; baseline green at 151abb2 (61 gates, suite 286, generators check-clean); every re-graded cell re-verified at its evidence file; the M-1 (the sec-IR sharing list omitting the DPO) is the fourth token-free authority residual, fixed with the IC carve-outs in #592. |
 | 2026-07-03 | 590 | 28 files: the DPO role-separation sweep (fourteen corpus documents incl. the four verifier-caught siblings), the PIA acceptance authority + canonical-chain alignment, Owner reconciliation, TODO sections 1.3/2.13 closed, overnight-pr in-flight, four proceeded defaults, the #589 QA trio, CHANGELOG pair, README 2026.07.78/1.9.439, regen | 6 (1 Medium, 1 Low, 4 Informational) | None (M-1 and L-1 fixed in-window in #591) | [2026-07-03-PR-590.md](2026-07-03-PR-590.md) | Full formal dispatch; baseline green at 7831284 (61 gates, suite 286, generators check-clean); composite residual zero corpus-wide; the M-1 concept-level residual (the sec-IR CIO regulator-communications clause) validated and fixed in the next PR. |

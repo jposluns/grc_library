@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.10\
-**Date:** 2026-07-02\
+**Version:** 1.4.11\
+**Date:** 2026-07-03\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -159,7 +159,7 @@ Non-compliance with this policy may result in disciplinary action up to and incl
 
 ## 10. Licence
 
-This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, the organization waives all copyright and related rights to this document.
+This document is released under the **CC BY-SA 4.0** licence. To the extent possible under law, the organization waives all copyright and related rights to this document.
 
 ---
 

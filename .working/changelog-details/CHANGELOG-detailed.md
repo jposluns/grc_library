@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.82, PR #594
+
+FR-48 document 1 of 13: the internal-audit standard's intra-refs to canonical form, plus the #593 sweep's two in-window fixes and the #593 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md) (1.0.5 to 1.0.6): the FR-48 research established the document is already fully canonical (`## 1.` to `## 11.` H2s, hierarchical `### N.M` H3s, TOC matching; original state since first release, per git history), so the pass converts only the four intra-document "Section N" prose self-references to the canonical section-sign form: line 232 `Section 8` to `§8` (evidence retention), and the three `see Section 10` CAPA-register references (lines 282/301/312) to `see §10`. All edits within-line, preserving the retention-schedule register's line-number citation (`:360`) into this document; gate 55's §8.3 retention parse untouched. The worklist tags checked at apply time: "inbound §N" true but moot (no renumber, so the `§7`/`§7`/`§8.3` citers in [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), and [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md) verified accurate and untouched); "intra §N" conservative (every body `§` is external ISO 19011/ISO 27001/BASC or the outbound [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md) §8.3).
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): document 1 marked done with the already-canonical finding; 12 of 13 remain.
+
+### Fixed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.16.39 to 1.16.40): the #593 sweep's M-1, the fourth live pointer to the closed TODO section 3.14 ("(TODO 3.14, Sweep 78)" in the gate-2 narrative), reworded to "(Sweep 78, the low-severity cleanup batch)" matching the two comment rewords #593 shipped; a bare-token scan confirms zero live forward pointers remain.
+- The #593 sweep's L-1, the duplicated licence token ("the **CC BY-SA 4.0** CC BY-SA 4.0 licence"), dropped on its only three carriers corpus-wide: [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (1.3.18 to 1.3.19), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) (1.8.2 to 1.8.3), [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) (1.4.10 to 1.4.11). Minimal fix (the bold token kept); restyling toward the corpus's italic licence-line forms was deliberately not bundled.
+
+### Verification
+
+The stage-1 research worker's claims were all re-verified at apply time (the four quoted lines matched verbatim; Version 1.0.5 and Date confirmed; the `:360` citation target confirmed as the 7-year sentence). A bare-token `3.14` scan over every live surface (the #593 retro lesson applied) and a duplication census returned zero residuals. All 61 audit gates pass standalone; suite 286 OK; generators regenerated in order (taxonomy first) and check-clean; pre-push guard green.
+
+### Discipline observations
+
+The #593 sweep's M-1 is the second orphan-grep miss of the same section close (the GR-6 clause, then the audit-spec parenthetical): both greps enumerated forms while the carriers used bare "3.14" after other prefixes. The retro row patterns the fix: section-close orphan scans are bare-token scans. The FR-48 doc-1 outcome (already canonical; four prose-form conversions only) suggests the worklist's per-document tags over-state entanglement for some of the remaining 12; each document still gets its own research pass rather than an inferred batch.
+
 ## 2026-07-03, Library Version 2026.07.81, PR #593
 
 The MEA02 per-carrier pass: two title fixes, four recodes (three with paired-cell rewords), the section-3.14 close, and the #592 QA trio. Continues the 2026-07-03 overnight run.
