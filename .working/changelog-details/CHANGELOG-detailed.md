@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.79, PR #591
+
+The routed coverage-gaps third batch: eight re-grades and one row addition, every grade leaning on a named batch-2 precedent with the evidence verified at file; plus the #590 sweep's two in-window fixes and QA trio.
+
+### Changed
+
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (1.1.23 to 1.1.24): Mexico NEEC to Referenced (the EU AEO columns-and-rows precedent, the conservative grade held with the no-pair-rows narrowing disclosed); Brazil OEA row ADDED at Referenced (profile row, domain column, shared-evidence rows, the AEO-S and EU AEO mutual-recognition pairs; labelled to disambiguate from Mexico's same-named programme); Australia ATT, Singapore STP/STP-Plus, Japan AEO, Korea AEO, and New Zealand SES to Referenced (the My-Health-Records candidates-list precedent; Japan and Korea additionally on the matrix's CTPAT mutual-recognition cell); China generative-AI rules to Partial (the UK-AI-framework adjacent-dedicated pattern: the China annex's described-obligations bullet plus dedicated obligations and enforcement subsections, the jurisdiction index's three Generative-AI surfaces; the missing canonical-citations row and the EU-AI-Act Referenced neighbour disclosed); the post-quantum migration playbook to Partial (the Manufacturing pattern: the roadmap's migration-scope table and six-phase migration roadmap with deliverables through phase 5; the Substantive sibling-row contradiction resolved). Korea AI (uncited, zero corpus hits), China AEO (absent from the candidates list, matrix, and glossary; the TODO enumeration naming disclosed as non-coverage), and crypto-agility (zero agility hits in the roadmap) verified and left unchanged.
+- [`TODO.md`](../../TODO.md): Brazil OEA added to the trusted-trader enumeration (the companion edit the Planned target requires); the third-batch bullet rotated to [`DONE.md`](../DONE.md) with the section-3.14 intro re-counted.
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) (1.3.15 to 1.3.16): the #590 sweep's M-1: the CIO row's composite-era "customers, partners, and regulators" approval re-scoped (regulatory notifications route through the DPO with Legal Counsel content approval per the procedure's own notification steps) and the CISO row's "Oversees regulatory notification decisions" re-worded to coordination with the DPO, closing the role table's contradiction with section 6.2 and the breach procedure's authority model.
+- A dated addendum on the #590 mirror entry corrects the carrier count (the sweep's L-1: nine mechanically-verifiable composite carriers, the tenth document being the PIA-acceptance sibling).
+
+### Verification
+
+Every re-grade's evidence was verified at the evidence file by the research worker (path-and-line quoted) and re-verified at apply time; the register edit applied by a count-guarded script; all 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green. Contradiction checks: no proposal contradicts a batch-2 precedent (the consistency table in the research record); the register's 4-of-94 coverage sentence unaffected (no new Substantive grade).
+
+### Discipline observations
+
+The research found the routed evidence stronger than claimed in three places (the China annex's dedicated subsections, the glossary entries, the Mexico README naming) and weaker in one framing (China AEO is named in the TODO enumeration, disclosed as non-coverage per the register's own deferral convention); nothing was papered over. The #590 sweep's M-1 is the third token-free authority residual this window; the retro row names the authority-model re-read as a standing stage of future authority sweeps. The pre-push verifier caught a phase miscount in the PQC Notes cell (six phases, deliverables through five) and the surviving section-6.1 CISO / DPO notifying-authority pair cells, both fixed before push; its Incident-Commander-adjacency read (complementary, not conflicting) is recorded as an honest-assessment note.
+
 ## 2026-07-03, Library Version 2026.07.78, PR #590
 
 The section-1.3 DPO role-separation sweep executes in full: ten documents, 75 count-guarded scripted edits, zero composite residual corpus-wide, plus the section-2.13 PIA acceptance-authority fix and the #589 QA trio. First PR of the 2026-07-03 overnight run.
@@ -26,6 +45,8 @@ The section-1.3 DPO role-separation sweep executes in full: ten documents, 75 co
 ### Verification
 
 Every edit applied by a count-guarded deterministic script (staged in memory, aborting on any count mismatch) with a zero-residual re-parse over the ten files and a corpus-wide composite grep (zero live hits of any acting-DPO variant). The research census (every DPO mention corpus-wide, classified) and the orchestrator's judgment on the five flagged non-mechanical items are separated in the record. All 61 audit gates pass standalone after each commit; suite 286 OK; generators check-clean; pre-push guard green.
+
+Addendum (2026-07-03, recorded at the #590 post-merge sweep and batched into #591): the "ten carrier documents" count over-claims by one; the mechanically-verifiable composite-carrier set at the parent commit is nine documents (five core privacy, three templates, the security IR procedure), the tenth being the GRC-programme procedure whose edits are the PIA-acceptance siblings. The arithmetic (fourteen corpus files, four verifier siblings) is internally consistent; the carrier label is what over-reached. The sweep's M-1 (the sec-IR CIO row's composite-era regulator-communications approval, a concept-level residual its own diff did not touch) is fixed in #591.
 
 ### Discipline observations
 
