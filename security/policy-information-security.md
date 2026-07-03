@@ -2,7 +2,7 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.12\
+**Version:** 1.3.13\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -18,13 +18,13 @@ This policy establishes the overarching framework for protecting the confidentia
 
 ---
 
-## Purpose
+## 1. Purpose
 
 To ensure that information security is systematically managed, risks are mitigated through proportionate controls, and the organization maintains compliance with ISO/IEC 27001:2022, ISO/IEC 27002:2022, NIST CSF 2.0, COBIT 2019, and CSA CCM v4.1.
 
 ---
 
-## Scope
+## 2. Scope
 
 1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational data.
 2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices.
@@ -35,7 +35,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 
 ---
 
-## Governance and accountability
+## 3. Governance and accountability
 
 **ISMS Ownership**
 - The Chief Information Security Officer (CISO) is responsible for establishing, maintaining, and continually improving the ISMS.
@@ -62,81 +62,81 @@ Where the organization participates in a sector-specific security programme (for
 
 ---
 
-## Policy statements
+## 4. Policy statements
 
-### 1. Information security framework
+### 4.1 Information security framework
 
-1.1 The organization must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
-1.2 The ISMS must integrate risk management, business continuity, privacy, and AI governance.
-1.3 Security objectives must be measurable and reviewed annually.
+4.1.1 The organization must maintain an ISMS aligned to ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
+4.1.2 The ISMS must integrate risk management, business continuity, privacy, and AI governance.
+4.1.3 Security objectives must be measurable and reviewed annually.
 
-### 2. Asset management
+### 4.2 Asset management
 
-2.1 All information assets must be inventoried and classified by confidentiality, integrity, and availability impact.
-2.2 Owners must be assigned to each asset and responsible for protection throughout its lifecycle.
-2.3 Unauthorized assets must be removed from the network and reported to the CISO.
+4.2.1 All information assets must be inventoried and classified by confidentiality, integrity, and availability impact.
+4.2.2 Owners must be assigned to each asset and responsible for protection throughout its lifecycle.
+4.2.3 Unauthorized assets must be removed from the network and reported to the CISO.
 
-### 3. Access control and identity management
+### 4.3 Access control and identity management
 
-3.1 Access must follow the principle of least privilege and be granted based on approved business need.
-3.2 All privileged accounts must use multi-factor authentication.
-3.3 Role-based access controls must be defined and periodically reviewed for accuracy.
-3.4 Access revocation must occur within 24 hours of employee termination or role change.
+4.3.1 Access must follow the principle of least privilege and be granted based on approved business need.
+4.3.2 All privileged accounts must use multi-factor authentication.
+4.3.3 Role-based access controls must be defined and periodically reviewed for accuracy.
+4.3.4 Access revocation must occur within 24 hours of employee termination or role change.
 
-### 4. Network and infrastructure security
+### 4.4 Network and infrastructure security
 
-4.1 The network must be segmented according to sensitivity, criticality, and regulatory requirements.
-4.2 Firewalls, intrusion prevention systems, and secure gateways must be configured, monitored, and updated regularly.
-4.3 Cloud environments must implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
-4.4 All network traffic must be logged and retained per the Logging and Monitoring Standard.
+4.4.1 The network must be segmented according to sensitivity, criticality, and regulatory requirements.
+4.4.2 Firewalls, intrusion prevention systems, and secure gateways must be configured, monitored, and updated regularly.
+4.4.3 Cloud environments must implement shared responsibility models and continuous monitoring aligned to CSA CCM I&S controls.
+4.4.4 All network traffic must be logged and retained per the Logging and Monitoring Standard.
 
-### 5. Endpoint and mobile security
+### 4.5 Endpoint and mobile security
 
-5.1 All endpoints must have up-to-date antivirus, endpoint detection, and response capabilities.
-5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organizational data.
-5.3 Removable media must be restricted and encrypted when use is approved.
+4.5.1 All endpoints must have up-to-date antivirus, endpoint detection, and response capabilities.
+4.5.2 Device encryption must be enforced for all laptops, tablets, and mobile devices storing organizational data.
+4.5.3 Removable media must be restricted and encrypted when use is approved.
 
-### 6. Vulnerability and patch management
+### 4.6 Vulnerability and patch management
 
-6.1 Vulnerability scans must occur at least monthly for all systems and after any major change.
-6.2 Critical vulnerabilities must be remediated within seven days; high within fourteen days.
-6.3 Patch deployment must be automated where possible and tracked for compliance metrics.
+4.6.1 Vulnerability scans must occur at least monthly for all systems and after any major change.
+4.6.2 Critical vulnerabilities must be remediated within seven days; high within fourteen days.
+4.6.3 Patch deployment must be automated where possible and tracked for compliance metrics.
 
-### 7. Information handling and data protection
+### 4.7 Information handling and data protection
 
-7.1 Data classification and labelling must follow the Data Classification Standard.
-7.2 Data at rest and in transit must be encrypted using approved algorithms (AES-256 or stronger).
-7.3 Backups must be performed daily, tested quarterly, and stored securely in geographically diverse locations.
+4.7.1 Data classification and labelling must follow the Data Classification Standard.
+4.7.2 Data at rest and in transit must be encrypted using approved algorithms (AES-256 or stronger).
+4.7.3 Backups must be performed daily, tested quarterly, and stored securely in geographically diverse locations.
 
-### 8. AI model and system security
+### 4.8 AI model and system security
 
-8.1 AI systems and models must be protected against unauthorized access, modification, or data poisoning.
-8.2 Model artifacts must be version-controlled, integrity-checked, and logged.
-8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility are achieved.
-8.4 AI model risk metrics must align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
+4.8.1 AI systems and models must be protected against unauthorized access, modification, or data poisoning.
+4.8.2 Model artifacts must be version-controlled, integrity-checked, and logged.
+4.8.3 Validation and verification procedures must be implemented to ensure that accuracy, fairness, and reproducibility are achieved.
+4.8.4 AI model risk metrics must align with NIST CSF 2.0 and NIST AI RMF 1.0 (with the AI 600-1 Generative AI Profile).
 
-### 9. Incident response and reporting
+### 4.9 Incident response and reporting
 
-9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
-9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
-9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
+4.9.1 All suspected or confirmed information security incidents must be reported immediately to the security operations team.
+4.9.2 Incident response must follow the NIST SP 800-61 Rev. 3 framework (Incident Response Recommendations and Considerations for Cybersecurity Risk Management, 2025) and COBIT DSS02.
+4.9.3 Root cause analysis and lessons learned must be completed within ten business days of incident closure.
 
-### 10. Monitoring and continuous improvement
+### 4.10 Monitoring and continuous improvement
 
-10.1 The ISMS must be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
-10.2 The ISMS must be audited annually for ISO/IEC 27001 compliance.
-10.3 Corrective actions must be documented, tracked, and verified by Internal Audit.
+4.10.1 The ISMS must be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
+4.10.2 The ISMS must be audited annually for ISO/IEC 27001 compliance.
+4.10.3 Corrective actions must be documented, tracked, and verified by Internal Audit.
 
 ---
 
-## Framework alignment
+## 5. Framework alignment
 
 | Control Area | ISO/IEC 27001:2022 | ISO/IEC 27002:2022 | NIST CSF 2.0 | COBIT 2019 | CSA CCM v4.1 |
 | --- | --- | --- | --- | --- | --- |
 | Governance and ISMS | Clauses 4 to 10 | 5.1, 5.2 (policies and roles) | Identify, Protect | DSS01.01 | ISM-01 |
 | Asset Management | A.5.9 to A.5.11 | 5.9 to 5.14 | Identify | DSS01.02 | ISM-02 |
 | Access Control | A.5.15 to A.5.18 | 5.15 to 5.18; 8.2 to 8.5 | Protect | DSS05 | IAM-01 to 09 |
-| Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 8.20 to 8.24 (network security and cryptography) | Protect, Detect | DSS01, DSS04 | I&S-01 to 10 |
+| Network and Cloud Security | A.5.14, A.5.23, A.8.20 to A.8.24 | 5.14 (information transfer); 5.23 (cloud services); 8.20 to 8.24 (network security and cryptography) | Protect, Detect | DSS01, DSS04 | I&S-01 to 10 |
 | Vulnerability and Patch | A.8.8, A.8.9 | 8.8 (technical vulnerabilities); 8.9 (configuration management) | Detect, Respond | DSS05 | ISM-04 |
 | Incident Management | A.5.24 | 5.24 to 5.30; 6.8 (event reporting) | Respond, Recover | DSS02 | ISM-05 |
 | AI Model Security | A.8 (emerging) | N/A | Protect, Detect | DSS05.07 | ISM-10 |

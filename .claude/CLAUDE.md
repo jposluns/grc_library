@@ -360,7 +360,14 @@ is external. Two mechanisms:
      fourth carrier in an assertion-message string) and the corpus-wide-scrub scope to every
      surface of a touched file (#320 edited a framework-list row but missed the same file's
      update-summary narrative bullet; Sweep 41 then found a third carrier in a
-     cross-jurisdiction summary row).
+     cross-jurisdiction summary row). A third axis on top of pattern width and scope width
+     is SEPARATOR TOLERANCE: a completion-claim or contradiction grep must be run in a
+     pipe-permitting proximity form (`grep -E 'TOKEN1.{0,80}TOKEN2'`, plus the reversed
+     window where token order can vary), never as an adjacent-phrase literal, because a
+     table-cell pipe, a parenthesis, or a word-order variant defeats the literal phrase
+     while the defect survives (first-commit zero-residual claims were refuted pre-push in
+     both #603 and #606; in #606 specifically the adjacent-phrase-literal grep was
+     pipe-defeated by table cells and missed four carriers the proximity form caught).
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
