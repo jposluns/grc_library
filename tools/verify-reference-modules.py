@@ -68,7 +68,8 @@ scratch ``ref/`` ROOT (the buckets sit under it); a CLI path ending in
 
   1. a path given as the first CLI argument (an explicit path that does not
      resolve is an ERROR, exit 2, never a fallthrough to the defaults),
-  2. the ``GRC_SCRATCH_REF`` environment variable,
+  2. the ``GRC_SCRATCH_REF`` environment variable (same error contract as
+     the CLI path: a set-but-nonexistent value exits 2),
   3. ``../grc_library_scratch/ref`` relative to this repo,
   4. ``/home/user/grc_library_scratch/ref``.
 
@@ -142,7 +143,14 @@ def locate_source(argv: list[str]) -> Path | None:
         candidates.append(given)
     env = os.environ.get("GRC_SCRATCH_REF")
     if env:
-        candidates.append(Path(env))
+        env_path = Path(env)
+        if not env_path.is_dir():
+            print(
+                f"ERROR: GRC_SCRATCH_REF is set but is not a directory: {env_path}",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        candidates.append(env_path)
     candidates.append(REPO_ROOT.parent / "grc_library_scratch" / "ref")
     candidates.append(Path("/home/user/grc_library_scratch/ref"))
     for c in candidates:
