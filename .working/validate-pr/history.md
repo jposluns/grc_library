@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.373\
+**Version:** 1.2.374\
 **Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
@@ -12,6 +12,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
 |---|---|---|---|---|---|---|
+| 2026-07-03 | 595 | 17 files: the section-3.15 machinery wave 2a (D5 form-3/6 widening with census, gate-60 scoped parse, gate-39 vanished-file tolerance), the spec category-3 example fix, the GR-6 census recorded, the three-bullet rotation, the #594 QA trio, CHANGELOG pair, README 2026.07.83/1.9.444, regen | 2 Medium + 2 Low + 2 Informational | None (M-1/M-2/L-2 fixed in-window in #596; L-1 a pending-decisions morning item, protected tree; I-1/I-2 log-only) | [2026-07-03-PR-595.md](2026-07-03-PR-595.md) | Full formal dispatch; baseline green at a76e0e9 (61 gates, suite 287, generators check-clean); the census reproduced exactly at the parent; both Mediums are shipped-code hygiene (an order-dependent test, a stale gate narrative), not behaviour defects. |
 | 2026-07-03 | 594 | 16 files: FR-48 doc 1 (four intra-ref conversions in the already-canonical internal-audit standard), the #593 sweep M-1/L-1 fixes (the audit-spec orphan reword; the licence dedup on three carriers), the #593 QA trio, CHANGELOG pair, README 2026.07.82/1.9.443, regen | 1 Low + 1 Informational (no High/Medium) | None (L-1 is a process-history record patterned in the #594 retro row; I-1 log-only) | [2026-07-03-PR-594.md](2026-07-03-PR-594.md) | Full formal dispatch; baseline green at c35a1ca (61 gates, suite 286, generators check-clean); all four conversions and both sweep fixes verified at file; the L-1 finding is the Sweep-33 refutation-grep failure surfacing, not a live defect. |
 | 2026-07-03 | 593 | 22 files: the MEA02 per-carrier pass (2 KEEP title fixes, 4 MEA04 recodes with the doc-index companion), section 3.14 closed, the sec-IR 6.2 heading re-scope, the #592 QA trio, CHANGELOG pair, README 2026.07.81/1.9.442, regen | 1 Medium + 1 Low + 1 Informational | None (M-1 and L-1 fixed in-window in #594, I-1 log-only) | [2026-07-03-PR-593.md](2026-07-03-PR-593.md) | Full formal dispatch; baseline green at 5cbfeff (61 gates, suite 286, generators check-clean); all seven cells re-verified at the extract with a clean corpus-wide title census; the M-1 fourth orphan pointer is the double-miss the retro row patterns. |
 | 2026-07-03 | 592 | 18 files: the ad-hoc fit pass (three recodes, two rewords, the STA-01 title), the sec-IR residual fixes (1.3.17), the MEA02 finding routed, the matrix-fit history row, the #591 QA trio, CHANGELOG pair, README 2026.07.80/1.9.441, regen | 4 Informational (no High/Medium/Low) | None (I-3/I-4 fixed in-window in #593, I-1/I-2 log-only) | [2026-07-03-PR-592.md](2026-07-03-PR-592.md) | Full formal dispatch; baseline green at 63a72fc (61 gates, suite 286, generators check-clean); every verdict re-verified at the extract and CCM catalogue; zero old-code echoes corpus-wide; the sec-IR whole-document authority re-read clean. |

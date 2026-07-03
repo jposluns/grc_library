@@ -1827,6 +1827,12 @@ class GateCountConsistencyTests(LinterTestCase):
         # the unit level: scan_file on a nonexistent path returns no
         # findings instead of raising FileNotFoundError.
         import importlib.util
+        # The linter imports lint_common; add tools/ to sys.path first (the
+        # sibling importlib-loading tests' convention) so this test passes
+        # in isolation, not only after an earlier class inserted the path.
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
         lpath = REPO_ROOT / "tools" / "lint-gate-count-consistency.py"
         spec = importlib.util.spec_from_file_location("lint_gate_count_consistency", lpath)
         mod = importlib.util.module_from_spec(spec)

@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.3\
-**Date:** 2026-07-02\
+**Version:** 1.2.4\
+**Date:** 2026-07-03\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -144,7 +144,7 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 
 6.2 Risk treatment plans include: treatment option, controls to be implemented, owner, due date, and residual risk target.
 
-6.3 Risk acceptance decisions are documented in the Risk Register. High and Critical acceptances require Executive Committee or Board Risk Committee approval, per the acceptance-authority chain in the Approval guidance section of [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) and Section 2.2 of [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md); the ERC reviews and recommends per its authority in [`governance/register-role-authority.md`](../governance/register-role-authority.md).
+6.3 Risk acceptance decisions are documented in the Risk Register. High and Critical acceptances require Executive Committee or Board Risk Committee approval, per the acceptance-authority chain in the Approval guidance section of [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md) and Section 4.2.2 of [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md); the ERC reviews and recommends per its authority in [`governance/register-role-authority.md`](../governance/register-role-authority.md).
 
 6.4 Risk treatment actions are tracked in the CAPA Register.
 

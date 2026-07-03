@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-03, Library Version 2026.07.84, PR #596
+
+FR-48 document 2 of 13, the first inline-clause-class lockstep renumber, plus the #595 sweep fixes and the #595 QA trio. Continues the 2026-07-03 overnight run.
+
+### Changed
+
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) (1.3.11 to 1.3.12): the full canonical renumber. Seven unnumbered H2s prefix-added in document order (`## 1. Purpose` through `## 7. Definitions`); the two locally-restarting H3 groups converted to hierarchical (`### 1.`/`### 2.` under Governance to `### 3.1`/`### 3.2`; `### 1.` through `### 8.` under Policy and control statements to `### 4.1` through `### 4.8`); all 31 inline prose clauses renumbered in lockstep at line starts (`1.1`-`1.3` to `3.1.1`-`3.1.3` under Governance; the policy-statement groups to `4.1.1` through `4.8.2`, with the formerly nested `3.7.1` promoted to the peer clause `4.3.8`: a four-dotted token is IPv4-shaped to the PII gate, and the clause is its section's last and uncited); 16 intra section-sign references remapped longest-token-first (`§2.2` x2, `§3.4` x4, `§3.5` x6, `§3.6` x2, bare `§2` x2). The outbound references ([`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) §3, [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) §6.3.1) and external clauses verified and untouched.
+- Five inbound citers remapped with Version/Date co-bumps: [`governance/register-role-authority.md`](../../governance/register-role-authority.md) (1.5.3 to 1.5.4; §2.2, §3.5), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) (1.8.3 to 1.8.4; two bare `§2` references resolved to `§3.2`, the Roles-table target both glosses quote, line-keyed with a link-presence guard), [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) (1.2.3 to 1.2.4; "Section 2.2" to "Section 4.2.2"), [`risk/procedure-risk-acceptance.md`](../../risk/procedure-risk-acceptance.md) (1.1.2 to 1.1.3; §2.2 plus "Section 3.4" x2), and [`risk/template-risk-appetite-statement.md`](../../risk/template-risk-appetite-statement.md) (1.0.3 to 1.0.4; §2.2). "Section" wording kept where present (the #548 Option-A precedent). The worklist's compliance-matrix "citer" tag was REFUTED at apply time: the matrix row's section-sign cells sit under the ISO 27001 and BASC columns (external clauses), not this document's sections.
+- [`.working/fr48-deferred-worklist.md`](../fr48-deferred-worklist.md): document 2 annotated done; 11 of 13 remain. [`TODO.md`](../../TODO.md): the section-1.1 residual count and its named examples refreshed (the two completed docs rotate out of the example list for two still-deferred inbound-cited docs).
+
+### Fixed
+
+- The #595 sweep's M-1: [`tests/test_linters.py`](../../tests/test_linters.py) `test_vanished_file_skipped` gains the sibling convention's `sys.path` insert, so it passes in isolation, not only after earlier classes seed the path (isolated run verified both ways).
+- The #595 sweep's M-2: the audit spec's section-6.1 D5 narrative refreshed to the widened forms 3 and 6 ([`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) 1.16.41 to 1.16.42).
+- The #595 sweep's L-2: the session handoff's machinery queue no longer lists the three candidates #595 closed. Its L-1 (the protected CLAUDE.md D5 description) is a [`pending-decisions.md`](../pending-decisions.md) morning item, not silently fixed.
+
+### Verification
+
+The high-assurance harness ran for the sensitive inline-clause class: stage-1 research with full heading/clause/citer enumeration; the ERM bare-reference target judgement validated at both files by the orchestrator (the citing glosses quote the Roles-table row verbatim); a dry-run-validated, line-keyed deterministic apply script with per-edit count guards, longest-token-first ordering, and a post-apply invariant re-parse (clause-token set and section-token census both exact); gate 18 resolves all references (the clause-level references pass by its documented cross-doc heuristic, noted as fragile in the worklist annotation); two independent adversarial verifiers (false-negative and false-positive lenses) ran post-apply pre-push. All 61 gates pass standalone; suite 287 OK; generators regenerated in order and check-clean; pre-push guard green.
+
+### Discipline observations
+
+The worklist tag census continues to over-state entanglement (the compliance-matrix refutation is the fourth such at apply time), vindicating the per-document research pass over an inferred batch. The research's four-level-depth caveat resolved itself mechanically: the PII gate reads any four-dotted clause token as an IPv4 address, so the corpus's clause depth is capped at three levels and the nested clause was promoted to a peer instead; the D5-narrative refresh also re-learned that this gate-scanned spec says "backlog" rather than the backlog file's literal name near mandatory verbs (the uncertainty-marker gate).
+
 ## 2026-07-03, Library Version 2026.07.83, PR #595
 
 Section-3.15 machinery wave 2a: the D5 closure-form widening, the gate-60 scoped parse, the gate-39 vanished-file tolerance, and the #594 QA trio. Continues the 2026-07-03 overnight run.
