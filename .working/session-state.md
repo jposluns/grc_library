@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/queue-prioritization-strategy-wix2ex
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
-**Last-heartbeat-UTC:** 2026-07-03T18:54:08Z
+**Last-heartbeat-UTC:** 2026-07-03T19:45:00Z
 
-**Current-task:** Sweep 83 close-out PR (F1 fix + records + handoff prune); next: the section-1.9 RM-10 hardening PR, then the S3 design round, then the P3 pass (maintainer queue directive at this resume)
+**Current-task:** none (session closed at the #617 combined Sweep-83-close-out + handoff PR; maintainer-directed wind-down on usage budget; next session runs the maintainer-authorized THIN resume per the handoff, starting at the section-1.9 RM-10 hardening PR)
 
 **Worker-dispatches:** none
 
