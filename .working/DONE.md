@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #611: section 3.7: session-concurrency lease + git cross-check, shipped with gate 63 (2026-07-03)
+
+The maintainer-requested concurrent-session interlock (design captured 2026-06-26, all three sub-decisions locked 2026-07-02: 60-minute staleness window, advisory HOLD, well-formedness gate in the same PR): the `.working/session-state.md` lease with the acquire/refresh/release lifecycle, `/resume` step 0 (lease read + git cross-check of unmerged sibling branches, HOLD-and-surface on a live signal), CLAUDE.md close-out wiring, and the shape-guarding gate 63 four-surface-wired with nine fixtures. First of the two maintainer-injected concurrency priorities; section 3.6 (worker-provenance gate) is next.
+
 ### PR #609: section 1.6: D5 seventh closure form + CLAUDE.md D5/RM-10 codifications (2026-07-03)
 
 The D5 PR-time check gains the space-separated `TODO section N.M ... closed` form (census: four full-history hits, all genuine, zero false positives) with fixtures and the audit-spec narrative; the CLAUDE.md step-7 description refreshed to the seven-form set and the RM-10 unpiped-guard sentence added to step 2, closing the last open removal-ledger entry as dispositioned-codified. Section 1.6 closed the same day it was intaken.

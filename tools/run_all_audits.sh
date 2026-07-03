@@ -158,6 +158,7 @@ run_gate "CHANGELOG mirror header-parity audit"          python3 tools/lint-chan
 run_gate "Guardrail-review cadence audit"                python3 tools/lint-guardrail-cadence.py
 run_gate "COBIT/ISO 31000 citation-existence audit"      python3 tools/lint-cobit-iso31000-citations.py
 run_gate "Cross-file section-reference audit"            python3 tools/lint-cross-file-section-refs.py
+run_gate "Session-state lease audit"                      python3 tools/lint-session-state.py
 
 # ----------------------------------------------------------------------
 # Summary

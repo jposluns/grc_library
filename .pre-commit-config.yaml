@@ -456,3 +456,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-session-state
+        name: Session-state lease audit
+        entry: python3 tools/lint-session-state.py
+        language: system
+        pass_filenames: false
+        always_run: true

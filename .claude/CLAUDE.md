@@ -271,6 +271,16 @@ is external. Two mechanisms:
      [`.working/session-metrics.md`](../.working/session-metrics.md) row are refreshed too
      (scoped to what this session actually verified; orchestrator main-loop tokens
      recorded as `not instrumented`, never fabricated; never placed in `CHANGELOG.md`).
+   - The **session-concurrency lease** [`.working/session-state.md`](../.working/session-state.md)
+     heartbeat is re-stamped (`date -u +%Y-%m-%dT%H:%M:%SZ`) in the same refresh batch, and
+     its `Current-task` / `Worker-dispatches` lines are updated if stale. Lifecycle:
+     ACQUIRE at `/resume` step 0 (branch name, `Status: active`, fresh heartbeat), REFRESH
+     at every PR close-out, RELEASE in the session-closing handoff PR (`Status: released`,
+     `Active-session: none`). Gate 63 guards the file's shape; the interlock decision is
+     `/resume` step 0's (60-minute staleness window, advisory HOLD, git cross-check of
+     unmerged `origin/claude/*` siblings). Design record:
+     [`.working/design-decisions.md`](../.working/design-decisions.md), "Session-concurrency
+     safety".
    - **If this is the first PR of a resumed session** (the `/resume` `/validate`
      close-out), the handoff was **pruned** per its `## Refresh and pruning discipline`:
      keep current + 1 prior in each per-session stack, delete older blocks and superseded
