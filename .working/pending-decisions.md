@@ -14,6 +14,10 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
+### RM-10 codification: unpiped-guard convention line in CLAUDE.md (surfaced 2026-07-03, overnight-deferred, protected tree)
+
+The GR-8(a) disposition pass found RM-10's watch-signal appeared in variant form: two pushes went past a FAILING pre-push guard via pipe-masked exit codes (#569, #583; both self-caught before CI harm). The corrective convention (run the guard standalone and unpiped, read its exit before the chained push) lives only in those retro rows, not in CLAUDE.md's PR-workflow steps. Proposed morning decision: add one sentence to PR-workflow step 1 or 2 codifying it. Protected-tree edit, so deferred per the overnight rules; the RM-10 ledger entry stays open pending this decision.
+
 ### Cross-file section-ref gate: sequencing vs FR-48 (surfaced + RESOLVED 2026-07-02, maintainer chose option B: complete FR-48 first, then build/ship the gate)
 
 **RESOLVED 2026-07-02 (maintainer, attended): pause the gate, complete FR-48 §1.1, then resume the gate so it validates against a fully-numbered corpus.** Rationale (assistant-assessed, maintainer-agreed): (1) the numbers-phase gate can only check refs to *numbered* targets, so shipping it mid-migration would silently skip refs into the not-yet-renumbered deferred docs (incomplete coverage that looks green); (2) the one blocking finding resolves for free in the FR-48 lockstep renumber (no throwaway standalone citer fix); (3) building against the finished corpus avoids locking the design to a transitional state. The gate is already BUILT and TESTED (low-FP after fixing two FP classes); its design, survey, and FP lessons are preserved in [`cross-file-section-ref-gate-design.md`](cross-file-section-ref-gate-design.md), and the unwired draft file was removed from `tools/` so it does not leak into FR-48 PRs. During FR-48 the preserved gate may be run ADVISORY-ly after each renumber to mechanically catch the #548-class cross-file remap miss; it is wired as CI-blocking only once FR-48 completes on a clean corpus.
