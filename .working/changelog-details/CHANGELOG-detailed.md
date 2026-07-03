@@ -25,7 +25,7 @@ RM-10 pipe-guardrail hardening, TODO section 1.9 parts (a) and (b) (maintainer-d
 
 ### Verification
 
-- Hook: `--self-test` 7 blocked / 7 allowed; direct JSON cases block (exit 2 with reason), allow (exit 0), and malformed payload (exit 0, fail-open). Live harness firing NOT yet exercised (hooks load at session start); recorded as the section-1.9 residual with a next-session deliberate invocation.
+- Hook: `--self-test` 10 blocked / 14 allowed; direct JSON cases block (exit 2 with reason), allow (exit 0), and malformed payload (exit 0, fail-open). (This bullet originally carried the stale pre-verifier-round 7/7 draft count; corrected per the #620 `/validate-pr` F1.) Live harness firing NOT yet exercised (hooks load at session start); recorded as the section-1.9 residual with a next-session deliberate invocation.
 - Wrapper: `--self-test` 3 checks green (truncation without exit-code loss, failure code 7 propagated, stderr captured).
 - Guard: piped invocation refused (exit 3 read via `PIPESTATUS`, the sanctioned diagnostic form); override proceeds to the runner banner; the wrapper route runs the guard against a file capture (passes the pipe check).
 - Environment probe recorded: plain harness stdout is a regular file, file-redirect is a file, a shell pipe is `pipe:[...]`, which is the evidence for the `[ -p /dev/stdout ]` design choice.
