@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-03\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -229,7 +229,7 @@ The audit team collects evidence in accordance with the audit programme. Evidenc
 - **Observation:** Direct observation of processes, practices, and controls in operation;
 - **Technical Testing:** Inspection of system configurations, access control lists, audit logs, security baselines, and similar technical artefacts.
 
-All evidence is documented in audit working papers, cross-referenced to the relevant audit criterion, and retained in accordance with Section 8.
+All evidence is documented in audit working papers, cross-referenced to the relevant audit criterion, and retained in accordance with §8.
 
 ### 6.5 Analysis
 
@@ -279,7 +279,7 @@ The final report is distributed to the auditee, the CAE/GRC Manager, the CISO (f
 
 ### 6.9 Closure tracking
 
-All findings are entered into the audit register and, where required, into the CAPA register (see Section 10). The CAE/GRC Manager tracks remediation progress against agreed target dates and reports overdue items to the ERC.
+All findings are entered into the audit register and, where required, into the CAPA register (see §10). The CAE/GRC Manager tracks remediation progress against agreed target dates and reports overdue items to the ERC.
 
 Findings are marked as closed only when the CAE/GRC Manager has verified that the corrective action has been implemented and is effective.
 
@@ -298,7 +298,7 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 - Escalation to the ERC within **2 business days**;
 - Documented remediation plan within **5 business days**;
 - Remediation or interim compensating control implemented within **30 days**;
-- Mandatory CAPA record (see Section 10);
+- Mandatory CAPA record (see §10);
 - Follow-up audit of the affected control area within **12 months** of closure.
 
 ### 7.2 High
@@ -309,7 +309,7 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 - Notification to the CISO (for security/privacy domains) within **1 business day**;
 - Documented remediation plan within **10 business days**;
 - Remediation completed within **60 days**;
-- Mandatory CAPA record (see Section 10).
+- Mandatory CAPA record (see §10).
 
 ### 7.3 Moderate
 

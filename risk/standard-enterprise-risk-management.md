@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.2\
-**Date:** 2026-07-02\
+**Version:** 1.8.3\
+**Date:** 2026-07-03\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -263,7 +263,7 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 
 ## 11. Licence
 
-This document is released under the **CC BY-SA 4.0** CC BY-SA 4.0 licence. To the extent possible under law, the organization waives all copyright and related rights to this document.
+This document is released under the **CC BY-SA 4.0** licence. To the extent possible under law, the organization waives all copyright and related rights to this document.
 
 ---
 
