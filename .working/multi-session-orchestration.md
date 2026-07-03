@@ -136,7 +136,7 @@ ready but inactive; in-session fan-out (4a) covers partitionable work meanwhile.
   as `action-before-explanation-of-inaction.md` and the API-polling guardrails in
   `evidence-grounded-completion.md`). Absent an event primitive, use human-on-demand.
 
-### 5.1 Worker-ready brief staging (the standing input channel; design 2026-07-03, build queued as TODO section 4.4)
+### 5.1 Worker-ready brief staging (the standing input channel; designed 2026-07-03, LIVE since the TODO section-4.4 slice-2/3/5 builds; slice 4 queued)
 
 The standing target state: every TODO item has, in scratch, either a worker-ready brief
 at `research/<work-unit-id>/brief.md` or a recorded not-eligible verdict in the coverage
@@ -144,7 +144,7 @@ index `research/COVERAGE.md`, so a worker session can pick up any unclaimed elig
 without waiting on the orchestrator. The full decision record (the maintainer's three
 answers plus the accepted design adjustments) is in
 [`design-decisions.md`](design-decisions.md) under "Worker-ready brief staging"; the
-operational rules once built:
+operational rules:
 
 - **Coverage rule (the TODO-add pairing).** When a TODO item is added, the orchestrator
   authors either its brief or its not-eligible verdict (with the reason) in the same
@@ -348,7 +348,8 @@ Before a worker wave, the orchestrator prepares the workers' inputs:
 4. **Trust-split reference base** (section 6). Standards trusted; publications screened.
 5. **Worker onboarding contract** (scratch root `CLAUDE.md`). Every worker reads the hard
    invariants + standards before acting.
-6. **Bookkeeping-parity gates** (queued, §4.6/§4.10/worker-provenance). Honest backstops
+6. **Bookkeeping-parity gates** (gate 50 and its checks, including the worker-provenance
+   marker check; shipped). Honest backstops
    that enforce the PRESENCE of the verification record + provenance attestation, not
    semantic correctness; the primary control remains the orchestrator's apply gate +
    `/validate-pr` + maintainer sign-off.

@@ -82,8 +82,9 @@ def find_scratch(cli_path):
             if Path(cand).is_dir() and (Path(cand) / "research").is_dir():
                 return Path(cand)
             print(f"advisory: {label}={cand} is not a scratch checkout with a "
-                  "research/ tree; not falling back to the sibling default.")
-            return None
+                  "research/ tree; not falling back to any other location; "
+                  "nothing to report.")
+            sys.exit(0)
     default = REPO_ROOT.parent / "grc_library_scratch"
     if default.is_dir() and (default / "research").is_dir():
         return default
@@ -238,9 +239,9 @@ def main(argv):
 
     scratch = find_scratch(args.scratch)
     if scratch is None:
-        print("advisory: no grc_library_scratch checkout found (looked at "
-              "--scratch, GRC_SCRATCH_PATH, and the sibling directory); "
-              "nothing to report.")
+        print("advisory: no scratch checkout found (no --scratch or "
+              "GRC_SCRATCH_PATH given, and no sibling grc_library_scratch "
+              "directory with a research/ tree); nothing to report.")
         return 0
 
     run_report(scratch)
