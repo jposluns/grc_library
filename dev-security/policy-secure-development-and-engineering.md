@@ -2,7 +2,7 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.5\
+**Version:** 1.0.7\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -22,9 +22,9 @@ This policy establishes mandatory requirements for secure software development, 
 
 It merges and replaces the Secure Software Development Lifecycle (SDLC) Policy, Code Management Policy, Open-Source Policy, Testing Standard, and Peer-Review Guideline into a unified framework for secure design, development, testing, and maintenance.
 
-The policy aligns with ISO/IEC 27034 Application Security, ISO/IEC 27002:2022 Annex A controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 SEF domain, and OWASP ASVS v5.
+The policy aligns with ISO/IEC 27034 Application Security, ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 SEF domain, and OWASP ASVS v5.
 
-It incorporates forward-looking controls for AI-generated code verification and ISO 27002 A.5 AI security control mapping.
+It incorporates forward-looking controls for AI-generated code verification and ISO 27002 clause 5 AI security control mapping.
 
 ---
 
@@ -157,7 +157,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27034:2011 | Application Security Framework | Secure SDLC governance and assurance |
-| ISO/IEC 27002:2022 | Annex A: Application Security Controls | Secure coding and testing controls |
+| ISO/IEC 27002:2022 | Application security controls | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
 | COBIT 2019 | BAI03: Manage Solutions Identification and Build | Solution design and build |

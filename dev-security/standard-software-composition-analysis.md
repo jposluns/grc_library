@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-07-02\
+**Version:** 1.1.5\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -247,7 +247,7 @@ A tool that passes the criteria is documented in the security architecture regis
 | **SLSA Framework** | Build integrity levels 1 to 4; provenance requirements |
 | **OWASP Dependency-Check** | Reference tooling for vulnerability identification in Java, .NET, Python, Ruby, Node.js |
 | **CycloneDX / SPDX** | SBOM format standards |
-| **ISO/IEC 27002:2022** | A.8.30, Outsourced development; A.8.31, Separation of development, test, and production environments |
+| **ISO/IEC 27002:2022** | 8.30, Outsourced development; 8.31, Separation of development, test, and production environments |
 | **NIST CSF 2.0** | ID.AM-3, Software asset inventory; GV.SC, Supply chain risk management |
 
 ---
