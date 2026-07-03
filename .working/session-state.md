@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T22:19:32Z
+**Last-heartbeat-UTC:** 2026-07-03T23:10:54Z
 
-**Current-task:** worker-ready brief staging, slice-3 wiring PR #619 close-out (slices 1, 2, 3, and 5 shipped; slice 4 queued behind the section-1.9 RM-10 hardening PR)
+**Current-task:** RM-10 hardening PR #620 close-out (section 1.9 (a)+(b); next: the #617 recorded queue, S3 design round first)
 
 **Worker-dispatches:** four in-session research subagents (waves 2 and 3 seed drafting) COMPLETE and applied; one EXTERNAL worker session live (maintainer-launched 2026-07-03, maintainer's standard account, read-only-on-main prompt constraints), consuming staged briefs from scratch and delivering via "Worker delivery" scratch PRs the orchestrator validates and applies
 
