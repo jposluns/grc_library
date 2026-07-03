@@ -63,6 +63,7 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
     "__pycache__/",
 )
 
+
 def git(*args: str) -> str:
     """Run ``git <args>`` and return stdout, stripped. Raises on non-zero exit."""
     return subprocess.check_output(["git", *args], text=True).strip()
@@ -78,7 +79,6 @@ def git_show(ref: str, path: str) -> str | None:
         )
     except subprocess.CalledProcessError:
         return None
-
 
 
 def is_exempt(path: str) -> bool:
