@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.16\
+**Version:** 1.3.17\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,14 +44,14 @@ This procedure applies to:
 
 | Role | Responsibilities |
 | --- | --- |
-| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications. No system must be isolated or reimaged without the Incident Commander's direction. |
+| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications other than regulatory notifications, which route per section 6. No system must be isolated or reimaged without the Incident Commander's direction. |
 | **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. Authorizes IR partner engagement. Coordinates with the DPO on regulatory notification. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers and partners; regulatory notifications route through the DPO with Legal Counsel content approval per the notification steps in this procedure. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander. |
 | **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organization participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
-| **Data Protection Officer (DPO)** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, and PIPL. |
+| **Data Protection Officer (DPO)** | Assesses privacy impact of incidents involving personal data. Coordinates regulatory breach notifications under GDPR, PIPEDA, Quebec Law 25, and PIPL. |
 | **All Employees** | Responsible for immediately reporting any suspected security incident to the SOC or security operations team. No silent remediation is permitted. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who is notified for any incident affecting trade, customs, or cargo systems and coordinates sector-programme reporting and corrective actions) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
@@ -63,7 +63,7 @@ The Incident Commander has authority to:
 - Direct all technical and operational response activities.
 - Approve or defer system isolation, service suspension, or credential revocation.
 - Engage external forensic or IR support.
-- Authorize or restrict communications to third parties during an active incident.
+- Authorize or restrict communications to third parties during an active incident (regulatory notifications route per section 6 and are not restricted by this authority).
 
 During a declared P1 incident, the Incident Commander is the CIO or CISO unless delegated in writing.
 
@@ -192,7 +192,7 @@ Where the organization participates in a sector programme that defines elevated-
 
 ### 6.4 Notification confidentiality
 
-Regulatory notifications are Restricted classification materials. Content must not be shared externally beyond regulators, Legal, the CIO, and the CISO without written authorization. No public statements regarding the incident must be made without CIO approval and coordination with Legal Counsel.
+Regulatory notifications are Restricted classification materials. Content must not be shared externally beyond regulators, the DPO, Legal, the CIO, and the CISO without written authorization. No public statements regarding the incident must be made without CIO approval and coordination with Legal Counsel.
 
 ---
 

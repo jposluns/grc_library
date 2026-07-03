@@ -2,7 +2,7 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
+**Version:** 1.0.17\
 **Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -181,7 +181,7 @@ The Governance Library Maintainer is not the sole reviewer; the role coordinates
 2. Audit failures are not stockpiled; they are treated as defects on the date they appear.
 3. Periodic review is conducted by the document owner role; the Governance Library Maintainer coordinates, prompts, and tracks.
 4. Quarterly library health is reported; sustained quality issues escalate to the library maintainer.
-5. Document retirement is a deliberate decision recorded in the changelog and the document architecture framework.
+5. Document retirement is a deliberate decision recorded in the changelog and the document index register.
 
 ---
 
