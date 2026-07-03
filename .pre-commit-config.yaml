@@ -449,3 +449,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-cross-file-section-refs
+        name: Cross-file section-reference audit
+        entry: python3 tools/lint-cross-file-section-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true

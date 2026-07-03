@@ -1,10 +1,16 @@
 # Cross-file section-reference gate: design, FP lessons, and pause record
 
-**Status:** PAUSED pending FR-48 §1.1 completion (maintainer-directed 2026-07-02). Build and
-ship the gate against the FULLY-NUMBERED corpus, not the mid-migration one. This file preserves
-the design, the corpus survey, and the two false-positive lessons so resuming is fast; the gate
-MUST be re-run and re-verified against the post-FR-48 corpus (the corpus changes materially as
-the ~13 remaining hard-class docs are renumbered).
+**Status:** numbers phase SHIPPED as gate 62 (2026-07-03, the gate-62 PR;
+[`tools/lint-cross-file-section-refs.py`](../tools/lint-cross-file-section-refs.py),
+four-surface-wired with fixtures). FR-48 section 1.1 completed at #607, the corpus-wide
+test-first run returned clean (the §2.2 blocker below resolved in the exception policy's
+lockstep renumber, exactly as predicted), and both preserved FP lessons were re-applied. Two
+as-shipped deltas from the design below: the exempt set carries `TODO.md` alongside
+`CHANGELOG.md` (both narrate reference shapes), and target extraction ALSO includes
+line-initial inline clauses (`4.7.1 ...`), which the FR-48 canonical model makes citable but
+which are not markdown headings (five corpus-clean citations would otherwise false-positive).
+The names-phase second gate remains queued (TODO section 3.15). The remainder of this file is
+the frozen design archive from the 2026-07-02 survey and pause.
 
 This file is maintainer working state, exempt from corpus audit gates.
 

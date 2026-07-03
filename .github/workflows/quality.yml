@@ -204,6 +204,9 @@ jobs:
       - name: COBIT/ISO 31000 citation-existence audit
         run: python3 tools/lint-cobit-iso31000-citations.py
 
+      - name: Cross-file section-reference audit
+        run: python3 tools/lint-cross-file-section-refs.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

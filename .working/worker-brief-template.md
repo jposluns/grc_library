@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.3.2\
-**Date:** 2026-07-02\
+**Version:** 1.4.0\
+**Date:** 2026-07-03\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -50,6 +50,12 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 9. **Validate a control code's semantic fit against the source control TITLE, not the code number.** A code that *exists* (passes a reference module such as `tools/ccm_aicm_reference.py`, `tools/nist_csf_reference.py`, or `tools/cobit_iso31000_reference.py`, and so the existence gates 48/49/54/58/61) is not necessarily the *right* code for the document. Before proposing a mapping, confirm the code's actual title/meaning against the authoritative source: the `Control Title` / `Control Specification` columns of the CSA CCM/AICM catalogue CSVs and the Category names in the NIST CSF text, available read-only in the scratch repo's `ref/standards/` (per the multi-session-orchestration runbook section 6's standards-validation discipline). Do NOT infer a code's meaning from its number. (Caught at PR #390 / FR-167 batch 10: workers proposed valid-but-wrong codes by guessing titles from numbers, `SEF-02` ("Service Management Policy and Procedures") read as incident response, `LOG-08` ("Audit Logs Sanitization") read as log retention, `HRS-03` ("Clean Desk") read as acceptable-use, `DSP-19` ("Data Location") read as data minimization. These are gate-blind: the codes exist, so gates 48/49/54 pass them; only the source title catches the mismatch.)
 
 10. **CSA CCM and AICM are distinct catalogues; never put an AICM code in a CCM column.** The "CSA CCM v4.1" matrix column (and any CCM-labelled surface) takes CCM v4.1.0 codes only. An AICM v1.1.0 code (the AI-only `MDS` Model Security domain is the canonical case) is a real CSA control but does NOT belong in a CCM column. Gate 49 flags an AICM-only code in the matrix CCM column as `ccm-aicm-confusion`, but the discipline holds for every CCM/AICM surface, including per-document framework tables the gate does not yet cover. When in doubt which catalogue a code belongs to, check `is_ccm_v41` / `is_aicm` in `tools/ccm_aicm_reference.py`. (Caught at PR #390: the in-repo module's blended domain set carried the AICM-only `MDS` domain, and the matrix CCM column was validated only against the AICM-wins union, so an AICM code would have passed.)
+
+11. **Run every command FOREGROUND; never background a command and wait for its wake.** A background-launched command inside a subagent waits for a completion wake that never arrives, silently stalling the whole dispatch. (Caught at #582/#593/#596: three sweeps stalled mid-run on self-backgrounded commands, each costing about ten minutes and a liveness probe; the foreground-only rail was adopted in dispatch briefs from #596 on and is now a standing template rail per the guardrail r3 gap finding.)
+
+12. **If a tool result overflows to a persisted-output path under `/root/.claude`, do NOT read that path.** It is outside your sandbox; the permission rejection strands an unattended agent (the harness's wait-for-user reply halts a worker that has no user). Re-run the command scoped smaller (per-file, head-bounded) inside the repo instead. (Caught at #599: a sweep froze on exactly this shape and was recovered by probe-and-resume; the rail was adopted in dispatch briefs from #599 on and is now standing per the guardrail r3 gap finding.)
+
+13. **Every census figure you report must name its scope inline** (the grep pattern or the set definition, not only the number), and any prose restatement of a tabulated count must be cross-checked against your own table before delivery. A correct count with an unstated or mislabeled scope fails reproduction exactly like a wrong count. (Caught at #600, two same-day instances: a "15 title-reference lines" figure reproducible only under an unstated broad-phrase scope, and a "13 H2" prose claim contradicting the worker's own 12-row heading table.)
 ```
 
 ---
