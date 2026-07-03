@@ -2,9 +2,9 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.21\
-**Date:** 2026-07-02\
-**Owner:** Chief Information Officer\
+**Version:** 1.4.22\
+**Date:** 2026-07-03\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
 **Classification:** Public\
@@ -49,8 +49,8 @@ A personal data breach is also a security incident. The CISO and Data Protection
 | Role | Responsibilities |
 | --- | --- |
 | **CISO** | Joint responsibility for initiating breach response. Leads the technical incident investigation and containment stream per [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Notified immediately for all P1 and P2 breaches. Coordinates with the Data Protection Officer on notification decisions. |
-| **Chief Information Officer (CIO, acting DPO)** | Executive accountability for regulatory notification decisions. Approves all notifications to supervisory authorities. Signs off on data subject communications. Represents the organization before regulatory authorities. Notified immediately for all P1 and confirmed P2 privacy breaches. |
-| **Data Protection Officer** | Operational ownership of the privacy breach response process. Manages the breach register, coordinates jurisdictional notification assessment, prepares regulatory notification content, and oversees the post-breach review. |
+| **Chief Information Officer (CIO)** | Executive accountability for the privacy breach response programme. Notified immediately for all P1 and confirmed P2 privacy breaches. |
+| **Data Protection Officer** | Operational ownership of the privacy breach response process. Manages the breach register, coordinates jurisdictional notification assessment, prepares regulatory notification content, and oversees the post-breach review. Decides and submits notifications to supervisory authorities, with Legal Counsel review of content. Signs off on data subject communications. Represents the organization before regulatory authorities. |
 | **Legal Counsel** | Determines notification obligations by jurisdiction. Advises on exemptions, litigation hold, evidence handling, and regulatory engagement strategy. Reviews and approves all regulatory and data subject notifications before submission. |
 | **Security Operations Centre (SOC)** | Detects and triages security events that may constitute personal data breaches. Preserves evidence, executes technical containment, and provides forensic information to support the Data Protection Officer's impact assessment. |
 | **IT Operations / System Owners** | Support data scope identification, access restriction, and deletion or recovery actions directed by the Data Protection Officer and CISO. |
@@ -162,7 +162,7 @@ Following containment and initial assessment, the Data Protection Officer and Le
 - Whether data subjects must be individually notified.
 - The content requirements for notifications.
 
-The notification assessment is documented in the breach record and approved by the CIO (acting DPO) before any notification is submitted.
+The notification assessment is documented in the breach record and approved by the DPO before any notification is submitted.
 
 ### 6.2 Jurisdiction-specific notification requirements
 
@@ -203,7 +203,7 @@ All regulatory and individual notifications must contain the following informati
 2. **Data categories and approximate volume:** Categories of personal data affected (e.g., contact details, financial data, health data, credentials) and approximate number of records and individuals affected.
 3. **Likely consequences:** Assessment of the likely consequences of the breach for affected individuals.
 4. **Measures taken or proposed:** Description of containment, mitigation, and remediation measures taken or planned.
-5. **Contact details:** Name and contact details of the DPO (or acting DPO/CIO) for further liaison with the supervisory authority.
+5. **Contact details:** Name and contact details of the DPO for further liaison with the supervisory authority.
 6. **Affected jurisdictions:** Where the breach affects individuals in multiple jurisdictions, the notification identifies the lead authority and confirms cross-border scope.
 
 ### 7.2 Individual notification content
@@ -211,7 +211,7 @@ All regulatory and individual notifications must contain the following informati
 Individual notifications are written in plain, accessible language and include:
 
 1. A clear description of the nature of the breach.
-2. The name and contact details of the Data Protection Officer or acting DPO.
+2. The name and contact details of the Data Protection Officer.
 3. A description of the likely consequences of the breach for the individual.
 4. Actions taken by the organization to address the breach and mitigate its effects.
 5. Steps the individual can take to protect themselves (e.g., change passwords, monitor financial accounts, contact credit bureaus).
@@ -304,7 +304,7 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 **First 60 minutes: initiate, joint command, protect evidence**
 
 - The CISO and DPO jointly initiate breach response the moment a potential personal data breach is identified (§2.2, §1.3).
-- Notify per severity: for a P1, the CISO and the CIO, as acting DPO, immediately (§2.1, §3).
+- Notify per severity: for a P1, the CISO, the DPO, and the CIO immediately (§2.1, §3).
 - Protect evidence: do not delete, overwrite, or modify any system, log, backup, or data record pending the impact assessment and notification determination; brief the DPO on evidence status before any containment that affects assessment completeness (§3.1, §5.1).
 - If a third-party processor holds the affected data, notify it immediately to preserve evidence and confirm it notified the organization within its contractual window (§5.1, §6.3).
 
@@ -317,7 +317,7 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 **By 24 hours: complete assessment, engage notification**
 
 - Complete the 24-hour initial assessment (personal data involved? scope? accessed or exfiltrated? risk to individuals? applicable jurisdiction? notification likely?) and retain it in the breach record (§4.2).
-- Conduct the formal notification assessment with Legal Counsel (notifiable per jurisdiction? deadline? individual notification? content?); the CIO, as acting DPO, approves before any submission (§6.1).
+- Conduct the formal notification assessment with Legal Counsel (notifiable per jurisdiction? deadline? individual notification? content?); the DPO approves before any submission (§6.1).
 - Initiate and track the jurisdictional notification clocks (for example, GDPR and UK GDPR 72 hours from awareness, Quebec Law 25 72 hours, PIPL without undue delay, Brazil LGPD 3 business days per Resolution CD/ANPD No. 15/2024) (§6.2).
 - Open or update the breach register entry (§9.1).
 - Initiate the post-incident review track, mandatory for P1 and P2, within 5 business days of closure (§8.1).

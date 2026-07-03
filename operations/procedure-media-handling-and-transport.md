@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.3\
-**Date:** 2026-07-02\
+**Version:** 1.3.4\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -98,7 +98,7 @@ All electronic media transported physically and containing Confidential or Restr
 
 ### 4.4 Loss or suspected compromise during transport
 
-Loss or suspected compromise of physical media in transit must be reported immediately to the CISO and treated as a security incident under the Incident Response Procedure. If the media contained personal data, the Privacy Lead is notified concurrently to assess breach notification obligations.
+Loss or suspected compromise of physical media in transit must be reported immediately to the CISO and treated as a security incident under the Incident Response Procedure. If the media contained personal data, the DPO is notified concurrently to assess breach notification obligations.
 
 ---
 

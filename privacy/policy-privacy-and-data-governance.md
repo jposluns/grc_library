@@ -2,9 +2,9 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.11\
-**Date:** 2026-07-02\
-**Owner:** Chief Information Officer\
+**Version:** 1.4.12\
+**Date:** 2026-07-03\
+**Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
 **Classification:** Public\
@@ -41,9 +41,9 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 3.1 Accountable roles
 
-1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance and assumes all responsibilities normally assigned to the Data Protection Officer (DPO) until that role is appointed.
+1. The **Chief Information Officer (CIO)** serves as the accountable executive for global data governance.
 2. The **Chief Information Security Officer (CISO)** ensures that security controls protect data confidentiality, integrity, and availability.
-3. The CIO, in the capacity of acting DPO, represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws. This interim arrangement creates a known GDPR Article 38(6) conflict of interest (the CIO determines purposes and means of IT processing AND advises on its privacy compliance); see the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md) for the constraints adopters must apply and the named mitigation controls (independent escalation, role separation in minutes, external counsel arms-length channel, annual independent effectiveness review, public statement in privacy notice and ROPA). The interim arrangement should be replaced with a formal Data Protection Officer designation as soon as practicable.
+3. The **Data Protection Officer (DPO)** represents the organization before regulatory authorities and oversees the organization's compliance with applicable privacy laws, independent of the IT operations chain per the "DPO independence and conflict of interest" subsection in [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md).
 4. **Regional Data Stewards and Privacy Leads** ensure that compliance with local data protection laws (EU GDPR, PIPEDA, PIPL, LGPD, etc.) is maintained.
 
 ### 3.2 Governance committees
@@ -55,7 +55,7 @@ This policy defines principles, governance structure, and control framework for 
 
 | Role | Responsibilities |
 |---|---|
-| CIO (acting DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests until a DPO is appointed. |
+| Data Protection Officer (DPO) | Accountable for compliance with privacy and data protection laws, overseeing PIMS implementation, regulatory reporting, and response to data subject requests. |
 | CISO | Implements and monitors technical security measures to ensure that data protection and integrity are maintained. |
 | Data Owners | Accountable for accuracy, quality, and lawful use of data within their domain. |
 | Data Stewards | Maintain data dictionaries, classification schemes, and quality validation rules. |
@@ -115,7 +115,7 @@ This policy defines principles, governance structure, and control framework for 
 
 - Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
 - Requests must be processed within the applicable statutory timeframes (one month under the GDPR, extendable by two further months for complex or numerous requests; 45 days under the CCPA / CPRA; 30 days under PIPEDA).
-- Denials must be justified in writing and reviewed by the CIO (acting DPO).
+- Denials must be justified in writing and reviewed by the DPO.
 
 ### 4.9 Third-party and supplier governance
 
@@ -125,7 +125,7 @@ This policy defines principles, governance structure, and control framework for 
 
 ### 4.10 Incident response and breach management
 
-- Data breaches must be reported immediately to the CISO and CIO (acting DPO).
+- Data breaches must be reported immediately to the CISO and the DPO.
 - Regulatory notifications must be issued within 72 hours (GDPR standard) or as required by local laws.
 - Post-incident reviews must determine root cause, impact, and mitigation actions.
 
