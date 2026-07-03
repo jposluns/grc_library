@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -91,7 +91,7 @@ The enterprise endpoint detection and response (EDR) platform must be deployed o
 - All on-premises and cloud platform servers (physical and virtual).
 - All on-premises servers enrolled in cloud-based hybrid server management.
 
-Endpoint protection deployment is validated as part of the pre-go-live security gate defined in the Production Security Requirements Standard §3.2 before any server is promoted to production.
+Endpoint protection deployment is validated as part of the pre-go-live security gate defined in the Production Security Requirements Standard §4.2 before any server is promoted to production.
 
 ### 4.2 Alert forwarding to SIEM
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.5\
-**Date:** 2026-07-02\
+**Version:** 1.3.6\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -53,7 +53,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who re
 
 ### 3.1 Ingestion SLA
 
-All log sources must forward events to the SIEM within 60 seconds of generation where technically feasible, as required by the Logging and Monitoring Standard §3.1. Logs must be transmitted over encrypted channels using TLS 1.3 or higher.
+All log sources must forward events to the SIEM within 60 seconds of generation where technically feasible, as required by the Logging and Monitoring Standard §4.3.1. Logs must be transmitted over encrypted channels using TLS 1.3 or higher.
 
 IT Operations monitors the log ingestion pipeline daily. Any log source that ceases forwarding logs for more than 10 minutes during business hours triggers an automated alert to both IT Operations and the SOC. Failure of a critical log source (identity infrastructure, endpoint protection, firewall, backup) to forward for more than 30 minutes is treated as a P2 incident.
 
@@ -84,7 +84,7 @@ Security Engineering maintains a SIEM log source inventory that records, for eac
 
 ## 4. SIEM alert rule catalogue
 
-The following alert categories must be configured, tested, and active before any system is promoted to production, as required by the Production Security Requirements Standard §3.1. Each rule must have an assigned severity, a defined triage SLA, and an owner in Security Engineering responsible for ongoing tuning.
+The following alert categories must be configured, tested, and active before any system is promoted to production, as required by the Production Security Requirements Standard §4.1. Each rule must have an assigned severity, a defined triage SLA, and an owner in Security Engineering responsible for ongoing tuning.
 
 | Alert Category | Description | Severity | Triage SLA |
 | --- | --- | --- | --- |
@@ -264,7 +264,7 @@ All active SIEM correlation rules must be mapped to at least one MITRE ATT&CK te
 
 ### 9.4 New log source onboarding
 
-When a new system or application is deployed, the project team must engage Security Engineering at least 10 business days before the go-live date to design and test the log ingestion pipeline and any required new correlation rules. No system may go live without confirmed SIEM ingestion and the alert categories in §4 active, as required by the Production Security Requirements Standard §3.2.
+When a new system or application is deployed, the project team must engage Security Engineering at least 10 business days before the go-live date to design and test the log ingestion pipeline and any required new correlation rules. No system may go live without confirmed SIEM ingestion and the alert categories in §4 active, as required by the Production Security Requirements Standard §4.2.
 
 ### 9.5 Rule register
 

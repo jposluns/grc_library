@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.6\
-**Date:** 2026-07-02\
+**Version:** 1.3.7\
+**Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -205,7 +205,7 @@ Predictive analytics and AI-assisted monitoring tools may be used to improve det
 - Automated alert enrichment with contextual threat intelligence.
 - Behavioural scoring of user and entity activity to surface high-risk sessions for analyst review.
 
-All AI-assisted detections must be reviewed by a human analyst before any containment or remediation action is initiated. Automated decisions must be explainable and logged for audit review, consistent with [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9.
+All AI-assisted detections must be reviewed by a human analyst before any containment or remediation action is initiated. Automated decisions must be explainable and logged for audit review, consistent with [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §4.9.
 
 ---
 
@@ -318,7 +318,7 @@ The following metrics are tracked and reported at the monthly SOC Operations Rev
 | **SIEM Ingestion Health (%)** | Percentage of critical data connectors with zero gap events in the reporting period | ≥ 99% |
 | **Mean Time to Operationalize (MTTO)** | Average time from receipt of a new high-confidence IoC to active SIEM detection rule deployment | Target: ≤ 48 hours |
 
-Metric trends are reviewed for continual improvement. Lessons learned from incidents and audits inform updates to rules, hunting hypotheses, and intelligence source selections, consistent with [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §10.
+Metric trends are reviewed for continual improvement. Lessons learned from incidents and audits inform updates to rules, hunting hypotheses, and intelligence source selections, consistent with [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §4.10.
 
 ---
 
@@ -333,7 +333,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | Intelligence sharing | NIST SP 800-150 §4; CSA CCM TVM domain controls covering intelligence sharing; CISA TLP Policy |
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-04 to SEF-05 |
 | Pre-go-live SIEM validation | [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md) §4.1 to §4.2 |
-| AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §9; NIST AI RMF |
+| AI-assisted detection | [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) §4.9; NIST AI RMF |
 | Records and audit | COBIT 2019 DSS05; ISO/IEC 27001:2022 Annex A.5.28 |
 
 ---
