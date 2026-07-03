@@ -2424,7 +2424,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.16.42"
+  version: "1.16.43"
   date: "2026-07-03"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
