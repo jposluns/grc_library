@@ -75,6 +75,13 @@ EN_DASH = "–"
 # approach as gate 51 (lint-working-prose-hygiene.py), so a dash that is
 # legitimately inside a code span (a regex character class, a quoted format
 # literal) is treated as content, not prose.
+#
+# DELIBERATE two-parser seam (GR-11): this file carries TWO code-span parsers
+# because each mirrors a DIFFERENT authoritative gate. This regex mirrors gate
+# 51's any-length span stripper (the dash check); the manual single-backtick
+# walk in unlinked_refs_in_line() mirrors lint-changelog-link-coverage.py's
+# per-line walk byte-for-byte (the link check). Unifying them would break
+# parity with one gate or the other; keep each in step with ITS gate.
 CODE_SPAN_RE = re.compile(r"(`+)(.+?)\1")
 
 # --- File-reference recognition, mirrored from lint-changelog-link-coverage.py ---

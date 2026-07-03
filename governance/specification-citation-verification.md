@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.5\
-**Date:** 2026-07-02\
+**Version:** 1.2.6\
+**Date:** 2026-07-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -154,7 +154,7 @@ The maintainer keeps the source texts that verification and authoring draw on (t
 
 - `ref/standards/` (ISO/IEC, NIST, ETSI, IEEE) and `ref/legislation/` (statutes by jurisdiction): **authoritative ground truth**, corresponding to Tier 1. Legislation is version-sensitive; confirm the in-force consolidated version.
 - `ref/frameworks/` (MITRE, OWASP, CSA CCM/AICM, COBIT) and `ref/programs/`: **trusted, sub-formal**; for a normative claim prefer a formal standard or law.
-- `ref/publications/` (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `ref/standards/` or `ref/legislation/` source before relying on it (per the publications-assessment process, TODO §2.11).
+- `ref/publications/` (vendor explainers, surveys, threat reports): **untrusted by default**; screen for bias or poisoning and corroborate any load-bearing claim against a `ref/standards/`, `ref/frameworks/`, or `ref/legislation/` source before relying on it (per the publications-assessment process, TODO §2.11).
 - `ref/templates/`: trusted-issuer scaffolding to adapt, not to cite (for example, the ISACA policy templates are usable as structural scaffolding, adapt-do-not-copy).
 
 Two constraints govern its use:

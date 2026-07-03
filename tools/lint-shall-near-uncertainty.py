@@ -14,6 +14,14 @@ Only the multi-word ``will be required`` form is detected.)
 Uncertainty markers detected: ``[Unverified]``, ``Draft``, ``TBD``,
 ``FIXME``, ``XXX``, ``placeholder``, ``TODO``, and ``[Draft N Reference]``.
 
+Boundary with the placeholder-leakage audit (``lint-placeholder-leakage.py``):
+the two linters share six marker tokens (TODO, TBD, FIXME, XXX, placeholder,
+[Unverified]) but split by PRESENCE vs CONJUNCTION: that linter flags a
+marker's mere presence in a scanned document, while this one flags only a
+MANDATORY marker within the window of an uncertainty marker. Each maintains
+its own token list and exempt set, so a token added to one is not
+automatically checked by the other; extend both deliberately.
+
 The linter detects a finding when a mandatory marker appears within
 WINDOW_LINES (=2) lines above or below an uncertainty marker (a 5-line
 window centred on the uncertainty marker line). Fenced code blocks are

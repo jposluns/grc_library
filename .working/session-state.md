@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T15:56:34Z
+**Last-heartbeat-UTC:** 2026-07-03T16:57:56Z
 
-**Current-task:** section-3.15 GR-3 wave-2 PR (Version-window trio migrated onto the shared `head_version()` parser), then the remaining section-3.15 guardrail bullets
+**Current-task:** section-3.15 guardrail hygiene batch PR (GR-9 + S-4 + GR-11 + r3 O-F2, plus both #613 sweep fixes and the #613 QA trio), then GR-4 and the GR-6 gate behind its /guardrails prerequisite
 
 **Worker-dispatches:** none
 

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #614: GR-9 + S-4 + GR-11 + r3 O-F2: guardrail hygiene batch (2026-07-03)
+
+Four section-3.15 bullets closed in one batch: the scratch-bucket misdescription corrected on every live carrier (GR-9, which also surfaced that `verify-reference-modules.py` was functionally broken by the re-bucketing; repaired and re-anchored to the `ref/` root), the aid extended with COBIT/ISO 31000 parity coverage (S-4), the preflight two-parser seam documented as deliberate gate-parity mirroring (GR-11), and the gate-9/gate-12 shared-token boundary documented in both docstrings (r3 O-F2). Both #613 sweep findings fixed in-window.
+
 ### PR #612: section 3.6: multi-session codification complete, worker-provenance attestation activated in gate 50 (2026-07-03)
 
 The last section-3.6 deliverable (the worker-provenance audit gate): gate 50's dormant check 3 activated, validating the new `**Worker provenance:**` marking convention (a detailed-mirror CHANGELOG line naming the scratch `inbox/<worker-id>/` delivery path) now that both preconditions exist (the marking convention this PR defines; the external-collaborator primitive via the scratch WORKER-ONBOARDING flow). Runbook, CLAUDE.md checklist, spec narrative, and five fixtures shipped with it; both #611 sweep findings fixed in-window. Second injected concurrency priority: with #611, the second-session prerequisites are complete.

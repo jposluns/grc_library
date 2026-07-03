@@ -104,7 +104,11 @@ EXEMPT_PREFIXES: tuple[str, ...] = (
 # delta: a shape-valid but calendar-invalid Date (e.g. 2026-02-30)
 # previously drew its own "not a valid ISO date" message; it now folds
 # into the missing-canonical-line message. The failing exit is the
-# same either way.
+# same either way for a file a range commit touched. The parse also
+# moved AHEAD of the defensive no-range-commit skip: a calendar-invalid
+# Date on a diff-listed file no range commit touched (a merge artefact)
+# previously hit that silent skip first and passed; it now fails loud
+# on the Date before the skip is reached (the #613 sweep's L-1).
 
 
 def git(*args: str) -> str:

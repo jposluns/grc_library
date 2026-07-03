@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.17\
+**Version:** 1.53.18\
 **Date:** 2026-07-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.18 | 2026.07.102 | 2026-07-03 | Factual-currency change, no step or procedure change (patch): [`skills/matrix-fit/SKILL.md`](skills/matrix-fit/SKILL.md) (step 1 and the reference-base inputs list) corrects the scratch reference-base locations to the actual bucket layout (the CSA catalogue CSVs under `ref/frameworks/CSA/`, the NIST CSF text under `ref/standards/NIST/`; the old prose placed both under `ref/standards/`), matching the paired command file in the consuming project. |
 | 1.53.17 | 2026.07.99 | 2026-07-03 | Narrative-currency change, no step or procedure change (patch): [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-two to sixty-three, gate-39 keyed) alongside the session-state lease audit shipping in the consuming project. |
 | 1.53.16 | 2026.07.98 | 2026-07-03 | Two narrative-currency changes, no step or procedure change (patch). (1) [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-one to sixty-two, gate-39 keyed) alongside the cross-file section-reference audit shipping in the consuming project. (2) The guardrail r3 drift finding D-3: the three pack enumeration surfaces for [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) (the pack [`CLAUDE.md`](CLAUDE.md) paragraph, this README's tree blurb and scope-table row) gain a clause naming the layered skeptical pre-push verification standard (added to the rule at 1.53.2 but until now summarized only on the project-side surface), so a pack adopter reading the summaries learns the standard exists. |
 | 1.53.15 | 2026.07.87 | 2026-07-03 | Corpus-citation sync: the pack [`CLAUDE.md`](CLAUDE.md) TLS row's encryption-policy citation renumbered from §1 to §4 (Encryption standards) in lockstep with the FR-48 renumber of [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md); no rule-content change. |
