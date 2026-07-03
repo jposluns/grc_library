@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #609: section 1.6: D5 seventh closure form + CLAUDE.md D5/RM-10 codifications (2026-07-03)
+
+The D5 PR-time check gains the space-separated `TODO section N.M ... closed` form (census: four full-history hits, all genuine, zero false positives) with fixtures and the audit-spec narrative; the CLAUDE.md step-7 description refreshed to the seven-form set and the RM-10 unpiped-guard sentence added to step 2, closing the last open removal-ledger entry as dispositioned-codified. Section 1.6 closed the same day it was intaken.
+
 ### PR #608: morning processing: overnight run routed, sections 3.8, 3.10, and former-7.1 closed at the 2026-07-03 decision rounds (2026-07-03)
 
 The 18-merge overnight run's file routed and reset to stub; the #607 QA trio recorded (zero-finding sweep); the maintainer's morning rounds confirmed the four DPO defaults and closed three backlog items by decision: section 3.8 (orchestrator tokens stay honestly not-instrumented, permanent), section 3.10 (the audit-trail-only TODO sections KEEP by design, its accretion-guard half already shipped), and the former Priority-7 item 7.1 (the same keep decision). The seven queue-de-blocking directives are recorded in pending-decisions.
