@@ -70,3 +70,4 @@ This skill is complete when:
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the six-step verification protocol; this skill's fresh-reader pass complements step 2 (re-read each file in full) with an outside reader.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when the fresh reader surfaces an ambiguity the document chose not to resolve, surface it via clarify-before-acting before completing.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the sweep surfaces a document that has had substantive revisions, this skill is the per-document follow-up.
+- Related skill [`library-fitness-review`](../library-fitness-review/SKILL.md): the whole-corpus, many-persona form of the same fresh-reader discipline; this skill is the per-document unit it scales up from.

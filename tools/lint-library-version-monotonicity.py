@@ -11,7 +11,9 @@ state (`origin/main` if available, falling back to `HEAD~1`) and fails
 if any version went backwards or skipped to a lower value.
 
 Catches:
-- Forgetting to bump the library version in a content phase.
+- A version going BACKWARDS (a rollback or collision). An unchanged value
+  passes, so a forgotten bump is the CHANGELOG-coupling and per-PR delta
+  checks' and the reviewer's territory, not this gate's.
 - Accidentally rewriting an older value in a metadata field.
 - Per-document semver going backwards on a change that should have
   bumped forward.
