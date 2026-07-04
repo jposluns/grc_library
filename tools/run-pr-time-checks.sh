@@ -9,9 +9,9 @@
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
-#      version-history co-bump). These compare the PR head
-#      to its merge base, so their
-#      inputs are not available in tools/run_all_audits.sh; they run
+#      version-history co-bump, D7 handoff-snapshot freshness). These
+#      compare the PR head to its merge base, so their inputs are not
+#      available in tools/run_all_audits.sh; they run
 #      only here and in quality.yml.
 #   2. The history-aware gates that examine each file's commit graph
 #      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
@@ -113,6 +113,13 @@ run_check "D5 Backlog-rotation-on-PR check" \
 # (the paired-surface checklist instance (a), mechanized).
 run_check "D6 Pack-README version-history co-bump check" \
     python3 tools/check-pack-readme-cobump-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D7: when a PR touches the session handoff, require the
+# Current-truth snapshot line's labelled version tokens to match the
+# live headers at the PR head (the append-not-reconcile class,
+# mechanized at version-token width; duplicate labelled tokens fail).
+run_check "D7 Handoff-snapshot freshness check" \
+    python3 tools/check-handoff-snapshot-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/

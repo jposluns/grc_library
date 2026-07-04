@@ -78,6 +78,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "Per-PR Version-Date co-bump check",
     "Backlog-rotation-on-PR check",
     "Pack-README version-history co-bump check",
+    "Handoff-snapshot freshness check",
     "Detect collection candidates on pack PRs (informational)",
 }
 

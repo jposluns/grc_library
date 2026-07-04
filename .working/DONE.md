@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #634: delta gate D7, handoff-snapshot freshness check (2026-07-04)
+
+The maintainer-accepted mechanization of the append-not-reconcile class (seven logged occurrences): a PR-time delta check validating the handoff Current-truth line's labelled version tokens against the PR head's live headers, duplicate tokens failing too. The section-3.15 snapshot-check bullet closes; not previously an FR-keyed item.
+
 ### PR #633: TODO 1.10 Quebec Law 25 72-hour confabulation sweep (2026-07-04)
 
 Corrected the confabulated 72-hour CAI breach clock to the statute's promptness standard on the seven remaining corpus carriers across five documents (the two Canada-annex carriers were fixed in #631, which surfaced the class); companions: the breach-response ANPD rename and the FR-141 frozen-history disposition. Item added and closed same-day from the #631 verifier catch.

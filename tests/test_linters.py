@@ -1639,6 +1639,182 @@ class PackReadmeCobumpOnPrTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+
+class HandoffSnapshotOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-handoff-snapshot-on-pr.py (delta gate D7).
+
+    A PR that touches the session handoff must carry a Current-truth
+    snapshot line whose labelled version tokens match the live headers
+    at the PR head; duplicate labelled tokens fail. Uses the shared
+    two-commit temp-repo harness.
+    """
+
+    SCRIPT = "check-handoff-snapshot-on-pr.py"
+    HANDOFF = ".working/session-handoff.md"
+    README = "README.md"
+
+    @staticmethod
+    def _readme(calver, version):
+        return (
+            "# Library\n\n"
+            f"**Library Version:** {calver} (CalVer)\\\n"
+            f"**README Version:** {version} (semantic)\n\n"
+            "Body.\n"
+        )
+
+    @staticmethod
+    def _handoff(line):
+        return (
+            "# Session handoff\n\n"
+            "## State snapshot\n\n"
+            f"- **Current truth (verify against live files at /resume)**: {line}\n"
+        )
+
+    def test_matching_tokens_pass(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
+            },
+            {
+                self.README: self._readme("2026.07.2", "1.0.1"),
+                self.HANDOFF: self._handoff("library `2026.07.2`, README `1.0.1`."),
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D7 should PASS on reconciled tokens.\nstdout:\n{result.stdout}"
+                f"\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_stale_token_fails(self) -> None:
+        # README advances but the refreshed handoff still quotes the old
+        # CalVer: the append-not-reconcile shape.
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
+            },
+            {
+                self.README: self._readme("2026.07.2", "1.0.1"),
+                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.1`."),
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D7 should FAIL on a stale token.\nstdout:\n{result.stdout}"
+                f"\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("stale token", result.stderr)
+            self.assertIn("2026.07.1", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_duplicate_token_fails(self) -> None:
+        # The seventh-occurrence shape: the same labelled surface quoted
+        # twice on the snapshot line.
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
+            },
+            {
+                self.README: self._readme("2026.07.1", "1.0.1"),
+                self.HANDOFF: self._handoff(
+                    "library `2026.07.1`, README `1.0.1`, README `1.0.0`."
+                ),
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D7 should FAIL on a duplicate token.\nstdout:\n{result.stdout}"
+                f"\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("duplicate token", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_handoff_untouched_not_triggered(self) -> None:
+        # The PR changes only the README; the (now-stale) handoff is not
+        # in the diff, so the delta gate stays silent by design.
+        handoff = self._handoff("library `2026.07.1`, README `1.0.0`.")
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: handoff,
+            },
+            {self.README: self._readme("2026.07.2", "1.0.1")},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D7 should not trigger when the handoff is untouched.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("not triggered", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_missing_snapshot_line_fails(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: self._handoff("library `2026.07.1`."),
+            },
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: "# Session handoff\n\nNo snapshot here.\n",
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D7 should FAIL on a missing Current-truth line.\nstdout:\n"
+                f"{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("no 'Current truth'", result.stderr.replace('"', "'"))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_surfaces_table_paths_resolve_in_real_repo(self) -> None:
+        # Pins the confabulated-live-path class caught in the #634 build
+        # (the guardrail-history row named .working/guardrail-review/,
+        # singular, and the gate failed its own PR): every SURFACES row's
+        # live_path must exist in the real repo and its header_re must
+        # match that file's content, so a renamed or misspelled surface
+        # fails here instead of in CI on the next handoff-touching PR.
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "check_handoff_snapshot_mod",
+            REPO_ROOT / "tools" / self.SCRIPT,
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        for label, _token_re, live_path, header_re in mod.SURFACES:
+            target = REPO_ROOT / live_path
+            self.assertTrue(
+                target.is_file(),
+                f"SURFACES label '{label}' names {live_path}, which does "
+                "not exist in the repo",
+            )
+            self.assertIsNotNone(
+                header_re.search(target.read_text(encoding="utf-8")),
+                f"SURFACES label '{label}': no parsable header version "
+                f"field in {live_path}",
+            )
+
+
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
 
