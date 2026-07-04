@@ -1815,6 +1815,50 @@ class HandoffSnapshotOnPrTests(DeltaGateRepoTestCase):
             )
 
 
+class VerificationGuardrailSelfTests(unittest.TestCase):
+    """The RM-10 enforcers' own self-tests, wired into the suite.
+
+    Closes TODO 1.9(d) (from the 2026-07-04 worker QA run's validated
+    GR-GAP-3): the PreToolUse pipe-blocking hook's ``--self-test`` and
+    the ``tail-safe.sh`` wrapper's ``--self-test`` were wired into no
+    runner, CI, or regression surface, so a broken enforcer failed
+    nothing. Running them here makes the regression suite (and every
+    pre-push guard run that chains it) fail loud when either enforcer
+    regresses.
+    """
+
+    def _run_selftest(self, cmd):
+        import subprocess as sp
+
+        return sp.run(
+            cmd, capture_output=True, text=True, cwd=str(REPO_ROOT)
+        )
+
+    def test_block_verification_pipes_hook_self_test(self) -> None:
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-verification-pipes.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("self-test OK", result.stdout)
+
+    def test_tail_safe_wrapper_self_test(self) -> None:
+        result = self._run_selftest(
+            ["bash", str(REPO_ROOT / "tools" / "tail-safe.sh"), "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"tail-safe.sh --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("self-test OK", result.stdout)
+
+
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
 

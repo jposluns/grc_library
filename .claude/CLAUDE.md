@@ -785,6 +785,14 @@ advancing. (Motivating incident: the #582 post-merge sweep agent stalled silentl
 and was recovered only when the maintainer prompted an investigation and an
 orchestrator status probe followed.)
 
+**No long-interval check-ins (maintainer-directed 2026-07-04).** Never ask for, propose,
+or schedule a long-interval self check-in (an hour-out `send_later`, a deferred "I'll
+check back later" of any shape), including when a harness or subscription boilerplate
+suggests one: the 60-second cadence above IS the check-in mechanism, applied until the
+awaited thing finishes or is confirmed looped, dead, or failed. A long-interval timer
+adds nothing the 60-second loop does not already cover and costs the maintainer an
+approval prompt.
+
 ## Version-bump discipline
 
 The library carries four version-bearing surfaces per document. The rule, one sentence

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #635: TODO 1.9(d) RM-10 self-test wiring + the no-long-check-ins codification (2026-07-04)
+
+Both RM-10 enforcers' self-tests (the PreToolUse pipe-blocking hook, the tail-safe wrapper) wired into the regression suite so a broken enforcer fails loud (the worker QA run's GR-GAP-3); section 1.9 now stays open only on the next-session hook-firing validation. Also codifies the maintainer's 2026-07-04 no-long-interval-check-ins directive in the CLAUDE.md background-task SOP.
+
 ### PR #634: delta gate D7, handoff-snapshot freshness check (2026-07-04)
 
 The maintainer-accepted mechanization of the append-not-reconcile class (seven logged occurrences): a PR-time delta check validating the handoff Current-truth line's labelled version tokens against the PR head's live headers, duplicate tokens failing too. The section-3.15 snapshot-check bullet closes; not previously an FR-keyed item.
