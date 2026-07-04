@@ -891,6 +891,26 @@ class IntraDocRefTests(LinterTestCase):
         result = run_linter("tools/lint-intra-doc-refs.py", fixture)
         self.assertLinterFails(result)
 
+    def test_trailing_link_cross_doc_ref_not_flagged(self) -> None:
+        # The r3 O-F1 seam: a section reference whose markdown link
+        # follows it ("see section 9.9 in [foo](foo.md)") is a CROSS-doc
+        # reference (gate 62's territory), so the intra-doc gate must not
+        # resolve it against this document's own headings. Before the
+        # trailing-window extension, only a PRECEDING link suppressed the
+        # intra-doc check.
+        body = (
+            VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+            + "\n\nSee §9.9 in [the target](xref-target.md) for detail.\n"
+        )
+        fixture = self.make_fixture("standard-trailing-link-ref.md", body)
+        result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"trailing-link cross-doc ref should not be flagged by the "
+            f"intra-doc gate.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 class CrossFileSectionRefTests(LinterTestCase):
     """tools/lint-cross-file-section-refs.py (gate 62)

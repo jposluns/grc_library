@@ -122,6 +122,14 @@ the bar against poisoned reference input; it does not by itself guarantee detect
 
 ---
 
+### 2.12 DORA implementation annex operational deepening (M, M) — added 2026-07-04 (ad-hoc brief staged first per the convention)
+
+Bring [`compliance/financial-services/annex-dora-implementation.md`](compliance/financial-services/annex-dora-implementation.md) to operational sufficiency per pillar (incident classification and reporting clocks, TLPT cadence, register-of-information, critical-ICT-third-party consequences), the FR-74 deepening shape; the held DORA text grounds every claim. Research brief staged in scratch (`research/dora-operational-deepening/`, 2026-07-04); the apply runs through the normal validate-then-apply pipeline when the delivery lands.
+
+### 2.13 NIS2 implementation annex operational deepening (M, M) — added 2026-07-04 (ad-hoc brief staged first per the convention)
+
+Bring [`compliance/annex-nis-2-implementation.md`](compliance/annex-nis-2-implementation.md) to operational sufficiency (scope determination, Article 21 measures, the Article 23 notification ladder, management-body accountability), grounded in the held directive; the DORA lex-specialis boundary coordinates with 2.12. Research brief staged in scratch (`research/nis2-implementation-deepening/`, 2026-07-04).
+
 ## Priority 3 — Clean up and tooling
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
@@ -165,12 +173,19 @@ Machinery findings from the 2026-07-02 guardrail review (gates, rules, skills, a
 - **(GR-6, M, S) Audit-programme detailed-prose presence check.** For each gate in the [`governance/specification-audit-programme.md`](governance/specification-audit-programme.md) inventory, the detailed-prose enumeration must carry the paired "Gate N is a ..." description and "Gate N is appended ..." sentence; gate 35 checks only the table and gate 39 only counts rows, so a shipped gate's missing prose pair recurs (gate 57 at Sweep 77; the gate-55-in-section-5 case, fixed in PR #573). Presence-only check, not semantic. Census (2026-07-03, the #595 research pass): the description sentence exists from gate 35 and the appended-order sentence only from gate 47 (earlier gates use plural or placement variants, and gates 43 and 44 carry no detailed prose at all), so the check's floors are DESCRIPTION_FLOOR 35 and APPENDED_FLOOR 47 with a two-paragraph description backfill for the two gapped entries at build time; SEQUENCING: this ships as a new gate, which raises the gate-60 machinery drift to its fail threshold, so a /guardrails review run must land before or with it.
 - **(GR-8, M, S; half (a), the removal-ledger disposition pass, is COMPLETE: 14 of 15 entries dispositioned in the small-fixes PR and RM-10 dispositioned-codified in the section-1.6 D5 PR) Close the remaining watch-loop.** Retro proposed-improvements closure: [`.working/improvement-log.md`](.working/improvement-log.md) proposals accumulate un-codified and their classes recur (#446 then #450; #471 then #472); adopt a closure discipline so each proposal is codified, rejected, or expired.
 - **(GR-10, L, S) History-aware gate subprocess batching.** Gate 31 spawns a git subprocess per document (200-plus spawns, run twice per pre-push via the guard) and gate 40 is heavier; a batched `git log --name-only` pass would trade `--follow` fidelity for one subprocess. Optimization only; correctness unaffected; queue behind the functional items.
-- **(r3 O-F1, [guardrails], L, S) Gate-18 trailing-link seam.** [`tools/lint-intra-doc-refs.py`](tools/lint-intra-doc-refs.py)'s cross-doc filter checks only the PRECEDING 60-char window for a `.md` link, while gate 62 claims links on either side: a `see §5.4 in [foo](foo.md)` line (link after the reference) is claimed by both gates with different resolution targets. Latent, not live (the doctype-word scan catches real phrasings). Fix: extend the filter to a trailing window (mirroring gate 62's bidirectional adjacency) plus a regression fixture, or document the residual in both docstrings.
 - **(r3, [guardrails], M, M) Cross-file section-reference gate, names phase.** The second PR of the two-PR plan in [`.working/cross-file-section-ref-gate-design.md`](.working/cross-file-section-ref-gate-design.md): a reference pairing a number with a quoted heading title must match the target's actual heading (FP-tuned). The numbers phase shipped as gate 62.
-- **(r3, [guardrails], L, S) D6 candidate: TODO section-close orphan check.** A PR-time check failing when a TODO `###` heading deletion leaves live `§N` / `section N.M` references on gate-exempt surfaces (three logged misses: #469, #471, the #593 carrier pair). The close-out checklist's whole-repo grep is the convention it would mechanize; gate 62 does not cover bare refs or gate-exempt trees.
+- **(r3, [guardrails], L, S) D7 candidate (relabelled from the r3 review's "D6" after the pack-README co-bump check shipped as delta gate D6 in #623): TODO section-close orphan check.** A PR-time check failing when a TODO `###` heading deletion leaves live `§N` / `section N.M` references on gate-exempt surfaces (three logged misses: #469, #471, the #593 carrier pair). The close-out checklist's whole-repo grep is the convention it would mechanize; gate 62 does not cover bare refs or gate-exempt trees.
 - **(r3 G-F4 note, folds into GR-8(b)) Carried-candidates check.** The #609 authorized CLAUDE.md touch shipped RM-10 but skipped the two retro candidates explicitly waiting for "the next authorized touch" (the #594 refutation-grep extension; the #593 bare-token section-close fold): the GR-8(b) closure discipline should include a scan of improvement-log Proposed-improvement cells for carrier phrases before any protected-file-touch PR closes.
 
 ---
+
+### 3.16 ETSI Securing-AI alignment map (L, M) — added 2026-07-04 (ad-hoc brief staged first per the convention)
+
+Map the held ETSI SAI family (EN 304 223 plus the GR/TR set) against the corpus `ai/` security content: which requirements have no corpus carrier, which corpus claims an ETSI citation would strengthen, and a proposed alignment shape (options surfaced for maintainer scoping). Research brief staged in scratch (`research/etsi-sai-alignment-research/`, 2026-07-04); research-only, the apply is a later decision.
+
+### 3.17 MITRE ATLAS 2026.06 alignment and currency map (L, M) — added 2026-07-04 (ad-hoc brief staged first per the convention)
+
+Coverage and identifier-currency map of the held ATLAS 2026.06 refresh against the corpus adversarial-AI content (which techniques lack carriers; which cited identifiers changed across the v5.6.0-to-2026.06 refresh), with a proposed update shape surfaced. Research brief staged in scratch (`research/atlas-adversarial-alignment-research/`, 2026-07-04); research-only.
 
 ## Priority 4 — Adopter experience
 
@@ -288,11 +303,11 @@ Entirely new domains, multi-week scope each. The maintainer schedules deliberate
 
 ### 6.1 Identity-specific content depth (L) (was 6.2)
 
-Customer Identity (CIAM) governance, workforce identity governance, identity federation patterns, passwordless adoption playbooks. The library has IAM policy and procedure but no dedicated content for these patterns.
+Customer Identity (CIAM) governance, workforce identity governance, identity federation patterns, passwordless adoption playbooks. The library has IAM policy and procedure but no dedicated content for these patterns. **Research state (2026-07-04): the p6-1 scoping research is DELIVERED (scratch inbox, pending apply), and its three proposed documents are each briefed as follow-on work-units in scratch** (`research/ciam-governance-research/`, `research/identity-federation-patterns-research/`, `research/passwordless-adoption-research/`, grounded in the held NIST SP 800-63-4); the BUILD stays maintainer-schedule-gated.
 
 ### 6.2 Quantum cryptography readiness deepening (L) (was 6.3)
 
-The library has a phase-level PQC roadmap ([`security/roadmap-post-quantum-cryptography.md`](security/roadmap-post-quantum-cryptography.md)) but not detailed implementation content. Pending: a PQC migration playbook (operational steps per system class), crypto-agility patterns (key abstraction, algorithm switching, hybrid schemes), and post-quantum-ready CA / PKI management.
+The library has a phase-level PQC roadmap ([`security/roadmap-post-quantum-cryptography.md`](security/roadmap-post-quantum-cryptography.md)) but not detailed implementation content. Pending: a PQC migration playbook (operational steps per system class), crypto-agility patterns (key abstraction, algorithm switching, hybrid schemes), and post-quantum-ready CA / PKI management. **Research state (2026-07-04): the corpus-internal scoping half is DELIVERED (scratch inbox `inbox/worker-20260703-a/quantum-pqc-readiness-scoping/`, pending apply; deepening options and a source-needs list surfaced, no regime claims)**; the regime half stays source-gated (no PQC standard held) and the BUILD schedule-gated.
 
 ### 6.3 Cross-framework matrix expansion (L) (was 6.4)
 
@@ -300,11 +315,11 @@ Current matrix ([`governance/matrix-cross-framework-alignment.md`](governance/ma
 
 ### 6.4 CMMI capability levels alongside maturity levels (L) (was 6.5)
 
-Per maintainer direction 2026-06-22 (low priority, after the FR backlog completes). The corpus uses the 5-tier maturity-level scale at both organization-wide and per-domain granularity; CMMI distinguishes the two (maturity levels 1-5 org-wide; capability levels 0-3 per practice area). Introducing capability levels would: (1) add a capability-level scheme to [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2; (2) update [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md) to use capability levels per domain and aggregate to maturity levels at the programme rollup; (3) possibly extend [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md) DTI thresholds with a capability-level surface.
+Per maintainer direction 2026-06-22 (low priority, after the FR backlog completes). The corpus uses the 5-tier maturity-level scale at both organization-wide and per-domain granularity; CMMI distinguishes the two (maturity levels 1-5 org-wide; capability levels 0-3 per practice area). Introducing capability levels would: (1) add a capability-level scheme to [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) §2; (2) update [`docs/template-maturity-self-assessment.md`](docs/template-maturity-self-assessment.md) to use capability levels per domain and aggregate to maturity levels at the programme rollup; (3) possibly extend [`governance/register-digital-trust-and-assurance-metrics.md`](governance/register-digital-trust-and-assurance-metrics.md) DTI thresholds with a capability-level surface. **Research state (2026-07-04): the research-only integration mapping is DELIVERED (scratch inbox `inbox/worker-20260703-a/cmmi-sei-maturity-integration/`, pending maintainer decision; four integration-shape options surfaced, grounded in the CMMI V3.0 + SEI AI Adoption Maturity Model ingestions)**; the BUILD stays sequenced after the FR backlog completes.
 
 ### 6.5 Multi-cloud governance overlay (XL) (was 6.1)
 
-Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. The remaining gap is multi-cloud governance (cross-cloud risk taxonomy, cross-cloud incident coordination, cloud-portfolio-level controls). Could live in `operations/` or warrant a new `cloud/` domain.
+Per-cloud hardening baselines for AWS, Azure, and GCP exist in `dev-security/`. The remaining gap is multi-cloud governance (cross-cloud risk taxonomy, cross-cloud incident coordination, cloud-portfolio-level controls). Could live in `operations/` or warrant a new `cloud/` domain. **Research state (2026-07-04): the research-only scoping is DELIVERED (scratch inbox `inbox/worker-20260703-a/multi-cloud-governance-scoping/`, pending maintainer decision; proposed document set and placement options surfaced)**; the BUILD stays P6 schedule-gated.
 
 ---
 
