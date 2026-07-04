@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #624: r3 O-F1: gate-18 trailing-link cross-doc seam closed (2026-07-04)
+
+One section-3.15 bullet closed: `lint-intra-doc-refs.py`'s cross-doc filter extended with a trailing 60-char window (mirroring gate 62's bidirectional link adjacency) plus a regression fixture, so a `see section 5.4 in [foo](foo.md)` line is claimed by the cross-doc side on both gates. Second build-only pick of the 2026-07-04 overnight run; also adds the four wave-6 ad-hoc-brief TODO items and the P6 research-state notes.
+
 ### PR #623: D6 pack-README version-history co-bump delta check (2026-07-04)
 
 One section-3.15 bullet closed: the D-check candidate shipped as delta gate D6 (`check-pack-readme-cobump-on-pr.py` + runner/workflow/parity/spec wiring + four fixtures), mechanizing the paired-surface checklist instance (a). First build-only pick of the 2026-07-04 overnight run.

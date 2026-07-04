@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-04, Library Version 2026.07.112, PR #624
+
+Gate-18 trailing-link seam fix (the r3 O-F1 guardrails finding, the second section-3.15 build-only pick of the overnight run): [`tools/lint-intra-doc-refs.py`](../../tools/lint-intra-doc-refs.py)'s cross-doc filter checked only the PRECEDING 60-char window for a markdown-link signal, while gate 62 claims links on either side of a section reference, so a "see section 5.4 in [foo](foo.md)" line (link AFTER the reference) was claimed by the two gates with different resolution targets. The filter now also scans a TRAILING 60-char window for the same two signals (a `.md` name or a `](` link marker), mirroring gate 62's bidirectional adjacency, with a regression fixture (suite 313) and a docstring note naming the seam. Also adds four TODO items for the wave-6 ad-hoc briefs staged in scratch (DORA and NIS2 annex operational deepening; ETSI Securing-AI and MITRE ATLAS 2026.06 alignment maps), research-state notes on the four P6 items whose scoping research is now briefed or delivered, the #623 QA batch (1 low + 1 note, both fixed here: the "D6 candidate" orphan-check label relabelled to D7 after #623 shipped the pack-README check as D6; the considerations-ledger delta-range clause updated), and the closed seam bullet's rotation to the DONE ledger.
+
+### Changed
+
+- [`tools/lint-intra-doc-refs.py`](../../tools/lint-intra-doc-refs.py): `is_cross_doc_context()` extended with a trailing 60-char window scanning for `.md` and `](` after the reference (previously only the preceding window carried the link heuristic); the docstring rewritten to name the bidirectional adjacency and the r3 O-F1 seam it closes. The change is filter-WIDENING only (more references classified cross-doc, never fewer), so no existing corpus finding can be newly introduced by it; gate 18 green on the corpus before and after.
+- [`tests/test_linters.py`](../../tests/test_linters.py): new `test_trailing_link_cross_doc_ref_not_flagged` fixture in `IntraDocRefTests` (a section reference followed by a markdown link resolves as cross-doc, rc 0); suite 312 to 313.
+- [`TODO.md`](../../TODO.md): the section-3.15 O-F1 seam bullet removed (rotated to the DONE ledger); new items 2.12 and 2.13 (DORA and NIS2 annex operational deepening) and 3.16 and 3.17 (ETSI SAI and ATLAS 2026.06 alignment maps) for the wave-6 ad-hoc briefs staged in scratch per the briefs-before-items convention; research-state notes added to the P6 items 6.1, 6.2, 6.4, and 6.5 (6.1's three follow-on briefs staged; the 6.2, 6.4, and 6.5 scoping research DELIVERED to the scratch inbox this boundary, pending apply or maintainer decision) with unchanged BUILD gating.
+
+### Fixed
+
+- The #623 sweep's F1: the section-3.15 orphan-check bullet's "D6 candidate" label relabelled to "D7 candidate" with a provenance clause (the r3 review coined "D6" before #623 shipped the pack-README check as delta gate D6; a live naming collision).
+- The #623 sweep's F2: the considerations-ledger clause "the delta set is D1-D5 since the #469 D5 check" updated to the #623 D1-D6 state (the #573 precedent pairs the ledger annotation with a CLAUDE.md range refresh).
+
+### Verification
+
+- The new fixture green and the full `IntraDocRefTests` class green; full regression suite 313 green; all 63 audit gates pass standalone post-commit; a contradiction grep for spec prose describing the old preceding-only filter mechanics returned zero hits (the audit-programme narrative for gate 18 does not describe the window internals, so no spec edit was owed).
+
+### Discipline observations
+
+- The #623 QA batch rides this PR per recursion-avoidance: the `/validate-pr` record (1 low + 2 notes; F1/F2 fixed here, F3 routed to the next authorized [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) touch), the history row (1.2.402), and the `/retro` row (1.0.347, recording the new naming-collision observation: grep for candidate uses of a number before shipping an artefact with that number).
+
 ## 2026-07-04, Library Version 2026.07.111, PR #623
 
 Delta gate D6, the pack-README version-history co-bump check (the first section-3.15 build-only pick of the 2026-07-04 overnight run): when a PR changes the pack README's `**Version:**` value, the same diff must add the matching `## Version history` row. Mechanizes the close-out checklist's paired-surface instance (a), until now convention-only; the new [`tools/check-pack-readme-cobump-on-pr.py`](tools/check-pack-readme-cobump-on-pr.py) is delta-scoped, self-silencing on unchanged Version values, and carries no opt-out trailer (the paired-surface rule is unconditional). Wired into the PR-time runner, the CI workflow, the parity registry's delta-step set, and the audit-programme section 6.1 (table row + narrative, spec 1.16.48); four fixture tests (suite 312); the guard header's D1-D5 range refreshed to D1-D6, the PR-time runner's header list extended, and the same range refreshed, under the pre-authorized factual one-liner class, in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). Also carries the #622 QA batch (1 low + 1 note in-window, both fixed here), the overnight-mode transition (the overnight file to in-flight with the maintainer's 2026-07-04 authorization scope), and the shipped D-check bullet's removal from TODO section 3.15.

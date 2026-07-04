@@ -79,17 +79,31 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
     """Heuristic: is the reference in a cross-doc context?
 
     Detection strategy:
-    - Preceding-60-char window: closing bracket/paren (markdown link),
-      a `.md` filename, or a doctype word ("Standard", "Procedure", etc).
-    - Whole-line scan for external-framework names: ISO, NIST, OWASP, CSA,
-      MITRE, COBIT, GDPR, CPPA, BASC, etc. Framework-mapping tables
-      typically reference external framework section numbers in their
-      cells; this scan catches that pattern.
+    - Preceding-60-char window: closing bracket/paren (markdown link) or
+      a `.md` filename, plus a TRAILING-60-char window for the same two
+      signals (mirroring gate 62's bidirectional adjacency, so a
+      "see section 5.4 in [foo](foo.md)" line, link AFTER the reference,
+      is claimed by the cross-doc side here as gate 62 claims it (the
+      r3 O-F1 seam). The mirror is approximate, not exact: gate 62's
+      adjacency window is 40 chars and pipe-bounded while this filter
+      accepts a bare ".md" or "](" within 60 chars of the reference
+      start, so a link 41-60 chars after a reference is disclaimed
+      here yet unclaimed by gate 62 (an accepted heuristic band, the
+      same shape as the pre-existing preceding-side window).
+    - Doctype words and external-framework names: whole-line scans (ISO,
+      NIST, OWASP, CSA, MITRE, COBIT, GDPR, CPPA, BASC, etc).
+      Framework-mapping tables typically reference external framework
+      section numbers in their cells; this scan catches that pattern.
     """
     window = line[max(0, ref_start - 60):ref_start]
     if ".md" in window:
         return True
     if "](" in window:
+        return True
+    trailing = line[ref_start:ref_start + 60]
+    if ".md" in trailing:
+        return True
+    if "](" in trailing:
         return True
     # Doctype words anywhere on the line: when the library writes about
     # another document's section, the document is typically named on the

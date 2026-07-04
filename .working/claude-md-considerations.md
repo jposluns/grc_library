@@ -1,7 +1,7 @@
 # CLAUDE.md considerations (removal ledger)
 
-**Version:** 1.0.4\
-**Date:** 2026-07-03\
+**Version:** 1.0.5\
+**Date:** 2026-07-04\
 **License:** CC BY-SA 4.0
 
 ## Purpose
@@ -122,7 +122,7 @@ Git-history-aware gates
    design-decisions "Gate-family coherence, Option A" decision).
 ```
 
-**Why removed:** Explanatory rationale for why the runner exists and why it runs between commits. The actionable instruction (run `run_all_audits.sh` after each commit; push via the guard, which chains both runners) is retained, and the gate identities (D1-D4, 45/40/31; the delta set is D1-D5 since the #469 D5 check, and the condensed CLAUDE.md line was updated to D1-D5 in the section-3.14 batch) are retained in condensed form. The governance Phase-1 migration is long finished.
+**Why removed:** Explanatory rationale for why the runner exists and why it runs between commits. The actionable instruction (run `run_all_audits.sh` after each commit; push via the guard, which chains both runners) is retained, and the gate identities (D1-D4, 45/40/31; the delta set is D1-D6 since the #623 D6 check (D1-D5 from the #469 D5 check until then), and the condensed CLAUDE.md line was updated to D1-D5 in the section-3.14 batch) are retained in condensed form. The governance Phase-1 migration is long finished.
 
 **Expected gain:** About twelve lines off the longest procedure step; the step now reads as instructions rather than instructions plus justification.
 

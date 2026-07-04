@@ -4,11 +4,11 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T00:42:17Z
+**Last-heartbeat-UTC:** 2026-07-04T02:19:20Z
 
-**Current-task:** overnight queue after the #621 close-out (section-3.1 sweep pair, section-3.15 build-only picks, S3 PR B, then the P2 worker-delivery applies; maintainer-decided 2026-07-04)
+**Current-task:** overnight queue, #624 (gate-18 seam fix) closing out; next the remaining section-3.15 build-only picks (GR-6 + /guardrails r4, names-phase gate, GR-8(b)), then S3 PR B, then the P2 worker-delivery applies (maintainer-decided 2026-07-04)
 
-**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 13 original staged briefs (merged scratch-side) and now consumes the seven wave-4 briefs staged in scratch PR #70; the orchestrator screens and merges its delivery PRs at close-out boundaries
+**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED 23 work-units (all merged scratch-side, pending applies) and now consumes the seven remaining wave-6 briefs; the orchestrator screens and merges its delivery PRs at close-out boundaries
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
