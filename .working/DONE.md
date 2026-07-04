@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #629: section-1.9 (c) closed + D-F4+F6 closed + GR-3 CLOSED (2026-07-04)
+
+The maintainer-authorized CLAUDE.md touch bundle: the RM-10 clause widened from the guard to every verification command (naming the tail-safe wrapper and the hook, whose named-command and sink sets also widened with proof-case self-tests), the eight staged 1.9(c) clauses landed on the close-out checklist (#614, #619 widened to the snapshot line, #593, #594, #612, #625, #620), and the D-F4+F6 operating-mode rewords plus the #627 F2 delivery-time seed-removal reword applied. GR-3 wave 3 closed as the maintainer's keep-as-is decision (design record); the 2026-07-04 morning decision rounds (thirteen answers) executed into TODO and the ledgers; S-f (fork update-assessment tooling) added at maintainer request. Carries the #628 QA batch and both its finding fixes.
+
 ### PR #628: GR-8 CLOSED: retro proposed-improvement closure discipline (2026-07-04)
 
 GR-8's remaining half (b) shipped as the register disposition-token convention plus `/retro` step 6 (disposition scan + carried-candidates check, which also closes the r3 G-F4 note bullet): the #627/#621/#624(b) candidates codified (record-vs-diff clauses in the three QA-record steps, the verifier-loop class-width clause, the runbook close-out ordering line), the #593/#594/#612/#620/#625 candidates routed to the TODO 1.9(c) authorized-touch bundle, and eight register rows dispositioned. The expiry tail (#233, #235, habit-band rows), the option-B ageing tool, and the vocabulary confirm-or-redirect sit with the maintainer in pending-decisions. Seventh resolution of the 2026-07-04 overnight run, closed out at the morning boundary; the PR also routes and resets the overnight file and closes the r4 D-F5 bullet both ways (the stub pruned to the single latest closure note AND the change-tracking rule's stub form admitting that note).

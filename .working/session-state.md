@@ -4,11 +4,11 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T12:10:16Z
+**Last-heartbeat-UTC:** 2026-07-04T13:40:32Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #628 in flight (GR-8(b) closure build + morning processing + #627 QA batch); next S3 PR B, then the P2 applies (with the metrics refresh row at that boundary), 3.19/3.20/3.21 as interleave; the 2026-07-04 morning decision list is with the maintainer
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #629 in flight (the authorized CLAUDE.md touch bundle + #628 QA batch + decision-round bookkeeping); wave-7 scratch coverage sync drafted and landing at this close-out; next S3 PR B, then the P2 applies (with the metrics refresh row at that boundary), 3.19/3.20/3.21 as interleave; the 2026-07-04 morning decision list is RESOLVED (13 answers received and executed into TODO / pending-decisions / design-decisions)
 
-**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies pending); the staged pool is empty, so the worker idles pending morning decisions
+**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies pending); the staged pool is empty, so the worker idles pending the wave-7 staged briefs landing (the morning decisions themselves are resolved)
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

@@ -27,8 +27,11 @@ Execute these steps in order:
       lease: write `Active-session: <this branch>`, `Status: active`, and a fresh
       `date -u +%Y-%m-%dT%H:%M:%SZ` heartbeat (the write lands on `main` with the first
       PR; the stop-hook push makes the branch-local copy visible to the git cross-check
-      in the meantime). Refresh the heartbeat at each PR close-out and RELEASE
-      (`Status: released`, `Active-session: none`) in the session-closing handoff PR.
+      in the meantime). Refresh the heartbeat at each PR close-out, optionally set
+      `Status: winding-down` while assembling the session-closing handoff PR (a live
+      state to this interlock, treated like `active`; gate 63 validates all three
+      values), and RELEASE (`Status: released`, `Active-session: none`) in the
+      session-closing handoff PR.
 
 1. **Read [`.working/session-handoff.md`](../../.working/session-handoff.md) in full**, including its **"Known environment behaviours"** section. It is the as-of-last-refresh snapshot of branch, versions, counts, last-merged PRs, trust-recovery state, the next-actions queue, open decisions awaiting the maintainer, the known environment behaviours, and the standing disciplines. The known-behaviours section matters: the stop-hook auto-commits and pushes uncommitted changes on turn-end (the working tree is auto-persisted, not held locally), so verify `git log` rather than assuming the tree is uncommitted.
 

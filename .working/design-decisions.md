@@ -14,6 +14,18 @@ The ordering below is loosely thematic rather than chronological. New decisions 
 
 ---
 
+## Whole-backlog wave-7 staging before the P2 applies, including the 4.1 distillation seed (decided 2026-07-04, maintainer)
+
+Following the morning decision rounds, the maintainer directed: stage briefs for ALL remaining TODO items that lack a seed and are eligible to seed without impact, BEFORE the P2 applies push, and accepted the seed-then-enhance shape for section 4.1 specifically (an Opus 4.8 worker drafts the corpus-management-skill distillation research; the orchestrator authors the final pack prose from it). This un-defers 4.1's research half (its build half stays sequenced behind the source-stabilizing condense per the coverage row's re-assessment clause) and adds a GR-GAP-1 register-population research seed (in-repo census plus held-source-grounded candidate entries; upstream currency verification stays orchestrator/maintainer-side per DD-10). The wave-7 sync (2 new briefs, 9 new verdicts, 7 verdict updates, 1 closed-row deletion) lands as a scratch PR at the #629 close-out.
+
+## GR-3 wave 3: metadata parsers stay separate (decided 2026-07-04, maintainer morning round)
+
+Gate 1's `extract_metadata` and `build-taxonomy.py`'s duplicate-field parsing do NOT fold into the shared `lint_common.py` parser (waves 1 and 2 migrated the Date and Version consumers). Rationale accepted: both remaining parsers are already fail-loud, their block-boundary semantics differ from the shared parser DELIBERATELY (gate 31 is stricter than gate 1 for an empty Date value, coherent under fail-loud), and folding risks behaviour drift for no defect-class gain. GR-3 CLOSED as a recorded no-change decision; if a defect class ever emerges from the divergence, the decision reopens with that evidence.
+
+## The 2026-07-04 morning decision rounds (thirteen answers; overnight exit)
+
+Overnight mode ended by maintainer message; two chat decision batches resolved every open item (the `AskUserQuestion` window failed to render for the maintainer, so batch 2 ran as numbered plain-text chat; the full answer set is recorded in [`pending-decisions.md`](pending-decisions.md)'s Status line). Build-shaping outcomes recorded here: the register disposition vocabulary and WATCH state confirmed; the expiry tail handled as a one-pass triage review; the register-ageing advisory tool BUILDS; GR-4 becomes a standalone unbalanced-fence gate; the gate-54 rename is approved; GR-GAP-1 BUILDS after the P2 applies; r4 G-3 extends gate 64; r4 G-4 hoists the binding-sentinel constants into `lint_common.py`; r4 G-7 codifies the QA-report intake as a runbook subsection with a standing revisit note on the skill option; the INAI-staleness sweep rides the Mexico P2 apply window; the authorized CLAUDE.md touch bundle ships as the next PR.
+
 ## Multi-session / multi-worker orchestration model (decided across a prior read-only session and 2026-06-24; codification queued)
 
 _Recovered to `main` in PR #316 from the unmerged prior-session commit `da8e051` on `origin/claude/resume-review-h95prg`, where it had been stranded (the session paused before it reached a merged PR). The TODO §4.11 codification track points here as the authoritative source._

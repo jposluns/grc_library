@@ -157,15 +157,24 @@ drive end-to-end on the maintainer's behalf:
    commit`); an "intermediate" push that skips the guard is the momentum-bypass failure
    the guard closes (improvement-log #438/#439).
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
-   <branch>`. Run the guard STANDALONE and UNPIPED (never `guard | tail && push` or any
-   other pipe): a pipe masks the guard's exit code so the chained push proceeds past a
-   failing guard, the RM-10 failure shape (seven pipe-masked incidents: #569, #583, the
-   #608 push, a fourth self-caught before the #615 push, a fifth display-only pipe
-   self-caught before the post-#618 branch push, a sixth post-commit
+   <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
+   `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
+   STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
+   other pipe or truncating sink): a pipe masks the exit code so the dependent action
+   proceeds past a failure, the RM-10 failure shape (seven pipe-masked incidents: #569,
+   #583, the #608 push, a fourth self-caught before the #615 push, a fifth display-only
+   pipe self-caught before the post-#618 branch push, a sixth post-commit
    `run_all_audits | tail` with a pipe-masked exit capture, self-caught in the slice-3
    build, and a seventh post-amend `run_all_audits | tail` self-caught and re-run
-   unpiped in the #628 build). Read the guard's own terminal PASS/FAIL line before
-   relying on the chain. On a green guard, open the PR via `mcp__github__create_pull_request`.
+   unpiped in the #628 build). When long output must be tamed, use the fail-loud wrapper
+   [`tools/tail-safe.sh`](../tools/tail-safe.sh) (preserves the exit code) or redirect to
+   a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
+   [`.claude/hooks/block-verification-pipes.py`](hooks/block-verification-pipes.py)
+   refuses the named verification commands piped to truncating sinks (defence in depth,
+   not a substitute for the habit; incident seven ran unblocked in a worker-restarted
+   session, the TODO 1.9 hook-firing residual). Read the verification's own terminal
+   PASS/FAIL line before relying on any chain. On a green guard, open the PR via
+   `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` below; on failure, fix and re-push.
 4. On green CI, merge via `mcp__github__merge_pull_request`. The maintainer does not
@@ -271,7 +280,11 @@ is external. Two mechanisms:
      set (adds, closes, renumbers, or materially rescopes an item), the scratch coverage
      sync is queued or done in the same close-out: each NEW item gets a staged brief or
      an eligibility verdict in `grc_library_scratch`'s `research/COVERAGE.md`, each
-     closed item's brief directory is removed and its row deleted, and a renumber
+     consumed work-unit's seed directory is removed at DELIVERY time (the maintainer's
+     2026-07-04 delivery-time convention: the whole `research/<work-unit-id>/` directory
+     is deleted when the delivery merges scratch-side and the coverage row re-points at
+     the inbox delivery path, so a consumed seed is never mistaken for an open one; a
+     closed item with no delivery still drops its row at close), and a renumber
      updates the affected rows' section anchors (the stable id is the durable key).
      Briefs are a wipeable derived projection of TODO; TODO wins on any conflict. The
      sync ships as a scratch PR. Advisory instrument (orchestrator-side, not a CI gate,
@@ -281,8 +294,17 @@ is external. Two mechanisms:
      anchors.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
      prose count of that collection was checked for staleness (prose counts are not
-     gated).
-   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed. At a
+     gated). Counts are computed AFTER the verifier loop closes, from the suite run or
+     the diff, never during drafting: a count written mid-draft goes stale inside its own
+     PR when a later verifier round changes the figure (the #612 timing rule).
+   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed, and the
+     refresh RECONCILES rather than appends: re-read the retained tail (the prior blocks'
+     queue statements and standing-SOP claims) for directives the new text supersedes and
+     mark them historical (the #619 line), and re-read the `Current truth` state-snapshot
+     line and reconcile EVERY value on it (merged-through, versions, "rides the next PR"
+     claims) to the state the current PR itself produces, since a snapshot refreshed in
+     the same diff that falsifies it is the append-not-reconcile shape that fired the
+     three-occurrence rule at #628 (#619, #622, #628). At a
      session-closing handoff PR, the `## Asserted expectations` section, the
      green-at-`<sha>` snapshot line, and the
      [`.working/session-metrics.md`](../.working/session-metrics.md) row are refreshed too
@@ -298,8 +320,11 @@ is external. Two mechanisms:
      heartbeat is re-stamped (`date -u +%Y-%m-%dT%H:%M:%SZ`) in the same refresh batch, and
      its `Current-task` / `Worker-dispatches` lines are updated if stale. Lifecycle:
      ACQUIRE at `/resume` step 0 (branch name, `Status: active`, fresh heartbeat), REFRESH
-     at every PR close-out, RELEASE in the session-closing handoff PR (`Status: released`,
-     `Active-session: none`). Gate 63 guards the file's shape; the interlock decision is
+     at every PR close-out, optionally `Status: winding-down` while the session-closing
+     handoff PR is being assembled (gate 63 validates it as a live state; the `/resume`
+     step-0 interlock treats it like `active`), RELEASE in the session-closing handoff PR
+     (`Status: released`, `Active-session: none`). Gate 63 guards the file's shape; the
+     interlock decision is
      `/resume` step 0's (60-minute staleness window, advisory HOLD, git cross-check of
      unmerged `origin/claude/*` siblings). Design record:
      [`.working/design-decisions.md`](../.working/design-decisions.md), "Session-concurrency
@@ -322,7 +347,14 @@ is external. Two mechanisms:
      same stale value on other lines. (PR #443 corrected a count on two lines but its
      phrasing-specific grep missed a third line whose word order differed; a bare-token
      scan would have caught it. See the #443 row in
-     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md).)
+     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md).) The same
+     bare-token width applies to ENUMERATIONS, not only scalar counts: on a gate-list
+     widening, grep both the comma form and the slash form of the old list (`48, 49, 54`
+     AND `48/49/54`), since an enumeration is a value that carries its own separators
+     (the #614 catch); and it applies to REFUTATION searches, not only correction greps:
+     when a verifier or the orchestrator hunts evidence AGAINST a claim, the hunt runs at
+     bare-token width too, because a phrasing-specific refutation grep can fail to refute
+     a claim that is false in a differently-worded carrier (the #594 extension).
    - If the PR makes a **corpus-wide completion claim** (a token harmonization, rename, or
      reconcile asserted complete across the corpus), the completion-verification grep was run
      over the **full corpus file set, not the change's own input set**: an input-set grep
@@ -350,7 +382,9 @@ is external. Two mechanisms:
      form as DO rail 8 for fan-out workers).
    - **Section-close cross-FILE cleanup** (the §N-orphan guard): when this PR closes a
      numbered TODO §-section (deletes its heading), grep the WHOLE repo for `§N` and
-     `PN.M` references to it, not only `TODO.md` siblings. CLAUDE.md and tool docstrings
+     `PN.M` references to it, AND for the section's BARE tokens (the coded item ids and
+     distinctive names the section carried, e.g. `GR-8`, per the bare-token width above;
+     the #593 fold), not only `TODO.md` siblings. CLAUDE.md and tool docstrings
      are recurring cross-FILE carriers, and each live (non-frozen-`.working`) citer is
      reworded (or has its `§` dropped) in the same PR. The intra-doc-ref gate catches a
      surviving `§N` only INSIDE the same `.md` file; a tool docstring's "queued §N" or a
@@ -410,6 +444,17 @@ is external. Two mechanisms:
      while the defect survives (first-commit zero-residual claims were refuted pre-push in
      both #603 and #606; in #606 specifically the adjacent-phrase-literal grep was
      pipe-defeated by table cells and missed four carriers the proximity form caught).
+   - **Grep-claim fidelity** (the record-vs-output guard): any record or CHANGELOG clause
+     that characterizes a grep result (zero residuals, N hits, one legitimate) is written
+     FROM the pasted output of that grep at authoring time, never from memory of an
+     earlier run (third occurrence made it a pattern: #603, #606, #625). This pairs with
+     the separator-tolerance line above, which governs the grep's FORM; this line governs
+     the claim's fidelity to what the grep actually returned.
+   - **CHANGELOG count-reflex** (the mid-PR figure-drift guard): when a figure in a
+     drafted CHANGELOG entry changes during verifier rounds (a findings count, a fixture
+     count, a suite size), bare-token grep the WHOLE entry, all sections in both files,
+     for the superseded figure before push (the #620 catch: an entry corrected in one
+     clause kept the stale figure in another).
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
@@ -536,9 +581,11 @@ each merge or decision. Its three standing rules:
 
 1. **Green CI = merge authority.** When a PR's `Lint markdown corpus` check is green, the
    assistant merges it and proceeds to the next task WITHOUT asking the maintainer to
-   authorize the merge; the maintainer redirects by exception. It is NOT overnight mode:
-   logging stays normal (per-PR `/validate-pr` + `/retro`, CHANGELOG, handoff), and the
-   autonomous-conflict "skip-to-morning" rule does not apply (the maintainer is reachable).
+   authorize the merge; the maintainer redirects by exception. The property that
+   distinguishes it from overnight mode is the conflict path alone: the "skip-to-morning"
+   rule does not apply because the maintainer is reachable and decisions are asked, not
+   deferred. Logging is identical in BOTH modes (per-PR `/validate-pr` + `/retro`,
+   CHANGELOG, handoff; overnight logging is never abbreviated).
 
 2. **Stricter-is-safer always.** On a cross-value conflict (two documents disagree on a
    number, a control mapping, a regime status), resolve toward the more conservative value
