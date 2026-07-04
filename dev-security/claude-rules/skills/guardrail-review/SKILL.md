@@ -51,7 +51,7 @@ Route every confirmed finding to the project backlog, tagged `[guardrails]`, tie
 
 ### 5. Record
 
-Write a per-run record (in this project `.working/guardrail-reviews/YYYY-MM-DD-rN.md`) with one section per lens (overlap, gap, drift), an orchestrator-synthesis-and-verification section, and a findings-routed section. Append a row to the review history. Zero-finding runs still get a history row; the record file is conditional on findings, matching the sibling sweeps' convention.
+Write a per-run record (in this project `.working/guardrail-reviews/YYYY-MM-DD-rN.md`) with one section per lens (overlap, gap, drift), an orchestrator-synthesis-and-verification section, and a findings-routed section. Append a row to the review history. Zero-finding runs still get a history row; the record file is conditional on findings, matching the sibling sweeps' convention. Before committing the record, verify each fixed-in-window claim against the actual diff (grep the diff for the claim's target text) and downgrade to routed any claim whose edit is absent: a record written from fix intent rather than from the diff is the record-asserts-unapplied-fix escape a pre-push verifier caught in this project's history, and the false claim propagates to every surface that restates the record's counts.
 
 ### 6. Surface to the maintainer (termination)
 

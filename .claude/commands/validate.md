@@ -23,6 +23,8 @@ Step 9 (only when findings exist): write a per-iteration detail file to [`.worki
 - `## Orchestrator synthesis`: which findings were in-window, classification by C1-C8 failure-mode class, severity adjudication, dedupe choices, debate outcomes if any, and the action decided for each finding.
 - `## Resulting PR`: link to the close-out PR.
 
+Before committing either surface (the history row or the detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
+
 Zero-finding iterations leave no detail file; the history row alone is the persistent trace.
 
 **Batching into the next PR (recursion-avoidance).** Zero-finding `/validate` history rows are **batched into the next PR, whatever its substantive purpose**. A findings-producing `/validate` may still warrant its own close-out PR when findings are numerous or coherent enough; this is the corpus-wide sweep's distinguishing case from `/validate-pr` (where the bundle is always the default). Otherwise, fixes for individual /validate findings can also be bundled into the next PR alongside the history row.

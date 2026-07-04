@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-07-04\
 **License:** CC BY-SA 4.0
 
@@ -180,6 +180,13 @@ operational rules:
   carries a non-empty TODO delta (add, close, or material change), batched into that PR's
   close-out and shipped via the MCP-PR transport (the persist-to-`main` discipline in
   section 6). Bookkeeping-only PRs generate no sync.
+- **Close-out ordering (the same-boundary state-drift guard).** Draft scratch-referencing
+  bookkeeping prose (TODO research-state notes, handoff scratch facts, coverage-row
+  pointers) AFTER the boundary's scratch merges complete, or re-verify each such line
+  against scratch HEAD as the last pre-commit step: a boundary's own worker surge can move
+  the state under prose drafted earlier in the same boundary (a brief recorded as staged
+  is delivered and its seed removed before the commit assembles), the #624 verifier-caught
+  drift.
 - **Refresh: targeted-first, mechanical backstop.** The per-PR sync re-stamps the briefs
   it touches. A cross-repo advisory freshness check (target paths still exist on `main`,
   the TODO item still exists, stamp-age report) runs at `/resume` and on the maintainer's

@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T04:23:19Z
+**Last-heartbeat-UTC:** 2026-07-04T12:10:16Z
 
-**Current-task:** overnight queue, #627 (gate 65 + /guardrails r4) closing out; next GR-8(b), S3 PR B, the P2 applies (with the metrics refresh row at that boundary), and the build-only QA bundles 3.19/3.20/3.21 as interleave
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #628 in flight (GR-8(b) closure build + morning processing + #627 QA batch); next S3 PR B, then the P2 applies (with the metrics refresh row at that boundary), 3.19/3.20/3.21 as interleave; the 2026-07-04 morning decision list is with the maintainer
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies pending); the staged pool is empty, so the worker idles pending morning decisions
 

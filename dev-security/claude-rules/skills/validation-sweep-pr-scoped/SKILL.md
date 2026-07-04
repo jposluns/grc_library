@@ -102,6 +102,8 @@ Record:
 
 Zero-finding PR-scoped sweeps still get a history row (one line); only the per-PR record file is conditional on findings.
 
+Before committing either surface, verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and corpus-sweep record steps).
+
 The `/retro` skill (post-merge retrospective) consumes `/validate-pr`'s findings as input for its Issues-encountered section.
 
 ## Pre-flight scanner

@@ -191,7 +191,7 @@ New rows on top. Zero-finding iterations still get a row: the history is the aud
 
 ### 9. Write the per-iteration detail file (only when findings exist)
 
-When the iteration produced findings, write a per-iteration detail file to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript.
+When the iteration produced findings, write a per-iteration detail file to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Before committing either surface (the step-8 history row or this detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
 
 Six top-level H2 sections in this order:
 

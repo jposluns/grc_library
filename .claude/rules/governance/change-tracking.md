@@ -229,7 +229,7 @@ Before listing the upcoming PRs, the assistant first checks whether any new item
 
 When the maintainer authorizes an autonomous overnight session (the assistant ships work while the maintainer is asleep or otherwise unavailable), the assistant records the session's state in a designated overnight file (project-specific location; in this project: `.working/overnight-pr.md`). The file's `Status` field encodes the session's lifecycle:
 
-- `stub`: no overnight session is in flight. This is the default state. The file contains only the protocol description plus the `Status: stub` line.
+- `stub`: no overnight session is in flight. This is the default state. The file contains only the protocol description, the `Status: stub` line, and (after a routed run) the single latest-run closure note recording where that run's content went.
 - `in-flight`: an overnight session is active. The assistant has filled the file with session content (authorization scope, design decisions made, files being authored / modified, build progress, open ambiguities). Each overnight PR ships with `Status: in-flight`.
 - `done`: the overnight session has ended. The next-morning processing PR then routes the content and resets the file.
 
@@ -239,7 +239,7 @@ An audit gate enforces this lifecycle: it fails when `Status: done` (overnight s
 
 The protocol matters because overnight work generates state that's easy to lose track of: design decisions, surfaced ambiguities, and queued follow-ups all accumulate in the overnight file. Without a structured handoff, the maintainer wakes up to a populated file with no mechanical pressure to process it. The gate's `done`-state failure is that mechanical pressure: CI goes red until the morning processing PR ships.
 
-**Stub-form contents.** The stub file is not empty; it carries a short description of the protocol (so a future reader landing on the file understands its purpose) plus the `Status: stub` line. A `<!-- OVERNIGHT-PR-STUB -->` marker comment is recommended for grep-based detection but not strictly required by the gate; the gate's only check is the Status value.
+**Stub-form contents.** The stub file is not empty; it carries a short description of the protocol (so a future reader landing on the file understands its purpose) plus the `Status: stub` line, and, after a routed run, the single latest-run closure note (older runs' notes live in the file's git history, pruned at each morning processing). A `<!-- OVERNIGHT-PR-STUB -->` marker comment is recommended for grep-based detection but not strictly required by the gate; the gate's only check is the Status value.
 
 **Initial overnight commit.** The first overnight PR's diff includes the file transitioning from `stub` to `in-flight` plus the initial content. The PR description explains the maintainer's authorization scope.
 
