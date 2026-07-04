@@ -5884,6 +5884,42 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
 
+class UnbalancedFenceTests(LinterTestCase):
+    """tools/lint-unbalanced-fences.py (gate 66).
+
+    An odd fence-line count means the file ends inside an open code
+    block, silently suppressing every fence-aware linter's scan of the
+    remainder; the gate mirrors iter_non_code_lines' toggle semantics
+    (one shared toggle for backtick AND tilde fences).
+    """
+
+    SCRIPT = "tools/lint-unbalanced-fences.py"
+
+    def test_balanced_fences_pass(self) -> None:
+        f = self.make_fixture(
+            "fences-ok.md",
+            "# T\n\n```\ncode\n```\n\nProse.\n\n~~~\nmore\n~~~\n",
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unclosed_backtick_fence_fails(self) -> None:
+        f = self.make_fixture(
+            "fences-open.md", "# T\n\n```\ncode with no close\n"
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertLinterFails(result, "unbalanced fence")
+
+    def test_stray_tilde_fence_fails(self) -> None:
+        # The GR-4 motivating shape: a single stray tilde fence toggles
+        # the shared iterator into skip mode for the rest of the file.
+        f = self.make_fixture(
+            "fences-tilde.md", "# T\n\nProse.\n\n~~~\n\nMore prose.\n"
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertLinterFails(result, "unbalanced fence")
+
+
 class CrossFileSectionNamesTests(LinterTestCase):
     """tools/lint-cross-file-section-names.py (gate 65, the names phase)
 

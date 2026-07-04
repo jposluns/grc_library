@@ -82,8 +82,7 @@ HANDOFF = ".working/session-handoff.md"
 # Label pattern -> (live file, header regex). Order matters only for
 # report readability. Each label regex is anchored on a word boundary and
 # expects the token as the first backtick span after the label; the
-# "history" labels are matched before the bare README/library labels
-# cannot collide because the label texts are disjoint.
+# labels cannot collide because the label texts are disjoint.
 SURFACES = [
     (
         "library",
