@@ -463,3 +463,42 @@ _Captured at the maintainer's request during the 2026-07-03 design conversation 
 ### Build slices (the expanded TODO section 4.4 carries the deliverables)
 
 Slice 1 (this PR): the codification (TODO section-4.4 rewrite, the runbook subsection, this record). Slice 2: the scratch machinery (`research/` tree, coverage index, gate extension, worker-doc pointers). Slice 3: the main-repo wiring (checklist line, `/resume` step, advisory freshness tool). Slice 4: the `/subagent` entry command plus the maintainer quick start. Slice 5: the tier-sized whole-backlog seeding, guard-first (the scratch gate extension lands before the briefs it validates).
+
+## S3 citation-precision instrument: the matrix-fit pattern, not a CI gate (decided 2026-07-03, maintainer)
+
+The section-1.4 S3 item ("flag aligned-with-source claims and verify the source
+actually contains the supporting language; catches FR-120-class issues") was
+parked pending a design round. The design round ran 2026-07-03 and the
+maintainer selected the matrix-fit pattern from three named options (the
+alternatives: a narrow CI gate on the value-attribution regex shape, rejected
+because CI cannot read the scratch `ref/` ground truth and register-presence
+alone is a weak check; and keeping S3 parked).
+
+- **Why not a gate.** Claim precision is a semantic property, the same class as
+  control-code fit: an existence gate can confirm the named source is real, but
+  only a judge reading the held source text can confirm the source contains the
+  attributed language. A CI gate would be decorative or noisy, and the ground
+  truth (the scratch reference base) is invisible to CI by design.
+- **The instrument.** PR A ships the recall-oriented triage tool
+  [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py)
+  (`audit-*` named, never CI-wired, exits 0, inline self-test): it extracts
+  TIER A value-attribution claims (a specific value tied to a named normative
+  source in one clause, both orders, the exact FR-120 shape; census 11 rows)
+  and TIER B soft-alignment claims (aligns-with / consistent-with /
+  compliance-with phrasing, census 119 rows), and reports each named
+  source family's held-state from the
+  scratch indexes (optional input; absent checkout reads unknown). PR B ships
+  the `/claim-fit` judging skill (the semantic layer): judge EVERY Tier-A row
+  against the held source text, sample Tier B on cadence; findings route under
+  the normal triage. The one-time full Tier-A judging pass runs with PR B.
+- **Cadence.** Ad hoc when a claim is in doubt; after any batch that adds or
+  edits normative-value claims; the one-time Tier-A pass at PR B. Mirrors the
+  `/matrix-fit` cadence philosophy and its two-PR shipping precedent (#394 tool,
+  #399 skill).
+- **Early judge candidates (recorded, NOT adjudicated here).** The census
+  surfaced judge-worthy rows, notably the three carriers attributing a 7-year
+  retention to ISO/IEC 42001 plus EU AI Act Annex IV (the sources inform but
+  may not prescribe the figure; the 7-year value is the corpus's own canonical
+  choice per DD-6/DD-7) and a 24-hour supplier-notification KPI citing GDPR
+  Article 33(2) (which sets "without undue delay", not a fixed 24 hours).
+  These await the PR B judging pass; they are candidates, not findings.
