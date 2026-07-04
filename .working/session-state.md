@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T20:15:33Z
+**Last-heartbeat-UTC:** 2026-07-04T20:51:58Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634/#635/#636 MERGED with full QA (all zero-finding sweeps); #637 in flight on claude/decision-tree-hygiene-2r8kn2 (TODO 3.19 decision-tree hygiene bundle, carrying the #636 QA batch); then 3.20, 3.21, and the P3 machinery queue (eight maintainer decisions asked in chat, non-blocking)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #637 MERGED with full QA; #638 in flight on claude/module-count-fix-2r8kn2 (TODO 3.20 module-count fix + the #637 sweep fold, carrying the #637 QA batch); then 3.21 and the P3 machinery queue (eight maintainer decisions asked in chat, non-blocking)
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
