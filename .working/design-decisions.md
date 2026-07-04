@@ -540,3 +540,15 @@ Quebec confabulation and both orchestrator authoring-drift errors). This superse
 the 2026-07-04 morning decision "P2 worker-delivery applies IN THIS SESSION" for the
 applies remaining after #631; the handoff queue statements are reconciled in the same
 batch.
+
+## No long-interval check-ins (maintainer-directed 2026-07-04)
+
+During the #634 CI wait the orchestrator attempted to schedule an hour-out `send_later`
+self check-in (prompted by the PR-subscription boilerplate), which surfaced an approval
+prompt. The maintainer directed: never ask for or schedule long-interval check-ins; the
+60-second background-task cadence is the only check-in mechanism, applied until the
+awaited thing finishes or is confirmed looped, dead, or failed. Codified as the
+"No long-interval check-ins" clause in the project CLAUDE.md's background-task check SOP
+(an authorized protected-surface touch, this directive being the authorization). Harness
+or subscription boilerplate suggesting an hour-out check-in does not override this
+standing directive.

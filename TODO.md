@@ -43,12 +43,10 @@ accepted the assessed
 guardrail set. Parts (a) and (b) shipped together as one small tooling PR (2026-07-03);
 part (c), the authorized CLAUDE.md widening with its staged-clause bundle plus the hook
 named-command/sink widening (run-linter-regression, generator --check invocations, tee/wc),
-shipped in the #629 touch, so the section stays open ONLY on the next-session hook-firing
-validation noted below and on
-(d), added from the 2026-07-04 worker QA run's validated GR-GAP-3: the hook's `--self-test`
-(and a `tail-safe.sh` smoke check) are wired into NO runner, CI, or regression surface, so a
-broken hook fails nothing; wire them into the audit runner or the regression suite so the
-enforcer itself is enforced.
+shipped in the #629 touch, and part (d), the self-test wiring (both enforcers'
+`--self-test` runs as regression tests, so a broken enforcer fails the suite), shipped
+2026-07-04, so the section stays open ONLY on the next-session hook-firing validation
+noted below.
 
 - **(a) and (b) SHIPPED 2026-07-03** (the hook [`.claude/hooks/block-verification-pipes.py`](.claude/hooks/block-verification-pipes.py) wired in [`.claude/settings.json`](.claude/settings.json), the wrapper [`tools/tail-safe.sh`](tools/tail-safe.sh) with inline self-test, and the guard pipe self-defence in [`tools/pre-push-guard.sh`](tools/pre-push-guard.sh) with the documented `PRE_PUSH_GUARD_ALLOW_PIPE=1` override; the tty check shipped as a `[ -p /dev/stdout ]` PIPE check because in this execution environment a plain invocation's stdout is a harness capture FILE, so the spec's literal tty test would refuse every sanctioned run while the pipe test refuses exactly the masking shape). **One residual validation**: hooks load at session start, so the deliberate blocked invocation could not fire in the shipping session (script-level block/allow/malformed cases all validated directly); the NEXT session re-runs one deliberate piped verification command and records the hook firing.
 
