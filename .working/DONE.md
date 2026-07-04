@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### S3 PR B: section 1.4 CLOSED, the /claim-fit skill + Tier-A adoption pass (2026-07-04)
+
+The S3 citation-precision instrument's second half: the `claim-fit` pack skill (eighteenth skill, slash command `/claim-fit`, pack 1.54.0) plus the one-time full Tier-A judging pass over all 11 census rows. The pass fixed five documents' attribution phrasing in-window (the 7-year AI-log retention carriers and the 24-hour supplier-notification carriers, values kept as the organization's canonical/contractual choices per the FR-120 precedent) and queued three source-drop requests (DORA Art 20 RTS, UK GDPR, PIPL). Closes the former TODO section 1.4 (S1/S2/S4 had shipped earlier); carries the #629 QA batch, both routed #629 finding fixes, and the maintainer-accepted snapshot-check TODO item.
+
 ### PR #629: section-1.9 (c) closed + D-F4+F6 closed + GR-3 CLOSED (2026-07-04)
 
 The maintainer-authorized CLAUDE.md touch bundle: the RM-10 clause widened from the guard to every verification command (naming the tail-safe wrapper and the hook, whose named-command and sink sets also widened with proof-case self-tests), the seven staged 1.9(c) clauses landed on the close-out checklist (#614, #619 widened to the snapshot line, #593, #594, #612, #625, #620), and the D-F4+F6 operating-mode rewords plus the #627 F2 delivery-time seed-removal reword applied. GR-3 wave 3 closed as the maintainer's keep-as-is decision (design record); the 2026-07-04 morning decision rounds (thirteen answers) executed into TODO and the ledgers; S-f (fork update-assessment tooling) added at maintainer request. Carries the #628 QA batch and both its finding fixes.

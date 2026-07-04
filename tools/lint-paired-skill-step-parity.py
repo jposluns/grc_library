@@ -76,6 +76,10 @@ PAIRS: list[tuple[str, str]] = [
         ".claude/commands/matrix-fit.md",
     ),
     (
+        "dev-security/claude-rules/skills/claim-fit/SKILL.md",
+        ".claude/commands/claim-fit.md",
+    ),
+    (
         "dev-security/claude-rules/skills/high-assurance-verification/SKILL.md",
         ".claude/commands/high-assurance.md",
     ),

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Advisory citation-precision worklist for normative-attribution claims (the
-S3 instrument; TODO section 1.4; design decided 2026-07-03, matrix-fit
-pattern; catches the FR-120 class).
+S3 instrument, the closed 2026-06-22-review backlog item; design decided
+2026-07-03, matrix-fit pattern; catches the FR-120 class).
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID, not an audit
 gate. The existence gates (48/49/54/58/61 and the citation family) confirm a
@@ -22,7 +22,8 @@ build, and the human reading its output) a worklist, tiered by risk:
     same clause, in either order ("retained ... 7 years ... under ISO/IEC
     42001"; "GDPR Article 33(1) requires ... 72 hours"). A wrong Tier-A
     claim is a factual misattribution, the exact FR-120 shape. The corpus
-    population is small (census 2026-07-04: 11 rows).
+    population is small (census 2026-07-04, post the adoption-pass fixes:
+    8 rows).
   TIER B (sample on cadence): soft-alignment claims ("aligns with /
     consistent with / in accordance with / compliance with / conforms
     to / as required by / as defined in / per" plus a
