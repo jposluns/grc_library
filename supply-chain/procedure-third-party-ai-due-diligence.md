@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-04\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -127,7 +127,7 @@ All contracts with AI suppliers must include the following provisions in additio
 ### 6.5 Right to audit AI system logs
 
 - The organization retains the right to audit AI system logs, decision records, and model behaviour reports.
-- Supplier must retain AI system audit logs for a minimum of 7 years, consistent with ISO/IEC 42001 and EU AI Act Annex IV requirements.
+- Supplier must retain AI system audit logs for a minimum of 7 years, the organization's canonical AI-audit-log retention floor (ISO/IEC 42001 requires event-log record keeping and retention control without prescribing a period, and the EU AI Act's own log-keeping minimum is shorter; the 7-year figure is the organization's contractual requirement).
 
 ### 6.6 Model version change notification
 
@@ -187,7 +187,7 @@ Upon contract termination, the AI supplier must:
 
 1. Permanently delete all organizational data, training fine-tuning artefacts, embeddings, and retrieval stores.
 2. Provide written certified deletion confirmation within 5 business days of completion.
-3. Retain deletion records for 7 years in accordance with ISO/IEC 42001 and EU AI Act Annex IV obligations.
+3. Retain deletion records for 7 years per the organization's canonical AI-records retention floor (ISO/IEC 42001 requires records retention without prescribing the period; the figure is the organization's contractual requirement).
 
 ### 8.3 Documentation retention
 
