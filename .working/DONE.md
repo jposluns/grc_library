@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #636: TODO 3.18 corpus half, ATLAS technique-ID currency fix (2026-07-04)
+
+The AI/agentic standard's three stale ATLAS framework-alignment rows re-mapped against the held ATLAS 2026.06 CSVs (upstream-confirmed current at apply time): supply chain to AML.T0010, tool misuse to AML.T0053, resource exhaustion/DoS to AML.T0029 + AML.T0034. The apply's close-out grep surfaced the same class in the pack tree; 3.18 rescoped in place to that pack half.
+
 ### PR #635: TODO 1.9(d) RM-10 self-test wiring + the no-long-check-ins codification (2026-07-04)
 
 Both RM-10 enforcers' self-tests (the PreToolUse pipe-blocking hook, the tail-safe wrapper) wired into the regression suite so a broken enforcer fails loud (the worker QA run's GR-GAP-3); section 1.9 now stays open only on the next-session hook-firing validation. Also codifies the maintainer's 2026-07-04 no-long-interval-check-ins directive in the CLAUDE.md background-task SOP.
