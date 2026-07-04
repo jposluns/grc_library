@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-04\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -40,7 +40,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Security posture update: refresh questionnaire or obtain updated certification/audit report | Quarterly | Questionnaire; request for updated evidence | Supplier Risk Manager |
 | Financial health check | Quarterly | Credit rating service; review of public financial indicators | Supplier Risk Manager / Finance |
 | SLA and performance review | Monthly | Review SLA reports submitted by supplier; compare against contractual thresholds | Contract Owner |
-| Trade compliance programme status verification (CTPAT / AEO-S / PIP / BASC where applicable) | Quarterly | Verify via CBP C-TPAT portal; HMRC AEO portal; CBSA PIP directory; BASC registry | Trade Compliance Manager |
+| Trade compliance programme status verification (CTPAT / AEO-S / PIP / BASC where applicable) | Quarterly | Verify via CBP CTPAT portal; HMRC AEO portal; CBSA PIP directory; BASC registry | Trade Compliance Manager |
 | Sub-contractor disclosure review | Semi-annually | Request updated list of material sub-contractors; compare against last-known list | Supplier Risk Manager |
 | Incident and vulnerability intelligence review | Monthly | Review public breach disclosures; threat intelligence feeds; security ratings service | Information Security |
 | Access review: verify access grants remain appropriate | Quarterly | Review access logs and account inventory | IT Operations |
