@@ -159,6 +159,7 @@ run_gate "Guardrail-review cadence audit"                python3 tools/lint-guar
 run_gate "COBIT/ISO 31000 citation-existence audit"      python3 tools/lint-cobit-iso31000-citations.py
 run_gate "Cross-file section-reference audit"            python3 tools/lint-cross-file-section-refs.py
 run_gate "Session-state lease audit"                      python3 tools/lint-session-state.py
+run_gate "Audit-spec detailed-prose presence audit"       python3 tools/lint-audit-spec-detailed-prose.py
 
 # ----------------------------------------------------------------------
 # Summary

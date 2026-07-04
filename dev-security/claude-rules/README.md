@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.19\
+**Version:** 1.53.20\
 **Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.20 | 2026.07.113 | 2026-07-04 | Narrative-currency change, no step or procedure change (patch): [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-three to sixty-four, gate-39 keyed) alongside the audit-spec detailed-prose presence audit shipping in the consuming project. |
 | 1.53.19 | 2026.07.110 | 2026-07-04 | Two table-cell corrections, no step or procedure change (patch): [`ai/agent-security.md`](ai/agent-security.md) (the Recursion limits row's CSA AICM cell) and [`ai/mcp-security.md`](ai/mcp-security.md) (the Transport security row's MITRE ATLAS cell) each carried a lone `:` where a mapping belongs; both adjudicated to `N/A` against the held catalogues (no AICM control addresses agent recursion bounding; no ATLAS technique covers transport interception), part of the consuming project's section-3.1 stray-punctuation sweep. |
 | 1.53.18 | 2026.07.102 | 2026-07-03 | Factual-currency change, no step or procedure change (patch): [`skills/matrix-fit/SKILL.md`](skills/matrix-fit/SKILL.md) (step 1 and the reference-base inputs list) corrects the scratch reference-base locations to the actual bucket layout (the CSA catalogue CSVs under `ref/frameworks/CSA/`, the NIST CSF text under `ref/standards/NIST/`; the old prose placed both under `ref/standards/`), matching the paired command file in the consuming project. |
 | 1.53.17 | 2026.07.99 | 2026-07-03 | Narrative-currency change, no step or procedure change (patch): [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-two to sixty-three, gate-39 keyed) alongside the session-state lease audit shipping in the consuming project. |
