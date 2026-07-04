@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.7\
-**Date:** 2026-07-03\
+**Version:** 1.1.8\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -277,7 +277,7 @@ Before any customer-facing portal, external user interface, or AI-enabled featur
 5. Follow instructions from the incident commander only.
 6. Document everything with timestamps in the incident ticket.
 
-Personal data breach? The DPO must be notified immediately. Quebec Law 25 requires notification to the provincial regulator within 72 hours of a breach with serious harm risk.
+Personal data breach? The DPO must be notified immediately. Quebec Law 25 requires prompt notification to the provincial regulator of a breach presenting a risk of serious injury (the Act sets no fixed hour-count).
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.19\
-**Date:** 2026-07-03\
+**Version:** 1.3.20\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -174,7 +174,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 | --- | --- | --- | --- |
 | **GDPR (EU)** | Confirmed breach of personal data of EU data subjects with likely risk to individuals | 72 hours from confirmation | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk |
 | **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | DPO to Privacy Commissioner of Canada |
-| **Quebec Law 25** | Confirmed breach of personal information with serious risk of injury | 72 hours to Commission d'accès à l'information | DPO |
+| **Quebec Law 25** | Confirmed confidentiality incident involving personal information presenting a risk of serious injury | Promptly to the Commission d'accès à l'information (no fixed statutory hour-count) | DPO |
 | **PIPL (China)** | Confirmed breach of personal data of China data subjects | Immediately / without delay | DPO to relevant authority (CISO coordinating) |
 
 Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organization participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).

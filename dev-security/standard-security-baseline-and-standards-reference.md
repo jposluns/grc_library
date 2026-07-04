@@ -2,7 +2,7 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-07-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -100,7 +100,7 @@ Always classified as Confidential or Restricted regardless of context: personal 
 
 ### 5.1 Canadian privacy law
 
-Quebec Law 25 requires: PIA before any technology deployment involving personal information; data residency justification for storage outside Quebec; breach notification to the provincial privacy regulator within 72 hours of a high-risk breach; designated privacy officer. See the privacy management programme charter for the full privacy governance model.
+Quebec Law 25 requires: PIA before any technology deployment involving personal information; data residency justification for storage outside Quebec; prompt breach notification to the provincial privacy regulator for a breach presenting a risk of serious injury (the Act's standard is promptness; it sets no fixed hour-count); designated privacy officer. See the privacy management programme charter for the full privacy governance model.
 
 ### 5.2 Trade security compliance (BASC)
 
@@ -195,7 +195,7 @@ Logs must not be modifiable by the actor that generated them. SIEM workspace del
 - Report any suspected incident immediately to the security team. No silent remediation.
 - Preserve evidence. Do not reimage, restart, or modify affected systems without IR team instruction.
 - A designated SOC/IR partner or internal incident response capability should be engaged by the CIO/CISO for Priority 1 incidents.
-- Regulatory breach notification under PIPEDA and Quebec Law 25 is time-critical. 72 hours for high-risk breaches under Quebec Law 25. The DPO must be notified immediately on any suspected breach involving personal data.
+- Regulatory breach notification under PIPEDA and Quebec Law 25 is time-critical: as soon as feasible under PIPEDA, and promptly under Quebec Law 25 (neither statute sets a fixed hour-count). The DPO must be notified immediately on any suspected breach involving personal data.
 
 ---
 

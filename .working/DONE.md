@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #633: TODO 1.10 Quebec Law 25 72-hour confabulation sweep (2026-07-04)
+
+Corrected the confabulated 72-hour CAI breach clock to the statute's promptness standard on the seven remaining corpus carriers across five documents (the two Canada-annex carriers were fixed in #631, which surfaced the class); companions: the breach-response ANPD rename and the FR-141 frozen-history disposition. Item added and closed same-day from the #631 verifier catch.
+
 ### S3 PR B: section 1.4 CLOSED, the /claim-fit skill + Tier-A adoption pass (2026-07-04)
 
 The S3 citation-precision instrument's second half: the `claim-fit` pack skill (eighteenth skill, slash command `/claim-fit`, pack 1.54.0) plus the one-time full Tier-A judging pass over all 11 census rows. The pass fixed five documents' attribution phrasing in-window (the 7-year AI-log retention carriers and the 24-hour supplier-notification carriers, values kept as the organization's canonical/contractual choices per the FR-120 precedent) and queued three source-drop requests (DORA Art 20 RTS, UK GDPR, PIPL). Closes the former TODO section 1.4 (S1/S2/S4 had shipped earlier); carries the #629 QA batch, both routed #629 finding fixes, and the maintainer-accepted snapshot-check TODO item.
