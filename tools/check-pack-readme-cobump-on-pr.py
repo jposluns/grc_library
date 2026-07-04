@@ -14,9 +14,10 @@ the other leaves the pack's shipping history silently incomplete).
 Why the existing gates leave the gap: gate 13 (version monotonicity)
 confirms the metadata Version only increases; delta gate D2 confirms a
 body change carries a Version bump; neither reads the ``## Version
-history`` table at all. The pack README is also outside the per-document
-Date discipline that D4 rides (it has its own Date line, which D4 covers),
-but no gate pairs the Version VALUE with its history ROW.
+history`` table at all. The pack README's own Date line is D4's to
+cover (the #352 case in D4's docstring); this check owes nothing to
+the Date discipline. Before this check, no gate paired the Version
+VALUE with its history ROW.
 
 Trigger and check, both delta-scoped:
 

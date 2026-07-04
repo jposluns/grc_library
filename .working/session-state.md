@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T03:37:14Z
+**Last-heartbeat-UTC:** 2026-07-04T04:23:19Z
 
-**Current-task:** overnight queue, #626 (QA-report intake) closing out; next the build-only QA bundles (TODO 3.19/3.20/3.21), then the names-phase gate WITH the /guardrails r4 run, GR-8(b), S3 PR B, and the P2 applies
+**Current-task:** overnight queue, #627 (gate 65 + /guardrails r4) closing out; next GR-8(b), S3 PR B, the P2 applies (with the metrics refresh row at that boundary), and the build-only QA bundles 3.19/3.20/3.21 as interleave
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies pending); the staged pool is empty, so the worker idles pending morning decisions
 

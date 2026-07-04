@@ -8,8 +8,8 @@ enumeration: each gate's ``Gate N is ...`` description paragraph and,
 for the tail-appended gates, a ``Gate N is appended ...`` ordering
 sentence. Gate 35 checks only the inventory table's parity with the
 three runtime surfaces, and gate 39 only counts the table's rows;
-neither reads the detailed prose, so a shipped gate whose prose pair
-was never written recurs silently (gate 57's pair was absent for
+neither verifies the per-gate detailed prose's presence, so a shipped
+gate whose prose pair was never written recurs silently (gate 57's pair was absent for
 several PRs until Sweep 77 found it; gate 55's description initially
 landed in section 5 instead; gates 43 and 44 carried no detailed prose
 at all until the backfill that shipped with this gate).
@@ -18,7 +18,10 @@ This linter closes that seam with a PRESENCE-ONLY check (deliberately
 not semantic: whether the prose accurately describes the gate remains
 sweep-and-review territory):
 
-- It parses the section-6 inventory table for the gate numbers.
+- It parses the section-6 inventory table for the gate numbers,
+  scoped to the section-6 region (a numeric-first-cell table elsewhere
+  in the spec must not inflate the gate set; the same #577-motivated
+  scoping gate 60 applies).
 - For each gate at or above ``DESCRIPTION_FLOOR`` (35), the spec body
   must contain a ``Gate N is `` sentence opener (the description).
 - For each gate at or above ``APPENDED_FLOOR`` (47), the spec body
@@ -59,10 +62,25 @@ APPENDED_FLOOR = 47
 # Section-6 inventory rows: | N | Gate name | script link |
 ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 
+# Scope the row scan to the section-6 region so a numeric-first-cell
+# table elsewhere in the spec cannot inflate the gate set (gate 60's
+# #577-motivated scoping, mirrored).
+SECTION_6_RE = re.compile(r"^##\s+6[.\s]")
+SECTION_END_RE = re.compile(r"^##\s+(?!6[.\s])")
+
 
 def parse_gate_numbers(text: str) -> list[int]:
     numbers: list[int] = []
+    in_section_6 = False
     for line in text.splitlines():
+        if SECTION_6_RE.match(line):
+            in_section_6 = True
+            continue
+        if in_section_6 and SECTION_END_RE.match(line):
+            in_section_6 = False
+            continue
+        if not in_section_6:
+            continue
         m = ROW_RE.match(line)
         if m:
             numbers.append(int(m.group(1)))
