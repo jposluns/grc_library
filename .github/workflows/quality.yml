@@ -216,6 +216,9 @@ jobs:
       - name: Cross-file section-name audit
         run: python3 tools/lint-cross-file-section-names.py
 
+      - name: Unbalanced-fence audit
+        run: python3 tools/lint-unbalanced-fences.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

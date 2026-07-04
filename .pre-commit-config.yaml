@@ -477,3 +477,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-unbalanced-fences
+        name: Unbalanced-fence audit
+        entry: python3 tools/lint-unbalanced-fences.py
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #641: 3.15 GR-4, gate 66 unbalanced-fence audit (2026-07-04)
+
+The GR-4 standalone-check half built as gate 66: no scanned markdown file may end inside an open fenced code block (an odd fence count silently suppresses every fence-aware linter's scan of the remainder). Four-surface wiring, section-6 prose pair, section-5 category clause, three fixtures (suite 337); the build-time census found zero unbalanced fences, so the gate is preventive.
+
 ### PR #640: 3.15 GR-DRIFT-1, gate-54 four-surface rename (2026-07-04)
 
 Gate 54 renamed to "Per-document NIST CSF 2.0 control-code validity audit" across the four parity surfaces plus the section-6 narrative opener and section-5 grouped-list phrase, matching its docstring's actual NIST-CSF-2.0-only scope (the sibling gate-58 naming pattern). Name approved at the morning round; not previously an FR-keyed item.
