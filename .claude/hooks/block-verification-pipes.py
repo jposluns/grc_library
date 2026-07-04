@@ -27,10 +27,11 @@ line whose text itself starts with a verification invocation still blocks
 command-position anchor); (2) `set -o pipefail` pipes still block even
 though pipefail unmasks the exit (uniformity is worth more than the edge);
 (3) piping the WRAPPER's own output truncates only display (it prints
-EXIT=<code>), allowed; (4) runners outside the named six (for example
-run-linter-regression.py, build-*.py --check, and non-truncating sinks
-like tee or wc) are uncovered here and belong to the TODO section-1.9(c)
-widening.
+EXIT=<code>), allowed; (4) the 2026-07-04 section-1.9(c) widening added
+run-linter-regression.py, build-*.py --check invocations, and the tee/wc
+sinks to the named sets; a runner outside the widened set is still
+uncovered by design (the wrapper and the unpiped habit are the primary
+control).
 
 Self-test: `python3 .claude/hooks/block-verification-pipes.py --self-test`.
 """
@@ -41,9 +42,10 @@ import sys
 
 VERIFICATION = (
     r'(?:pre-push-guard\.sh|run_all_audits\.sh|run-pr-time-checks\.sh'
-    r'|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py)'
+    r'|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py'
+    r'|run-linter-regression\.py|build-[A-Za-z0-9_-]+\.py(?=[^|]*--check(?![\w-])))'
 )
-FILTERS = r'(?:tail|head|grep|sed|awk)\b'
+FILTERS = r'(?:tail|head|grep|sed|awk|tee|wc)\b'
 # The verification command must sit at COMMAND POSITION in its pipeline
 # segment: at segment start (or after && / || / ; / & / newline / an
 # opening subshell or brace), optionally preceded by env assignments, an
@@ -106,6 +108,11 @@ def self_test() -> int:
         'bash tools/run_all_audits.sh | tail -3',
         'FOO=1 ./tools/pre-push-guard.sh 2>&1 | tail -1',
         './tools/run_all_audits.sh |& tail -3',
+        # the 2026-07-04 1.9(c) widening: new runners and new sinks
+        'python3 tools/run-linter-regression.py | tail -5',
+        'python3 tools/build-taxonomy.py --check | head -2',
+        './tools/run_all_audits.sh | wc -l',
+        './tools/pre-push-guard.sh | tee /tmp/guard.log',
     ]
     allowed = [
         './tools/run_all_audits.sh',
@@ -123,6 +130,13 @@ def self_test() -> int:
         'grep -rn unittest tests/ | head -5',
         'echo "run_all_audits.sh | tail is forbidden"',
         'git commit -m "block the run_all_audits.sh | tail shape"',
+        # widening boundaries: a generator WITHOUT --check is not a verification
+        'python3 tools/build-taxonomy.py | head -3',
+        # regen-then-pipe of a non-check build is display truncation, allowed
+        'python3 tools/build-portal.py | tail -2',
+        # flag boundary: --checkout is not --check (the lookahead requires a
+        # non-word, non-hyphen character after the flag)
+        'python3 tools/build-taxonomy.py --checkout main | head -2',
     ]
     ok = True
     for c in blocked:
