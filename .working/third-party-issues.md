@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.6\
-**Date:** 2026-07-03\
+**Version:** 1.0.7\
+**Date:** 2026-07-04\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,16 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-07-04: git proxy accepted a direct scratch feature-branch push (the standing 403 did not reproduce), but refused the branch deletion
+
+**Observed.** During the wave-7 coverage-sync landing, a direct `git push -u origin wave7-coverage-sync` to `grc_library_scratch` through the local git proxy SUCCEEDED (exit 0, branch created at `9849ef0`), where the standing constraint recorded in the 2026-06-25 and 2026-06-27 entries below predicted an HTTP 403. The PR (#102) was then opened and merged through the MCP transport as usual. Post-merge, BOTH deletion forms for the remote branch failed: `git push origin --delete wave7-coverage-sync` returned "Everything up-to-date" as a silent no-op, and the explicit refspec form (`git push origin :refs/heads/wave7-coverage-sync`) failed with "the remote end hung up unexpectedly"; the GitHub MCP toolset exposes no branch-deletion tool, so the merged branch remains on the remote.
+
+**Diagnosis.** The proxy's write policy for scratch has changed or is state-dependent: branch creation pushes now pass where they previously 403'd (consistent with the 2026-06-25 entry's own observation that the FIRST push succeeded), while deletion pushes are refused at the transport. Not a project defect; a proxy-policy behaviour.
+
+**How it was distinguished from a real defect.** The push exit code was 0 and `git ls-remote` confirmed the branch at the pushed SHA; the subsequent PR flow (validate gate, merge) behaved normally. The deletion refusal reproduced in both syntaxes while ordinary pushes worked in the same session.
+
+**Impact / resolution.** Positive impact: scratch feature branches can be pushed directly, removing the MCP `push_files` content-inlining workaround for branch content (PR open/merge stays on MCP). Residual: merged scratch branches cannot be remote-deleted from this environment and will accumulate; harmless on the wipeable repo, and the maintainer can prune them from the GitHub UI at leisure. Retest the `main`-push behaviour SEPARATELY before ever relying on it; this observation covers feature branches only, and scratch `main` writes stay on the MCP PR path.
 
 ### 2026-07-03: execution-environment VM reclaimed/paused mid-session; clean resume with working tree intact
 
