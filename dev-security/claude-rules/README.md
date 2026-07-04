@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.53.18\
-**Date:** 2026-07-03\
+**Version:** 1.53.19\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
@@ -449,6 +449,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.53.19 | 2026.07.110 | 2026-07-04 | Two table-cell corrections, no step or procedure change (patch): [`ai/agent-security.md`](ai/agent-security.md) (the Recursion limits row's CSA AICM cell) and [`ai/mcp-security.md`](ai/mcp-security.md) (the Transport security row's MITRE ATLAS cell) each carried a lone `:` where a mapping belongs; both adjudicated to `N/A` against the held catalogues (no AICM control addresses agent recursion bounding; no ATLAS technique covers transport interception), part of the consuming project's section-3.1 stray-punctuation sweep. |
 | 1.53.18 | 2026.07.102 | 2026-07-03 | Factual-currency change, no step or procedure change (patch): [`skills/matrix-fit/SKILL.md`](skills/matrix-fit/SKILL.md) (step 1 and the reference-base inputs list) corrects the scratch reference-base locations to the actual bucket layout (the CSA catalogue CSVs under `ref/frameworks/CSA/`, the NIST CSF text under `ref/standards/NIST/`; the old prose placed both under `ref/standards/`), matching the paired command file in the consuming project. |
 | 1.53.17 | 2026.07.99 | 2026-07-03 | Narrative-currency change, no step or procedure change (patch): [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-two to sixty-three, gate-39 keyed) alongside the session-state lease audit shipping in the consuming project. |
 | 1.53.16 | 2026.07.98 | 2026-07-03 | Two narrative-currency changes, no step or procedure change (patch). (1) [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative gate count advanced (sixty-one to sixty-two, gate-39 keyed) alongside the cross-file section-reference audit shipping in the consuming project. (2) The guardrail r3 drift finding D-3: the three pack enumeration surfaces for [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) (the pack [`CLAUDE.md`](CLAUDE.md) paragraph, this README's tree blurb and scope-table row) gain a clause naming the layered skeptical pre-push verification standard (added to the rule at 1.53.2 but until now summarized only on the project-side surface), so a pack adopter reading the summaries learns the standard exists. |

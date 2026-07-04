@@ -2,8 +2,8 @@
 
 **Document Title:** Standard Version Upgrade Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.0\
-**Date:** 2026-07-01\
+**Version:** 1.0.1\
+**Date:** 2026-07-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/specification-audit-programme.md`](specification-audit-programme.md), [`specification-ingestion.md`](../specification-ingestion.md), [`README.md`](../README.md)\
@@ -108,7 +108,7 @@ The human-versus-AI split for the publisher-source capture in Steps 1 and 5 foll
 
 ## Framework alignment
 
-| Requirement | ISO/IEC 27001 | NIST CSF 2.0 | COBIT 2019 | ISO 9001 |
+| Requirement | ISO/IEC 27001:2022 | NIST CSF 2.0 | COBIT 2019 | ISO 9001 |
 | --- | --- | --- | --- | --- |
 | Controlled change to referenced requirements | A.5.36, A.5.37 | GV.OC, GV.PO | APO01, BAI06 | §7.5, §8.5.6 |
 | Documented-information currency | A.5.37 | GV.OC | BAI08 | §7.5.3 |

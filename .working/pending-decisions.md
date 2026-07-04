@@ -14,7 +14,11 @@ the maintainer, resolves those tasks, and only then continues to the next queued
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-None. The three 2026-07-03 entries below were resolved at the maintainer's 2026-07-03 morning round; retained with their resolutions for the audit trail.
+One proceeded stricter-safe default awaiting confirm-or-redirect (below); otherwise none. The three 2026-07-03 entries further down were resolved at the maintainer's 2026-07-03 morning round; retained with their resolutions for the audit trail.
+
+### Supply-chain matrix WCO SAFE cell + legend repair (2026-07-04 section-3.1 sweep; proceeded with a source-supported default; confirm or redirect on review)
+
+The section-3.1 stray-punctuation sweep found [`../supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md) carrying TWO instances of the mangled-glyph class in one table: the Financial Solvency row's WCO SAFE cell held a lone `:`, and the legend's third marker definition was itself mangled (`;: = not a primary requirement`), so the author's intended third-state glyph is unrecoverable from history (present since the initial public-release commit). Proceeded with: (1) the CELL set to `✓`, the source-supported value (the held WCO SAFE Framework text, scratch `ref/programs/WCO-SAFE/`, section "C. Financial Viability": the AEO "is required to be in good financial standing which is sufficient to fulfil its commitments considering the specific characteristics of its business model and activity"), consistent with the AEO-S and AEO (EU) columns whose criteria derive from SAFE; and (2) the LEGEND's vestigial third state replaced with a definition of `N/A` ("not addressed by this programme's published criteria"), which the table's cells actually use and the legend previously left undefined; after (1), no cell carries a "not a primary requirement" state. Reversible on-branch history; redirect if the third state should instead be restored with a new marker (that would also mean re-adjudicating the cell to that marker rather than `✓`).
 
 ## Resolved at the maintainer's 2026-07-03 morning round
 

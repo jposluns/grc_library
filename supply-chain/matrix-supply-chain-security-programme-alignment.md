@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-04\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -41,7 +41,7 @@ This matrix provides a consolidated cross-reference of the internationally recog
 
 ## Security domain alignment matrix
 
-The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required;: = not a primary requirement.
+The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required; N/A = not addressed by this programme's published criteria.
 
 | Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC | NEEC | OEA | ISO 28000 | WCO SAFE |
 |---|---|---|---|---|---|---|---|---|---|
@@ -61,7 +61,7 @@ The following matrix maps the common supply chain security domains against each 
 | **Business Continuity** | ~ | ~ | ~ | ~ | ~ | ~ | ~ | ✓ | ~ |
 | **Risk Assessment** | ✓ | ✓ | ✓ | ~ | ✓ | ✓ | ✓ | ✓ | ~ |
 | **Customs Compliance Record** | ~ | ✓ | ✓ | ~ | N/A | ✓ | ✓ | N/A | ~ |
-| **Financial Solvency** | ~ | ✓ | ✓ | ~ | N/A | ✓ | ✓ | N/A |: |
+| **Financial Solvency** | ~ | ✓ | ✓ | ~ | N/A | ✓ | ✓ | N/A | ✓ |
 
 ---
 

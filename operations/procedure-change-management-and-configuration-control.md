@@ -2,8 +2,8 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.1\
-**Date:** 2026-06-23\
+**Version:** 1.3.2\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md)\
@@ -206,7 +206,7 @@ The following metrics are reported to the CISO and CIO monthly:
 
 ## Framework alignment
 
-| Control Area | ISO/IEC 20000 | ISO/IEC 27001 | COBIT 2019 | CSA CCM v4.1 | NIST |
+| Control Area | ISO/IEC 20000 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 | NIST |
 | --- | --- | --- | --- | --- | --- |
 | Change management | §8.5 | A.8.32 | CCC-01 to CCC-04 | CCC-01 to CCC-05 | SP 800-128 §4 |
 | Configuration management | §8.5 | A.8.9 | CCC-05 to CCC-07 | CCC-06 to CCC-09 | SP 800-128 §3 |
