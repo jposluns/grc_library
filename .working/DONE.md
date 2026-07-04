@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #637: TODO 3.19 decision-tree hygiene bundle (2026-07-04)
+
+Three validated fresh-reader defects closed: maintainer-internal PR/FR provenance parentheticals stripped from the decision tree's adopter-facing prose; FMI and 3PL expanded at first use with new glossary rows (a 0-9 section added for 3PL); a size-band note reconciling the tree's under-50 Small band with the adopter guide's under-200 Tier 1 cue.
+
 ### PR #636: TODO 3.18 corpus half, ATLAS technique-ID currency fix (2026-07-04)
 
 The AI/agentic standard's three stale ATLAS framework-alignment rows re-mapped against the held ATLAS 2026.06 CSVs (upstream-confirmed current at apply time): supply chain to AML.T0010, tool misuse to AML.T0053, resource exhaustion/DoS to AML.T0029 + AML.T0034. The apply's close-out grep surfaced the same class in the pack tree; 3.18 rescoped in place to that pack half.

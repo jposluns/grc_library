@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-04, Library Version 2026.07.125, PR #637
+
+TODO section 3.19 closed, the decision-tree hygiene bundle (the worker QA run's validated FIT-1 + FIT-2 + FIT-6): [`docs/decision-tree.md`](docs/decision-tree.md) (`1.0.12` to `1.0.13`) drops the two maintainer-internal PR/FR provenance parentheticals from adopter-facing prose (provenance lives in the CHANGELOG), expands FMI and 3PL at first use, and gains a size-band note reconciling its "Small (under 50 employees)" reading-path band with the [`docs/adopter-guide.md`](docs/adopter-guide.md) Tier 1 sizing cue ("under approximately 200 staff"), two previously-unstated distinct axes; [`governance/register-glossary.md`](governance/register-glossary.md) (`1.4.6` to `1.4.7`) gains the FMI row (financial market infrastructure, per the CPMI-IOSCO PFMI) and a new 0-9 section with the 3PL row, so the two expanded acronyms now resolve in the glossary (five other decision-tree acronyms remain unresolvable there, queued as a follow-up with the two gate-widening residuals the pre-push verifier surfaced). Carries the #636 QA batch per recursion-avoidance and the handoff/lease reconcile.
+
+### Fixed
+
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) `1.0.12` to `1.0.13` (Date co-bumped): lines 109/119's provenance parentheticals removed; FMI (line 58) and 3PL (line 324) expanded at first use; the section-1.1 size-band note added naming the two axes (reading-path band here, start-set size in the adopter guide) with the 150-person worked contrast.
+- [`governance/register-glossary.md`](../../governance/register-glossary.md) `1.4.6` to `1.4.7` (Date co-bumped): the FMI row added in the F section (after FMCSA, alphabetical) and the 3PL row added under a new `## 0-9` section preceding `## A` (the glossary's first numeric-initial term).
+
+### Changed
+
+- Generated artefacts regenerated (taxonomy first, then portal/scorecard) for the two Version bumps.
+- [`TODO.md`](../../TODO.md) 3.19 deleted and rotated to [`.working/DONE.md`](../DONE.md).
+- The #636 QA batch rides per recursion-avoidance: [`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.415` (the #636 zero-finding row); [`.working/improvement-log.md`](../improvement-log.md) `1.0.361` (the #636 retro row, EXPEDITE proposal on the staged recount clause surfaced in chat).
+- [`.working/session-handoff.md`](../session-handoff.md) Current-truth reconcile; [`.working/session-state.md`](../session-state.md) heartbeat re-stamp.
+
+### Verification
+
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green pre-commit; [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) standalone post-commit with direct exit capture; one refute-briefed skeptical verifier subagent (substantive tier: two corpus-document body changes) pre-push on the diff; [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) STANDALONE and UNPIPED before push (D7 firing on the handoff reconcile).
+
 ## 2026-07-04, Library Version 2026.07.124, PR #636
 
 TODO 3.18 corpus half closed, the ATLAS technique-ID currency fix: the three stale MITRE ATLAS rows in [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md)'s section-36 framework-alignment table (`1.8.6` to `1.8.7`) are re-mapped against the held ATLAS 2026.06 technique CSVs, upstream-confirmed the current release (v2026.06, published 2026-06-30) at apply time per the reference-version-currency SOP: the supply-chain row's "AML.T0010 to T0013" range (whose members are no longer siblings: T0011 User Execution, T0012 Valid Accounts, T0013 Discover AI Model Ontology) narrows to `AML.T0010` (AI Supply Chain Compromise, whose sub-techniques enumerate the hardware / software / data / model / registry / agent-tool surfaces); the tool-misuse row's `AML.T0048` (now External Harms) re-points to `AML.T0053` (AI Agent Tool Invocation); and the resource-exhaustion row's `AML.T0037` (now Data from Local System) re-points to `AML.T0029` (Denial of AI Service) plus `AML.T0034` (Cost Harvesting), jointly covering LLM10 Unbounded Consumption's degradation and cost halves. The prompt-injection `AML.T0051` row was verified correct and is unchanged. The apply's close-out grep surfaced the same stale-ID class in the pack tree (eight `AML.T0048` citations across four `dev-security/claude-rules/ai/` files), out of this single-file item's scope: [`TODO.md`](TODO.md) 3.18 is rescoped in place to that pack half rather than closed outright, with the corpus half rotated to the DONE ledger. Carries the #635 QA batch per recursion-avoidance and the handoff/lease reconcile.

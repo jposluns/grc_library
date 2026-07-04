@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.12\
-**Date:** 2026-07-02\
+**Version:** 1.0.13\
+**Date:** 2026-07-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -50,10 +50,12 @@ Answer each of the following to determine your reading path.
 - **Large enterprise** (500 to 5000)
 - **Multi-national enterprise** (5000+)
 
+These bands select reading paths in this document. They are a different axis from the [`docs/adopter-guide.md`](adopter-guide.md) Tier 1 sizing cue ("under approximately 200 staff"), which decides how many documents to START with; a 150-person organization is Mid-market here and, where the guide's other cues also hold (low regulatory exposure, no high-risk AI in production), still a Tier 1 starter there.
+
 ### 1.2 Industry sector (select all that apply)
 
 - Logistics (transportation, warehousing, freight forwarding, customs brokerage)
-- Financial services (banks, investment, insurance, payments, FMI)
+- Financial services (banks, investment, insurance, payments, financial market infrastructure (FMI))
 - Healthcare (providers, payers, medtech, healthcare platforms)
 - Energy and utilities
 - Telecommunications
@@ -106,7 +108,7 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 
 ### 2.1 Orientation (read first)
 
-1. [`README.md`](../README.md): repository overview, structure, adoption posture. Acronyms in this file are expanded at first occurrence (per PR #172 / FR-4 and PR #179 / FR-106 / PR #196 / FR-113 polish), so glossary lookup is rarely needed while reading.
+1. [`README.md`](../README.md): repository overview, structure, adoption posture. Acronyms in this file are expanded at first occurrence, so glossary lookup is rarely needed while reading.
 2. [`docs/adopter-guide.md`](adopter-guide.md): general adoption principles. Same first-occurrence expansion convention.
 3. [`governance/register-glossary.md`](../governance/register-glossary.md): acronym reference. Open this if you encounter an unexplained acronym in any document; the orientation files above expand acronyms inline, so glossary lookup is reserved for the deeper-domain documents in §2.2 and beyond.
 4. [`governance/register-coverage-gaps.md`](../governance/register-coverage-gaps.md): what the library does not yet cover.
@@ -116,7 +118,7 @@ These documents apply regardless of size, sector, or jurisdiction. Read in this 
 5. [`governance/charter-governance-library.md`](../governance/charter-governance-library.md): library authority model.
 6. [`governance/register-role-authority.md`](../governance/register-role-authority.md): the roles the library uses; you will map these to people in your organization.
 7. [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md): how documents relate.
-8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every document with type, domain, status, and related artefacts. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point per PR #165 / FR-56); the document index is the deeper-dive register for readers who already know what they are looking for.
+8. [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md): comprehensive machine-readable register of every document with type, domain, status, and related artefacts. For audience-keyed navigation, use [`docs/portal.md`](portal.md) (the canonical entry point); the document index is the deeper-dive register for readers who already know what they are looking for.
 
 ### 2.3 Risk and compliance foundation
 
@@ -319,7 +321,7 @@ Deliverable: a substantive enterprise GRC implementation covering size, sector, 
 
 Universal baseline (Section 2), then `compliance/financial-services/` (3.2), then [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md), then [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md), then [`compliance/annex-nis-2-implementation.md`](../compliance/annex-nis-2-implementation.md) if in scope. About 25 documents for this sector-conditional EU-fintech path; this is larger than the universal Day-1 floor (six artefacts in [`docs/template-quickstart.md`](template-quickstart.md)) and the 17-document Tier 1 starter set in [`docs/adopter-guide.md`](adopter-guide.md), which it builds on rather than replaces.
 
-**"I'm a 200-person 3PL operating in the US, Canada, and Mexico. What do I read first?"**
+**"I'm a 200-person third-party logistics provider (3PL) operating in the US, Canada, and Mexico. What do I read first?"**
 
 Universal baseline (Section 2), then `compliance/logistics/` (3.1), then the CTPAT and PIP overlays (3.1 sub-bullets), then [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) and [`annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md). Mexico's NEEC/OEA programme is not yet covered (TODO backlog: logistics country / programme expansion); use the BASC programme overview as a structural reference until added.
 
