@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.1\
-**Date:** 2026-07-03\
+**Version:** 1.1.2\
+**Date:** 2026-07-04\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -126,6 +126,10 @@ ready but inactive; in-session fan-out (4a) covers partitionable work meanwhile.
   worker's partition claim before it starts. A worker reads the ledger at launch, claims
   its disjoint partition, and stays inside it. This is how disjointness is coordinated
   across workers that cannot see each other's sessions.
+  On serial delivery merges that conflict on the ledger, the reconciliation rule is a
+  timestamp-ordered UNION of the row sets keyed by work-unit id (every claim row from both
+  sides is kept, ordered by claim timestamp); a conflict is never resolved by clobbering
+  either side's rows.
 - **Triggering default: human-on-demand.** The orchestrator (or maintainer) launches a
   wave of workers when there is partitionable work queued. This is the default and the
   safe baseline.
@@ -164,8 +168,12 @@ operational rules:
   staleness computable as "N PRs behind".
 - **State is derived from artefacts, never a status field.** Brief present = ready; a
   `claims-ledger.md` row = claimed (the ledger is the single claim authority); a delivery
-  in `inbox/<worker-id>/` = delivered pending apply; the orchestrator removes the brief in
-  the same sync that rotates the TODO item to DONE = closed.
+  in `inbox/<worker-id>/` = delivered pending apply; the orchestrator removes the WHOLE
+  seed directory at DELIVERY time (maintainer-directed 2026-07-04: the entire
+  `research/<work-unit-id>/` directory is deleted when the delivery merges, and the
+  coverage row re-points at the inbox delivery path, so a consumed seed is never mistaken
+  for an open one); the TODO item's own rotation to DONE still happens at the main-repo
+  close = closed.
 - **TODO is authoritative; briefs are a wipeable derived projection.** TODO wins on any
   conflict; this is what makes whole-backlog staging safe in a wipeable repo.
 - **Sync cadence.** The orchestrator syncs the scratch brief tree whenever a main-repo PR

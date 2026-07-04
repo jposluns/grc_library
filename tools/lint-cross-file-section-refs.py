@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Validate cross-file section references (numbers phase).
 
+The names phase (gate 65, ``lint-cross-file-section-names.py``) layers
+title-fit checking on top of this gate's number-existence checking; its
+docstring documents the deliberate scope deltas (table rows scanned
+there, the pack-README relpath exemption, the table-row absent-number
+ownership).
+
 Library documents cite sections of OTHER corpus documents by number,
 e.g. "see [the mobile standard](standard-mobile-application-security.md)
 §5.4" or, via a binding declaration, a file-wide "Section numbers below

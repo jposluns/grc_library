@@ -470,3 +470,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-cross-file-section-names
+        name: Cross-file section-name audit
+        entry: python3 tools/lint-cross-file-section-names.py
+        language: system
+        pass_filenames: false
+        always_run: true

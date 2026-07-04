@@ -77,3 +77,13 @@ enclosing class, and individual test methods are named
 linter in the audit programme has at least one positive test for its
 primary rule. Additional rule-specific, negative, and environmental
 tests can be added as maintenance reveals the need.
+
+When a fixture targets a specific filter path or branch of a linter
+CHANGE (a widened window, a new skip class, a new verdict), verify
+before commit that the fixture FAILS against the pre-change linter
+(or a deliberately weakened copy): a fixture that passes both states
+guards nothing. The motivating catch is the #624 hollow fixture,
+whose link filename satisfied an unrelated filter path, so the new
+trailing-window code was never exercised; the #625 build applied the
+weakened-copy mutation test to all four of its fixtures as the
+standing form of this rail.

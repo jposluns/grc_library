@@ -5664,6 +5664,130 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
 
+class CrossFileSectionNamesTests(LinterTestCase):
+    """tools/lint-cross-file-section-names.py (gate 65, the names phase)
+
+    The title-anchoring rule: a parenthetical/quoted candidate after a
+    cross-file reference is a title claim only when it equals SOME
+    numbered-heading title in the target; it must then belong to the
+    cited number (renumber drift fails), while paraphrases, shorthands,
+    and explanatory parentheticals anchor to nothing and are skipped.
+    """
+
+    SCRIPT = "tools/lint-cross-file-section-names.py"
+
+    TARGET_BODY = (
+        "## 1. Introduction\n\n## 4. Encryption standards\n\n"
+        "### 5.4 Key rotation\n\nBody.\n\n4.7.1 An inline clause line.\n"
+    )
+
+    def _target(self, name: str = "names-target.md") -> None:
+        self.make_fixture(name, self.TARGET_BODY)
+
+    def test_matching_title_passes(self) -> None:
+        self._target()
+        citer = self.make_fixture(
+            "names-ok.md",
+            "See [the target](names-target.md) §4 (Encryption standards) now.\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_renumber_drift_fails(self) -> None:
+        self._target()
+        citer = self.make_fixture(
+            "names-drift.md",
+            "See [the target](names-target.md) §1 (Encryption standards) now.\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("heading §4, not §1", result.stdout)
+
+    def test_paraphrase_and_explanatory_skipped(self) -> None:
+        self._target()
+        citer = self.make_fixture(
+            "names-paraphrase.md",
+            "See [the target](names-target.md) §4 (crypto rules) and\n"
+            "[the target](names-target.md) §1 (CISO approval, compensating control).\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_table_row_checked(self) -> None:
+        # Deliberate divergence from gate 62: table rows are scanned.
+        self._target()
+        citer = self.make_fixture(
+            "names-table.md",
+            "| Ref | Note |\n|---|---|\n"
+            "| [the target](names-target.md) §1 (Encryption standards) | x |\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
+    def test_external_context_skipped(self) -> None:
+        self._target()
+        citer = self.make_fixture(
+            "names-external.md",
+            "Aligns to ISO 27001 §1 (Encryption standards); see "
+            "[the target](names-target.md) too.\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_binding_declaration_pass_and_fail(self) -> None:
+        self._target()
+        self.make_fixture("names-sibling.md", "## 9. Unrelated\n")
+        pass_citer = self.make_fixture(
+            "names-bound-ok.md",
+            "See [sibling](names-sibling.md) and [the standard](names-target.md). "
+            "Section numbers below refer to that standard.\n\n"
+            "Apply Section 4 (Encryption standards) throughout.\n",
+        )
+        result = run_linter(self.SCRIPT, pass_citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        fail_citer = self.make_fixture(
+            "names-bound-bad.md",
+            "See [sibling](names-sibling.md) and [the standard](names-target.md). "
+            "Section numbers below refer to that standard.\n\n"
+            "Apply Section 1 (Encryption standards) throughout.\n",
+        )
+        result = run_linter(self.SCRIPT, fail_citer)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
+    def test_case_insensitive_quoted_title(self) -> None:
+        self._target()
+        citer = self.make_fixture(
+            "names-quoted.md",
+            'Per [the target](names-target.md) Section 5.4, "Key Rotation", act.\n',
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_table_row_absent_number_fails(self) -> None:
+        # The r4 O-1 seam: on a table row (which gate 62 excludes), an
+        # anchored title claim whose cited number is absent fails HERE.
+        self._target()
+        citer = self.make_fixture(
+            "names-table-absent.md",
+            "| Ref | Note |\n|---|---|\n"
+            "| [the target](names-target.md) §9 (Encryption standards) | x |\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("not a numbered heading", result.stdout)
+
+    def test_inline_clause_cited_number_skipped(self) -> None:
+        # The cited number has no heading title (an inline clause), so
+        # even an anchoring parenthetical is not checked against it.
+        self._target()
+        citer = self.make_fixture(
+            "names-clause.md",
+            "See [the target](names-target.md) §4.7.1 (Encryption standards).\n",
+        )
+        result = run_linter(self.SCRIPT, citer)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
 

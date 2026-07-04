@@ -30,6 +30,11 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #627: names-phase gate 65 + /guardrails r4 run (2026-07-04)
+
+Two section-3.15 closures in one PR: the cross-file section-name audit shipped as gate 65 (title-anchoring rule from the same-day corpus survey; table rows deliberately scanned; the r4 O-1 seam closed at build time; suite 326) and the /guardrails r4 review ran at its gate-60 threshold (19 findings: 10 fixed in-window with two partial, 8 routed as seven bullets, 1 cadence note; inventory re-baselined at 65 gates). Fourth and fifth resolutions of the 2026-07-04 overnight run.
+
+
 ### PR #625: GR-6: gate 64, audit-spec detailed-prose presence audit; SR-5 closed by refutation (2026-07-04)
 
 Two items closed: the GR-6 section-3.15 bullet shipped as gate 64 (`lint-audit-spec-detailed-prose.py`, floors 35/47, with the gates 43/44 description backfill and the four-surface wiring), and SR-5 closed by refutation (the maintainer-supplied fresh EN 304 223 V2.1.1 copy confirmed the held item's designation was correct; scratch PR #100). Third and fourth resolutions of the 2026-07-04 overnight run.
