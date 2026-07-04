@@ -1527,6 +1527,98 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class PackReadmeCobumpOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-pack-readme-cobump-on-pr.py (delta gate D6).
+
+    A PR that changes the pack README's **Version:** value must add the
+    matching ``| <new-version> |`` row to its ``## Version history``
+    table in the same diff (the paired-surface checklist instance (a),
+    mechanized). Uses the shared two-commit temp-repo harness.
+    """
+
+    SCRIPT = "check-pack-readme-cobump-on-pr.py"
+    PACK = "dev-security/claude-rules/README.md"
+
+    @staticmethod
+    def _readme(version, rows):
+        table = "\n".join(f"| {v} | 2026.07.1 | 2026-07-04 | note |" for v in rows)
+        return (
+            "# Pack README\n\n"
+            f"**Version:** {version}\\\n"
+            "**Date:** 2026-07-04\n\n"
+            "Body.\n\n"
+            "## Version history\n\n"
+            "| Pack | Library | Date | Notable change |\n"
+            "| --- | --- | --- | --- |\n"
+            f"{table}\n"
+        )
+
+    def test_version_bump_with_history_row_passes(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {self.PACK: self._readme("1.0.0", ["1.0.0"])},
+            {self.PACK: self._readme("1.0.1", ["1.0.1", "1.0.0"])},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D6 should PASS on bump-with-row.\nstdout:\n{result.stdout}"
+                f"\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_version_bump_without_history_row_fails(self) -> None:
+        # Version bumps but the history table gains no 1.0.1 row.
+        tmp, base_sha, shutil = self._build_repo(
+            {self.PACK: self._readme("1.0.0", ["1.0.0"])},
+            {self.PACK: self._readme("1.0.1", ["1.0.0"])},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D6 should FAIL on bump-without-row.\nstdout:\n{result.stdout}"
+                f"\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("1.0.1", result.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_version_unchanged_not_triggered(self) -> None:
+        # Body-only edit; Version value identical: the gate stays silent.
+        base = self._readme("1.0.0", ["1.0.0"])
+        tmp, base_sha, shutil = self._build_repo(
+            {self.PACK: base},
+            {self.PACK: base.replace("Body.", "Body changed.")},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D6 should not trigger on an unchanged Version.\nstdout:\n"
+                f"{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("not triggered", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_pack_readme_untouched_not_triggered(self) -> None:
+        tmp, base_sha, shutil = self._build_repo(
+            {self.PACK: self._readme("1.0.0", ["1.0.0"]), "other.md": "A.\n"},
+            {"other.md": "B.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 0,
+                f"D6 should not trigger when the pack README is untouched."
+                f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
 
