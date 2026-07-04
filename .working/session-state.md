@@ -4,11 +4,11 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T14:42:47Z
+**Last-heartbeat-UTC:** 2026-07-04T16:35:43Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #629 MERGED (4ab8f6d) with full QA, and the wave-7 scratch sync MERGED (scratch #102, e3a088f); S3 PR B in flight on `claude/s3-claim-fit-2r8kn2` (the /claim-fit skill + Tier-A pass, carrying the #629 QA batch, both routed finding fixes, and the maintainer-accepted snapshot-check TODO item); then the P2 applies (with the metrics refresh row at that boundary), 3.19/3.20/3.21 as interleave; the 2026-07-04 morning decision list is RESOLVED (13 answers received and executed into TODO / pending-decisions / design-decisions)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #630 MERGED (487a8a2, S3 PR B) with full QA; the P2 worker-delivery applies UNDERWAY: FR-59 held-source batch PR 1 in flight on `claude/fr59-deepenings-2r8kn2` (Japan/US/Canada/Brazil annex deepenings, the first external-worker delivery apply, carrying the #630 QA batch and the P2-boundary metrics refresh); then FR-59 batch PR 2 (Latin America + Mexico + the INAI corpus sweep), the remaining P2 applies serial, 3.19/3.20/3.21 as CI-wait interleave
 
-**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies pending); the staged pool is empty, so the worker idles pending the wave-7 staged briefs landing (the morning decisions themselves are resolved)
+**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

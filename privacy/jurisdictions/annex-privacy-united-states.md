@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
-**Date:** 2026-07-02\
+**Version:** 1.2.0\
+**Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -72,11 +72,23 @@ The United States does not have a single comprehensive federal privacy law. Obli
 - Inadequate security for AI systems processing sensitive personal data.
 - "AI washing": misleading claims about AI capabilities or safety.
 
+---
+
 ### Sectoral AI considerations
 
 - **Financial services:** SR 11-7 model risk management guidance applies to AI in credit, fraud, and compliance decisions. Fair lending laws apply to AI-driven credit decisions.
 - **Healthcare:** AI clinical decision support may qualify as a medical device subject to FDA regulation. HIPAA applies to AI processing protected health information.
 - **Employment:** EEOC guidance that AI hiring tools may violate Title VII if they produce disparate impact.
+
+---
+
+## Operational requirements (state comprehensive laws)
+
+The earliest three comprehensive state laws converge on the same request-handling mechanics, which most later state laws copy; the cross-state baseline below is citable to the three statutes (each confirmed current against its official code site in 2026).
+
+- **Consumer-request response clock: 45 days, extendable once by 45 days.** California (Cal. Civ. Code s. 1798.130(a)(2)(A)), Virginia (Va. Code s. 59.1-577(B)(1)), and Colorado (Colo. Rev. Stat. s. 6-1-1306) each require a response within 45 days of receipt of a verifiable consumer request, extendable once by 45 additional days where reasonably necessary, with notice of the extension (and its reason, in Virginia and Colorado) within the initial 45-day period.
+- **Appeal process (Virginia and Colorado; the CCPA/CPRA carries no equivalent appeal duty).** A controller must offer a conspicuously available process to appeal a refusal to act: Virginia requires a written answer within 60 days of receiving the appeal (Va. Code s. 59.1-577(C)); Colorado requires an answer within 45 days, extendable by 60 additional days (Colo. Rev. Stat. s. 6-1-1306). The consumer must be given a channel to contact the Attorney General (on a denied appeal in Virginia; in Colorado, on any appeal outcome where the consumer has concerns about the result).
+- **Data protection assessments.** Virginia (Va. Code s. 59.1-580) and Colorado (Colo. Rev. Stat. s. 6-1-1309) require a documented data protection assessment for processing for targeted advertising, the sale of personal data, profiling that presents enumerated heightened risks, or sensitive data, among the statutes' enumerated triggers; Colorado expressly bars conducting such processing without the documented assessment. This is the state-law analogue of the DPIA trigger adopting organizations already run for GDPR-scope processing; one assessment may satisfy multiple comparable state laws where scope aligns.
 
 ---
 

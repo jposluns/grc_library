@@ -2,8 +2,8 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.1.0\
+**Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -26,7 +26,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Lei Geral de Proteção de Dados Pessoais (LGPD)**: Law No. 13,709/2018, as amended by Law No. 13,853/2019, in force September 2020. Brazil's comprehensive data protection law, closely modelled on GDPR. Applies to any processing of personal data of individuals located in Brazil, regardless of where the processor is located, provided that the processing takes place in Brazil, the purpose of processing is offering goods or services in Brazil, or the personal data was collected in Brazil.
 - **Brazilian Internet Act (Marco Civil da Internet)**: Law No. 12,965/2014. Establishes principles, rights, and duties for internet use in Brazil, including data protection principles for connection and application providers.
-- **Regulatory authority:** Brazilian Data Protection Authority (Autoridade Nacional de Proteção de Dados: ANPD), established as an independent federal authority.
+- **Regulatory authority:** Brazilian Data Protection Authority (ANPD). Restructured as the Agência Nacional de Proteção de Dados, a regulatory agency (agência reguladora), by Lei No. 15.352/2026 (converting Medida Provisória No. 1.317/2025, which amended LGPD Articles 5 and 55-A); previously the Autoridade Nacional de Proteção de Dados.
 
 ---
 
@@ -35,6 +35,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Lawful basis (Article 7):** Processing by AI systems requires one of ten lawful bases including consent, legitimate interest, contract performance, legal obligation, and research in the public interest.
 - **Sensitive personal data (Article 11):** AI systems processing health, biometric, racial or ethnic origin, religious belief, political opinion, sexual orientation, genetic, or children's data require consent or another specific Article 11 basis. Consent must be specific, prominent, and separate.
 - **Automated decisions (Article 20):** Data subjects have the right to request review of decisions made solely on the basis of automated processing that affect their interests, including decisions defining personal, professional, consumer, or credit profiles. The controller must provide clear and adequate information about the criteria and procedures used.
+- **Data-subject requests (Articles 18 to 19):** Article 18 rights (confirmation of processing, access, correction, anonymization or deletion, portability, and others) must be answered on two statutory tracks under Article 19: confirmation-of-existence and access requests are met either immediately in a simplified format, or by a complete declaration within 15 days from the data subject's request. Other Article 18 rights carry no fixed day-count in the Act; adopting organizations set an internal service level and record it in their DSR procedure.
+- **Records of processing (Article 37):** The controller and the processor must keep records of the personal data processing operations they carry out, especially when the processing is based on legitimate interest. This is the LGPD's ROPA obligation, the analogue of GDPR Article 30.
 - **Data Protection Officer (DPO) (Articles 41 to 43):** Controllers must designate a DPO (Encarregado). Contact details must be published.
 - **DPIA (Article 38):** The ANPD may require a Data Protection Impact Assessment (RIPD) for high-risk processing, including processing based on legitimate interest and large-scale processing of sensitive data.
 - **Legitimate interest (Article 10):** Controllers relying on legitimate interest for AI processing must conduct a balancing test and, when requested by the ANPD, provide a DPIA.
