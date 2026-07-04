@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T16:35:43Z
+**Last-heartbeat-UTC:** 2026-07-04T17:32:44Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #630 MERGED (487a8a2, S3 PR B) with full QA; the P2 worker-delivery applies UNDERWAY: FR-59 held-source batch PR 1 in flight on `claude/fr59-deepenings-2r8kn2` (Japan/US/Canada/Brazil annex deepenings, the first external-worker delivery apply, carrying the #630 QA batch and the P2-boundary metrics refresh); then FR-59 batch PR 2 (Latin America + Mexico + the INAI corpus sweep), the remaining P2 applies serial, 3.19/3.20/3.21 as CI-wait interleave
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS (overnight ended at the 2026-07-04 morning boundary); #631 MERGED (08c1d4e, FR-59 held-source batch PR 1, the first external-worker delivery apply) with full QA (two verifier rounds pre-push incl. the Critical Quebec 72-hour catch; /validate-pr 4 bookkeeping findings, all routed/fixed in the next PR's batch); queue PAUSED at the maintainer's request to discuss re-tiering the P2 applies (maintainer proposal: P2 to Opus 4.8 sessions, this Fable 5 session to P3 items); FR-59 batch PR 2 (Latin America + Mexico + INAI) and the TODO 1.10 Quebec sweep are the nearest queued items pending that decision
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
