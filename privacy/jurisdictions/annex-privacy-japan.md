@@ -2,8 +2,8 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.1.0\
+**Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -37,6 +37,16 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Pseudonymous information (kamei kakō jōhō, 仮名加工情報: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
 - **Third-party provision:** Consent is required before providing personal information to AI system operators as third parties, unless an exception applies.
 - **Sensitive personal information:** Explicit opt-in consent required for processing of sensitive categories (race, creed, social status, medical history, criminal record, etc.) in AI systems.
+
+---
+
+## Operational requirements
+
+Article numbers follow the current consolidated APPI (confirmed against the official English translation of the consolidated text; the pre-2022 amendment texts number these provisions differently).
+
+- **Breach report and individual notification (Article 26):** A business handling personal information must, pursuant to PPC rules, report a leakage, loss, or damage of personal data that is likely to harm an individual's rights and interests to the PPC, and notify the affected individual. The specific report deadlines and category thresholds are set by the PPC Enforcement Rules, not by the Act; confirm the current rule values before encoding them in incident playbooks.
+- **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), and cease-of-use or deletion (Article 35). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
+- **Accuracy and deletion (Article 22):** A business must strive to keep personal data accurate and up to date within the scope necessary for the purpose of use, and to delete it without delay when its use is no longer necessary. The Act phrases this as an endeavour duty (the statutory text reads `shall strive to`), not an absolute one; adopting organizations typically operationalize it as a firm internal control anyway.
 
 ---
 

@@ -37,11 +37,11 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 98, Baseline: 177, Draft: 20, Unknown: 0._
+_Summary as of last regeneration: Mature: 101, Baseline: 174, Draft: 20, Unknown: 0._
 
 ## Mature
 
-_98 documents._
+_101 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -96,12 +96,15 @@ _98 documents._
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.5 | 2026-07-02 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.7 | 2026-07-01 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.6 | 2026-07-03 |
+| [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
+| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
+| [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.0 | 2026-07-04 |
 | [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.1.5 | 2026-07-02 |
+| [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.0 | 2026-07-04 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.12 | 2026-07-03 |
 | [privacy/procedure-data-protection-and-privacy-breach-response.md](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection and Privacy Breach Response Procedure | Procedure | 1.4.23 | 2026-07-04 |
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.6 | 2026-07-03 |
@@ -148,7 +151,7 @@ _98 documents._
 
 ## Baseline
 
-_177 documents._
+_174 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -243,10 +246,7 @@ _177 documents._
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.7 | 2026-07-02 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.1 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |

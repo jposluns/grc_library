@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.1.0\
+**Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 - **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
 - **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force and would require reintroduction in a future Parliament. PIPEDA remains the federal private-sector privacy law. Adopting entities should monitor for any reintroduction; the proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
 - **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction. The proposed framework would have regulated high-impact AI systems, requiring impact assessments, mitigation measures, transparency, and mandatory harm reporting.
-- **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects involving personal information; express consent for sensitive data; right to portability; right to be de-indexed; obligations for automated decision-making transparency; 72-hour breach notification to the Commission d'accès à l'information (CAI). Extraterritorial application to organizations processing information about Quebec residents.
+- **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects involving personal information; express consent for sensitive data; right to portability; right to be de-indexed; obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Extraterritorial application to organizations processing information about Quebec residents.
 - **Regulatory authorities:** Office of the Privacy Commissioner of Canada (OPC) under PIPEDA; Privacy Commissioner with order-making powers under anticipated CPPA; Commission d'accès à l'information (CAI) for Quebec Law 25.
 
 ---
@@ -60,6 +60,13 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 - **Privacy Impact Assessments (PIAs):** Required for any project involving personal information before implementation.
 - **Automated decisions:** Organizations must inform individuals before or at the time of automated decisions and provide the right to request human review.
 - **Biometric data:** Organizations creating a biometric database must notify the CAI at least 60 days in advance.
+
+---
+
+## Operational requirements (PIPEDA)
+
+- **Breach of security safeguards (s. 10.1):** An organization must report to the OPC any breach of security safeguards involving personal information under its control where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual, and must notify affected individuals. Both the report and the notification are due as soon as feasible after the organization determines the breach has occurred; PIPEDA sets no fixed hour-count, and Quebec Law 25's CAI notification (above) is likewise a promptness standard rather than a fixed clock.
+- **Access-request response clock (s. 8(3)):** An organization must respond to a written request for access to personal information not later than thirty days after receipt of the request. PIPEDA permits a time-limit extension in defined circumstances with notice to the requester; adopting organizations should treat thirty days as the default service level in their DSR procedure.
 
 ---
 

@@ -514,3 +514,13 @@ alone is a weak check; and keeping S3 parked).
   choice per DD-6/DD-7) and a 24-hour supplier-notification KPI citing GDPR
   Article 33(2) (which sets "without undue delay", not a fixed 24 hours).
   These await the PR B judging pass; they are candidates, not findings.
+
+## Usage-budget SOP eliminated (maintainer-directed 2026-07-04)
+
+The per-merge usage-budget SOP (maintainer-directed 2026-07-03: pause after every
+merge and ask where account usage stands; hold substantive work on no answer) is
+ELIMINATED by maintainer direction 2026-07-04 ("Eliminate the usage-budget SOP. It
+doesn't apply to this session."). The handoff's 2026-07-03 session-closing block
+carrier is marked HISTORICAL in the same batch. The SOP is not re-adopted without a
+fresh maintainer directive; merge cadence reverts to the attended-autonomous default
+(green CI = merge authority, no per-merge usage pause).
