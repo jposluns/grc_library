@@ -160,6 +160,7 @@ run_gate "COBIT/ISO 31000 citation-existence audit"      python3 tools/lint-cobi
 run_gate "Cross-file section-reference audit"            python3 tools/lint-cross-file-section-refs.py
 run_gate "Session-state lease audit"                      python3 tools/lint-session-state.py
 run_gate "Audit-spec detailed-prose presence audit"       python3 tools/lint-audit-spec-detailed-prose.py
+run_gate "Cross-file section-name audit"                   python3 tools/lint-cross-file-section-names.py
 
 # ----------------------------------------------------------------------
 # Summary

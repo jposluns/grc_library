@@ -213,6 +213,9 @@ jobs:
       - name: Audit-spec detailed-prose presence audit
         run: python3 tools/lint-audit-spec-detailed-prose.py
 
+      - name: Cross-file section-name audit
+        run: python3 tools/lint-cross-file-section-names.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

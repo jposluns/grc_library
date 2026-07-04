@@ -88,7 +88,7 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       adjacency window is 40 chars and pipe-bounded while this filter
       accepts a bare ".md" or "](" within 60 chars of the reference
       start, so a link 41-60 chars after a reference is disclaimed
-      here yet unclaimed by gate 62 (an accepted heuristic band, the
+      here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
       same shape as the pre-existing preceding-side window).
     - Doctype words and external-framework names: whole-line scans (ISO,
       NIST, OWASP, CSA, MITRE, COBIT, GDPR, CPPA, BASC, etc).

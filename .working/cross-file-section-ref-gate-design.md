@@ -9,7 +9,7 @@ as-shipped deltas from the design below: the exempt set carries `TODO.md` alongs
 `CHANGELOG.md` (both narrate reference shapes), and target extraction ALSO includes
 line-initial inline clauses (`4.7.1 ...`), which the FR-48 canonical model makes citable but
 which are not markdown headings (five corpus-clean citations would otherwise false-positive).
-The names-phase second gate remains queued (TODO section 3.15). The remainder of this file is
+The names-phase second gate SHIPPED as gate 65 (2026-07-04, the names-phase PR; `tools/lint-cross-file-section-names.py`, the title-anchoring design from that day's corpus survey). The remainder of this file is
 the frozen design archive from the 2026-07-02 survey and pause.
 
 This file is maintainer working state, exempt from corpus audit gates.
