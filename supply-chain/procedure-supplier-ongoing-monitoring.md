@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Ongoing Monitoring Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-04\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md)\
@@ -76,7 +76,7 @@ This procedure defines the activities, frequencies, and escalation steps for ong
 | Activity | Frequency | Method | Responsible |
 |---|---|---|---|
 | Contract renewal check | At renewal | Standard procurement review | Procurement |
-| No formal security monitoring required | N/A |: | N/A |
+| No formal security monitoring required | N/A | N/A | N/A |
 
 ---
 

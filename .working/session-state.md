@@ -4,11 +4,11 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T23:54:00Z
+**Last-heartbeat-UTC:** 2026-07-04T00:42:17Z
 
-**Current-task:** S3 PR A close-out (claim-precision triage tool; PR B, the claim-fit skill, queued next alongside the P3 batch)
+**Current-task:** overnight queue after the #621 close-out (section-3.1 sweep pair, section-3.15 build-only picks, S3 PR B, then the P2 worker-delivery applies; maintainer-decided 2026-07-04)
 
-**Worker-dispatches:** four in-session research subagents (waves 2 and 3 seed drafting) COMPLETE and applied; one EXTERNAL worker session live (maintainer-launched 2026-07-03, maintainer's standard account, read-only-on-main prompt constraints), consuming staged briefs from scratch and delivering via "Worker delivery" scratch PRs the orchestrator validates and applies
+**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 13 original staged briefs (merged scratch-side) and now consumes the seven wave-4 briefs staged in scratch PR #70; the orchestrator screens and merges its delivery PRs at close-out boundaries
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

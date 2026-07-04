@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-07-03\
+**Version:** 1.1.5\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -354,7 +354,7 @@ All of the following must be validated before any application onboards to a prod
 | Security testing | A.8.29 | AIS-05, TVM-07 | VE.1 to VE.3 | All levels | All |
 | Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V3 | A06 |
 | API security | A.8.24 | AIS-08 | N/A | V3, V13 | A01, A02 |
-| AI/ML security | N/A | AICM TVM-12 | N/A |: | OWASP LLM Top 10 |
+| AI/ML security | N/A | AICM TVM-12 | N/A | N/A | OWASP LLM Top 10 |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-07-02\
+**Version:** 1.1.1\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -94,7 +94,7 @@ Exceptions to any requirement in this standard require CISO approval and must be
 
 ## 9. Framework alignment
 
-| Control | NIST SP 800-63B | ISO/IEC 27001 | CSA CCM v4.1 | CIS |
+| Control | NIST SP 800-63B | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS |
 | --- | --- | --- | --- | --- |
 | Password requirements | SP 800-63B §5.1.1 | A.8.5 | IAM-06 | Control 5 |
 | MFA | SP 800-63B §6.3 | A.8.5 | IAM-08 | Control 6 |

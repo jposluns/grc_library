@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-07-03\
+**Date:** 2026-07-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -63,9 +63,9 @@ _98 documents._
 | [compliance/logistics/register-basc-it-responsibilities.md](../compliance/logistics/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.1 | 2026-05-28 |
 | [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.11.9 | 2026-07-03 |
 | [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.4 | 2026-07-02 |
-| [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.4 | 2026-07-03 |
+| [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.5 | 2026-07-04 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.5 | 2026-07-02 |
-| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.7 | 2026-07-03 |
+| [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.8 | 2026-07-04 |
 | [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.7 | 2026-07-03 |
 | [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.5 | 2026-07-03 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.3 | 2026-07-02 |
@@ -73,7 +73,7 @@ _98 documents._
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.2.3 | 2026-07-02 |
 | [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.1.1 | 2026-07-02 |
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.10 | 2026-07-02 |
-| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.12 | 2026-07-03 |
+| [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.13 | 2026-07-04 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.5 | 2026-07-02 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.13 | 2026-07-02 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.24 | 2026-07-03 |
@@ -84,7 +84,7 @@ _98 documents._
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.16.47 | 2026-07-03 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.7 | 2026-07-03 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.14 | 2026-07-03 |
-| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.1 | 2026-06-23 |
+| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.2 | 2026-07-04 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.5 | 2026-07-03 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.4 | 2026-07-03 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.6 | 2026-07-03 |
@@ -125,16 +125,16 @@ _98 documents._
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.1 | 2026-07-02 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.3 | 2026-07-02 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.9 | 2026-07-03 |
-| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.8 | 2026-07-03 |
+| [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.9 | 2026-07-04 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.13 | 2026-07-03 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.6 | 2026-07-03 |
 | [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.1 | 2026-07-02 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.19 | 2026-07-03 |
-| [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.2 | 2026-07-02 |
+| [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.3 | 2026-07-04 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.3 | 2026-07-02 |
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.2.6 | 2026-07-02 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.2 | 2026-07-02 |
-| [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.0 | 2026-07-02 |
+| [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.1 | 2026-07-04 |
 | [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.4.4 | 2026-07-03 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.4 | 2026-07-02 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.11 | 2026-07-03 |
@@ -215,7 +215,7 @@ _177 documents._
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.2 | 2026-07-02 |
 | [governance/procedure-grc-programme-management-and-annual-review.md](../governance/procedure-grc-programme-management-and-annual-review.md) | GRC Programme Management and Annual Review Procedure | Procedure | 1.0.7 | 2026-07-03 |
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.17 | 2026-07-03 |
-| [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.0 | 2026-07-01 |
+| [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.1 | 2026-07-04 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.3 | 2026-07-02 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.0.14 | 2026-07-03 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.0.4 | 2026-07-03 |
@@ -307,20 +307,20 @@ _177 documents._
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.0.4 | 2026-07-02 |
 | [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.2 | 2026-07-02 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.3 | 2026-07-02 |
-| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 1.0.1 | 2026-07-01 |
+| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 1.0.2 | 2026-07-04 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.8 | 2026-07-02 |
 | [security/standard-saas-security-posture-management.md](../security/standard-saas-security-posture-management.md) | SaaS Security Posture Management Standard | Standard | 1.0.4 | 2026-07-02 |
-| [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.2 | 2026-07-01 |
+| [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.3 | 2026-07-04 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.0.4 | 2026-07-02 |
-| [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.3 | 2026-07-02 |
+| [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.4 | 2026-07-04 |
 | [supply-chain/annex-trade-and-supply-chain-continuity-controls.md](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Trade and Supply-Chain Continuity Controls Annex | Annex | 1.0.1 | 2026-07-02 |
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
-| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.1 | 2026-07-02 |
+| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.2 | 2026-07-04 |
 | [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.6 | 2026-07-02 |
 | [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.10 | 2026-07-03 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.6 | 2026-07-02 |
-| [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.1 | 2026-07-02 |
+| [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.2 | 2026-07-04 |
 | [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.4 | 2026-07-02 |
 | [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.6 | 2026-07-02 |
 | [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.3 | 2026-07-02 |
