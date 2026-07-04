@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #642: 3.15 r4 G-3, gate-64 delta-check extension (2026-07-04)
+
+Gate 64 extended with the delta-check half: the section-6.1 D-row table now requires a "Delta gate Dn ..." narrative per row and must match the parity linter's WORKFLOW_DELTA_GATE_STEPS registry exactly in both directions (informational entries exempt), so a stale registry entry for a removed delta check fails loud. Four new fixtures (suite 341).
+
 ### PR #641: 3.15 GR-4, gate 66 unbalanced-fence audit (2026-07-04)
 
 The GR-4 standalone-check half built as gate 66: no scanned markdown file may end inside an open fenced code block (an odd fence count silently suppresses every fence-aware linter's scan of the remainder). Four-surface wiring, section-6 prose pair, section-5 category clause, three fixtures (suite 337); the build-time census found zero unbalanced fences, so the gate is preventive.
