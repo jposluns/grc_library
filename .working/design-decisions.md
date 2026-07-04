@@ -524,3 +524,19 @@ doesn't apply to this session."). The handoff's 2026-07-03 session-closing block
 carrier is marked HISTORICAL in the same batch. The SOP is not re-adopted without a
 fresh maintainer directive; merge cadence reverts to the attended-autonomous default
 (green CI = merge authority, no per-merge usage pause).
+
+## P2 applies re-tiered to a separate Opus 4.8 session (maintainer-directed 2026-07-04)
+
+At the post-#631 pause the maintainer directed that the remaining P2 worker-delivery
+applies (including FR-59 held-source batch PR 2: the Latin America correction, the
+standalone Mexico annex, and the INAI sweep) move to a separate session running
+Opus 4.8, while this session works P1/P3 items (starting with the TODO 1.10 Quebec
+sweep, then the P3 machinery builds). Rationale accepted from the session's own
+assessment: the P2 apply seat is verification-heavy rather than reasoning-heavy, and
+the load-bearing quality layer is the substantive-tier refute-briefed verifier plus
+the per-PR QA, which stay MANDATORY on every apply regardless of the apply seat's
+model (the #631 evidence: the verifier, not the apply seat, caught the Critical
+Quebec confabulation and both orchestrator authoring-drift errors). This supersedes
+the 2026-07-04 morning decision "P2 worker-delivery applies IN THIS SESSION" for the
+applies remaining after #631; the handoff queue statements are reconciled in the same
+batch.
