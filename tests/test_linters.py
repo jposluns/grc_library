@@ -5825,6 +5825,10 @@ class AuditSpecDetailedProseTests(LinterTestCase):
     inventory gate at or above DESCRIPTION_FLOOR (35) needs a
     "Gate N is ..." description sentence and every gate at or above
     APPENDED_FLOOR (47) also a "Gate N is appended ..." sentence.
+    The G-3 delta-check half: when the spec carries a section-6.1
+    "| Dn |" table, every row needs a "Delta gate Dn ..." narrative and
+    the table's Gate cells must match WORKFLOW_DELTA_GATE_STEPS
+    (non-informational entries) exactly, both directions.
     """
 
     SCRIPT = "tools/lint-audit-spec-detailed-prose.py"
@@ -5835,6 +5839,24 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         return (
             "# Spec fixture\n\n## 6. Inventory\n\n"
             "| # | Gate | Script |\n|---|---|---|\n" + table + "\n\n" + prose + "\n"
+        )
+
+    @staticmethod
+    def _delta_section(rows: list[tuple[int, str]], prose: str) -> str:
+        table = "\n".join(
+            f"| D{n} | {name} | `tools/d{n}.py` | GH |" for n, name in rows
+        )
+        return (
+            "\n### 6.1 PR-only delta gates\n\n"
+            "| # | Gate | Script | Surface |\n|---|---|---|---|\n"
+            + table + "\n\n" + prose + "\n\n## 7. Next\n"
+        )
+
+    def _parity(self, entries: list[str]) -> Path:
+        body = ",\n".join(f'    "{e}"' for e in entries)
+        return self.make_fixture(
+            "parity-fixture.py",
+            "WORKFLOW_DELTA_GATE_STEPS = {\n" + body + ",\n}\n",
         )
 
     def test_complete_prose_passes(self) -> None:
@@ -5881,6 +5903,74 @@ class AuditSpecDetailedProseTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         empty = self.make_fixture("spec-prose-empty.md", "# No table here\n")
         result = run_linter(self.SCRIPT, "--spec", empty)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_delta_complete_passes(self) -> None:
+        parity = self._parity(
+            ["Alpha check", "Beta check", "Gamma step (informational)"]
+        )
+        spec = self.make_fixture(
+            "spec-prose-delta-ok.md",
+            self._spec([35], "Gate 35 is a parity audit for the fixture.")
+            + self._delta_section(
+                [(1, "Alpha check"), (2, "Beta check")],
+                "Delta gate D1 enforces alpha. Delta gate D2 enforces beta.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec, "--parity-script", parity)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("2 delta check(s)", result.stdout)
+
+    def test_delta_missing_narrative_fails(self) -> None:
+        parity = self._parity(["Alpha check", "Beta check"])
+        spec = self.make_fixture(
+            "spec-prose-delta-nonarr.md",
+            self._spec([35], "Gate 35 is a parity audit for the fixture.")
+            + self._delta_section(
+                [(1, "Alpha check"), (2, "Beta check")],
+                "Delta gate D1 enforces alpha.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec, "--parity-script", parity)
+        self.assertLinterFails(result, "delta check D2")
+
+    def test_delta_registry_table_mismatch_fails_both_directions(self) -> None:
+        parity = self._parity(["Alpha check", "Beta check"])
+        # Stale registry entry: Beta in registry, no D2 table row.
+        spec = self.make_fixture(
+            "spec-prose-delta-stale.md",
+            self._spec([35], "Gate 35 is a parity audit for the fixture.")
+            + self._delta_section(
+                [(1, "Alpha check")], "Delta gate D1 enforces alpha."
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec, "--parity-script", parity)
+        self.assertLinterFails(result, "delta registry")
+        # Unregistered table row: D2 in table, absent from registry.
+        parity_short = self.make_fixture(
+            "parity-fixture-short.py",
+            'WORKFLOW_DELTA_GATE_STEPS = {\n    "Alpha check",\n}\n',
+        )
+        spec2 = self.make_fixture(
+            "spec-prose-delta-unreg.md",
+            self._spec([35], "Gate 35 is a parity audit for the fixture.")
+            + self._delta_section(
+                [(1, "Alpha check"), (2, "Beta check")],
+                "Delta gate D1 enforces alpha. Delta gate D2 enforces beta.",
+            ),
+        )
+        result = run_linter(
+            self.SCRIPT, "--spec", spec2, "--parity-script", parity_short
+        )
+        self.assertLinterFails(result, "delta table")
+
+    def test_delta_heading_without_rows_errors(self) -> None:
+        spec = self.make_fixture(
+            "spec-prose-delta-headonly.md",
+            self._spec([35], "Gate 35 is a parity audit for the fixture.")
+            + "\n### 6.1 PR-only delta gates\n\nNo table yet.\n\n## 7. Next\n",
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec)
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
 
 
