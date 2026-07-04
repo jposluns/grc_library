@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.12\
-**Date:** 2026-07-03\
+**Version:** 1.3.13\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -138,7 +138,7 @@ The renewal number and the approving authority must be recorded on the exception
 
 ## 6. Compliance mapping table
 
-| Control Area | ISO/IEC 27001 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO/IEC 27001:2022 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
 | Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Step 6 | SOX, GDPR Article 32 Accountability | WCO SAFE equivalence |
 | Risk assessment and approval | Clause 6 and ISO 31000 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Step 3 | PIPEDA, AIDA | WCO SAFE equivalence |

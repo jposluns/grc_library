@@ -128,10 +128,9 @@ Cross-document consistency cleanup and routine development / quality tooling: lo
 
 ### 3.1 Sweep 3 follow-up: cross-document term/identifier consistency (L, S)
 
-Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep closes the open items meanwhile.
+Cross-document term-and-identifier consistency gap (the prose-and-numbering C3 surface mechanical gates 35/39/41 don't cover). Candidate for a future mechanical gate; a manual sweep works the items meanwhile. **Both original bullets (the edition-explicit `ISO/IEC 27001:2022` header harmonization, 9 headers found and fixed; the stray-punctuation cells, all 7 recorded cells plus the supply-chain matrix's mangled legend line fixed) SHIPPED in the 2026-07-04 sweep PR**; the section stays open on the residual below.
 
-- Framework-table edition-explicit ISO/IEC 27001 headers (routed from the #601 sweep adjudication 7b, 2026-07-03): the corpus mixes edition-explicit `ISO/IEC 27001:2022` column headers (at least 7 tables) with edition-implicit `ISO/IEC 27001` (at least 6, e.g. the IAM policy, exception-management, change-management, vuln-management, threat-modelling, version-upgrade). Values are self-disambiguating 2022 Annex A codes, so this is consistency, not correctness; harmonize to edition-explicit in one small sweep PR rather than per-file drive-bys.
-- Framework-table stray-punctuation cells (routed from the #602 false-negative verifier's corpus candidates, 2026-07-03): five corpus body-row cells hold a lone `:` where a mapping or `N/A` belongs (`dev-security/standard-developer-security-requirements.md` line 357, `dev-security/standard-security-baseline-and-standards-reference.md` line 231, `security/standard-security-awareness-and-training.md` line 100, `supply-chain/matrix-supply-chain-security-programme-alignment.md` line 64, `supply-chain/procedure-supplier-ongoing-monitoring.md` line 79), plus two gate-exempt pack siblings (`dev-security/claude-rules/ai/agent-security.md` line 125, `dev-security/claude-rules/ai/mcp-security.md` line 124). Same class as the cells fixed in #602 (the data-classification `:` and the logging-standard `,` pair); fix in one small sweep PR, adjudicating each cell to `N/A` or a real mapping.
+- Sibling `/IEC`-form inconsistency (surfaced by the 2026-07-04 sweep census; needs maintainer scoping before any fix): 13 framework-table header rows in 3 files write `ISO 27001:2022` without `/IEC` (11 of them the repeated per-domain header of the FR-167 compliance matrix, a sensitive single-file artefact), and 3 more headers use the combined edition-implicit form `ISO 27001/27002` (16 short-form rows across 6 files in total; the gate-exempt `dev-security/claude-rules/` pack tree carries its own bare `ISO 27001` headers and is deliberately outside this census frame) (`dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/standard-security-baseline-and-standards-reference.md`). Values are correct; this is form consistency only. Decide whether to harmonize to the full `ISO/IEC 27001:2022` form (the matrix edit alone is 11 header rows) or accept the short form as a standing style; not folded into the shipped sweep to avoid silent scope expansion onto the matrix.
 
 ### 3.4 Backlog effort-sizing labels convention (M, S) (was 4.2)
 
@@ -203,7 +202,7 @@ Stand up the INPUT half of the multi-session capability (its codification closed
 
 1. **Slice 4, the `/subagent` slash command** as the external-worker entry point (read the assigned brief, claim it in `claims-ledger.md`, read the named main-repo files read-only, produce findings, deliver to `inbox/`, stop; **read-only-on-main MUST be enforced by the worker GitHub account's permissions, not by the prompt**, a prompt is not a security boundary per [`.claude/rules/secrets.md`](.claude/rules/secrets.md)) plus the maintainer-facing quick start in the runbook (provision the account, point the worker session at scratch, assign a brief, collect from `inbox/<worker-id>/`; maintainer-suggested 2026-07-02).
 
-**Gating maintainer action**: provision the least-privilege worker account (read `grc_library` / write `grc_library_scratch` only). In-session `Agent` fan-out works today (shares the orchestrator's credentials, spends its budget); the external-worker path needs the account; slices 2 and 5 are useful before the account exists (maintainer-launched second-account sessions per the scratch `WORKER-ONBOARDING.md` can consume briefs today). **Partitionability**: unchanged; a corpus-wide sweep, rename, or single matrix stays single-session and gets a verdict, never a brief. **The apply stage stays single-session with full QA regardless** (the validate-then-apply no-bypass invariant: worker provenance never reduces the QA a change receives). Pairs with the closed section-3.6 codification (see the DONE ledger) and §2.11 (the publications-assessment process).
+**Gating maintainer action**: provision the least-privilege worker account (read `grc_library` / write `grc_library_scratch` only). In-session `Agent` fan-out works today (shares the orchestrator's credentials, spends its budget); the external-worker path needs the account; slices 2 and 5 are useful before the account exists (maintainer-launched second-account sessions per the scratch `WORKER-ONBOARDING.md` can consume briefs today). **Partitionability**: unchanged; a corpus-wide sweep, rename, or single matrix stays single-session and gets a verdict, never a brief. **The apply stage stays single-session with full QA regardless** (the validate-then-apply no-bypass invariant: worker provenance never reduces the QA a change receives). **Seed-gap re-assessment (standing, maintainer-adopted 2026-07-04)**: at every close-out coverage sync, any not-eligible coverage row whose recorded reason names a decision or source that has since resolved gets a fresh verdict or a staged brief in the same sync; the operative convention text lives in the scratch coverage index header (first applied in the wave-4 seeding, scratch PR #70, which staged seven decision-unlocked briefs from the maintainer's 2026-07-04 overnight-prep round). Pairs with the closed section-3.6 codification (see the DONE ledger) and §2.11 (the publications-assessment process).
 
 ### 4.5 Fork-facing guidance + scripts for building an own reference base (L, L) — maintainer-directed 2026-06-27 (was 4.21)
 
@@ -222,7 +221,7 @@ Low urgency (maintainer flagged it as deferred, "a priority 5 item"); it is file
 
 ### 4.6 Adopter-experience enhancements (audit 2026-07-02, S-a..S-e; FYI/L, XS-M) — suggestions for maintainer triage
 
-Fresh-reader suggestions from the 2026-07-02 audit's persona pass; factual basis re-validated. These are enhancement suggestions (not defects); the maintainer triages which to pursue.
+Fresh-reader suggestions from the 2026-07-02 audit's persona pass; factual basis re-validated. These are enhancement suggestions (not defects); the maintainer triages which to pursue. **Triage state 2026-07-04: S-c and S-d ACCEPTED by the maintainer** (research briefs staged in scratch, `research/s-c-adopter-direction-demo/` and `research/s-d-multi-entity-adoption/`, each owning one NEW `docs/` document; the builds apply through the normal validate-then-apply pipeline when the deliveries land); S-a, S-b, and S-e remain awaiting triage.
 
 - **(S-a, L, M) Portal audience + maturity tags.** [`docs/portal.md`](docs/portal.md) has audience sections for CIO/CISO/GRC/architecture/privacy/compliance/audit/resilience/engineering but no Board/CEO section, and entries carry no inline maturity/status tag, so Draft v0.x annexes are indistinguishable from mature docs.
 - **(S-b, XS) decision-tree unreachable from README.** [`docs/decision-tree.md`](docs/decision-tree.md) (the stated reading order) is not linked from the [`README.md`](README.md) routing table (reachable only via the portal). Add a routing-table link.
@@ -248,7 +247,7 @@ Adding new coverage to existing domains. Each subitem is a separate small or med
 
 ### 5.1 AI jurisdiction annexes (FR-62, M, S)
 
-AI jurisdiction annexes absent. (Cross-references P5.9.) **Reference-base aid (2026-06-27 scratch-review S-8)**: `grc_library_scratch/ref/legislation/` holds the Colorado AI Act and EU AI Act full-text, and `ref/frameworks/ETSI/` holds the Securing-AI TR/GR set + EN 304 223 (AI baseline); ground the US-state and EU AI-annex authoring in those held sources.
+AI jurisdiction annexes absent. (Cross-references P5.9.) **Shape DECIDED 2026-07-04 (maintainer): a new `ai/jurisdictions/` subdirectory mirroring the `privacy/jurisdictions/` precedent, founded by the two held-source annexes (EU AI Act, Colorado AI Act), both carved out from the fr-41 work-unit's targets; research briefs staged in scratch (`research/fr-62-eu-ai-act-annex/`, `research/fr-62-colorado-ai-act-annex/`).** Remaining jurisdictions stay source-gated (see P5.9's candidate list). **Reference-base aid (2026-06-27 scratch-review S-8)**: `grc_library_scratch/ref/legislation/` holds the Colorado AI Act and EU AI Act full-text, and `ref/frameworks/ETSI/` holds the Securing-AI TR/GR set + EN 304 223 (AI baseline); ground the US-state and EU AI-annex authoring in those held sources.
 
 ### 5.2 Logistics country / programme expansion (was 5.1)
 
@@ -260,7 +259,7 @@ Within `compliance/financial-services/`: UK PRA / FCA (`annex-uk-pra-fca.md`); U
 
 ### 5.4 Healthcare country regulator overlays (was 5.3)
 
-Within `compliance/healthcare/`: US HIPAA detail (Privacy/Security/Breach-Notification Rules, HITECH); UK NHS DSPT; EU MDR / IVDR; Canada PHIPA and provincial frameworks; Australia My Health Records Act.
+Within `compliance/healthcare/`: US HIPAA detail (Privacy/Security/Breach-Notification Rules, HITECH); UK NHS DSPT; EU MDR / IVDR; Canada PHIPA and provincial frameworks; Australia My Health Records Act. **US HIPAA bullet UNLOCKED 2026-07-04 (maintainer): carved out of the delivered fr-60 work-unit as its own NEW US annex; research brief staged in scratch (`research/us-hipaa-healthcare-deepening/`, held HIPAA 45 CFR 160/162/164 plus NIST SP 800-66r2).** The other bullets stay source-gated (HITECH rides the US annex where the held CFR text supports it).
 
 ### 5.5 Energy and utilities country regulator overlays (was 5.4)
 
@@ -272,15 +271,15 @@ Within `compliance/telecommunications/`: EU EECC; UK Ofcom telecom security fram
 
 ### 5.7 Public-sector country / regulator overlays (was 5.6)
 
-Within `compliance/public-sector/`: UK Government Cyber Security Strategy and GovAssure; Australia ISM and PSPF; Canada IT Standards for federal departments; EU eIDAS public-sector authentication.
+Within `compliance/public-sector/`: UK Government Cyber Security Strategy and GovAssure; Australia ISM and PSPF; Canada IT Standards for federal departments; EU eIDAS public-sector authentication. **EU eIDAS bullet UNLOCKED 2026-07-04 (maintainer): a NEW eIDAS2 annex mirroring the FedRAMP annex shape; research brief staged in scratch (`research/eidas2-public-sector-annex/`, held eIDAS2 Regulation 2024/1183).** The other bullets stay source-gated.
 
 ### 5.8 Privacy jurisdiction gaps (was 5.7)
 
-Existing privacy domain covers 25 country annexes. Known gaps or stale entries: Argentina (PDPA 2025 update pending); Saudi Arabia PDPL (recent updates pending); Mexico LFPDPPP (standalone annex possible); re-review of EU member-state derogations where applicable.
+Existing privacy domain covers 25 country annexes. Known gaps or stale entries: Argentina (PDPA 2025 update pending); Saudi Arabia PDPL (recent updates pending); re-review of EU member-state derogations where applicable. **Mexico bullet UNLOCKED 2026-07-04 (maintainer): a standalone `annex-privacy-mexico.md`; research brief staged in scratch (`research/mexico-lfpdppp-privacy-annex/`, held LFPDPPP full text; fr-59's latin-america annex read-only in the partition).** The Argentina and Saudi bullets stay source-gated.
 
 ### 5.9 AI jurisdiction overlays (was 5.8)
 
-The library cites EU AI Act extensively but lacks a dedicated `ai/jurisdictions/` subdirectory parallel to `privacy/jurisdictions/`. Candidates: EU AI Act detailed annex; Canada AIDA; UK AI policy framework; US state-by-state AI laws (Colorado AI Act, NYC bias audit law); China generative AI rules; Korea AI framework.
+The library cites EU AI Act extensively but lacked a dedicated `ai/jurisdictions/` subdirectory parallel to `privacy/jurisdictions/`. **The subdirectory shape and its first two annexes (EU AI Act, Colorado AI Act) were decided and briefed 2026-07-04 with P5.1 (one decision, one brief pair; see P5.1 for the staged-brief paths).** Remaining candidates, all source-gated pending maintainer drops: Canada AIDA; UK AI policy framework; NYC bias audit law; China generative AI rules; Korea AI framework.
 
 ---
 
