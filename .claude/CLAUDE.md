@@ -159,11 +159,12 @@ drive end-to-end on the maintainer's behalf:
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
    <branch>`. Run the guard STANDALONE and UNPIPED (never `guard | tail && push` or any
    other pipe): a pipe masks the guard's exit code so the chained push proceeds past a
-   failing guard, the RM-10 failure shape (six pipe-masked incidents: #569, #583, the
+   failing guard, the RM-10 failure shape (seven pipe-masked incidents: #569, #583, the
    #608 push, a fourth self-caught before the #615 push, a fifth display-only pipe
-   self-caught before the post-#618 branch push, and a sixth post-commit
+   self-caught before the post-#618 branch push, a sixth post-commit
    `run_all_audits | tail` with a pipe-masked exit capture, self-caught in the slice-3
-   build). Read the guard's own terminal PASS/FAIL line before
+   build, and a seventh post-amend `run_all_audits | tail` self-caught and re-run
+   unpiped in the #628 build). Read the guard's own terminal PASS/FAIL line before
    relying on the chain. On a green guard, open the PR via `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` below; on failure, fix and re-push.
