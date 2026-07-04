@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.22\
-**Date:** 2026-07-03\
+**Version:** 1.4.23\
+**Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -336,7 +336,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay following regulatory notification | ≥ 95% |
 | **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 5 business days of closure | ≥ 95% |
 | **Corrective Action Closure Rate (%)** | Percentage of PIR-identified corrective actions closed within their agreed deadline | ≥ 90% |
-| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organization within 24 hours of the *supplier's* awareness of the breach (per GDPR Article 33(2); see §6.3) | Tracked; persistent non-compliance triggers contract review |
+| **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organization within 24 hours of the *supplier's* awareness of the breach (the contractual operationalization of GDPR Article 33(2)'s "without undue delay" standard; see §6.3) | Tracked; persistent non-compliance triggers contract review |
 
 ---
 

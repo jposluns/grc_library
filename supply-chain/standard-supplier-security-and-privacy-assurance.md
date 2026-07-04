@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-07-02\
+**Version:** 1.1.7\
+**Date:** 2026-07-04\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -88,7 +88,7 @@ For any supplier that processes personal data on behalf of the organization, the
 | Technical and organizational measures proportionate to risk | GDPR Article 32; UK GDPR | TOM schedule or statement |
 | Sub-processor notification and approval process | GDPR Article 28(2); UK GDPR | Sub-processor clause in DPA; sub-processor list |
 | Individual rights support: DSAR assistance | GDPR Articles 12 to 23; UK GDPR | Contractual commitment; process evidence |
-| Data breach notification within 24 hours of awareness | GDPR Article 33(2); UK GDPR | DPA notification clause |
+| Data breach notification within 24 hours of awareness (the contractual operationalization of the without-undue-delay standard) | GDPR Article 33(2); UK GDPR | DPA notification clause |
 | Data return or secure deletion on contract end | GDPR Article 28(3)(g); UK GDPR | DPA termination clause; deletion certificate capability |
 | Compliance audit support | GDPR Article 28(3)(h); UK GDPR | Audit rights clause in DPA |
 
