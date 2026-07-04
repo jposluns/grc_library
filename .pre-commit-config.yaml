@@ -395,7 +395,7 @@ repos:
         always_run: true
 
       - id: lint-document-control-codes
-        name: Per-document control-code validity audit
+        name: Per-document NIST CSF 2.0 control-code validity audit
         entry: python3 tools/lint-document-control-codes.py
         language: system
         pass_filenames: false

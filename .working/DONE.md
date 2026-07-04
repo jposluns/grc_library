@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #640: 3.15 GR-DRIFT-1, gate-54 four-surface rename (2026-07-04)
+
+Gate 54 renamed to "Per-document NIST CSF 2.0 control-code validity audit" across the four parity surfaces plus the section-6 narrative opener and section-5 grouped-list phrase, matching its docstring's actual NIST-CSF-2.0-only scope (the sibling gate-58 naming pattern). Name approved at the morning round; not previously an FR-keyed item.
+
 ### PR #639: TODO 3.21 build-only half, citation and naming hygiene (2026-07-04)
 
 Three validated fixes shipped: ERC expanded at first use in the vulnerability-management procedure; the non-matrix legacy C-TPAT occurrence normalized to CTPAT; the fresh-reader skill's reciprocal See-Also link to the fitness skill (pack 1.54.1). The fourth, FQ-B1, descoped at the verifier-loop cap (maintainer decision); 3.21 rescoped in place to its three decision-parked residuals.

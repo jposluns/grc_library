@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T21:08:01Z
+**Last-heartbeat-UTC:** 2026-07-04T21:52:24Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #638 MERGED with full QA; #639 in flight on claude/citation-naming-hygiene-2r8kn2 (TODO 3.21 build-only half + the #638 sweep fold, carrying the #638 QA batch); then the P3 machinery queue (eight maintainer decisions asked in chat, non-blocking)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #639 MERGED with full QA (incl. the FQ-B1 loop-cap descope, maintainer-decided); #640 in flight on claude/gate54-rename-2r8kn2 (the GR-DRIFT-1 gate-54 rename, carrying the #639 QA batch); then GR-4, G-3, G-4, GR-GAP-1 and the remaining P3 queue
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
