@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.6\
-**Date:** 2026-07-02\
+**Version:** 1.8.7\
+**Date:** 2026-07-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -758,13 +758,13 @@ This section governs autonomous and semi-autonomous production action. It does n
 | Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1 | NIST AI RMF |
 | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01 | AML.T0051 | AI-TM-01 to 05 | GOVERN 1.1 |
-| Supply chain | LLM03 | AML.T0010 to T0013 | AI-SC-01 to 08 | MANAGE 2.2 |
+| Supply chain | LLM03 | AML.T0010 | AI-SC-01 to 08 | MANAGE 2.2 |
 | Sensitive data disclosure | LLM02 | N/A | AI-PP-01 to 05 | MAP 1.6 |
-| Tool misuse / overreach | LLM06 | AML.T0048 | AI-TM-08 | GOVERN 2.2 |
+| Tool misuse / overreach | LLM06 | AML.T0053 | AI-TM-08 | GOVERN 2.2 |
 | Unsafe code generation | LLM05 | N/A | AI-SC-05 | MAP 1.1 |
 | Excessive agency | LLM06 | N/A | AI-AU-01 to 06 | MANAGE 1.3 |
 | Overreliance | LLM09 | N/A | AI-EC-01 | MANAGE 4.1 |
-| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0037 | AI-SC-06 | N/A |
+| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0029, AML.T0034 | AI-SC-06 | N/A |
 | Hallucination/output validation | LLM09 | N/A | AI-EC-03 | MAP 3.5 |
 
 

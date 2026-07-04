@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T19:36:40Z
+**Last-heartbeat-UTC:** 2026-07-04T19:52:39Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 MERGED (bcb68c2, delta gate D7, full QA: two verifier rounds incl. the dogfood self-catch, /validate-pr zero findings); #635 in flight on claude/rm10-selftest-wiring-2r8kn2 (TODO 1.9(d) self-test wiring + the no-long-check-ins CLAUDE.md codification, carrying the #634 QA batch); then the remaining P3 queue (seven maintainer decisions asked in chat, non-blocking)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 (delta gate D7) and #635 (1.9(d) self-test wiring + no-long-check-ins codification) MERGED with full QA, both zero-finding sweeps; #636 in flight on claude/atlas-id-currency-2r8kn2 (TODO 3.18 corpus half, the ATLAS technique-ID currency fix, carrying the #635 QA batch); then the remaining P3 queue (seven maintainer decisions asked in chat, non-blocking)
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
