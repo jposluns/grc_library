@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-03T23:10:54Z
+**Last-heartbeat-UTC:** 2026-07-03T23:54:00Z
 
-**Current-task:** RM-10 hardening PR #620 close-out (section 1.9 (a)+(b); next: the #617 recorded queue, S3 design round first)
+**Current-task:** S3 PR A close-out (claim-precision triage tool; PR B, the claim-fit skill, queued next alongside the P3 batch)
 
 **Worker-dispatches:** four in-session research subagents (waves 2 and 3 seed drafting) COMPLETE and applied; one EXTERNAL worker session live (maintainer-launched 2026-07-03, maintainer's standard account, read-only-on-main prompt constraints), consuming staged briefs from scratch and delivering via "Worker delivery" scratch PRs the orchestrator validates and applies
 
