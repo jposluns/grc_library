@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T21:52:24Z
+**Last-heartbeat-UTC:** 2026-07-04T22:21:46Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #639 MERGED with full QA (incl. the FQ-B1 loop-cap descope, maintainer-decided); #640 in flight on claude/gate54-rename-2r8kn2 (the GR-DRIFT-1 gate-54 rename, carrying the #639 QA batch); then GR-4, G-3, G-4, GR-GAP-1 and the remaining P3 queue
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #640 MERGED with full QA; #641 in flight on claude/gr4-fence-gate-2r8kn2 (gate 66, the GR-4 unbalanced-fence audit, carrying the #640 QA batch); then G-3, G-4, GR-GAP-1 and the remaining P3 queue
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 

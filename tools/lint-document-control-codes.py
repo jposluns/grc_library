@@ -18,8 +18,8 @@ Scope (deliberately bounded, precision-first):
   * **NIST CSF 2.0 only.** ISO/IEC 27001:2022 Annex A codes that appear in
     per-document tables are NOT validated here (the matrix's ISO column is
     covered by gate 49; per-document ISO codes appear as clause refs and
-    ranges that are far more false-positive-prone, and are a separate
-    follow-up). This audit validates exactly the framework whose stale
+    ranges that are far more false-positive-prone, and are now covered
+    by the sibling gate 58, ``lint-document-iso-annex-a.py``). This audit validates exactly the framework whose stale
     codes are the documented DD-12 defect class.
 
   * **NIST-labelled table cells only.** A code is validated only when it
