@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #639: TODO 3.21 build-only half, citation and naming hygiene (2026-07-04)
+
+Three validated fixes shipped: ERC expanded at first use in the vulnerability-management procedure; the non-matrix legacy C-TPAT occurrence normalized to CTPAT; the fresh-reader skill's reciprocal See-Also link to the fitness skill (pack 1.54.1). The fourth, FQ-B1, descoped at the verifier-loop cap (maintainer decision); 3.21 rescoped in place to its three decision-parked residuals.
+
 ### PR #638: TODO 3.20 startup-roadmap module-count fix (2026-07-04)
 
 The two live 23-module carriers corrected to the roadmap's actual 24 module subheadings (E0 added after the count was authored): the hardcoded string in the portal generator (with regen) and the quickstart line. The frozen historical CHANGELOG carrier left per the no-retroactive-edits convention.

@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T20:51:58Z
+**Last-heartbeat-UTC:** 2026-07-04T21:08:01Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #637 MERGED with full QA; #638 in flight on claude/module-count-fix-2r8kn2 (TODO 3.20 module-count fix + the #637 sweep fold, carrying the #637 QA batch); then 3.21 and the P3 machinery queue (eight maintainer decisions asked in chat, non-blocking)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #638 MERGED with full QA; #639 in flight on claude/citation-naming-hygiene-2r8kn2 (TODO 3.21 build-only half + the #638 sweep fold, carrying the #638 QA batch); then the P3 machinery queue (eight maintainer decisions asked in chat, non-blocking)
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
