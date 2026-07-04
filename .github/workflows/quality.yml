@@ -180,7 +180,7 @@ jobs:
       - name: Corpus-to-project directional-dependency audit
         run: python3 tools/lint-directional-dependency.py
 
-      - name: Per-document control-code validity audit
+      - name: Per-document NIST CSF 2.0 control-code validity audit
         run: python3 tools/lint-document-control-codes.py
 
       - name: Cross-document retention-consistency audit

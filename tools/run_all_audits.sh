@@ -149,7 +149,7 @@ run_gate "Bookkeeping-parity audit"                      python3 tools/lint-book
 run_gate "Working-tree prose-hygiene audit"              python3 tools/lint-working-prose-hygiene.py
 run_gate "Directory-scan-scope parity audit"             python3 tools/lint-scan-scope-parity.py
 run_gate "Corpus-to-project directional-dependency audit" python3 tools/lint-directional-dependency.py
-run_gate "Per-document control-code validity audit"      python3 tools/lint-document-control-codes.py
+run_gate "Per-document NIST CSF 2.0 control-code validity audit" python3 tools/lint-document-control-codes.py
 run_gate "Cross-document retention-consistency audit"    python3 tools/lint-retention-consistency.py
 run_gate "Bare-normative-shall audit"                    python3 tools/lint-bare-normative-shall.py
 run_gate "Backlog marked-done audit"                        python3 tools/lint-todo-marked-done.py
