@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-04, Library Version 2026.07.126, PR #638
+
+TODO section 3.20 closed, the startup-roadmap module-count fix (the worker QA run's validated FIT-5): the roadmap carries 24 module subheadings (E0 added after the count was authored) but two live surfaces said 23; the hardcoded string in [`tools/build-portal.py`](tools/build-portal.py) is corrected with [`docs/portal.md`](docs/portal.md) regenerated, and [`docs/template-quickstart.md`](docs/template-quickstart.md) (`3.0.6` to `3.0.7`) carries the same one-word fix; a bare-token corpus grep confirms zero further live `23 modules` carriers (the third carrier is a frozen historical CHANGELOG entry, left per the no-retroactive-edits convention). Also folds the #637 `/validate-pr` in-window fix (the new TODO 3.25 acronym list corrected from five to six, adding the bare-AI residual with the lexicalized-word alternative adjudication recorded inline) and carries the #637 QA batch per recursion-avoidance and the handoff/lease reconcile.
+
+### Fixed
+
+- [`tools/build-portal.py`](../../tools/build-portal.py) line 339's hardcoded portal row: `23 modules` to `24 modules`, with [`docs/portal.md`](../../docs/portal.md) regenerated (generator-plus-regen, per the generated-artefact discipline); the module count verified by heading census (`#### <ID>:` subheadings: A1-A6, B1-B6, C1-C3, D1-D4, E0-E4 = 24).
+- [`docs/template-quickstart.md`](../../docs/template-quickstart.md) `3.0.6` to `3.0.7` (Date co-bumped): the line-57 pointer's `23 modules` corrected to 24.
+- [`TODO.md`](../../TODO.md) 3.25 (the #637 post-merge sweep's in-window Low, folded here per recursion-avoidance): the acronym list corrected from five to six, adding bare AI (carrier lines 53/91/237 plus the line-99 compound) with the alternative lexicalized-word adjudication recorded as the applier's call.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) 3.20 deleted and rotated to [`.working/DONE.md`](../DONE.md).
+- The #637 QA batch rides per recursion-avoidance: [`.working/validate-pr/2026-07-04-PR-637.md`](../validate-pr/2026-07-04-PR-637.md) (new record, findings-producing) with history `1.2.416`; [`.working/improvement-log.md`](../improvement-log.md) `1.0.362` (the #637 retro row: the figure-drift family now the re-tier stretch's dominant escape class, folded to the EXPEDITE evidence base).
+- [`.working/session-handoff.md`](../session-handoff.md) Current-truth reconcile; [`.working/session-state.md`](../session-state.md) heartbeat re-stamp.
+
+### Verification
+
+- The heading census and the bare-token zero-residual grep quoted above, both run at authoring time from the artefact; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green pre-commit; [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) standalone post-commit with direct exit capture (gate 34 validating the regenerated portal); no standing verifier (quick-fix tier: two single-value count corrections plus records; the post-merge sweep covers it); [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) STANDALONE and UNPIPED before push (D7 firing on the handoff reconcile).
+
 ## 2026-07-04, Library Version 2026.07.125, PR #637
 
 TODO section 3.19 closed, the decision-tree hygiene bundle (the worker QA run's validated FIT-1 + FIT-2 + FIT-6): [`docs/decision-tree.md`](docs/decision-tree.md) (`1.0.12` to `1.0.13`) drops the two maintainer-internal PR/FR provenance parentheticals from adopter-facing prose (provenance lives in the CHANGELOG), expands FMI and 3PL at first use, and gains a size-band note reconciling its "Small (under 50 employees)" reading-path band with the [`docs/adopter-guide.md`](docs/adopter-guide.md) Tier 1 sizing cue ("under approximately 200 staff"), two previously-unstated distinct axes; [`governance/register-glossary.md`](governance/register-glossary.md) (`1.4.6` to `1.4.7`) gains the FMI row (financial market infrastructure, per the CPMI-IOSCO PFMI) and a new 0-9 section with the 3PL row, so the two expanded acronyms now resolve in the glossary (five other decision-tree acronyms remain unresolvable there, queued as a follow-up with the two gate-widening residuals the pre-push verifier surfaced). Carries the #636 QA batch per recursion-avoidance and the handoff/lease reconcile.

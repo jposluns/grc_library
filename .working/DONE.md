@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #638: TODO 3.20 startup-roadmap module-count fix (2026-07-04)
+
+The two live 23-module carriers corrected to the roadmap's actual 24 module subheadings (E0 added after the count was authored): the hardcoded string in the portal generator (with regen) and the quickstart line. The frozen historical CHANGELOG carrier left per the no-retroactive-edits convention.
+
 ### PR #637: TODO 3.19 decision-tree hygiene bundle (2026-07-04)
 
 Three validated fresh-reader defects closed: maintainer-internal PR/FR provenance parentheticals stripped from the decision tree's adopter-facing prose; FMI and 3PL expanded at first use with new glossary rows (a 0-9 section added for 3PL); a size-band note reconciling the tree's under-50 Small band with the adopter guide's under-200 Tier 1 cue.
