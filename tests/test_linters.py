@@ -5598,6 +5598,72 @@ class CobitIso31000CitationsTests(LinterTestCase):
         )
 
 
+class AuditSpecDetailedProseTests(LinterTestCase):
+    """tools/lint-audit-spec-detailed-prose.py (gate 64)
+
+    Presence check for the audit spec's per-gate detailed prose: every
+    inventory gate at or above DESCRIPTION_FLOOR (35) needs a
+    "Gate N is ..." description sentence and every gate at or above
+    APPENDED_FLOOR (47) also a "Gate N is appended ..." sentence.
+    """
+
+    SCRIPT = "tools/lint-audit-spec-detailed-prose.py"
+
+    @staticmethod
+    def _spec(rows: list[int], prose: str) -> str:
+        table = "\n".join(f"| {n} | Gate {n} name | `tools/g{n}.py` |" for n in rows)
+        return (
+            "# Spec fixture\n\n## 6. Inventory\n\n"
+            "| # | Gate | Script |\n|---|---|---|\n" + table + "\n\n" + prose + "\n"
+        )
+
+    def test_complete_prose_passes(self) -> None:
+        spec = self.make_fixture(
+            "spec-prose-ok.md",
+            self._spec(
+                [34, 35, 47],
+                "Gate 35 is a parity audit for the fixture. "
+                "Gate 47 is a listing audit for the fixture. "
+                "Gate 47 is appended at the tail.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_missing_description_fails(self) -> None:
+        spec = self.make_fixture(
+            "spec-prose-nodesc.md",
+            self._spec(
+                [35, 47],
+                "Gate 47 is a listing audit for the fixture. "
+                "Gate 47 is appended at the tail.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("gate 35", result.stdout)
+
+    def test_missing_appended_sentence_fails(self) -> None:
+        spec = self.make_fixture(
+            "spec-prose-noapp.md",
+            self._spec(
+                [47],
+                "Gate 47 is a listing audit for the fixture.",
+            ),
+        )
+        result = run_linter(self.SCRIPT, "--spec", spec)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("appended", result.stdout)
+
+    def test_below_floor_gates_exempt_and_no_rows_error(self) -> None:
+        spec = self.make_fixture("spec-prose-floor.md", self._spec([12, 34], ""))
+        result = run_linter(self.SCRIPT, "--spec", spec)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        empty = self.make_fixture("spec-prose-empty.md", "# No table here\n")
+        result = run_linter(self.SCRIPT, "--spec", empty)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+
 class TodoRotationOnPrTests(unittest.TestCase):
     """tools/check-todo-rotation-on-pr.py (delta gate D5)
 

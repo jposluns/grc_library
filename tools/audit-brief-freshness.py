@@ -214,8 +214,8 @@ def self_test():
             self.assertEqual(
                 SECTION_ANCHOR_RE.search("Item, §2.10 ").group(1), "2.10")
             self.assertEqual(
-                SR_ANCHOR_RE.search("SR-5 ETSI (scratch item 32)").group(1),
-                "5")
+                SR_ANCHOR_RE.search("SR-3 validate.py binary-scan gaps").group(1),
+                "3")
 
         def test_merge_pr(self):
             self.assertEqual(MERGE_PR_RE.findall("x (#618)\ny (#51)"),

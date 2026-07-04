@@ -30,6 +30,11 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #625: GR-6: gate 64, audit-spec detailed-prose presence audit; SR-5 closed by refutation (2026-07-04)
+
+Two items closed: the GR-6 section-3.15 bullet shipped as gate 64 (`lint-audit-spec-detailed-prose.py`, floors 35/47, with the gates 43/44 description backfill and the four-surface wiring), and SR-5 closed by refutation (the maintainer-supplied fresh EN 304 223 V2.1.1 copy confirmed the held item's designation was correct; scratch PR #100). Third and fourth resolutions of the 2026-07-04 overnight run.
+
+
 ### PR #624: r3 O-F1: gate-18 trailing-link cross-doc seam closed (2026-07-04)
 
 One section-3.15 bullet closed: `lint-intra-doc-refs.py`'s cross-doc filter extended with a trailing 60-char window (mirroring gate 62's bidirectional link adjacency) plus a regression fixture, so a `see section 5.4 in [foo](foo.md)` line is claimed by the cross-doc side on both gates. Second build-only pick of the 2026-07-04 overnight run; also adds the four wave-6 ad-hoc-brief TODO items and the P6 research-state notes.
