@@ -240,6 +240,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-pack-readme-cobump-on-pr.py
 
+      - name: Handoff-snapshot freshness check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-handoff-snapshot-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
