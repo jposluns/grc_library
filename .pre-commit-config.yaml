@@ -463,3 +463,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: lint-audit-spec-detailed-prose
+        name: Audit-spec detailed-prose presence audit
+        entry: python3 tools/lint-audit-spec-detailed-prose.py
+        language: system
+        pass_filenames: false
+        always_run: true

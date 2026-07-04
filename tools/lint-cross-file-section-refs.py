@@ -41,7 +41,11 @@ false-positive source in the survey):
   numbered reference to an unnumbered document is not a stale-heading
   case (mirrors ``lint-intra-doc-refs.py``'s early return).
 - Bare references with no adjacent link and no active binding: the
-  intra-document gate owns those.
+  intra-document gate owns those, except for the accepted heuristic
+  band a link 41-60 chars from the reference occupies (outside this
+  gate's 40-char adjacency window, inside gate 18's 60-char cross-doc
+  disclaim window; documented in ``lint-intra-doc-refs.py``'s
+  docstring, symmetric on both sides of the reference).
 - Name-based references and range second endpoints: no (second) number
   to resolve.
 
