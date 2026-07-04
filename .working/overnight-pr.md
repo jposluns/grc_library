@@ -1,6 +1,12 @@
 # Overnight PR
 
-**Status:** stub
+**Status:** in-flight
+
+## 2026-07-04 overnight run
+
+**Authorization (maintainer, 2026-07-04, "I am going to sleep in a few minutes. Change to overnight mode"), scope pre-decided at the 2026-07-04 overnight-prep question round:** work the queue in order: (1) the remaining section-3.15 build-only picks (the D6 pack-README co-bump delta check, in flight at authorization; the gate-18 trailing-link seam; GR-6 the detailed-prose presence gate; the names-phase gate WITH the `/guardrails` r4 run when the gate-60 drift reaches its threshold); the decision-bearing 3.15 residuals (GR-3 wave-3, GR-4 home, O-F1 either/or) are DEFERRED to morning; (2) S3 PR B, the `/claim-fit` skill plus the one-time Tier-A judging pass; (3) the P2 worker-delivery applies IN THIS SESSION (maintainer's explicit "Include P2 applies" answer), serially with full per-PR QA. Standing overnight duties: screen-and-merge worker delivery PRs at close-out boundaries (ledger reconciliation per the union/superset method), coverage syncs per the pairing line and the seed-gap re-assessment convention, per-PR `/validate-pr` + `/retro` (no abbreviation). Protected-tree touches: ONLY the pre-authorized factual-staleness one-liner class (each named in its PR's CHANGELOG entry); the D1-D5 to D1-D6 range refresh in `.claude/CLAUDE.md` is the first such instance this run. Conflicts and authorial decisions: skip-to-morning per the overnight rules, recorded in [`pending-decisions.md`](pending-decisions.md). One proceeded default already awaiting morning confirm-or-redirect: the WCO SAFE cell + legend repair (#622). Scratch state at authorization: zero open PRs; the worker consumes the wave-4 pool (EU annex delivered, Colorado brief re-cut on SB26-189+SB24-205 after the maintainer-directed #76 ingestion, currency decision: both statutes live until 2027-01-01).
+
+**Build progress (refreshed per PR):** D6 build in flight (tool + 4 fixture tests green; wiring surfaces next; ships as PR #623 with the #622 QA batch).
 
 This file is the durable handoff record for a maintainer-authorized autonomous overnight
 session. It is `stub` when no overnight session is in flight (the default state).

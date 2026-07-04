@@ -230,6 +230,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-todo-rotation-on-pr.py
 
+      - name: Pack-README version-history co-bump check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-pack-readme-cobump-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:

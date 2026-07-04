@@ -149,7 +149,7 @@ drive end-to-end on the maintainer's behalf:
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the PR-only
-   delta gates D1-D5 plus the history-aware trio 45/40/31 against the merge base),
+   delta gates D1-D6 plus the history-aware trio 45/40/31 against the merge base),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
    flipping CI red after the fact. The two runners together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually

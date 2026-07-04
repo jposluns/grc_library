@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-04, Library Version 2026.07.111, PR #623
+
+Delta gate D6, the pack-README version-history co-bump check (the first section-3.15 build-only pick of the 2026-07-04 overnight run): when a PR changes the pack README's `**Version:**` value, the same diff must add the matching `## Version history` row. Mechanizes the close-out checklist's paired-surface instance (a), until now convention-only; the new [`tools/check-pack-readme-cobump-on-pr.py`](tools/check-pack-readme-cobump-on-pr.py) is delta-scoped, self-silencing on unchanged Version values, and carries no opt-out trailer (the paired-surface rule is unconditional). Wired into the PR-time runner, the CI workflow, the parity registry's delta-step set, and the audit-programme section 6.1 (table row + narrative, spec 1.16.48); four fixture tests (suite 312); the guard header's D1-D5 range refreshed to D1-D6, the PR-time runner's header list extended, and the same range refreshed, under the pre-authorized factual one-liner class, in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md). Also carries the #622 QA batch (1 low + 1 note in-window, both fixed here), the overnight-mode transition (the overnight file to in-flight with the maintainer's 2026-07-04 authorization scope), and the shipped D-check bullet's removal from TODO section 3.15.
+
+### Added
+
+- [`tools/check-pack-readme-cobump-on-pr.py`](../../tools/check-pack-readme-cobump-on-pr.py): delta gate D6. Trigger: the pack README `**Version:**` value differs between merge-base and head; check: an added `| <new-version> |` history-table row in the same diff; a missing or unparsable head Version line fails loud; absent-at-head (a pack-removing fork) is not-triggered. Live-probed against the real #622 range (bump-with-row, OK) and #621 range (untriggered) before the fixtures were written.
+- Four `PackReadmeCobumpOnPrTests` fixtures on the shared delta-gate harness in [`tests/test_linters.py`](../../tests/test_linters.py) (bump-with-row passes, bump-without-row fails, unchanged-Version untriggered, untouched-file untriggered); suite 308 to 312.
+
+### Changed
+
+- [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) (header list + the D6 `run_check` block), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml) (the PR-only step), [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py) (`WORKFLOW_DELTA_GATE_STEPS` + the step name), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) section 6.1 (D6 table row + narrative paragraph; spec 1.16.48).
+- Range refreshes D1-D5 to D1-D6: [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) header and [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) PR-workflow step 1 (the latter a protected-tree touch under the maintainer's pre-authorized factual-staleness one-liner class, named here per that authorization).
+- [`TODO.md`](../../TODO.md) section 3.15: the shipped D-check candidate bullet removed (the section stays open on its other bullets); the #622 sweep's F3 fix (the two non-matrix `/IEC` residual files named in section 3.1).
+- [`.working/overnight-pr.md`](../overnight-pr.md) to `in-flight` with the 2026-07-04 overnight authorization scope (queue, deferred decisions, protected-tree class, worker-pipeline state).
+
+### Fixed
+
+- The #622 sweep's F1: the handoff state-snapshot line reconciled to the post-#622 state (it still said scratch #69 was HELD while the same diff's PROGRESS block recorded it merged; the second occurrence of the append-not-reconcile shape, recorded as signal in the #622 retro row).
+
+### Verification
+
+- D6 fixtures 4/4 green; full regression suite 312 green; gate 35 parity green with the new delta step registered; all 63 audit gates pass standalone post-commit; the PR-time runner exercises D6 live in the pre-push guard chain.
+
+### Discipline observations
+
+- The #622 QA batch rides this PR per recursion-avoidance: the `/validate-pr` record (1 low + 1 note in-window, fixed here; 1 note routed to the Mexico annex-shipping PR), the history row (1.2.401), and the `/retro` row (1.0.346, surfacing the append-not-reconcile signal and its watch-stage two-step-refresh candidate).
+- Overnight-boundary scratch context: worker delivery #75 (the EU AI Act annex research, first wave-4 unit) screened and merged; the maintainer-directed #76 SB26-189 ingestion merged, and the staged Colorado brief re-cut on both statutes with the transition framing (scratch #77), the seed-gap re-assessment convention's first source-event firing.
+
 ## 2026-07-04, Library Version 2026.07.110, PR #622
 
 Section-3.1 consistency sweep, both recorded bullets. (1) Edition-explicit ISO/IEC 27001 framework-table headers: all 9 edition-implicit column headers harmonized to `ISO/IEC 27001:2022` (census-verified safe: every ISO column body value under the 9 headers already uses 2022 Annex A or clause numbering). (2) Stray-punctuation cells: all 7 recorded lone-`:` cells adjudicated, six to `N/A` against the column frameworks' held catalogues and the supply-chain matrix's WCO SAFE Financial Solvency cell to `✓` (source-supported by the held SAFE text's financial-viability condition), plus the same matrix's mangled legend line repaired (the vestigial third state replaced by a definition of the previously-undefined `N/A`; a logged stricter-safe default in [`pending-decisions.md`](../pending-decisions.md)). The census surfaced a residual (13 `/IEC`-less header rows across 3 files, 11 of them in the compliance matrix, plus 3 combined-form `ISO 27001/27002` headers: 16 short-form rows across 6 files in total), recorded in [`TODO.md`](../../TODO.md) section 3.1 for maintainer scoping rather than silently folded in. Also carries the #621 QA batch, the maintainer's 2026-07-04 overnight-prep decision recordings in [`TODO.md`](../../TODO.md) (sections 4.4, 4.6, 5.1, 5.4, 5.7, 5.8, and 5.9, pairing the wave-4 scratch seeding), the pack README 1.53.19 bump for the two pack `ai/` cell fixes, and the boundary bookkeeping.
