@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #628: GR-8 CLOSED: retro proposed-improvement closure discipline (2026-07-04)
+
+GR-8's remaining half (b) shipped as the register disposition-token convention plus `/retro` step 6 (disposition scan + carried-candidates check, which also closes the r3 G-F4 note bullet): the #627/#621/#624(b) candidates codified (record-vs-diff clauses in the three QA-record steps, the verifier-loop class-width clause, the runbook close-out ordering line), the #593/#594/#612/#620/#625 candidates routed to the TODO 1.9(c) authorized-touch bundle, and eight register rows dispositioned. The expiry tail (#233, #235, habit-band rows), the option-B ageing tool, and the vocabulary confirm-or-redirect sit with the maintainer in pending-decisions. Seventh resolution of the 2026-07-04 overnight run, closed out at the morning boundary; the PR also routes and resets the overnight file and closes the r4 D-F5 bullet both ways (the stub pruned to the single latest closure note AND the change-tracking rule's stub form admitting that note).
+
 ### PR #627: names-phase gate 65 + /guardrails r4 run (2026-07-04)
 
 Two section-3.15 closures in one PR: the cross-file section-name audit shipped as gate 65 (title-anchoring rule from the same-day corpus survey; table rows deliberately scanned; the r4 O-1 seam closed at build time; suite 326) and the /guardrails r4 review ran at its gate-60 threshold (19 findings: 10 fixed in-window with two partial, 8 routed as seven bullets, 1 cadence note; inventory re-baselined at 65 gates). Fifth and sixth resolutions of the 2026-07-04 overnight run.

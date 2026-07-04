@@ -197,7 +197,7 @@ When genuinely in doubt between tiers, run the verifier: a false escalation cost
 A verifier finding is a hypothesis, not a fact, until the orchestrator validates it (per [`evidence-grounded-completion.md`](evidence-grounded-completion.md) and [`validate-inference-before-action.md`](validate-inference-before-action.md)):
 
 1. **Validate** the finding against the artefact. If it is correct, fix; if it is genuinely a false positive, see "Overruling" below.
-2. **Fix** the artefact, then **re-verify** (dispatch the verifier again on the fixed state).
+2. **Fix** the artefact, then **re-verify** (dispatch the verifier again on the fixed state). Fix at the width of the class, not the cited instances: when a finding cites missed instances of a phrasing or pattern class, apply the fix at the bare-token or pattern-family width and brief the re-verify to probe beyond the cited instances, because a verifier that re-checks only the named lines rubber-stamps the family's survivors.
 3. **Loop cap, three iterations.** If a finding is not resolved after a third verify-fix iteration, STOP: do not force the change through. Defer the change pending the maintainer's review, recording the unresolved finding where the project keeps its decision queue.
 
 ### Overruling a verifier is never silent

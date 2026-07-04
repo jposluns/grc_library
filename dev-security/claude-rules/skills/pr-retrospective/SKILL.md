@@ -10,7 +10,7 @@ derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 
 After each successful merge and `/validate-pr` cycle, conduct a brief retrospective on the PR's process. The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
 
-The output is the **improvement-log register** at `.working/improvement-log.md` (this project's path; adopters relocate to a project-appropriate location). The register is append-only, ordered by PR number. Each row carries the date, PR number, FR closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
+The output is the **improvement-log register** at `.working/improvement-log.md` (this project's path; adopters relocate to a project-appropriate location). The register is append-only at the row level, ordered by PR number; the step-6 disposition scan appends tokens to earlier rows' Proposed-improvement cells without rewriting their original text. Each row carries the date, PR number, FR closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
 
 The skill is **the orchestrator-side process-improvement loop**. It pairs with the worker-side `worker-brief-template.md` (per [`governance/ai-assistant-workflow-disciplines.md`](../../governance/ai-assistant-workflow-disciplines.md) §1 hallucination-assessment update protocol) and the apply-time-catch tracking in [`hallucination-metrics.md`](../../../../.working/hallucination-metrics.md). Together the three close the per-PR learning loop:
 
@@ -27,7 +27,7 @@ The skill is **the orchestrator-side process-improvement loop**. It pairs with t
 
 ## Process
 
-The retrospective runs in five short steps.
+The retrospective runs in six short steps.
 
 ### 1. Identify the PR and its inputs
 
@@ -77,6 +77,14 @@ The improvement is a **candidate** for a future PR, not work shipped in this ent
 
 If no pattern surfaced, leave the proposed-improvement cell empty.
 
+### 6. Disposition scan (closure discipline)
+
+Proposed improvements accumulate un-codified and their classes recur unless each candidate is eventually closed. After appending the row, run the closure scan:
+
+- **Disposition what this PR landed.** If the just-merged PR codified or routed any earlier row's candidate, append the disposition token to that row's Proposed-improvement cell per the register's disposition convention: `CODIFIED in <carrier>` (the durable home shipped), `ROUTED to <destination>` (a backlog bullet or bundle now carries it), `REJECTED (<reason>)`, `EXPIRED (<date>)`, or `WATCH (fires on <n>th occurrence)` (the sanctioned holding state for conditional candidates). A non-empty cell with no token is pending by definition.
+- **Carried-candidates check.** When the just-merged PR performed an authorized protected-file touch, grep the register's pending cells for carrier phrases ("next authorized touch", "row is the carrier", "next CLAUDE.md-touching") and confirm the touch carried them, or record why it did not (the dropped-candidate shape: a carried clause silently missing from the touch it waited for).
+- **Rejection and expiry are maintainer calls.** The scan proposes a `REJECTED` or `EXPIRED` disposition for an aged candidate; the maintainer dispositions it. The assistant never silently drops a pending candidate (the same no-drop discipline the sweep skills carry).
+
 ## Output format
 
 Append a row to [`.working/improvement-log.md`](../../../../.working/improvement-log.md):
@@ -93,7 +101,7 @@ The register's preamble describes the column semantics and links to this SKILL.
 
 ## Termination
 
-Single-iteration cycle: identify → analyze → record. One entry per PR.
+Single-iteration cycle: identify → analyze → record → disposition-scan. One entry per PR.
 
 There is no looping. The slash command `/retro` is fire-and-forget retrospective. The register accumulates entries; pattern recognition emerges from the accumulation, not from any single entry.
 
@@ -123,7 +131,7 @@ The retrospective is complete when:
 
 - One entry appended to the improvement-log register for the just-merged PR.
 - Pattern and Proposed-improvement entries (if any) surfaced in chat.
-- Register entry includes the date, PR number, FR closed (if any), and the five short observations.
+- Register entry includes the date, PR number, FR closed (if any), and the short observation cells; any disposition tokens from the step-6 scan are appended to the originating rows.
 
 ## Common Rationalizations
 
