@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.23\
+**Version:** 1.4.24\
 **Date:** 2026-07-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -171,10 +171,10 @@ The notification assessment is documented in the breach record and approved by t
 | **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Breach likely to result in a risk to the rights and freedoms of natural persons | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
 | **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
 | **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); CPPA pending reintroduction | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | As soon as feasible (no fixed statutory deadline) | As soon as feasible after the determination that significant harm is likely |
-| **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | 72 hours to the CAI; promptly to affected individuals | Promptly after notifying CAI |
+| **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | Promptly to the CAI (the Act sets no fixed hour-count); affected individuals must also be notified (the Act states the duty without a timeliness standard) | Promptly, as programme policy (the Act states no sequencing or timeliness standard) |
 | **China** | PIPL Art. 57 | Cyberspace Administration of China (CAC) / relevant PIPC authority | Breach of personal information | Immediately / without delay upon discovery | Promptly to affected individuals if high risk; may be deferred if measures have effectively prevented harm, subject to authority direction |
 | **India** | DPDPA 2023; Digital Personal Data Protection Rules 2025 | Data Protection Board of India (DPBI) | Personal data breach (failure to implement adequate security safeguards, or any breach affecting Data Principals) | As required by the DPDPA and the Rules 2025 (phased commencement from the 13 November 2025 notification); verify the current statutory notification timeline | Required: Data Fiduciaries must notify affected Data Principals |
-| **Brazil** | LGPD Arts. 48 to 49 | Autoridade Nacional de Proteção de Dados (ANPD) | Breach likely to cause risk or harm to data subjects | 3 business days from awareness that the incident affected personal data, per Resolution CD/ANPD No. 15/2024 (the Security Incident Communication Regulation; staged communication permitted, complementary information within 20 business days; deadlines doubled for small-scale agents) | 3 business days from awareness, per the same regulation |
+| **Brazil** | LGPD Arts. 48 to 49 | Agência Nacional de Proteção de Dados (ANPD) | Breach likely to cause risk or harm to data subjects | 3 business days from awareness that the incident affected personal data, per Resolution CD/ANPD No. 15/2024 (the Security Incident Communication Regulation; staged communication permitted, complementary information within 20 business days; deadlines doubled for small-scale agents) | 3 business days from awareness, per the same regulation |
 | **United States** | State breach notification laws (varies) | Varies by state (e.g., State Attorney General) | Personal information of state residents exposed | Varies by state; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) for current state-level mapping | Varies by state; generally without unreasonable delay |
 
 > **Note:** The 72-hour GDPR clock starts from the moment the controller becomes aware that a breach of personal data has occurred: not from the moment the breach occurred. "Becoming aware" is interpreted as when the controller has a reasonable degree of certainty that a security incident has taken place that has led to personal data being compromised.
@@ -318,7 +318,7 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 
 - Complete the 24-hour initial assessment (personal data involved? scope? accessed or exfiltrated? risk to individuals? applicable jurisdiction? notification likely?) and retain it in the breach record (§4.2).
 - Conduct the formal notification assessment with Legal Counsel (notifiable per jurisdiction? deadline? individual notification? content?); the DPO approves before any submission (§6.1).
-- Initiate and track the jurisdictional notification clocks (for example, GDPR and UK GDPR 72 hours from awareness, Quebec Law 25 72 hours, PIPL without undue delay, Brazil LGPD 3 business days per Resolution CD/ANPD No. 15/2024) (§6.2).
+- Initiate and track the jurisdictional notification clocks (for example, GDPR and UK GDPR 72 hours from awareness, Quebec Law 25 promptly, PIPL without undue delay, Brazil LGPD 3 business days per Resolution CD/ANPD No. 15/2024) (§6.2).
 - Open or update the breach register entry (§9.1).
 - Initiate the post-incident review track, mandatory for P1 and P2, within 5 business days of closure (§8.1).
 
