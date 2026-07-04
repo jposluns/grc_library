@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.6\
-**Date:** 2026-07-02\
+**Version:** 1.4.7\
+**Date:** 2026-07-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -40,6 +40,12 @@ When in doubt: external term or acronym → this register. Internal governance c
 - "See" cross-references point to the canonical library document for the term.
 
 ---
+
+## 0-9
+
+| Term | Expansion / definition |
+| --- | --- |
+| **3PL** | Third-party logistics provider. An organization providing outsourced logistics services (transportation, warehousing, distribution, freight management) to shippers. |
 
 ## A
 
@@ -133,6 +139,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **FedRAMP** | Federal Risk and Authorization Management Program. U.S. federal cloud-service authorization. See [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md). |
 | **FERC** | Federal Energy Regulatory Commission (U.S.). |
 | **FMCSA** | Federal Motor Carrier Safety Administration (U.S.). |
+| **FMI** | Financial market infrastructure. Systems for clearing, settlement, and recording of payments, securities, and derivatives (payment systems, central securities depositories, securities settlement systems, central counterparties, trade repositories), per the CPMI-IOSCO Principles for Financial Market Infrastructures. |
 | **FSA** | Financial Services Agency (Japan). |
 
 ## G
