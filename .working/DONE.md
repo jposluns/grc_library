@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #627: names-phase gate 65 + /guardrails r4 run (2026-07-04)
 
-Two section-3.15 closures in one PR: the cross-file section-name audit shipped as gate 65 (title-anchoring rule from the same-day corpus survey; table rows deliberately scanned; the r4 O-1 seam closed at build time; suite 326) and the /guardrails r4 review ran at its gate-60 threshold (19 findings: 10 fixed in-window with two partial, 8 routed as seven bullets, 1 cadence note; inventory re-baselined at 65 gates). Fourth and fifth resolutions of the 2026-07-04 overnight run.
+Two section-3.15 closures in one PR: the cross-file section-name audit shipped as gate 65 (title-anchoring rule from the same-day corpus survey; table rows deliberately scanned; the r4 O-1 seam closed at build time; suite 326) and the /guardrails r4 review ran at its gate-60 threshold (19 findings: 10 fixed in-window with two partial, 8 routed as seven bullets, 1 cadence note; inventory re-baselined at 65 gates). Fifth and sixth resolutions of the 2026-07-04 overnight run.
 
 
 ### PR #625: GR-6: gate 64, audit-spec detailed-prose presence audit; SR-5 closed by refutation (2026-07-04)
