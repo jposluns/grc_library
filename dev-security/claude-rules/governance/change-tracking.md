@@ -204,8 +204,9 @@ DONE is typically maintainer-only working state, so it lives wherever the projec
 When a PR closes a TODO item:
 
 1. Delete the item from TODO in the same PR.
-2. Add a terse entry to DONE in the same PR. The entry's primary key is the PR number that closed the item, with the original backlog ID (`P-X.Y`, `FR-N`, etc.) folded into the headline where the item had one.
+2. Add a DONE entry in the same PR. The entry's primary key is the PR number that closed the item; it names the closed item's TODO number or original backlog ID (`P-X.Y`, `FR-N`, `SR-N`, or a prose-named item) explicitly, and its one-to-two sentences give a clean summary of what the item was and how it was accomplished, not merely a bare outcome (the worked example above is the shape).
 3. Both edits live in the same commit so reviewers see the rotation in one place.
+4. The same one-to-two-sentence completion summary is surfaced in chat at the moment of completion, so the reader sees each closed item's summary as it lands, in addition to the DONE ledger and the CHANGELOG entry. The DONE ledger stays the durable at-a-glance index; the chat line is the real-time visibility.
 
 The rotation is enforced by convention rather than by a gate (gate enforcement would require parsing TODO and DONE structurally, which is brittle; the convention is cheaper and matches how the maintainer mentally tracks the work).
 
