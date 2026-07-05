@@ -103,6 +103,8 @@ If part of the claim is unverified, name the unverified part. Do not imply verif
 
 "The CHANGELOG entry is added and links resolve; I have not separately checked that every downstream document that cites the bumped version has been updated, because that audit is not part of the gate programme and I did not run it manually" is honest. "Done" with no scope is not.
 
+**Accepting an unverified item requires a durable tracker.** Naming the unverified part discharges the honesty obligation; but when the work then *accepts* the unverified item rather than resolving it (proceeding on it, annotating a claim as unverified-for-now, or relying on a value not confirmed current), the acceptance is recorded as a durable tracking item in the project's backlog so it is revisited and verified. An accepted-unverified claim with no tracker is how "unverified for now" silently becomes "assumed true": the tracker is the forcing function for the later verification, and it names what must be verified, where the unverified claim lives, and what would confirm or refute it. The trigger is *acceptance*, not mention: noting a gap in passing needs no tracker, but building on the gap, or leaving an unverified assertion standing in a shipped artefact, does.
+
 ---
 
 ## Prohibited anti-patterns
