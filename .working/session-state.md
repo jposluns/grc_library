@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-05T06:27:53Z
+**Last-heartbeat-UTC:** 2026-07-05T07:21:29Z
 
-**Current-task:** OVERNIGHT run (2026-07-05, maintainer away). Merged through #650 (3.24/#647, 3.23/#646, 3.22/#648+#649, 3.1-partial/#650). 3.21 is decision-parked (its four residuals a-d await maintainer calls; recommended options recorded in TODO 3.21 and pending-decisions.md). Next: 3.25 (decision-tree acronym/glossary coverage), then SR-1..SR-4 scratch-hygiene (via MCP PR, feasibility pending a scratch checkout here), then non-protected tooling, then P2 applies. Protected-file edits DEFERRED to daytime (staged in deferred-protected-changes.md)
+**Current-task:** OVERNIGHT run (2026-07-05, maintainer away). Merged through #651 (3.24/#647, 3.23/#646, 3.22/#648+#649, 3.1-partial/#650, 3.25/#651). 3.21 is decision-parked (four residuals await maintainer calls). SR-1..SR-4 scratch-hygiene reached but NOT started: their 2026-07-02-audit descriptions are stale vs current scratch #103 (SR-4's README report-PDF count is already stale, 14 not the described 13), so each needs re-verification against the live scratch state before applying (SR-4 = a cross-surface disk-vs-README-vs-ingest-queue count reconciliation; SR self-merges on green per A2, so a rushed wrong count could escape). Deferred to fresh context for careful re-scoping. Next: SR re-scope, then non-protected tooling, then P2. The feature branch carries the un-PR'd #650 and #651 QA checkpoints (ride #652). Protected-file edits DEFERRED to daytime (staged in deferred-protected-changes.md)
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; 30 deliveries pending applies in the scratch inbox, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
