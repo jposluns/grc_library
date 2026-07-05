@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ The intent is to reduce the burden of audit preparation. A well-packaged evidenc
 
 This template applies to:
 
-- An external financial-audit, SOC 2 Type II, ISO 27001, PCI DSS, or framework-specific audit.
+- An external financial-audit, SOC 2 Type II, ISO/IEC 27001, PCI DSS, or framework-specific audit.
 - A regulator examination requiring evidence of control implementation (see also [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) for the regulator-interaction shape).
 - An internal audit, where the package becomes the auditor's working artefact.
 - A customer due-diligence inquiry that requires evidence at the control level.
@@ -60,7 +60,7 @@ Audit Evidence Package
 ======================
 
 Organization: <legal name>
-Framework: <e.g. ISO 27001:2022 / SOC 2 Type II / PCI DSS v4.0.1 / DORA / FedRAMP Moderate>
+Framework: <e.g. ISO/IEC 27001:2022 / SOC 2 Type II / PCI DSS v4.0.1 / DORA / FedRAMP Moderate>
 Audit type: <External / Internal / Regulator examination / Customer DDQ>
 Audit firm or assessor: <if external>
 Auditor lead contact: <name and contact>
@@ -95,7 +95,7 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 ```
 | # | Control ID | Control title | Framework reference | Implementation status | Operating effectiveness | Section link |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO 27001 Annex A.5.16 / NIST SP 800-53 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
+| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO/IEC 27001 Annex A.5.16 / NIST SP 800-53 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
 | 2 | ... | ... | ... | ... | ... | ... |
 [continue per in-scope control]
 ```
@@ -126,7 +126,7 @@ For each control in the inventory, the bundle contains a section using the templ
 
 ### Framework references
 
-- Primary: <e.g. ISO 27001:2022 Annex A.5.16>
+- Primary: <e.g. ISO/IEC 27001:2022 Annex A.5.16>
 - Secondary (where the same control maps to multiple frameworks): <e.g. NIST SP 800-53 AC-2; CIS Control 5; SOC 2 CC6.1>
 - Internal control identifier (if different): <e.g. organization's internal control number>
 

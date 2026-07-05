@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.16\
-**Date:** 2026-07-04\
+**Version:** 1.0.17\
+**Date:** 2026-07-05\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -81,7 +81,7 @@ This register defines the mandatory retention periods for each category of organ
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
 | Internal audit reports | 7 years | ISO 19011; compliance evidence; matches [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md):360 §8.3 (Evidence retention) canonical 7-year mandate for audit working papers, evidence, draft findings, management responses, and final reports |
-| External audit and certification records | Certification period + 5 years | ISO 27001; certification requirements |
+| External audit and certification records | Certification period + 5 years | ISO/IEC 27001; certification requirements |
 | Regulatory correspondence | 7 years | Legal and regulatory requirements |
 | Compliance attestations | 5 years | Compliance evidence |
 | Control testing evidence | 7 years | Audit and certification support; aligns with Sarbanes-Oxley §103 audit-evidence retention and the records-retention standard's 7-year financial / legal / compliance domain default; matches the 3.5 evidence-retention statement in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) |
@@ -100,9 +100,9 @@ This register defines the mandatory retention periods for each category of organ
 
 | Record Type | Retention Period | Legal Basis / Rationale |
 | --- | --- | --- |
-| Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO 42001 accountability |
+| Model cards and validation reports | Model decommission + 5 years | EU AI Act; ISO/IEC 42001 accountability |
 | AI Impact Assessments | 7 years, or 5 years after associated system decommission, whichever is longer | The organization's canonical assessment-retention floor, informed by the EU AI Act Article 9 risk-management obligations (which prescribe no retention period); matches the Step 6 record-keeping minimum in [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (which covers the PIA/AI-IA report); the system anchor is deliberate: an impact assessment attaches to the AI system, and a system outlives routine model swaps (the adjacent model-decommission rows are model-artefact records) |
-| AI audit reports | 7 years, or 5 years after the associated system's decommission, whichever is longer | ISO 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 4.7.1 seven-year audit-records floor governs, composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), so neither source is weakened for any system lifetime; matches the Section 5.4 retention statement in [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md) |
+| AI audit reports | 7 years, or 5 years after the associated system's decommission, whichever is longer | ISO/IEC 42001; regulatory compliance; the [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md) Section 4.7.1 seven-year audit-records floor governs, composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), so neither source is weakened for any system lifetime; matches the Section 5.4 retention statement in [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md) |
 | Training data provenance records | Model decommission + 5 years | EU AI Act; bias accountability |
 | AI incident records | 5 years, or 5 years after the associated system's decommission, whichever is longer | EU AI Act; regulatory requirements; composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5 (5 years post-decommission), the adjacent composed rows' proven shape, so an incident record on a long-lived system is not destroyed while the system still runs |
 | AI decision and detection logs (inputs, outputs, model version, confidence scores) | 7 years, or 5 years after the associated system's decommission, whichever is longer | The organization's canonical AI-audit-log floor, informed by ISO/IEC 42001's retention requirements and the EU AI Act's documentation and log-keeping obligations (Articles 18 and 19), neither of which prescribes the 7-year figure; AI-decision accountability (longer than the general SIEM event tier); composed with the AI-Systems domain minimum in [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) Section 5, so the canonical 7-year floor is preserved for every system lifetime |

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Onboarding Security Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -67,7 +67,7 @@ This procedure is triggered when:
 | Action | Responsible | Timeframe |
 |---|---|---|
 | 2.1 Send the supplier security questionnaire ([`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md)) appropriate to their tier | Supplier Risk Manager | Within 3 business days of classification |
-| 2.2 Request supporting evidence as required by tier (ISO 27001 certificate; SOC 2 report; pen test attestation; etc.): see [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md) | Supplier Risk Manager | With questionnaire |
+| 2.2 Request supporting evidence as required by tier (ISO/IEC 27001 certificate; SOC 2 report; pen test attestation; etc.): see [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md) | Supplier Risk Manager | With questionnaire |
 | 2.3 Conduct a DPIA screening: determine whether a full DPIA is required using [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DPO | Within 3 business days of Step 1 |
 | 2.4 If cross-border data transfer: confirm adequate transfer mechanism (SCCs, IDTA, adequacy) and conduct transfer impact assessment if required | DPO / Legal | Before contract execution |
 | 2.5 Review completed questionnaire and evidence against assurance requirements | Supplier Risk Manager / Information Security | Within 5 business days of receipt |
