@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-04T23:15:54Z
+**Last-heartbeat-UTC:** 2026-07-04T23:49:24Z
 
-**Current-task:** DAYTIME ATTENDED-AUTONOMOUS; #634 through #641 MERGED with full QA; #642 in flight on claude/g3-gate64-dcheck-2r8kn2 (the G-3 gate-64 delta-check extension, carrying the #641 QA batch); maintainer wind-down assessment due after #642 (assess-and-advise, then WAIT)
+**Current-task:** DAYTIME ATTENDED-AUTONOMOUS, WIND-DOWN per maintainer option B; #634 through #642 MERGED with full QA; #643 in flight on claude/g4-sentinel-hoist-2r8kn2 (the r4 G-4 shared-constant hoist, the LAST work PR, carrying the #642 QA batch and section-5 fix); the session-closing handoff PR follows, with the scratch coverage sync
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 

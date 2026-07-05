@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #643: 3.15 r4 G-4, cross-file shared-constant hoist (2026-07-04)
+
+The five reference-extraction constants gates 62 and 65 duplicated copy-with-comment (REF_PATTERNS, MD_LINK_RE, BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, ADJACENCY_WINDOW) hoisted into lint_common's CROSS_* block as the single source of truth; both linters import them aliased, so a sentinel or window change can no longer drift between the phases. Also carries the #642 QA batch and its section-5 in-window fix.
+
 ### PR #642: 3.15 r4 G-3, gate-64 delta-check extension (2026-07-04)
 
 Gate 64 extended with the delta-check half: the section-6.1 D-row table now requires a "Delta gate Dn ..." narrative per row and must match the parity linter's WORKFLOW_DELTA_GATE_STEPS registry exactly in both directions (informational entries exempt), so a stale registry entry for a removed delta check fails loud. Four new fixtures (suite 341).
