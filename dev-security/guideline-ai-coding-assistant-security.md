@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-07-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -295,7 +295,7 @@ The following publicly available resources provide additional guidance for AI co
 
 ## Framework alignment
 
-| Control Area | ISO 27001:2022 | NIST SSDF | CSA AICM | ISO/IEC 42001 | Regulatory |
+| Control Area | ISO/IEC 27001:2022 | NIST SSDF | CSA AICM | ISO/IEC 42001 | Regulatory |
 | --- | --- | --- | --- | --- | --- |
 | AI tool authorization | A.5.36 | PO.1, PO.3 | AI-GOV-01 | Clause 6 (planning) | EU AI Act Art. 9 |
 | Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | AI-DATA-01 | Clause 8 (operation) | GDPR, PIPEDA |
