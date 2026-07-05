@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #659: TODO 3.15 r5 close-out-checklist clauses (D7-naming + summary/description-lag) (2026-07-05)
+
+Added two grouped `.claude/CLAUDE.md` close-out-checklist clauses: (1) the reconcile bullet now names the D7 handoff-snapshot freshness check as the mechanical backstop for the version-token half of the Current-truth reconcile (the gate-50 naming pattern); (2) a new summary/description-lag bullet (when a PR resolves or lands a summary surface, or a reword changes a primary surface, update the paired detail surface in the same commit). TODO 3.15 stays open; the `/claim-fit` cadence clause is the last remaining CLAUDE.md close-out item (#660).
+
 ### PR #658: design-decisions ledger light-restructure (2026-07-05)
 
 Added an Index (a thematic-section list plus a reverse-chronological list of the 16 standalone dated decision sections) to the design-decisions ledger and corrected its stale "append to the relevant section" ordering note to match the file's actual two-register structure. Not previously a TODO line; surfaced from the 2026-07-05 maintainer request to tidy the ledger, done as a small item.

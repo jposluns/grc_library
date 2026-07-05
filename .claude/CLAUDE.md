@@ -308,7 +308,14 @@ is external. Two mechanisms:
      line and reconcile EVERY value on it (merged-through, versions, "rides the next PR"
      claims) to the state the current PR itself produces, since a snapshot refreshed in
      the same diff that falsifies it is the append-not-reconcile shape that fired the
-     three-occurrence rule at #628 (#619, #622, #628). At a
+     three-occurrence rule at #628 (#619, #622, #628). The version-token subset of this
+     reconcile is now mechanically backstopped by the D7 handoff-snapshot freshness
+     PR-time check ([`tools/check-handoff-snapshot-on-pr.py`](../tools/check-handoff-snapshot-on-pr.py)):
+     when a PR touches the handoff, D7 fails if any labelled version token on the
+     `Current truth` line disagrees with that surface's live header at the PR head, or
+     if a surface carries more than one token. The prose halves (the merged-through
+     number, the green-at-`<sha>`, the "in flight" branch name, the "rides the next PR"
+     annotation) stay convention-guarded here, since D7 is version-tokens-only. At a
      session-closing handoff PR, the `## Asserted expectations` section, the
      green-at-`<sha>` snapshot line, and the
      [`.working/session-metrics.md`](../.working/session-metrics.md) row are refreshed too
@@ -384,6 +391,11 @@ is external. Two mechanisms:
      of the OLD code's function or meaning (the prose half is not mechanically gateable,
      so the checklist line is the guard; the worker-brief template carries the migration
      form as DO rail 8 for fan-out workers).
+   - **Summary/description-lag completeness** (the paired-surface-lag guard; four in-window
+     occurrences #650-#653, past the codification threshold): when this PR marks a summary or
+     status surface resolved or landed, OR a mid-PR verifier reword changes a term or value on
+     a primary surface, update (or grep-confirm clean) the paired detail or description surface
+     in the same commit. Convention-level, since the lag is on free prose no gate inspects.
    - **Section-close cross-FILE cleanup** (the §N-orphan guard): when this PR closes a
      numbered TODO §-section (deletes its heading), grep the WHOLE repo for `§N` and
      `PN.M` references to it, AND for the section's BARE tokens (the coded item ids and

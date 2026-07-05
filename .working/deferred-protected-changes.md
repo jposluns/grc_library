@@ -43,17 +43,18 @@ Item 5's remaining r5 close-out-checklist clauses re-scope from the former #657 
 focused #658 (maintainer-directed 2026-07-05: after #657, small Priority 3 and Priority 1
 items first to clear TODO count; the larger GR-P design track, item 6, defers)._
 
-### 5. [TODO 3.15 r5] CLAUDE.md close-out-checklist clauses (re-scoped to #658)
+### 5. [TODO 3.15 r5] CLAUDE.md close-out-checklist clauses (landing across #659-#660)
 
 - **Target:** `.claude/CLAUDE.md`.
 - **(a) DONE, landed in #652 (2026-07-05):** the maintainer chose "reword the fallback"; the
   attended-autonomous rule-3 fallback now drops the "idle on a longer check-in" option and
   cross-references the no-long-interval-check-ins clause, so the self-contradiction is resolved.
-- **(b) LOW, rides #658:** the close-out checklist's reconcile bullet does not name D7 as the
-  now-mechanized version-token half (the gate-50 naming pattern); one clause.
-- **Rides #658:** the already-staged `/claim-fit` cadence-section candidate (#630 out-of-window
+- **(b) DONE, landed in #659 (2026-07-05):** the close-out checklist's reconcile bullet now names
+  D7 (the handoff-snapshot freshness PR-time check) as the mechanized version-token half of the
+  Current-truth reconcile (the gate-50 naming pattern).
+- **Rides #660:** the already-staged `/claim-fit` cadence-section candidate (#630 out-of-window
   observation).
-- **Rides #658 (past codification threshold):** the summary/description-lag close-out-checklist
+- **DONE, landed in #659 (2026-07-05, grouped with (b)):** the summary/description-lag close-out-checklist
   half-line (the #652/#653 `/retro` candidate, at four in-window occurrences): when a PR marks a
   summary surface resolved or landed, or a mid-PR verifier reword changes a term or value on a
   primary surface, update or grep the paired detail/description surfaces in the same commit.
