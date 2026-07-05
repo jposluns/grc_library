@@ -37,28 +37,26 @@ and two gloss drifts corrected against the held ATLAS 2026.06 CSVs). Landed in P
 auto-prompt bullet now names gate 60 and states the deferral is bounded, warn at drift 1 to 2,
 fail at 3). Landed in PR #656 (2026-07-05): item 4's PACK surfaces (the D-F3 corollary clauses
 on the pack CLAUDE.md rule-index one-liner, the pack README tree blurb, and the pack README
-scope row; pack `1.54.6`). The item numbering below preserves the original staging order;
-item 4's remaining project-CLAUDE.md clause and item 5's sub-item 5(b) plus the `/claim-fit`
-candidate, all `.claude/CLAUDE.md` touches, are grouped as the #657 bundle._
+scope row; pack `1.54.6`). Landed in PR #657 (2026-07-05): item 4's remaining
+project-CLAUDE.md clause, so TODO 3.15 D-F3 is now FULLY closed and item 4 is rotated out.
+Item 5's remaining r5 close-out-checklist clauses re-scope from the former #657 bundle to a
+focused #658 (maintainer-directed 2026-07-05: after #657, small Priority 3 and Priority 1
+items first to clear TODO count; the larger GR-P design track, item 6, defers)._
 
-### 4. [TODO 3.15 D-F3] Evidence-grounded-completion one-liner corollaries: project-CLAUDE.md remnant
-
-- **Landed (#656):** the three PACK surfaces (pack `dev-security/claude-rules/CLAUDE.md`
-  rule-index one-liner, pack README tree blurb, pack README scope row) each gained a condensed
-  clause naming the rule's un-observable-state / inventory / external-version-currency corollaries.
-- **Remaining (rides #657 with item 5):** the project `.claude/CLAUDE.md` index bullet's matching
-  clause, grouped into the item-5 `.claude/CLAUDE.md` bundle so all project-CLAUDE.md touches land together.
-
-### 5. [TODO 3.15 r5] Two CLAUDE.md items
+### 5. [TODO 3.15 r5] CLAUDE.md close-out-checklist clauses (re-scoped to #658)
 
 - **Target:** `.claude/CLAUDE.md`.
 - **(a) DONE, landed in #652 (2026-07-05):** the maintainer chose "reword the fallback"; the
   attended-autonomous rule-3 fallback now drops the "idle on a longer check-in" option and
   cross-references the no-long-interval-check-ins clause, so the self-contradiction is resolved.
-- **(b) LOW:** the close-out checklist's reconcile bullet does not name D7 as the now-mechanized
-  version-token half (the gate-50 naming pattern); one clause.
-- Also rides this bundle: the already-staged `/claim-fit` cadence-section candidate (#630
-  out-of-window observation).
+- **(b) LOW, rides #658:** the close-out checklist's reconcile bullet does not name D7 as the
+  now-mechanized version-token half (the gate-50 naming pattern); one clause.
+- **Rides #658:** the already-staged `/claim-fit` cadence-section candidate (#630 out-of-window
+  observation).
+- **Rides #658 (past codification threshold):** the summary/description-lag close-out-checklist
+  half-line (the #652/#653 `/retro` candidate, at four in-window occurrences): when a PR marks a
+  summary surface resolved or landed, or a mid-PR verifier reword changes a term or value on a
+  primary surface, update or grep the paired detail/description surfaces in the same commit.
 
 ### 6. [TODO 4.7 GR-P1..P5] Pack design improvements (design-tier)
 
