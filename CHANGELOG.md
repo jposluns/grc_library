@@ -4,6 +4,10 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-07-05, Library Version 2026.07.154, PR #666
+
+`.claude/` changes for local project: corrected a factual-staleness one-liner in the CLAUDE.md Boundaries section (the exception-register trio) per the protected-tree-factual-staleness class authorization (the TODO GR-P5 sub-item). The line listed `gate-discipline`, `change-tracking`, and `evidence-grounded-completion` as the three pack rules referencing "the project's exception register", but `evidence-grounded-completion` has zero such references; the actual third rule is `artefact-and-branch-discipline` (verified by grep of `dev-security/claude-rules/governance/`). Carries the batched #665 `/validate-pr` (1 in-window finding, fixed) and `/retro` rows.
+
 ## 2026-07-05, Library Version 2026.07.153, PR #665
 
 `.claude/` changes for local project: added a `Meta-prose state-claim measurement` bullet to the CLAUDE.md PR close-out checklist (measure an artefact-state claim, a count, a designation form, a distribution, a fixture shape, with a grep or read at authoring time and write the clause from that output, never from the mental model), codifying the third-occurrence pattern the #662, #663, and #664 retrospectives surfaced (maintainer-authorized 2026-07-05); the batched #664 `/validate-pr` (1 in-window finding, fixed) and `/retro` rows ride this PR.
