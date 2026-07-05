@@ -43,7 +43,7 @@ Item 5's remaining r5 close-out-checklist clauses re-scope from the former #657 
 focused #658 (maintainer-directed 2026-07-05: after #657, small Priority 3 and Priority 1
 items first to clear TODO count; the larger GR-P design track, item 6, defers)._
 
-### 5. [TODO 3.15 r5] CLAUDE.md close-out-checklist clauses (landing across #659-#660)
+### 5. [TODO 3.15 r5] CLAUDE.md close-out-checklist clauses (items (a)/(b)/lag landed in #652/#659; the `/claim-fit` clause remains, deferred to the next session)
 
 - **Target:** `.claude/CLAUDE.md`.
 - **(a) DONE, landed in #652 (2026-07-05):** the maintainer chose "reword the fallback"; the
@@ -52,10 +52,13 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers)._
 - **(b) DONE, landed in #659 (2026-07-05):** the close-out checklist's reconcile bullet now names
   D7 (the handoff-snapshot freshness PR-time check) as the mechanized version-token half of the
   Current-truth reconcile (the gate-50 naming pattern).
-- **Rides #660:** the already-staged `/claim-fit` cadence-section candidate (#630 out-of-window
-  observation).
+- **Deferred to the next session:** the already-staged `/claim-fit` cadence-section candidate (#630
+  out-of-window observation); the maintainer chose wrap-and-resume-fresh at the #659 batch boundary,
+  so the session-closing handoff #660 is bookkeeping-only and this clause needs a research pass to
+  spec it, so it is not a handoff-PR change. The next session picks it up (its PR number is not yet
+  assigned; do not re-pin it to a specific number here).
 - **DONE, landed in #659 (2026-07-05, grouped with (b)):** the summary/description-lag close-out-checklist
-  half-line (the #652/#653 `/retro` candidate, at four in-window occurrences): when a PR marks a
+  half-line (the #650-#653 `/retro` candidate, at four in-window occurrences): when a PR marks a
   summary surface resolved or landed, or a mid-PR verifier reword changes a term or value on a
   primary surface, update or grep the paired detail/description surfaces in the same commit.
 
