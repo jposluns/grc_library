@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #647: 3.24, AI access-permissions ISO mapping reconciliation (2026-07-05)
+
+Judged via ad-hoc `/matrix-fit` against the ISO/IEC 27002:2022 control titles: the compliance matrix mapped the AI Access and Agent Permissions Standard to A.8.3 (Information access restriction) while dropping A.5.17, but the document's agent-permissions and privileged-access scope fits A.8.2 (Privileged access rights) plus A.5.17 (Authentication information), so the matrix row was corrected to A.5.15, A.5.16, A.5.17, A.5.18, A.8.2 to match the document's own authoritative table, and the document-index ISO summary was aligned to include A.8.2.
+
 ### PR #646: 3.23, patch-vs-vulnerability SLA reconciliation (2026-07-05)
 
 Split patch-management's Standard Critical classification into PoC-available (72h) and no-known-exploitation (7 days) rows to mirror the vulnerability-management source table (maintainer decision B2), resolving the two-answers-from-two-citable-procedures conflict; the section-7.4 metric was generalized from "within 72 hours" to "within classification SLA" so the document stays coherent.
