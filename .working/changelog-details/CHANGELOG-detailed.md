@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.148, PR #660
+
+Session-closing handoff for the 2026-07-05 daytime-unattended session (#645-#659); a working-state and bookkeeping PR (no corpus body or pack change).
+
+### Changed
+
+- **Session handoff refreshed and reconciled.** [`.working/session-handoff.md`](../session-handoff.md): the 2026-07-05 State-snapshot line reconciled to work-merged-through-#659 with #660 in flight, and every labelled version token set to the #660-head value (library `2026.07.148`, README `1.9.509`, pack `1.54.6`, audit-spec `1.16.56`, runbook `1.1.3`, guardrail-history `1.0.6`, validate-pr history `1.2.438`, improvement-log `1.0.383`, claim-fit history `1.0.3`); the D7 handoff-snapshot freshness check validates these against the live headers at the PR head. This session's `## Asserted expectations` block was added (scoped to the surfaces this session verified) with the green-at-`184f727` baseline; the Next-actions block carries a close reconcile marker; the prior session's blocks are relabelled and retained (pruned to current-plus-one-prior at the next resume).
+- **Session metrics and lease.** A 2026-07-05 session row was added to [`.working/session-metrics.md`](../session-metrics.md) (a measured post-compaction floor of 690,384 across the #658 and #659 `/validate-pr` Subagent A returns; the pre-compaction dispatches are excluded rather than estimated; orchestrator main-loop tokens `not instrumented`; the register's own Version bumped `1.0.35` to `1.0.36`). The concurrency lease [`.working/session-state.md`](../session-state.md) was released (`Status: released`, `Active-session: none`, fresh heartbeat).
+- **`/claim-fit`-pointer reconcile (plan change).** #659 had pinned the last remaining TODO 3.15 r5 close-out clause (the `/claim-fit` cadence clause) to PR #660; the maintainer's wrap-and-resume-fresh choice makes #660 the bookkeeping-only session-closing handoff, so [`TODO.md`](../../TODO.md) and [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md) item 5 are reconciled to defer that research-needing clause to the next session (no specific PR number re-pinned).
+
+### Verification
+
+- Working-state and bookkeeping PR (session-closing handoff), so no standing pre-push verifier per the quick-fix tier; the compensating control for the skipped trailing `/validate-pr` plus `/retro` is the next `/resume`'s corpus-wide `/validate` (Sweep 85), per the loop-break exception. The pre-push guard (66 corpus gates plus the PR-time delta checks D1-D7, including the D7 handoff-snapshot freshness check, and the history-aware gates 45/40/31) is green.
+- No corpus per-document Version/Date block touched (gates 40/31 scan corpus documents, so they are N/A here); the `.working/` register files that carry their own Version bumped per the D2/D4 PR-time checks (validate-pr history to `1.2.438`, improvement-log to `1.0.383`, session-metrics to `1.0.36`); no pack file touched (pack Version stays `1.54.6`); library CalVer and README Version bumped once (`2026.07.147` to `2026.07.148`, `1.9.508` to `1.9.509`); no corpus body or generated artefact touched.
+- **Batched (recursion-avoidance):** the #659 `/validate-pr` (1 note, fixed in-window) [record](../validate-pr/2026-07-05-PR-659.md) and [history row](../validate-pr/history.md), and the #659 `/retro` [row](../improvement-log.md).
+- **Handoff-PR exception:** this PR's [`.working/validate-pr/history.md`](../validate-pr/history.md) row carries the gate-50 handoff marker (`SKIPPED (handoff-PR exception)`) in its Findings cell; no #660 `/retro` row is written (both skipped per the loop-break exception).
+
 ## 2026-07-05, Library Version 2026.07.147, PR #659
 
 Close two grouped TODO 3.15 r5 close-out-checklist clauses (a [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) protected-file edit, grouped by logical fit per the maintainer's 2026-07-05 direction); carries the batched #658 QA rows.
