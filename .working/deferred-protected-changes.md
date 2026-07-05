@@ -30,18 +30,11 @@ quick: the content is ready and only the authorized apply + QA remains.
 _Landed in PR #652 (2026-07-05): item 1 (codify the mode-transition protocol in CLAUDE.md,
 now the `Overnight-to-daytime protected-backlog clearance` paragraph in the
 `## Attended-autonomous operating mode` section) and item 5(a) (reword the rule-3 fallback to
-drop the longer-check-in option). The item numbering below preserves the original staging
-order; item 5's remaining sub-items 5(b) and the `/claim-fit` candidate are unstarted._
-
-### 2. [TODO 3.18] Pack-tree ATLAS technique-ID currency refresh
-
-- **Targets:** `dev-security/claude-rules/ai/{agent-security.md, ai-security.md,
-  rag-security.md, mcp-security.md}` (8 `AML.T0048` citations + gloss drifts on T0024, T0051).
-- **Prep status:** DRAFT DURING OVERNIGHT RUN, re-map every pack-tree ATLAS ID and gloss
-  against the held CSVs at `grc_library_scratch/ref/frameworks/MITRE/ATLAS-2026.06--*.csv`
-  (do NOT map from memory). Record the verified old→new map here before daytime.
-- **QA:** pack Version + `## Version history` co-bump (D6); byte-identical local mirrors where
-  files are mirrored; `lint-language.py`.
+drop the longer-check-in option). Landed in PR #654 (2026-07-05): item 2 (the pack-tree ATLAS
+technique-ID currency refresh, TODO 3.18 closed: eight `AML.T0048` re-pointed to `AML.T0053`
+and two gloss drifts corrected against the held ATLAS 2026.06 CSVs). The item numbering below
+preserves the original staging order; item 5's remaining sub-items 5(b) and the `/claim-fit`
+candidate are unstarted._
 
 ### 3. [TODO 3.15 D-F2] Guardrail-review SKILL cadence clause
 

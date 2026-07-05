@@ -118,9 +118,9 @@ Before deploying any MCP server to production, conduct:
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Tool authentication | LLM06 | AML.T0048 | IAM-04 | Govern 1.4 |
+| Tool authentication | LLM06 | AML.T0053 | IAM-04 | Govern 1.4 |
 | Tool-call injection | LLM01, LLM06 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Input validation | LLM06 | N/A | AIS-02 | Manage 1.3 |
 | Transport security | N/A | N/A | I&S-09 | N/A |
 | Privileged operations | LLM06 | AML.T0054 | GVN-05 | Govern 6.2 |
-| Resource authorization | LLM06, LLM08 | AML.T0048 | IAM-05 | Manage 1.3 |
+| Resource authorization | LLM06, LLM08 | AML.T0053 | IAM-05 | Manage 1.3 |

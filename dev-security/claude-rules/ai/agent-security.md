@@ -105,7 +105,7 @@ Before deploying an agentic system to production, adversarial testing must inclu
 | Indirect injection via documents | Embed adversarial instructions in documents the agent reads | TikiTribe indirect injection suite |
 | Tool-call argument manipulation | Supply malformed or boundary-violating tool arguments | TikiTribe tool-call test cases |
 | Trust escalation | Attempt to have a subagent claim orchestrator-level trust | TikiTribe multi-agent trust tests |
-| Privilege escalation | Attempt to get the agent to grant itself additional permissions | MITRE ATLAS AML.T0048 |
+| Privilege escalation | Attempt to get the agent to grant itself additional permissions | MITRE ATLAS AML.T0053 |
 | Loop exploitation | Craft inputs that cause infinite tool-call recursion | N/A |
 | Cross-session exfiltration | Attempt to access another user's session data through agent context | N/A |
 
@@ -117,8 +117,8 @@ Before deploying an agentic system to production, adversarial testing must inclu
 
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
-| Trust hierarchy | LLM06, LLM08 | AML.T0048 | IAM-04 | Govern 1.4 |
-| Tool validation | LLM06 | AML.T0048 | AIS-02 | Manage 1.3 |
+| Trust hierarchy | LLM06, LLM08 | AML.T0053 | IAM-04 | Govern 1.4 |
+| Tool validation | LLM06 | AML.T0053 | AIS-02 | Manage 1.3 |
 | Human-in-the-loop | LLM06 | AML.T0054 | GVN-05 | Govern 6.2 |
 | Prompt injection (agentic) | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Memory security | LLM02 | AML.T0024 | DSP-05 | Measure 2.7 |
