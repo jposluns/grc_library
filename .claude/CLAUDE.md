@@ -466,6 +466,20 @@ is external. Two mechanisms:
      earlier run (third occurrence made it a pattern: #603, #606, #625). This pairs with
      the separator-tolerance line above, which governs the grep's FORM; this line governs
      the claim's fidelity to what the grep actually returned.
+   - **Meta-prose state-claim measurement** (the measured-not-inferred guard): when a
+     CHANGELOG, TODO, DONE, or `.working` record clause characterizes an artefact's own state
+     (a count, a designation form, a bare-vs-joint distribution, a fixture shape, what a file
+     contains or lacks), MEASURE it with a `grep` or a read at authoring time and write the
+     clause from that output, never from the mental model. This is the
+     `evidence-grounded-completion` read-before-characterizing rule applied at
+     BOOKKEEPING-authoring time (as distinct from corpus-authoring time), generalizing the
+     Grep-claim-fidelity bullet above from grep-result claims to any artefact-state claim.
+     Third-occurrence codification (#662 a currency caveat asserted an unverified year for a
+     resolution; #663 a gap bullet asserted "left bare" without measuring the mixed
+     bare-and-joint corpus distribution; #664 a CHANGELOG bullet asserted "bare-form fixtures"
+     when the fixtures are joint-form): all three were caught in-window by the pre-push
+     skeptical verifier or the post-merge `/validate-pr`, so the recurrence is in the
+     authoring, not the catching.
    - **CHANGELOG count-reflex** (the mid-PR figure-drift guard): when a figure in a
      drafted CHANGELOG entry changes during verifier rounds (a findings count, a fixture
      count, a suite size), bare-token grep the WHOLE entry, all sections in both files,
