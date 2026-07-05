@@ -176,8 +176,12 @@ def check_file(path: Path, entries: list[dict[str, object]]) -> list[tuple[int, 
                 # from triggering inside a longer version string. For example,
                 # "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1" because
                 # 4.0 is followed by .1 (a version-continuation pattern).
+                # The optional "v?" admits a "v"-prefixed version label
+                # ("PCI DSS v4.0"), a citation style the bare separator group
+                # (":", "(", whitespace) otherwise missed; the continuation
+                # guard still protects the current "v4.0.1" (TODO 3.22 half b).
                 pattern = re.compile(
-                    rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*{sup_re}\b(?![.\-][\d\w])",
+                    rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
                     flags=re.IGNORECASE,
                 )
                 if pattern.search(line):
