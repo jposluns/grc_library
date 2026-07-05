@@ -10,7 +10,41 @@ This file complements [`DONE.md`](DONE.md) (which records shipped backlog items)
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
-The ordering below is loosely thematic rather than chronological. New decisions append to the relevant section.
+The file is organized in two registers (see the Index below): **thematic sections** grouping durable conventions by topic, and **standalone dated decision sections** for point-in-time decisions (most maintainer-directed), each tied to a date. Append a convention refinement to the relevant thematic section; append a dated point decision as a new standalone `## <title> (decided YYYY-MM-DD, ...)` section and add a one-line entry to the Index's dated-decision list (most-recent-first).
+
+---
+
+## Index
+
+This file has three parts: this index; a set of **thematic sections** for durable conventions (grouped by topic); and a set of **standalone dated decision sections** for point decisions (most maintainer-directed, each tied to a date). Section titles are reproduced below so a reader can find any section by title search; the dated-decision list is ordered most-recent-first.
+
+**Thematic sections (durable conventions, grouped by topic):**
+
+- Working state and `.working/` convention
+- Slash commands, skills, and the validation-sweep / fitness-review surface
+- CHANGELOG and TODO/DONE conventions
+- Audit programme architecture
+- Language and style
+- Decisions explicitly dropped
+
+**Dated decisions (most recent first):**
+
+- 2026-07-05: TODO item granularity: one functional change per item
+- 2026-07-04: Whole-backlog wave-7 staging before the P2 applies (including the 4.1 distillation seed)
+- 2026-07-04: GR-3 wave 3: metadata parsers stay separate
+- 2026-07-04: The 2026-07-04 morning decision rounds (thirteen answers; overnight exit)
+- 2026-07-04: Usage-budget SOP eliminated
+- 2026-07-04: P2 applies re-tiered to a separate Opus 4.8 session
+- 2026-07-04: No long-interval check-ins
+- 2026-07-03: TODO audit-trail sections stay in TODO by design
+- 2026-07-03: Worker-ready brief staging for the whole eligible backlog
+- 2026-07-03: S3 citation-precision instrument: the matrix-fit pattern, not a CI gate
+- 2026-07-02: Scratch-repo licensed reference files: keep tracked, private-forever promise
+- 2026-07-02: Mode-exit priority ordering: cleanup, then fixes, then tooling, then new work
+- 2026-07-02: Model tiering for multi-session orchestration
+- 2026-06-26: Session-concurrency safety: a session-state lease plus git cross-check (shipped PR #611)
+- 2026-06-24: Multi-session / multi-worker orchestration model
+- 2026-06-23: Overnight unattended run authorizations
 
 ---
 
