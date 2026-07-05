@@ -55,13 +55,13 @@ def check_iso_token(tok: str) -> tuple[str, str] | None:
         if theme not in ISO_ANNEX_A_RANGES:
             return (
                 "iso-annex-theme",
-                f"ISO 27001:2022 Annex A theme 'A.{theme}' does not exist "
+                f"ISO/IEC 27001:2022 Annex A theme 'A.{theme}' does not exist "
                 f"(valid themes: A.5-A.8): '{tok}'",
             )
         if not 1 <= num <= ISO_ANNEX_A_RANGES[theme]:
             return (
                 "iso-annex-range",
-                f"ISO 27001:2022 Annex A control '{tok}' out of range "
+                f"ISO/IEC 27001:2022 Annex A control '{tok}' out of range "
                 f"(A.{theme}.1-A.{theme}.{ISO_ANNEX_A_RANGES[theme]})",
             )
         return None
@@ -71,12 +71,12 @@ def check_iso_token(tok: str) -> tuple[str, str] | None:
         if not ISO_CLAUSE_MIN <= clause <= ISO_CLAUSE_MAX:
             return (
                 "iso-clause-range",
-                f"ISO 27001:2022 clause '{tok}' out of range "
+                f"ISO/IEC 27001:2022 clause '{tok}' out of range "
                 f"(§{ISO_CLAUSE_MIN}-§{ISO_CLAUSE_MAX})",
             )
         return None
     return (
         "iso-malformed",
-        f"unrecognized ISO 27001:2022 token '{tok}' "
+        f"unrecognized ISO/IEC 27001:2022 token '{tok}' "
         f"(expected an Annex A code 'A.5-A.8.N' or a clause '§4-§10')",
     )

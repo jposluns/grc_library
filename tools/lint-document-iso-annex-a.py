@@ -120,7 +120,7 @@ def _check_theme(theme: int, tok: str) -> tuple[str, str] | None:
     if theme not in ISO_ANNEX_A_RANGES:
         return (
             "iso-annex-theme",
-            f"ISO 27001:2022 Annex A theme 'A.{theme}' does not exist "
+            f"ISO/IEC 27001:2022 Annex A theme 'A.{theme}' does not exist "
             f"(valid themes: A.5-A.8): '{tok}'",
         )
     return None
@@ -140,13 +140,13 @@ def _check_range(m: re.Match) -> tuple[str, str] | None:
     if t1 != t2:
         return (
             "iso-annex-range",
-            f"ISO 27001:2022 Annex A range '{tok}' spans two themes "
+            f"ISO/IEC 27001:2022 Annex A range '{tok}' spans two themes "
             f"(A.{t1} and A.{t2}); a range stays within one theme",
         )
     if n1 > n2:
         return (
             "iso-annex-range",
-            f"ISO 27001:2022 Annex A range '{tok}' is inverted (A.{t1}.{n1} > A.{t2}.{n2})",
+            f"ISO/IEC 27001:2022 Annex A range '{tok}' is inverted (A.{t1}.{n1} > A.{t2}.{n2})",
         )
     return None
 
@@ -186,7 +186,7 @@ def findings_in(cell: str) -> list[tuple[str, str]]:
 
 
 def scan_file(path: Path) -> list[Finding]:
-    """Validate ISO 27001:2022 Annex A codes in the ISO-labelled tables of ``path``."""
+    """Validate ISO/IEC 27001:2022 Annex A codes in the ISO-labelled tables of ``path``."""
     text = read_text_safe(path)
     if text is None:
         return []
@@ -279,7 +279,7 @@ def main(argv: list[str]) -> int:
         for f in by_file[rel]:
             print(f"  L{f.line} [{f.rule}] {f.message}")
     print(
-        f"\nFAIL: {len(findings)} per-document ISO 27001:2022 Annex A control-code "
+        f"\nFAIL: {len(findings)} per-document ISO/IEC 27001:2022 Annex A control-code "
         f"issue(s) across {len(by_file)} file(s). Codes are validated against the "
         f"authoritative 2022 Annex A theme/control ranges (A.5-A.8) and clause range "
         f"(§4-§10); only cells governed by an ISO 27001:2022 label are scanned.",

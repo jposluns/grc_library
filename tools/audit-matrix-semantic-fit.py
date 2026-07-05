@@ -51,7 +51,7 @@ adjudicate. The subtler "loose supporting code on an otherwise-anchored row"
 case (e.g. matrix row 163's TVM-06 on a pen-testing standard, Sweep-61 note
 A-note-1) is intentionally NOT on the worklist: an anchored row is deprioritized,
 and that residual case is exactly what the semantic `/matrix-fit` skill catches.
-ISO 27001:2022 codes are not assessed (no Annex A title source in the repo;
+ISO/IEC 27001:2022 codes are not assessed (no Annex A title source in the repo;
 ISO 31000 clause headings and COBIT 2019 objective titles ARE assessable since
 the 2026-07-02 cobit_iso31000_reference extension); rows whose
 only known-title codes are absent are skipped (not assessable, so not listed).

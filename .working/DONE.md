@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #664: Matrix ISO-header gate-49-coupled lockstep (ISO/IEC designation) (2026-07-05)
+
+Harmonized the compliance matrix's 11 per-domain ISO column headers plus the legend to `ISO/IEC 27001:2022` in lockstep with gate 49's `ISO_HEADER` constant, its regression fixtures, docstring, and OK message, the shared `iso_27001_reference.py` finding messages, gate 58's own diagnostic messages (the ISO-gate pair fully harmonized, gate 58's deliberate both-form-input documentation kept bare), the `/matrix-fit` worklist-tool docstring, and the gate-49 references in the audit-programme spec. Gated on proving gate 49 still fires post-rename (injected `A.5.99` caught under the new header; old bare header no longer recognized), verified by two independent adversarial verifiers. Closes TODO 3.1 part (a) (the last of the four 2026-07-05 daytime-round pending items after Brazil/#662 and FIT-8/#663); the base-unverified gap tail (part b, task tracked) and the authoritative-register+gate item remain open.
+
 ### PR #663: ISO/IEC designation-accuracy corpus-wide sweep (base-verified subset) (2026-07-05)
 
 Executed the maintainer's accuracy-principle redirect (joint ISO/IEC standards must be listed as joint; single-body standards list only the one; accuracy is critical to integrity): a corpus-wide migration of the 13 base-confirmed joint standards from bare `ISO NNNNN` to `ISO/IEC NNNNN` (232 conversions across 31 files) via the high-assurance harness (two adversarial verifiers, deterministic scripted apply, re-parse). Subsumes the FIT-8 register-cell pending-decisions item (register cells now uniformly `/IEC`; row 274 internally consistent). Base-unverified joint-standard gaps (23247, 27033/27034, 12207-tripartite, etc.) left bare and tracked in TODO 3.1's new gap bullet; the gate-49-coupled compliance-matrix header harmonization remains its own pending lockstep PR.
