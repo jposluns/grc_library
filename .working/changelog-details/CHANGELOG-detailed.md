@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.143, PR #655
+
+Guardrail-review SKILL cadence clause (TODO 3.15 r4 D-F2 closed; 3.15 stays open); carries the batched #654 QA rows.
+
+### Changed
+
+- **Guardrail-review SKILL cadence clause (TODO 3.15 D-F2).** [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the auto-prompt bullet ("The maintainer decides whether to run it now or defer") implied an open-ended deferral and never named the gate that bounds it. One clause added stating the deferral is bounded by gate 60 (guardrail-review cadence currency): gate 60 compares the live machinery inventory (gate, rule, skill, and command counts) against the newest history row's as-of counts, passes with a warning while the summed per-axis drift is 1 or 2, and fails the build once the drift reaches 3, so a deferred review is mechanically forced before the machinery drifts far. The SKILL has no mirror and the clause sits in a description bullet (not step text), so gate 44 paired-skill step-parity is not implicated; the paired `/guardrails` command file was checked and carries no contradicting deferral statement.
+
+### Verification
+
+- The gate-60 threshold (warn while summed drift is 1 or 2, fail at 3) was verified against [`tools/lint-guardrail-cadence.py`](../../tools/lint-guardrail-cadence.py) (`FAIL_DRIFT_THRESHOLD = 3`; drift below the threshold passes with a warning), read at source rather than asserted from the staging note. [`tools/lint-language.py`](../../tools/lint-language.py) run on the edited SKILL before the first commit (no findings). Quick-fix-tier change (a single-clause factual pack-prose addition, one verified fact), so no standing verifier subagent; the pre-push guard and the post-merge `/validate-pr` are the QA layers. Pack Version `1.54.4` to `1.54.5` with a matching `## Version history` row (D6); library CalVer and README Version bumped once. TODO 3.15 D-F2 sub-item deleted and rotated to [`.working/DONE.md`](../DONE.md); 3.15 stays open on its remaining sub-items. No corpus document body or generated artefact touched.
+- **Batched (recursion-avoidance):** the #654 `/validate-pr` (0 findings) and `/retro` rows.
+
 ## 2026-07-05, Library Version 2026.07.142, PR #654
 
 Pack-tree MITRE ATLAS technique-ID currency refresh, closing the pack half of TODO 3.18 (the corpus half shipped in #635); carries the batched #653 QA rows.

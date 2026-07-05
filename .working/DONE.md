@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #655: 3.15 D-F2, guardrail-review SKILL cadence clause (2026-07-05)
+
+Closed the r4 D-F2 sub-item of TODO 3.15: the guardrail-review SKILL's auto-prompt bullet implied unbounded maintainer deferral and never named gate 60, so one clause was added noting the deferral is bounded by gate 60 (guardrail-review cadence currency), which warns while the summed machinery-inventory drift is 1 or 2 and fails the build once it reaches 3 (threshold verified against `tools/lint-guardrail-cadence.py`). 3.15 stays open on its remaining sub-items.
+
 ### PR #654: 3.18, pack-tree MITRE ATLAS technique-ID currency refresh (2026-07-05)
 
 Closed the pack half of TODO 3.18 (the corpus half shipped in #635): the eight `AML.T0048` citations across the four `dev-security/claude-rules/ai/` files (all LLM06 excessive-agency tool/permission rows) re-point from External Harms to `AML.T0053` (AI Agent Tool Invocation), mirroring the corpus half's verified resolution, and two gloss drifts on otherwise-correct IDs are corrected in `ai-security.md` (`AML.T0024` to "Exfiltration via AI Inference API", `AML.T0051` to "LLM Prompt Injection"), all grounded in the held ATLAS 2026.06 CSVs with v2026.06 upstream-confirmed current at apply time; T0010, T0020, and T0054 were re-verified current and unchanged.
