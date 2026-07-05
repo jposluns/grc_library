@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.7\
-**Date:** 2026-07-03\
+**Version:** 1.0.8\
+**Date:** 2026-07-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -24,7 +24,7 @@ It merges and replaces the Secure Software Development Lifecycle (SDLC) Policy, 
 
 The policy aligns with ISO/IEC 27034 Application Security, ISO/IEC 27002:2022 controls, NIST Secure Software Development Framework (SSDF), COBIT 2019 BAI03 and BAI07, CSA CCM v4.1 SEF domain, and OWASP ASVS v5.
 
-It incorporates forward-looking controls for AI-generated code verification and ISO 27002 clause 5 AI security control mapping.
+It incorporates forward-looking controls for AI-generated code verification and ISO/IEC 27002 clause 5 AI security control mapping.
 
 ---
 

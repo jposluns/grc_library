@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.5\
-**Date:** 2026-07-02\
+**Version:** 1.1.6\
+**Date:** 2026-07-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -361,7 +361,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **Key capabilities**:
   - 71 plugin vulnerability categories: aegis, age-bias, ascii-smuggling, beavertails, bfla, bias, bola, coding-agent, competitors, context-compliance-attack, contracts, coppa, cross-session-leak, custom, cyberseceval, data-exfil, debug-access, disability-bias, divergent-repetition, donotanswer, ecommerce, excessive-agency, ferpa, financial, gender-bias, goal-misalignment, hallucination, harmbench, harmful, hijacking, imitation, indirect-prompt-injection, insurance, intent, malicious-code, mcp, medical, memory-poisoning, model-identification, off-topic, overreliance, pharmacy, pii, pliny, policy, politics, prompt-extraction, race-bias, rag-document-exfiltration, rag-poisoning, rag-source-attribution, rbac, realestate, reasoning-dos, religion, shell-injection, special-token-injection, sql-injection, ssrf, system-prompt-override, teen-safety, telecom, tool-discovery, toxic-chat, unsafebench, unverifiable-claims, vlguard, vlsu, wordplay, xstest.
   - 30 attack strategies: audio, authoritative-markup-injection, base64, basic, best-of-n, citation, composite-jailbreaks, custom, custom-strategy, gcg, goat, hex, homoglyph, hydra, image, indirect-web-pwn, iterative, jailbreak-templates, layer, leetspeak, likert, math-prompt, meta, mischievous-user, multi-turn, other-encodings, prompt-injection, retry, rot13, tree, video.
-  - Compliance framework mappings: OWASP LLM Top 10, OWASP Agentic AI, OWASP API Top 10, MITRE ATLAS, NIST AI RMF, EU AI Act, GDPR, ISO 42001, DoD AI Ethics.
+  - Compliance framework mappings: OWASP LLM Top 10, OWASP Agentic AI, OWASP API Top 10, MITRE ATLAS, NIST AI RMF, EU AI Act, GDPR, ISO/IEC 42001, DoD AI Ethics.
   - Multi-input/multimodal attacks (image, audio, video).
 - **GRC concern surfaced**: Library cited promptfoo at the use-it level but did not reflect its plugin granularity. RAG-poisoning, RAG-document-exfiltration, and RAG-source-attribution as distinct categories drove Phase 23.4 RAG-SEC-10/11/12. Memory-poisoning plugin and excessive-agency plugin drove Phase 23.4 agentic threats.
 - **Status notes**: Active. Largest plugin catalog of the survey.
@@ -1104,7 +1104,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **License**: Commercial SaaS.
 - **Library reference status**: Surveyed only.
 - **Key capabilities**: AI Discovery; AI Supply Chain Security; AI Attack Simulation (ATLAS-aligned); AI Runtime Security (Detection Guardrails + Firewall); agentic runtime.
-- **Compliance mapping**: NIST AI RMF, MITRE ATLAS, ISO 42001, EU AI Act.
+- **Compliance mapping**: NIST AI RMF, MITRE ATLAS, ISO/IEC 42001, EU AI Act.
 - **Status notes**: AWS Marketplace listing.
 - **Provenance**:
   - Source URL: `https://www.hiddenlayer.com/platform/ai-runtime-security`

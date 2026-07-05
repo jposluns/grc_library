@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #663: ISO/IEC designation-accuracy corpus-wide sweep (base-verified subset) (2026-07-05)
+
+Executed the maintainer's accuracy-principle redirect (joint ISO/IEC standards must be listed as joint; single-body standards list only the one; accuracy is critical to integrity): a corpus-wide migration of the 13 base-confirmed joint standards from bare `ISO NNNNN` to `ISO/IEC NNNNN` (232 conversions across 31 files) via the high-assurance harness (two adversarial verifiers, deterministic scripted apply, re-parse). Subsumes the FIT-8 register-cell pending-decisions item (register cells now uniformly `/IEC`; row 274 internally consistent). Base-unverified joint-standard gaps (23247, 27033/27034, 12207-tripartite, etc.) left bare and tracked in TODO 3.1's new gap bullet; the gate-49-coupled compliance-matrix header harmonization remains its own pending lockstep PR.
+
 ### PR #659: TODO 3.15 r5 close-out-checklist clauses (D7-naming + summary/description-lag) (2026-07-05)
 
 Added two grouped `.claude/CLAUDE.md` close-out-checklist clauses: (1) the reconcile bullet now names the D7 handoff-snapshot freshness check as the mechanical backstop for the version-token half of the Current-truth reconcile (the gate-50 naming pattern); (2) a new summary/description-lag bullet (when a PR resolves or lands a summary surface, or a reword changes a primary surface, update the paired detail surface in the same commit). TODO 3.15 stays open; the `/claim-fit` cadence clause is the last remaining CLAUDE.md close-out item (#660).

@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.4\
-**Date:** 2026-07-03\
+**Version:** 1.2.5\
+**Date:** 2026-07-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -56,7 +56,7 @@ Establish Context → Identify Risks → Analyze Risks → Evaluate Risks → Tr
 
 2.2 Define the objectives: what the assessment aims to protect or achieve.
 
-2.3 Identify applicable regulatory and framework requirements (ISO 27001, GDPR, PIPEDA, EU AI Act, etc.).
+2.3 Identify applicable regulatory and framework requirements (ISO/IEC 27001, GDPR, PIPEDA, EU AI Act, etc.).
 
 2.4 Confirm the risk criteria: likelihood scale, impact scale, and risk tolerance thresholds.
 

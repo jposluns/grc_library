@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -68,7 +68,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | --- | --- | --- | --- | --- |
 | SOC 2 / SOC 1 / ISAE 3402 report currency | Direct from supplier | Annual | Within 12 months | Request updated report |
 | Qualified opinions or material exceptions in assurance reports | Direct from supplier | Per report | None unaddressed | Request remediation plan |
-| ISO 27001 certification currency | Public certification register | Annual | Current | Engage; revalidate evidence |
+| ISO/IEC 27001 certification currency | Public certification register | Annual | Current | Engage; revalidate evidence |
 | Penetration test attestation (Tier 1, Tier 2) | Direct from supplier | Annual | Independent test within 12 months | Request updated attestation |
 | Independent assessment of the supplier's own supplier programme | Direct or public | Triennial | Available for Tier 1 critical suppliers | Investigate |
 

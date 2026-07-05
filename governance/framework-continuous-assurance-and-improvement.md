@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-07-02\
+**Version:** 1.0.9\
+**Date:** 2026-07-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -28,7 +28,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 1. Applies to all enterprise governance domains, including information security, privacy, AI ethics, sustainability, ESG, and BASC trade compliance.
 2. Covers assurance mechanisms for control effectiveness, process maturity, and regulatory compliance.
-3. Includes AI governance maturity monitoring under ISO 42001 §10 and digital trust indicators per COBIT 2019.
+3. Includes AI governance maturity monitoring under ISO/IEC 42001 §10 and digital trust indicators per COBIT 2019.
 4. Encompasses global operations, including BASC-certified trade and logistics activities.
 
 ---
@@ -147,7 +147,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Automated tracking of improvement actions from the CAPA system.
 - Predictive analytics to detect emerging control weaknesses.
 
-7.2 The AI governance workspace consolidates AI maturity data for management review and ISO 42001 certification support.
+7.2 The AI governance workspace consolidates AI maturity data for management review and ISO/IEC 42001 certification support.
 
 7.3 All assurance and improvement data are securely stored in the GRC platform with full audit traceability.
 

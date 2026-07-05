@@ -2,7 +2,7 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -127,7 +127,7 @@ Signed: <named senior officer per the framework's signatory requirements; e.g. D
 
 ### When to use
 
-When the framework requires the organization to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO 27001 statement-of-applicability submission, DORA control attestation).
+When the framework requires the organization to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO/IEC 27001 statement-of-applicability submission, DORA control attestation).
 
 ### Timing
 
@@ -146,7 +146,7 @@ Subject: Attestation under <framework name and section reference>
 1. Scope of attestation
    Systems, processes, or business units in scope: <list>
    Systems, processes, or business units explicitly out of scope: <list with rationale>
-   Framework version against which attestation is made: <e.g. ISO 27001:2022, PCI DSS v4.0.1, SOC 2 Type II Trust Services Criteria 2017>
+   Framework version against which attestation is made: <e.g. ISO/IEC 27001:2022, PCI DSS v4.0.1, SOC 2 Type II Trust Services Criteria 2017>
 
 2. Attestation statement
    <One paragraph stating the attestation. Match the framework's required wording where prescribed (some frameworks require verbatim language).>

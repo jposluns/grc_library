@@ -2,8 +2,8 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.3\
-**Date:** 2026-07-03\
+**Version:** 1.1.4\
+**Date:** 2026-07-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-operational-risk-register.md`](template-operational-risk-register.md), [`risk/template-board-risk-report.md`](template-board-risk-report.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -113,7 +113,7 @@ To support consistency, the activities captured in each entry use the following 
 | Second-line testing | Second-line tests control effectiveness |
 | Independent assurance | Third-line independent testing |
 | External audit | External auditor opinion |
-| Certification | Independent certification (e.g. ISO 27001, ISO 42001, SOC 2 Type II) |
+| Certification | Independent certification (e.g. ISO/IEC 27001, ISO/IEC 42001, SOC 2 Type II) |
 | Regulator examination | Regulator-led examination |
 | Customer audit | Customer-led audit of the organization |
 | Supplier attestation | Supplier-provided attestation of their controls |
@@ -194,7 +194,7 @@ The assurance plan is the prospective view; the map is the current state.
 | First-line activity | IAM operations team operates the IdP and runs joiner-mover-leaver process daily |
 | Second-line activity | Information security reviews IAM telemetry monthly; quarterly access review oversight |
 | Third-line activity | Internal audit assessed IAM controls last cycle; next audit Q4 |
-| External activity | ISO 27001 certification covers IAM; SOC 2 Type II from the IdP supplier received quarterly |
+| External activity | ISO/IEC 27001 certification covers IAM; SOC 2 Type II from the IdP supplier received quarterly |
 | Customer-driven activity | Annual customer-driven audit covers IAM as part of broader assessment |
 | Assurance level | Amber-1 |
 | Coverage commentary | Strong first- and second-line activity; third-line refresh due in the current cycle |

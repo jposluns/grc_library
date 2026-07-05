@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.14\
-**Date:** 2026-07-03\
+**Version:** 1.4.15\
+**Date:** 2026-07-05\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -89,7 +89,7 @@ Sector-specific retention categories (for example, trade and customs records und
 
 Records must be stored in secure, access-controlled systems with encryption applied at rest and in transit. Requirements include:
 
-- Cloud-hosted storage must conform to ISO 27018 and CSA CCM DSP controls.
+- Cloud-hosted storage must conform to ISO/IEC 27018 and CSA CCM DSP controls.
 - Access must follow least-privilege principles as defined in the Access Control Procedure.
 - Critical records require multi-region backup and tamper-proof logging.
 

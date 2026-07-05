@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Risk Register Template\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md)\
@@ -65,7 +65,7 @@ This template defines the schema for the organization's Supplier Risk Register: 
 | Field | Description | Current Status |
 |---|---|---|
 | **Security Questionnaire** | Last completed questionnaire and date | |
-| **Certification / Audit** | ISO 27001 certificate; SOC 2 report; other (type and expiry) | |
+| **Certification / Audit** | ISO/IEC 27001 certificate; SOC 2 report; other (type and expiry) | |
 | **Penetration Test** | Date of most recent penetration test; finding summary | |
 | **Trade Programme Membership** | CTPAT: Active/Expired | |
 | | AEO-S: Active/Expired | |

@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-05\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -50,7 +50,7 @@ AI governance maturity includes ISO/IEC 42001 Clause 10 indicators covering expl
 
 ### 3. Management review
 
-Executive governance review is conducted at least annually per ISO 9001 §9.3 and ISO 27001 §9.3. The review assesses adequacy, effectiveness, and alignment of the governance framework with strategic objectives.
+Executive governance review is conducted at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3. The review assesses adequacy, effectiveness, and alignment of the governance framework with strategic objectives.
 
 ### 4. Continual improvement cycle
 

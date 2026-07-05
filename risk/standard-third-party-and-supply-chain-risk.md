@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-07-02\
+**Version:** 1.1.5\
+**Date:** 2026-07-05\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-due-diligence.md`](../supply-chain/procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -222,7 +222,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 
 | Framework | Relevant Section |
 |---|---|
-| ISO 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
+| ISO/IEC 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
 | ISO/IEC 27036-3:2023 | Cybersecurity - Supplier relationships - Guidelines for hardware, software, and services supply chain security |
 | ISO 28000 | Supply chain security management; risk and threat assessment |
 | NIST SP 800-53 Rev. 5 | SA-9 External System Services; SR Supply Chain Risk Management |

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.7\
-**Date:** 2026-07-04\
+**Version:** 1.1.8\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -40,7 +40,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 
 | Requirement | Standard | Evidence Required |
 |---|---|---|
-| Information security management system (ISMS) | ISO 27001:2022 or equivalent: certification or documented equivalent | Current ISO 27001 certificate; or detailed control inventory with independent attestation |
+| Information security management system (ISMS) | ISO/IEC 27001:2022 or equivalent: certification or documented equivalent | Current ISO/IEC 27001 certificate; or detailed control inventory with independent attestation |
 | Access control: least privilege, MFA for remote access | Documented access control policy and procedures | Policy documentation; MFA configuration attestation |
 | Vulnerability management: critical patches within 30 days, high within 90 days | Documented patch management procedure | Patch management records; vulnerability scan summary |
 | Incident response capability: 24-hour detection target; documented escalation | Documented IRP with notification timelines | IRP document; evidence of testing |
@@ -110,7 +110,7 @@ The organization accepts supplier security assurance in the following priority o
 
 | Tier | Evidence Type | Applicability |
 |---|---|---|
-| 1 | Independent certification (ISO 27001; SOC 2 Type II; CSA STAR Level 2) | Highest confidence; accepted for Tier 1 without supplemental review |
+| 1 | Independent certification (ISO/IEC 27001; SOC 2 Type II; CSA STAR Level 2) | Highest confidence; accepted for Tier 1 without supplemental review |
 | 2 | Third-party audit report (ISAE 3000; SOC 2 Type I; penetration test by named CREST/CHECK provider) | Accepted for Tier 1 and Tier 2; review findings for exceptions |
 | 3 | Regulatory approval or certification (PCI DSS; FedRAMP; NHS DSPT) | Accepted within scope of certification |
 | 4 | Completed security questionnaire with supporting evidence | Accepted for Tier 2 and Tier 3; Tier 1 requires supplemental evidence |
@@ -169,7 +169,7 @@ The following metrics must be tracked and reported to the CISO at least quarterl
 | Metric | Target |
 | --- | --- |
 | Tier 1 suppliers with current security and privacy questionnaire on file | 100% |
-| Tier 1 suppliers with valid independent certification (ISO 27001, SOC 2 Type II, or equivalent) | At least 90% |
+| Tier 1 suppliers with valid independent certification (ISO/IEC 27001, SOC 2 Type II, or equivalent) | At least 90% |
 | Supplier breach notifications received within the contractual notification window | 100% |
 | Supplier offboarding completed with a destruction or return certificate | 100% |
 | Critical-tier supplier risk exceptions open longer than 90 days | Zero |
@@ -184,8 +184,8 @@ Metric definitions and supporting data collection are operationalized in [`suppl
 
 | Framework | Alignment |
 |---|---|
-| ISO 27001:2022 | A.5.19 to A.5.22 Supplier relationships |
-| ISO 27036 | Information security for supplier relationships |
+| ISO/IEC 27001:2022 | A.5.19 to A.5.22 Supplier relationships |
+| ISO/IEC 27036 | Information security for supplier relationships |
 | NIST SP 800-53 Rev. 5 | SA-9 External System Services; SR family (Supply Chain Risk Management) including SR-3 Supply Chain Controls and Processes, SR-5 Acquisition Strategies and Tools, SR-6 Supplier Assessments and Reviews. Note: SA-12 was the Rev. 4 supply chain protection control; Rev. 5 moved supply chain controls into the dedicated SR family. |
 | GDPR / UK GDPR | Article 28: Processor obligations |
 | NIST Privacy Framework | CT-P.2: Data processing ecosystem management |
