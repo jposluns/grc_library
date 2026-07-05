@@ -873,7 +873,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   open branches and the version-monotonicity audit).
 - No exception path is offered for the audit gates or the pack rules under
   `.claude/rules/governance/`. The three pack rules that reference "the project's exception
-  register" (`gate-discipline`, `change-tracking`, `evidence-grounded-completion`) find no
+  register" (`gate-discipline`, `change-tracking`, `artefact-and-branch-discipline`) find no
   such register in this project: if a gate fails or a rule's protocol cannot be satisfied,
   the artefact is fixed or the PR is descoped. This is the strict-mode stance each pack
   rule's exception section defaults to when no register exists.
