@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -60,7 +60,7 @@ Audit Evidence Package
 ======================
 
 Organization: <legal name>
-Framework: <e.g. ISO 27001:2022 / SOC 2 Type II / PCI DSS v4.0 / DORA / FedRAMP Moderate>
+Framework: <e.g. ISO 27001:2022 / SOC 2 Type II / PCI DSS v4.0.1 / DORA / FedRAMP Moderate>
 Audit type: <External / Internal / Regulator examination / Customer DDQ>
 Audit firm or assessor: <if external>
 Auditor lead contact: <name and contact>

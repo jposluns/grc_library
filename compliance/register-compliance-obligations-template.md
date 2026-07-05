@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-07-02\
+**Version:** 1.0.11\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -46,7 +46,7 @@ The Source Reference field must resolve the obligation to a single unambiguous s
 | **ISO/IEC standards** | Standard number *and* year *and* clause or Annex control | `ISO/IEC 27001:2022 Annex A.5.10`; `ISO/IEC 27701:2025 §6.2.1`; `ISO/IEC 27017:2015 CLD.6.3.1` | `ISO 27001`; `ISO/IEC 27001:2022` (without clause) |
 | **Statutes and regulations** | Statute/regulation identifier *and* article, section, or subsection | `GDPR Article 28(3)(c)`; `DORA Article 6(2)`; `HIPAA 45 CFR §164.308(a)(1)(ii)(D)`; `SOX §404(b)` | `GDPR`; `DORA`; `HIPAA Security Rule` |
 | **COBIT** | Version *and* governance/management objective ID | `COBIT 2019 DSS05.02`; `COBIT 2019 APO13.01` | `COBIT`; `COBIT 2019` (without objective) |
-| **PCI DSS** | Version *and* requirement ID | `PCI DSS v4.0 Requirement 8.3.6`; `PCI DSS v4.0.1 §3.5.1.1` | `PCI DSS`; `PCI DSS v4` (without requirement) |
+| **PCI DSS** | Version *and* requirement ID | `PCI DSS v4.0.1 Requirement 8.3.6`; `PCI DSS v4.0.1 §3.5.1.1` | `PCI DSS`; `PCI DSS v4` (without requirement) |
 | **Cloud Security Alliance CCM** | Version *and* control ID | `CSA CCM v4.1 IAM-09` | `CCM`; `CSA CCM` |
 | **Contracts** | Counterparty *and* contract identifier or title *and* clause | `MSA with Acme Corp, §12.4 (Data Processing)`; `DPA-2026-014 §7` | `customer contract`; `vendor MSA` |
 | **Voluntary commitments** | Commitment identifier *and* specific pledge or principle | `UN Global Compact Principle 10`; `TCFD Recommendation B (Strategy) a` | `UN Global Compact`; `TCFD` |
