@@ -506,6 +506,35 @@ class StandardsCurrencyTests(LinterTestCase):
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "2013")
 
+    def test_superseded_pci_dss_v_prefixed_flagged(self) -> None:
+        # TODO 3.22 half (b): the separator group (":", "(", whitespace) missed
+        # a "v"-prefixed superseded label, so "PCI DSS v4.0" (4.0 is superseded
+        # by 4.0.1 in the canonical register) never fired. The widened "v?"
+        # must now flag it.
+        fixture = self.make_fixture(
+            "standard-pci-v-prefixed-superseded.md",
+            VALID_METADATA
+            + "\n\nThe environment aligns with PCI DSS v4.0 Requirement 3.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "stale citation")
+
+    def test_current_pci_dss_v4_0_1_not_flagged(self) -> None:
+        # The version-continuation guard (?![.\-][\d\w]) must still exempt the
+        # current "PCI DSS v4.0.1" from the "v4.0" superseded match.
+        fixture = self.make_fixture(
+            "standard-pci-v4-0-1-current.md",
+            VALID_METADATA
+            + "\n\nThe environment aligns with PCI DSS v4.0.1 Requirement 3.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"current PCI DSS v4.0.1 must not be flagged as superseded.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing canonical-citations register → exit 2.
         synthetic_root = FIXTURE_DIR / "synthetic-root-no-register-citations"
