@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.7\
-**Date:** 2026-07-02\
+**Version:** 1.0.8\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -76,7 +76,7 @@ This annex applies where an organization:
 | **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
 | **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
 | **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |
-| **PCI DSS v4.0** | PCI SSC | Any organization storing, processing, or transmitting payment card data |
+| **PCI DSS v4.0.1** | PCI SSC | Any organization storing, processing, or transmitting payment card data |
 
 ### Asia-pacific
 
@@ -162,7 +162,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 | **Access controls** | Privileged access management; periodic review | [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | **Third-party service provider policy** | Written policy governing third-party security | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
 
-### PCI DSS v4.0
+### PCI DSS v4.0.1
 
 PCI DSS applies to any organization that stores, processes, or transmits payment card data. Key requirements across the 12 PCI DSS requirements:
 
@@ -177,7 +177,7 @@ PCI DSS applies to any organization that stores, processes, or transmits payment
 | **Req 11: Security Testing** | Penetration testing; internal and external vulnerability scans | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
 | **Req 12: Security Policy** | Information security policy; risk assessment; incident response | Core GRC library policies |
 
-**PCI DSS v4.0 new requirements (effective 2025):**
+**PCI DSS v4.0.1 new requirements (effective 2025):**
 - Targeted risk analysis for customized approach controls
 - Multi-factor authentication expanded to all CDE access
 - Phishing-resistant MFA for interactive logins
@@ -210,7 +210,7 @@ The following controls are required by financial services regulations but are no
 | DORA third-party ICT provider contract register | DORA Art 28 | Supplement supplier register with DORA-specific fields |
 | AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017 | Create AML programme documents |
 | GLBA Safeguards Rule annual report | GLBA | Create annual GLBA compliance attestation procedure |
-| PCI DSS targeted risk analysis procedure | PCI DSS v4.0 Req 12.3 | Create PCI DSS risk analysis procedure |
+| PCI DSS targeted risk analysis procedure | PCI DSS v4.0.1 Req 12.3 | Create PCI DSS risk analysis procedure |
 | SOX IT General Controls documentation | SOX Section 404; PCAOB AS 2201 | Create ITGC documentation framework |
 | OSFI B-13 Board-level technology risk reporting | OSFI B-13 | Create technology risk Board report template |
 | SWIFT CSP annual attestation | SWIFT CSP | Create SWIFT CSP attestation procedure |

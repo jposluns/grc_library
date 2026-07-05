@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.9\
-**Date:** 2026-07-03\
+**Version:** 1.3.10\
+**Date:** 2026-07-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -211,7 +211,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management |
 | NIST SP 800-57 | Key Management Guidelines |
 | NIST SP 800-208 | Post-Quantum Cryptography Readiness |
-| PCI DSS v4.0 | Requirement 3: Encryption and Key Management |
+| PCI DSS v4.0.1 | Requirement 3: Encryption and Key Management |
 | BASC International Standard (v6 2022) | Trade and Customs Data Security |
 | WCO SAFE Framework (2021) | Supply Chain Security |
 | ISO 28000:2022 | Supply-Chain Security and Resilience |

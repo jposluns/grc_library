@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -146,7 +146,7 @@ Subject: Attestation under <framework name and section reference>
 1. Scope of attestation
    Systems, processes, or business units in scope: <list>
    Systems, processes, or business units explicitly out of scope: <list with rationale>
-   Framework version against which attestation is made: <e.g. ISO 27001:2022, PCI DSS v4.0, SOC 2 Type II Trust Services Criteria 2017>
+   Framework version against which attestation is made: <e.g. ISO 27001:2022, PCI DSS v4.0.1, SOC 2 Type II Trust Services Criteria 2017>
 
 2. Attestation statement
    <One paragraph stating the attestation. Match the framework's required wording where prescribed (some frameworks require verbatim language).>

@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -216,7 +216,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM baseline |
 | CSA Cloud Controls Matrix v4.1 | CEK domain | Cloud cryptography |
 | ETSI EN 319 411 | Trust services for issuing certificates | Where the organization operates a CA |
-| PCI DSS v4.0 | Requirement 3 | Payment-data cryptography where applicable |
+| PCI DSS v4.0.1 | Requirement 3 | Payment-data cryptography where applicable |
 | RFC 5280 | X.509 PKI | CA operations |
 | Cryptographic Key Lifecycle Management Framework (internal) | Cross-walk | Authoritative cross-reference |
 
