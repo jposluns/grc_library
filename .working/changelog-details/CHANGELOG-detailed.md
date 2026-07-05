@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.147, PR #659
+
+Close two grouped TODO 3.15 r5 close-out-checklist clauses (a [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) protected-file edit, grouped by logical fit per the maintainer's 2026-07-05 direction); carries the batched #658 QA rows.
+
+### Changed
+
+- **Close-out-checklist reconcile bullet now names D7 (item (2) of the L185 bundle).** The [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) session-handoff-refresh reconcile bullet gained a clause naming the **D7 handoff-snapshot freshness** PR-time check ([`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py)) as the mechanical backstop for the version-token subset of the `Current truth` reconcile (the gate-50 naming pattern): D7 fails a handoff-touching PR whose labelled snapshot version tokens disagree with the PR-head live headers or that carries more than one token per surface, while the prose halves (merged-through, green-at-`<sha>`, in-flight branch, rides-the-next-PR) stay convention-guarded since D7 is version-tokens-only. The clause was authored from a read of the D7 source, not an inferred characterization. Rotated: deleted from the [`TODO.md`](../../TODO.md) 3.15 r5 bundle, added to [`.working/DONE.md`](../DONE.md), and marked landed in [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md) item 5(b).
+- **New summary/description-lag close-out-checklist bullet.** A bullet was added after the Paired-surface-completeness bullet (the #650-#653 `/retro` candidate, past the codification threshold at four in-window occurrences): when a PR marks a summary or status surface resolved or landed, or a mid-PR verifier reword changes a term or value on a primary surface, update or grep-confirm the paired detail or description surface in the same commit. Convention-level (the lag is on free prose no gate inspects). Grouped with the D7 clause, both editing the same close-out-checklist section, per the maintainer's 2026-07-05 group-by-logical-fit direction. TODO 3.15 stays open; the `/claim-fit` cadence clause is the last remaining CLAUDE.md close-out item (#660, after a research pass to spec it).
+
+### Verification
+
+- Quick-fix tier (two small close-out-checklist prose clauses, one naming an existing source-read mechanism and one codifying a past-threshold convention; the #655 single-clause precedent), so no standing verifier subagent; the post-merge `/validate-pr` is the QA. [`tools/lint-language.py`](../../tools/lint-language.py) run on [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) before the first commit: 23 findings, all pre-existing em-dashes elsewhere in the file, none in the added clauses (which use hyphens and `-ize` spelling only); `.claude/` is CI-exempt from gates 2/51.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) carries no per-document Version/Date block (gates 40/31 N/A); no pack file touched (pack Version stays `1.54.6`); library CalVer and README Version bumped once (`2026.07.146` to `2026.07.147`, `1.9.507` to `1.9.508`); no corpus body or generated artefact touched. The session-handoff refresh and lease re-stamp are deferred to a batch refresh at the small-clause-run boundary (tolerated batching lag; D7 fires only on a handoff-touching PR, so deferring is safe).
+- **Batched (recursion-avoidance):** the #658 `/validate-pr` (0 findings) and `/retro` rows.
+
 ## 2026-07-05, Library Version 2026.07.146, PR #658
 
 Light restructure of the [`.working/design-decisions.md`](../design-decisions.md) ledger (a maintainer-endorsed small item): add an Index and correct the stale ordering-convention note; carries the batched #657 QA rows.
