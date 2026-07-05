@@ -62,11 +62,9 @@ order; item 5's remaining sub-items 5(b) and the `/claim-fit` candidate are unst
 ### 5. [TODO 3.15 r5] Two CLAUDE.md items
 
 - **Target:** `.claude/CLAUDE.md`.
-- **(a) MEDIUM, live self-contradiction:** the attended-autonomous rule-3 fallback says "wrap
-  a clean handoff or idle on a longer check-in rather than guessing" while the 2026-07-04
-  no-long-interval-check-ins clause forbids deferred check-ins "of any shape" in the same file.
-  Reword the fallback, or carve out the everything-blocked-on-one-decision wait explicitly
-  (maintainer's call, surface the two options at daytime).
+- **(a) DONE, landed in #652 (2026-07-05):** the maintainer chose "reword the fallback"; the
+  attended-autonomous rule-3 fallback now drops the "idle on a longer check-in" option and
+  cross-references the no-long-interval-check-ins clause, so the self-contradiction is resolved.
 - **(b) LOW:** the close-out checklist's reconcile bullet does not name D7 as the now-mechanized
   version-token half (the gate-50 naming pattern); one clause.
 - Also rides this bundle: the already-staged `/claim-fit` cadence-section candidate (#630

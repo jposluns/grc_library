@@ -222,7 +222,11 @@ drive end-to-end on the maintainer's behalf:
 7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
    TODO in the same PR and an entry is added to [`.working/DONE.md`](../.working/DONE.md)
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
-   cross-reference). The rotation lives in the same commit. TODO holds only
+   cross-reference). The DONE entry names the closed item's number and gives a clean
+   one-to-two-sentence summary of what the item was and how it was accomplished, and that
+   same summary is surfaced in chat at the moment of completion (in addition to DONE and the
+   CHANGELOG), per the change-tracking rule's completion-summary convention. The rotation
+   lives in the same commit. TODO holds only
    forward-looking content; historical lists belong in DONE, not in TODO. **"TODO item"
    is backlog-item-keyed, not FR/§-keyed**: a `FR-N` item, a numbered `§N.M` subsection,
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
@@ -460,6 +464,11 @@ is external. Two mechanisms:
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py
      --check` taken before the taxonomy regen completes returns a false-clean against the
      stale taxonomy (the #318 and #323 gate-33 and gate-34 amend loops).
+   - **Accepted-unverified tracker** (the evidence-grounded-completion corollary): if this PR
+     accepted anything as unverified or unvalidated (proceeded on it, annotated a claim as
+     unverified-for-now, or relied on a value not confirmed current), a TODO item tracking its
+     verification is in the diff (or already exists and is cross-referenced). TODO 1.11 (the
+     Brazil citation primary-source verification) is the pattern.
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
