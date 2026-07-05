@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #649: 3.22, PCI DSS v4.0.1 currency migration + linter v-prefix widening (2026-07-05)
+
+Closed across two PRs (maintainer decision B1): #648 migrated the 12 `PCI DSS v4.0` citations to `v4.0.1` across 8 files and moved the citation-form template's taught form; #649 widened `tools/lint-standards-currency.py`'s separator regex to catch a `v`-prefixed superseded label (regression fixture added, preserving the continuation guard that protects the current `v4.0.1`). The three bare `PCI DSS v4` family-label residual moved to 3.21(d).
+
 ### PR #647: 3.24, AI access-permissions ISO mapping reconciliation (2026-07-05)
 
 Judged via ad-hoc `/matrix-fit` against the ISO/IEC 27002:2022 control titles: the compliance matrix mapped the AI Access and Agent Permissions Standard to A.8.3 (Information access restriction) while dropping A.5.17, but the document's agent-permissions and privileged-access scope fits A.8.2 (Privileged access rights) plus A.5.17 (Authentication information), so the matrix row was corrected to A.5.15, A.5.16, A.5.17, A.5.18, A.8.2 to match the document's own authoritative table, and the document-index ISO summary was aligned to include A.8.2.
