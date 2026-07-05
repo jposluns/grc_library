@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #657: 3.15 D-F3, evidence-grounded-completion corollaries, project-CLAUDE.md remnant (2026-07-05)
+
+Closed TODO 3.15 D-F3 fully: the project `.claude/CLAUDE.md` evidence-grounded-completion index bullet gained the condensed clause naming the rule's un-observable-state, inventory, and external-version-currency corollaries, matching the three pack surfaces shipped in #656 (the pack half), so all four enumeration surfaces now name the corollaries. 3.15 stays open on its remaining sub-items (the r5 close-out clauses defer to #658).
+
 ### PR #655: 3.15 D-F2, guardrail-review SKILL cadence clause (2026-07-05)
 
 Closed the r4 D-F2 sub-item of TODO 3.15: the guardrail-review SKILL's auto-prompt bullet implied unbounded maintainer deferral and never named gate 60, so one clause was added noting the deferral is bounded by gate 60 (guardrail-review cadence currency), which warns while the summed machinery-inventory drift is 1 or 2 and fails the build once it reaches 3 (threshold verified against `tools/lint-guardrail-cadence.py`). 3.15 stays open on its remaining sub-items.
