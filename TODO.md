@@ -348,11 +348,11 @@ Portal reorder not pursued (README stays at decision-tree item 1).
 
 ## Scratch reference-base work (`grc_library_scratch`; ships via MCP PR per the git-proxy issue)
 
-Validated defects in the `grc_library_scratch` reference repo from the 2026-07-02 audit. These ship as PRs to `grc_library_scratch` (not this repo); tracked here for visibility. Item 33 (tracked EPUBs) was decided 2026-07-02: keep tracked under the private-forever promise with watermark scrubbing gated (see [`.working/design-decisions.md`](.working/design-decisions.md)). Item 32 (the ETSI designation question) closed 2026-07-04: the maintainer-supplied fresh EN 304 223 copy refuted the mis-designation premise (scratch PR #100).
+Validated defects in the `grc_library_scratch` reference repo from the 2026-07-02 audit. These ship as PRs to `grc_library_scratch` (not this repo); tracked here for visibility. Item 33 (tracked EPUBs) was decided 2026-07-02: keep tracked under the private-forever promise with watermark scrubbing gated (see [`.working/design-decisions.md`](.working/design-decisions.md)). Item 32 (the ETSI designation question) closed 2026-07-04: the maintainer-supplied fresh EN 304 223 copy refuted the mis-designation premise (scratch PR #100). SR-4 (catalogue/extract hygiene, items 30-31) closed 2026-07-05: item 31's report-PDF and KEEP-verdict count corrections (scratch PR #104) and item 30's drop of the WP-BCR failed-conversion stub (scratch PR #105); the SR-4 re-scoping against live scratch state surfaced a new finding (`ref/publications/originals/README.md` is a stale 2026-06-27 delivery snapshot making false present-tense claims), scoped as a maintainer decision in [`.working/pending-decisions.md`](.working/pending-decisions.md).
 
 ### SR-1 `last_checked` currency mechanism is inert (item 26, P2, S)
 
-0 of 233 `ref/catalogue.yml` items carry a `last_checked` field (even the 2026-07-01 ATLAS refresh did not stamp it), and `tools/validate.py`:72-74 checks the field's FORMAT only if present (no presence requirement), so the 7-day-throttle currency discipline in `CONTRIBUTING.md` has no on-disk footprint. Backfill stamps on currency-sensitive buckets and add a presence/due-item check, OR amend the documented SOP. (Design decision: whether to require presence.)
+As of 2026-07-05, 5 of 240 `ref/catalogue.yml` items carry a `last_checked` field (the 2026-07-04 currency-check batch stamped ATLAS plus four others; scratch #101), and `tools/validate.py` checks the field's FORMAT only if present (no presence requirement), so the 7-day-throttle currency discipline in `CONTRIBUTING.md` has no on-disk footprint for the unstamped items. **Direction DECIDED** (maintainer, 2026-07-02, pending-decisions line 55): presence + backfill (backfill stamps on the currency-sensitive buckets, then add a presence/due-item check). **Execution egress-gated:** an honest backfill needs an upstream currency check per document (the reference-version-currency SOP), the same egress the 51 needs-reconfirm register rows and the ISO-31000 refresh wait on; stamping without checking would defeat the discipline. Held for the maintainer's egress instance.
 
 ### SR-2 no publications screening-record check (item 27, P2, M; pairs §2.11)
 
@@ -361,10 +361,6 @@ Validated defects in the `grc_library_scratch` reference repo from the 2026-07-0
 ### SR-3 `validate.py` binary-scan coverage gaps (items 28-29, P3, M)
 
 (item 28) The disk->catalogue orphan check (`validate.py`:206) covers only `--full-text.md`; ~20 substantive CSV extracts (ATLAS/ATT&CK tactics + mitigations CSVs, CSA implementation/auditing-guideline tabs) are uncatalogued and unchecked. (item 29) The watermark/PII scan (`validate.py`:219-221) covers `.pdf` only; 22 EPUB + 16 office docs are unscanned. The audit directly scanned all 22 EPUBs and found NO watermark strings (a scan-coverage gap, not a live exposure); the .doc/.docx residual is unchecked. Widen both checks. The 2026-07-02 maintainer directive (watermarks always removed and never in the scratch repo; condition 3 of the keep-tracked decision) makes the item-29 widening load-bearing rather than hygiene: the widened scan is the mechanical enforcement of the scrub promise, so it covers every tracked binary format, not `.pdf` alone.
-
-### SR-4 catalogue / extract hygiene (items 30-31, P3, XS)
-
-(item 30) `ref/publications/WP-BCR-P-Processor-Application-Form--full-text.md` is a 589-byte failed conversion ("conversion produced no text; consult the .doc original") catalogued as a usable extract; drop it from the catalogue or redo the .doc conversion. (item 31) `ref/publications/README.md`:19 says 13 report PDFs (12 on disk; the 13th was reclassified to standards), and `ingest-queue.md`:31-33 says "the 12 KEEP extracts are trimmed" when only 9 are KEEP-TRIM (3 are KEEP-FULL); correct both counts.
 
 ## Standing conventions
 
@@ -396,7 +392,7 @@ Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
 - **P6 (expand: new domains)**: 5 items (6.1-6.5).
 - **P7 (awaiting decision)**: 0 pending + 2 dropped-decision audit-trail entries (7.2 / 7.3; the former 7.1 decided 2026-07-03, keep-by-design).
-- **Scratch reference-base work (`grc_library_scratch`)**: 4 items (SR-1 last_checked, SR-2 screening-record check, SR-3 validate.py binary-scan gaps, SR-4 catalogue/extract hygiene).
+- **Scratch reference-base work (`grc_library_scratch`)**: 3 open items (SR-1 last_checked, decided but egress-gated; SR-2 screening-record check; SR-3 validate.py binary-scan gaps), plus the 2026-07-05 `originals/README.md` stale-snapshot finding (scoped in pending-decisions). SR-4 (catalogue/extract hygiene) closed 2026-07-05 (scratch PRs #104, #105).
 
 ---
 
