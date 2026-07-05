@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-planning-questions-dd9mxk
 
-**Status:** released
+**Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-05T00:24:51Z
+**Last-heartbeat-UTC:** 2026-07-05T01:48:54Z
 
-**Current-task:** none (session closed 2026-07-05 at the #644 handoff; the wind-down followed maintainer option B: #643 was the last work PR, the wave-8 scratch coverage sync landed as scratch #103)
+**Current-task:** OVERNIGHT run (2026-07-05, maintainer away). Sweep 84 complete (B-F1 fixed, A-F1 routed) and landing as this session's first PR (the /validate close-out); next, Phase-1 fixes per the handoff queue (3.24/3.23/3.22/3.1/3.21/3.25 + SR hygiene), then non-protected tooling, then P2 applies. Protected-file edits DEFERRED to daytime (staged in deferred-protected-changes.md)
 
-**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; applies underway, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
+**Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; 30 deliveries pending applies in the scratch inbox, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
