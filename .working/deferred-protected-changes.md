@@ -32,17 +32,11 @@ now the `Overnight-to-daytime protected-backlog clearance` paragraph in the
 `## Attended-autonomous operating mode` section) and item 5(a) (reword the rule-3 fallback to
 drop the longer-check-in option). Landed in PR #654 (2026-07-05): item 2 (the pack-tree ATLAS
 technique-ID currency refresh, TODO 3.18 closed: eight `AML.T0048` re-pointed to `AML.T0053`
-and two gloss drifts corrected against the held ATLAS 2026.06 CSVs). The item numbering below
-preserves the original staging order; item 5's remaining sub-items 5(b) and the `/claim-fit`
-candidate are unstarted._
-
-### 3. [TODO 3.15 D-F2] Guardrail-review SKILL cadence clause
-
-- **Target:** `dev-security/claude-rules/skills/guardrail-review/SKILL.md` (the auto-prompt
-  description bullet; mirror per gate 44 if step text changes).
-- **Draft intent:** one clause noting the SKILL's deferral is bounded by gate 60 (warn below
-  drift 3, fail at 3), and naming gate 60 in the mechanical-gates bullet (currently unnamed).
-  Draft the exact wording during the overnight run against the current SKILL text.
+and two gloss drifts corrected against the held ATLAS 2026.06 CSVs). Landed in PR #655
+(2026-07-05): item 3 (the guardrail-review SKILL cadence clause, TODO 3.15 D-F2 closed: the
+auto-prompt bullet now names gate 60 and states the deferral is bounded, warn at drift 1 to 2,
+fail at 3). The item numbering below preserves the original staging order; item 5's remaining
+sub-items 5(b) and the `/claim-fit` candidate are unstarted._
 
 ### 4. [TODO 3.15 D-F3] Evidence-grounded-completion one-liner corollaries
 
