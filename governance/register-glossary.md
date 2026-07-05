@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.7\
-**Date:** 2026-07-04\
+**Version:** 1.4.8\
+**Date:** 2026-07-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -54,6 +54,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
 | **AEO** | Authorized Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
+| **AI** | Artificial Intelligence. |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
 | **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; would require reintroduction). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |
@@ -67,6 +68,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | Term | Expansion / definition |
 | --- | --- |
 | **BASC** | Business Alliance for Secure Commerce. International private supply-chain security programme, predominantly Latin American, recognized within the WCO SAFE Framework. See [`compliance/logistics/annex-basc-programme-overview.md`](../compliance/logistics/annex-basc-programme-overview.md). |
+| **BC** | Business Continuity. Appears in the BC/DR (Business Continuity / Disaster Recovery) and BC/CM (Business Continuity / Crisis Management) compounds. |
 | **BCM** | Business Continuity Manager. Role accountable for business continuity programme execution. |
 | **BCP** | Business Continuity Plan. |
 | **BIA** | Business Impact Analysis. |
@@ -91,9 +93,11 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CIO** | Chief Information Officer. |
 | **CIP** | Critical Infrastructure Protection. NERC CIP is the canonical reference for North American electricity reliability. |
 | **CISO** | Chief Information Security Officer. |
+| **CM** | Crisis Management (in the BC/CM business-continuity-and-crisis-management pairing). |
 | **CMS** | Compliance Management System (ISO 37301-aligned). |
 | **COBIT** | Control Objectives for Information and Related Technologies. ISACA framework. |
 | **CPPA** | Consumer Privacy Protection Act (Canada); proposed in Bill C-27, which lapsed in 2025 (not in force). Distinct from CCPA and from the California Privacy Protection Agency. |
+| **CPRA** | California Privacy Rights Act. Amends and expands the CCPA; operative since 2023. |
 | **CRO** | Chief Risk Officer. |
 | **CSA** | Cloud Security Alliance. |
 | **CSP** | Cloud Service Provider. (In financial-services contexts, CSP also denotes SWIFT Customer Security Programme; that sector annex uses the SWIFT meaning explicitly.) |
@@ -211,6 +215,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **MFA** | Multi-Factor Authentication. |
 | **MITRE ATT&CK** | Adversarial Tactics, Techniques, and Common Knowledge. MITRE-maintained adversary behaviour framework. |
 | **MITRE ATLAS** | Adversarial Threat Landscape for AI Systems. MITRE-maintained AI adversary framework. |
+| **ML** | Machine Learning (in AI/ML contexts). Also Most Likely, the central value in three-point (PERT) estimation used in quantitative risk analysis. |
 | **MRA** | Mutual Recognition Arrangement. Bilateral or multilateral recognition of equivalent trusted-trader programmes (e.g., CTPAT and AEO-EU MRA). |
 | **MSC** | Minimum Security Criteria (CTPAT). |
 | **MTSA** | Maritime Transportation Security Act (U.S.). |
@@ -248,6 +253,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **PDPA** | Personal Data Protection Act. Used by several jurisdictions including Singapore, Thailand, and Argentina. |
 | **PDPL** | Personal Data Protection Law (Saudi Arabia). |
 | **PHIPA** | Personal Health Information Protection Act (Ontario, Canada). |
+| **PIA** | Privacy Impact Assessment. |
 | **PII** | Personally Identifiable Information. |
 | **PIM** | Privileged Identity Management. |
 | **PIP** | Partners in Protection (Canada). CBSA trusted-trader programme. See [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md). |
