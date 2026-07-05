@@ -4447,7 +4447,7 @@ class MatrixControlCodeTests(LinterTestCase):
     """tools/lint-matrix-control-codes.py"""
 
     HEADER = (
-        "| Domain | Document Title | Path | CSA CCM v4.1 | ISO 27001:2022 "
+        "| Domain | Document Title | Path | CSA CCM v4.1 | ISO/IEC 27001:2022 "
         "| NIST CSF 2.0 | CTPAT |\n"
         "| --- | --- | --- | --- | --- | --- | --- |\n"
     )
@@ -4471,7 +4471,7 @@ class MatrixControlCodeTests(LinterTestCase):
         )
 
     def test_iso_annex_out_of_range_flagged(self) -> None:
-        # ISO 27001:2022 Annex A theme A.5 has 37 controls; A.5.99 is out of range.
+        # ISO/IEC 27001:2022 Annex A theme A.5 has 37 controls; A.5.99 is out of range.
         fixture = self.make_fixture(
             "fake-matrix-iso-range.md",
             self._matrix("GRC-01", "A.5.99", "GV.OC"),
@@ -4602,7 +4602,7 @@ class MatrixControlCodeTests(LinterTestCase):
 
     AICM_HEADER = (
         "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 "
-        "| ISO 27001:2022 | NIST CSF 2.0 | CTPAT |\n"
+        "| ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT |\n"
         "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
     )
 

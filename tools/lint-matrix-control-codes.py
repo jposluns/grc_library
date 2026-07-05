@@ -13,7 +13,7 @@ code set.
 
 Scope (deliberately bounded):
 
-  * **ISO 27001:2022 column** -- every token is validated as either an
+  * **ISO/IEC 27001:2022 column** -- every token is validated as either an
     Annex A control code ``A.<theme>.<n>`` with theme in 5-8 and ``<n>``
     within the theme's control count (A.5: 37, A.6: 8, A.7: 14, A.8: 34;
     37+8+14+34 = 93 controls), or a management-system clause ``§<n>`` /
@@ -99,7 +99,7 @@ MATRIX_PATH = REPO_ROOT / MATRIX_REL
 # NIST CSF 2.0 Core Function prefixes (the matrix column key lists these six).
 NIST_FUNCTIONS = frozenset({"GV", "ID", "PR", "DE", "RS", "RC"})
 
-ISO_HEADER = "ISO 27001:2022"
+ISO_HEADER = "ISO/IEC 27001:2022"
 NIST_HEADER = "NIST CSF 2.0"
 CCM_HEADER = "CSA CCM v4.1"
 AICM_HEADER = "CSA AICM v1.1"
@@ -310,7 +310,7 @@ def main(argv: list[str]) -> int:
             f"OK: matrix framework-control codes valid in {rel} "
             f"(CSA CCM v4.1 column membership, no AICM-only codes; "
             f"CSA AICM v1.1 column membership, AICM-only codes only, no CCM-base codes; "
-            f"ISO 27001:2022 Annex A membership + clause format; "
+            f"ISO/IEC 27001:2022 Annex A membership + clause format; "
             f"NIST CSF 2.0 well-formedness + Category membership; "
             f"CCM/AICM title accuracy covered by the CSA citation gate)."
         )

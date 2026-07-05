@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.10\
+**Version:** 1.11.11\
 **Date:** 2026-07-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | --- | --- | --- |
 | CSA CCM v4.1 | Cloud Security Alliance Cloud Controls Matrix v4.1 | Control domain identifiers (e.g., IAM, SEF, DSP) |
 | CSA AICM v1.1 | Cloud Security Alliance AI Controls Matrix v1.1, the AI-focused extension of CCM v4.1 | AI-specific control identifiers only (the AICM-only delta: the MDS Model Security domain plus the AI-specific AIS, GRC, DSP, HRS, IAM, LOG, and TVM controls). CCM-base controls remain in the CSA CCM v4.1 column; this column carries the AI-specific additions, so it is N/A for documents with no AI dimension |
-| ISO 27001:2022 | ISO/IEC 27001:2022 | Annex A control numbers and §4 to §10 clauses |
+| ISO/IEC 27001:2022 | ISO/IEC 27001:2022 | Annex A control numbers and §4 to §10 clauses |
 | NIST CSF 2.0 | NIST Cybersecurity Framework 2.0 | Core Functions (GV, ID, PR, DE, RS, RC) |
 | CTPAT | C-TPAT Minimum Security Criteria | Section headings |
 | PIP | Partners in Protection (Canada Border Services Agency) | Programme requirement areas |
@@ -46,7 +46,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Governance domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Governance | Governance Library Charter | [`governance/charter-governance-library.md`](../governance/charter-governance-library.md) | GRC-01, GRC-02 | N/A | §5.1, §5.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §5.1, §7.5 | Pillar II (Customs-to-Business Partnership) | Management commitment |
 | Governance | Policy: Exception and Risk Acceptance Management | [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) | GRC-04, GRC-05 | N/A | §6.1.3, §8.2 | GV.RM, ID.RA | N/A | N/A | §6.1, §10 | N/A | Risk management |
@@ -73,7 +73,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Risk domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Risk | Policy: Enterprise Governance and Risk Management | [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) | GRC-01, GRC-02, GRC-03 | MDS-10, GRC-11, GRC-15 | §5.1, §5.3, §6.1, §6.2 | GV.RM, GV.OC, ID.RA | N/A | Programme governance | §5.1, §6.1 | N/A | Management commitment; Risk management |
 | Risk | Standard: Enterprise Risk Management | [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md) | GRC-01, GRC-02 | GRC-10, GRC-13, MDS-10 | §6.1.1, §6.1.2, §6.1.3, §8.2, §8.3 | ID.RA, GV.RM | N/A | Risk assessment | §6.1 | N/A | IT security risk management; Risk management |
@@ -95,7 +95,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Compliance domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, A&A-05 | GRC-11 | §9.2, §9.3, §10.1, §10.2 | GV.OC, ID.IM | N/A | Programme governance | §9.2, §10 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-06 | N/A | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §4.1, §6.1 | N/A | Management commitment |
@@ -134,7 +134,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Security domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Security | Policy: Information Security | [`security/policy-information-security.md`](../security/policy-information-security.md) | GRC-01, IAM-01, SEF-01 | N/A | §5.2, A.5.1, A.5.2 | GV.OC, GV.PO | IT security policy | IT security | §8.4 | Pillar II (ICT security) | Information systems security |
 | Security | Policy: Identity and Access Management | [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md) | IAM-01, IAM-02, IAM-03, IAM-04 | N/A | A.5.15, A.5.16, A.5.17, A.5.18 | PR.AA, PR.IR | IT access controls | Access controls | §8.5 | Pillar II (Standard 6, access) | Access to IT systems |
@@ -176,7 +176,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Operations domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Operations | Standard: Production Security Requirements | [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md) | CCC-01, CCC-02, TVM-01 | N/A | A.8.8, A.8.9, A.8.31 | PR.PS, DE.CM | IT security controls | IT security | §8.1, §8.4 | Pillar II (ICT security) | IT systems protection |
 | Operations | Standard: Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | I&S-03, I&S-06, I&S-08, I&S-09 | N/A | A.8.20, A.8.21, A.8.22 | PR.IR, DE.CM | IT security controls | Network security | §8.4 | Pillar II (ICT security) | IT systems protection |
@@ -210,7 +210,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Supply chain domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Supply Chain | Framework: Supplier and Cloud Governance | [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md) | STA-01, STA-02, STA-03, STA-04, STA-05 | N/A | A.5.19, A.5.20, A.5.21, A.5.22, A.5.23 | GV.SC | Business partner requirements; Cargo security | Third-party and supply chain security | §8.6 | Pillar II (Standard 6, business partners); Pillar II (Standard 5, supply chain) | Business partners |
 | Supply Chain | Standard: Supplier Security and Privacy Assurance | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | STA-01, STA-02, STA-03 | N/A | A.5.19, A.5.20, A.5.21, A.5.22 | GV.SC | Business partner requirements | Third-party security | §8.6 | Pillar II (Customs-to-Business; Standard 6) | Business partners |
@@ -235,7 +235,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Resilience domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Resilience | Policy: Business Continuity and Disaster Recovery | [`resilience/policy-business-continuity-and-disaster-recovery.md`](../resilience/policy-business-continuity-and-disaster-recovery.md) | BCR-01, BCR-02 | N/A | A.5.29, A.5.30 | RC.RP, RC.CO | N/A | Business continuity | §8.1 | N/A | IT systems backup and continuity |
 | Resilience | Standard: Business Continuity and Disaster Recovery | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md) | BCR-01, BCR-02, BCR-03, BCR-04, BCR-05 | N/A | A.5.29, A.5.30, A.8.14 | RC.RP, RC.CO, GV.OC | N/A | Business continuity | §8.1 | N/A | IT systems backup and continuity |
@@ -263,7 +263,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Privacy domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Privacy | Policy: Privacy and Data Governance | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | DSP-01, DSP-02, DSP-03, DSP-04 | DSP-20, GRC-13 | A.5.34, A.8.11, A.8.12 | GV.PO, PR.DS | N/A | N/A | N/A | N/A | N/A |
 | Privacy | Procedure: Privacy Impact and Cross-Border Transfer | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | DSP-04, DSP-09, DSP-10 | GRC-10, DSP-21 | A.5.34 | GV.PO, PR.DS, ID.RA | N/A | N/A | N/A | N/A | N/A |
@@ -317,7 +317,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Architecture domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Architecture | Enterprise Architecture Framework | [`architecture/framework-enterprise-architecture.md`](../architecture/framework-enterprise-architecture.md) | GRC-01, GRC-02 | N/A | §6.1, A.5.8, A.8.27 | GV.OC, GV.RM, ID.AM, PR.PS | N/A | N/A | N/A | N/A | N/A |
 | Architecture | Architecture Review Procedure | [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md) | GRC-01, CCC-01, CCC-02 | N/A | A.5.8, A.8.27, §8.1 | GV.OC, GV.RM, PR.PS, ID.IM | N/A | N/A | N/A | N/A | N/A |
@@ -332,7 +332,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## Dev-security domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Dev-security | AI Coding Assistant Security Guideline | [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md) | AIS-04, AIS-05, AIS-07, TVM-06 | AIS-12, AIS-15, HRS-15 | A.8.27, A.8.29, A.5.36 | GV.SC, PR.PS, ID.RA | N/A | N/A | N/A | N/A | N/A |
 | Dev-security | Secure Development and Engineering Policy | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) | AIS-04, AIS-05, AIS-06, CCC-01, TVM-06 | AIS-12 | A.8.25, A.8.28, A.8.29, A.8.30, A.8.31 | PR.PS, ID.RA, GV.RR | N/A | N/A | N/A | N/A | N/A |
@@ -356,7 +356,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 
 ## AI domain
 
-| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
+| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | PIP | BASC v6 | WCO SAFE | AEO/AEO-S |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AI | AI Governance Council Charter | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md) | GRC-01, GRC-06, A&A-02 | GRC-12, GRC-15, GRC-10 | §5.1, §5.3, A.5.2 | GV.RR, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Ethics Review Panel Charter | [`ai/charter-ai-ethics-review-panel.md`](../ai/charter-ai-ethics-review-panel.md) | GRC-06, A&A-02, GRC-01 | GRC-12, GRC-11, GRC-15, GRC-13 | §5.3, A.5.4 | GV.RR, GV.OV, GV.OC | N/A | N/A | N/A | N/A | N/A |
