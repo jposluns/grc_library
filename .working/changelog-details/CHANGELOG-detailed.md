@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.132, PR #644
+
+Session-closing handoff (the 2026-07-03/04 session's last act, per the maintainer's option B wind-down): lands the #643 QA rows (a zero-finding sweep and the G-4 retro), the session-close hallucination-metrics window fold and the session-metrics row, the asserted-expectations rotation with the green-at snapshot, and the session-concurrency lease release, so the next session's `/resume` rebuilds from `main`. The paired wave-8 scratch coverage sync landed separately as `grc_library_scratch` #103 (index verified-against #643). Per the standing handoff exception this PR takes no trailing per-PR sweep; the compensating control is the next session's corpus-wide `/validate`.
+
+### Changed
+
+- The #643 QA batch rides per recursion-avoidance: [`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.422` (the #643 zero-finding row plus this PR's own handoff-exemption row, gate-50 marker in the Findings cell); [`.working/improvement-log.md`](../improvement-log.md) `1.0.368` (the #643 retro row: the duplicate-token shape at SIGNAL strength, two occurrences).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): the #631-#643 session-close window fold (no worker-class movement; every window defect caught pre-merge; zero shipped escapes). [`.working/session-metrics.md`](../session-metrics.md) `1.0.35`: the session row (26 merged work PRs, measured post-compaction subagent tokens, main-loop not instrumented).
+- [`.working/session-handoff.md`](../session-handoff.md): Current-truth reconciled to the #644 state; the asserted-expectations section rotated (current + one prior retained) including the named soft spots (the SR-1 stale TODO fact; the DD-10 direct-scratch-push record that did not reproduce). [`.working/session-state.md`](../session-state.md): lease RELEASED (gate 63 green on the released state).
+
+### Verification
+
+- All 66 gates standalone post-commit with direct exit capture; gates 50 and 63 spot-run green on the new rows and the released lease; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green pre-commit; [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) STANDALONE and UNPIPED before push (D7 firing on the handoff reconcile). No verifier (quick-fix/bookkeeping tier) and no trailing sweep (the handoff exception recorded in the history row).
+
 ## 2026-07-04, Library Version 2026.07.131, PR #643
 
 The cross-file shared-constant hoist (the guardrail review's G-4, decided at the 2026-07-04 morning round): the five reference-extraction constants the two cross-file section-reference linters duplicated copy-with-comment (the reference patterns, the markdown-link pattern, the binding sentinel, the external-context pattern, and the adjacency window) are hoisted into [`tools/lint_common.py`](tools/lint_common.py)'s new `CROSS_*` block as the single source of truth, with [`tools/lint-cross-file-section-refs.py`](tools/lint-cross-file-section-refs.py) and [`tools/lint-cross-file-section-names.py`](tools/lint-cross-file-section-names.py) importing them under their established local names, so a sentinel or window change can no longer drift between the numbers and names phases; no detection-logic change and no new gate. Also applies the #642 sweep's in-window fix (the section-5 grouped-list clause for gate 64 extended with the delta-check half; audit-spec `1.16.54` to `1.16.55`) and carries the #642 QA batch per recursion-avoidance (1 Low, that same section-5 miss) and the handoff/lease reconcile.
