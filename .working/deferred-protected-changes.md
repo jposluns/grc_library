@@ -35,16 +35,19 @@ technique-ID currency refresh, TODO 3.18 closed: eight `AML.T0048` re-pointed to
 and two gloss drifts corrected against the held ATLAS 2026.06 CSVs). Landed in PR #655
 (2026-07-05): item 3 (the guardrail-review SKILL cadence clause, TODO 3.15 D-F2 closed: the
 auto-prompt bullet now names gate 60 and states the deferral is bounded, warn at drift 1 to 2,
-fail at 3). The item numbering below preserves the original staging order; item 5's remaining
-sub-items 5(b) and the `/claim-fit` candidate are unstarted._
+fail at 3). Landed in PR #656 (2026-07-05): item 4's PACK surfaces (the D-F3 corollary clauses
+on the pack CLAUDE.md rule-index one-liner, the pack README tree blurb, and the pack README
+scope row; pack `1.54.6`). The item numbering below preserves the original staging order;
+item 4's remaining project-CLAUDE.md clause and item 5's sub-item 5(b) plus the `/claim-fit`
+candidate, all `.claude/CLAUDE.md` touches, are grouped as the #657 bundle._
 
-### 4. [TODO 3.15 D-F3] Evidence-grounded-completion one-liner corollaries
+### 4. [TODO 3.15 D-F3] Evidence-grounded-completion one-liner corollaries: project-CLAUDE.md remnant
 
-- **Targets:** pack `dev-security/claude-rules/CLAUDE.md`, pack README tree blurb + scope row,
-  project `.claude/CLAUDE.md` index bullet (the r3 D-3 fix shape, one clause per surface).
-- **Draft intent:** add the rule's un-observable-state / inventory / external-version-currency
-  corollaries to each of the four enumeration surfaces. Draft exact per-surface clauses during
-  the overnight run.
+- **Landed (#656):** the three PACK surfaces (pack `dev-security/claude-rules/CLAUDE.md`
+  rule-index one-liner, pack README tree blurb, pack README scope row) each gained a condensed
+  clause naming the rule's un-observable-state / inventory / external-version-currency corollaries.
+- **Remaining (rides #657 with item 5):** the project `.claude/CLAUDE.md` index bullet's matching
+  clause, grouped into the item-5 `.claude/CLAUDE.md` bundle so all project-CLAUDE.md touches land together.
 
 ### 5. [TODO 3.15 r5] Two CLAUDE.md items
 
