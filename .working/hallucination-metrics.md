@@ -18,7 +18,9 @@ The ratio `shipped escapes / total worker errors` is the discipline's leak rate.
 
 ---
 
-## Current state (as of PR #630, refreshed 2026-07-04 at the P2 apply boundary)
+## Current state (as of PR #643, refreshed 2026-07-05 at the session close)
+
+Session-close window fold (#631 to #643, refreshed 2026-07-05): the window was orchestrator-authored machinery and QA work (gates 66 and the gate-64 extension, the G-4 hoist, the D7 delta gate, renames and hygiene bundles) with NO worker-draft applies beyond the fr-59 batch already counted on the external-collaborator row (the remaining P2 applies are re-tiered to a separate session), so neither worker class moved. Orchestrator-side, every window defect was caught PRE-MERGE by the verifier/D7/sweep layers (the #639 verifier-loop-cap descope; two folded Lows each at #641, #642, and #643 including D7's two duplicate-token blocks; one in-window sweep Low each at #640 and #642, both fixed in the next PR's batch): zero shipped escapes, zero out-of-window findings. The prior refresh's text follows.
 
 Refreshed 2026-07-04 (the P2 worker-delivery-apply boundary refresh the r4 G-8 cadence note calls for) from the "as of #347" state below; the #348-#630 window's catches live in the per-PR `/retro` and `/validate-pr` records per the trend-over-precision protocol, with the salient additions folded into the table, the catches log, and the escapes log (the #482 29134 orchestrator-side recurrence). The window's headline: the worker-draft class stays controlled (no shipped worker escape since #167); the orchestrator-side class now has the gate-50/57/D5 mechanical family plus the tiered pre-push verifier standard catching it pre-merge; and a THIRD worker class opens at this boundary, separate-session external-collaborator deliveries from the scratch inbox (new table row below). Two standing clarifications:
 
