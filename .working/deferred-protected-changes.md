@@ -27,21 +27,11 @@ quick: the content is ready and only the authorized apply + QA remains.
 
 ## Prepared items (apply at daytime, in this order)
 
-### 1. Codify this mode-transition protocol in CLAUDE.md (its permanent home)
-
-- **Target:** `.claude/CLAUDE.md`, the `## Attended-autonomous operating mode` section
-  (adjacent to the "Mode-exit priority ordering" paragraph).
-- **Draft clause (ready to insert):**
-  > **Overnight → daytime protected-backlog clearance (maintainer-directed 2026-07-05).** On
-  > switching from overnight to daytime / attended mode, first finish the then-current PR,
-  > then clear the deferred protected-file backlog staged in
-  > `.working/deferred-protected-changes.md` (the `.claude/` and `dev-security/claude-rules/`
-  > pack edits that overnight mode defers because they need maintainer authorization). During
-  > the overnight run, prepare those changes in advance by drafting their content into that
-  > file, so the daytime apply is quick (content ready; only the authorized apply plus per-PR
-  > QA remains).
-- **QA:** `lint-language.py` on the added clause; standard per-PR QA. Bumps CLAUDE.md (no
-  version field) only; the protocol is behavioural.
+_Landed in PR #652 (2026-07-05): item 1 (codify the mode-transition protocol in CLAUDE.md,
+now the `Overnight-to-daytime protected-backlog clearance` paragraph in the
+`## Attended-autonomous operating mode` section) and item 5(a) (reword the rule-3 fallback to
+drop the longer-check-in option). The item numbering below preserves the original staging
+order; item 5's remaining sub-items 5(b) and the `/claim-fit` candidate are unstarted._
 
 ### 2. [TODO 3.18] Pack-tree ATLAS technique-ID currency refresh
 

@@ -609,8 +609,9 @@ each merge or decision. Its three standing rules:
      task that depends on the deferred decision.
    The reversibility gate from `action-before-explanation-of-inaction` governs which path
    applies: a timeout never auto-proceeds on a destructive or outward-facing action. If
-   every remaining task depends on the one pending decision, wrap a clean handoff or idle
-   on a longer check-in rather than guessing.
+   every remaining task depends on the one pending decision, wrap a clean handoff rather
+   than guessing (the no-long-interval-check-ins clause in `## PR activity subscription
+   discipline` forecloses idling on a deferred check-in).
 
 **Mode-exit priority ordering (maintainer-directed 2026-07-02).** When a session switches
 AWAY from overnight mode (to attended-autonomous, daytime-unattended, or fully-attended),
@@ -620,6 +621,15 @@ what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3)
 **tooling and protections** (gates, guardrails, machinery); (4) then **new work**. The
 ordering is standing; it is not re-asked at each mode exit. (Decision record:
 [`.working/design-decisions.md`](../.working/design-decisions.md).)
+
+**Overnight-to-daytime protected-backlog clearance (maintainer-directed 2026-07-05).** On
+switching from overnight to daytime or attended mode, first finish the then-current PR, then
+clear the deferred protected-file backlog staged in
+[`.working/deferred-protected-changes.md`](../.working/deferred-protected-changes.md) (the
+`.claude/` and `dev-security/claude-rules/` pack edits that overnight mode defers because
+they need maintainer authorization). During the overnight run, prepare those changes in
+advance by drafting their content into that file, so the daytime apply is quick (content
+ready, only the authorized apply plus per-PR QA remains).
 
 On `/resume` the assistant reads
 [`.working/pending-decisions.md`](../.working/pending-decisions.md) first, surfaces the
