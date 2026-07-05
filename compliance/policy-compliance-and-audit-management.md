@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.13\
-**Date:** 2026-07-03\
+**Version:** 1.0.14\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -87,7 +87,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 4.5 Algorithmic and AI compliance auditing
 4.5.1 AI systems must undergo algorithmic audits for transparency, bias, robustness, and ethical compliance. 
-4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification per ISO 23894 and NIST AI RMF. 
+4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification per ISO/IEC 23894 and NIST AI RMF. 
 4.5.3 Where the cost-benefit profile justifies, automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows; automation is optional, not mandatory.
 
 ### 4.6 Reporting and escalation

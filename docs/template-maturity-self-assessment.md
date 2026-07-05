@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-05\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -115,7 +115,7 @@ Per-statement scoring (apply to each statement above):
 | C3 | An internal audit programme exists; audits run on a defined cadence. | _ | |
 | C4 | Audit findings are tracked to closure with a CAPA process. | _ | |
 | C5 | Control-testing evidence is centrally captured and refreshed at the defined cadence. | _ | |
-| C6 | Cross-framework alignment (ISO 27001, SOC 2, NIST CSF, etc.) is documented where multiple frameworks apply. | _ | |
+| C6 | Cross-framework alignment (ISO/IEC 27001, SOC 2, NIST CSF, etc.) is documented where multiple frameworks apply. | _ | |
 
 **Domain C score (median):** _
 

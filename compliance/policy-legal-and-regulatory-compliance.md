@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
-**Date:** 2026-07-03\
+**Version:** 1.0.10\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -87,7 +87,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 7.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](../compliance/).
 
-7.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO 42001 and NIST AI RMF.
+7.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO/IEC 42001 and NIST AI RMF.
 
 ---
 
@@ -105,7 +105,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 9. Supplier and trade compliance
 
-9.1 Suppliers must maintain certifications including ISO 27001, ISO 27018, SOC 2, and BASC (for trade and logistics partners).
+9.1 Suppliers must maintain certifications including ISO/IEC 27001, ISO/IEC 27018, SOC 2, and BASC (for trade and logistics partners).
 
 9.2 Trade suppliers must meet WCO SAFE Authorized Economic Operator (AEO) requirements and undergo annual audits.
 

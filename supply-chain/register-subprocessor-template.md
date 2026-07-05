@@ -2,8 +2,8 @@
 
 **Document Title:** Subprocessor Register Template\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](../privacy/register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -88,8 +88,8 @@ Under GDPR and UK GDPR Article 28, a controller must engage processors only wher
 
 | Field | Description |
 |---|---|
-| **Security Certification** | ISO 27001; SOC 2 Type II; other (with expiry date) |
-| **Privacy Certification** | ISO 27701; privacy seal or equivalent |
+| **Security Certification** | ISO/IEC 27001; SOC 2 Type II; other (with expiry date) |
+| **Privacy Certification** | ISO/IEC 27701; privacy seal or equivalent |
 | **Last Security Assessment** | Date and outcome |
 | **Known Incidents** | Any prior data incidents involving this subprocessor |
 

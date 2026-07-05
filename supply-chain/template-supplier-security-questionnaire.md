@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-05\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -44,7 +44,7 @@ This questionnaire is issued to suppliers and third-party service providers to g
 | 2.1 Does your organization have a documented and approved information security policy? | | |
 | 2.2 Is the policy reviewed and updated at least annually? | | |
 | 2.3 Does your organization have a designated information security officer or equivalent? | | |
-| 2.4 Does your organization hold a current ISO 27001:2022 certification? (If yes, provide certificate details.) | | |
+| 2.4 Does your organization hold a current ISO/IEC 27001:2022 certification? (If yes, provide certificate details.) | | |
 | 2.5 Does your organization have a current SOC 2 Type II report? (If yes, provide opinion date and service scope.) | | |
 | 2.6 Has your organization undergone any security audits in the past 24 months by an external assessor? | | |
 | 2.7 Does your organization have a documented risk management process? | | |
@@ -181,10 +181,10 @@ Please attach the following documents where applicable:
 
 | Document | Attached | Not Applicable | Will Provide On Request |
 |---|---|---|---|
-| ISO 27001 certificate (current) | | | |
+| ISO/IEC 27001 certificate (current) | | | |
 | SOC 2 Type II report (current: within 12 months) | | | |
 | Penetration test attestation letter (within 12 months) | | | |
-| ISO 27701 or privacy certification | | | |
+| ISO/IEC 27701 or privacy certification | | | |
 | CTPAT membership confirmation | | | |
 | UK AEO-S authorization confirmation | | | |
 | EU AEO certificate | | | |
