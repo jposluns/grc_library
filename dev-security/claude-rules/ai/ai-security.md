@@ -24,7 +24,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Log all indirect content sources for anomaly detection
 - Apply the same defense to MCP tool outputs, function call results, and memory store results
 
-**References:** OWASP LLM01, MITRE ATLAS AML.T0051: Prompt Injection
+**References:** OWASP LLM01, MITRE ATLAS AML.T0051: LLM Prompt Injection
 
 ---
 
@@ -36,7 +36,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Scrub AI responses for potential training data leakage before returning to users
 - Set up output content scanning to detect when the model reveals system prompt content, training data, or organizational configuration
 
-**References:** OWASP LLM02, MITRE ATLAS AML.T0024: Training Data Exfiltration
+**References:** OWASP LLM02, MITRE ATLAS AML.T0024: Exfiltration via AI Inference API
 
 ---
 
@@ -61,7 +61,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Implement hard limits on tool-call chains and recursion depth
 - Log every tool call with full arguments and results
 
-**References:** OWASP LLM06, MITRE ATLAS AML.T0048: Exploit Public-Facing Application (via AI Agent)
+**References:** OWASP LLM06, MITRE ATLAS AML.T0053: AI Agent Tool Invocation
 
 ---
 
@@ -126,5 +126,5 @@ Before any AI feature reaches production, adversarial testing must include:
 | Prompt injection | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Sensitive disclosure | LLM02 | AML.T0024 | DSP-05 | Measure 2.7 |
 | Supply chain | LLM03 | AML.T0010 | STA-05 | Govern 1.7 |
-| Excessive agency | LLM06 | AML.T0048 | IAM-04 | Manage 1.3 |
+| Excessive agency | LLM06 | AML.T0053 | IAM-04 | Manage 1.3 |
 | Output validation | LLM09 | N/A | AIS-02 | Measure 2.9 |

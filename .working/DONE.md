@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #654: 3.18, pack-tree MITRE ATLAS technique-ID currency refresh (2026-07-05)
+
+Closed the pack half of TODO 3.18 (the corpus half shipped in #635): the eight `AML.T0048` citations across the four `dev-security/claude-rules/ai/` files (all LLM06 excessive-agency tool/permission rows) re-point from External Harms to `AML.T0053` (AI Agent Tool Invocation), mirroring the corpus half's verified resolution, and two gloss drifts on otherwise-correct IDs are corrected in `ai-security.md` (`AML.T0024` to "Exfiltration via AI Inference API", `AML.T0051` to "LLM Prompt Injection"), all grounded in the held ATLAS 2026.06 CSVs with v2026.06 upstream-confirmed current at apply time; T0010, T0020, and T0054 were re-verified current and unchanged.
+
 ### PR #651: 3.25, decision-tree residual acronym glossary coverage (2026-07-05)
 
 Added six glossary rows (AI, BC, CM, CPRA, ML, PIA) for acronyms the #637 verifier flagged as unexpanded and unresolved in the decision tree; CCPA and DR (the CCPA/CPRA and BC/DR compound neighbours) already had rows. The decision tree defers acronym resolution to the glossary so no decision-tree edit was needed; the bare-AI applier's call chose add-the-row over strike-as-household.
