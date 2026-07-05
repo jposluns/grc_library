@@ -56,15 +56,19 @@ shorthands into checked scope and create cross-anchor collisions on
 short generic titles); widening is a documented option, not the
 default.
 
-The copied ``ADJACENCY_WINDOW = 40`` also means a titled reference
+The shared ``ADJACENCY_WINDOW = 40`` also means a titled reference
 whose link sits 41-60 characters away is unclaimed here exactly as it
 is unclaimed by gate 62 (the accepted heuristic band documented in
 ``lint-intra-doc-refs.py``'s docstring).
 
-Shared reference-extraction constants and helpers (REF_PATTERNS,
-MD_LINK_RE, BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, ADJACENCY_WINDOW,
-resolve_target, binding_target, adjacent_link) are copied from
-``lint-cross-file-section-refs.py`` with this provenance note
+The five shared reference-extraction constants (REF_PATTERNS,
+MD_LINK_RE, BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, ADJACENCY_WINDOW)
+are imported from ``lint_common``'s CROSS_* block, the single source
+of truth for both cross-file gates since the 2026-07-04
+guardrail-review G-4 hoist (they were copy-with-comment duplicates
+before it). The helper functions (resolve_target, binding_target,
+adjacent_link) and HEADING_RE remain copied from
+``lint-cross-file-section-refs.py`` with the in-code provenance note
 (hyphenated module names cannot be imported; the copy-with-comment
 pattern follows gate 62's own reuse of ``lint-intra-doc-refs.py``'s
 heading model).
@@ -86,6 +90,11 @@ import sys
 from pathlib import Path
 
 from lint_common import (
+    CROSS_ADJACENCY_WINDOW as ADJACENCY_WINDOW,
+    CROSS_BINDING_SENTINEL as BINDING_SENTINEL,
+    CROSS_EXTERNAL_CONTEXT_RE as EXTERNAL_CONTEXT_RE,
+    CROSS_MD_LINK_RE as MD_LINK_RE,
+    CROSS_REF_PATTERNS as REF_PATTERNS,
     REPO_ROOT,
     iter_markdown_targets,
     iter_non_code_lines,
@@ -114,24 +123,13 @@ EXEMPT_RELPATHS = frozenset(
 )
 
 # --- Copied from lint-cross-file-section-refs.py (gate 62); see the
-# --- docstring provenance note. Keep in sync with that gate.
+# --- docstring provenance note. Keep in sync with that gate. The five
+# --- shared extraction constants (REF_PATTERNS, MD_LINK_RE,
+# --- BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, ADJACENCY_WINDOW) are no
+# --- longer copied: they are imported from lint_common's CROSS_* block
+# --- (the 2026-07-04 guardrail-review G-4 hoist), so only HEADING_RE
+# --- and the helper functions below remain copy-with-comment.
 HEADING_RE = re.compile(r"^(#{2,6})\s+(?:Section\s+)?(\d+(?:\.\d+){0,3})[.\s:]")
-
-REF_PATTERNS = [
-    re.compile(r"§\s?(\d+(?:\.\d+){0,3})"),
-    re.compile(r"\bSection\s+(\d+(?:\.\d+){0,3})\b"),
-]
-
-MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#\s]+\.md)(?:#[^)]*)?\)")
-
-BINDING_SENTINEL = "Section numbers below refer to that standard."
-
-EXTERNAL_CONTEXT_RE = re.compile(
-    r"\b(?:ISO(?:/IEC)?|IEC|NIST|OWASP|GDPR|BASC|CSA|CCM|AICM|COBIT|CTPAT|PIP|"
-    r"HIPAA|PIPEDA|DORA|MiCA|SOX|Clause|Article|Annex|SP\s?800|SP\s?600|CSF|SSDF|ASVS)\b"
-)
-
-ADJACENCY_WINDOW = 40
 # --- End of the gate-62 copied block.
 
 # Gate 62's HEADING_RE with a title capture group: markdown headings

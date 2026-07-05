@@ -72,6 +72,11 @@ import sys
 from pathlib import Path
 
 from lint_common import (
+    CROSS_ADJACENCY_WINDOW as ADJACENCY_WINDOW,
+    CROSS_BINDING_SENTINEL as BINDING_SENTINEL,
+    CROSS_EXTERNAL_CONTEXT_RE as EXTERNAL_CONTEXT_RE,
+    CROSS_MD_LINK_RE as MD_LINK_RE,
+    CROSS_REF_PATTERNS as REF_PATTERNS,
     REPO_ROOT,
     iter_markdown_targets,
     iter_non_code_lines,
@@ -99,25 +104,12 @@ HEADING_RE = re.compile(r"^(#{2,6})\s+(?:Section\s+)?(\d+(?:\.\d+){0,3})[.\s:]")
 # single-level markdown ordered-list items ("1. ...") out of the set.
 CLAUSE_RE = re.compile(r"^(\d+(?:\.\d+){1,3})\s")
 
-REF_PATTERNS = [
-    re.compile(r"§\s?(\d+(?:\.\d+){0,3})"),
-    re.compile(r"\bSection\s+(\d+(?:\.\d+){0,3})\b"),
-]
-
-MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#\s]+\.md)(?:#[^)]*)?\)")
-
-BINDING_SENTINEL = "Section numbers below refer to that standard."
-
-# A line naming an external standard: its section numbers cite that
-# standard, not a corpus document.
-EXTERNAL_CONTEXT_RE = re.compile(
-    r"\b(?:ISO(?:/IEC)?|IEC|NIST|OWASP|GDPR|BASC|CSA|CCM|AICM|COBIT|CTPAT|PIP|"
-    r"HIPAA|PIPEDA|DORA|MiCA|SOX|Clause|Article|Annex|SP\s?800|SP\s?600|CSF|SSDF|ASVS)\b"
-)
-
-# Maximum distance (characters) between a reference and its naming link
-# for the adjacent-link class.
-ADJACENCY_WINDOW = 40
+# REF_PATTERNS, MD_LINK_RE, BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, and
+# ADJACENCY_WINDOW are the shared cross-file reference-extraction
+# constants, hoisted into lint_common (the CROSS_* block) by the
+# 2026-07-04 guardrail-review G-4 so this gate and the names-phase
+# sibling (gate 65) cannot drift; imported above under the local names
+# this module has always used.
 
 
 def extract_sections(text: str) -> set[str]:

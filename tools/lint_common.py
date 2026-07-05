@@ -416,3 +416,38 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
         if in_code:
             continue
         yield lineno, line
+
+
+# ---------------------------------------------------------------------------
+# Cross-file section-reference shared constants (gates 62 and 65).
+#
+# The two cross-file reference linters (lint-cross-file-section-refs.py,
+# the numbers phase, and lint-cross-file-section-names.py, the names
+# phase) share these extraction constants. They were duplicated
+# copy-with-comment until the 2026-07-04 guardrail-review G-4 hoist;
+# this single definition is now the source of truth for both, so a
+# sentinel or window change cannot drift between the phases.
+
+# Cross-file section references: a section-number citation in prose.
+CROSS_REF_PATTERNS = [
+    re.compile(r"§\s?(\d+(?:\.\d+){0,3})"),
+    re.compile(r"\bSection\s+(\d+(?:\.\d+){0,3})\b"),
+]
+
+# A markdown link to another .md file (the reference's binding target).
+CROSS_MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#\s]+\.md)(?:#[^)]*)?\)")
+
+# The explicit binding sentence: section numbers on the line cite the
+# named external standard, not a corpus document.
+CROSS_BINDING_SENTINEL = "Section numbers below refer to that standard."
+
+# A line naming an external standard: its section numbers cite that
+# standard, not a corpus document.
+CROSS_EXTERNAL_CONTEXT_RE = re.compile(
+    r"\b(?:ISO(?:/IEC)?|IEC|NIST|OWASP|GDPR|BASC|CSA|CCM|AICM|COBIT|CTPAT|PIP|"
+    r"HIPAA|PIPEDA|DORA|MiCA|SOX|Clause|Article|Annex|SP\s?800|SP\s?600|CSF|SSDF|ASVS)\b"
+)
+
+# Maximum distance (characters) between a reference and its naming link
+# for the adjacent-link class.
+CROSS_ADJACENCY_WINDOW = 40
