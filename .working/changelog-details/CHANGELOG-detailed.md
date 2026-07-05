@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.146, PR #658
+
+Light restructure of the [`.working/design-decisions.md`](../design-decisions.md) ledger (a maintainer-endorsed small item): add an Index and correct the stale ordering-convention note; carries the batched #657 QA rows.
+
+### Changed
+
+- **Design-decisions ledger Index added; ordering note corrected.** [`.working/design-decisions.md`](../design-decisions.md) gained an `## Index` section directly after the header, listing the six thematic sections (durable conventions grouped by topic) and, most-recent-first, the sixteen standalone dated decision sections (2026-06-23 through 2026-07-05). The header's ordering-convention line, which read "The ordering below is loosely thematic rather than chronological. New decisions append to the relevant section." and no longer matched the file (dated point-decisions had accreted as standalone `##` sections above and below the thematic band, not inside it), was rewritten to describe the two-register structure and give explicit append guidance for each register (a convention refinement to the relevant thematic section; a dated point decision as a new standalone `## ...` section plus a one-line Index entry). The change is additive plus one note rewrite: no dated section is moved or renamed, so any by-title reference to a dated section stays valid. This closes the maintainer-endorsed "queue it as a small item" ledger-tidy request (surfaced 2026-07-05, not previously a TODO line, recorded in [`.working/DONE.md`](../DONE.md) as such).
+- **TODO 3.15 r5 clauses re-sequenced off #658.** The #657 entries pointed the remaining TODO 3.15 r5 close-out-checklist clauses at #658; this PR instead lands the maintainer's freshly-queued ledger tidy, so those clauses move to following PRs and are worked as separate small items per the 2026-07-05 TODO-item-granularity convention (no [`TODO.md`](../../TODO.md) content changed by this PR).
+
+### Verification
+
+- No corpus document, pack file, or generated artefact was touched; the change is confined to `.working/` (the design-decisions ledger, DONE, and the batched QA files) plus the two README version lines. [`.working/design-decisions.md`](../design-decisions.md) carries no per-document Version/Date metadata block (it states its own version-tracking exemption), so gates 40/31 are N/A; the pack Version stays `1.54.6`; library CalVer and README Version bumped once (`2026.07.145` to `2026.07.146`, `1.9.506` to `1.9.507`).
+- Index completeness re-verified against the file's headings: 6 thematic `##` sections and 16 standalone dated `##` sections, all 22 present in the Index, the dated list ordered most-recent-first. Prose hygiene (no em/en dashes, `-ize` spelling) checked on the added prose before the first commit via [`tools/lint-language.py`](../../tools/lint-language.py); the pre-push guard is the authority.
+- **Batched (recursion-avoidance):** the #657 `/validate-pr` (0 findings) and `/retro` rows.
+
 ## 2026-07-05, Library Version 2026.07.145, PR #657
 
 Close the TODO 3.15 D-F3 item (the project-CLAUDE.md corollary clause completing the four-surface naming) and correct the #656 improvement-log-repair narrative; carries the batched #656 QA rows.

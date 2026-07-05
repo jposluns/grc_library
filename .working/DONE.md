@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #658: design-decisions ledger light-restructure (2026-07-05)
+
+Added an Index (a thematic-section list plus a reverse-chronological list of the 16 standalone dated decision sections) to the design-decisions ledger and corrected its stale "append to the relevant section" ordering note to match the file's actual two-register structure. Not previously a TODO line; surfaced from the 2026-07-05 maintainer request to tidy the ledger, done as a small item.
+
 ### PR #657: 3.15 D-F3, evidence-grounded-completion corollaries, project-CLAUDE.md remnant (2026-07-05)
 
 Closed TODO 3.15 D-F3 fully: the project `.claude/CLAUDE.md` evidence-grounded-completion index bullet gained the condensed clause naming the rule's un-observable-state, inventory, and external-version-currency corollaries, matching the three pack surfaces shipped in #656 (the pack half), so all four enumeration surfaces now name the corollaries. 3.15 stays open on its remaining sub-items (the r5 close-out clauses defer to #658).
