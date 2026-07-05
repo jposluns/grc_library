@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-05\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -52,7 +52,8 @@ Every patch or update is classified on receipt to determine the required deploym
 | Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |
 | **Emergency** | Actively exploited vulnerability (CISA KEV listed or credible equivalent intelligence) | Deploy within 24 hours | CISO approval; CAB post-notification |
-| **Standard Critical** | CVSS ≥ 9.0; not yet actively exploited | Deploy within 72 hours after testing | CAB approval via standard change |
+| **Standard Critical** | CVSS ≥ 9.0; publicly disclosed with a proof-of-concept available, not yet actively exploited | Deploy within 72 hours after testing | CAB approval via standard change |
+| **Standard Critical** | CVSS ≥ 9.0; no known active exploitation or public proof-of-concept | Deploy within 7 days after testing | CAB approval via standard change |
 | **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via standard change |
 | **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
 | **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Scheduled maintenance window |
@@ -176,7 +177,7 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 | Metric | Target |
 | --- | --- |
 | Emergency patch deployment within 24 hours | 100% |
-| Critical patch deployment within 72 hours | ≥ 95% |
+| Critical patch deployment within classification SLA | ≥ 95% |
 | High patch deployment within 14 days | ≥ 90% |
 | Medium patch deployment within 30 days | ≥ 90% |
 | EOL assets in production without approved exception | 0 |

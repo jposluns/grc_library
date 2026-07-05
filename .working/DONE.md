@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #646: 3.23, patch-vs-vulnerability SLA reconciliation (2026-07-05)
+
+Split patch-management's Standard Critical classification into PoC-available (72h) and no-known-exploitation (7 days) rows to mirror the vulnerability-management source table (maintainer decision B2), resolving the two-answers-from-two-citable-procedures conflict; the section-7.4 metric was generalized from "within 72 hours" to "within classification SLA" so the document stays coherent.
+
 ### PR #643: 3.15 r4 G-4, cross-file shared-constant hoist (2026-07-04)
 
 The five reference-extraction constants gates 62 and 65 duplicated copy-with-comment (REF_PATTERNS, MD_LINK_RE, BINDING_SENTINEL, EXTERNAL_CONTEXT_RE, ADJACENCY_WINDOW) hoisted into lint_common's CROSS_* block as the single source of truth; both linters import them aliased, so a sentinel or window change can no longer drift between the phases. Also carries the #642 QA batch and its section-5 in-window fix.

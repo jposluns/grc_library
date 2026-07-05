@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-05, Library Version 2026.07.134, PR #646
+
+Patch-vs-vulnerability SLA reconciliation (TODO 3.23, maintainer decision B2): patch-management's "Standard Critical" row is split to mirror the vulnerability-management source (PoC 72h / no-known-exploitation 7d), the section-7.4 metric generalized to stay coherent, plus the batched #645 QA rows and the TODO 3.23 rotation.
+
+### Fixed
+
+- **TODO 3.23 (worker-QA FIT-3): patch-vs-vulnerability SLA conflict.** [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md)'s section-1 deployment-timeline table had a single "Standard Critical" row (`CVSS >= 9.0; not yet actively exploited`, 72 hours), while [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md)'s section-2 table splits Critical into publicly-disclosed-with-PoC (72 hours) and no-known-active-exploitation (7 days); patch-management's Purpose (line 21) states it operationalizes the vulnerability-management SLAs, so the conflation gave an operator two answers for a no-known-exploitation Critical. Per maintainer decision B2, the row is split into two "Standard Critical" rows (publicly disclosed with a PoC available: 72 hours; no known active exploitation or public PoC: 7 days) mirroring the source. The classification NAME stays "Standard Critical", so the section-3 authorization-pathway table (one pathway) and the classification are unaffected. The section-7.4 key-metric row "Critical patch deployment within 72 hours" is generalized to "within classification SLA" (a required consequential fix: the flat-72-hour metric would otherwise contradict the new 7-day tier). patch-management Version `1.0.4` to `1.0.5`, Date to 2026-07-05; [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated in order, both `--check` clean.
+
+### Changed
+
+- TODO 3.23 rotated to [`.working/DONE.md`](../DONE.md) in this diff (the close-out rotation). The scratch coverage sync for this TODO-item-set change is QUEUED for a consolidated batch at a Phase-1 boundary (advisory, cross-repo; not a CI gate).
+- Batched per recursion-avoidance: the #645 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.423`, 0 findings) and the #645 `/retro` row ([`.working/improvement-log.md`](../improvement-log.md) `1.0.369`, the em-dash-into-`.working/` observation with a WATCH candidate to brief the sweep subagents toward ASCII punctuation). The #645 `/validate-pr` non-defect note (the awkward "None-other open." phrasing) is tidied to "No other items open." in [`.working/pending-decisions.md`](../pending-decisions.md).
+
+### Verification
+
+- Substantive-tier change (a normative operational SLA value): reviewed by a refute-briefed skeptical verifier pre-push, scoped to the diff. All 66 gates standalone post-commit; both generators `--check` clean after the patch-management Version bump; cross-document coherence confirmed by re-read (patch-management and vulnerability-management now agree: publicly-disclosed-with-PoC Critical 72 hours, no-known-exploitation Critical 7 days). [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green pre-commit; [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) STANDALONE and UNPIPED before push.
+
 ## 2026-07-05, Library Version 2026.07.133, PR #645
 
 The 2026-07-05 resumed session's `/resume` close-out (the loop-break corpus-wide Sweep 84, the compensating control for the #644 session-closing handoff): a full three-subagent dispatch over the #617..#644 deltas returned three note-level findings, none contradicting the handoff's asserted expectations. B-F1 fixed (gate-54 scope clause → gate 58), A-F1 routed to pending-decisions (Brazil citation verification), C-F1 no action. Also lands the resumed session's lease acquisition, handoff prune + refresh, and the new deferred-protected-changes staging doc.
