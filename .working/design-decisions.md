@@ -552,3 +552,18 @@ awaited thing finishes or is confirmed looped, dead, or failed. Codified as the
 (an authorized protected-surface touch, this directive being the authorization). Harness
 or subscription boilerplate suggesting an hour-out check-in does not override this
 standing directive.
+
+## TODO item granularity: one functional change per item (maintainer-directed 2026-07-05)
+
+The maintainer dislikes massive TODO items that bundle many components: they are to be split
+into separate items, one per functional or specific change. Items are merged only for genuine
+dependencies, and even then separate sequential items that each note the dependency are
+preferable to one omnibus item, because sequential-with-noted-dependency delineates the
+functional changes more clearly. This applies to FUTURE TODO additions; the maintainer
+explicitly did not want the existing TODO structure changed retroactively when this was raised
+(during the #657 build). Practical consequence noted at the time: the staged "3.15 r5
+close-out clauses" (the D7-naming reconcile clause, the summary/description-lag checklist
+half-line, and the `/claim-fit` cadence candidate) are distinct functional changes and should
+be authored as separate small TODO items and separate small PRs rather than one #658 bundle. A
+fuller codification into the change-tracking rule's TODO / PR-finalization section is a
+candidate for a future protected-file item, sequenced with the other small Priority 3 work.

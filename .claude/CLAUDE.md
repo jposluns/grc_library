@@ -891,7 +891,13 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
 - `.claude/rules/governance/evidence-grounded-completion.md` — never claim completion, and
   never assert a property of an artefact you have not read, without running the
   verification protocol first (enumerate, re-read, quote, contradiction-search, distinguish
-  mechanical from semantic, state unverified items).
+  mechanical from semantic, state unverified items). Three corollaries extend it where the
+  observation is not a single readable file: un-observable state (context depth, a felt sense
+  of doneness) is never assertable and never a wind-down, stop, or defer trigger (that
+  requires a named externally-observable signal); inventory, absence, and held-version claims
+  need the collection's own index, not a partial look; and external-version currency is
+  answered only by the upstream source verified this turn, never a stored note, a cached copy,
+  or a local catalogue.
 - `.claude/rules/governance/clarify-before-acting.md` — surface ambiguity in one sentence
   and ask before proceeding.
 - `.claude/rules/governance/artefact-and-branch-discipline.md` — generated artefacts are
