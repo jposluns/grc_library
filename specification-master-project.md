@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.5\
-**Date:** 2026-07-02\
+**Version:** 1.6.6\
+**Date:** 2026-07-05\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -344,7 +344,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 
 ### Financial and sector-specific
 
-- PCI DSS v4.0: Payment card industry data security standard
+- PCI DSS v4.0.1: Payment card industry data security standard
 - HIPAA: Health Insurance Portability and Accountability Act (US)
 - SOX: Sarbanes-Oxley Act (US)
 - FedRAMP: Federal Risk and Authorization Management Program (US)
