@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-05T01:48:54Z
+**Last-heartbeat-UTC:** 2026-07-05T06:27:53Z
 
-**Current-task:** OVERNIGHT run (2026-07-05, maintainer away). Sweep 84 complete (B-F1 fixed, A-F1 routed) and landing as this session's first PR (the /validate close-out); next, Phase-1 fixes per the handoff queue (3.24/3.23/3.22/3.1/3.21/3.25 + SR hygiene), then non-protected tooling, then P2 applies. Protected-file edits DEFERRED to daytime (staged in deferred-protected-changes.md)
+**Current-task:** OVERNIGHT run (2026-07-05, maintainer away). Merged through #650 (3.24/#647, 3.23/#646, 3.22/#648+#649, 3.1-partial/#650). 3.21 is decision-parked (its four residuals a-d await maintainer calls; recommended options recorded in TODO 3.21 and pending-decisions.md). Next: 3.25 (decision-tree acronym/glossary coverage), then SR-1..SR-4 scratch-hygiene (via MCP PR, feasibility pending a scratch checkout here), then non-protected tooling, then P2 applies. Protected-file edits DEFERRED to daytime (staged in deferred-protected-changes.md)
 
 **Worker-dispatches:** one EXTERNAL worker session live (maintainer-launched 2026-07-03, read-only-on-main prompt constraints); it has DELIVERED all 30 staged work-units plus the read-only QA report (all merged scratch-side; 30 deliveries pending applies in the scratch inbox, fr-59 half-consumed); the wave-7 staged pool (2 briefs: corpus-skill distillation, GR-GAP-1 register population) is available for pickup
 

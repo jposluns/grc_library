@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #651: 3.25, decision-tree residual acronym glossary coverage (2026-07-05)
+
+Added six glossary rows (AI, BC, CM, CPRA, ML, PIA) for acronyms the #637 verifier flagged as unexpanded and unresolved in the decision tree; CCPA and DR (the CCPA/CPRA and BC/DR compound neighbours) already had rows. The decision tree defers acronym resolution to the glossary so no decision-tree edit was needed; the bare-AI applier's call chose add-the-row over strike-as-household.
+
 ### PR #649: 3.22, PCI DSS v4.0.1 currency migration + linter v-prefix widening (2026-07-05)
 
 Closed across two PRs (maintainer decision B1): #648 migrated the 12 `PCI DSS v4.0` citations to `v4.0.1` across 8 files and moved the citation-form template's taught form; #649 widened `tools/lint-standards-currency.py`'s separator regex to catch a `v`-prefixed superseded label (regression fixture added, preserving the continuation guard that protects the current `v4.0.1`). The three bare `PCI DSS v4` family-label residual moved to 3.21(d).
