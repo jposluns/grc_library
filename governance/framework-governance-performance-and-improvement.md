@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-06\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This framework defines the processes and performance mechanisms used to measure,
 
 ## Scope
 
-Applies to all governance domains: governance, risk, compliance, security, privacy, AI, resilience, supply chain, operations, and developer security.
+Applies to all governance domains: governance, risk, compliance, security, privacy, AI, resilience, supply chain, operations, architecture, and developer security.
 
 ---
 
