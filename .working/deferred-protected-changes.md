@@ -52,11 +52,45 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers)._
 - **(b) DONE, landed in #659 (2026-07-05):** the close-out checklist's reconcile bullet now names
   D7 (the handoff-snapshot freshness PR-time check) as the mechanized version-token half of the
   Current-truth reconcile (the gate-50 naming pattern).
-- **Deferred to the next session:** the already-staged `/claim-fit` cadence-section candidate (#630
-  out-of-window observation); the maintainer chose wrap-and-resume-fresh at the #659 batch boundary,
-  so the session-closing handoff #660 is bookkeeping-only and this clause needs a research pass to
-  spec it, so it is not a handoff-PR change. The next session picks it up (its PR number is not yet
-  assigned; do not re-pin it to a specific number here).
+- **Deferred, now content-ready (drafted 2026-07-06 overnight, spec pass done):** the `/claim-fit`
+  cadence-section candidate (#630 out-of-window observation). The research pass is complete (the
+  `claim-fit` SKILL was read and the clause modeled on the existing `## Compliance-matrix
+  semantic-fit cadence (/matrix-fit)` section); only the authorized apply plus per-PR QA remain.
+  Apply as a NEW `## Normative-attribution claim-precision cadence (/claim-fit)` section in
+  `.claude/CLAUDE.md`, sibling to the `/matrix-fit` section, with this text (CLAUDE.md is gate-39
+  and gate-51 exempt, so the gate-number phrasing and dashes are unconstrained there, but the draft
+  is kept dash-free and P7-safe regardless):
+
+  > Corpus documents attribute specific values (a retention period, a clock, a threshold) to named
+  > normative sources. Whether the cited source actually PRESCRIBES the attributed value, its
+  > precision, the citation gates cannot check: the existence, currency, and control-code gates
+  > confirm a source exists and the citation is well-formed, not that the source states the value.
+  > That class, "attributed value, silent source" (the FR-120 shape: a fixed 180-day baseline
+  > attributed to NIST SP 800-53 CA-6 and ISO/IEC 27001 Clause 9.2, neither of which prescribes a
+  > fixed interval), is gate-blind by construction. The durable instrument is a cadenced audit, the
+  > `claim-fit` skill (slash command `/claim-fit`): it judges each worklisted claim against the held
+  > source TEXT in the reference base (four verdicts: `prescribed`, `informed-not-prescribed`,
+  > `mis-attributed`, `source-not-held`), scoped by the recall-oriented worklist
+  > `tools/audit-claim-precision.py` produces.
+  >
+  > Run `/claim-fit` on this cadence: (1) the one-time full Tier-A pass at adoption (done in #630,
+  > establishing the baseline); (2) after any batch that adds or edits normative-value claims (a P2
+  > content batch, a jurisdiction annex, a KPI or SLA table), judging the new Tier-A rows the batch
+  > introduced and sampling its Tier-B rows; (3) ad-hoc when a claim is in doubt (a maintainer flag,
+  > a `/validate` or `/full-qa` note, an apply-time uncertainty about whether a source states a
+  > value).
+  >
+  > It is NOT a gate and NOT a substitute for the citation gates; it is the precision layer on top of
+  > them (a claim must pass the existence and currency gates first). An `informed-not-prescribed`
+  > finding is fixed by the attribution PHRASING, never the value (the value is often the corpus's own
+  > canonical choice); a `source-not-held` claim routes to the maintainer's source-drop queue, never
+  > adjudicated from memory. Findings are fixed in-window or routed under the normal triage; a
+  > zero-finding run still gets a history row. This cadence shipped across two PRs: the advisory tool
+  > `tools/audit-claim-precision.py` in #621 and the skill plus the adoption pass in #630.
+
+  On apply, wrap `claim-fit`, `matrix-fit`, `tools/audit-claim-precision.py`, and the SKILL path in
+  markdown links (as the `/matrix-fit` section does) and confirm the broken-link gate passes. Its PR
+  number is not yet assigned; do not re-pin it to a specific number here.
 - **DONE, landed in #659 (2026-07-05, grouped with (b)):** the summary/description-lag close-out-checklist
   half-line (the #650-#653 `/retro` candidate, at four in-window occurrences): when a PR marks a
   summary surface resolved or landed, or a mid-PR verifier reword changes a term or value on a

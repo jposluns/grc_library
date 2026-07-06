@@ -247,7 +247,7 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError as exc:
         print(
             f"ERROR: could not determine merge-base of {base}..{head}: {exc}. "
-            f"In GitHub Actions, ensure actions/checkout uses fetch-depth: 0.",
+            f"In GitHub Actions, ensure that actions/checkout uses fetch-depth: 0.",
             file=sys.stderr,
         )
         return 2
