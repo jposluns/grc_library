@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #677: TODO 1.9 RM-10 pipe-guardrail hardening, closed as a documented harness limitation (2026-07-06)
+
+Closes P1 item 1.9. The `block-verification-pipes.py` PreToolUse hook does not fire in resumed/child sessions; the 2026-07-06 root-cause investigation pinned why (a child session leaves `CLAUDE_PROJECT_DIR` unset, so the `settings.json` hook command resolves to a nonexistent path and the Bash tool proceeds unblocked), and found no portable corpus-side fallback, so the fix is harness-level. The maintainer directed closing 1.9 as a documented harness limitation: parts (a)-(d) shipped 2026-07-03/04, the compensating controls (the RM-10 unpiped-verification habit and the guard's `PRE_PUSH_GUARD_ALLOW_PIPE`-gated pipe self-defence) fully cover the underlying risk, and the limitation is recorded in `.working/third-party-issues.md` so a future session does not mistake it for a regression.
+
 ### PR #675: TODO 3.15 #637 F3, the D5 eighth closure-form and form-6 markdown-link widening (2026-07-06)
 
 Closes the #637-verifier F3 bullet. Widened `tools/check-todo-rotation-on-pr.py` (delta gate D5) with an eighth closure form (the bare `TODO N.M ... closed` phrasing, no `section` word and no `§`, the #637 lead shape) and a link-tolerant widening of the rotation-assertion form 6 (a markdown-linked DONE target, the #640 shape), both census-validated FP-clean, with fixtures. Co-updated all surfaces in the same PR: the linter docstring and module comment, the protected `.claude/CLAUDE.md` closure-form count (SEVEN to EIGHT), and the `governance/specification-audit-programme.md` §6 D5 narrative. The bullet's diff-side-companion design proposal is subsumed by the still-open D8-candidate bullet. Second protected-backlog PR of the 2026-07-06 daytime session; TODO 3.15 stays open on its GR-8/GR-10/GR-GAP tooling bullets.
