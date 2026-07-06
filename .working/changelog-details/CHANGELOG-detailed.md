@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.173, PR #685
+
+Sweep-87 close-out and `/resume` first PR for the 2026-07-06 resumed session (`claude/grc-acquisition-reconfirm-brief-k8fppo`). Runs the loop-break corpus-wide `/validate` (Sweep 87) over the #680 to #683 deltas and applies the single note-level finding it surfaced.
+
+### Changed
+
+- [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md) (`1.0.5` to `1.0.6`): added `architecture` to the Scope line's governance-domain enumeration (from 10 to 11 domains), aligning it to the authoritative [`governance/standard-maturity-assessment-methodology.md`](../../governance/standard-maturity-assessment-methodology.md):34 and [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) (Section 9: Architecture domain), both of which enumerate architecture; `architecture/` is a genuine corpus domain directory. Sweep-87 Subagent A finding A-F1, validated at source (the framework had zero mentions of architecture; the derived standard and the template both list it) and fixed at the width of the finding (the only two domain-list enumerations already included architecture, so no parallel carrier survives).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first, then the scorecard which derives from it) to reflect the framework's `1.0.6` bump; `build-taxonomy.py --check` and `build-portal.py --check` clean post-regen.
+- [`.working/session-handoff.md`](session-handoff.md): pruned per the `/resume` first-PR discipline (keep current + 1 prior in each per-session stack: the 2026-07-05 `claude/resume-tl5rez` Next-actions, State-snapshot, and #645-#659 Asserted-expectations blocks removed); prepended this session's Next-actions and State-snapshot blocks; advanced the Resume cursor to Sweep 87; corrected the environment prediction (cloud, not local).
+- [`.working/session-state.md`](session-state.md): acquired the concurrency lease (`Active-session` to this branch, `Status: active`, fresh heartbeat `2026-07-06T23:17:40Z`).
+- [`.working/validate-sweeps/history.md`](validate-sweeps/history.md) (`2.0.79` to `2.0.80`) and the new detail file [`.working/validate-sweeps/2026-07-06-sweep87-iter1.md`](validate-sweeps/2026-07-06-sweep87-iter1.md): the Sweep-87 row and per-iteration record.
+
+### Verification
+
+- Mechanical baseline: `tools/run_all_audits.sh` green 66/66 at `ba58958` before the fix; re-run after the fix + regen (pre-push guard).
+- Sweep 87: full three-subagent dispatch (A, B, C); A 1 note (fixed), B 0, C 0; no asserted-expectation contradiction of any #684 claimed-clean surface.
+- Per-PR QA for this substantive PR (`/validate-pr` + `/retro`) batches into the next PR per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.172, PR #684
 
 Session-closing handoff for the 2026-07-06 resumed session (`claude/resume-chptc7`, #680 to #683). Working-state and version surfaces only; the session-closing handoff PR skips its own trailing `/validate-pr` and `/retro` per the loop-break exception.
