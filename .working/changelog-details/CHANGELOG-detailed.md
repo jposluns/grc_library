@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.161, PR #673
+
+`.working/` for local project (overnight cleanup, the mode-exit priority-1 morning-processing PR): reset the overnight file and routed the 2026-07-06 overnight run's content. Terse entry (working-state only, adopter-invisible; no corpus body change).
+
+- [`.working/overnight-pr.md`](../overnight-pr.md): reset `Status` from `in-flight` to `stub` and replaced the current-run section with a closure note. The 2026-07-06 overnight run (session `claude/resume-tl5rez`) shipped #667 through #671. Content routed: the PCI DSS "full latest version" citation-form preference already in [`.working/design-decisions.md`](../design-decisions.md) (under #668); closed work in [`.working/DONE.md`](../DONE.md) per-PR during the run; no new TODO follow-ups (the 3.21(a) matrix framework-key full-name-consistency observation was deliberately not raised absent a signal); build-progress and files-modified lists discarded as noise.
+- Deferred to the daytime protected-backlog (now beginning): the `/claim-fit` cadence clause ([`.working/deferred-protected-changes.md`](../deferred-protected-changes.md) item 5) and TODO 3.15 #637 F3 (the D5 eighth-closure-form widening, protected-entangled because its closure-form count is restated in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)).
+- No gate, corpus body, generated artefact, or protected file touched; bookkeeping tier (no standing verifier). Gate 46 passes on `stub`.
+
+**Batched bookkeeping.** Carries the #672 `/validate-pr` (0 findings) history row and the #672 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.160, PR #672
 
 `.claude/` change for local project: added a `No idle-stop in unattended mode` guardrail clause to the "Attended-autonomous operating mode" section of [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (maintainer-authorized protected-tree touch, 2026-07-06). Protected-guidance change, adopter-invisible; no corpus body, no gate logic.
