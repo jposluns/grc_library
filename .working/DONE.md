@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #683: FR-23 (medium): audit-evidence assembler-verification (2026-07-06)
+
+Closed TODO 2.6 (FR-23): added a per-status verification-basis field (independently verified / owner-asserted / auditor-to-verify) and a strengthened assembler statement to the audit-evidence package template, with a supporting section 8.4 in the internal-audit standard, so a package distinguishes verified control status from a management assertion awaiting test. Also carried the batched #682 QA rows and the Note-3 reciprocal-Related-Documents fix on the maturity self-assessment template.
+
 ### PR #682: FR-15 (medium): maturity-ladder methodology standard (2026-07-06)
 
 Closed TODO 2.5 (FR-15): added a governance methodology standard documenting the five-tier maturity ladder, the median-of-medians aggregation, its outlier-masking limitation, and a compensating floor-check (absolute Tier-1 plus relative two-tier-gap), with bounded pointers from the performance framework, the adopter template, and the two governance indexes; the generator's document-maturity scoring is unchanged. Also carried the batched #681 QA rows and fixed the #681-surfaced control-testing section 8.1 second-line shorthand.

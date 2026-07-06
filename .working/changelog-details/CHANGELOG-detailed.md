@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.171, PR #683
+
+FR-23 audit-evidence assembler verification (TODO 2.6): recorded, per evidence item, whether a control's status is independently verified or a management assertion, closing the package template's verify-versus-aggregate silence; applied from the scratch-inbox worker research delivery.
+
+### Changed
+
+- [`compliance/template-audit-evidence-package.md`](../../compliance/template-audit-evidence-package.md) (`1.0.5` to `1.1.0`): added a `Verification basis` field (Independently verified / Owner-asserted / Auditor-to-verify) to both the `### Implementation evidence` and `### Operating evidence` per-control blocks, each naming the supporting independent test (per [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md), tester not the control owner) or the asserting control owner; added a fourth confirmation to the package-level assembler statement (an owner-asserted status is not presented as independently verified without a supporting test); and inserted a review question (item 5, list renumbered 1 to 9).
+- [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md) (`1.0.6` to `1.1.0`): added section 8.4 (verification basis in assembled evidence packages) carrying the same three-value independently-verified / owner-asserted / auditor-to-verify distinction on the auditor side, extending the Evidence-Based Approach principle and the section 8.1 interview-corroboration rule; added the evidence-package template to Related Documents.
+- [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) (`1.1.0` to `1.1.1`): the batched #682 Note-3 fix, added [`governance/standard-maturity-assessment-methodology.md`](../../governance/standard-maturity-assessment-methodology.md) to Related Documents (reciprocity; the standard already listed the template).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the two compliance-document bumps (taxonomy first; the maturity template's bump is under `docs/`, which is not taxonomy-tracked); all three generators are `--check`-clean.
+- Rotated TODO 2.6 (FR-23) to [`.working/DONE.md`](../DONE.md); the batched #682 [`/validate-pr`](../validate-pr/history.md) (3 notes) and [`/retro`](../improvement-log.md) rows.
+- Bumped the library CalVer to `2026.07.171` and the README Version to `1.9.532`.
+
+### Verification
+
+- The gap was re-verified real at apply-time (the template named an assembler/owner/reviewer sign-off and an assembler statement about assembly and disclosure, but recorded no per-status verification basis). The independent-testing linkage was confirmed against [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) (the tester is never the control owner); the Evidence-Based Approach principle and the interview-corroboration rule were confirmed in the internal-audit standard; the control-testing seam was held (referenced, not edited).
+- A refute-briefed skeptical verifier reviewed the change pre-push (substantive tier) across eight categories and found it substantively clean, with one low-severity cross-surface completeness gap: section 8.4 framed the basis as a two-value binary while the template defines three values, omitting Auditor-to-verify. Fixed before push (section 8.4 now enumerates all three values) and re-verified by re-reading the reconciled section 8.4 against the template's fields.
+- Pre-push guard green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1 through D7 plus the history-aware 45/40/31), run standalone and unpiped.
+- **Worker provenance:** applied from [`inbox/worker-20260703-a/fr-23-audit-evidence/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-23-audit-evidence/MANIFEST.md).
+
+### Discipline observation
+
+- Apply-time version reconciliation: the worker delivery (read at grc_library `ede2e3b`) recorded the template at `1.0.3`; live main had advanced it to `1.0.5`, reconciled to `1.1.0`.
+- The batched #682 Note-3 (reciprocal Related-Documents) applied the paired-surface-completeness lesson from that PR's own retrospective.
+- Batches the #682 [`/validate-pr`](../validate-pr/history.md) (3 notes) and [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.170, PR #682
 
 FR-15 maturity-ladder methodology (TODO 2.5): added a governance methodology standard documenting the five-tier maturity ladder, the median-of-medians aggregation, its outlier-masking limitation, and a compensating floor-check, applied from the scratch-inbox worker research delivery.

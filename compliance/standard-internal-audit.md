@@ -2,11 +2,11 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-07-03\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
+**Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
 **Classification:** Public\
 **Category:** Compliance Management\
 **Review Frequency:** Annual and upon material audit methodology or regulatory change\
@@ -358,6 +358,10 @@ All evidence must be:
 ### 8.3 Evidence retention
 
 All audit working papers, evidence artefacts, draft findings, management responses, and final reports must be retained for a minimum of **7 years** from the date of the final report, in accordance with the organization's data retention policy.
+
+### 8.4 Verification basis in assembled evidence packages
+
+Where control evidence is assembled into a package for an audit, internal or external (per [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)), each control's implementation status and operating effectiveness carries its verification basis: whether the status is independently verified (supported by an independent test per [`compliance/procedure-control-testing.md`](procedure-control-testing.md), where the tester is not the control owner), owner-asserted (asserted by the control owner and not independently tested for the period), or presented for the external auditor to verify. An owner-asserted status must not be presented as independently verified without a supporting test. This extends the Evidence-Based Approach principle and the interview-corroboration rule in section 8.1 to the assembly of evidence packages, so that a reader can distinguish verified status from a management assertion awaiting test.
 
 ---
 
