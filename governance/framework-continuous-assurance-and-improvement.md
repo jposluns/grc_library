@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-07-05\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -112,6 +112,14 @@ The organization must track and improve:
 - Cargo integrity and customs compliance rate.
 - Supplier BASC certification coverage.
 - Trade security audit completion rates.
+
+### 4.4 Per-control effectiveness and lines of defence
+
+The organization tracks the **per-control effectiveness metric** (defined in [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md) and populated from the Control Testing Register in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md)) as a Performance Evaluation input, so that sustained control effectiveness, not only point-in-time test outcomes, feeds the continuous-assurance cycle. The metric is consumed under the Three Lines Model (see [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), with the full assurance model in [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) Section 1):
+
+- **First line** (control owner): self-monitors the effectiveness band for its own controls and acts on a declining band.
+- **Second line** (risk, compliance, information security, privacy, AI governance, and legal): aggregates the bands across the portfolio, challenges them, and surfaces systemic weakness.
+- **Third line** (Internal Audit): independently validates the metric's basis and the reliability of its inputs.
 
 Performance data from all assurance activities feed into the Governance Performance Dashboard, maintained by the GRC Programme Manager.
 
