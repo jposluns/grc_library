@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #675: TODO 3.15 #637 F3, the D5 eighth closure-form and form-6 markdown-link widening (2026-07-06)
+
+Closes the #637-verifier F3 bullet. Widened `tools/check-todo-rotation-on-pr.py` (delta gate D5) with an eighth closure form (the bare `TODO N.M ... closed` phrasing, no `section` word and no `§`, the #637 lead shape) and a link-tolerant widening of the rotation-assertion form 6 (a markdown-linked DONE target, the #640 shape), both census-validated FP-clean, with fixtures. Co-updated all surfaces in the same PR: the linter docstring and module comment, the protected `.claude/CLAUDE.md` closure-form count (SEVEN to EIGHT), and the `governance/specification-audit-programme.md` §6 D5 narrative. The bullet's diff-side-companion design proposal is subsumed by the still-open D8-candidate bullet. Second protected-backlog PR of the 2026-07-06 daytime session; TODO 3.15 stays open on its GR-8/GR-10/GR-GAP tooling bullets.
+
 ### PR #674: /claim-fit cadence section, completing the TODO 3.15 r5 CLAUDE.md close-out-clause bundle (2026-07-06)
 
 Closes the r5 close-out-clause bundle (its first three clauses shipped in #652 and #659). Added a `## Normative-attribution claim-precision cadence (/claim-fit)` section to `.claude/CLAUDE.md`, sibling to the `/matrix-fit` section, documenting the cadence for the `/claim-fit` citation-precision audit (the gate-blind "attributed value, silent source" FR-120 class): the one-time Tier-A adoption pass (#630), the per-batch cadence, and ad-hoc use. TODO 3.15 stays open on its remaining bullets (the #637 F3 D5 eighth-form and the GR-8/GR-10/GR-GAP tooling items). First protected-backlog PR of the 2026-07-06 daytime session.

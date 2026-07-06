@@ -6222,16 +6222,19 @@ class TodoRotationOnPrTests(unittest.TestCase):
     delta check verified behaviourally via run-pr-time-checks.sh). The
     trigger (broadened 2026-06-30 by the since-closed rotation-prevention
     backlog item, again 2026-07-02 after the #563 verifier's tooling
-    note, and again 2026-07-03 after the #607 miss) must fire on seven
+    note, again 2026-07-03 after the #607 miss, and again 2026-07-06 after
+    the #637 miss) must fire on eight
     closure forms, the canonical
     "clos(e|es|ed|ing) [the] TODO §", the coded-id CLOSED major-closure
     marker (FR/GR/SR-style uppercase ids; widened by GR-13), the prose-named
     "clos... the ... (backlog item | TODO item | directive)" form, the
     section-name "section-N.M ... clos(ed|ure)" form, the item-number
     "item(s) N ... closed" form, the rotation-assertion "rotated to the
-    DONE ledger" form, and the space-separated "TODO section N.M ...
-    clos(ed|ure)" form, and NOT on incidental TODO/FR mentions or
-    past-closure narration.
+    DONE ledger" form (widened 2026-07-06 with a markdown-linked DONE
+    target), the space-separated "TODO section N.M ...
+    clos(ed|ure)" form, and the bare "TODO N.M ... clos(ed|ure)" form (no
+    "section" word, added 2026-07-06 for the #637 shape), and NOT on
+    incidental TODO/FR mentions or past-closure narration.
     """
 
     @staticmethod
@@ -6291,6 +6294,18 @@ class TodoRotationOnPrTests(unittest.TestCase):
             "With all 38 worklist documents done, TODO section 1.1 is CLOSED and rotated to [`DONE.md`](x).",
             "The low-severity cleanup batch, TODO section 3.14, is fully closed.",
             "todo section 2.13 closure recorded with the register bump.",
+            # Widened form 6 (2026-07-06): a markdown-linked DONE target,
+            # the #640 "rotated to [linked path]" shape the literal missed.
+            # This line carries NO "TODO section" token, so form 7 does not
+            # reach it; only the form-6 link alternative does.
+            "the GR-8 follow-on bullet rotated to [`.working/DONE.md`](../DONE.md) keyed by PR #675.",
+            # Form 8 (2026-07-06): the bare "TODO N.M ... clos(ed|ure)"
+            # phrasing (a decimal section token, NO "section" word and NO §),
+            # the #637 lead shape that evaded form 1 (no §) and form 7 (no
+            # "section" word). Genuine regressions: only form 8 reaches these.
+            "the build-only half of TODO 3.21 closed at source this PR.",
+            "TODO 3.15 #637 F3 closed with the eighth-form ship.",
+            "todo 2.13 is closed and the register bumped.",
         ):
             self.assertIsNotNone(
                 m.asserts_todo_closure([line]),
