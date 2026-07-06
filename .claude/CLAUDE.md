@@ -483,7 +483,13 @@ is external. Two mechanisms:
      bare-and-joint corpus distribution; #664 a CHANGELOG bullet asserted "bare-form fixtures"
      when the fixtures are joint-form): all three were caught in-window by the pre-push
      skeptical verifier or the post-merge `/validate-pr`, so the recurrence is in the
-     authoring, not the catching.
+     authoring, not the catching. A recurring sub-shape of this guard (the #630/#631/#633
+     count-and-label granularity pattern) is a COUNT stated next to an ENUMERATION at a
+     different granularity, or a figure TRANSCRIBED from a subagent's output: recount the
+     enumeration in the same edit, state both granularities where a fix-count and a
+     location-count diverge, and never transcribe a subagent's figure without recounting it
+     against the underlying enumeration (a subagent's arithmetic is a hypothesis, not a
+     measurement).
    - **CHANGELOG count-reflex** (the mid-PR figure-drift guard): when a figure in a
      drafted CHANGELOG entry changes during verifier rounds (a findings count, a fixture
      count, a suite size), bare-token grep the WHOLE entry, all sections in both files,
