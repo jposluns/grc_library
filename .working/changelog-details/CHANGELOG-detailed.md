@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.156, PR #668
+
+PCI DSS version-label normalization, the TODO 3.21(d) follow-through, second PR of the 2026-07-06 overnight run. The maintainer clarified the standing preference the same night the 3.21 residuals were resolved: use the full latest version `PCI DSS v4.0.1`, with the family label `v4` acceptable only when quoting another document that references it.
+
+### Changed
+
+- **Three cloud-hardening baseline framework-alignment cells** normalized from the bare `PCI DSS v4` family label to `PCI DSS v4.0.1`: [`dev-security/standard-cloud-hardening-baseline-aws.md`](../../dev-security/standard-cloud-hardening-baseline-aws.md), [`dev-security/standard-cloud-hardening-baseline-azure.md`](../../dev-security/standard-cloud-hardening-baseline-azure.md), [`dev-security/standard-cloud-hardening-baseline-gcp.md`](../../dev-security/standard-cloud-hardening-baseline-gcp.md) (each `0.0.8` to `0.0.9`, Date 2026-07-06). Deterministic exact-string replacement (one cell per file, idempotence-guarded; verified zero bare `PCI DSS v4` residual in the three baselines and `v4.0.1` present in each).
+
+### Unchanged (recorded)
+
+- The citation-form template's discouraged-example `PCI DSS v4` at [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md):49 is LEFT: it sits in the discouraged-examples column ("`PCI DSS`; `PCI DSS v4` (without requirement)"), illustrating the bad form, so normalizing it would defeat the example (the display-as-example carve-out, adjacent to the maintainer's quote-exemption). A corpus-wide scan confirmed these were the only bare `PCI DSS v4` occurrences outside gate-exempt `.working/`, CHANGELOG, and TODO surfaces.
+
+### Added
+
+- The standing PCI-DSS version-label preference recorded as a dated decision in [`.working/design-decisions.md`](../design-decisions.md) (`v4.0.1` default; family `v4` only when quoting another document; "full latest version" tracks future point releases with a currency re-verify), and the [`.working/pending-decisions.md`](../pending-decisions.md) 3.21(d) line re-resolved from "(d) leave" to normalize.
+
+### Verification
+
+- taxonomy + portal + scorecard regenerated (diff scoped to the three baselines' `0.0.9` / Date bumps); one pre-push skeptical verifier (substantive tier: corpus-document body change); pre-push guard (both runners) green.
+- Batched (recursion-avoidance): the #667 `/validate-pr` history row (0 findings) + `/retro` row and the 3.21 decision reconciliation (committed on the branch before this entry).
+
 ## 2026-07-06, Library Version 2026.07.155, PR #667
 
 TODO section 3.21 (citation and naming hygiene residuals) CLOSED, the first PR of the 2026-07-06 overnight run. The four decision-parked residuals were resolved on the maintainer's chat calls (a=A1, b=B2, c=C1, d=leave); (a), (b), (c) are corpus/tool changes outside the protected trees, so they were authorized to apply overnight, and (d) is no change.
