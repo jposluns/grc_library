@@ -1,7 +1,7 @@
 # PR-Scoped Validation History
 
 **Version:** 1.2.445\
-**Date:** 2026-07-05\
+**Date:** 2026-07-06\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/validate-pr` invocation against this library. New rows on top. Each row summarises the PR-scoped sweep; detail for findings-producing sweeps lives in the per-PR file linked from the **Detail** column.

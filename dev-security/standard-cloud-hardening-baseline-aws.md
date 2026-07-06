@@ -2,8 +2,8 @@
 
 **Document Title:** AWS Cloud Hardening Baseline Standard\
 **Document Type:** Standard\
-**Version:** 0.0.8\
-**Date:** 2026-07-02\
+**Version:** 0.0.9\
+**Date:** 2026-07-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md)\
@@ -233,7 +233,7 @@ The standard aligns to the CIS AWS Foundations Benchmark and to the AWS Well-Arc
 | NIST CSF 2.0 | Identify, Protect, Detect, Respond, Recover | Risk function alignment |
 | ISO/IEC 27001:2022 | A.5, A.8 (selected) | Information security management |
 | CSA CCM v4.1 | IAM, I&S, LOG, GRC | Cloud control matrix |
-| PCI DSS v4 | Selected requirements where the environment processes cardholder data | Card data baseline |
+| PCI DSS v4.0.1 | Selected requirements where the environment processes cardholder data | Card data baseline |
 | EU AI Act, GDPR | Privacy framework | Privacy compliance |
 
 ---
