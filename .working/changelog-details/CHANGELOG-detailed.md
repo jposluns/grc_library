@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.166, PR #678
+
+Working-state triage (local project): recorded the evidence-driven outcome of this session's three TODO 3.15 protection-tooling attempts and annotated their backlog bullets, and carried the batched #677 QA rows.
+
+### Changed
+
+- [`.working/design-decisions.md`](../../.working/design-decisions.md): added the dated decision "Two figure-drift tooling advisories census-vetoed; GR-GAP-1 register gate egress-gapped (2026-07-06)", plus its Index line. It records, with evidence: (1) the count-vs-enumeration advisory built this session flagged 63 candidates with zero true positives in the full-history FP census (dominant false class: a parenthetical that is a breakdown summing to the count), so it was discarded and the class rests on the #676 recount clause; (2) the section-close orphan advisory flagged 18 candidates with zero true positives on the #677 section-1.9 deletion (which the pre-push verifier had confirmed orphan-free), so it was discarded, with a narrower standing-scan retry recommended for maintainer adjudication; (3) GR-GAP-1 was validated-not-built because 17 of 49 cited `ISO(/IEC) NNNNN:YYYY` pairs lack a register row and the `ISO/IEC 29134` year conflict needs egress-gated currency confirmation. Meta-lesson recorded: free-prose-pattern advisories tend to fail their FP census because the signal is a semantic relationship; the census precondition caught this twice, working as designed.
+- [`TODO.md`](../../TODO.md): annotated the three TODO 3.15 tooling bullets inline with the findings above (count-vs-enumeration: census-vetoed, rest on the recount clause, close candidate on maintainer confirm; D8 / GR-GAP-2 orphan check: census-vetoed as the event-triggered shape, narrower standing-scan retry recommended; GR-GAP-1: register-gap validated, sequenced behind egress-gated register population). Append-only edits (no bullet deleted).
+
+### Batched bookkeeping
+
+- Carries the #677 `/validate-pr` (0 findings) history row ([`.working/validate-pr/history.md`](../../.working/validate-pr/history.md), Version to 1.2.455) and the #677 `/retro` row ([`.working/improvement-log.md`](../../.working/improvement-log.md), Version to 1.0.400) per recursion-avoidance.
+
+### Verification
+
+- Two throwaway advisory tools (a count-vs-enumeration drift detector and a TODO-section-close orphan detector, both advisory `audit-*`-named tools) were built, self-tested, FP-censused over full corpus history, and DISCARDED when the census showed zero true positives; neither is in the final diff, so neither is linked here (the files no longer exist). This is the FP-census precondition working as designed (the count-vs-enumeration bullet made it a precondition; the orphan bullet's shape was decided at build time).
+- Pre-push guard green standalone (66 gates + PR-time checks) required before push; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green before the first commit.
+- Change tier: substantive (backlog triage plus a durable design decision). One skeptical verifier ran pre-push per the tiered standard.
+
 ## 2026-07-06, Library Version 2026.07.165, PR #677
 
 Working-state close-out (local project): resolved the two outstanding maintainer decisions from the daytime session (close TODO 1.9 as a documented harness limitation; confirm the #670 lowercase-acronym-pattern rejection), reconciled the stale session handoff and concurrency lease, and batched the #676 `/validate-pr` and `/retro` outputs including the #636 disposition-token fix.
