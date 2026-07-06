@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #681: FR-99 per-control effectiveness metrics (2026-07-06)
+
+Closed TODO 2.4 (FR-99): added a per-control effectiveness metric (an effectiveness band per control from its latest result, recurrence signal, and open corrective-action state, with owner, cadence, threshold, and consuming line of defence) defined in the assurance-metrics register and wired across control-testing, continuous-assurance (section 4.4, named three-lines-of-defence consumption), and metrics-reporting. Applied from the scratch-inbox worker delivery (Option A); the gap was re-verified real at apply-time.
+
 ### PR #680: Sweep 86 iter 1 close-out + TODO 3.15 D8 rest-on-convention (2026-07-06)
 
 The `/resume` loop-break corpus-wide `/validate` (Sweep 86 over the #662..#679 deltas); the compensating control PASSED with no in-window regression and no asserted-expectation contradiction. Fixed 3 pre-existing gate-blind ISO-designation findings (spec-master `ISO/IEC 22301`->`ISO 22301`, single-body ISO/TC 292; obligations-template filled example `ISO/IEC 27001:2022 Annex A.8.24`; two orphaned pre-flight-scanner exemptions re-pointed), routed F2 to TODO 1.11 and F4 to TODO 3.1, and closed the TODO 3.15 D8 section-close-orphan candidate on the maintainer's rest-on-convention decision (the event-triggered advisory was census-vetoed, 18 candidates / 0 true positives; rely on the close-out §N-orphan grep). Also pruned the session handoff (keep current + 1 prior) and acquired the concurrency lease for the resumed `claude/resume-chptc7` session.

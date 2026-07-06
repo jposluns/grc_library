@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Trust and Assurance Metrics Register\
 **Document Type:** Register\
-**Version:** 1.0.4\
-**Date:** 2026-07-03\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** Assurance Metrics Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -75,6 +75,7 @@ The DTI is calculated annually as the weighted average of five dimensions, each 
 | Exception Discipline | Percentage of active exceptions with owner, expiry, compensating control, and residual risk. | Tests risk acceptance control. | Exception register. | Monthly or quarterly. |
 | Control Evidence Coverage | Percentage of mapped controls with current evidence. | Tests assurance completeness. | Evidence register, control matrix. | Quarterly. |
 | Control Test Effectiveness | Percentage of tested controls meeting acceptance criteria. | Tests operating effectiveness. | Test records, audit results. | Quarterly. |
+| Per-control Effectiveness | Effectiveness band per in-scope control, derived from its latest operating-effectiveness test result, deficiency recurrence signal, and open corrective-action state. | Tests sustained effectiveness of an individual control beyond a single point-in-time test. | Control testing register, corrective action log. | Per the control's residual-risk testing frequency. |
 | Remediation Timeliness | Percentage of remediation actions closed within target. | Tests corrective action execution. | Issue tracker, audit log. | Monthly. |
 | Supplier Assurance Coverage | Percentage of critical suppliers with current assessment and contractual control review. | Tests external dependency governance. | Supplier register, assessment record. | Quarterly. |
 | Resilience Test Completion | Percentage of critical services tested against recovery objectives. | Tests recoverability. | BIA, test report, corrective action log. | Semi-annual or annual. |
@@ -103,6 +104,28 @@ Each metric should define:
 - Known limitations.
 - Escalation trigger.
 - Related document.
+
+---
+
+## Per-control effectiveness metric
+
+The **per-control effectiveness metric** measures the sustained effectiveness of an individual control, distinct from the portfolio-level `Control Test Effectiveness` category above (which aggregates across the tested control set). It reuses the metric quality fields:
+
+- **Metric name:** Per-control effectiveness.
+- **Objective:** Give each in-scope control an ongoing effectiveness signal, so that a control which passed its most recent test but shows a recurring deficiency or an open corrective action is not read as effective on the strength of a single point-in-time result.
+- **Calculation rule:** An effectiveness band assigned per control from three inputs: the control's latest operating-effectiveness test result, its deficiency recurrence signal, and its open corrective-action state. The band is expressed on the control-testing result classes (Effective, Observation, Deficiency, Material Weakness) defined in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) section 4.
+- **Numerator and denominator:** Not a proportion; the metric is a per-control band. It aggregates to the portfolio only through the existing `Control Test Effectiveness` and `Remediation Timeliness` categories.
+- **Data source:** The Control Testing Register and the section 8 measures in [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md), and the CAPA Register.
+- **Data owner:** The Assurance Metrics Maintainer aggregates the metric; the control owner supplies the per-control state.
+- **Control owner:** The named owner of the individual control (first line of defence).
+- **Frequency:** The control's residual-risk testing frequency defined in the control-testing procedure, so that no new cadence is introduced.
+- **Target or threshold:** A band of Effective. A Deficiency or Material Weakness band, or a band that does not improve across two consecutive testing cycles, triggers the escalation below; an Observation band is below target but is tracked at owner discretion rather than automatically escalated (consistent with the Observation response in section 4.2 of the control-testing procedure).
+- **Reporting audience:** The control owner (first line), the second-line oversight functions, and internal audit (third line), per the consuming-lines model below.
+- **Known limitations:** The metric inherits the point-in-time limits of its underlying test; the recurrence and open-action inputs mitigate but do not remove them.
+- **Escalation trigger:** A Deficiency or Material Weakness band, or a control whose band does not improve across two consecutive testing cycles, escalates through the control-testing remediation chain (section 6 of the control-testing procedure).
+- **Related document:** [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md).
+
+**Consuming lines of defence.** The metric is consumed under the Three Lines Model (defined in [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), with the full assurance model in [`risk/register-assurance-map.md`](../risk/register-assurance-map.md) Section 1): the **first line** (the control owner) self-monitors the metric for its own controls; the **second line** (risk, compliance, information security, privacy, AI governance, and legal) aggregates and challenges it across the portfolio; the **third line** (internal audit) independently validates the metric's basis and the reliability of its inputs.
 
 ---
 

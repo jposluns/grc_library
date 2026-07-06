@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-07-05\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -201,7 +201,7 @@ The tester records, in the evidence package, the population definition, the samp
 
 ## 7. Control Testing Register
 
-7.1 The GRC Programme Manager maintains the Control Testing Register as the authoritative record of testing activity. Each entry records: the control identifier and framework reference; the control owner; the test type (design or operating effectiveness); the test period and date completed; the tester and the independent reviewer; the population and sample (with a pointer to the evidence package); the result; any CAPA record opened; and the remediation and re-test status through to validated closure.
+7.1 The GRC Programme Manager maintains the Control Testing Register as the authoritative record of testing activity. Each entry records: the control identifier and framework reference; the control owner; the test type (design or operating effectiveness); the test period and date completed; the tester and the independent reviewer; the population and sample (with a pointer to the evidence package); the result; the per-control effectiveness band (the sustained-effectiveness signal defined in [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), derived from the result together with the deficiency recurrence signal and open corrective-action state); any CAPA record opened; and the remediation and re-test status through to validated closure.
 
 7.2 The register is the source for the section 5 reports and for the testing-coverage metric in section 8, and it reconciles to the CAPA Register for every Deficiency and Material Weakness it records.
 
@@ -215,6 +215,7 @@ The tester records, in the evidence package, the population definition, the samp
 - **Deficiency rate**: Deficiency-and-above results as a proportion of controls tested.
 - **Recurrence rate**: the proportion of deficiencies that recur on a control previously remediated and closed (a lead indicator that a prior remediation treated the symptom rather than the cause).
 - **Average time to remediate**: from finding notification to validated closure, reported by severity.
+- **Per-control effectiveness band**: the sustained-effectiveness band for each in-scope control (Effective, Observation, Deficiency, or Material Weakness), derived from its latest result together with its deficiency recurrence signal and open corrective-action state, as defined in [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md). Unlike the programme-level measures above, this is a per-control signal reported at the control's residual-risk testing frequency and consumed under the three lines of defence: the first line (control owner) self-monitors it, the second line (risk and compliance) aggregates and challenges it, and the third line (internal audit) validates its basis.
 
 8.2 A rising recurrence rate or a falling testing coverage is itself surfaced as a programme-level observation in the quarterly report.
 

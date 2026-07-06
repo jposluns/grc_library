@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.169, PR #681
+
+FR-99 per-control effectiveness metrics (TODO 2.4): introduced a per-control effectiveness metric tied to the continuous-assurance model and the three lines of defence, applied from the scratch-inbox research delivery (Option A, register-extension plus cross-wiring).
+
+### Added
+
+- [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md) (`1.0.4` to `1.1.0`): a `Per-control Effectiveness` row in `## Core metric categories` and a `## Per-control effectiveness metric` subsection defining the metric via the existing metric quality fields (an effectiveness band per control derived from its latest operating-effectiveness test result, deficiency recurrence signal, and open corrective-action state; owner is the control owner with second-line aggregation; cadence is the control's residual-risk testing frequency; threshold is expressed on the control-testing result-class bands; the consuming lines of defence are named), referencing the existing Three Lines Model definition.
+
+### Changed
+
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) (`1.0.8` to `1.1.0`): added the per-control effectiveness band as a Control Testing Register field (section 7.1) and a per-control measure in `## 8. Metrics`, derived from result, recurrence, and open corrective-action state, and consumed under the three lines of defence.
+- [`governance/framework-continuous-assurance-and-improvement.md`](../../governance/framework-continuous-assurance-and-improvement.md) (`1.0.9` to `1.1.0`): added section 4.4 wiring the metric into the Performance Evaluation cycle and naming the first-, second-, and third-line consumption.
+- [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../../governance/framework-metrics-monitoring-and-performance-reporting.md) (`1.0.6` to `1.1.0`): added the per-control effectiveness band to the Compliance and Audit measurement domain.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the four Version bumps (taxonomy first; [`docs/portal.md`](../../docs/portal.md) unchanged because it does not embed per-document versions); both generators are `--check`-clean.
+- Rotated TODO 2.4 (FR-99) to [`.working/DONE.md`](../DONE.md); annotated the eleven legislation-citing deepenings (fr-59/60/74/41, the five jurisdiction annexes, dora, nis2) as deferred pending the maintainer's egress instance (maintainer decision 2026-07-06), and added the fr-59-surfaced Mexico-annex staleness (the annex describes the superseded 2010 LFPDPPP; correct to the 2025 law when egress confirms) as an accepted-unverified tracker under TODO 1.11.
+- Bumped the library CalVer to `2026.07.169` and the README Version to `1.9.530`.
+
+### Verification
+
+- Gap re-verified real at apply-time (portfolio-level effectiveness metrics and per-control testing existed; a per-control ongoing effectiveness metric with three-lines-of-defence consumption did not). The result classes (Effective, Observation, Deficiency, Material Weakness) were confirmed against the control-testing procedure's section 4.1; the three-lines-of-defence line assignments were confirmed against the canonical Three Lines Model in the key-terms register and the assurance-map register Section 1; no new external citation was introduced (the existing definition is referenced).
+- A refute-briefed skeptical verifier reviewed the four-file diff pre-push (substantive tier) and caught two gate-blind semantic defects, both fixed and re-verified before push: (1) the second-line enumeration in the register subsection and continuous-assurance section 4.4 dropped `legal` from the canonical Three Lines Model membership (added to both; the register reporting-audience field reworded to a clean second-line reference); (2) the register Target-or-threshold field said an Observation band triggers escalation while the Escalation-trigger field and the control-testing section 4.2 response exclude it (reconciled so an Observation band is below target but not automatically escalated). Pre-push guard green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1 through D7 plus the history-aware 45/40/31), run standalone and unpiped.
+- **Worker provenance:** applied from [`inbox/worker-20260703-a/fr-99-control-effectiveness-metrics/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-99-control-effectiveness-metrics/MANIFEST.md).
+
+### Discipline observation
+
+- Apply-time version reconciliation: the worker delivery (read at grc_library #619) recorded the four files at `1.0.4` / `1.0.7` / `1.0.8` / `1.0.5`; live main had advanced three of them to `1.0.4` / `1.0.8` / `1.0.9` / `1.0.6`, so the bumps were reconciled to the live values (each to `1.1.0`).
+- Batches the #680 [`/validate-pr`](../validate-pr/history.md) (0 findings) and [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.168, PR #680
 
 Sweep 86 close-out (local project): the `/resume` loop-break corpus-wide `/validate` over the #662..#679 deltas, the compensating control for the #679 session-closing handoff (which skipped its trailing `/validate-pr` + `/retro`). Full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference sweep, C audit-programme integrity); baseline 66/66 at `ecb43fc`. The control PASSED: no in-window (#662-#679) regression and no contradiction of any #679 asserted expectation. Eight gate-blind ISO-designation findings surfaced across six F-classes (all pre-existing or marginal); this PR fixes three classes (F1/F3/F5), routes two (F2/F4), no-actions one (F6), and carries the resume-protocol bookkeeping.
