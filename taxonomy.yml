@@ -1998,7 +1998,7 @@ documents:
   domain: "governance"
   type: "Framework"
   title: "Governance Performance and Improvement Framework"
-  version: "1.0.5"
+  version: "1.0.6"
   date: "2026-07-06"
   owner: "GRC Programme Manager"
   approving_authority: "Governance Library Maintainer"
