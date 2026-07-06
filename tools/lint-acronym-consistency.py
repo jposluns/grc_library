@@ -10,15 +10,31 @@ This linter:
 - Walks every artefact document looking for inline acronym definitions
   of the form "Expansion (ACRONYM)" where ACRONYM is 2-6 characters of
   uppercase letters, digits, or hyphens (the regex permits hyphenated
-  acronyms such as ``NIST-AI``; slash-separated forms such as
-  ``ISO/IEC`` are not detected as inline definitions, but they are
-  recognized by the glossary-row regex when listed in the glossary).
+  acronyms such as ``NIST-AI`` and digit-initial numeronyms such as
+  ``3PL`` / ``2FA``; slash-separated forms such as ``ISO/IEC`` are not
+  detected as inline definitions, but they are recognized by the
+  glossary-row regex when listed in the glossary).
 - Flags definitions whose expansion phrase materially diverges from
   the glossary.
 
 The linter is conservative: it flags only cases where the inline
 expansion's main content words do not overlap with the glossary's
 expansion content words. Stylistic differences (a/the/of) are tolerated.
+
+The inline-definition regex deliberately requires a Title-Case
+expansion phrase (each expansion word capitalized). This is a
+false-positive control, not an oversight: it anchors the phrase
+boundary at the definition's first capitalized word. A lowercase-
+tolerant expansion pattern (to catch canonical-order running-prose
+definitions such as "financial market infrastructure (FMI)") was
+assessed against the full corpus and rejected: a lowercase-starting
+run over-captures incidental leading context words ("and presented to
+the Enterprise Risk Committee (ERC)"), so the content-overlap check
+would either false-positive on those over-captures or, if it flagged
+only zero-overlap, false-positive on incidental parentheticals ("...
+candidates list (STP)"); an initialism anchor is unreliable for
+numeronyms (3PL / 2FA) and stopword-dropping acronyms (CAPA). Such
+running-prose definitions are therefore intentionally not checked.
 
 Acronyms not in the glossary are not flagged by this linter (a separate
 "glossary coverage" linter would catch those; this one focuses on
@@ -47,13 +63,19 @@ DEFAULT_PATHS = [str(REPO_ROOT)]
 GLOSSARY = REPO_ROOT / "governance" / "register-glossary.md"
 
 # Glossary entry: | **ACRONYM** | Expansion. ... |
-GLOSSARY_ROW_RE = re.compile(r"^\|\s*\*\*([A-Z][A-Z0-9\-./]{1,8})\*\*\s*\|\s*(.+?)\s*\|", re.MULTILINE)
+# The acronym-capture group is digit-initial-tolerant ([A-Z0-9] first
+# char) so numeronym rows such as **3PL** / **2FA** are parsed rather
+# than silently skipped.
+GLOSSARY_ROW_RE = re.compile(r"^\|\s*\*\*([A-Z0-9][A-Z0-9\-./]{1,8})\*\*\s*\|\s*(.+?)\s*\|", re.MULTILINE)
 
 # Inline acronym definition: "Some Words Or Phrase (ACRONYM)"
-# Require the acronym to be 2-6 uppercase letters / digits / hyphens,
-# preceded by at least one capitalized expansion word.
+# The acronym is 2-6 letters / digits / hyphens and may start with a
+# digit ([A-Z0-9] first char) so numeronyms such as ``3PL`` / ``2FA``
+# are recognized. The expansion phrase must be Title-Case (each word
+# capitalized): that requirement is the false-positive control
+# documented in the module docstring, not an oversight.
 INLINE_DEF_RE = re.compile(
-    r"\b((?:[A-Z][A-Za-z0-9'\-]+\s+){1,8}[A-Z][A-Za-z0-9'\-]+)\s+\(([A-Z][A-Z0-9\-]{1,5})\)"
+    r"\b((?:[A-Z][A-Za-z0-9'\-]+\s+){1,8}[A-Z][A-Za-z0-9'\-]+)\s+\(([A-Z0-9][A-Z0-9\-]{1,5})\)"
 )
 
 # Stopwords to ignore when comparing expansions
