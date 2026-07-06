@@ -81,6 +81,22 @@ deferred.
   pattern was assessed corpus-wide and REJECTED with evidence (over-capture false positives),
   the Title-Case requirement documented as a deliberate FP control. Surfaced for maintainer
   confirmation. Carries the batched #669 QA rows.
+- **PR #671** (TODO 3.15 r4 G-7, QA-report intake runbook subsection): codified the
+  three-layer QA-report intake channel (worker report as hypotheses, independent validation
+  subagent, transcription-fidelity verifier) as `multi-session-orchestration.md` §5.2, with
+  the maintainer's standing revisit note. `.working/`-only, protected-free. Carries the
+  batched #670 QA rows.
+
+**DAYTIME-DEFERRED this run (protected-entangled, investigated not shipped).** TODO 3.15
+#637 F3 (D5 eighth closure-form + form-6 link widening): the full-history FP census was run
+and BOTH widenings validated false-positive-free (patterns recorded in the TODO F3 bullet),
+but the build is deferred to the daytime protected-backlog clearance because the closure-form
+COUNT is restated in the protected `.claude/CLAUDE.md` ("detects SEVEN closure forms"), which
+must co-update to EIGHT in the same PR (multi-surface completeness). Overnight mode cannot
+apply a protected edit, and shipping the linter/spec/tests while the CLAUDE.md count stayed
+"seven" would strand a cross-surface inconsistency. Note for the mode exit: a class of P3
+tooling items that touch a gate/form count restated in `.claude/CLAUDE.md` is overnight-blocked
+this way and belongs in the daytime protected-backlog clearance.
 
 **PDF assessment (maintainer-attached, 2026-07-06).** Two LinkedIn-sourced PDFs were assessed
 for the scratch `publications/` bucket. Outcome: NET NO INGEST. (1) The Anthropic "Zero Trust

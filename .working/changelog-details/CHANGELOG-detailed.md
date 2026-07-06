@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.159, PR #671
+
+`.working/` and TODO for local project (fifth PR of the 2026-07-06 overnight run): codified the QA-report intake channel and recorded the D5-eighth-form daytime deferral. Terse entry (working-state + TODO, adopter-invisible; no corpus body change).
+
+- Added [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md) §5.2 "QA-report intake (the three-layer validation channel)", the TODO 3.15 r4 G-7 close. It codifies the three-layer intake a worker findings REPORT (as distinct from research or candidate diffs, the 5.1 input channel) passes through before any claimed finding drives a backlog entry or a fix: (1) the report is a hypothesis-set, acted on nowhere directly; (2) an independent validation subagent, blind to the report's reasoning, re-reads each cited source against the live artefact (the false-positive filter, the same apply-time re-verification `trust-recovery-escalation` requires); (3) a transcription-fidelity verifier confirms the orchestrator's transcription of each validated finding into the records matches what layer 2 validated (the report-to-record seam). Records that the channel was first exercised on the #626 intake, catching a defect at each of the three seams, and carries the maintainer's standing revisit note (2026-07-04) to assess the full-skill option on the channel's next recurrence.
+- [`TODO.md`](../../TODO.md): the 3.15 r4 G-7 bullet deleted and rotated to [`.working/DONE.md`](../DONE.md) keyed by PR #671; the 3.15 #637 F3 bullet annotated with the census result (both the form-8 and form-6 widenings validated FP-clean against full CHANGELOG history) and marked DAYTIME-DEFERRED (protected-entangled: the closure-form count is restated in the protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), which must co-update in the same PR, so the whole build waits for the daytime protected-backlog clearance rather than stranding a cross-surface count inconsistency overnight).
+- No gate, corpus document body, generated artefact, or protected file touched. `.working/` runbook prose only, so bookkeeping tier (no standing verifier); gate 51 (working-tree prose hygiene) covers the added prose via the pre-push guard.
+
+**Batched bookkeeping.** Carries the #670 `/validate-pr` (0 findings) history row and the #670 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.158, PR #670
 
 Acronym-linter digit-initial blind spot closed (gate 20; the TODO 3.15 #637-verifier F4/F6 bullet), fourth PR of the 2026-07-06 overnight run. Substantive tooling change (gate detection-logic widening plus fixtures); one pre-push skeptical verifier.
