@@ -17,8 +17,9 @@ time: if any line ADDED to the CHANGELOG (root or detailed mirror) asserts a
 TODO-item closure, the PR's changed-file set must include BOTH `TODO.md` and
 `.working/DONE.md`.
 
-Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six, and
-2026-07-03 to seven, each chosen to stay false-positive-free; see
+Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six,
+2026-07-03 to seven, and 2026-07-06 to eight, each chosen to stay
+false-positive-free; see
 ``CLOSURE_PATTERNS``): an added CHANGELOG line matching
 any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO §`` (e.g.
 "closing TODO §4.5 S4"); (2) the coded-id major-closure marker, a
@@ -38,11 +39,17 @@ rotation-assertion form ``rotated to [the] DONE [ledger]`` (a line claiming
 the rotation happened must be accompanied by the rotation surfaces in the
 diff; the short "rotated to DONE" variant added 2026-07-03, with a
 not-negation guard so "NOT rotated to DONE" narration stays exempt, the two
-historical negation lines the census surfaced); or (7) the space-separated
+historical negation lines the census surfaced; widened again 2026-07-06 with a
+markdown-linked DONE target ``rotated to [`.working/DONE.md`](...)``, the #640
+shape the literal missed); (7) the space-separated
 TODO-section closure form ``TODO section N.M <...> clos(ed|ure)``
 (case-insensitive, forward-only window; e.g. "TODO section 1.1 is CLOSED",
 the #607 lead that evaded forms 1, 4, and 6; the ``TODO `` anchor keeps it
-out of the census-rejected bare-"section" FP space).
+out of the census-rejected bare-"section" FP space); or (8) the bare
+TODO-section closure form ``TODO N.M <...> clos(ed|ure)`` (a decimal section
+token with NO "section" word and NO `§`, case-insensitive, forward-only;
+e.g. "TODO 3.21 ... closed", the #637 lead that evaded forms 1 and 7; added
+2026-07-06, full-history census 16 hits all genuine, 0 negation FPs).
 Forms 4 to 6 were added 2026-07-02 after the #563 pre-push verifier showed
 that #567's section-and-item closure phrasings passed the gate vacuously.
 It does NOT match incidental mentions ("closing the #466 finding",
@@ -96,8 +103,9 @@ DONE_PATH = ".working/DONE.md"
 # backlog item, since closed) beyond the original `TODO §` form to also catch the
 # prose-named and FR-N closures the #495 miss exposed, again 2026-07-02
 # (forms 4 to 6, the #563 verifier's tooling note after #567's section-and-item
-# phrasings passed vacuously), and again 2026-07-03 (form 7, the #607 miss),
-# while staying false-positive-free. The seven forms
+# phrasings passed vacuously), again 2026-07-03 (form 7, the #607 miss), and
+# again 2026-07-06 (form 8 and the form-6 markdown-link widening, the #637/#640
+# shapes), while staying false-positive-free. The eight forms
 # below were chosen empirically: tested
 # against the entire CHANGELOG history (root + detailed mirror, ~14k lines),
 # each matched only genuine current-PR closures with ZERO past-closure-narration
@@ -159,8 +167,12 @@ CLOSURE_PATTERNS = (
     # Widened 2026-07-03 with the short "rotated to DONE" variant (22 census
     # hits: 20 genuine same-PR rotation assertions, 2 negations); the
     # fixed-width not-lookbehind excludes the negation narration ("is NOT
-    # rotated to DONE") the census surfaced.
-    re.compile(r"(?<![Nn][Oo][Tt] )\brotated to (?:the DONE ledger|DONE)\b"),
+    # rotated to DONE") the census surfaced. Widened again 2026-07-06 (#675)
+    # with a markdown-linked DONE target (``[`.working/DONE.md`](...)``), the
+    # #640 "rotated to [linked path]" shape that defeated the literal; the
+    # full-history census found 64 genuine linked rotation assertions and 0
+    # bug-matches, and the not-negation guard still fronts the whole clause.
+    re.compile(r"(?<![Nn][Oo][Tt] )\brotated to (?:the DONE ledger|DONE\b|\[`?[^\]]*DONE)"),
     # (7) the space-separated TODO-section closure form: the literal token
     # "TODO section N.M" then (within one clause, forward-only) a
     # closed/closure word. Added 2026-07-03 after #607's root lead ("TODO
@@ -178,6 +190,20 @@ CLOSURE_PATTERNS = (
     # admits a dot only between digits, as in form 3.
     re.compile(
         r"\bTODO section \d+\.\d+(?:[^.\n]|(?<=\d)\.(?=\d)){0,80}?\bclos(?:ed|ure)\b",
+        re.IGNORECASE,
+    ),
+    # (8) the bare TODO-section closure form: the literal token "TODO N.M"
+    # (a decimal section number, NO "section" word and NO `§`) then (within
+    # one clause, forward-only) a closed/closure word. Added 2026-07-06 (#675)
+    # after the #637 lead's "TODO 3.21 ... closed" phrasing matched none of
+    # forms 1-7 (form 1 wants `§`, form 7 wants the "section" word). The
+    # `TODO ` anchor plus the decimal token is the FP guard, and the
+    # forward-only window (closure word AFTER the token) excludes past-closure
+    # narration; the full-history census found 16 hits, all genuine same-PR
+    # closures, 0 negation false positives. The clause run admits a dot only
+    # between digits (as in forms 3 and 7); case-insensitive for "is CLOSED".
+    re.compile(
+        r"\bTODO \d+\.\d+(?:[^.\n]|(?<=\d)\.(?=\d)){0,80}?\bclos(?:ed|ure)\b",
         re.IGNORECASE,
     ),
 )
