@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.7\
-**Date:** 2026-07-04\
+**Version:** 1.0.8\
+**Date:** 2026-07-06\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,16 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-07-06: PreToolUse hooks do not fire in resumed/child sessions (`CLAUDE_PROJECT_DIR` unset), so the pipe-guard hook gives no defence-in-depth
+
+**Observed.** The `block-verification-pipes.py` PreToolUse hook (wired in [`.claude/settings.json`](../.claude/settings.json), the RM-10 defence-in-depth layer) does not fire in this resumed session type. The 2026-07-05 resumed session ran the deliberate test (a generator `--check` piped to `tail`, and separately `run_all_audits.sh 2>&1 | tail`): both ran UNBLOCKED, the hook did not intercept. The hook's own `--self-test` passes (14 blocked, 17 allowed), so the script is correct.
+
+**Diagnosis (root cause pinned 2026-07-06, read-only investigation).** In a resumed/child session (`CLAUDE_CODE_CHILD_SESSION` set) the environment variable `CLAUDE_PROJECT_DIR` is UNSET, so the `settings.json` hook command `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/block-verification-pipes.py` resolves to the nonexistent `/.claude/hooks/block-verification-pipes.py`, `python3` cannot open it, and the Bash tool proceeds unblocked. There is no portable corpus-side fallback in this environment (`$PWD` defaults to `/home/user` not the project root; no other `CLAUDE_*` var carries the project path; `git rev-parse --show-toplevel` fails from `/home/user`), so the fix is harness-level (set `CLAUDE_PROJECT_DIR`, or run hooks with cwd = project root, in child sessions). Not a corpus or config defect: the harness is not invoking the PreToolUse hook in this session type, and the wiring is correct for a session where the variable is set.
+
+**How it was distinguished from a real defect.** The hook script self-tests pass directly (14 blocked / 17 allowed), the wiring in `settings.json` is present and well-formed, and the failure reproduces as a path-resolution miss tied to the unset variable rather than a logic error. The other PreToolUse-hook-dependent behaviours are subject to the same session-type limitation.
+
+**Impact / resolution.** In resumed/child sessions the pipe-guard gives no defence-in-depth, so the RM-10 unpiped-verification discipline (run each verification command standalone and unpiped, read `${PIPESTATUS[0]}` or the direct exit) is the sole active protection, together with the guard's own `PRE_PUSH_GUARD_ALLOW_PIPE`-gated pipe self-defence in [`tools/pre-push-guard.sh`](../tools/pre-push-guard.sh). Those compensating controls fully cover the underlying risk. TODO 1.9 was CLOSED on this basis in #677 (maintainer decision: accept as a documented harness limitation rather than pursue a harness-feedback filing); this entry is the durable record so a future session does not re-diagnose the non-firing hook as a regression. If the harness later sets `CLAUDE_PROJECT_DIR` in child sessions, the hook fires again with no corpus-side change needed.
 
 ### 2026-07-04: git proxy accepted a direct scratch feature-branch push (the standing 403 did not reproduce), but refused the branch deletion
 

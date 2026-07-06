@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.165, PR #677
+
+Working-state close-out (local project): resolved the two outstanding maintainer decisions from the daytime session (close TODO 1.9 as a documented harness limitation; confirm the #670 lowercase-acronym-pattern rejection), reconciled the stale session handoff and concurrency lease, and batched the #676 `/validate-pr` and `/retro` outputs including the #636 disposition-token fix.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): deleted the P1 §1.9 section (RM-10 pipe-guardrail hardening) on the maintainer's close-as-harness-limitation decision; updated the Backlog-totals P1 line from 3 items to 2 (1.5 and 1.11 remain), naming #677 as 1.9's closing PR and pointing at the [`third-party-issues.md`](../../.working/third-party-issues.md) record.
+- [`.working/DONE.md`](../../.working/DONE.md): added the PR #677 rotation entry for TODO 1.9, summarizing the pinned root cause (child sessions leave `CLAUDE_PROJECT_DIR` unset), the harness-level-fix conclusion, and the active compensating controls.
+- [`.working/third-party-issues.md`](../../.working/third-party-issues.md): added a 2026-07-06 entry recording the PreToolUse-hook non-firing as a documented harness/environment limitation (Observed / Diagnosis-with-pinned-root-cause / How-distinguished-from-a-defect / Impact-resolution), so a future session does not re-diagnose the non-firing hook as a regression; Version 1.0.7 to 1.0.8, Date to 2026-07-06.
+- [`.working/pending-decisions.md`](../../.working/pending-decisions.md): Status line to 0 pending; marked the TODO 1.9 entry RESOLVED inline (disposition A, close as documented harness limitation) and recorded the #670 lowercase-rejection maintainer confirmation (no reopen; the corpus-wide-evidence rejection in the #670 `/retro` row stands).
+- [`.working/session-handoff.md`](../../.working/session-handoff.md): reconciled the `Current truth` snapshot line, which had lagged at #659-merged / #662-in-flight across the resumed session's 15 PRs, to merged-through #676 with #677 in flight, the resumed session's #662..#676 enumerated, the prior 2026-07-05 session marked historical, and every D7-labelled version token advanced to its post-#677 live value (library `2026.07.165`, README `1.9.526`, validate-pr history `1.2.454`, improvement-log `1.0.399`; pack/audit-spec/runbook/guardrail-history/claim-fit carried forward unchanged). The older per-session blocks are left for the next `/resume` prune (the pruning discipline's designated locus).
+- [`.working/session-state.md`](../../.working/session-state.md): re-stamped the concurrency-lease heartbeat to 2026-07-06T16:14:01Z and rewrote `Current-task` to the active session's real state (shipped #662..#676, #677 in flight, 0 pending decisions).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): reworded one factual-staleness one-liner that this closure created (in the PR-workflow step-2 RM-10 pipe-guard paragraph, "the TODO 1.9 hook-firing residual" became "the hook-firing limitation later closed as TODO 1.9 in #677"), so the closed item is not described with an open-status word in a gate-blind file. This is the maintainer-pre-authorized protected-tree factual-staleness-one-liner class (2026-07-03 morning-round directive 6, each instance named in its PR CHANGELOG entry); it was surfaced by the pre-push skeptical verifier as an out-of-window note and folded in-window because #677 is the closure that created the staleness. The verifier confirmed the two [`block-verification-pipes.py`](../../.claude/hooks/block-verification-pipes.py) "TODO section 1.9" comments are code-provenance references, not open-status pointers, and left them.
+
+### Fixed
+
+- [`.working/improvement-log.md`](../../.working/improvement-log.md): appended `Disposition: CODIFIED in #676` to row #636 (the batched #676 `/validate-pr` FINDING 1). #676 codified the staged consolidated recount clause and tokened its ROUTED staging rows #631 and #633, but missed #636, which carried the same candidate as an `EXPEDITE` directive; the post-merge bare-token scan of all seven clause-referencing rows caught it. The scan also confirmed #634 is a different candidate (path-resolution fixture, F6 class) correctly left pending and #637/#639/#640/#641 carry `None new` needing no token.
+
+### Verification
+
+- Pre-push guard green standalone on the final state: all 66 audit gates pass, all PR-time checks pass (D1 through D7, and the history-aware gates 45/40/31). D7 (handoff-snapshot freshness) is the relevant gate here: it fires because the PR touches [`.working/session-handoff.md`](../../.working/session-handoff.md), and it validates each labelled version token on the reconciled `Current truth` line against that surface's live header at the PR head; the reconcile advanced every token to the post-#677 value so D7 passes.
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) green before the first commit (added CHANGELOG lines dash-free, path spans linked).
+- Change tier: substantive (multi-surface working-state close-out with a P1 backlog closure). One skeptical verifier subagent ran pre-push per the tiered standard.
+
+### Discipline observation
+
+- The #636 disposition-scan miss is the `validate-inference-before-action` "validated the rows I was looking at, inferred the rest" shape applied to the register disposition scan: the orchestrator's mental model of the staged recount candidate was "#631/#633" across #674/#675/#676 (the #675 `/retro` row's own disposition note names only those two), so the #636 `EXPEDITE` carrier was never in view. The existing `/retro` step-6 carrier-phrase grep should have caught it (the #636 cell literally reads "land it at the NEXT authorized CLAUDE.md close-out-checklist touch"); logged as an OBSERVATION with the interim practice guard to run that grep at bare-token / comprehensive width across ALL register rows.
+- The session-handoff reconcile is the reconcile-not-append discipline catching up after the resumed session skipped the mandated per-PR handoff refresh across #662..#676; the #674 `/validate-pr` had flagged the staleness out-of-window. D7 is version-tokens-only, so the prose-half reconcile (merged-through, the historical prior-session framing) is convention-guarded and was done by hand here.
+
 ## 2026-07-06, Library Version 2026.07.164, PR #676
 
 `.claude/` change for local project (the third of the three daytime CLAUDE.md changes): codified the counts-adjacent-to-enumerations recount residual, folded into the existing Meta-prose bullet.
