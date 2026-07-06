@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.6\
-**Date:** 2026-07-05\
+**Version:** 1.6.7\
+**Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -211,7 +211,7 @@ Each PR that merges to `main` updates [`README.md`](README.md)'s `Library Versio
 - If the merge falls in the same calendar month as the current version, increment the patch.
 - If the calendar month has changed, set the new version to `YYYY.MM.0`.
 
-The version bump is the author's responsibility on the PR that introduces the change. The audit suite does not automatically enforce monotonicity, but reviewers should verify the bump is present before approving the PR.
+The version bump is the author's responsibility on the PR that introduces the change. The audit suite's version-monotonicity audit (gate 13) enforces that the README's Library Version and every document's Version metadata field never decrease against the prior committed state; gate 13 passes an unchanged value (a missing library-version bump surfaces instead through the CHANGELOG-coupling gates 29 and 59, which require each PR's entry to carry a strictly higher Library Version matching the README), so reviewers should still verify the bump is present before approving the PR.
 
 #### Relationship to per-document versioning
 

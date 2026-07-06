@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #667: TODO 3.21 citation and naming hygiene residuals CLOSED (2026-07-06)
+
+Closes TODO section 3.21, its four decision-parked residuals resolved on the maintainer's calls: (a) the compliance-matrix framework-key cell reading "C-TPAT Minimum Security Criteria" (a legacy document-title quote) normalized to bare `C-TPAT`; (b) FQ-F1, the five identical `tools/` PR-delta error strings reworded from bare "ensure" to the house-style `ensure that`; (c) FQ-B1, the master spec's line-214 monotonicity claim replaced with the verifier's round-3 wording (gate 13 non-decrease, the CHANGELOG-coupling gates 29/59 catching a forgotten bump), gate identities re-verified against the linter docstrings before shipping; (d) the three `PCI DSS v4` cloud-baseline family-label citations left as-is (maintainer chose leave over normalizing to `v4.0.1`, no code change).
+
 ### PR #664: Matrix ISO-header gate-49-coupled lockstep (ISO/IEC designation) (2026-07-05)
 
 Harmonized the compliance matrix's 11 per-domain ISO column headers plus the legend to `ISO/IEC 27001:2022` in lockstep with gate 49's `ISO_HEADER` constant, its regression fixtures, docstring, and OK message, the shared `iso_27001_reference.py` finding messages, gate 58's own diagnostic messages (the ISO-gate pair fully harmonized, gate 58's deliberate both-form-input documentation kept bare), the `/matrix-fit` worklist-tool docstring, and the gate-49 references in the audit-programme spec. Gated on proving gate 49 still fires post-rename (injected `A.5.99` caught under the new header; old bare header no longer recognized), verified by two independent adversarial verifiers. Closes TODO 3.1 part (a) (the last of the four 2026-07-05 daytime-round pending items after Brazil/#662 and FIT-8/#663); the base-unverified gap tail (part b, task tracked) and the authoritative-register+gate item remain open.
