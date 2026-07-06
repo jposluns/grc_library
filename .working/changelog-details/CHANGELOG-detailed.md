@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.162, PR #674
+
+`.claude/` change for local project (first protected-backlog PR of the 2026-07-06 daytime session): added the `/claim-fit` cadence section to CLAUDE.md, completing the TODO 3.15 r5 close-out-clause bundle.
+
+### Added
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a new `## Normative-attribution claim-precision cadence (/claim-fit)` section, placed sibling to and modeled on the existing `## Compliance-matrix semantic-fit cadence (/matrix-fit)` section (inserted between it and the "Reference-version currency" section). It documents the cadence for the `/claim-fit` citation-precision audit that catches the gate-blind "attributed value, silent source" FR-120 class (a specific value attributed to a named source the source does not prescribe): the four verdicts (`prescribed`, `informed-not-prescribed`, `mis-attributed`, `source-not-held`), the three-part run cadence (the one-time Tier-A adoption pass, the per-batch cadence, ad-hoc), the not-a-gate boundary, and the fix rules (an `informed-not-prescribed` finding fixes the attribution phrasing not the value; a `source-not-held` claim routes to the maintainer's source-drop queue). Links the [`claim-fit`](../../dev-security/claude-rules/skills/claim-fit/SKILL.md) skill and the [`tools/audit-claim-precision.py`](../../tools/audit-claim-precision.py) worklist tool.
+
+### Changed
+- [`TODO.md`](../../TODO.md): the 3.15 r5 close-out-clause bundle bullet (first three clauses shipped in #652/#659; the `/claim-fit` clause was the last) is deleted, having fully landed. TODO 3.15 stays open on its remaining bullets (the #637 F3 D5 eighth-form, GR-8 A/B, GR-10, GR-GAP-1, the fence-predicate and count-vs-enumeration advisories, the gate-66 shape call).
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 5 rotated out (its `/claim-fit` clause landed); only item 6 (the GR-P design track) remains staged.
+- [`.working/DONE.md`](../DONE.md): #674 entry added.
+
+### Verification
+- Apply-time verification of every factual claim in the section before commit: [`tools/audit-claim-precision.py`](../../tools/audit-claim-precision.py) and the [`claim-fit`](../../dev-security/claude-rules/skills/claim-fit/SKILL.md) SKILL both exist; the FR-120 example (180-day, NIST SP 800-53 CA-6, ISO/IEC 27001 Clause 9.2, neither prescribes) matches the SKILL's motivating incident; the four verdicts match the SKILL; the provenance (tool PR A #621, skill plus Tier-A adoption pass PR B #630) confirmed against the #621 and #630 CHANGELOG entries and DONE.md.
+- [`tools/lint-language.py`](../../tools/lint-language.py) run on CLAUDE.md before the first commit: the added section carries zero em/en dashes and zero British `-ise` spellings (the pre-existing dash findings are long-standing lines elsewhere in this gate-exempt file). A pre-push skeptical verifier (substantive tier) reviewed the diff. Pre-push guard green (both runners).
+
+**Batched bookkeeping.** Carries the #673 `/validate-pr` (0 findings) history row and the #673 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.161, PR #673
 
 `.working/` for local project (overnight cleanup, the mode-exit priority-1 morning-processing PR): reset the overnight file and routed the 2026-07-06 overnight run's content. Terse entry (working-state only, adopter-invisible; no corpus body change).

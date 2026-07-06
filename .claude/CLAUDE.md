@@ -569,6 +569,39 @@ of them (a row must pass the existence gates first). Findings are fixed in-windo
 under the normal triage; a zero-finding run still gets a history row. This cadence shipped
 across two PRs: the PR A advisory tool in #394 and the PR B skill in #399.
 
+## Normative-attribution claim-precision cadence (`/claim-fit`)
+
+Corpus documents attribute specific values (a retention period, a clock, a threshold) to
+named normative sources. Whether the cited source actually PRESCRIBES the attributed value,
+its precision, the citation gates cannot check: the existence, currency, and control-code
+gates confirm a source exists and the citation is well-formed, not that the source states the
+value. That class, "attributed value, silent source" (the FR-120 shape: a fixed 180-day
+baseline attributed to NIST SP 800-53 CA-6 and ISO/IEC 27001 Clause 9.2, neither of which
+prescribes a fixed interval), is gate-blind by construction. The durable instrument is a
+cadenced audit, the [`claim-fit`](../dev-security/claude-rules/skills/claim-fit/SKILL.md) skill
+(slash command `/claim-fit`): it judges each worklisted claim against the held source TEXT in
+the reference base (four verdicts: `prescribed`, `informed-not-prescribed`, `mis-attributed`,
+`source-not-held`), scoped by the recall-oriented worklist
+[`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) produces.
+
+Run `/claim-fit` on this cadence:
+1. **The one-time full Tier-A pass at adoption** (done in #630, establishing the baseline).
+2. **After any batch that adds or edits normative-value claims** (a P2 content batch, a
+   jurisdiction annex, a KPI or SLA table), judging the new Tier-A rows the batch introduced
+   and sampling its Tier-B rows.
+3. **Ad-hoc** when a claim is in doubt (a maintainer flag, a `/validate` or `/full-qa` note, an
+   apply-time uncertainty about whether a source states a value).
+
+It is NOT a gate and NOT a substitute for the citation gates; it is the precision layer on top
+of them (a claim must pass the existence and currency gates first). An
+`informed-not-prescribed` finding is fixed by the attribution PHRASING, never the value (the
+value is often the corpus's own canonical choice); a `source-not-held` claim routes to the
+maintainer's source-drop queue, never adjudicated from memory. Findings are fixed in-window or
+routed under the normal triage; a zero-finding run still gets a history row. This cadence
+shipped across two PRs: the advisory tool
+[`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) in #621 and the skill
+plus the adoption pass in #630.
+
 ## Reference-version currency (scratch `ref/` is storage, upstream is the authority)
 
 The project-specific operationalization of the `evidence-grounded-completion` rule's

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #674: /claim-fit cadence section, completing the TODO 3.15 r5 CLAUDE.md close-out-clause bundle (2026-07-06)
+
+Closes the r5 close-out-clause bundle (its first three clauses shipped in #652 and #659). Added a `## Normative-attribution claim-precision cadence (/claim-fit)` section to `.claude/CLAUDE.md`, sibling to the `/matrix-fit` section, documenting the cadence for the `/claim-fit` citation-precision audit (the gate-blind "attributed value, silent source" FR-120 class): the one-time Tier-A adoption pass (#630), the per-batch cadence, and ad-hoc use. TODO 3.15 stays open on its remaining bullets (the #637 F3 D5 eighth-form and the GR-8/GR-10/GR-GAP tooling items). First protected-backlog PR of the 2026-07-06 daytime session.
+
 ### PR #671: QA-report intake runbook subsection (TODO 3.15 r4 G-7) (2026-07-06)
 
 Closes the TODO 3.15 r4 G-7 bullet. Codified the three-layer QA-report intake channel (a worker findings report is a hypothesis-set → an independent validation subagent re-reads each cited source → a transcription-fidelity verifier confirms the report-to-record transcription) as `.working/multi-session-orchestration.md` §5.2, with the maintainer's standing revisit note to assess the full-skill option on the channel's next recurrence. The channel had lived only in the #626 records.
