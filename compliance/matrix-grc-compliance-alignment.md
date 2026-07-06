@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.11\
-**Date:** 2026-07-05\
+**Version:** 1.11.12\
+**Date:** 2026-07-06\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -28,7 +28,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | CSA AICM v1.1 | Cloud Security Alliance AI Controls Matrix v1.1, the AI-focused extension of CCM v4.1 | AI-specific control identifiers only (the AICM-only delta: the MDS Model Security domain plus the AI-specific AIS, GRC, DSP, HRS, IAM, LOG, and TVM controls). CCM-base controls remain in the CSA CCM v4.1 column; this column carries the AI-specific additions, so it is N/A for documents with no AI dimension |
 | ISO/IEC 27001:2022 | ISO/IEC 27001:2022 | Annex A control numbers and §4 to §10 clauses |
 | NIST CSF 2.0 | NIST Cybersecurity Framework 2.0 | Core Functions (GV, ID, PR, DE, RS, RC) |
-| CTPAT | C-TPAT Minimum Security Criteria | Section headings |
+| CTPAT | C-TPAT | Section headings |
 | PIP | Partners in Protection (Canada Border Services Agency) | Programme requirement areas |
 | BASC v6 | BASC International Standard v6 | Chapter references |
 | WCO SAFE | WCO SAFE Framework of Standards | Pillar and standard references |
