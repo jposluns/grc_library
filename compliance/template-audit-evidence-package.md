@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-07-05\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -138,6 +138,8 @@ Source artefact: <link to the policy, standard, or procedure that documents the 
 
 ### Implementation evidence (point-in-time)
 
+Verification basis: <Independently verified / Owner-asserted / Auditor-to-verify>. For Independently verified, name the supporting independent test artefact (per [`compliance/procedure-control-testing.md`](procedure-control-testing.md), tester not the control owner); for Owner-asserted, name the asserting control owner; for Auditor-to-verify, the status is presented for the external auditor to test.
+
 Evidence type 1: <e.g. Policy approval record>
 - Artefact: <link>
 - Date: <YYYY-MM-DD>
@@ -153,6 +155,8 @@ Evidence type 2: <e.g. Configuration screenshot>
 [continue per evidence type]
 
 ### Operating evidence (over the period)
+
+Verification basis: <Independently verified / Owner-asserted / Auditor-to-verify>. Operating effectiveness is Independently verified when an independent test (tester not the control owner, per [`compliance/procedure-control-testing.md`](procedure-control-testing.md)) supports it; Owner-asserted when the control owner asserts it without an independent test this period; Auditor-to-verify when it is presented for the external auditor to test.
 
 Test 1: <e.g. Quarterly access review>
 - Frequency: <e.g. quarterly>
@@ -246,6 +250,7 @@ Assembler statement
 - I confirm that the per-control sections in this package accurately reflect the evidence available for the period covered.
 - I confirm that gaps and partial implementations are disclosed in their respective per-control sections.
 - I confirm that the supporting artefacts referenced by link or pointer remain available under the document-retention period the framework requires.
+- I confirm that each per-control implementation status and operating effectiveness is labelled with its verification basis, and that an owner-asserted status is not presented as independently verified unless an independent test (per [`compliance/procedure-control-testing.md`](procedure-control-testing.md)) supports it.
 Signed: <named role, e.g. Internal Audit Lead>
 Date: <YYYY-MM-DD>
 
@@ -284,10 +289,11 @@ Before releasing a package, answer the following:
 2. Have we included every in-scope control in the index, including those that are not implemented?
 3. For each partial or ineffective control, is the gap and the compensating control or remediation plan explicit?
 4. For each test, is the sample size justifiable for the framework's expectations?
-5. Are all internal links valid, and are all referenced external artefacts available?
-6. Has the package been reviewed by someone other than the assembler?
-7. Has the framework-required signatory approved the package?
-8. Is the package retained at the location named on the cover page, with the required retention period set?
+5. For each control, is the verification basis recorded, and are owner-asserted statuses distinguished from independently-verified status (with the supporting independent test named for the latter)?
+6. Are all internal links valid, and are all referenced external artefacts available?
+7. Has the package been reviewed by someone other than the assembler?
+8. Has the framework-required signatory approved the package?
+9. Is the package retained at the location named on the cover page, with the required retention period set?
 
 ---
 
