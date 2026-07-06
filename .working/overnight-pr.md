@@ -65,6 +65,38 @@ sync (brief-freshness index behind + dead anchors; scratch PR); scratch `origina
 refresh; then non-protected P3/P2 items as the queue allows. All protected-file items stay
 deferred.
 
+**Subsequent PRs this run (after #667).**
+- **PR #668** (TODO 3.21(d) follow-through): normalized the three cloud-hardening baseline
+  `PCI DSS v4` cells to `v4.0.1` after the maintainer's mid-flight clarification (full latest
+  version unless quoting another document); recorded the standing preference in
+  `design-decisions.md`. Library 2026.07.156, README 1.9.517.
+- **PR #669** (TODO 1.9 root-cause record): read-only investigation pinned why the
+  PreToolUse pipe-guard hook does not fire in resumed/child sessions (`CLAUDE_PROJECT_DIR`
+  is unset, so the `settings.json` hook command interpolates to a nonexistent path);
+  established no portable corpus-side fix exists (harness-level). Disposition deferred to the
+  maintainer (`pending-decisions.md`); 1.9 stays OPEN. Library 2026.07.157, README 1.9.518.
+- **PR #670** (TODO 3.15 #637 F4/F6, acronym-linter digit-initial blind spot): widened gate
+  20's `GLOSSARY_ROW_RE` and `INLINE_DEF_RE` to `[A-Z0-9]`-initial (numeronym rows such as
+  `3PL` are now parsed/matched) with three fixtures; the paired lowercase-tolerant inline
+  pattern was assessed corpus-wide and REJECTED with evidence (over-capture false positives),
+  the Title-Case requirement documented as a deliberate FP control. Surfaced for maintainer
+  confirmation. Carries the batched #669 QA rows.
+
+**PDF assessment (maintainer-attached, 2026-07-06).** Two LinkedIn-sourced PDFs were assessed
+for the scratch `publications/` bucket. Outcome: NET NO INGEST. (1) The Anthropic "Zero Trust
+for AI Agents" ebook is ALREADY ingested (scratch `ref/publications/` catalogue row + full-text
+extract present), so the upload is a content-duplicate and was discarded. (2) The RAND-style
+tabletop-exercise insights PDF was discarded as low org-GRC-reference value. No scratch PR
+resulted. Recorded here per the maintainer's request to note the assessment outcome.
+
+**MORNING DELIVERABLE (owed to the maintainer).** A written recommendation on the maintainer's
+time-decay suggestion (publications, and ONLY publications, devalued as time passes; NOT
+standards, NOT frameworks; framed as a suggestion to assess, not a directive). To be delivered
+in the morning.
+
 **Open ambiguities / morning items.** The three still-parked items from the prior attended
 round are unaffected: none. The `/claim-fit` clause needs the maintainer's authorization (a
-protected touch); it is staged, not applied.
+protected touch); it is staged, not applied. TODO 1.9 disposition is a maintainer decision
+(close-as-harness-limitation vs track-harness-feedback), in `pending-decisions.md`. The PR
+#670 lowercase-tolerant-pattern rejection is surfaced for the maintainer to confirm or
+reopen.

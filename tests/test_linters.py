@@ -2575,6 +2575,57 @@ class AcronymConsistencyTests(LinterTestCase):
         result = run_linter("tools/lint-acronym-consistency.py", fixture)
         self.assertLinterFails(result)
 
+    def test_digit_initial_glossary_row_parsed_wrong_expansion_flagged(self) -> None:
+        # 3PL is the register's first digit-initial (numeronym) glossary
+        # row. Before the [A-Z0-9]-initial widening, both the glossary-row
+        # regex and the inline-definition regex required an [A-Z] first
+        # character, so 3PL was silently unparsed and any inline (3PL)
+        # definition went unchecked. A deliberately-wrong Title-Case
+        # expansion of 3PL (zero overlapping significant words) must now be
+        # flagged, proving the row is parsed and the inline acronym matched.
+        fixture = self.make_fixture(
+            "standard-numeronym-bad.md",
+            VALID_METADATA + "\n\nThe Totally Wrong Phrase (3PL) is fictional.\n",
+        )
+        result = run_linter("tools/lint-acronym-consistency.py", fixture)
+        self.assertLinterFails(result)
+
+    def test_digit_initial_correct_expansion_not_flagged(self) -> None:
+        # Guard against the widening over-flagging: a correct Title-Case
+        # 3PL definition (content words overlap the glossary) must pass.
+        fixture = self.make_fixture(
+            "standard-numeronym-ok.md",
+            VALID_METADATA + "\n\nThe Third-Party Logistics Provider (3PL) model applies.\n",
+        )
+        result = run_linter("tools/lint-acronym-consistency.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"a correct Title-Case numeronym definition should not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_lowercase_prose_definition_deliberately_not_checked(self) -> None:
+        # The inline-definition regex requires a Title-Case expansion
+        # phrase as a false-positive control (see the module docstring): a
+        # lowercase running-prose parenthetical is NOT treated as a
+        # definition, so even a wrong lowercase "expansion (3PL)" is not
+        # flagged. This test LOCKS IN that deliberate non-check; do not
+        # "fix" it by widening the phrase to lowercase (a corpus census
+        # showed that over-captures incidental leading context words).
+        fixture = self.make_fixture(
+            "standard-lowercase-prose.md",
+            VALID_METADATA + "\n\nOperating as the totally wrong phrase (3PL) in this sentence.\n",
+        )
+        result = run_linter("tools/lint-acronym-consistency.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"a lowercase running-prose parenthetical is deliberately not "
+            f"treated as a definition and must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing-glossary → exit 2.
         synthetic_root = FIXTURE_DIR / "synthetic-root-no-register-glossary"

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #670: Acronym-linter digit-initial blind spot (TODO 3.15 #637 F4/F6) (2026-07-06)
+
+Closes the TODO 3.15 #637-verifier F4/F6 bullet (gate 20, `lint-acronym-consistency.py`). Widened `GLOSSARY_ROW_RE` and `INLINE_DEF_RE` to `[A-Z0-9]`-initial so digit-initial numeronym rows (`3PL`, and future `2FA`-class) are parsed and matched rather than silently skipped, with three regression fixtures; gate 20 stays green on the live corpus. The paired "assess a lowercase-tolerant inline pattern" half was assessed against the full corpus and REJECTED with evidence (a lowercase-starting run over-captures incidental leading context, so it would false-positive on many consistent definitions or, flagging only zero-overlap, on incidental parentheticals; an initialism anchor fails for numeronyms/stopword-dropping acronyms), so the Title-Case-expansion requirement is documented as a deliberate false-positive control rather than widened. Surfaced to the maintainer for confirmation.
+
 ### PR #668: PCI DSS v4 to v4.0.1 normalization (TODO 3.21(d) follow-through) (2026-07-06)
 
 Not a new TODO item: completes TODO 3.21(d), which #667 had left unchanged. The maintainer clarified the same night that the standing preference is the full latest version `PCI DSS v4.0.1` (family label `v4` only when quoting another document), so the three cloud-hardening baseline framework-alignment cells (AWS/Azure/GCP) were normalized from bare `PCI DSS v4` to `PCI DSS v4.0.1`; the citation-form template's discouraged-example `PCI DSS v4` was left as an illustration. The preference is recorded in design-decisions.md as a durable convention.
