@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #668: PCI DSS v4 to v4.0.1 normalization (TODO 3.21(d) follow-through) (2026-07-06)
+
+Not a new TODO item: completes TODO 3.21(d), which #667 had left unchanged. The maintainer clarified the same night that the standing preference is the full latest version `PCI DSS v4.0.1` (family label `v4` only when quoting another document), so the three cloud-hardening baseline framework-alignment cells (AWS/Azure/GCP) were normalized from bare `PCI DSS v4` to `PCI DSS v4.0.1`; the citation-form template's discouraged-example `PCI DSS v4` was left as an illustration. The preference is recorded in design-decisions.md as a durable convention.
+
 ### PR #667: TODO 3.21 citation and naming hygiene residuals CLOSED (2026-07-06)
 
 Closes TODO section 3.21, its four decision-parked residuals resolved on the maintainer's calls: (a) the compliance-matrix framework-key cell reading "C-TPAT Minimum Security Criteria" (a legacy document-title quote) normalized to bare `C-TPAT`; (b) FQ-F1, the five identical `tools/` PR-delta error strings reworded from bare "ensure" to the house-style `ensure that`; (c) FQ-B1, the master spec's line-214 monotonicity claim replaced with the verifier's round-3 wording (gate 13 non-decrease, the CHANGELOG-coupling gates 29/59 catching a forgotten bump), gate identities re-verified against the linter docstrings before shipping; (d) the three `PCI DSS v4` cloud-baseline family-label citations left as-is (maintainer chose leave over normalizing to `v4.0.1`, no code change).

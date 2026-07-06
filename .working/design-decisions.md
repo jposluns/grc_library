@@ -29,6 +29,7 @@ This file has three parts: this index; a set of **thematic sections** for durabl
 
 **Dated decisions (most recent first):**
 
+- 2026-07-06: PCI DSS version-label preference: v4.0.1 unless quoting another document
 - 2026-07-05: TODO item granularity: one functional change per item
 - 2026-07-04: Whole-backlog wave-7 staging before the P2 applies (including the 4.1 distillation seed)
 - 2026-07-04: GR-3 wave 3: metadata parsers stay separate
@@ -47,6 +48,10 @@ This file has three parts: this index; a set of **thematic sections** for durabl
 - 2026-06-23: Overnight unattended run authorizations
 
 ---
+
+## PCI DSS version-label preference: v4.0.1 unless quoting another document (decided 2026-07-06, maintainer)
+
+The maintainer's standing citation-form preference for PCI DSS: **use the full latest version, `PCI DSS v4.0.1`**, not the bare family label `PCI DSS v4`. The family label `v4` is acceptable **only when the corpus is quoting another document that itself references the family**; absent a quote, the specific point-release `v4.0.1` is used. This sharpens the citation-form template's existing "Version *and* requirement ID" standard (whose good example is already `PCI DSS v4.0.1 ...`) with an explicit default point-release and a narrow quote-exemption. Applied in #668: the three cloud-hardening baseline framework-alignment cells (`standard-cloud-hardening-baseline-{aws,azure,gcp}.md`) normalized `PCI DSS v4` to `PCI DSS v4.0.1`; the citation-form template's discouraged-example `PCI DSS v4` (`register-compliance-obligations-template.md:49`) was LEFT because it illustrates the discouraged form rather than citing it (the display-as-example carve-out, adjacent to the quote-exemption). This reverses the 2026-07-06 in-flight "(d) leave" answer for TODO 3.21(d), which the maintainer clarified the same night. When PCI DSS advances past v4.0.1, "full latest version" tracks the new point release (re-verify the current release before a future migration, per the external-version-currency rule).
 
 ## Whole-backlog wave-7 staging before the P2 applies, including the 4.1 distillation seed (decided 2026-07-04, maintainer)
 
