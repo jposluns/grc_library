@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.172, PR #684
+
+Session-closing handoff for the 2026-07-06 resumed session (`claude/resume-chptc7`, #680 to #683). Working-state and version surfaces only; the session-closing handoff PR skips its own trailing `/validate-pr` and `/retro` per the loop-break exception.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): reconciled the top `Current truth` to merged-through-#683 and session CLOSED (lease released), with the D7 tokens at the #684 state (library `2026.07.172`, README `1.9.533`, validate-pr history `1.2.461`, improvement-log `1.0.405`) and green-at `8af65ea`; prepended this session's `## Asserted expectations` block (#680 to #683); recorded that the next `/resume` is from a LOCAL environment and runs Sweep 87 first.
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.37` to `1.0.38`): added the session row (5 PRs #680 to #684; 4 post-compaction subagents measured at 1,246,902 tokens, a floor because the about 6 pre-compaction subagents' figures are not in the resumed context; orchestrator tokens not instrumented; about 3h40m elapsed).
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Status: released`, `Active-session: none`, heartbeat re-stamped).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.460` to `1.2.461`): the #684 handoff-exemption row (`SKIPPED (handoff-PR exception)` in the Findings cell, the gate-50-recognized marker).
+- Bumped the library CalVer to `2026.07.172` and the README Version to `1.9.533`.
+
+### Verification
+
+- Working-state and version surfaces only; no corpus document body, gate, or code changed. Pre-push guard green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1 through D7 plus the history-aware 45/40/31), run standalone and unpiped. D7 confirms the nine labelled handoff tokens match the live headers at the #684 head.
+- Per the loop-break exception this PR takes no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 87), stronger than a per-PR sweep because it re-examines the whole corpus.
+
+### Discipline observation
+
+- Batches the #683 [`/validate-pr`](../validate-pr/history.md) (0 findings) and [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+- The maintainer requested the handoff after #683; #683 was this session's last substantive PR. The next `/resume` is from a local machine rather than this cloud environment, so the cloud-specific known-environment behaviours must be re-verified there.
+
 ## 2026-07-06, Library Version 2026.07.171, PR #683
 
 FR-23 audit-evidence assembler verification (TODO 2.6): recorded, per evidence item, whether a control's status is independently verified or a management assertion, closing the package template's verify-versus-aggregate silence; applied from the scratch-inbox worker research delivery.
