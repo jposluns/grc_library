@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.11\
-**Date:** 2026-07-05\
+**Version:** 1.0.12\
+**Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -78,7 +78,7 @@ Drift in source versions is itself an obligation-management event: when the unde
 
 | Field | Description | Example |
 |---|---|---|
-| **Mapped Controls** | Control IDs or policy references implementing this obligation | ISO 27001 Annex A.8.24; [`security/policy-information-security.md`](../security/policy-information-security.md) |
+| **Mapped Controls** | Control IDs or policy references implementing this obligation | ISO/IEC 27001:2022 Annex A.8.24; [`security/policy-information-security.md`](../security/policy-information-security.md) |
 | **Control Owner** | Role responsible for control implementation | Chief Information Security Officer |
 | **Implementation Status** | Not Started / In Progress / Implemented / Verified | Implemented |
 | **Implementation Evidence** | Where evidence of compliance can be found | Encryption configuration records; annual control testing report |

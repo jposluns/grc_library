@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.7\
+**Version:** 1.6.8\
 **Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -292,7 +292,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - ISO/IEC 27701:2025: Privacy information management (standalone PIMS standard since the 2025 revision)
 - ISO/IEC 42001:2023: AI management systems
 - ISO/IEC 23894:2023: AI risk management guidance
-- ISO/IEC 22301:2019: Business continuity management
+- ISO 22301:2019: Business continuity management
 - ISO 31000:2018: Risk management
 - ISO 9001:2015: Quality management
 - NIST CSF 2.0: Cybersecurity Framework

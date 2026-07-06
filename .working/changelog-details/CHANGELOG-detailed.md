@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.168, PR #680
+
+Sweep 86 close-out (local project): the `/resume` loop-break corpus-wide `/validate` over the #662..#679 deltas, the compensating control for the #679 session-closing handoff (which skipped its trailing `/validate-pr` + `/retro`). Full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference sweep, C audit-programme integrity); baseline 66/66 at `ecb43fc`. The control PASSED: no in-window (#662-#679) regression and no contradiction of any #679 asserted expectation. Eight gate-blind ISO-designation findings surfaced across six F-classes (all pre-existing or marginal); this PR fixes three classes (F1/F3/F5), routes two (F2/F4), no-actions one (F6), and carries the resume-protocol bookkeeping.
+
+### Fixed
+
+- [`specification-master-project.md`](../../specification-master-project.md) (`1.6.7` to `1.6.8`): corrected `ISO/IEC 22301:2019` to `ISO 22301:2019` in the standards reference list. ISO 22301 (business continuity) is a single-body ISO standard (ISO/TC 292), not joint ISO/IEC. Found independently by Sweep-86 subagents A and B (deduped); corpus-wide scope was one outlier against 29 correct bare occurrences; git-dated to the initial public release and out of #663's joint-13 scope, so not a #663 regression, but the exact accuracy class the maintainer's #663 principle governs.
+- [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md) (`1.0.11` to `1.0.12`): corrected the Mapped-Controls filled example from `ISO 27001 Annex A.8.24` to `ISO/IEC 27001:2022 Annex A.8.24`, matching the file's own line-46 taught canonical citation form (A.8.24, Use of cryptography, is a valid 2022 Annex A control).
+- [`tools/sweep-preflight-exemptions.json`](../../tools/sweep-preflight-exemptions.json): re-pointed two orphaned exemption entries whose `line_hash` no longer matched after #443 changed the pack README addyosmani-vet line from "18" to "19 spot-scanned" (the README entry `fe027c7d5c9f940d` to `b66b2387f8abbe5a` with its reason string corrected to "19"; the setup-generator entry `a07333ed580ba6f1` to `13314d43cfeabdc5`). The pre-flight scanner now suppresses six candidates by exemption file (the two false positives no longer re-surface); the other four entries were verified still-matching.
+
+### Changed
+
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first, then portal and scorecard) after the two per-document Version bumps; both generators are `--check`-clean.
+- Pruned [`.working/session-handoff.md`](../session-handoff.md) per its keep-current-plus-one-prior discipline (deleted the two-prior #618-#643 session's Next-actions, State-snapshot, and Asserted-expectations blocks, migrating its load-bearing cadence notes forward), prepended the resumed session's Next-actions and State-snapshot blocks, advanced the sweep cursor to Sweep 86, and recorded the step-5 decisions (mode ATTENDED-AUTONOMOUS; the 30 scratch-inbox P2 applies this session; the 3.16 and 3.17 alignment maps surface-then-build; D8 rest-on-convention). The new Current-truth line carries the D7 tokens for this PR (library `2026.07.168`, README `1.9.529`; carried forward pack `1.54.6`, audit-spec `1.16.58`, runbook `1.1.4`, guardrail-history `1.0.6`, validate-pr history `1.2.456`, improvement-log `1.0.401`, claim-fit history `1.0.3`).
+- ACQUIRED the [`.working/session-state.md`](../session-state.md) concurrency lease (`Active-session: claude/resume-chptc7`, `Status: active`, heartbeat re-stamped).
+- Routed Sweep-86 F2 (the [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) version-currency vs privacy-docs content-attribution signposting) to TODO 1.11, and F4 (generic-family `ISO 27001` references at the obligations template and [`NOTICE.md`](../../NOTICE.md)) to TODO 3.1; closed the TODO 3.15 D8 section-close-orphan candidate (rest-on-convention) and rotated it to [`.working/DONE.md`](../DONE.md).
+- Added the Sweep-86 history row to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.78` to `2.0.79`) and the per-iteration detail file [`.working/validate-sweeps/2026-07-06-sweep86-iter1.md`](../validate-sweeps/2026-07-06-sweep86-iter1.md).
+- Bumped the library CalVer to `2026.07.168` and the README Version to `1.9.529`.
+
+### Verification
+
+- Sweep 86 baseline 66/66 green at `ecb43fc`; the pre-flight scanner's 11 candidates were all FALSE POSITIVE (the standing growth-narrative class); the three subagents cross-checked against #679's asserted expectations with NO contradiction. Every finding was apply-time-verified by re-reading the cited source before disposition (F1 deduped A plus B; F6 confirmed a deliberate gate-58 both-form-input carve-out via the tool docstring and regex, not a defect).
+- A refute-briefed skeptical verifier reviewed the F1 and F3 corpus-document designation changes and the bookkeeping diff pre-push (substantive tier).
+- Pre-push guard green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1 through D7 plus the history-aware 45/40/31), run standalone and unpiped; D7 validates the refreshed handoff Current-truth tokens against the live headers at this PR's head.
+
+### Discipline observation
+
+- The Sweep-86 findings are all pre-existing or marginal gate-blind ISO-designation debt, not #662-#679 regressions; the loop-break compensating control's core job, catching anything the handoff PR hid, returned clean. The three fixes are applied under the maintainer's standing #663 accuracy principle; the two routed items feed the existing designation-accuracy backlog (TODO 3.1) and the Brazil verification (TODO 1.11). The count-vs-enumeration advisory (also census-vetoed) remains in TODO 3.15 awaiting the maintainer's confirm-to-close.
+
 ## 2026-07-06, Library Version 2026.07.167, PR #679
 
 Session-closing handoff (local project): landed the 2026-07-06 daytime ATTENDED-AUTONOMOUS session's working-state (`claude/resume-tl5rez`, PRs #662-#678) on `main` as a green merge. Per the loop-break exception this PR runs no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume` corpus-wide `/validate` (Sweep 86 over the #662..#678 deltas), cross-checked against the `## Asserted expectations` block and the green-at-`0377f5d` baseline.
