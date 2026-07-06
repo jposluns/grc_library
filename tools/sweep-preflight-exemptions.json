@@ -5,13 +5,13 @@
     {
       "path": "dev-security/claude-rules/README.md",
       "pattern_id": "PF-collection-skills",
-      "line_hash": "fe027c7d5c9f940d",
-      "reason": "addyosmani external vet count: '5 skills in full + 18 spot-scanned' describes the maintainer's vetting depth, not a pack-skills count."
+      "line_hash": "b66b2387f8abbe5a",
+      "reason": "addyosmani external vet count: '5 skills in full + 19 spot-scanned' describes the maintainer's vetting depth, not a pack-skills count."
     },
     {
       "path": "dev-security/claude-rules/setup-generator-prompt.md",
       "pattern_id": "PF-collection-skills",
-      "line_hash": "a07333ed580ba6f1",
+      "line_hash": "13314d43cfeabdc5",
       "reason": "addyosmani external description: '24 engineering-workflow skills in Claude Code's Skills format'. The scanner captures a smaller digit from later in the line; the prose is about an external project, not the pack."
     },
     {

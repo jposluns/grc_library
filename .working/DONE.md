@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #680: Sweep 86 iter 1 close-out + TODO 3.15 D8 rest-on-convention (2026-07-06)
+
+The `/resume` loop-break corpus-wide `/validate` (Sweep 86 over the #662..#679 deltas); the compensating control PASSED with no in-window regression and no asserted-expectation contradiction. Fixed 3 pre-existing gate-blind ISO-designation findings (spec-master `ISO/IEC 22301`->`ISO 22301`, single-body ISO/TC 292; obligations-template filled example `ISO/IEC 27001:2022 Annex A.8.24`; two orphaned pre-flight-scanner exemptions re-pointed), routed F2 to TODO 1.11 and F4 to TODO 3.1, and closed the TODO 3.15 D8 section-close-orphan candidate on the maintainer's rest-on-convention decision (the event-triggered advisory was census-vetoed, 18 candidates / 0 true positives; rely on the close-out §N-orphan grep). Also pruned the session handoff (keep current + 1 prior) and acquired the concurrency lease for the resumed `claude/resume-chptc7` session.
+
 ### PR #677: TODO 1.9 RM-10 pipe-guardrail hardening, closed as a documented harness limitation (2026-07-06)
 
 Closes P1 item 1.9. The `block-verification-pipes.py` PreToolUse hook does not fire in resumed/child sessions; the 2026-07-06 root-cause investigation pinned why (a child session leaves `CLAUDE_PROJECT_DIR` unset, so the `settings.json` hook command resolves to a nonexistent path and the Bash tool proceeds unblocked), and found no portable corpus-side fallback, so the fix is harness-level. The maintainer directed closing 1.9 as a documented harness limitation: parts (a)-(d) shipped 2026-07-03/04, the compensating controls (the RM-10 unpiped-verification habit and the guard's `PRE_PUSH_GUARD_ALLOW_PIPE`-gated pipe self-defence) fully cover the underlying risk, and the limitation is recorded in `.working/third-party-issues.md` so a future session does not mistake it for a regression.

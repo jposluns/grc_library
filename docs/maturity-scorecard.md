@@ -142,7 +142,7 @@ _101 documents._
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.4 | 2026-07-02 |
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.11 | 2026-07-03 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.7 | 2026-07-02 |
-| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.7 | 2026-07-06 |
+| [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.8 | 2026-07-06 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.8 | 2026-07-03 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.3 | 2026-07-02 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.8 | 2026-07-05 |
@@ -196,7 +196,7 @@ _174 documents._
 | [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.10 | 2026-07-03 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.0.8 | 2026-07-05 |
 | [compliance/procedure-mergers-acquisitions-due-diligence.md](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Mergers and Acquisitions Due Diligence Procedure | Procedure | 1.0.2 | 2026-07-02 |
-| [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.11 | 2026-07-05 |
+| [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.12 | 2026-07-06 |
 | [compliance/register-global-regulatory-applicability.md](../compliance/register-global-regulatory-applicability.md) | Global Regulatory Applicability Register | Register | 1.0.1 | 2026-07-02 |
 | [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.0.6 | 2026-07-03 |
 | [compliance/standard-sanctions-and-export-control-screening.md](../compliance/standard-sanctions-and-export-control-screening.md) | Sanctions and Export-Control Screening Standard | Standard | 1.0.1 | 2026-07-02 |
