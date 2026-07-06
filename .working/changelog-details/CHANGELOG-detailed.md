@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.170, PR #682
+
+FR-15 maturity-ladder methodology (TODO 2.5): added a governance methodology standard documenting the five-tier maturity ladder, the median-of-medians aggregation, its outlier-masking limitation, and a compensating floor-check, applied from the scratch-inbox worker research delivery.
+
+### Added
+
+- [`governance/standard-maturity-assessment-methodology.md`](../../governance/standard-maturity-assessment-methodology.md) (new, `1.0.0`): a governance-domain Standard mirroring [`governance/standard-records-retention-and-destruction.md`](../../governance/standard-records-retention-and-destruction.md)'s 13-field metadata block and Standard section model. It documents (section 4) the five-tier CMMI-lineage ladder (Initial, Managed, Defined, Quantitatively Managed, Optimized), (section 5) the median-of-medians aggregation and its median-versus-mean rationale, (section 6) the outlier-masking limitation (the same median robustness that resists a spurious low score also lets a single critically-weak domain not move the overall median), (section 7) the compensating floor-check (an absolute Tier-1 floor plus a relative two-tier-gap floor the assessor surfaces alongside the median, an assessor step that does not change the computation), (section 8) the disambiguation of programme maturity from the generated document-maturity scorecard and the shared tier vocabulary of the Digital Trust Index thresholds, and (section 9) the boundary that it documents maturity levels, not capability levels (the separate TODO 6.4 item).
+
+### Changed
+
+- [`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md) (`1.0.7` to `1.1.0`): a pointer to the new standard as the authoritative methodology; a floor-check line under `## Overall programme tier`; and assessor review question 6 (run the floor-check). The median scoring steps are unchanged; the minor bump reflects the new assessor step.
+- [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md) (`1.0.4` to `1.0.5`): a pointer from `### 2. Maturity assessment` to the new standard, and the standard added to `## Related Documents`. The tier table is unchanged (patch bump: a cross-reference addition, no new capability).
+- [`governance/README.md`](../../governance/README.md) (`1.10.9` to `1.10.10`) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.59` to `1.27.60`): the new standard added to each mechanical listing surface (gates 4 and 47 require every active document to be enumerated).
+- [`compliance/procedure-control-testing.md`](../../compliance/procedure-control-testing.md) (`1.1.0` to `1.1.1`): the batched #681 `/validate-pr` fix, section 8.1 `(risk and compliance)` to `(oversight functions)`, the umbrella term the register subsection and continuous-assurance section 4.4 already use for the Three Lines Model second line.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the new document and the version bumps (taxonomy first); all three generators are `--check`-clean.
+- Rotated TODO 2.5 (FR-15) to [`.working/DONE.md`](../DONE.md); the batched #681 [`/validate-pr`](../validate-pr/history.md) (1 note) and [`/retro`](../improvement-log.md) rows.
+- Bumped the library CalVer to `2026.07.170` and the README Version to `1.9.531`.
+
+### Verification
+
+- The gap was re-verified real at apply-time: the five-tier ladder and the median-of-medians aggregation existed (the template and framework section 2), but no named methodology, no documented outlier-masking limitation, and no formal floor-check existed. The tier names were confirmed identical across the standard, framework section 2, and the template; the aggregation was confirmed against the template's scoring steps; the shared tier vocabulary of the Digital Trust Index thresholds was confirmed against [`governance/register-digital-trust-and-assurance-metrics.md`](../../governance/register-digital-trust-and-assurance-metrics.md); no new external citation was introduced (CMMI, COBIT 2019 MEA01, ISO/IEC 42001:2023 section 10, and ISO 9001:2015 sections 9 to 10 all reuse the corpus's established forms).
+- A refute-briefed skeptical verifier reviewed the new standard, the four pointer edits, and the control-testing fix pre-push (substantive tier), across nine categories (aggregation correctness, tier definitions, floor-check arithmetic, the DTI seam, citation fabrication, the maturity disambiguation, the control-testing fix, house style, and metadata shape); it could not refute the change. It surfaced one non-blocking, pre-existing item: the corpus carries two glosses for ISO/IEC 42001:2023 section 10, so the new standard's section 11 was aligned to the framework's form (`section 10: AI Governance Improvement`) to avoid introducing a third variant. The corpus-wide two-gloss variance is surfaced to the maintainer, not resolved here (out of this PR's scope).
+- Pre-push guard green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1 through D7 plus the history-aware 45/40/31), run standalone and unpiped.
+- **Worker provenance:** applied from [`inbox/worker-20260703-a/fr-15-maturity-ladder-methodology/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-15-maturity-ladder-methodology/MANIFEST.md).
+
+### Discipline observation
+
+- Apply-time version reconciliation: the worker delivery (read at grc_library #619 / `ede2e3b`) recorded the template and the performance framework at `1.0.x` / `1.0.3`; live main had advanced them to `1.0.7` / `1.0.4`, so the bumps were reconciled to the live values.
+- The new document had to be added to two mechanical listing surfaces (the governance README and the document-index register); the working-tree audit caught the omission (gates 4 and 47 plus two ListingSurfaceCompleteness regression tests) before push, and it was fixed in the same PR.
+- Batches the #681 [`/validate-pr`](../validate-pr/history.md) (1 in-window note, the control-testing second-line shorthand, fixed this PR) and [`/retro`](../improvement-log.md) rows per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.169, PR #681
 
 FR-99 per-control effectiveness metrics (TODO 2.4): introduced a per-control effectiveness metric tied to the continuous-assurance model and the three lines of defence, applied from the scratch-inbox research delivery (Option A, register-extension plus cross-wiring).

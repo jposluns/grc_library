@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #682: FR-15 (medium): maturity-ladder methodology standard (2026-07-06)
+
+Closed TODO 2.5 (FR-15): added a governance methodology standard documenting the five-tier maturity ladder, the median-of-medians aggregation, its outlier-masking limitation, and a compensating floor-check (absolute Tier-1 plus relative two-tier-gap), with bounded pointers from the performance framework, the adopter template, and the two governance indexes; the generator's document-maturity scoring is unchanged. Also carried the batched #681 QA rows and fixed the #681-surfaced control-testing section 8.1 second-line shorthand.
+
 ### PR #681: FR-99 per-control effectiveness metrics (2026-07-06)
 
 Closed TODO 2.4 (FR-99): added a per-control effectiveness metric (an effectiveness band per control from its latest result, recurrence signal, and open corrective-action state, with owner, cadence, threshold, and consuming line of defence) defined in the assurance-metrics register and wired across control-testing, continuous-assurance (section 4.4, named three-lines-of-defence consumption), and metrics-reporting. Applied from the scratch-inbox worker delivery (Option A); the gap was re-verified real at apply-time.

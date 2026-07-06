@@ -2,7 +2,7 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-07-06\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -215,7 +215,7 @@ The tester records, in the evidence package, the population definition, the samp
 - **Deficiency rate**: Deficiency-and-above results as a proportion of controls tested.
 - **Recurrence rate**: the proportion of deficiencies that recur on a control previously remediated and closed (a lead indicator that a prior remediation treated the symptom rather than the cause).
 - **Average time to remediate**: from finding notification to validated closure, reported by severity.
-- **Per-control effectiveness band**: the sustained-effectiveness band for each in-scope control (Effective, Observation, Deficiency, or Material Weakness), derived from its latest result together with its deficiency recurrence signal and open corrective-action state, as defined in [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md). Unlike the programme-level measures above, this is a per-control signal reported at the control's residual-risk testing frequency and consumed under the three lines of defence: the first line (control owner) self-monitors it, the second line (risk and compliance) aggregates and challenges it, and the third line (internal audit) validates its basis.
+- **Per-control effectiveness band**: the sustained-effectiveness band for each in-scope control (Effective, Observation, Deficiency, or Material Weakness), derived from its latest result together with its deficiency recurrence signal and open corrective-action state, as defined in [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md). Unlike the programme-level measures above, this is a per-control signal reported at the control's residual-risk testing frequency and consumed under the three lines of defence: the first line (control owner) self-monitors it, the second line (oversight functions) aggregates and challenges it, and the third line (internal audit) validates its basis.
 
 8.2 A rising recurrence rate or a falling testing coverage is itself surfaced as a programme-level observation in the quarterly report.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Maturity Self-Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-07-05\
+**Version:** 1.1.0\
+**Date:** 2026-07-06\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -51,6 +51,8 @@ The five tiers, modelled on the process-maturity ladder used in NIST CSF Tiers, 
 | 5 | Optimized | Continuous improvement loop in place. Metrics drive targeted improvements; lessons learned feed back into artefact updates. The library-derived programme is itself a contributor to upstream improvement (issues filed against the library where the adopter has found gaps). |
 
 A programme can be at different tiers per domain. A multi-national might be Tier 4 in `compliance/financial-services/` (heavy external scrutiny drives maturity) and Tier 2 in `architecture/` (less external pressure).
+
+The methodology behind this ladder, the median-of-medians aggregation used below, its outlier-masking limitation, and the compensating floor-check the assessor runs, is documented authoritatively in [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md).
 
 ---
 
@@ -230,6 +232,8 @@ Per-statement scoring (apply to each statement above):
 
 **Overall programme tier (median of all completed domain scores):** _
 
+**Floor-check (per [`governance/standard-maturity-assessment-methodology.md`](../governance/standard-maturity-assessment-methodology.md) section 7):** the median above can mask a single critically-weak domain. Alongside the overall tier, record and surface any domain or question at Tier 1, and any domain scoring two or more tiers below the overall tier, regardless of the median. Report these floor-check exceptions next to the overall tier so a masked weakness stays visible.
+
 ---
 
 ## Per-tier next-step guidance
@@ -330,6 +334,7 @@ Before finalizing:
 3. Did we record per-statement notes for any low scores so the next assessor sees the reasoning?
 4. Did we identify the top three investment priorities based on a combination of current tier and exposure (a Tier-1 score in a high-exposure domain is more urgent than a Tier-2 score in a low-exposure domain)?
 5. Did we file the assessment in the same location as prior years so progression is auditable?
+6. Did we run the floor-check, surfacing any Tier-1 domain or question and any domain two or more tiers below the overall tier, so a critically-weak domain the median masks is reported alongside the overall tier?
 
 ---
 

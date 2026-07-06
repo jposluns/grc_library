@@ -44,7 +44,7 @@ While verifying, also confirm the two adjacent ANPD-resolution citations in the 
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities. The deepen-baselines cluster (FR-15 / 23 / 63 / 74 / 99 / 154 / 41) was decided for operational deepening (maintainer 2026-06-25).
 
-**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.2 (FR-60 HIPAA), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.4 US healthcare, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681; FR-15 (2.5), FR-23 (2.6), and FR-63 (2.7) are apply-ready this session.
+**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.2 (FR-60 HIPAA), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.4 US healthcare, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682; FR-23 (2.6) and FR-63 (2.7) are apply-ready this session.
 
 ### 2.1 Privacy jurisdiction annex operational deepening (FR-59, H, L)
 
@@ -57,10 +57,6 @@ HIPAA adopter has no operational detail beyond a single 261-line sector annex in
 ### 2.3 Crypto-asset / blockchain governance domain (FR-70, H[critical], XL)
 
 New domain for crypto-asset / blockchain governance — digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense. (Cross-references P6.x for domain-level shaping.)
-
-### 2.5 Maturity-ladder methodology (FR-15, M, M)
-
-Maturity-ladder methodology — median-of-medians scoring concern. **Shape decided (maintainer, 2026-07-03): a methodology standard documenting the ladder, the aggregation, and its outlier-masking limitation (with a compensating floor-check narrative); the generator's scoring is unchanged.**
 
 ### 2.6 Audit-evidence assembler-verification standard (FR-23, M, M) ⚠
 
