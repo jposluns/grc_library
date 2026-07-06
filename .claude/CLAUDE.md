@@ -678,6 +678,23 @@ proceeded against it) is never silently closed; it is surfaced at the next atten
 finding, the overruling reasoning, and the recorded revert path, and the maintainer, not the
 assistant, resolves it to `reviewed`.
 
+**No idle-stop in unattended mode.** In overnight or any unattended mode, never stop to ask
+which authorized item to do next, and never hold or idle on the grounds that remaining work
+is substantial, fiddly, higher-risk-this-deep-in-context, or that the clean low-risk queue is
+exhausted: these are the invalid triggers the wind-down framework already forbids
+(context-heaviness, work-shape, un-instrumented internal state), restated here at the point of
+action, because reading them in the wind-down section did not prevent acting against them. The
+standing priority ordering already answers what is next; proceed on the highest-priority
+authorized independent item with the appropriate skeptical-verifier tier. Stop only for (a) a
+genuine named-degradation trigger, or (b) a genuinely authorial decision no standing directive
+answers, and even then use the graceful-degradation mechanism (a stricter-safe default, or
+defer-and-skip to the next independent item), never a blocking question that idles the run
+until the maintainer wakes. Substantial or best-fresh-context work is done PR-by-PR with
+skeptical verifiers, never deferred to the maintainer in unattended mode. Two caught pre-push
+slips, or any defect the guard or verifier catches before it escapes, are the verification
+layer working, not a degradation signal. (Codified after the 2026-07-06 overnight run stopped
+to ask the maintainer which authorized P2 item to take, idling the run.)
+
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff

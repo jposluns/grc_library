@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.160, PR #672
+
+`.claude/` change for local project: added a `No idle-stop in unattended mode` guardrail clause to the "Attended-autonomous operating mode" section of [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (maintainer-authorized protected-tree touch, 2026-07-06). Protected-guidance change, adopter-invisible; no corpus body, no gate logic.
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): inserted a `No idle-stop in unattended mode` paragraph at the end of the "Attended-autonomous operating mode" section, immediately before "Wind-down decision framework". It restates, at the point of the next-action decision, the invalid stop triggers the wind-down framework already forbids (context-heaviness, work-shape, un-instrumented internal state): in overnight or any unattended mode, never idle or stop to ask which authorized item to take next; proceed on the highest-priority authorized independent item at the appropriate skeptical-verifier tier; and confine a legitimate stop to a named-degradation trigger or a genuinely authorial decision handled through the graceful-degradation mechanism (a stricter-safe default, or defer-and-skip to the next independent item), never a blocking question that idles the run until the maintainer wakes. It names two caught pre-push slips, or any defect the guard or verifier catches before it escapes, as the verification layer working, not a degradation signal.
+- Why: the wind-down section already forbade those triggers, but reading them there did not prevent acting against them. A 2026-07-06 overnight run stopped and asked the maintainer which authorized P2 item to take, idling the run. The gap was at the action boundary, so the rule is restated at the moment of the next-action decision, where the failure occurred.
+- Verification: protected-guidance tier (no corpus body, no gate logic). The language linter was run on the changed file before the first commit; the added block carries zero em or en dashes and zero British `-ise` spellings (the pre-existing dash findings are long-standing lines elsewhere in this gate-exempt file, out of scope). Pre-push guard green (both runners).
+
+**Batched bookkeeping.** Carries the #671 `/validate-pr` (0 findings) history row and the #671 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.159, PR #671
 
 `.working/` and TODO for local project (fifth PR of the 2026-07-06 overnight run): codified the QA-report intake channel and recorded the D5-eighth-form daytime deferral. Terse entry (working-state + TODO, adopter-invisible; no corpus body change).
