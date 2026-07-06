@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.3\
-**Date:** 2026-07-04\
+**Version:** 1.1.4\
+**Date:** 2026-07-06\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -207,6 +207,45 @@ mapping the whole backlog, the gate shape-checks, the close-out pairing line, th
 `WORKER-ONBOARDING.md`; the ad hoc path remains only as the fallback for an item whose
 brief has not yet been synced. Slice 4 (the `/subagent` entry command and the
 least-privilege worker account) remains queued.
+
+### 5.2 QA-report intake (the three-layer validation channel)
+
+The brief-staging channel of 5.1 is the INPUT half (research and candidate diffs flowing
+IN). This subsection covers the distinct case where a worker (or a separate QA run) returns
+a findings REPORT rather than research: a list of claimed defects the orchestrator must act
+on. A report is not a finding-set until it has been validated; the orchestrator processes
+every such report through three layers before any claimed finding drives a backlog entry or
+a fix, because each layer catches a defect class the others cannot:
+
+1. **The worker report (claims).** The raw report is a set of HYPOTHESES, not findings
+   (the research-assistant discipline of the pack's `ai-assistant-workflow-disciplines`
+   rule, applied to reports as to research). Nothing in it is acted on directly.
+2. **An independent validation subagent (the false-positive filter).** A separate subagent,
+   blind to the report's reasoning, re-reads the cited source for each claimed finding and
+   confirms or refutes it against the live artefact. This is the seam where worker false
+   positives and over-classifications are caught (the same apply-time re-verification the
+   `trust-recovery-escalation` rule requires before any finding is routed). A claim that
+   survives is a candidate finding; a claim that does not is recorded as refuted, not routed.
+3. **A transcription-fidelity verifier (the report-to-record seam).** Before the validated
+   findings land in the backlog and the QA records, a third check confirms the
+   orchestrator's TRANSCRIPTION of each validated finding (its severity, its location, its
+   disposition) matches what layer 2 actually validated. This catches drift introduced by
+   the orchestrator between validation and recording, a seam neither the worker nor the
+   validator can see.
+
+The channel was first exercised on the #626 QA-report intake, where it caught a defect at
+each of the three seams (a report-side claim, a classification, and a transcription),
+which is the evidence that the three layers are not redundant. Reports never take a
+trusted-worker fast path: worker or scratch provenance never reduces the validation a
+report receives, exactly as it never reduces the QA a change receives (the HARD INVARIANT
+of section 2).
+
+**Standing revisit note (maintainer-decided 2026-07-04).** This subsection is the
+runbook-section form of the channel, chosen over a full slash-command skill for now because
+the channel had run once. On the channel's NEXT recurrence, assess whether the full-skill
+option (a dedicated slash command with its own dispatch and record surfaces, the
+`/validate-pr` shape) would serve better than this prose form, and surface that assessment
+to the maintainer rather than defaulting either way.
 
 ---
 

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #671: QA-report intake runbook subsection (TODO 3.15 r4 G-7) (2026-07-06)
+
+Closes the TODO 3.15 r4 G-7 bullet. Codified the three-layer QA-report intake channel (a worker findings report is a hypothesis-set → an independent validation subagent re-reads each cited source → a transcription-fidelity verifier confirms the report-to-record transcription) as `.working/multi-session-orchestration.md` §5.2, with the maintainer's standing revisit note to assess the full-skill option on the channel's next recurrence. The channel had lived only in the #626 records.
+
 ### PR #670: Acronym-linter digit-initial blind spot (TODO 3.15 #637 F4/F6) (2026-07-06)
 
 Closes the TODO 3.15 #637-verifier F4/F6 bullet (gate 20, `lint-acronym-consistency.py`). Widened `GLOSSARY_ROW_RE` and `INLINE_DEF_RE` to `[A-Z0-9]`-initial so digit-initial numeronym rows (`3PL`, and future `2FA`-class) are parsed and matched rather than silently skipped, with three regression fixtures; gate 20 stays green on the live corpus. The paired "assess a lowercase-tolerant inline pattern" half was assessed against the full corpus and REJECTED with evidence (a lowercase-starting run over-captures incidental leading context, so it would false-positive on many consistent definitions or, flagging only zero-overlap, on incidental parentheticals; an initialism anchor fails for numeronyms/stopword-dropping acronyms), so the Title-Case-expansion requirement is documented as a deliberate false-positive control rather than widened. Surfaced to the maintainer for confirmation.
