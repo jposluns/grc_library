@@ -232,9 +232,9 @@ drive end-to-end on the maintainer's behalf:
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
    validation", a maintainer directive captured as a backlog line) all rotate the same way.
    The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
-   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects SEVEN
-   closure forms (three since the 2026-06-30 broadening, widened to six by #576 and to
-   seven after the #607 miss): (1) the canonical section form
+   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects EIGHT
+   closure forms (three since the 2026-06-30 broadening, widened to six by #576, to
+   seven after the #607 miss, and to eight in #675 for the #637/#640 shapes): (1) the canonical section form
    `clos... TODO §`; (2) the coded-id `XX-N CLOSED` marker (any two-to-four-letter
    uppercase id, e.g. `FR-58 CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by
    GR-13 in #559); (3) the prose `clos... the ... item/directive` form, which also
@@ -242,9 +242,13 @@ drive end-to-end on the maintainer's behalf:
    (the #595 widening); (4) the section-name closure form (`section-N.M ...
    closed/closure`, hyphenated); (5) the item-number closure form (`items N and M
    closed`); (6) the rotation-assertion form (`rotated to the DONE ledger`, plus the
-   guarded short `rotated to DONE` with negations excluded, the #595 widening); and
+   guarded short `rotated to DONE` with negations excluded, the #595 widening, plus a
+   markdown-linked DONE target for the #640 rotated-to-linked-path shape, added in #675);
    (7) the space-separated `TODO section N.M ... closed/closure` form (case-insensitive,
-   forward-only window; the #607 lead's phrasing, which forms 1, 4, and 6 all missed).
+   forward-only window; the #607 lead's phrasing, which forms 1, 4, and 6 all missed);
+   and (8) the bare `TODO N.M ... closed/closure` form (a decimal section token with no
+   `section` word and no `§`, case-insensitive, forward-only; the #637 lead's phrasing
+   that forms 1 and 7 missed, added in #675).
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR

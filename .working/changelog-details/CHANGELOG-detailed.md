@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.163, PR #675
+
+Tooling for local project (second protected-backlog PR of the 2026-07-06 daytime session): widened delta gate D5 with an eighth closure form and a form-6 markdown-link widening, closing the TODO 3.15 #637 F3 bullet.
+
+### Changed
+- [`tools/check-todo-rotation-on-pr.py`](../../tools/check-todo-rotation-on-pr.py): added an eighth pattern to `CLOSURE_PATTERNS`, the bare `TODO N.M ... closed/closure` phrasing (a decimal section token with no `section` word and no `§`, case-insensitive, forward-only, dot-between-digits tolerant), the #637 lead shape that matched none of forms 1 to 7; and widened the form-6 rotation-assertion pattern with a markdown-linked DONE target alternative for the #640 rotated-to-linked-path shape (the not-negation guard still fronts the whole clause). Docstring and module comment updated from seven to eight forms.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the PR-workflow step-7 closure-form count updated from SEVEN to EIGHT, with form (8) added to the enumeration and the form-6 markdown-link widening noted (maintainer-authorized protected-tree touch).
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): the §6 D5 narrative updated (count seven to eight, the eighth-form description, the form-6 widening note, and the census figures); Version and Date bumped.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `TodoRotationOnPrTests` gains three form-8 positive fixtures and one form-6-markdown-link positive fixture (genuine regressions, only the new forms reach them); the class docstring updated to eight forms.
+- [`TODO.md`](../../TODO.md): the 3.15 #637 F3 bullet deleted (shipped) and rotated to [`.working/DONE.md`](../DONE.md) keyed by PR #675. TODO 3.15 stays open on its GR-8/GR-10/GR-GAP tooling bullets; the F3 diff-side-companion design proposal is subsumed by the still-open D8-candidate bullet.
+
+### Verification
+- Both new regexes were census-validated false-positive-free against the full CHANGELOG history (form 8: 16 genuine same-PR closures, zero negation false positives; form-6 link widening: 64 genuine linked rotation assertions, zero bug-matches; the census predates this PR and is recorded in the former F3 bullet). Direct regex checks confirm form 8 matches the bare phrasing and rejects past-closure narration where the closure word precedes the token, and the form-6 negation guard still excludes a linked target under a `NOT rotated` clause. `TodoRotationOnPrTests` passes (positives fire, negatives excluded). [`tools/lint-language.py`](../../tools/lint-language.py) clean on the added CLAUDE.md prose. A pre-push skeptical verifier (substantive tier) reviewed the diff. Pre-push guard green (both runners; gate 36 exercises the regression suite, gate 35 the parity surfaces).
+
+**Batched bookkeeping.** Carries the #674 `/validate-pr` (0 in-window findings, one out-of-window handoff-staleness note) history row and the #674 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.162, PR #674
 
 `.claude/` change for local project (first protected-backlog PR of the 2026-07-06 daytime session): added the `/claim-fit` cadence section to CLAUDE.md, completing the TODO 3.15 r5 close-out-clause bundle.
