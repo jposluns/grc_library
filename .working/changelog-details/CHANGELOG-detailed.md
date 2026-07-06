@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.164, PR #676
+
+`.claude/` change for local project (the third of the three daytime CLAUDE.md changes): codified the counts-adjacent-to-enumerations recount residual, folded into the existing Meta-prose bullet.
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): extended the `Meta-prose state-claim measurement` PR close-out-checklist bullet with a compact sub-clause naming the #630/#631/#633 count-and-label granularity pattern: a count stated next to an enumeration at a different granularity, or a figure transcribed from a subagent's output, must be recounted from the enumeration in the same edit, with both granularities stated where a fix-count and a location-count diverge, and a subagent's arithmetic treated as a hypothesis, not a measurement.
+- Rationale (subsumption): the #631 and #633 register candidates staged a "counts-adjacent-to-enumerations recount" clause and a broader "recount every figure" consolidation for the next authorized CLAUDE.md close-out-checklist touch. The apply-time check found the generic `Meta-prose state-claim measurement` guard (measure any artefact-state claim from the artefact, never from the mental model) already covered most of it, and the snapshot-reconcile half was already codified with D7 as its backstop; so #676 adds only the named granularity-divergence and recount-transcribed-figure residual as a fold, not a redundant standalone bullet (respecting the #441 condense directive). Both register candidates tokened CODIFIED in #676.
+- No corpus body, gate, or generated artefact touched; protected-guidance tier. [`tools/lint-language.py`](../../tools/lint-language.py) clean on the added prose. A pre-push skeptical verifier (substantive tier) reviewed the diff.
+
+**Batched bookkeeping.** Carries the #675 `/validate-pr` (0 findings) history row and the #675 `/retro` row per recursion-avoidance.
+
 ## 2026-07-06, Library Version 2026.07.163, PR #675
 
 Tooling for local project (second protected-backlog PR of the 2026-07-06 daytime session): widened delta gate D5 with an eighth closure form and a form-6 markdown-link widening, closing the TODO 3.15 #637 F3 bullet.
