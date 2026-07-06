@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-06, Library Version 2026.07.167, PR #679
+
+Session-closing handoff (local project): landed the 2026-07-06 daytime ATTENDED-AUTONOMOUS session's working-state (`claude/resume-tl5rez`, PRs #662-#678) on `main` as a green merge. Per the loop-break exception this PR runs no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume` corpus-wide `/validate` (Sweep 86 over the #662..#678 deltas), cross-checked against the `## Asserted expectations` block and the green-at-`0377f5d` baseline.
+
+### Changed
+
+- Refreshed [`.working/session-handoff.md`](../session-handoff.md): the `Current truth` snapshot reconciled to merged-through #678 / #679 session-closing, with the post-#679 D7 tokens (library `2026.07.167`, README `1.9.528`, validate-pr history `1.2.456`, improvement-log `1.0.401`; carried forward pack `1.54.6`, audit-spec `1.16.58`, runbook `1.1.4`, guardrail-history `1.0.6`, claim-fit history `1.0.3`), green-at `0377f5d`, operating mode session CLOSED, and the 2026-07-06 `## Asserted expectations` block prepended.
+- Added the 2026-07-06 session row to [`.working/session-metrics.md`](../session-metrics.md) (17 PRs #662-#678 plus this #679 handoff; orchestrator main-loop tokens recorded as not instrumented, never fabricated).
+- Recorded the #679 handoff-exemption row in [`.working/validate-pr/history.md`](../validate-pr/history.md) with the gate-50 marker (`SKIPPED` / `handoff-PR exception`) in the Findings cell.
+- Carried the batched #678 `/validate-pr` (0 findings) history row and the #678 `/retro` row per recursion-avoidance.
+- Bumped the library CalVer to `2026.07.167` and the README Version to `1.9.528`.
+
+### Removed
+
+- RELEASED the [`.working/session-state.md`](../session-state.md) concurrency lease (`Status: released`, `Active-session: none`, heartbeat re-stamped); the next session ACQUIRES at `/resume` step 0.
+
+### Verification
+
+- Pre-push guard (`tools/pre-push-guard.sh`) green: `run_all_audits.sh` (66/66) then `run-pr-time-checks.sh` (D1-D7 plus the history-aware 45/40/31), run standalone and unpiped. D7 validates the handoff's labelled version tokens against the live headers at the #679 head.
+- No corpus body, gate, or code touched; working-state and version surfaces only. Session-closing handoff PR: no standing skeptical verifier and no trailing per-PR QA (the loop-break exception; compensating control is the next `/resume` corpus-wide `/validate`).
+
 ## 2026-07-06, Library Version 2026.07.166, PR #678
 
 Working-state triage (local project): recorded the evidence-driven outcome of this session's three TODO 3.15 protection-tooling attempts and annotated their backlog bullets, and carried the batched #677 QA rows.
