@@ -32,12 +32,13 @@ build, and the human reading its output) a worklist, tiered by risk:
     skill samples them rather than judging each per run.
 
 Ground truth for the judge is the held source text in the SIBLING
-grc_library_scratch repo's ``ref/`` base; this tool reports, best-effort,
-whether each named source FAMILY appears held (token search of the scratch
-indexes), because a claim against an un-held source cannot be judged and
-routes to the maintainer's source-drop queue instead. The scratch checkout
-is optional input (as in audit-brief-freshness.py): absent checkout means
-held-state reads "unknown", never a failure.
+grc_library_ref reference repo (buckets at its root); this tool reports,
+best-effort, whether each named source FAMILY appears held (token search of
+the grc_library_ref indexes), because a claim against an un-held source
+cannot be judged and routes to the maintainer's source-drop queue instead.
+The grc_library_ref checkout is optional input (as in
+audit-brief-freshness.py): absent checkout means held-state reads
+"unknown", never a failure.
 
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the
 four-surface parity gate 35, the regression suite gate 36) does NOT
@@ -51,7 +52,7 @@ lives in the sibling private repo CI cannot see. Its self-test lives behind
 ``tests/`` so the gate-36 regression runner does not adopt it.
 
 Usage:
-  python3 tools/audit-claim-precision.py [--scratch PATH] [--tier {A,B,all}]
+  python3 tools/audit-claim-precision.py [--ref-base PATH] [--tier {A,B,all}]
   python3 tools/audit-claim-precision.py --self-test
 """
 
@@ -108,7 +109,7 @@ TIER_A_SOURCE_FIRST = re.compile(
     SOURCE + CLAUSE + NORMVERB + CLAUSE + VALUE, re.IGNORECASE)
 TIER_B = re.compile(ATTRIB + r'\s(?:the\s)?' + SOURCE, re.IGNORECASE)
 
-# Held-state token per source family, searched in the scratch indexes.
+# Held-state token per source family, searched in the grc_library_ref indexes.
 FAMILY_TOKENS = {
     "ISO": "ISO", "NIST": "NIST", "CSA": "CCM", "COBIT": "COBIT",
     "GDPR": "GDPR", "EU AI Act": "AI Act", "PCI": "PCI", "SOC": "SOC",
@@ -118,17 +119,17 @@ FAMILY_TOKENS = {
 }
 
 
-def find_scratch(cli_path):
-    for label, cand in (("--scratch", cli_path),
-                        ("GRC_SCRATCH_PATH", os.environ.get("GRC_SCRATCH_PATH"))):
+def find_ref_base(cli_path):
+    for label, cand in (("--ref-base", cli_path),
+                        ("GRC_REF_PATH", os.environ.get("GRC_REF_PATH"))):
         if cand:
-            if (Path(cand) / "ref").is_dir():
+            if (Path(cand) / "catalogue.yml").exists():
                 return Path(cand)
-            print(f"advisory: {label}={cand} has no ref/ tree; held-state "
+            print(f"advisory: {label}={cand} has no catalogue.yml; held-state "
                   "will read unknown.")
             return None
-    default = REPO_ROOT.parent / "grc_library_scratch"
-    return default if (default / "ref").is_dir() else None
+    default = REPO_ROOT.parent / "grc_library_ref"
+    return default if (default / "catalogue.yml").exists() else None
 
 
 def corpus_files():
@@ -167,12 +168,12 @@ def family_of(match_text):
     return "other"
 
 
-def held_families(scratch):
-    if scratch is None:
+def held_families(ref_base):
+    if ref_base is None:
         return None
     idx = ""
-    for name in ("ref/INDEX.md", "ref/catalogue.yml"):
-        p = scratch / name
+    for name in ("INDEX.md", "catalogue.yml"):
+        p = ref_base / name
         if p.exists():
             idx += p.read_text(errors="replace")
     held = set()
@@ -182,8 +183,8 @@ def held_families(scratch):
     return held
 
 
-def run_report(tier_filter, scratch):
-    held = held_families(scratch)
+def run_report(tier_filter, ref_base):
+    held = held_families(ref_base)
     all_rows = []
     for rel, p in corpus_files():
         for tier, ln, line, src in extract_claims(p.read_text(errors="replace")):
@@ -197,8 +198,8 @@ def run_report(tier_filter, scratch):
     rows = all_rows if tier_filter == "all" else [
         r for r in all_rows if r[0] == tier_filter]
     if held is None:
-        print("held-state: UNKNOWN (no scratch checkout with a ref/ tree "
-              "found; every source routes to the judge as unconfirmed)")
+        print("held-state: UNKNOWN (no grc_library_ref checkout with a "
+              "catalogue.yml found; every source routes to the judge as unconfirmed)")
     for tier, rel, ln, line, src in rows:
         fam = family_of(src)
         state = ("held?" if held is None
@@ -255,14 +256,14 @@ def self_test():
 
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--scratch", help="path to the grc_library_scratch checkout")
+    ap.add_argument("--ref-base", help="path to the grc_library_ref checkout")
     ap.add_argument("--tier", choices=["A", "B", "all"], default="all")
     ap.add_argument("--self-test", action="store_true",
                     help="run the inline extractor self-test and exit")
     args = ap.parse_args(argv[1:])
     if args.self_test:
         return self_test()
-    run_report(args.tier, find_scratch(args.scratch))
+    run_report(args.tier, find_ref_base(args.ref_base))
     return 0
 
 
