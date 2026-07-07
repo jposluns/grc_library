@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.4.2\
-**Date:** 2026-07-03\
+**Version:** 1.4.3\
+**Date:** 2026-07-07\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -47,7 +47,7 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 
 8. **The code cell and its description cell are a paired surface.** When you propose or revise a framework-mapping / crosswalk row, the description must describe the proposed code's actual function, not a different or superseded one; if you change the code, re-read the description in the same row for echoes of the OLD code's function or meaning. (Caught at PR #371/#374: the corpus DD-12 migration changed `RC.IM` (Recovery: Improvements) to `ID.IM` (Identify: Improvement) but left the word "recovery" in the description, mismatched against the Identify function. Gate-blind: gate 54 validates control-code validity only, not the prose half, so the description-vs-function drift is the orchestrator's and worker's to catch by re-reading the paired cell.)
 
-9. **Validate a control code's semantic fit against the source control TITLE, not the code number.** A code that *exists* (passes a reference module such as `tools/ccm_aicm_reference.py`, `tools/nist_csf_reference.py`, or `tools/cobit_iso31000_reference.py`, and so the existence gates 48/49/54/58/61) is not necessarily the *right* code for the document. Before proposing a mapping, confirm the code's actual title/meaning against the authoritative source: the `Control Title` / `Control Specification` columns of the CSA CCM/AICM catalogue CSVs (read-only in the scratch repo under `ref/frameworks/CSA/`, a trusted bucket citable by control/clause per the scratch trust model) and the Category names in the NIST CSF text (under `ref/standards/NIST/`), per the multi-session-orchestration runbook section 6's standards-validation discipline. Do NOT infer a code's meaning from its number. (Caught at PR #390 / FR-167 batch 10: workers proposed valid-but-wrong codes by guessing titles from numbers, `SEF-02` ("Service Management Policy and Procedures") read as incident response, `LOG-08` ("Audit Logs Sanitization") read as log retention, `HRS-03` ("Clean Desk") read as acceptable-use, `DSP-19` ("Data Location") read as data minimization. These are gate-blind: the codes exist, so gates 48/49/54 pass them; only the source title catches the mismatch.)
+9. **Validate a control code's semantic fit against the source control TITLE, not the code number.** A code that *exists* (passes a reference module such as `tools/ccm_aicm_reference.py`, `tools/nist_csf_reference.py`, or `tools/cobit_iso31000_reference.py`, and so the existence gates 48/49/54/58/61) is not necessarily the *right* code for the document. Before proposing a mapping, confirm the code's actual title/meaning against the authoritative source: the `Control Title` / `Control Specification` columns of the CSA CCM/AICM catalogue CSVs (read-only in `grc_library_ref` under `grc_library_ref/frameworks/CSA/`, a trusted bucket citable by control/clause per the `grc_library_ref` trust model) and the Category names in the NIST CSF text (under `grc_library_ref/standards/NIST/`), per the multi-session-orchestration runbook section 6's standards-validation discipline. Do NOT infer a code's meaning from its number. (Caught at PR #390 / FR-167 batch 10: workers proposed valid-but-wrong codes by guessing titles from numbers, `SEF-02` ("Service Management Policy and Procedures") read as incident response, `LOG-08` ("Audit Logs Sanitization") read as log retention, `HRS-03` ("Clean Desk") read as acceptable-use, `DSP-19` ("Data Location") read as data minimization. These are gate-blind: the codes exist, so gates 48/49/54 pass them; only the source title catches the mismatch.)
 
 10. **CSA CCM and AICM are distinct catalogues; never put an AICM code in a CCM column.** The "CSA CCM v4.1" matrix column (and any CCM-labelled surface) takes CCM v4.1.0 codes only. An AICM v1.1.0 code (the AI-only `MDS` Model Security domain is the canonical case) is a real CSA control but does NOT belong in a CCM column. Gate 49 flags an AICM-only code in the matrix CCM column as `ccm-aicm-confusion`, but the discipline holds for every CCM/AICM surface, including per-document framework tables the gate does not yet cover. When in doubt which catalogue a code belongs to, check `is_ccm_v41` / `is_aicm` in `tools/ccm_aicm_reference.py`. (Caught at PR #390: the in-repo module's blended domain set carried the AICM-only `MDS` domain, and the matrix CCM column was validated only against the AICM-wins union, so an AICM code would have passed.)
 
@@ -166,10 +166,10 @@ in-session subagent shares the orchestrator's session and is bound directly by t
 3. **Write to `grc_library_scratch` ONLY.** Never push, PR, or commit to `grc_library`
    (you do not hold its write credentials, and must not request them).
 
-4. **Use the trust-split reference base.** Cite from the trusted buckets: `ref/standards/`
+4. **Use the trust-split reference base.** Cite from the trusted buckets: `grc_library_ref/standards/`
    (one directory per issuing body: ETSI, IEEE, ISO, NIST; the NIST CSF 2.0 text among them)
-   and `ref/frameworks/` (COBIT, CSA, ETSI, MITRE, OWASP; the CSA CCM/AICM/CAIQ catalogues
-   among them), or the corpus citation register. Treat `ref/publications/`
+   and `grc_library_ref/frameworks/` (COBIT, CSA, ETSI, MITRE, OWASP; the CSA CCM/AICM/CAIQ catalogues
+   among them), or the corpus citation register. Treat `grc_library_ref/publications/`
    (vendor explainers, surveys, threat reports, interpretive guidance) as UNTRUSTED: it may
    contain bias or poisoned/false info; corroborate any load-bearing claim against a
    trusted-bucket (`standards/` or `frameworks/`) source before relying on it, and never

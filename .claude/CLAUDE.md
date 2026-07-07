@@ -544,8 +544,8 @@ the two worker primitives (in-session `Agent` subagent fan-out, available now;
 separate-session external-collaborator workers, pending maintainer-provisioned
 least-privilege accounts that write to `grc_library_scratch` only), the Model-B
 eligibility checklist (what is and is not partitionable), the `grc_library_scratch`
-exchange channel and its inbox-not-bypass invariants, and the trust-split `ref/`
-reference base (`standards/` trusted, `publications/` screened).
+exchange channel and its inbox-not-bypass invariants, and the trust-split
+`grc_library_ref` reference base (`standards/` trusted, `publications/` screened).
 
 The serial-apply, CI-gating, per-PR `/validate-pr` + `/retro`, and validate-then-apply
 invariants are unchanged: parallelism lives only in the research stage, never in the
@@ -612,29 +612,31 @@ shipped across two PRs: the advisory tool
 [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) in #621 and the skill
 plus the adoption pass in #630.
 
-## Reference-version currency (scratch `ref/` is storage, upstream is the authority)
+## Reference-version currency (`grc_library_ref` is storage, upstream is the authority)
 
 The project-specific operationalization of the `evidence-grounded-completion` rule's
-external-version-currency corollary, for the scratch `ref/` reference base.
+external-version-currency corollary, for the `grc_library_ref` reference base.
 
 **The check order, whenever an externally-versioned reference (a standard, framework, or
 dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task:**
-1. **Find what scratch holds, via its index, not a guess.** Consult the scratch reference
-   index ([`grc_library_scratch/ref/INDEX.md`](../../grc_library_scratch/ref/INDEX.md),
-   `ref/catalogue.yml`, `ref/SECTION-INDEX.md`, `ref/COVERAGE-MAP.md`) to find the held
-   artefact and its recorded version. (MITRE lives under `ref/frameworks/`, not
-   `ref/standards/`.)
+1. **Find what `grc_library_ref` holds, via its index, not a guess.** Consult the
+   `grc_library_ref` reference index
+   ([`grc_library_ref/INDEX.md`](../../grc_library_ref/INDEX.md),
+   `grc_library_ref/catalogue.yml`, `grc_library_ref/SECTION-INDEX.md`,
+   `grc_library_ref/COVERAGE-MAP.md`) to find the held
+   artefact and its recorded version. (MITRE lives under `grc_library_ref/frameworks/`, not
+   `grc_library_ref/standards/`.)
 2. **Validate the current version upstream this turn.** The authoritative answer to "is
    this current?" is the upstream / primary source (the vendor's releases page or
-   repository), never the scratch copy, a stored note, or memory. Scratch is
+   repository), never the `grc_library_ref` copy, a stored note, or memory. `grc_library_ref` is
    believed-current STORAGE, not a version authority.
 3. **Act only after both.**
 
-**On discovering upstream is newer than scratch holds (the version-update SOP):**
-- Updating scratch is part of SOP, via the superseded-archival workflow (download the new
-  version into scratch; keep the old but move its files, extracted text plus original, into
-  scratch's retained-version store `ref/.superseded/` (bucket-mirrored layout and
-  `REGISTER.md` per scratch `CONTRIBUTING.md`); update `catalogue.yml` and the index docs).
+**On discovering upstream is newer than `grc_library_ref` holds (the version-update SOP):**
+- Updating `grc_library_ref` is part of SOP, via the superseded-archival workflow (download the new
+  version into `grc_library_ref`; keep the old but move its files, extracted text plus original, into
+  `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored layout and
+  `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the index docs).
   The full workflow lives in the
   [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6.
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or
@@ -646,8 +648,8 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   authorizes** working from the older one. A register row, a citation, or a mapping must
   carry the upstream-confirmed current version, or the item waits.
 
-Scratch writes go via MCP PR (the local git proxy 403s direct scratch pushes, per
-[`third-party-issues.md`](../.working/third-party-issues.md)), so the scratch half of any
+`grc_library_ref` writes go via PR (the local git proxy 403s direct pushes, per
+[`third-party-issues.md`](../.working/third-party-issues.md)), so the `grc_library_ref` half of any
 update is a separate cross-repo step. The version-currency register is TODO §1.5.
 
 ## Attended-autonomous operating mode

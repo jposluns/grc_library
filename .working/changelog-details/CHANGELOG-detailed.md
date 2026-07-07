@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.176, PR #688
+
+Reference-library split, cutover step 3b (the grc_library re-point). See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. The reference base was split out of `grc_library_scratch/ref/` into the dedicated private `grc_library_ref` repo (step 3a: 511 MB at root, its own `validate.py` gate green, generated artefacts verified byte-identical to scratch modulo the prefix, CI + PR round-trip verified). This PR re-points every live grc_library reference to the new location. Location/name change only; no normative, trust, currency, or step content changed.
+
+### Changed
+
+- **Governance corpus (2 versioned docs).** [`governance/specification-citation-verification.md`](../../governance/specification-citation-verification.md) §6.6 (title "Local reference base (the scratch `ref/` tree)" to "... (the `grc_library_ref` repo)") plus its §12.3 and superseded-archival references; `Version 1.2.8` to `1.2.9`, `Date` to 2026-07-07. [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) currency-SOP reference; `Version 1.5.13` to `1.5.14`, `Date` to 2026-07-07. Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (taxonomy first).
+- **Protected `.claude/` + pack.** The `## Reference-version currency` SOP in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md); the reference-knowledge-base step in [`.claude/commands/resume.md`](../../.claude/commands/resume.md); the [`matrix-fit`](../../dev-security/claude-rules/skills/matrix-fit/SKILL.md) and [`claim-fit`](../../dev-security/claude-rules/skills/claim-fit/SKILL.md) skills and their commands. Maintainer-authorized (the full-cutover go-ahead). Pack `1.54.6` to `1.54.7` (patch; version-history row added).
+- **The claim-fit triage tool** [`tools/audit-claim-precision.py`](../../tools/audit-claim-precision.py): `find_scratch` to `find_ref_base` (default `REPO_ROOT.parent / "grc_library_ref"`, detection by `catalogue.yml` at root), `held_families` reads `INDEX.md`/`catalogue.yml` at root (was `ref/INDEX.md`/`ref/catalogue.yml`), flag `--scratch` renamed `--ref-base` and env `GRC_SCRATCH_PATH` to `GRC_REF_PATH`, docstring/messages re-pointed. The claim-fit skill + command prose updated to match the flag rename. Self-test passes; a live run against the `grc_library_ref` default resolves held-state.
+- **Working-state.** §6 of [`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md) re-headed to describe the reference base living in `grc_library_ref` (buckets at root), preserving the trust-split / ingestion / currency-SOP / superseded-archival content; ref-write mechanics re-pointed to `grc_library_ref` via `gh` PR while worker-exchange write mechanics stay scratch; `Version 1.1.4` to `1.1.5`. The standing reference-index pointer in [`.working/session-handoff.md`](../../.working/session-handoff.md); the ref-base pointers in [`.working/worker-brief-template.md`](../../.working/worker-brief-template.md).
+- **[`TODO.md`](../../TODO.md).** Re-pointed the reference-base path mentions and re-headed the "Scratch reference-base work" block to "Reference-base work (`grc_library_ref`)", preserving the closed items' historical scratch-PR provenance (they were done pre-split on scratch) and re-pointing the open SR-1/2/3 to `grc_library_ref` (SR-3's stale scratch `validate.py` line numbers generalized to by-name references, since grc_library_ref's `validate.py` dropped the worker-exchange checks 14/15). The forker-own-`ref/`-tree convention (§4.5 / §5.x) left generic (it describes what a forker builds, not the maintainer's base).
+
+### Fixed
+
+- **Pre-existing gate-23 false-positive.** The §3.18 TODO item (added earlier this session, uncommitted at #687) contained the literal `settings.local.json`, whose `settings.local` substring gate 23 (Internal references audit) read as an internal `.local` mDNS hostname. Reworded to "a machine-local, git-ignored settings-override file" (the exact filename is named when the env-detection PR is built). Surfaced by the 3b re-point's audit run (65/66); it was absent at HEAD `df04241` because §3.18 was not part of #687.
+
+### Not touched (scope)
+
+- Frozen archives (the `.working/validate-*`, `full-qa`, `matrix-fit`/`claim-fit` records, `design-decisions`, CHANGELOG, DONE, and the pack README version-history table rows) record the old scratch location as-of-write-time and are preserved verbatim.
+- Scratch worker-exchange references (`inbox/`, `requests/`, `research/`, `claims-ledger.md`, `COVERAGE.md`, worker write-access) stay `grc_library_scratch`; only the reference-base role moved.
+
+### Verification
+
+- `tools/run_all_audits.sh` = 66/66 green on the committed state (gate 23 clean after the §3.18 reword; gates 3/33/34/40 + intra-doc-ref confirm the re-pointed links, generated-artefact sync, and version bumps). Clone non-shallow.
+- `audit-claim-precision.py` self-test passes; live run against the `grc_library_ref` default resolves held-state (was UNKNOWN); no scratch/ref residual in the tool.
+- Zero residual `grc_library_scratch/ref` path in the re-pointed live files (frozen archives excluded by design); the two governance docs' meaning preserved (currency SOP, trust model, check order unchanged).
+- A refute-briefed skeptical verifier reviewed the diff pre-push (substantive multi-surface + versioned-corpus + protected-pack change). Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh` D1-D7 incl. the D7 handoff-token check) green, run standalone and unpiped.
+- Per-PR `/validate-pr` + `/retro` for this PR run after merge and batch into the next PR.
+
 ## 2026-07-07, Library Version 2026.07.175, PR #687
 
 Sweep-88 close-out and `/resume` first PR for the 2026-07-07 resumed session (`claude/sweep88-todo112-nuc-resume`, DAYTIME-UNATTENDED, on the maintainer's NUC). Runs the loop-break corpus-wide `/validate` (Sweep 88) over the #685 to #686 deltas, the compensating control for session-closing handoff PR #686, and fixes both of its two out-of-window low-severity findings. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary.
