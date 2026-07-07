@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.60\
-**Date:** 2026-07-06\
+**Version:** 1.27.61\
+**Date:** 2026-07-07\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -109,7 +109,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Procedure | Vulnerability Management Procedure | [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.8, NIST SP 800-40, CVSS v3.1 | template |
 | Security | Standard | Personnel Security Screening Standard | [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.1/A.6.5, NIST SP 800-53 PS, four-tier screening, jurisdiction | template |
 | Security | Standard | Penetration Testing and Red Team Standard | [`security/standard-penetration-testing-and-red-team.md`](../security/standard-penetration-testing-and-red-team.md) | Chief Information Security Officer | Annual | PTES, OWASP, CVSS v3.1, CREST, red team RoE, remediation SLA | template |
-| Security | Standard | Threat Modelling Standard | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | Chief Information Security Officer | Annual and upon material change to the system's trust-boundary inventory or the underlying methodology | STRIDE (Microsoft SDL), LINDDUN (KU Leuven), OWASP ASVS, NIST SSDF, NIST SP 800-154, ISO/IEC 27001 Annex A.8.25/A.8.27/A.8.28 | template |
+| Security | Standard | Threat Modelling Standard | [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md) | Chief Information Security Officer | Annual and upon material change to the system's trust-boundary inventory or the underlying methodology | STRIDE (Microsoft SDL), LINDDUN (KU Leuven), OWASP ASVS, NIST SSDF, OWASP Threat Modeling Cheat Sheet, ISO/IEC 27001 Annex A.8.25/A.8.27/A.8.28 | template |
 | Security | Policy | Network Communications Security Policy | [`security/policy-network-communications-security.md`](../security/policy-network-communications-security.md) | Chief Information Security Officer | Annual | ISO 27033, NIST SP 800-207, CSA CCM I&S, BASC v6 §6, WCO SAFE | template |
 | Security | Policy | Bring Your Own Device (BYOD) Policy | [`security/policy-byod.md`](../security/policy-byod.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.2/A.8.1, NIST SP 800-124r2, CSA CCM UEM, MAM and MDM controls | template |
 | Security | Standard | Remote Working Security Standard | [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.6.2, NIST SP 800-46r2, CSA CCM HRS-09, CIS Controls v8 | template |

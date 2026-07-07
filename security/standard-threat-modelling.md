@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-04\
+**Version:** 1.0.5\
+**Date:** 2026-07-07\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -192,4 +192,4 @@ The methodology rests on two long-standing public taxonomies:
 - **STRIDE** (Microsoft): six-category threat taxonomy (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege). Introduced by Loren Kohnfelder and Praerit Garg in 1999; integrated into the Microsoft Security Development Lifecycle (SDL) Threat Modeling Tool documentation. See [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md) for the canonical reference.
 - **LINDDUN** (KU Leuven imec-DistriNet): seven-category privacy threat taxonomy. See [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) and [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) for the privacy-engineering application.
 
-Supplementary frameworks the workshop may reference for specific contexts: OWASP ASVS (Application Security Verification Standard); OWASP Top 10 for LLM Applications; MITRE ATT&CK; MITRE ATLAS (for AI-system adversarial techniques); NIST SP 800-154 (guide to data-centric threat modelling).
+Supplementary frameworks the workshop may reference for specific contexts: OWASP ASVS (Application Security Verification Standard); OWASP Top 10 for LLM Applications; MITRE ATT&CK; MITRE ATLAS (for AI-system adversarial techniques); the OWASP Threat Modeling Cheat Sheet (data-flow and data-centric threat-modelling methodology).
