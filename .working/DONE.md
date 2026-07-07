@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #687: Sweep 88 iter 1 close-out + TODO 1.12 (annual-review-domain-scope, low): architecture domain (2026-07-07)
+
+Closed TODO 1.12: added `architecture` to the annual-review procedure's §2.1 Scope enumeration (`procedure-grc-programme-management-and-annual-review.md:29`), aligning all three "spans all governance domains" completeness enumerations at 11 domains, and regenerated the taxonomy/portal/scorecard. The `/resume` first PR: ran the loop-break Sweep 88 corpus-wide `/validate` over the #685..#686 deltas (2 out-of-window low-severity findings, both fixed this PR: TODO 1.12 plus a stale illustrative inventory comment in `lint-guardrail-cadence.py`), pruned and reconciled the handoff to daytime-unattended + the scratch->scratch+`grc_library_ref` reference split, and acquired the concurrency lease.
+
 ### PR #683: FR-23 (medium): audit-evidence assembler-verification (2026-07-06)
 
 Closed TODO 2.6 (FR-23): added a per-status verification-basis field (independently verified / owner-asserted / auditor-to-verify) and a strengthened assembler statement to the audit-evidence package template, with a supporting section 8.4 in the internal-audit standard, so a package distinguishes verified control status from a management assertion awaiting test. Also carried the batched #682 QA rows and the Note-3 reciprocal-Related-Documents fix on the maturity self-assessment template.
