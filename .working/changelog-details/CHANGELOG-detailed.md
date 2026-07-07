@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.177, PR #689
+
+Completes the reference-library split cutover 3b (the grc_library re-point). See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. PR #688's "every live surface" re-point claim was falsified by its own post-merge `/validate-pr`: the surface-discovery grep was Markdown-only, so it missed a `.py` tool + prose.
+
+### Fixed
+
+- **`tools/verify-reference-modules.py` re-pointed to `grc_library_ref`** ([`tools/verify-reference-modules.py`](../../tools/verify-reference-modules.py)). This live maintainer dev-aid (the code-set parity check that confirms the in-repo `ccm_aicm_reference.py` / `nist_csf_reference.py` / `cobit_iso31000_reference.py` modules match the source extracts) named the reference base at the old `grc_library_scratch/ref/` location 5 times and assumed the `ref/`-prefix bucket layout the split eliminated. Re-pointed: docstring bucket paths drop the `ref/` prefix (buckets at the `grc_library_ref` root); `locate_source` default `../grc_library_scratch/ref` (+ the stale `/home/user/...` absolute) replaced with `../grc_library_ref`; env `GRC_SCRATCH_REF` renamed `GRC_REF_ROOT`; the back-compat parent-resolution, SKIP notice, and drift/OK messages re-pointed. The source-extract path MAP (`frameworks/CSA/...`, `standards/NIST/...`) was already root-relative, so it is unchanged. A live run resolves `../grc_library_ref` and reports all five modules match the extracts (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0, COBIT 2019, ISO 31000:2018), a bonus parity confirmation of the 3a copy.
+- **Runbook §6 obligation-1** ([`.working/multi-session-orchestration.md`](../../.working/multi-session-orchestration.md)): three residual "scratch base"/"scratch source" phrases describing the parity aid re-pointed to `grc_library_ref` (the section's surrounding prose was already re-pointed in #688); `Version 1.1.5` to `1.1.6`.
+- **CHANGELOG overclaim corrected**: #688's "every live surface" claim is acknowledged as incomplete (it missed the two surfaces above) and completed here.
+
+### Verification
+
+- Corpus-wide completion grep at **full file-type width** (`tools/`, `governance/`, `docs/`, all domain dirs, `.claude/`, the runbook, not Markdown alone): the only remaining live reference-base residuals were `verify-reference-modules.py` + the runbook 3 phrases, both fixed here. `tools/audit-brief-freshness.py` references `grc_library_scratch` for the WORKER-EXCHANGE (staged briefs, `research/COVERAGE.md`), correctly retained as scratch (confirmed at source: not the reference base).
+- `python3 tools/verify-reference-modules.py` exit 0, resolves `../grc_library_ref`, all modules match; no scratch residual in the tool.
+- `tools/run_all_audits.sh` = 66/66 green on the committed state; pre-push guard green (D1-D7). Library `2026.07.176` to `.177`, README `1.9.537` to `.538`.
+- Per-PR `/validate-pr` + `/retro` for this PR run after merge and batch into the next PR.
+
 ## 2026-07-07, Library Version 2026.07.176, PR #688
 
 Reference-library split, cutover step 3b (the grc_library re-point). See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. The reference base was split out of `grc_library_scratch/ref/` into the dedicated private `grc_library_ref` repo (step 3a: 511 MB at root, its own `validate.py` gate green, generated artefacts verified byte-identical to scratch modulo the prefix, CI + PR round-trip verified). This PR re-points every live grc_library reference to the new location. Location/name change only; no normative, trust, currency, or step content changed.
