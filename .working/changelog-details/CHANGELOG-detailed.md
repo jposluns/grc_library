@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.174, PR #686
+
+Session-closing handoff PR for the `claude/grc-acquisition-reconfirm-brief-k8fppo` session. The session resumed from #684, ran the loop-break Sweep 87 (shipped as #685), and authored the maintainer-directed maximal-scope acquisition-and-reconfirm brief into `grc_library_scratch` (scratch PR #107) alongside the owed coverage-sync (scratch PR #106). A mid-session GitHub-MCP token expiry plus git-push credential outage took the PR and merge pipeline down, so the overnight run was transferred to the maintainer's NUC egress instance (working `gh` CLI and egress); connectivity was restored at wind-down, the two scratch PRs were self-merged (per the maintainer's Q4=B direction), and the session closes here.
+
+### Changed
+
+- [`.working/session-handoff.md`](../../.working/session-handoff.md): reconciled the k8fppo Next-actions and State-snapshot blocks to the closing and NUC-transfer state (the MCP and git outage resolved at wind-down, scratch #106 and #107 self-merged, the overnight queue handed to the NUC); prepended the k8fppo asserted-expectations block; updated the Current-truth version tokens to this PR's values (D7-validated).
+- [`.working/session-state.md`](../../.working/session-state.md): released the concurrency lease (Active-session none, Status released, fresh heartbeat `2026-07-07T01:04:49Z`); reconciled the Current-task and Worker-dispatches lines to the closing state.
+- [`.working/session-metrics.md`](../../.working/session-metrics.md): added the k8fppo session row (measured-floor 1,281,483 subagent tokens across 5 subagents; version `1.0.38` to `1.0.39`).
+
+### Added
+
+- [`.working/validate-pr/2026-07-07-PR-685.md`](../../.working/validate-pr/2026-07-07-PR-685.md): the per-PR record for #685's owed `/validate-pr` (refute-briefed Subagent A; 1 out-of-window finding, 0 in-window; cross-reference check 0 breaks).
+- Rows in [`.working/validate-pr/history.md`](../../.working/validate-pr/history.md): the #685 row (1 finding, routed) and the #686 row (handoff-PR exception marker in the Findings cell); version `1.2.461` to `1.2.462`.
+- The #685 `/retro` row in [`.working/improvement-log.md`](../../.working/improvement-log.md): records the fix-at-class-width recurrence (the #685 Sweep-87 fix asserted "no parallel enumeration carrier survives" but a third carrier survived); version `1.0.405` to `1.0.406`.
+- Item 1.12 in [`TODO.md`](../../TODO.md): the routed annual-review architecture-omission fix (Priority 1, precisely scoped to [`governance/procedure-grc-programme-management-and-annual-review.md`](../../governance/procedure-grc-programme-management-and-annual-review.md) line 29; the class was verified bounded to three domain-model enumerations by a corpus-wide family grep).
+
+### Verification
+
+- Pre-push guard green: `tools/run_all_audits.sh` 66/66 plus `tools/run-pr-time-checks.sh` (D1 to D7, including D7 handoff-snapshot freshness against the reconciled Current-truth tokens). No corpus document body changed, so no per-document `Version` or `Date` bump and no generated-artefact regeneration were required (a [`taxonomy.yml`](../../taxonomy.yml) / [`docs/portal.md`](../../docs/portal.md) / [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) `--check` stays clean).
+- Per the standing loop-break exception this session-closing handoff PR takes no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 88 over the #685 to #686 deltas), which runs on the maintainer's NUC and cross-checks against this session's asserted-expectations block.
+
 ## 2026-07-06, Library Version 2026.07.173, PR #685
 
 Sweep-87 close-out and `/resume` first PR for the 2026-07-06 resumed session (`claude/grc-acquisition-reconfirm-brief-k8fppo`). Runs the loop-break corpus-wide `/validate` (Sweep 87) over the #680 to #683 deltas and applies the single note-level finding it surfaced.
