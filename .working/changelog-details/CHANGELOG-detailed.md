@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.179, PR #691
+
+Brazil ANPD citation verification (TODO 1.11) + batched #690 `/validate-pr` fixes. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. All six Brazilian citations verified against Planalto / gov.br/anpd primary sources this turn (NUC egress reaches them; only iso.org 403s).
+
+### Changed (verified against primary sources 2026-07-07)
+- [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md) (`1.1.1` to `1.1.2`): removed the pending-verification annotations on the Lei No. 15.352/2026 / Medida Provisória No. 1.317/2025 / LGPD Article 55-A block (all confirmed on planalto.gov.br) and on Resolution CD/ANPD No. 15/2024 + No. 2/2022 (confirmed on gov.br/anpd); added the confirmed dates (Lei 25 February 2026, Res 15/2024 24 April 2024, Res 2/2022 27 January 2022).
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (`1.4.25` to `1.4.26`): removed the broad pending annotations on the two Resolution 15/2024 citations (the breach-notification table's Brazil row and the notification-clocks bullet), added the verified-2026-07-07 marker.
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (`1.5.14` to `1.5.15`): Resolution CD/ANPD No. 15/2024 row `Last verified (UTC)` 2026-07-02 to 2026-07-07 (currency axis only; no content caveat, per the register's two-axis convention).
+
+### Fixed
+- **Citation correction**: the standard-contractual-clauses instrument is Resolution CD/ANPD **No. 19/2024** (23 August 2024), not No. 19/2023 (a year error); corrected at all three live occurrences: two in [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md) and one in the cross-jurisdiction summary table of [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (`1.0.9` to `1.0.10`, the third caught by the pre-push skeptical verifier as a corpus-wide-completion-scope miss and fixed before push).
+- **#690 `/validate-pr` W1**: `SP 800-154` occurrence count corrected 3 to 2 (measured via grep, matching the validate-pr's independent count) across TODO 1.13, both CHANGELOG #690 entries, and [`.working/overnight-pr.md`](../overnight-pr.md); characterization corrected too (2 framework-list enumerations, not "3 authoritative citations").
+- **#690 `/validate-pr` N1**: [`.working/overnight-pr.md`](../overnight-pr.md) #22 status reconciled (in-flight to merged) and build-progress refreshed (#23 merged, Tier-C staged, GSA held).
+
+### Retained caveat
+- The "deadlines doubled for small-scale agents" sub-clause of Resolution 15/2024 stays flagged pending confirmation against the full resolution text (the only Brazil item not grounded on a primary page this turn).
+
+### Batched QA rows
+- The #690 [`/validate-pr`](../validate-pr/history.md) history row (2 in-window findings W1 + N1, fixed here) and the #690 [`/retro`](../improvement-log.md) row.
+
+### Verification
+- Full pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; a skeptical verifier subagent ran pre-push (substantive corpus citation change). Per-document Version + Date co-bumped on the 3 touched corpus/register docs; library CalVer `2026.07.178` to `2026.07.179`, README `1.9.539` to `1.9.540`.
+
 ## 2026-07-07, Library Version 2026.07.178, PR #690
 
 Overnight-run setup and accumulated-bookkeeping flush. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. `.working/` + [`TODO.md`](../../TODO.md) + version surfaces only; no corpus document body changed.
@@ -14,7 +37,7 @@ Overnight-run setup and accumulated-bookkeeping flush. See the root [`CHANGELOG.
 - [`.working/overnight-pr.md`](../overnight-pr.md) `stub` to `in-flight`, filled with the 2026-07-07 overnight authorization scope (6 numbered directives: autonomous overnight; cross-repo parallelism with serial ref-catalogue merges; all-reachable-source egress; the ISO-current-as-of-2026-07-01 ruling; SP 800-154 replace; complete-relevant-ref-then-pivot), the build-progress ledger (ref PRs #5-22, scratch #108, corpus #687-689), and the remaining ref + corpus queues. The overnight morning-processing PR routes this content and resets to `stub` (gate 46 lifecycle).
 
 ### Added
-- [`TODO.md`](../../TODO.md) **1.13**: replace the 3 never-finalized `SP 800-154` (Data-Centric System Threat Modeling, 2016 IPD, no final) citations with a finalized held source and drop the draft citation (maintainer Q3 decision 2026-07-07; NIST-harvest-surfaced).
+- [`TODO.md`](../../TODO.md) **1.13**: replace the never-finalized `SP 800-154` (Data-Centric System Threat Modeling, 2016 IPD, no final) citations (2 occurrences, both framework-list enumerations) with a finalized held source and drop the draft citation (maintainer Q3 decision 2026-07-07; NIST-harvest-surfaced).
 - [`TODO.md`](../../TODO.md) **RB-6**: reference-base currency + draft watch (planned-but-unpublished NIST revisions ingested as current-final; the IR 8596 / COSAiS / Privacy Framework 1.1 draft-watch; the `grc_library_ref` controlled-topic-vocabulary cryptography-tag gap; the FedRAMP 2026 evolving-preview re-snapshot cadence).
 - [`TODO.md`](../../TODO.md) RB completion status: RB-3 (NIST) / RB-4 (OWASP) / RB-5 (MITRE) / FedRAMP marked COMPLETE with their `grc_library_ref` PR references (#5-22), to rotate to DONE at morning-processing (cross-repo, ref-PR-keyed); 1.11 (Brazil ANPD) annotated unblocked by the reachable NUC egress.
 

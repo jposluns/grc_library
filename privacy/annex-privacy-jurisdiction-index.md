@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.9\
-**Date:** 2026-07-02\
+**Version:** 1.0.10\
+**Date:** 2026-07-07\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -101,7 +101,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Switzerland | nFADP/revDSG | Automated decision review; DPIA for high-risk | Adequacy (EU, UK); FDPIC SCCs; BCRs | CHF 250,000 (natural persons only) |
 | Canada | PIPEDA / CPPA (pending), Quebec Law 25, AIDA (pending) | Algorithmic transparency (CPPA, if enacted); automated decision review (QC Law 25); AIDA high-impact AI | Contractual safeguards; adequacy under CPPA (if enacted) | CAD 25M / 5% revenue (CPPA, if enacted); CAD 25M / 4% turnover (QC Law 25) |
 | United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT opt-out (CPRA); Colorado AI Act (effective date deferred to 2026-06-30, enforcement frozen pending litigation) | DPF (EU/UK); contractual (CCPA) | USD 7,500/violation (CCPA); USD 5,000/violation (BIPA class action) |
-| Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2023) | BRL 50M per violation / 2% Brazil revenue |
+| Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024) | BRL 50M per violation / 2% Brazil revenue |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | PDPC AI Model Governance Framework; mandatory breach notification | PDPC contractual clauses, CBPR 2.0 | SGD 1M or 10% annual Singapore turnover |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
