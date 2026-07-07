@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #692: TODO 1.13 (S): SP 800-154 to OWASP Threat Modeling Cheat Sheet (2026-07-07)
+
+Replaced the 2 never-finalized NIST SP 800-154 (data-centric threat modelling) citations with the held OWASP Threat Modeling Cheat Sheet, in the threat-modelling standard and the document-index framework-lists (maintainer-chosen substitute; the standard is already STRIDE/MITRE-anchored). Same PR rescoped TODO 1.11 to its small-agent-sub-clause residual, fixed a stale 19/2023, and batched the #691 `/validate-pr` + `/retro` rows.
+
 ### PR #687: Sweep 88 iter 1 close-out + TODO 1.12 (annual-review-domain-scope, low): architecture domain (2026-07-07)
 
 Closed TODO 1.12: added `architecture` to the annual-review procedure's §2.1 Scope enumeration (`procedure-grc-programme-management-and-annual-review.md:29`), aligning all three "spans all governance domains" completeness enumerations at 11 domains, and regenerated the taxonomy/portal/scorecard. The `/resume` first PR: ran the loop-break Sweep 88 corpus-wide `/validate` over the #685..#686 deltas (2 out-of-window low-severity findings, both fixed this PR: TODO 1.12 plus a stale illustrative inventory comment in `lint-guardrail-cadence.py`), pruned and reconciled the handoff to daytime-unattended + the scratch->scratch+`grc_library_ref` reference split, and acquired the concurrency lease.

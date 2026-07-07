@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.180, PR #692
+
+Citation cleanup + batched #691 `/validate-pr` fixes. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary.
+
+### Changed
+- [`security/standard-threat-modelling.md`](../../security/standard-threat-modelling.md) (`1.0.4` to `1.0.5`) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.60` to `1.27.61`): the 2 `NIST SP 800-154` supplementary-framework references replaced with the held OWASP Threat Modeling Cheat Sheet (never-finalized draft to finalized held source; maintainer Q3 choice). SP 800-154 now has 0 corpus occurrences.
+- [`TODO.md`](../../TODO.md): 1.11 rescoped to its residual (the small-agent-doubling sub-clause of Resolution 15/2024) since the verification landed in #691; the stale `19/2023` corrected to `19/2024` (F1). Added item 2.14, the `/reference-audit` cadenced skill (maintainer-directed).
+
+### Fixed
+- **#691 `/validate-pr` F1 (Medium)**: TODO 1.11 reconciled and the surviving `19/2023` at `TODO.md:41` corrected (the completion-scope class recurring inside the backlog file, which the pre-push corpus grep excluded).
+- **#691 `/validate-pr` F2 (Low)**: the #691 detailed-CHANGELOG Verification line said 3 docs were version-bumped when 4 were; corrected to 4.
+
+### Removed
+- TODO 1.13 (SP 800-154 replacement), closed and rotated to [`.working/DONE.md`](../../.working/DONE.md).
+
+### Batched QA rows
+- The #691 [`/validate-pr`](../validate-pr/history.md) history row (2 in-window findings F1 + F2, fixed here) and the #691 [`/retro`](../improvement-log.md) row (the recurring completion-scope pattern + the maintainer gap-first lesson).
+
+### Verification
+- Full pre-push guard green; a skeptical verifier subagent ran pre-push. Per-document Version + Date co-bumped on the 2 touched corpus/register docs; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated; library CalVer `2026.07.179` to `2026.07.180`, README `1.9.540` to `1.9.541`.
+
 ## 2026-07-07, Library Version 2026.07.179, PR #691
 
 Brazil ANPD citation verification (TODO 1.11) + batched #690 `/validate-pr` fixes. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. All six Brazilian citations verified against Planalto / gov.br/anpd primary sources this turn (NUC egress reaches them; only iso.org 403s).
@@ -27,7 +48,7 @@ Brazil ANPD citation verification (TODO 1.11) + batched #690 `/validate-pr` fixe
 - The #690 [`/validate-pr`](../validate-pr/history.md) history row (2 in-window findings W1 + N1, fixed here) and the #690 [`/retro`](../improvement-log.md) row.
 
 ### Verification
-- Full pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; a skeptical verifier subagent ran pre-push (substantive corpus citation change). Per-document Version + Date co-bumped on the 3 touched corpus/register docs; library CalVer `2026.07.178` to `2026.07.179`, README `1.9.539` to `1.9.540`.
+- Full pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; a skeptical verifier subagent ran pre-push (substantive corpus citation change). Per-document Version + Date co-bumped on the 4 touched corpus/register docs (annex, jurisdiction-index, procedure, register); library CalVer `2026.07.178` to `2026.07.179`, README `1.9.539` to `1.9.540`.
 
 ## 2026-07-07, Library Version 2026.07.178, PR #690
 
