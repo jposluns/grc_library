@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-07-07\
 **License:** CC BY-SA 4.0
 
@@ -323,12 +323,12 @@ ground truth and the in-repo validator modules
 
 1. **Code-set parity (mechanical).** Run
    [`tools/verify-reference-modules.py`](../tools/verify-reference-modules.py) when doing
-   standards work or when the scratch base is refreshed: it confirms the modules' code sets
+   standards work or when the `grc_library_ref` base is refreshed: it confirms the modules' code sets
    match the source extracts (CCM v4.1.0, AICM v1.1.0, and NIST CSF 2.0 in both directions;
    COBIT 2019 objectives in both directions plus practice-range closure; ISO 31000:2018 in
    the module-to-source direction only, per the aid's docstring). It is a dev-aid, not a
-   CI gate (the scratch source is not present in CI), and
-   it skips cleanly when the scratch base is absent. A drift means the modules (and so the
+   CI gate (the `grc_library_ref` source is not present in this repo's CI), and
+   it skips cleanly when the `grc_library_ref` base is absent. A drift means the modules (and so the
    gates that trust them) have diverged from the source; reconcile the module to the source.
 2. **Semantic-fit against the source title, not the code number (judgment).** A code that
    *exists* (gate-valid) is not necessarily the *right* code: validate a mapping against the
