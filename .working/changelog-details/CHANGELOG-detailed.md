@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-07, Library Version 2026.07.178, PR #690
+
+Overnight-run setup and accumulated-bookkeeping flush. See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. `.working/` + [`TODO.md`](../../TODO.md) + version surfaces only; no corpus document body changed.
+
+### Changed
+- [`.working/overnight-pr.md`](../overnight-pr.md) `stub` to `in-flight`, filled with the 2026-07-07 overnight authorization scope (6 numbered directives: autonomous overnight; cross-repo parallelism with serial ref-catalogue merges; all-reachable-source egress; the ISO-current-as-of-2026-07-01 ruling; SP 800-154 replace; complete-relevant-ref-then-pivot), the build-progress ledger (ref PRs #5-22, scratch #108, corpus #687-689), and the remaining ref + corpus queues. The overnight morning-processing PR routes this content and resets to `stub` (gate 46 lifecycle).
+
+### Added
+- [`TODO.md`](../../TODO.md) **1.13**: replace the 3 never-finalized `SP 800-154` (Data-Centric System Threat Modeling, 2016 IPD, no final) citations with a finalized held source and drop the draft citation (maintainer Q3 decision 2026-07-07; NIST-harvest-surfaced).
+- [`TODO.md`](../../TODO.md) **RB-6**: reference-base currency + draft watch (planned-but-unpublished NIST revisions ingested as current-final; the IR 8596 / COSAiS / Privacy Framework 1.1 draft-watch; the `grc_library_ref` controlled-topic-vocabulary cryptography-tag gap; the FedRAMP 2026 evolving-preview re-snapshot cadence).
+- [`TODO.md`](../../TODO.md) RB completion status: RB-3 (NIST) / RB-4 (OWASP) / RB-5 (MITRE) / FedRAMP marked COMPLETE with their `grc_library_ref` PR references (#5-22), to rotate to DONE at morning-processing (cross-repo, ref-PR-keyed); 1.11 (Brazil ANPD) annotated unblocked by the reachable NUC egress.
+
+### Fixed
+- [`.working/improvement-log.md`](../improvement-log.md): the #688 and #689 `/retro` rows were malformed (the #688 row's leading `| 2026-07-07 | #688 |` cells were lost, mashing it onto the #689 line, and both rows merged their Pattern and Proposed-improvement cells into one). Split into correct rows; all four recent rows now parse as 7 columns (verified by pipe-count).
+
+### Batched QA rows
+- The #687 (0 findings), #688 (2 warning + 1 note, one root miss fixed in #689), and #689 (0 findings) [`/validate-pr`](../validate-pr/history.md) rows and their [`/retro`](../improvement-log.md) rows, accumulated across the reference-library split PRs per recursion-avoidance.
+
+### Verification
+- `tools/run_all_audits.sh` all gates green on the committed state; the pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green. No corpus document body changed, so no per-document version bump; library CalVer `2026.07.177` to `2026.07.178` and README `1.9.538` to `1.9.539`.
+
 ## 2026-07-07, Library Version 2026.07.177, PR #689
 
 Completes the reference-library split cutover 3b (the grc_library re-point). See the root [`CHANGELOG.md`](../../CHANGELOG.md) for the lead summary. PR #688's "every live surface" re-point claim was falsified by its own post-merge `/validate-pr`: the surface-discovery grep was Markdown-only, so it missed a `.py` tool + prose.
