@@ -1,5 +1,5 @@
-1. changelog PR 2 (weekly sweep-to-scratch, Option A: exempt archive, populate, prune mirror)
-2. AIQT PR 2 (corpus AIQT principle document, claim-fit-verified mappings)
-3. AIQT scratch one-liner (scratch CLAUDE.md AIQT rewrite)
-4. first FULL /reference-audit run (adoption pass: initial history row + doc-state)
-5. first /deep-assessment run (maintainer-invoked; whole-project pass)
+1. AIQT PR 2 (corpus AIQT principle document, claim-fit-verified mappings; review gate d first)
+2. AIQT scratch one-liner (scratch CLAUDE.md AIQT rewrite)
+3. first FULL /reference-audit run (adoption pass: initial history row + doc-state)
+4. first /deep-assessment run (maintainer-invoked; whole-project pass)
+5. changelog PR 3 (root-CHANGELOG compact reformat, deferred wide change) + per-PR sweep-step wiring
