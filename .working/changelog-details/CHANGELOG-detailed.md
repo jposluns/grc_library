@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.198, PR #710
+
+Codifies the r6 guardrail-review gap finding **G2** (routed to TODO 3.15 in #707; maintainer directed "codify both" the r6 findings): the worker-brief gate-number-verification rail.
+
+### Changed
+- [`.working/worker-brief-template.md`](worker-brief-template.md): added DO-rail 14, requiring every gate NUMBER a delivery cites to be verified against the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory (and every asserted corpus-gate interaction by running the named gate) before propagating into prose. Sibling to rails 6, 9, and 10 (control-code verification); this rail is for gate numbers and asserted gate behaviour. Targets the gate-42/44 mislabel class that cost the #702/#703/#704 churn. Version `1.4.4` to `1.4.5`.
+- [`TODO.md`](../../TODO.md): closed the 3.15 r6 G2 bullet (rotated to [`.working/DONE.md`](../DONE.md)); the sibling G1 (the per-touch backstop D8 check) stays open in 3.15 for its own PR.
+
+### Verification
+- `tools/run_all_audits.sh` 66/66; the pre-push guard green. Bookkeeping-tier change (a `.working` template prose rail); no standing verifier.
+- Batches PR #709's `/validate-pr` (1 Low note) and `/retro` rows, and the #709 detailed-entry label fix ("all eight `RECORD_SUBDIRS` history files" to "the seven present", the #709 `/validate-pr` note).
+
+Library `2026.07.197` to `2026.07.198`.
+
 ## 2026-07-08, Library Version 2026.07.197, PR #709
 
 Resolves the #708 post-merge `/validate-pr` finding (the dangling-index-links regression) with the maintainer-chosen delink + sweep-tool fix, and enhances the sweep tool so future weekly sweeps self-heal.
@@ -15,7 +29,7 @@ Resolves the #708 post-merge `/validate-pr` finding (the dangling-index-links re
 - The six history-file indexes under `.working/{validate-pr,validate-sweeps,guardrail-reviews,fitness-reviews,claim-fit,matrix-fit}/`: 217 now-absent links delinked to plain text (206 same-dir Detail-column + 11 cross-subdir Detail/Summary references; the #708 sweep's dangling links, gate-blind because `.working/` is exempt from gate 3).
 
 ### Verification
-- `--delink-history` delinked 217 links total: 206 same-dir Detail-column links, then 11 cross-subdir path-prefixed references (a relative `..`-prefixed target into a sibling record subdir) after a pre-push verifier found the first regex matched only date-prefixed targets and the regex was broadened (with a URL guard). A comprehensive re-scan of all eight `RECORD_SUBDIRS` history files (every dated-`.md` link, any form, resolved relative to each file) confirms 0 dangling remain; a further run delinks 0 (idempotent). Surgical: the current-week PR-708 record link is preserved (target present); a swept June record link (the PR-187 record) is now plain text (target absent). `tools/run_all_audits.sh` = 66/66.
+- `--delink-history` delinked 217 links total: 206 same-dir Detail-column links, then 11 cross-subdir path-prefixed references (a relative `..`-prefixed target into a sibling record subdir) after a pre-push verifier found the first regex matched only date-prefixed targets and the regex was broadened (with a URL guard). A comprehensive re-scan of the seven present `RECORD_SUBDIRS` history files (every dated-`.md` link, any form, resolved relative to each file; the full-qa and deep-assessment subdirs hold no history.md, so the delink loop correctly skips them) confirms 0 dangling remain; a further run delinks 0 (idempotent). Surgical: the current-week PR-708 record link is preserved (target present); a swept June record link (the PR-187 record) is now plain text (target absent). `tools/run_all_audits.sh` = 66/66.
 - Batches PR #707's and PR #708's `/validate-pr` and `/retro` rows (the recursion-avoidance batch); the #708 `/validate-pr` history row and record now cite #709 as the closing PR, and the #708 `/retro` proposed-improvement (1) is dispositioned CODIFIED in #709.
 
 Library `2026.07.196` to `2026.07.197`.

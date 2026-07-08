@@ -1,6 +1,6 @@
 # Worker Brief Template
 
-**Version:** 1.4.4\
+**Version:** 1.4.5\
 **Date:** 2026-07-08\
 **License:** CC BY-SA 4.0
 
@@ -56,6 +56,7 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 12. **If a tool result overflows to a persisted-output path under `/root/.claude`, do NOT read that path.** It is outside your sandbox; the permission rejection strands an unattended agent (the harness's wait-for-user reply halts a worker that has no user). Re-run the command scoped smaller (per-file, head-bounded) inside the repo instead. (Caught at #599: a sweep froze on exactly this shape and was recovered by probe-and-resume; the rail was adopted in dispatch briefs from #599 on and is now standing per the guardrail r3 gap finding.)
 
 13. **Every census figure you report must name its scope inline** (the grep pattern or the set definition, not only the number), and any prose restatement of a tabulated count must be cross-checked against your own table before delivery. A correct count with an unstated or mislabeled scope fails reproduction exactly like a wrong count. (Caught at #600, two same-day instances: a "15 title-reference lines" figure reproducible only under an unstated broad-phrase scope, and a "13 H2" prose claim contradicting the worker's own 12-row heading table.)
+14. **Verify every gate NUMBER a delivery cites against `governance/specification-audit-programme.md` §6, and every asserted corpus-gate interaction by running the named gate, BEFORE propagating it into prose.** A gate's number is a checkable fact; do not carry a manifest's or a memory's gate label unverified. (Caught at #702/#703/#704: a delivery manifest labelled the paired-skill step-parity gate `gate 42`; it is canonically gate 44, gate 42 being the external-overlay licence audit, and propagating the wrong number into prose cost a three-PR correction churn. Sibling to rails 6, 9, and 10 for control codes; this rail is for gate numbers and asserted gate behaviour.)
 ```
 
 ---
