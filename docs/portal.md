@@ -245,6 +245,10 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md)
 - [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md)
 
+### Principle
+
+- [Integrity and Trustworthiness Principle](../governance/principle-integrity-and-trustworthiness.md)
+
 ### Procedure
 
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md)

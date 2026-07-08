@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.61\
-**Date:** 2026-07-07\
+**Version:** 1.27.62\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -55,6 +55,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Domain | Type | Title | Repository Path | Owner Role | Review Frequency | Primary Alignment Families | Adoption Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Governance | Charter | Governance Library Charter | [`governance/charter-governance-library.md`](charter-governance-library.md) | Governance Library Maintainer | Annual | Governance authority, document lifecycle, licence boundary | library-internal |
+| Governance | Principle | Integrity and Trustworthiness Principle | [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md) | Governance Library Maintainer | Annual and upon material governance, AI, or regulatory change | The AIQT Principle ((Accuracy = Integrity = Quality = Trust) > Speed > Cost): the four co-equal facets, their enforcing machinery, and the source-verified AI-assurance framework alignment | library-internal |
 | Governance | Framework | Document Architecture and Interrelationship Framework | [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md) | Governance Library Maintainer | Annual | Governance hierarchy, audit traceability, policy architecture | template |
 | Governance | Framework | Governance Performance and Improvement Framework | [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md) | GRC Programme Manager | Annual | PDCA, 5-level maturity model, KPIs, management review, COBIT DTI | template |
 | Governance | Framework | Continuous Assurance and Improvement Framework | [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md) | GRC Programme Manager | Annual | 4-cycle assurance model, BASC integration, AI maturity, CAPA linkage | template |

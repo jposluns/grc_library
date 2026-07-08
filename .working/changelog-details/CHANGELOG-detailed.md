@@ -6,12 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.199, PR #711
+
+AIQT PR 2 (maintainer-directed, gate-d approved): the corpus **AIQT Principle** document, the citable adopter-facing counterpart to the #705 pack apex rule, carrying the source-verified framework alignment the apex rule refers to but deliberately does not restate.
+
+### Added
+- [`governance/principle-integrity-and-trustworthiness.md`](../../governance/principle-integrity-and-trustworthiness.md): a new governance document (Document Type **Principle**, Version 0.0.1) stating the AIQT Principle ((Accuracy = Integrity = Quality = Trust) > Speed > Cost, the four co-equal non-negotiable facets), a per-facet section (definition + enforcing machinery), the priority-ordering and escalation posture, adoption guidance, and a §4 framework-alignment table mapping each facet to the AI-assurance vocabularies (NIST AI RMF 1.0, ISO/IEC 42001:2023, ISO/IEC TR 24028:2020) plus the general assurance frameworks. Section model and 13-field metadata mirrored from the governance framework documents.
+- The **Principle** Document Type registered in [`tools/lint-metadata.py`](../../tools/lint-metadata.py) (`ALLOWED_TYPES` + the `principle-` filename prefix in `TYPE_TO_PREFIX`; docstring count 17 to 18), a one-off type alongside the corpus's existing Roadmap / Checklist / Worklist singletons. Maintainer-chosen (register a new type) over reusing an existing type.
+
+### Changed
+- [`governance/README.md`](../../governance/README.md) (Active-documents table row) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (index row) reference the new document; both Version+Date co-bumped. The taxonomy, portal, and maturity-scorecard generated artefacts were regenerated after the version bumps.
+- [`TODO.md`](../../TODO.md): added section 3.21, the accepted-unverified tracker to claim-fit-verify the general-framework columns (SSDF / CCM / ISO 27001) against their source texts (the AI-assurance columns were verified this PR; the general columns are corpus-convention, labelled as such in the doc).
+
+### Verification
+- The §4 AI-assurance mappings are claim-fit-verified against the held source full-texts, with three deliberate source-honest caveats: Integrity has no direct NIST AI RMF characteristic (anchored on ISO/IEC TR 24028 §5.3 moral/ethical integrity, not the CIA-sense clause 3.21); Accuracy aligns with NIST *Valid and Reliable* only at the concept level ("informed by", not "prescribed by"); the general-framework columns are corpus-convention, not source-text-verified this PR (queued as TODO 3.21). Produced via a research subagent, orchestrator-re-verified key quotes against the held texts, then a combined claim-fit + refute verifier pre-push.
+- `tools/run_all_audits.sh` = 66/66 (the metadata gate accepts the new Principle type; the structural-index gate sees the new doc in both index surfaces; taxonomy in sync). Style clean (no em/en-dashes, `-ize`, no bare "ensure"). Library / README bumped; the new doc at 0.0.1.
+- Batches PR #710's `/validate-pr` (1 Low note) and `/retro` rows, the #710 detailed-entry relative-link fix, and the r6-G1 deferral note on TODO 3.15.
+
+Library `2026.07.198` to `2026.07.199`.
+
 ## 2026-07-08, Library Version 2026.07.198, PR #710
 
 Codifies the r6 guardrail-review gap finding **G2** (routed to TODO 3.15 in #707; maintainer directed "codify both" the r6 findings): the worker-brief gate-number-verification rail.
 
 ### Changed
-- [`.working/worker-brief-template.md`](worker-brief-template.md): added DO-rail 14, requiring every gate NUMBER a delivery cites to be verified against the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory (and every asserted corpus-gate interaction by running the named gate) before propagating into prose. Sibling to rails 6, 9, and 10 (control-code verification); this rail is for gate numbers and asserted gate behaviour. Targets the gate-42/44 mislabel class that cost the #702/#703/#704 churn. Version `1.4.4` to `1.4.5`.
+- [`.working/worker-brief-template.md`](../worker-brief-template.md): added DO-rail 14, requiring every gate NUMBER a delivery cites to be verified against the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory (and every asserted corpus-gate interaction by running the named gate) before propagating into prose. Sibling to rails 6, 9, and 10 (control-code verification); this rail is for gate numbers and asserted gate behaviour. Targets the gate-42/44 mislabel class that cost the #702/#703/#704 churn. Version `1.4.4` to `1.4.5`.
 - [`TODO.md`](../../TODO.md): closed the 3.15 r6 G2 bullet (rotated to [`.working/DONE.md`](../DONE.md)); the sibling G1 (the per-touch backstop D8 check) stays open in 3.15 for its own PR.
 
 ### Verification
