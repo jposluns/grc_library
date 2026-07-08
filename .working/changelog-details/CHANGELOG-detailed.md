@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.194, PR #706
+
+The reference-breadth advisory tool (TODO 2.14 PR A of two; PR B ships the skill, command, and wiring). An orchestrator dev-aid in the `audit-*.py` mould (always exit 0, not a gate, no gate-surface wiring or regression fixture). Applied from a Fable worker delivery under validate-then-apply; the tool re-run at apply time and its figures recounted.
+
+### Added
+- [`tools/audit-reference-breadth.py`](../../tools/audit-reference-breadth.py) (mode 755): measures how the corpus uses the held `grc_library_ref` reference base and emits a recall-oriented breadth worklist for the `/reference-audit` skill's semantic judge. FULL mode (whole corpus and in-scope reference base), per-touch mode (`--docs`, optional `--update-state`), and new-ingest mode (`--ref-since` / `--ref-items`); tier-by-bucket semantics; a catalogue parser keyed to the generated format; identifier-shape key derivation plus the curated aliases; topic-overlap-ranked candidates; per-document delta state.
+- [`tools/reference-breadth-aliases.json`](../../tools/reference-breadth-aliases.json): curated citation-key aliases for the measured non-book no-key set (legislation, programs, templates); books deliberately un-aliased (recommendation tier, engaged by topic rather than cited by identifier).
+- [`.working/reference-audit/README.md`](../reference-audit/README.md), [`history.md`](../reference-audit/history.md), and [`doc-state.md`](../reference-audit/doc-state.md): the run-record stubs (the history header mirrors claim-fit; the doc-state prose is byte-identical to the tool's `--update-state` output, so the first per-touch run produces a rows-only diff).
+
+### Changed
+- [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py): `reference-audit` added to `RECORD_SUBDIRS` (dated per-run records sweep to the scratch archive; the non-dated README, history, and doc-state stubs stay in-repo by the dated-filename rule).
+- [`README.md`](../../README.md): library CalVer `2026.07.193` to `2026.07.194`, README Version `1.9.554` to `1.9.555`.
+
+### Verification
+- The tool re-run at apply time (FULL mode, read-only, exit 0): 343 in-scope reference items (books 22, frameworks 70, legislation 40, programs 15, standards 180, templates 16; publications excluded) over 382 corpus documents; classification 128 well-cited, 62 thin, 131 uncited, 22 no-key. These are the orchestrator's recount at `1ed5524` / ref `7a598a0`, not the worker's transcription. The aliases JSON parses; the tool parses (stdlib-only Python 3.11).
+- The advisory-tool precedent holds (no gate wiring, no regression fixture; the same `audit-*.py` mould as the other advisory tools). `tools/run_all_audits.sh`: all 66 gates pass with the new files present.
+- Apply-time correction (a pre-push verifier catch): the tool's docstring claimed it "always exits 0", but a truncated-pipe consumer (`| head`) raised `BrokenPipeError` and exited 120 with a traceback. Added a `signal.signal(signal.SIGPIPE, signal.SIG_DFL)` guard at `main()` start and softened the docstring, so a broken pipe now terminates cleanly via SIGPIPE (no traceback) and the standalone run stays exit 0.
+- Batches PR #705's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/reference-audit-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/reference-audit-build/MANIFEST.md) (merged scratch-side as PR #111, gate-label-corrected in #112). The worker tested the tool with six read-only mode runs (six defects found and fixed before delivery); the orchestrator re-ran FULL mode and recounted every figure.
+
 ## 2026-07-08, Library Version 2026.07.193, PR #705
 
 Codifies the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, as the pack's apex rule (PR 1 of the AIQT work; the corpus principle document is PR 2). Applied from the Fable aiqt-codification delivery under validate-then-apply; the maintainer confirmed the inner-bracket form (no outer brackets) and the three world-facing wordings (checkpoint line, apex-rule headline, README baseline block) before the first commit.

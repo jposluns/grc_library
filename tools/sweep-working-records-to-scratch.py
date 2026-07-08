@@ -71,6 +71,7 @@ RECORD_SUBDIRS = (
     "claim-fit",
     "matrix-fit",
     "deep-assessment",
+    "reference-audit",
 )
 
 DATE_ANYWHERE = re.compile(r"(\d{4}-\d{2}-\d{2})")
