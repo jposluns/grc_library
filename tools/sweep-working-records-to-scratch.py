@@ -32,8 +32,16 @@ Modes (mutually exclusive; default --dry-run):
                         copy the dated record files into DIR (the scratch
                         archive). Does NOT modify grc_library.
     --prune             rewrite the in-repo detailed mirror to current-week-only
-                        and delete the swept dated record files from grc_library.
+                        and delete the swept dated record files from grc_library,
+                        then delink any now-absent history.md Detail-column links
+                        (so the retained index files carry no dangling links).
                         Requires --verify-archived DIR.
+    --delink-history    delink (to plain text) each RECORD_SUBDIRS history.md
+                        Detail-column link whose dated target file is absent
+                        in-repo (swept to the archive). Idempotent; touches no
+                        link whose target is still present. Standalone form of
+                        the step --prune runs; use it to heal history files after
+                        a prune that predated this step (the #708 finding).
 
 Options:
     --as-of YYYY-MM-DD  treat this date's ISO week (Monday) as the current week
@@ -146,6 +154,50 @@ def weekly_archive_name(monday: datetime.date) -> str:
     return f"{monday.isoformat()}_detailed.md"
 
 
+# A history.md link to a dated per-run record file, whether a same-dir Detail-column
+# link (``[`2026-06-22-PR-187.md`](2026-06-22-PR-187.md)``) or a cross-subdir
+# Detail/Summary-cell reference (``[text](../validate-sweeps/2026-06-28-sweep71-iter1.md)``).
+# The target may carry a relative path prefix; a URL target (``\w+://``) is excluded so an
+# external link that happens to embed a dated ``.md`` is never touched. The present-check
+# below (resolved relative to the file's own dir) is what decides delink-vs-keep, so a
+# broader match here only widens the candidate set, never delinks a present target.
+HISTORY_DATED_LINK = re.compile(r"\[([^\]]*)\]\((?!\w+://)([^)]*\d{4}-\d{2}-\d{2}[^)]*\.md)\)")
+
+
+def delink_absent_history_links(root: Path) -> int:
+    """Delink each RECORD_SUBDIRS ``history.md`` Detail-column link whose dated
+    target file is absent in-repo (swept to the archive), leaving the link TEXT
+    in place as plain text (the filename stays a reference; the swept file lives
+    in git history and the scratch archive). Idempotent: a link whose target is
+    still present in-repo (a current-week record) is untouched, and re-running
+    changes nothing. Returns the count of links delinked. This keeps the retained
+    history.md index files free of the dangling links a prune would otherwise
+    leave (the #708 post-merge finding), and runs automatically at the end of a
+    ``--prune`` so future weekly sweeps self-heal."""
+    base = root / ".working"
+    total = 0
+
+    def make_repl(sub_dir: Path):
+        def repl(m: "re.Match[str]") -> str:
+            nonlocal total
+            if (sub_dir / m.group(2)).is_file():
+                return m.group(0)  # target present in-repo: keep the link
+            total += 1
+            return m.group(1)  # target absent (swept): delink to the link text
+        return repl
+
+    for sub in RECORD_SUBDIRS:
+        sub_dir = base / sub
+        hist = sub_dir / "history.md"
+        if not hist.is_file():
+            continue
+        text = hist.read_text(encoding="utf-8")
+        new = HISTORY_DATED_LINK.sub(make_repl(sub_dir), text)
+        if new != text:
+            hist.write_text(new, encoding="utf-8")
+    return total
+
+
 def plan(root: Path, current_week: datetime.date):
     """Return (preamble, keep_entries, sweep_by_week, sweep_records)."""
     mirror = root / DETAILED_MIRROR_REL
@@ -167,6 +219,7 @@ def main(argv: list[str]) -> int:
     mode.add_argument("--dry-run", action="store_true", default=True)
     mode.add_argument("--emit-archive", metavar="DIR")
     mode.add_argument("--prune", action="store_true")
+    mode.add_argument("--delink-history", action="store_true")
     ap.add_argument("--as-of")
     ap.add_argument("--root", default=str(REPO_ROOT))
     ap.add_argument("--verify-archived", metavar="DIR")
@@ -256,9 +309,17 @@ def main(argv: list[str]) -> int:
         mirror.write_text(new_mirror, encoding="utf-8")
         for _, f in records:
             f.unlink()
+        delinked = delink_absent_history_links(root)
         print(f"Pruned: mirror rewritten to {len(keep)} current-week entries "
               f"(re-parse assertion passed); {len(records)} record file(s) "
-              f"removed. Archive verified present.")
+              f"removed. Archive verified present. Delinked {delinked} now-absent "
+              f"history.md Detail-column link(s).")
+        return 0
+
+    if args.delink_history:
+        delinked = delink_absent_history_links(root)
+        print(f"Delinked {delinked} history.md Detail-column link(s) whose dated "
+              f"target file is absent in-repo (swept to the archive). Idempotent.")
         return 0
 
     print("\n(dry-run; nothing changed. Use --emit-archive then --prune to apply.)")

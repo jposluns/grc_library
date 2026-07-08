@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.197, PR #709
+
+Resolves the #708 post-merge `/validate-pr` finding (the dangling-index-links regression) with the maintainer-chosen delink + sweep-tool fix, and enhances the sweep tool so future weekly sweeps self-heal.
+
+### Changed
+- [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py): added `delink_absent_history_links(root)`, which delinks (to plain text) each `RECORD_SUBDIRS` history-file Detail-column link whose dated target file is absent in-repo (swept to the archive), leaving the filename as a plain reference (the swept file lives in git history and the scratch archive). It runs at the end of `--prune` (so a future weekly sweep never leaves dangling index links) and is exposed as a new `--delink-history` mode (the idempotent, standalone form used to heal history files after a prune that predated this step). Idempotent: a link whose target is still present in-repo (a current-week record) is untouched.
+- The six history-file indexes under `.working/{validate-pr,validate-sweeps,guardrail-reviews,fitness-reviews,claim-fit,matrix-fit}/`: 217 now-absent links delinked to plain text (206 same-dir Detail-column + 11 cross-subdir Detail/Summary references; the #708 sweep's dangling links, gate-blind because `.working/` is exempt from gate 3).
+
+### Verification
+- `--delink-history` delinked 217 links total: 206 same-dir Detail-column links, then 11 cross-subdir path-prefixed references (a relative `..`-prefixed target into a sibling record subdir) after a pre-push verifier found the first regex matched only date-prefixed targets and the regex was broadened (with a URL guard). A comprehensive re-scan of all eight `RECORD_SUBDIRS` history files (every dated-`.md` link, any form, resolved relative to each file) confirms 0 dangling remain; a further run delinks 0 (idempotent). Surgical: the current-week PR-708 record link is preserved (target present); a swept June record link (the PR-187 record) is now plain text (target absent). `tools/run_all_audits.sh` = 66/66.
+- Batches PR #707's and PR #708's `/validate-pr` and `/retro` rows (the recursion-avoidance batch); the #708 `/validate-pr` history row and record now cite #709 as the closing PR, and the #708 `/retro` proposed-improvement (1) is dispositioned CODIFIED in #709.
+
+Library `2026.07.196` to `2026.07.197`.
+
 ## 2026-07-08, Library Version 2026.07.196, PR #708
 
 CHANGELOG restructure PR 2 (TODO 3.19, maintainer "Option A" 2026-07-08): the initial current-week sweep. The detailed-CHANGELOG mirror and the per-run records now keep only the CURRENT ISO week in-repo; everything older lives in the `grc_library_scratch` frozen archive as weekly Monday-dated files.
