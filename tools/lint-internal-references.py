@@ -3,10 +3,8 @@
 
 A vendor-neutral, organization-neutral public library should not contain
 references to specific deployments: internal hostnames, cloud-region
-identifiers, internal subnet patterns. This linter extends the existing
-``SANITISATION_TERMS`` rule in ``tools/lint-language.py`` with
-generic regex patterns rather than the hand-curated list of specific
-product / company names.
+identifiers, internal subnet patterns. This linter detects them structurally, with generic regex patterns
+rather than a hand-curated list of specific product or company names.
 
 Patterns detected:
 
