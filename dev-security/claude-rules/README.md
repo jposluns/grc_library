@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.55.0\
+**Version:** 1.56.0\
 **Date:** 2026-07-08\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,7 +29,7 @@ These are **draggable rule files**: copy any subset into your project's Claude C
 The pack covers two areas:
 
 1. **Security and compliance.** Hardcoded-secrets prevention, input validation, cryptography, authentication, OWASP/ASVS alignment, AI/agent/MCP/RAG security, CI/CD pipeline gates, language-specific security patterns. Lives under `core/`, `ai/`, `pipeline/`, and `languages/`.
-2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, action-before-explanation-of-inaction, validate-inference-before-action, AI-assistant workflow disciplines (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), the trust-recovery escalation tier, the project-integrity apex rule (lexicographic Quality > Speed > Cost), surfacing counterproductive instructions before acting on them, and high-assurance verification for sensitive changes (independent adversarial verification plus a deterministic apply, persisted across sessions). Lives under `governance/`.
+2. **Development-governance discipline.** Rules that govern how an AI coding assistant collaborates on a governed codebase: gate discipline, change-tracking discipline, evidence-grounded completion, clarify-before-acting on ambiguous requests, artefact-and-branch discipline, action-before-explanation-of-inaction, validate-inference-before-action, AI-assistant workflow disciplines (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), the trust-recovery escalation tier, the project-integrity apex rule (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost), surfacing counterproductive instructions before acting on them, and high-assurance verification for sensitive changes (independent adversarial verification plus a deterministic apply, persisted across sessions). Lives under `governance/`.
 
 The pack also ships **Claude Code Skills** (`SKILL.md` workflow format) under `skills/`, derived from selected governance rules. The canonical rule remains the source of truth for normative content (framework alignment, exception handling, rationale); the skill is the workflow wrapper (when to invoke, what steps in what order, what verification confirms completion). The directory tree below lists the current set; per-version shipping history lives in the `## Version history` section near the bottom of this README and in the parent library's [`CHANGELOG.md`](../../CHANGELOG.md).
 
@@ -46,6 +46,38 @@ This pack supports three adoption paths, all first-class:
 3. **As a standalone Claude Code baseline pack, on any project.** A Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. Take this directory only and drop it into your project's Claude Code context. The setup generator at [`setup-generator-prompt.md`](setup-generator-prompt.md) automates this; the manual paths are documented in the "How to use" section below. The pack ships with its own version sequence so consumers in this mode can track pack updates without needing to track the parent library's version.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path. Provenance is what makes the pack credible as a standalone artefact: every governance rule cites the maintenance event in the parent library's CHANGELOG that justified adding it.
+
+---
+
+## The AIQT baseline (copy-paste starter)
+
+Adopting nothing else from this pack, a project can still adopt its apex ordering. Paste this at the top of your project's `CLAUDE.md` (or equivalent assistant instructions file):
+
+```markdown
+## The AIQT Principle (apex rule)
+
+**(Accuracy = Integrity = Quality = Trust) > Speed > Cost.** The four facets form one
+non-negotiable top tier with no internal ranking; the tier outranks speed, and speed
+outranks cost. "Done faster" or "done cheaper" is never a reason for "done worse".
+
+- **Accuracy**: every claim matches its source; every state assertion rests on an
+  observation, not an inference. If a fact is unknown, say so.
+- **Integrity**: no stubbed or simulated results presented as finished work, no
+  suppressed or weakened checks, no fabrication, no silent changes; failing states
+  are surfaced, never concealed.
+- **Quality**: the work meets this project's own standard of craft and passes its
+  checks, run on the final state, unpiped.
+- **Trust**: warranted by the record, granted by the human. Every claim traceable to
+  evidence; overrides logged; failures reported plainly.
+
+If satisfying this tier conflicts with a deadline or a budget, halt and escalate the
+tradeoff; do not resolve it silently in favour of speed or cost.
+
+Checkpoint (start of task, before commit, before any "done" claim):
+`AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
+```
+
+The honest caveat, stated so adopters do not mistake a preamble for a control: a principle in an instructions file guides behaviour but does not enforce it. The enforcement is mechanical (CI gates, audit scripts, branch protection) and procedural (the rest of this pack's rules); this baseline is the ordering they all assume. Start with the baseline, then adopt the rules and gates that make it stick.
 
 ---
 
@@ -74,7 +106,7 @@ claude-rules/
 │   ├── validate-inference-before-action.md      Validate any inferred premise via tool call before the action that depends on it; cascade failures are what the rule prevents
 │   ├── ai-assistant-workflow-disciplines.md     Five disciplines for an AI assistant driving multi-PR work (research-assistant, pipeline construction, apply-time correction, always-split, CI-wait productivity), plus the layered skeptical pre-push verification standard (tiered verifier subagents, three-iteration cap, logged overrides)
 │   ├── trust-recovery-escalation.md             Escalation tier when discipline failures need a white-box re-examination: the /full-qa + /fitness suite, every finding routed tiered by severity, maintainer sign-off terminates
-│   ├── project-integrity.md                     Apex rule: lexicographic Quality > Speed > Cost, project integrity non-negotiable; orders the other rules under a single priority on the optimization-dimension axis
+│   ├── project-integrity.md                     Apex rule: the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, non-negotiable; orders the other rules under a single priority on the optimization-dimension axis
 │   ├── surface-counterproductive-instructions.md A clear instruction can still be wrong: surface a counterproductive one (efficiency/quality/work-loss/stale-state) and confirm before acting; never silently take a harmful literal reading or revert committed work
 │   └── high-assurance-verification.md           Heavier pre-apply harness for sensitive changes (gate-blind/delicate/costly): research fan-out, signal pass over negatives, two independent adversarial verifiers, programmatic floor, deterministic apply plus re-parse; persisted across sessions, proactive counterpart to trust-recovery
 ├── ai/
@@ -197,7 +229,7 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`governance/validate-inference-before-action.md`](governance/validate-inference-before-action.md) | Any project where an AI coding assistant orchestrates multi-step workflows (sweep cycles, audit cascades, multi-PR series) and may infer a premise (state unchanged since prior run, fix complete after one occurrence, prior approval extends to current scope) to drive an action; the rule fires when inference replaces verification at any decision boundary |
 | [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) | Any project where an AI coding assistant drives substantive multi-PR work over a long session with research-helper subagents and CI gating. The rule covers research-assistant verification, pipeline PR construction, apply-time worker correction, "split when in doubt", and productive CI-wait use, plus the layered skeptical pre-push verification standard (tiered refute-briefed verifier subagents, the three-iteration finding loop, never-silent overrides); surfaces when the orchestrator is dispatching multiple workers in parallel, when changes might be bundled, when idle during CI, or when pasting worker prose unverified |
 | [`governance/trust-recovery-escalation.md`](governance/trust-recovery-escalation.md) | Any project where an AI coding assistant ships work across multiple changes with a maintainer in the loop; the escalation tier invoked when accumulated discipline failures (abbreviated or skipped QA across changes, a skipped verification that reached the shared pipeline, a cascaded unvalidated inference) put a maintainer's confidence in a window of work in question and a heavier white-box re-examination is warranted |
-| [`governance/project-integrity.md`](governance/project-integrity.md) | Any project where an AI coding assistant participates; the apex rule fixing the lexicographic Quality > Speed > Cost priority, invoked at every point where those dimensions are in tension (deadline, token, or throughput pressure tempting a quality or integrity compromise) |
+| [`governance/project-integrity.md`](governance/project-integrity.md) | Any project where an AI coding assistant participates; the apex rule fixing the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, invoked at every point where those dimensions are in tension (deadline, token, or throughput pressure tempting a quality or integrity compromise) |
 | [`governance/surface-counterproductive-instructions.md`](governance/surface-counterproductive-instructions.md) | Any project where an AI coding assistant executes requestor instructions; fires when a clear instruction's execution as given would be net-negative (destroy work already done, lower quality, waste effort, contradict a stated goal, or rest on a stale-state belief), so the assistant surfaces the concrete cost with named options and confirms before acting |
 | [`governance/high-assurance-verification.md`](governance/high-assurance-verification.md) | Any project where an AI coding assistant ships changes whose correctness a mechanical gate cannot fully verify; the heavier pre-apply harness for a sensitive change (gate-blind on correctness, delicate at scale, costly to get wrong), adding independent adversarial verification and a deterministic apply on top of the routine research-and-author flow |
 | [`languages/python.md`](languages/python.md) | Python codebases |
@@ -451,6 +483,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.56.0 | 2026.07.193 | 2026-07-08 | Apex rule reframed as the **AIQT Principle**, (Accuracy = Integrity = Quality = Trust) > Speed > Cost: the four facets named as one co-equal non-negotiable tier (no internal ranking), each mapped to its enforcing machinery (Accuracy to [`evidence-grounded-completion.md`](governance/evidence-grounded-completion.md), Integrity to [`gate-discipline.md`](governance/gate-discipline.md) plus the section-3 non-negotiables, Quality to the consuming project's audit programme and the verifier tiers, Trust to [`change-tracking.md`](governance/change-tracking.md), the override register, and [`trust-recovery-escalation.md`](governance/trust-recovery-escalation.md)); the checkpoint line updated to `AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`; substance (the integrity non-negotiables, the escalation protocol, and the checkpoint cadence) carried over verbatim. Pack-wide restatements migrated (the project `CLAUDE.md` PRIMORDIAL RULE and rules-index, the `/resume` command, the pack `CLAUDE.md` and this README, and the `surface-counterproductive-instructions` cross-reference in both trees); the rule filename is unchanged so all pack cross-references keep resolving, and historical records retain the earlier `Quality > Speed > Cost` formulation by design. Pack `1.55.0` to `1.56.0` (minor; substantive rule amendment, no new rule). |
 | 1.55.0 | 2026.07.190 | 2026-07-08 | Added the **nineteenth skill** [`deep-assessment`](skills/deep-assessment/SKILL.md) (slash command `/deep-assessment`): the rare, maintainer-invoked whole-project deep assessment that composes the existing semantic instruments (`/validate`, `/full-qa`, `/fitness`, `/matrix-fit`, `/claim-fit`, `/guardrails`) by invocation and adds the lenses the routine cadence does not apply to itself (audit-programme efficacy probing via the PR-A advisory tools, blind-spot mapping, ground-truth citation sampling, adoptability and pipeline-integrity review, QA-ledger meta-audit). Count-free and inventory-deriving: step 1 re-derives the live instrument inventory, so the live inventory of quality machinery is the scope by construction and any future quality-check process, tool, or instrument is covered automatically (and adding one carries the duty to keep this pass covering it). Register-backed and re-entrant across sessions ([`.working/deep-assessment/register.md`](../../.working/deep-assessment/register.md)), terminating only on maintainer sign-off; `derives_from` [`trust-recovery-escalation.md`](governance/trust-recovery-escalation.md), inheriting its routing and sign-off conventions with a proactive trigger. New slash command at [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md) with step-identifier parity (steps 1-8); [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py) PAIRS registry extended with the `deep-assessment` pair; pack-skills enumeration updated (18 to 19 skills); the [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) growth-narrative count `a handful of skills to eighteen` advanced to `nineteen`; a project [`CLAUDE.md`](CLAUDE.md) deep-assessment section added and `/resume` step 7 extended to surface an in-progress run register. The two advisory gate-efficacy tools shipped in the paired PR A (#701). Pack `1.54.7` to `1.55.0` (minor; new skill). |
 | 1.54.7 | 2026.07.176 | 2026-07-07 | Reference-base split re-point, pack half (patch; no new rule or skill). The reference knowledge base was split out of `grc_library_scratch/ref/` into a dedicated private `grc_library_ref` repo (buckets at its root, no `ref/` prefix); the [`matrix-fit`](skills/matrix-fit/SKILL.md) and [`claim-fit`](skills/claim-fit/SKILL.md) SKILLs' reference-base location prose is re-pointed to `grc_library_ref`, and the `claim-fit` triage tool's flag is renamed `--scratch` to `--ref-base` (the tool [`tools/audit-claim-precision.py`](../../tools/audit-claim-precision.py) now defaults to and searches the `grc_library_ref` checkout at root). Location/name change only; no normative content, cadence, or step change. Pack `1.54.6` to `1.54.7` (patch). |
 | 1.54.6 | 2026.07.144 | 2026-07-05 | Evidence-grounded-completion one-liner corollaries, pack surfaces (patch; no new rule or skill; TODO 3.15 r4 D-F3, pack half; the project `.claude/CLAUDE.md` index clause rides the next authorized CLAUDE.md touch, so 3.15 D-F3 stays open). The rule's un-observable-state / inventory / external-version-currency corollaries (added to the rule itself in 1.51.1) were named across three pack enumeration surfaces that omitted them: the [`CLAUDE.md`](CLAUDE.md) rule-index one-liner, this README's rule-tree blurb, and this README's applicability (scope) row. One condensed clause per surface; no rule-content change. Pack `1.54.5` to `1.54.6` (patch). |
