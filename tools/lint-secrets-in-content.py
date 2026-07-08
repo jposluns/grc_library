@@ -62,6 +62,13 @@ EXEMPT_FILES = {
     # in fixture content. The test file is itself the canonical place
     # those patterns appear as test inputs.
     "test_linters.py",
+    # The gate-mutation probe's variant library deliberately embeds
+    # pattern-shaped payloads (an AWS documentation-format example key,
+    # dash characters) as the defect strings the probe seeds into a
+    # disposable repo copy to test each gate's detection width. Same
+    # rationale as test_linters.py: the fixture is the canonical place
+    # those patterns appear as probe inputs.
+    "gate-mutation-variants.json",
 }
 
 # High-confidence secret patterns. Each regex requires enough structural
