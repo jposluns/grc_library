@@ -6,17 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.191, PR #703
+
+Corrects the gate-number mislabel PR #702 introduced (a #702 `/validate-pr` in-window warning). The paired-skill step-parity gate is canonically gate 44; #702 labeled it `gate 42` (which is the external-overlay licence-consistency audit) in five live carriers. Prose-only accuracy correction; no functional or gate-logic change.
+
+### Fixed
+- [`CHANGELOG.md`](../../CHANGELOG.md) (the #702 root lead) and this detailed mirror (three lines of the #702 detailed entry): `gate 42` corrected to gate 44 where it names the paired-skill step-parity registry and check.
+- [`.working/DONE.md`](../DONE.md) (the #702 entry): the paired-skill registry reference corrected from gate 42 to gate 44.
+- Verified by grep that no parity-gate `gate 42` mislabel remains in any live surface and that the historical `gate 42` references (the real licence-consistency audit, in frozen CHANGELOG and `.working/` records) are untouched; the correct number confirmed against [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 ("Gate 44 is a paired-skill step-parity audit"; "Gate 42 is an external-overlay licence consistency audit") and [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh).
+
+### Changed
+- [`README.md`](../../README.md): library CalVer `2026.07.190` to `2026.07.191`, README Version `1.9.551` to `1.9.552`.
+
+### Verification
+- `tools/run_all_audits.sh`: all 66 gates pass. Root and detailed CHANGELOG carry #703, #702, #701 in parity (gate 59).
+- Batches PR #702's `/validate-pr` (one in-window warning, the gate-number mislabel fixed here) and `/retro` (the second-occurrence signal on apply-time verification of worker claims about the corpus's own machinery) rows.
+- Quick-fix / prose-correction tier: no standing verifier (the correct gate number is a mechanical fact confirmed against the spec §6).
+
 ## 2026-07-08, Library Version 2026.07.190, PR #702
 
 The `/deep-assessment` skill, command, register, and hooks (PR B of the two-PR deep-assessment integration; PR A shipped the advisory tools in #701). Applied from the same Fable worker delivery under validate-then-apply, with three maintainer-directed post-#695 integration deltas and one maintainer-directed coverage codification folded in.
 
 ### Added
 - [`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](../../dev-security/claude-rules/skills/deep-assessment/SKILL.md): the rare, maintainer-invoked, multi-session whole-project deep-assessment skill (eight-step process; count-free and inventory-deriving; register-backed and re-entrant; sign-off-terminated). `derives_from` [`trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md).
-- [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the paired `/deep-assessment` slash command (step identifiers 1 to 8 matching the SKILL for gate 42).
+- [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the paired `/deep-assessment` slash command (step identifiers 1 to 8 matching the SKILL for gate 44).
 - [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the durable run register (one row per run; `in-progress` rows resume; rows close only on maintainer sign-off).
 
 ### Changed
-- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): gate-42 PAIRS registry extended with the deep-assessment pair (10 pairs; gate 42 confirms matching step-identifier sets).
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): gate-44 PAIRS registry extended with the deep-assessment pair (10 pairs; gate 44 confirms matching step-identifier sets).
 - [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 7 extended to surface an `in-progress` deep-assessment run register at resume, alongside the other standing registers.
 - [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): Version `1.54.7` to `1.55.0` (minor, new skill) with the paired Version-history row (D6); the skills directory tree gained the deep-assessment entry (gate 41).
 - [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the growth-narrative skill count advanced from eighteen to nineteen (the gate-39 count-consistency carrier).
@@ -27,7 +44,7 @@ The `/deep-assessment` skill, command, register, and hooks (PR B of the two-PR d
 ### Post-#695 integration deltas (maintainer-directed)
 - Per-run records are dated files beside the register (the fitness-review `YYYY-MM-DD-rN` naming), not per-run directories; the SKILL step-1 / step-8 / Verification wording, the command step-1 wording, and the register per-run-detail line were adjusted accordingly. The non-dated register is in-repo by design.
 - `deep-assessment` added to `RECORD_SUBDIRS` (above) so its dated records sweep with the others.
-- One model-agnostic model-tiering sentence added to SKILL step 3 with a mirrored clause in command step 3 (orchestration and finding-adjudication on the strongest available model tier, wide fan-out readers on a cheaper tier, mechanical phases model-indifferent). The clause introduces no capitalized step token, so gate-42 parity is unaffected.
+- One model-agnostic model-tiering sentence added to SKILL step 3 with a mirrored clause in command step 3 (orchestration and finding-adjudication on the strongest available model tier, wide fan-out readers on a cheaper tier, mechanical phases model-indifferent). The clause introduces no capitalized step token, so gate-44 parity is unaffected.
 
 ### Coverage obligation (maintainer-directed 2026-07-08)
 - Codified in the SKILL (the design-rules paragraph) and the CLAUDE.md section: the count-free, inventory-deriving design makes the live inventory of quality machinery the assessment scope by construction, so any future quality-check process, tool, gate, skill, or check is included automatically; and adding a quality-check instrument carries the reciprocal duty to keep the pass covering it (a new gate gains a mutation-probe variant, a new command or skill joins the phase-3 invocation set, a new advisory tool joins the phase-3 aids).
