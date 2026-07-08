@@ -6392,5 +6392,67 @@ class TodoRotationOnPrTests(unittest.TestCase):
             )
 
 
+class DoctypeParityTests(LinterTestCase):
+    """tools/lint-doctype-parity.py (gate 67)"""
+
+    def _load(self):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        lpath = REPO_ROOT / "tools" / "lint-doctype-parity.py"
+        spec = importlib.util.spec_from_file_location("lint_doctype_parity", lpath)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_current_surfaces_pass(self) -> None:
+        # Positive baseline: on the real corpus every enumeration surface
+        # agrees with the canonical lint-metadata.py set.
+        result = run_linter("tools/lint-doctype-parity.py")
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"doctype-parity should pass on the current corpus.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_name_is_cell_distinguishes_cell_from_prose(self) -> None:
+        # The robustness core: a bounded table cell or a list item counts as
+        # presence; a bare prose mention of a common type word does not (this
+        # is what keeps a coincidental "Guide"/"Standard" from masking an
+        # actual table omission).
+        mod = self._load()
+        self.assertTrue(mod.name_is_cell("| Charter | Establishes authority. |", "Charter"))
+        self.assertTrue(mod.name_is_cell("- Principle", "Principle"))
+        self.assertFalse(
+            mod.name_is_cell("This guideline points readers to a Guide for adoption.", "Guide")
+        )
+
+    def test_synthetic_missing_type_flagged(self) -> None:
+        # Negative test (the #711 "Principle" class): inject a canonical
+        # type/prefix that no surface enumerates and confirm main() fails.
+        # Monkeypatch the canonical source rather than mutate lint-metadata.py
+        # on disk, so the test is hermetic.
+        import contextlib
+        import io
+        mod = self._load()
+        real = mod.canonical_sets
+
+        def fake():
+            names, prefixes = real()
+            return names | {"Zzztest"}, prefixes | {"zzztest-"}
+
+        mod.canonical_sets = fake
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                rc = mod.main()
+            self.assertEqual(
+                rc, 1, "an un-propagated canonical type must fail the parity gate"
+            )
+        finally:
+            mod.canonical_sets = real
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -219,6 +219,9 @@ jobs:
       - name: Unbalanced-fence audit
         run: python3 tools/lint-unbalanced-fences.py
 
+      - name: Document-Type enumeration parity audit
+        run: python3 tools/lint-doctype-parity.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
