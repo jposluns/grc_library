@@ -66,7 +66,6 @@ EXEMPT_FILES = {
     "AUTHORS.md",
     "CITATION.cff",
     "lint-pii-in-content.py",
-    "lint-language.py",  # contains sanitization-term list
     "lint-secrets-in-content.py",  # discusses secret/PII patterns
     "lint-internal-references.py",  # discusses IP / hostname patterns
     # Linter regression tests deliberately embed PII-shaped strings as
