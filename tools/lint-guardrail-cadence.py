@@ -71,8 +71,10 @@ COMMANDS_DIR = ".claude/commands"
 FAIL_DRIFT_THRESHOLD = 3
 
 # The as-of inventory token a guardrail-review history row's Summary cell
-# carries, e.g. "inventory 66 gates / 12 rules / 18 skills / 11 commands".
-# The commands axis is optional: the r1 row predates it.
+# carries, e.g. "inventory N gates / N rules / N skills / N commands"
+# (placeholder counts: the regex matches any digits, and hardcoding the live
+# totals here re-stales the comment on every inventory change, so it stays
+# count-free by design). The commands axis is optional: the r1 row predates it.
 INVENTORY_RE = re.compile(
     r"inventory\s+(\d+)\s+gates?\s*/\s*(\d+)\s+rules?\s*/\s*(\d+)\s+skills?"
     r"(?:\s*/\s*(\d+)\s+commands?)?",

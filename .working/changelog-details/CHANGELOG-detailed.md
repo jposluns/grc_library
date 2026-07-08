@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.202, PR #714
+
+The `/resume` Sweep-90 close-out for the 2026-07-08 resumed session (`claude/resume-sweep90-validate`): the loop-break corpus-wide `/validate` over the #700..#712 deltas, the compensating control for the #713 session-closing handoff PR (which skipped its trailing `/validate-pr` + `/retro`).
+
+### Changed
+- [`specification-master-project.md`](../../specification-master-project.md): §4.4 "Type selection guidance" gains a "Principle versus Charter versus Policy" disambiguation bullet (finding A-1; the new Principle Document Type's semantic adjacency to Charter and Policy had no §4.4 rule). Version `1.6.10` to `1.6.11`, Date `2026-07-08`.
+- [`tools/lint-guardrail-cadence.py`](../../tools/lint-guardrail-cadence.py): the `INVENTORY_RE` illustrative `e.g.` comment (finding B-1) rewritten from hardcoded counts ("18 skills / 11 commands", re-staled by the #706/#707 skill and command additions) to count-free placeholder tokens, so it stops re-staling on every inventory change. Comment-only; the regex is unchanged, so linter behaviour is unaffected.
+- [`.working/session-handoff.md`](../session-handoff.md): sweep cursor advanced to Sweep 90; pruned to current + 1 prior (the #685/#686 asserted-expectations block, the #687-#698 State-snapshot block, and the #699 + 2026-07-07 next-actions blocks removed, all durably recorded in DONE / CHANGELOG / the sweep history); a new CURRENT next-actions block plus a State-snapshot block prepended for this session, carrying the queue (PR 2 the resume-pointer apply, PR 3 the worker-collision start-side check, then the AIQT scratch one-liner, the first FULL `/reference-audit`, the ALLOWED_TYPES parity gate, the 3.16/3.17 fuller alignment maps).
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED (`Active-session: claude/resume-sweep90-validate`, `Status: active`, fresh heartbeat, refreshed Current-task and Worker-dispatches).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep 90 row prepended; Version `2.0.84` to `2.0.85`.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated after the master-spec version bump above.
+
+### Added
+- [`.working/validate-sweeps/2026-07-08-sweep90-iter1.md`](../validate-sweeps/2026-07-08-sweep90-iter1.md): the per-iteration detail file (the three subagent returns plus the orchestrator synthesis).
+
+### Verification
+Sweep 90 ran the full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference sweep, C audit-programme integrity). A: 0 escalated findings plus 1 out-of-window note (A-1); B: 1 in-window note (B-1); C: 0 findings. All three asserted-clean claims from the #700-#712 session (AIQT reframe complete, gate 42-to-44 correction complete, Principle propagated to all enumeration surfaces, counts 66/12/20/13/18, principle-doc §4 mappings claim-fit-verified against the held NIST AI RMF 1.0 / ISO/IEC TR 24028:2020 §5.3 / ISO/IEC 42001:2023 sources) were independently corroborated, so the loop-break compensating control PASSES. `tools/run_all_audits.sh` 66/66 standalone post-commit; `tools/run-pr-time-checks.sh` green (D7 validates the handoff Current-truth version tokens against live headers). Library `2026.07.201` to `2026.07.202`; README `1.9.562` to `1.9.563`.
+
 ## 2026-07-08, Library Version 2026.07.201, PR #713
 
 Session-closing handoff for the 2026-07-08 resumed session (which shipped #700 through #712, all with full per-PR QA and zero escaped findings).
