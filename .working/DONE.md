@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #702: /deep-assessment skill, command, register, and hooks (2026-07-08)
 
-Shipped the rare, maintainer-invoked whole-project deep-assessment instrument: the pack skill plus its paired `/deep-assessment` command (count-free and inventory-deriving, register-backed and re-entrant, sign-off-terminated), wired across the gate-42 PAIRS registry, `/resume` step 7, the pack README (skills tree plus a minor version bump), a project CLAUDE.md section, and the working-records sweep; the two advisory gate-efficacy tools (blind-spot map, mutation probe) shipped in the paired #701. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #109); also codifies that any future quality-check process or tool is included in the deep assessment by construction.
+Shipped the rare, maintainer-invoked whole-project deep-assessment instrument: the pack skill plus its paired `/deep-assessment` command (count-free and inventory-deriving, register-backed and re-entrant, sign-off-terminated), wired across the gate-44 PAIRS registry, `/resume` step 7, the pack README (skills tree plus a minor version bump), a project CLAUDE.md section, and the working-records sweep; the two advisory gate-efficacy tools (blind-spot map, mutation probe) shipped in the paired #701. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #109); also codifies that any future quality-check process or tool is included in the deep assessment by construction.
 
 ### PR #697: FR-63 (2.7): adoption worked example (2026-07-08)
 
