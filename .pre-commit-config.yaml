@@ -483,3 +483,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-doctype-parity
+        name: Document-Type enumeration parity audit
+        entry: python3 tools/lint-doctype-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
