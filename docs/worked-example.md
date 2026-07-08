@@ -2,11 +2,11 @@
 
 **Document Title:** Worked Example: Converting a Draft into a CC BY-SA 4.0 Artefact\
 **Document Type:** Guide\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md)\
+**Related Documents:** [`specification-ingestion.md`](../specification-ingestion.md), [`specification-master-project.md`](../specification-master-project.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md)\
 **Classification:** Public\
 **Category:** Documentation\
 **Review Frequency:** Annual and upon material change to the ingestion specification or the worked example's source procedure\
@@ -16,7 +16,7 @@
 
 ---
 
-This walkthrough shows how a draft becomes a library-canonical artefact in this library. The example traces a hypothetical short procedure from rough notes through to a committed file. It is for adopters and contributors who want to see the ingestion specification applied end to end.
+This walkthrough shows how a draft becomes a library-canonical artefact in this library. The example traces a hypothetical short procedure from rough notes through to a committed file. It is for adopters and contributors who want to see the ingestion specification applied end to end. This example covers ingestion (getting a new artefact into the library); for the reverse direction, following one adopter from clone through a staged programme, see the companion [`docs/worked-example-adoption.md`](worked-example-adoption.md).
 
 ## Starting material
 

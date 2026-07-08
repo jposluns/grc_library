@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.185, PR #697
+
+FR-63 (TODO §2.7): adds a narrative adoption worked example complementing the ingestion worked example, following one fictional adopter (reusing the startup-roadmap Example 1 mid-size SaaS) from clone through the Day-1 floor and the staged Phase 1 / Phase 2 programme with file-by-file decisions. Applied from a research delivery; closes TODO §2.7 / FR-63.
+
+### Added
+- [`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md) (new; Document Type Guide; `1.0.0`): the adoption worked example. Mirrors [`docs/worked-example.md`](../../docs/worked-example.md)'s Guide shape (13-field metadata, narrative sections, Common pitfalls, Summary, no End-of-Document marker). References (does not duplicate) the quickstart, both roadmaps, the decision tree, and the adopter guide.
+
+### Changed
+- [`docs/worked-example.md`](../../docs/worked-example.md) (`1.0.3` to `1.0.4`): added the companion to Related-Documents and a one-line ingestion-vs-adoption companion pointer in the intro.
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (`1.3.9` to `1.3.10`): added the companion to Related-Documents.
+- [`tools/lint-metadata.py`](../../tools/lint-metadata.py): added the new document's basename to `PREFIX_EXEMPT_BASENAMES` (the docs/ meta-doc naming class; the sibling worked-example, adopter-guide, and decision-tree Guides are already members, since a Type-Guide document otherwise requires a `guide-` filename prefix).
+- [`TODO.md`](../../TODO.md): §2.7 deleted (closed), the line-47 apply-ready phrase and the P2 backlog-totals (11 to 10 open) reconciled; [`.working/DONE.md`](../DONE.md) gains the closure entry.
+- Bookkeeping: batched PR #696 [`/validate-pr`](../validate-pr/history.md) and [`/retro`](../improvement-log.md) rows; [`.working/overnight-pr.md`](../overnight-pr.md) build-progress; [`.working/session-state.md`](../session-state.md) lease refresh.
+
+### Verification
+- 66/66 audit gates + the pre-push guard green. The new document passes gate 1 (via the meta-doc class exemption) and gate 2 (its "Step N:" headings were CONFORMED to sentence-case by capitalizing the first word after the label, not exempted, because this document does not demonstrate the house-style rules the way the ingestion worked example does). Every referenced corpus file was verified to exist. docs/ meta-docs are not taxonomy-tracked, so the generated taxonomy, portal, and scorecard are unchanged.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260703-a/fr-63-adoption-worked-example/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-63-adoption-worked-example/MANIFEST.md) (a research delivery, not final prose). The delivery was 77 commits stale (staged against `ede2e3b`); a fresh-context re-read reconciled current state and drafted, and the orchestrator re-verified and authored the final prose under the language gate.
+
+### Discipline observation
+- The stale scaffold's wiring plan (add the companion to the adopter entry-point lists) was CORRECTED at apply-time: the fresh-context re-read established that doing so would force a "five to six" count cascade across five entry-point lists plus hardcoded text in the portal generator, and would misclassify a walkthrough as a composition path. The mutual-Related-Documents-pointer wiring (matching how the ingestion worked example is already wired) was used instead. Two scaffold items the orchestrator verified rather than trusted: the IAM-policy Owner role (confirmed "Chief Information Security Officer"), and the new-document version start (resolved to `1.0.0`: zero `0.0.x` documents exist in the taxonomy, and this document ships as an active, maintainer-approved artefact).
+
 ## 2026-07-08, Library Version 2026.07.184, PR #696
 
 TODO 1.11 residual: confirms the ANPD Resolution CD/ANPD No. 15/2024 "deadlines doubled for small-scale agents" sub-clause against the resolution text, the last open residual of the Brazil citation verification (the six citations and the base deadlines were primary-verified in #691). Secondary-tier confirmation; TODO 1.11 stays open, narrowed to a primary-source re-confirmation.
