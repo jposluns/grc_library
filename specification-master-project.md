@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.10\
+**Version:** 1.6.11\
 **Date:** 2026-07-08\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -178,6 +178,7 @@ No additional types may be created without approval.
 - Procedure versus SOP: a Procedure is a multi-actor or cross-functional workflow that coordinates several roles. An SOP is a single-actor or narrow team sequence with explicit step ownership for one repeatable task.
 - Plan versus Roadmap: a Plan is event-triggered or schedule-bound coordination such as incident, recovery, migration, or communication. A Roadmap is a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies.
 - Guideline versus Guide: a Guideline is advisory interpretation of a policy or standard requirement and reads as governance commentary. A Guide is technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs.
+- Principle versus Charter versus Policy: a Principle document states the foundational, cross-cutting production principles that govern how the corpus itself is produced (priority orderings, non-negotiable facets), derived from the charter and realized across frameworks, policies, and standards. A Charter defines the repository's governing authority, mandate, scope, and approval model (it names principles but does not elaborate them). A Policy states binding operational intent and mandatory commitments for a specific governance domain.
 
 ### 4.5 Library versioning
 
