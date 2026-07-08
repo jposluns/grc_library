@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.182, PR #694
+
+Follow-up corrections from the `/full-qa` review of PR #693. Completes the organization-neutrality terminology reframe across the quality-review documents, clears stale references to the retired organization-specific check (a tool docstring, the audit-programme gate-2 narrative, a linter exemption comment), disambiguates a duplicated section title, and reconciles the working-state handoff snapshot. Documentation, comment, and working-state records only; no corpus normative content changed. Batches PR #693's `/validate-pr` (QA performed via `/full-qa`; 6 findings, all fixed here) and `/retro` rows.
+
 ## 2026-07-08, Library Version 2026.07.181, PR #693
 
 Update and clarification of reference information. Clarifies reference-handling documentation and working-state records, and retires an obsolete organization-specific check in favour of the general organization-neutral contribution rule. No corpus normative content changed; the documentation model, gates, and framework alignments are unaffected.

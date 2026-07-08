@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.8\
+**Version:** 1.7.9\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,7 +64,7 @@ Permitted use includes independent synthesis, framework name references, high-le
 
 ---
 
-## Organization-neutrality rules
+## Organization-neutrality requirements
 
 Repository content must not include:
 

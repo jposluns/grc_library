@@ -2,8 +2,8 @@
 
 **Document Title:** Library Health Report Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md)\
@@ -112,7 +112,7 @@ For each drift indicator, describe the observed pattern, the affected documents,
 | Cross-document inconsistency | Pairs of documents that say different things about the same control |
 | Owner-role overload | Roles assigned an excessive number of responsibilities |
 | Forum proliferation | New named forums introduced without consolidation guidance |
-| Sanitization residue | Real organization identifiers, regional scoping, internal hostnames |
+| Organization-specific residue | Real organization identifiers, regional scoping, internal hostnames |
 | Phantom dependencies | References to documents or frameworks that don't exist |
 
 ### Section G: incidents and lessons
@@ -155,7 +155,7 @@ Where signals are available:
 | Planned phases or significant content additions | List |
 | Tooling improvements | List |
 | Framework reference refreshes | Per the semi-annual cadence |
-| Sanitization sweep | Per the quarterly cadence |
+| Organization-neutrality sweep | Per the quarterly cadence |
 
 ### Section K: sign-off
 
