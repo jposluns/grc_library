@@ -1,0 +1,115 @@
+{
+  "comment": "Starter variant library for tools/audit-gate-mutation.py. Each variant encodes a HYPOTHESIS about a gate's intended detection scope, grounded in the gate's documented intent; MISSED / FALSE-POSITIVE verdicts are candidates for adjudication, not proof of a gate defect. Payload special characters are JSON-escaped (\\u2014 em dash, \\u2013 en dash) so this file itself carries no literal dash. The path @any-corpus-md resolves at run time to a tracked corpus document. Extend this library run over run; keep each variant's rationale in its description.",
+  "variants": [
+    {
+      "gate": "lint-language.py",
+      "id": "emdash-plain-body-line",
+      "description": "Em dash in a plain appended body line; the canonical documented defect.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The control owner reviews the register \u2014 quarterly at minimum."
+      }
+    },
+    {
+      "gate": "lint-language.py",
+      "id": "endash-table-cell",
+      "description": "En dash inside a markdown table cell; width probe (separator context).",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "| Review window | 30\u201360 days |\n| --- | --- |"
+      }
+    },
+    {
+      "gate": "lint-language.py",
+      "id": "ise-spelling-body",
+      "description": "British -ise spelling in body prose; documented Canadian -ize rule.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The committee must prioritise the remediation backlog each quarter."
+      }
+    },
+    {
+      "gate": "lint-language.py",
+      "id": "emdash-inside-fence",
+      "description": "Em dash inside a fenced code block; fence-aware linters should not flag code content (false-positive probe).",
+      "expect": "clean",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "```text\nexample \u2014 code content, not prose\n```"
+      }
+    },
+    {
+      "gate": "lint-unbalanced-fences.py",
+      "id": "unclosed-fence-eof",
+      "description": "A lone opening fence at end of file; the gate's namesake defect.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "```text\nunterminated fence content"
+      }
+    },
+    {
+      "gate": "lint-secrets-in-content.py",
+      "id": "aws-key-body-line",
+      "description": "AWS documentation's published example access key id in a body line; matches the gate's AKIA pattern class.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "Rotate the credential AKIAIOSFODNN7EXAMPLE immediately on exposure."
+      }
+    },
+    {
+      "gate": "lint-secrets-in-content.py",
+      "id": "aws-key-table-cell",
+      "description": "Same key class inside a table cell; width probe (separator context).",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "| Example finding | AKIAIOSFODNN7EXAMPLE |\n| --- | --- |"
+      }
+    },
+    {
+      "gate": "lint-secrets-in-content.py",
+      "id": "aws-prefix-short-clean",
+      "description": "AKIA prefix with too few trailing characters to be a key; must not flag (false-positive probe).",
+      "expect": "clean",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "Access key identifiers begin with the AKIA prefix string."
+      }
+    },
+    {
+      "gate": "lint-links.py",
+      "id": "broken-relative-link",
+      "description": "Markdown link to a nonexistent repo-relative file; the gate's namesake defect.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "See the [retired annex](./no-such-file-mutation-probe.md) for history."
+      }
+    },
+    {
+      "gate": "lint-metadata.py",
+      "id": "new-doc-missing-metadata",
+      "description": "A new corpus document with a heading but no metadata block; the metadata gate should flag a corpus document without the required block.",
+      "expect": "detect",
+      "action": {
+        "type": "create_file",
+        "path": "governance/policy-mutation-probe-synthetic.md",
+        "text": "# Synthetic Mutation-Probe Policy\n\nBody text with no metadata block."
+      }
+    }
+  ]
+}
