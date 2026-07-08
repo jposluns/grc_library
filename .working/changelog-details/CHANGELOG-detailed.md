@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.187, PR #699
+
+Session-closing handoff PR for the 2026-07-08 OVERNIGHT NUC session (which merged PRs #694 through #698, on the long NUC session that resumed 2026-07-07). Working-state and version-surface only; no corpus normative content changed. Per the standing loop-break exception (PR-workflow step 5a; the `ai-assistant-workflow-disciplines` pack rule) this handoff runs no trailing `/validate-pr` or `/retro`; the compensating control is the next session's `/resume` corpus-wide `/validate` over the #687..#699 deltas, cross-checked against this session's asserted-expectations block.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed to the closing state, a CLOSING next-actions block (the maintainer's next-session directive plus the seven deferred questions/clarifications with a recommendation each), the reconciled State snapshot (merged-through #698, versions, green-at-`b516ad9`), and this session's Asserted-expectations block. Not pruned (pruning is the next `/resume`'s job, per the refresh-and-pruning discipline).
+- [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED (`Active-session: none`, `Status: released`, heartbeat re-stamped `2026-07-08T11:39:01Z`); the Current-task narrative reconciled to the session's closing arc.
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.40` to `1.0.41`): added the 2026-07-07-to-2026-07-08 NUC-session row (12 main-repo PRs #687-#698 plus this handoff; subagent-token floor 165,537, the one post-compaction return, the rest pre-compaction and honestly excluded; orchestrator tokens `not instrumented`).
+- [`.working/overnight-pr.md`](../overnight-pr.md): recorded the #699 wind-down note; kept `Status: in-flight` (gate 46 passes) for the next session to morning-process as part of ending overnight mode.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.473` to `1.2.474`): the #698 `/validate-pr` row (1 immaterial NOTE) and the #699 handoff `SKIPPED (handoff-PR exception)` row.
+- [`.working/improvement-log.md`](../improvement-log.md) (`1.0.417` to `1.0.418`): the #698 `/retro` row.
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): reworded PR #698's Verification bullet (the #698 `/validate-pr`'s one in-window NOTE: the README catalogue row bumped only Version, not Date, which was already 2026-07-08 from #697 the same UTC day; the "co-bumped" wording was imprecise, the resulting state correct and gate 31 green).
+- [`README.md`](../../README.md) (`1.9.547` to `1.9.548`; Library Version `2026.07.186` to `2026.07.187`): the once-per-PR version-surface bump.
+
+### Verification
+- 66/66 audit gates plus the pre-push guard green (the #698 `/validate-pr` Subagent A confirmed `All 66 audit gates passed`, EXIT=0 at the pre-handoff `main` `b516ad9`; #699 changes only working-state, version surfaces, and CHANGELOG, so the corpus stays 66/66 at #699's descendant merge). No corpus document body changed. Gate 50 recognizes the #699 handoff-exemption marker in the validate-pr history Findings cell; gate 46 passes on the `in-flight` overnight-PR file; gate 63 passes on the `released` lease.
+
+### Discipline observation
+- The one #698 `/validate-pr` finding was an immaterial prose imprecision in #698's own detailed-CHANGELOG Verification bullet ("Version and Date co-bumped" when only Version changed). It is exactly the meta-prose-state-claim class the close-out checklist guards (a bookkeeping-authoring claim not measured against the actual diff); caught by the refute-briefed Subagent A, reworded here per the findings-batch discipline. Immaterial (the resulting state was correct, gate 31 green), so no hot-fix; folded into this handoff.
+- The #698 `/validate-pr` was RUN (a refute-briefed Subagent A) rather than marked SUBSUMED into the compensating control, even though #698 is bookkeeping and subsumption would have been gate-50-legitimate: erring on the caution-and-integrity side of the overnight directive, a cleanly-wound-down session clears its owed per-PR QA. Only the #699 handoff's OWN trailing QA takes the loop-break exemption.
+
 ## 2026-07-08, Library Version 2026.07.186, PR #698
 
 Folds in PR #697's out-of-window `/validate-pr` notes, batches its QA, and records the deferral of the GR-8-follow-on-A register-ageing advisory tool. Working-state and README-discoverability only; no corpus normative content changed.
@@ -17,7 +38,7 @@ Folds in PR #697's out-of-window `/validate-pr` notes, batches its QA, and recor
 - Batched PR #697 [`/validate-pr`](../validate-pr/history.md) and [`/retro`](../improvement-log.md) rows; [`.working/overnight-pr.md`](../overnight-pr.md) build-progress plus an honest queue-state note.
 
 ### Verification
-- 66/66 audit gates plus the pre-push guard green. No corpus document body changed except the README catalogue row (Version and Date co-bumped). The register-ageing tool prototype was reverted (not shipped); the tree carries no partial tool.
+- 66/66 audit gates plus the pre-push guard green. No corpus document body changed except the README catalogue row (README Version bumped; Date already 2026-07-08 from #697, same UTC day, so no Date change; gate 31 green). The register-ageing tool prototype was reverted (not shipped); the tree carries no partial tool.
 
 ### Discipline observation
 - The register-ageing tool was built, tested, and DEFERRED rather than shipped. Its output over-flagged (roughly 78 in-window false-positive habit-notes even with a cutoff) because the disposition-token heuristic cannot distinguish a formal pending candidate from an adopted-in-place habit or convention note. Shipping an over-flagging advisory would erode trust in its output (the opposite of the precise brief-freshness sibling it was modelled on), so per Quality over Speed it was deferred with a recorded design finding (a formal-candidate classifier or a structured register marker is needed) rather than forced through at the tail of a long session. The two actionable #697 out-of-window notes were folded in; the third (Related-Documents symmetry) was left informational (not gate-enforced; the wiring was deliberately scoped to the worked-example and adopter-guide pair).
