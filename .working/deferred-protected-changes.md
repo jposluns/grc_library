@@ -52,6 +52,16 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers). 
   GR-P4 overlay primary-wins pointers + pruning stance; GR-P5 `derives_from` re-point + exception-
   register hoist + the CLAUDE.md Boundaries-line wrong-trio correction. These are their own PRs.
 
+### 7. [changelog-restructure] Current-week model + compact root format (descriptive doc edits)
+
+- **Targets:** the change-tracking governance rule (`dev-security/claude-rules/governance/change-tracking.md` and its `.claude/rules/governance/change-tracking.md` mirror), the `change-tracking-write-entry` skill (pack + `.claude/` copies), and `.claude/CLAUDE.md`.
+- **Why deferred:** protected surfaces; the non-protected machinery (gate-59 dynamic cutoff, `tools/sweep-working-records-to-scratch.py`, `.gitattributes`, `.working/changelog-details/README.md`) shipped in the overnight PR 1, but the prose that DESCRIBES the model and wires the per-PR step into the workflow lives in protected files.
+- **Prepared edits (apply at daytime):**
+  1. **change-tracking rule (both copies):** add the current-week model, the in-repo detailed mirror holds only the current week; completed weeks are swept to the `grc_library_scratch` weekly Monday-dated archives via `tools/sweep-working-records-to-scratch.py` (data-safe: emit-then-verify-then-prune); gate 59's cutoff is a dynamic floor `max(CUTOFF_PR, oldest in-repo mirror PR)`. State that removed content remains in git history, so the sweep is tree-tidiness, not clone-cleanliness. Document the compact root-entry format: `**YYYY-MM-DD | X.Y.Z | PR #N** - one-or-two-sentence summary`, blank line between entries, plain hyphen separator (no em/en dash).
+  2. **change-tracking-write-entry skill (both copies):** the write path is UNCHANGED (new detailed entries still prepend to `.working/changelog-details/CHANGELOG-detailed.md`; only completed weeks are swept out later); add the compact root-entry format instruction for the root `CHANGELOG.md` lead line.
+  3. **CLAUDE.md:** add the per-PR sweep step to the PR-workflow close-out (run `tools/sweep-working-records-to-scratch.py --emit-archive <scratch>/archive` then `--prune --verify-archived <scratch>/archive` as a cross-repo follow-up, like `/validate-pr`); describe the current-week model + the `.gitattributes export-ignore` fork-hygiene (3.19 resolution) + the compact root format; note the detailed-mirror path description is now "current week only".
+- **Cross-refs:** the machinery landed in changelog-restructure PR 1; the initial sweep in PR 2; the root reformat/compress in PR 3+. TODO 3.19 is resolved (export-ignore adopted; current-week model instead of a full `.working` migration).
+
 ---
 
 _Empty of items = nothing deferred. Add an item whenever an overnight task turns out to need a

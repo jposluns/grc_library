@@ -4,6 +4,14 @@ This subdirectory holds the verbose, structured-section changelog entries that t
 
 The split was introduced in PR #125 (2026-06-21) at maintainer direction. Rationale: the root CHANGELOG is the artefact adopters and downstream consumers read; verbose maintainer-grade detail clutters that surface. Maintainer-grade detail is preserved here, exempt from corpus audit gates, available to anyone who wants the full audit trail without imposing on the public summary.
 
+## Current-week model (2026-07-08, maintainer decision)
+
+The in-repo `CHANGELOG-detailed.md` keeps only the **current week's** entries; completed weeks are swept to the `grc_library_scratch` archive as weekly Monday-dated files (`YYYY-MM-DD_detailed.md`, keyed to the week's Monday). This keeps the in-repo mirror small and browser-openable while the full audit trail accumulates in the wipeable exchange repo (and remains in this repo's git history regardless). The write path is unchanged: new entries still prepend to `CHANGELOG-detailed.md`; only completed weeks leave it.
+
+- **Sweep tool:** [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py) (not an audit gate; an orchestrator follow-up step). It is data-safe: `--emit-archive` writes the weekly archives to scratch, and `--prune` refuses to remove anything from this repo unless `--verify-archived` confirms every artefact already exists in the archive.
+- **Gate 59 (mirror header-parity):** its cutoff is now a dynamic floor, `max(CUTOFF_PR, oldest PR still in the in-repo mirror)`, so a swept (now scratch-only) entry is correctly out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
+- **Rollout:** the machinery (this tool + the dynamic gate) landed first; the initial sweep of completed weeks and the per-PR sweep-step wiring follow in subsequent PRs. Until the initial sweep runs, this file still holds the full history.
+
 ## Files in this subdirectory
 
 | File | Purpose |

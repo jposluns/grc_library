@@ -28,6 +28,19 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 - grc_library_scratch: PR #108 (worker-exchange-only reframe, split 3b).
 - grc_library corpus PRs this session: #687 (Sweep-88 + TODO 1.12), #688/#689 (reference-library split re-point).
 
+## 2026-07-08 overnight run (changelog-restructure + egress queue)
+
+**Authorization scope (maintainer-directed 2026-07-08, "I'm going to sleep. Swap to overnight mode."):**
+
+1. **Complete the changelog-restructure changes as discussed**, erring on the side of caution and integrity. The agreed design: (a) the detailed-CHANGELOG mirror + per-run records keep only the CURRENT WEEK in-repo, completed weeks swept to `grc_library_scratch` weekly Monday-dated archives (full per-PR sweep machinery); (b) the root `CHANGELOG.md` keeps full history but each entry compressed to 1-2 sentences in the compact `**date | version | PR** - summary` format; (c) `.gitattributes export-ignore` on `.working/` (the 3.19 resolution). Sequenced: PR 1 machinery (gate-59 dynamic cutoff + sweep tool + export-ignore + docs, no data moved); PR 2 the data-safe sweep (populate scratch archives, verify, prune) + per-PR sweep step; PR 3+ the root reformat then compression.
+2. **Protected-file edits DEFERRED** per the standing overnight rule: the change-tracking rule/skill and CLAUDE.md descriptive edits (the model write-up + the per-PR sweep workflow step) are staged in [`deferred-protected-changes.md`](deferred-protected-changes.md), not applied overnight. The non-protected machinery (tools, `.gitattributes`, `.working/` docs, fixtures, corpus audit-programme narrative) ships now.
+3. **Correct any issues first**, then proceed through the queue prioritizing **egress-needs** (the egress-gated backlog: TODO 1.5 / 1.11 residual / GR-GAP-1 / SR-1 and the 11 legislation deepenings, for reachable sources; iso.org-only items stay deferred). Standing overnight rules carry over: merge on green CI, per-PR QA unabbreviated, no idle-stop, stricter-is-safer, overnight mode ends only on an explicit maintainer signal.
+
+**Build progress (2026-07-08 overnight, updated as PRs land):**
+
+- PR #694 (pre-overnight, this session): `/full-qa` follow-up corrections merged.
+- Changelog-restructure PR 1 (machinery): in flight on `2026-07-08-changelog-machinery`.
+
 **Reference-base queue remaining (Phase A, cross-repo-parallel with corpus):** reference-base work (tracked separately in the reference repo).
 
 **Corpus queue (Phase B):** this bookkeeping PR (batched #687-689 validate-pr/retro rows + retro-row-malformation fix + reference-base and currency notes + SP 800-154 TODO); SP 800-154 replace; fast-follow #6 (reference-source schema codification + citation-not-embed gate + forkability note); egress-unblocked items (1.11 Brazil, non-iso.org currency rows, legislation deepenings 2.1-batch-2/2.2/2.8/2.10/2.12/2.13 + jurisdiction annexes); non-legislation (#8: FR-63, 3.16/3.17, small P3/P4); scratch coverage-refresh sync (#10).
