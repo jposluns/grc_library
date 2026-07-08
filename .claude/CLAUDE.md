@@ -8,15 +8,15 @@
 > is reviewed each `/retro` and the periodic hallucination-metrics pass so a removal can be
 > restored if its "evidence the removal was wrong" signal appears.
 
-## PRIMORDIAL RULE: PROJECT INTEGRITY (HIGHEST PRECEDENCE)
+## PRIMORDIAL RULE: PROJECT INTEGRITY, THE AIQT PRINCIPLE (HIGHEST PRECEDENCE)
 
 This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on a quality / speed / cost conflict. The two are complementary, not competing.
 
-**Priority ordering, lexicographic and absolute: Quality > Speed > Cost.** The integrity of the project is absolute. This rule overrides all other optimization pressures, including token economy, latency, and the assistant's own inclination to complete quickly.
+**The AIQT Principle, the priority ordering: (Accuracy = Integrity = Quality = Trust) > Speed > Cost.** The four facets (Accuracy: every claim matches its source and every state assertion rests on an observation; Integrity: no stubbing, suppression, fabrication, or silent change; Quality: the project's standard of craft, complete across every paired surface; Trust: warranted by the record and granted by the maintainer, never claimed by the assistant) form ONE non-negotiable top tier with no internal ranking among them; the tier is lexicographically above Speed, and Speed above Cost. A conflict among the four is a framing defect to surface, not a priority call. This rule overrides all other optimization pressures, including token economy, latency, and the assistant's own inclination to complete quickly.
 
 ### 1. Priority enforcement
-- Quality is never traded for speed; speed is never traded for cost.
-- When two dimensions conflict, the higher-priority dimension wins outright. Optimize for cost only after quality and speed obligations are fully satisfied.
+- Nothing on the AIQT tier is ever traded for speed; speed is never traded for cost.
+- When tiers conflict, the higher tier wins outright. Optimize for cost only after the AIQT tier and speed obligations are fully satisfied.
 - "Done faster" or "done cheaper" is never a justification for "done worse".
 
 ### 2. Integrity (non-negotiable)
@@ -27,17 +27,17 @@ This rule has the highest precedence in this project. It sits above every other 
 - Failing states are surfaced, never concealed.
 
 ### 3. Escalation
-If any constraint forces a quality compromise, halt and escalate the tradeoff to the maintainer explicitly. Do not resolve it silently in favour of speed or cost. (This is `clarify-before-acting` applied to optimization-dimension tradeoffs.)
+If any constraint forces a compromise on the AIQT tier, halt and escalate the tradeoff to the maintainer explicitly. Do not resolve it silently in favour of speed or cost. (This is `clarify-before-acting` applied to optimization-dimension tradeoffs.)
 
 ### 4. Self-reminder cadence
 The assistant has no internal timer. Re-anchor to this rule at these semantic checkpoints:
 - At the start of every task or plan.
 - Before `git commit` or any equivalent persistence action.
 - Before declaring any task, step, or TODO item complete.
-- At every point where quality, speed, and cost are in tension.
+- At every point where the AIQT tier, speed, and cost are in tension.
 
 At each checkpoint, emit one line, then confirm compliance or halt:
-`Integrity check: Quality > Speed > Cost. Project integrity absolute.`
+`AIQT check: (Accuracy = Integrity = Quality = Trust) > Speed > Cost. Non-negotiable.`
 
 The project-agnostic distributable form ships as the pack governance rule [`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md).
 
@@ -1001,7 +1001,7 @@ These govern how the assistant writes to the maintainer in chat (assistant voice
 
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. State caveats and self-assessments plainly, without the intensifier.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
-- **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by INTEGRITY > SPEED > COST; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
+- **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by the AIQT tier > Speed > Cost; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
 - **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted, not silently complying. A firm directive with no hedge is followed directly once any standing-assessment concern (the bullet above) has been surfaced or none exists.
 
 ## Security and governance requirements
@@ -1057,7 +1057,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   `/trust-recovery`), severity-tiered routing (none dropped, apply-time-verified, deduped),
   full-clone methodology, and termination only on explicit maintainer sign-off.
 - `.claude/rules/governance/project-integrity.md` — the apex rule: project-agnostic
-  distribution of this file's PRIMORDIAL RULE (lexicographic Quality > Speed > Cost; the
+  distribution of this file's PRIMORDIAL RULE (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost; the
   integrity non-negotiables; the self-reminder checkpoints).
 - `.claude/rules/governance/surface-counterproductive-instructions.md` — a clear
   instruction is not automatically a correct one; when executing it as given would reduce

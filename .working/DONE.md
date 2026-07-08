@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #705: AIQT Principle apex-rule codification (2026-07-08)
+
+Reframed the pack's apex rule as the **AIQT Principle**, (Accuracy = Integrity = Quality = Trust) > Speed > Cost: the four facets named as one co-equal non-negotiable tier, each mapped to its enforcing machinery, superseding the "Quality > Speed > Cost" formulation and the "Integrity check:" chant across every live pack and project surface (substance unchanged; the new checkpoint is "AIQT check: ..."). Added the copy-paste AIQT baseline block to the pack README. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #110); the corpus principle document is the required follow-up PR 2.
+
 ### PR #702: /deep-assessment skill, command, register, and hooks (2026-07-08)
 
 Shipped the rare, maintainer-invoked whole-project deep-assessment instrument: the pack skill plus its paired `/deep-assessment` command (count-free and inventory-deriving, register-backed and re-entrant, sign-off-terminated), wired across the gate-44 PAIRS registry, `/resume` step 7, the pack README (skills tree plus a minor version bump), a project CLAUDE.md section, and the working-records sweep; the two advisory gate-efficacy tools (blind-spot map, mutation probe) shipped in the paired #701. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #109); also codifies that any future quality-check process or tool is included in the deep assessment by construction.

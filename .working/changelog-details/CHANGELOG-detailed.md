@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.193, PR #705
+
+Codifies the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Speed > Cost, as the pack's apex rule (PR 1 of the AIQT work; the corpus principle document is PR 2). Applied from the Fable aiqt-codification delivery under validate-then-apply; the maintainer confirmed the inner-bracket form (no outer brackets) and the three world-facing wordings (checkpoint line, apex-rule headline, README baseline block) before the first commit.
+
+### Changed
+- [`dev-security/claude-rules/governance/project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md) and its [`.claude/rules/`](../../.claude/rules/governance/project-integrity.md) mirror (identical, gate-37-synced, both in this commit): the full amended text. Title, opening ordering paragraph, the four-facet section (each facet mapped to its enforcing machinery), the priority-enforcement section, and the checkpoint reframed to AIQT; the two known misreadings foreclosed; the integrity non-negotiables (section 3), the escalation protocol (section 4), and the cadence (section 5) carried over verbatim; the filename unchanged so all pack cross-references keep resolving; a provenance paragraph records the superseded `Quality > Speed > Cost` formulation once by design.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the PRIMORDIAL RULE heading (`, THE AIQT PRINCIPLE` appended), the ordering statement (now naming the four facets), the priority-enforcement bullets, the escalation and cadence lines, the checkpoint chant (`Integrity check:` to `AIQT check:`), the `INTEGRITY > SPEED > COST` proactive-assessment reference, and the rules-index project-integrity bullet.
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): the step-8 PRIMORDIAL-RULE standing-disciplines reference.
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md): the apex-rule index bullet.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): the category-2 blurb, the rule-tree apex line, and the applicability row migrated; Version `1.55.0` to `1.56.0` with the paired Version-history row (D6); and a new copy-paste AIQT baseline starter section (the maintainer-approved world-facing form 3).
+- [`dev-security/claude-rules/governance/surface-counterproductive-instructions.md`](../../dev-security/claude-rules/governance/surface-counterproductive-instructions.md) and its `.claude/rules/` mirror: the project-integrity cross-reference line (both trees, gate-37-synced).
+- [`README.md`](../../README.md): library CalVer `2026.07.192` to `2026.07.193`, README Version `1.9.553` to `1.9.554`.
+- [`.working/session-handoff.md`](../session-handoff.md): the Standing-disciplines PRIMORDIAL-RULE line migrated to AIQT (a live-guidance surface, not a frozen record); the Current-truth snapshot reconciled to this PR's head.
+
+### Verification
+- Bracket form: inner brackets only around the four co-equal facets, `(Accuracy = Integrity = Quality = Trust)`, maintainer-confirmed; no outer brackets; applied consistently across every live surface (the title uses a comma lead-in to avoid a nested parenthesis).
+- Gate number: the `.claude/rules` copy-sync gate is gate 37 (verified against the audit-programme specification §6; the delivery's apply-note had labeled it gate 44, corrected here per the #703 apply-time-verify-gate-numbers rail).
+- Completion check (whole-repo grep, the #703/#704 lesson): the only surviving old-token strings (`Quality > Speed > Cost`, `INTEGRITY > SPEED > COST`, `Integrity check:`, `Project integrity absolute`) are the rule's provenance paragraph (both trees), the pack README version-history rows, the pack CLAUDE.md rollout narrative, and the frozen root changelog and working-state records, all whitelisted by design; no unmigrated live carrier remains.
+- The language gate was run on all touched pack prose before the first commit (clean). `tools/run_all_audits.sh`: all 66 gates pass, including gate 37 (the two identical project-integrity copies) and gate 35 (four-surface parity). No hook or tool consumes the literal `Integrity check:` chant (grep of `.claude/hooks/` and `tools/`).
+- Batches PR #704's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/aiqt-codification/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/aiqt-codification/MANIFEST.md) (merged scratch-side as PR #110, gate-label-corrected in scratch #112). A research delivery verified and applied by the orchestrator: the amended rule and the surface rewrites are orchestrator-authored from the candidate with the maintainer-confirmed inner-bracket form and the gate-37 copy-sync correction integrated, not pasted.
+
 ## 2026-07-08, Library Version 2026.07.192, PR #704
 
 Completes the #703 paired-skill parity gate-number correction, which #703's own post-merge `/validate-pr` found incomplete (three carriers survived a scope-limited verification grep). Prose/working-state accuracy correction; no functional or gate-logic change.
