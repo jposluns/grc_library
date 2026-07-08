@@ -7,7 +7,7 @@ The assistant must treat the "GRC Library Ingestion and Transformation Specifica
 3. Select the correct directory based on the domain rules in the ingestion specification. Governance artefacts go in one of the domain directories listed in the Master Project Specification §4; do not place artefacts in the infrastructure directories (`tools/`, `docs/`, `.github/`, `tests/`).
 4. Apply the canonical 13-field metadata block exactly (a superseded document additionally inserts the optional `**Status:** Superseded` lifecycle line after Document Type, per step 20): Document Title, Document Type, Version, Date, Owner, Approving Authority, Related Documents, Classification, Category, Review Frequency, Repository Path, Confidentiality, License. New documents start at version 0.0.1.
 5. Normalize all content per the ingestion specification: Oxford English with -ize endings, no em or en dashes, the verb "ensure" always paired with the conjunction "that", sentence case for H2 to H6 headings, role-based Owner and Approving Authority.
-6. Apply the sanitization substitution table in Appendix A of the ingestion specification to all content before output.
+6. Apply the organization-neutrality rules in Appendix A of the ingestion specification to all content before output.
 7. Produce a library-canonical Markdown document inside one fenced code block.
 8. Generate a repository update register outside the code block.
 9. Conduct comparative analysis if a document with the same canonical filename already exists, and request approval before replacing existing content.

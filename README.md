@@ -1,11 +1,11 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-07-07\
+**Date:** 2026-07-08\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.180 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.541 (semantic per-document version for this file)
+**Library Version:** 2026.07.181 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.542 (semantic per-document version for this file)
 
 ---
 
@@ -187,7 +187,7 @@ Three root-level files govern how the library is maintained and extended:
 
 | File | Purpose |
 | --- | --- |
-| [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, sanitization requirements, and the library-wide CalVer plus per-document semantic-versioning policy (§4.5). |
+| [`specification-master-project.md`](specification-master-project.md) | Master project specification: document model, metadata rules, domain structure, quality gates, organization-neutrality requirements, and the library-wide CalVer plus per-document semantic-versioning policy (§4.5). |
 | [`specification-ingestion.md`](specification-ingestion.md) | Document ingestion specification: canonical metadata format, allowed types, version numbering, and quality checklist. |
 | [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md) | AI-assisted ingestion instructions: step-by-step rules for ingesting documents using an AI coding assistant. |
 
@@ -356,7 +356,7 @@ Contributions must satisfy the following conditions:
 
 1. Content must be original, CC BY-SA 4.0-licensable, and organization-neutral.
 2. Content must not include real company names, personal names, internal identifiers, customer details, vendor-specific implementation data, or proprietary evidence.
-3. Third-party materials may be used only for non-verbatim reference. The library does not copy externally licensed content; it references and synthesizes.
+3. Third-party materials may be used only for non-verbatim reference. The library does not copy external third-party content; it references and synthesizes.
 4. Framework references must be accurate, version-aware, and scoped to the stated purpose.
 5. Regulatory content must separate obligation from interpretation and must identify where applicability depends on jurisdiction, sector, role, residency, or data category.
 6. Documents must maintain role-based ownership and approving authority.
@@ -378,7 +378,7 @@ All original content committed to this repository is released under Creative Com
 
 External standards, regulatory texts, control frameworks, questionnaires, implementation guides, audit guides, metrics catalogues, and similar materials remain subject to their own licence terms. This repository may use such materials only as reference inputs for independent synthesis, high-level alignment, terminology normalization, and non-verbatim mapping structures.
 
-Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository. The library's principle is that it does not copy externally licensed content; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
+Do not copy, redistribute, modify, or embed third-party copyrighted control text, questionnaire text, guidance text, tables, metrics catalogues, or implementation notes into this repository. The library's principle is that it does not copy external third-party content; it references external work by name and synthesizes original commentary. Where a contributor is uncertain whether material is original, the contributor must include only framework identifiers, domain names, high-level alignment notes, and original commentary, not the source text itself.
 
 See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference materials.
 

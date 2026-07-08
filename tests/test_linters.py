@@ -340,18 +340,6 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertLinterFails(result, "dash")
 
-    def test_sanitisation_term_flagged(self) -> None:
-        # SANITISATION_TERMS catches specific company/product names that
-        # should never appear in organization-neutral library content. The
-        # first term in the list is "Traffic Tech" — using it triggers
-        # the rule.
-        fixture = self.make_fixture(
-            "standard-sanitisation.md",
-            VALID_METADATA + "\n\nThe vendor Traffic Tech provided the platform.\n",
-        )
-        result = run_linter("tools/lint-language.py", fixture)
-        self.assertLinterFails(result, "sanitisation")
-
     def test_generator_emitted_prose_ise_flagged(self) -> None:
         # Gate 2 also scans the build-*.py generators' emitted-prose string
         # literals (Sweep 78 B-1, the low-severity cleanup batch): the generated docs/ output is
@@ -393,15 +381,14 @@ class LanguageLinterTests(LinterTestCase):
     def test_worked_example_meta_tutorial_exempt(self) -> None:
         # docs/worked-example.md is the meta-tutorial that demonstrates the
         # document-creation process, so it deliberately contains lowercase
-        # tutorial step headings, vendor names it shows being sanitised, and
-        # the word "ensure" while teaching the ensure-that rule. The
-        # is_worked_example carve-out exempts it from the heading-case,
-        # sanitisation, and ensure checks; it must scan clean.
+        # tutorial step headings and the word "ensure" while teaching the
+        # ensure-that rule. The is_worked_example carve-out exempts it from
+        # the heading-case and ensure checks; it must scan clean.
         result = run_linter("tools/lint-language.py", "docs/worked-example.md")
         if result.returncode != 0:
             self.fail(
                 "docs/worked-example.md should be exempt (heading-case / "
-                "sanitisation / ensure) and scan clean, but lint-language "
+                "ensure) and scan clean, but lint-language "
                 f"failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
             )
 

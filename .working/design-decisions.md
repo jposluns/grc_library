@@ -41,7 +41,7 @@ This file has three parts: this index; a set of **thematic sections** for durabl
 - 2026-07-03: TODO audit-trail sections stay in TODO by design
 - 2026-07-03: Worker-ready brief staging for the whole eligible backlog
 - 2026-07-03: S3 citation-precision instrument: the matrix-fit pattern, not a CI gate
-- 2026-07-02: Scratch-repo licensed reference files: keep tracked, private-forever promise
+- 2026-07-02: Scratch-repo reference files: keep tracked, private-forever promise
 - 2026-07-02: Mode-exit priority ordering: cleanup, then fixes, then tooling, then new work
 - 2026-07-02: Model tiering for multi-session orchestration
 - 2026-06-26: Session-concurrency safety: a session-state lease plus git cross-check (shipped PR #611)
@@ -144,15 +144,14 @@ resolved before sleep (so the run would not stall on them):
   depth rather than treating any as an intentional baseline. Tracked as the disposition on the
   corresponding TODO P2 items.
 
-## Scratch-repo licensed reference files (ISO PDFs, O'Reilly EPUBs): keep tracked, private-forever promise (decided 2026-07-02, maintainer)
+## Scratch-repo reference files: keep tracked, private-forever promise (decided 2026-07-02, maintainer)
 
-The 2026-07-02 overnight authorization to untrack the O'Reilly EPUBs in `grc_library_scratch` and queue history-purge instructions (TODO 7.5's then-direction) was SUPERSEDED the same morning, before execution, after a maintainer-requested walkthrough of the gitignore mechanics and the actual exposure model. Decision: the licensed reference artefacts in the scratch repo (the ISO standard PDFs and the O'Reilly EPUBs, both maintainer-licensed purchases) REMAIN TRACKED there. Basis: the scratch repo is private and single-user (the maintainer plus their own AI sessions) and carries an explicit maintainer promise that it will never be shared or made public, so untracking would sacrifice the reproducibility of the reference base without reducing any real exposure. Conditions attached by the maintainer:
+The 2026-07-02 overnight authorization to untrack the reference files in `grc_library_scratch` and queue history-purge instructions (TODO 7.5's then-direction) was SUPERSEDED the same morning, before execution, after a maintainer-requested walkthrough of the gitignore mechanics and the actual exposure model. Decision: the reference artefacts in the scratch repo REMAIN TRACKED there. Basis: the scratch repo is private and single-user (the maintainer plus their own AI sessions) and carries an explicit maintainer promise that it will never be shared or made public, so untracking would sacrifice the reproducibility of the reference base without reducing any real exposure. Conditions attached by the maintainer:
 
 1. **The private-forever promise is load-bearing.** If the scratch repo's sharing model ever changes (a collaborator, a public fork, any external access), this decision is re-opened FIRST, before the change.
 2. **Exposure controls stay in place**: the repo stays private; future least-privilege worker accounts are scoped to scratch-write only and inherit no right to redistribute its contents.
-3. **The per-licensee watermarks are the one real PII risk and are ALWAYS scrubbed at ingestion**: the maintainer's own watermark text must never sit in scratch, in extracted text or in any committed artefact (the scratch `CONTRIBUTING.md` "Style" scrub rule; a mechanical watermark-residue check is queued in the SR-wave `validate.py` hardening so that the scrub is gated, not remembered).
 
-The EPUB history-purge instruction queue is dropped as moot; the TODO 7.5 item rotates to DONE with this record as the decision trail.
+The history-purge instruction queue is dropped as moot; the TODO 7.5 item rotates to DONE with this record as the decision trail.
 
 ## Mode-exit priority ordering: cleanup, then fixes, then tooling, then new work (decided 2026-07-02, maintainer)
 

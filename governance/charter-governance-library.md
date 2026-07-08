@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Library Charter\
 **Document Type:** Charter\
-**Version:** 1.2.3\
-**Date:** 2026-07-02\
+**Version:** 1.2.4\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md)\
@@ -46,7 +46,7 @@ It governs:
 
 1. **Organization neutrality:** Documents must be reusable without editing out company-specific or person-specific content.
 2. **Role-based accountability:** Owners and approving authorities must be generic roles, not named individuals.
-3. **Licence compatibility:** Original repository content is CC BY-SA 4.0. Restrictively licensed material must not be copied into the repository.
+3. **Licence compatibility:** Original repository content is CC BY-SA 4.0. Restricted third-party material must not be copied into the repository.
 4. **Traceability:** Documents should identify parent artefacts, related artefacts, applicable domains, and evidence classes.
 5. **Applicability discipline:** Documents must distinguish legal obligation, regulatory interpretation, industry practice, architectural recommendation, and optional assurance evidence.
 6. **Data lifecycle focus:** AI, privacy, supplier, and resilience artefacts must address data collection, storage, processing, use, retention, deletion, and evidence handling.

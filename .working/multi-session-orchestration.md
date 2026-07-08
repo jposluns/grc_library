@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.6\
-**Date:** 2026-07-07\
+**Version:** 1.1.7\
+**Date:** 2026-07-08\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -254,11 +254,10 @@ to the maintainer rather than defaulting either way.
 The `grc_library_ref` repo is the shared reference knowledge base (buckets at its root),
 split by **trust** (see `grc_library_ref/README.md`):
 - **`grc_library_ref/standards/`**, accepted standards organized one directory per issuing body (ETSI,
-  IEEE, ISO, NIST), the NIST CSF 2.0 text among them. **Trusted**: may be referenced as
+  IEEE, ISO, NIST). **Trusted**: may be referenced as
   authoritative ground truth for citation/mapping work.
 - **`grc_library_ref/frameworks/`**, industry / SDO frameworks and informative catalogues, one directory
-  per issuer (COBIT, CSA, ETSI, MITRE, OWASP), the CSA CCM v4.1 / AICM v1.1 / CAIQ catalogue
-  CSVs among them. **Trusted** (one tier below standards in the `grc_library_ref` trust model): citable
+  per issuer. **Trusted** (one tier below standards in the `grc_library_ref` trust model): citable
   by control/clause for citation/mapping work.
 - **`grc_library_ref/legislation/`**, statutes and regulations organized by jurisdiction (with a
   `REGISTER.md` index). **Trusted but version-sensitive**: authoritative for the regime it
@@ -272,11 +271,7 @@ split by **trust** (see `grc_library_ref/README.md`):
   `grc_library_ref/frameworks/`, or `grc_library_ref/legislation/` source or another independent source. A formal publications-assessment
   process is queued (TODO §4.12). Never cite a publication as if it were a standard.
 
-**Ingestion status (2026-06-27, maintainer-reported).** `grc_library_ref/standards/` and
-`grc_library_ref/legislation/` ingestion is **complete**; `grc_library_ref/publications/` ingestion is **in progress**
-(the bucket is being populated, and every publication remains screen-before-use regardless).
-The base is therefore the durable, consult-first source for standards and legislation work now,
-and for publications work as screened entries land.
+**Screening discipline.** Every publication remains screen-before-use regardless of bucket. The base is the durable, consult-first source for standards and legislation work, and for publications work as screened entries land.
 
 **Standing instruction: reference the `grc_library_ref` base for EVERY task (maintainer-directed
 2026-06-27).** Not only the recurring citation / control-code / FR-167-matrix cases: for any
@@ -288,9 +283,7 @@ memory. This is the anti-drift / anti-hallucination reason the base exists.
 
 Each `grc_library_ref` bucket has an `originals/` subdirectory for the source binaries (text extracts
 are the seeded, AI-readable form; binaries are the provenance / re-extraction source). The
-seeded extracts (the CSA CCM v4.1 / AICM v1.1 / CAIQ per-sheet CSVs under
-`grc_library_ref/frameworks/CSA/` and the NIST CSF 2.0 full-text under `grc_library_ref/standards/NIST/`), plus
-their originals, live on `grc_library_ref` `main`. They
+seeded extracts, plus their originals, live on `grc_library_ref` `main`. They
 are the durable reference base for citation / control-code / standards work, complementing
 the in-repo validator modules ([`tools/ccm_aicm_reference.py`](../tools/ccm_aicm_reference.py),
 [`tools/nist_csf_reference.py`](../tools/nist_csf_reference.py)) that encode only codes and
