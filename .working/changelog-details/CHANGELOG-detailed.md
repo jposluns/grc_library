@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.203, PR #715
+
+Applies the Fable `resume-pointer` worker delivery: a repo-root manual resume entry point. Batches PR #714's QA rows.
+
+### Added
+- [`RESUME.md`](../../RESUME.md): a manual resume entry point for environments where the `/resume` slash command is not discovered (the NUC's Claude Code does not load this project's `.claude/commands/`). It is a POINTER, delegating to [`.claude/commands/resume.md`](../../.claude/commands/resume.md) (the protocol) and [`.working/session-handoff.md`](session-handoff.md) (the live per-session queue), copying neither, so a resume started from it runs the same current protocol and reads the same live queue as `/resume`. Root placement needs no gate-config change: the content gates are allow-list-scoped to the domain dirs plus `.project-governance`, so a root file no linter names is not subject to the 13-field metadata block or the section model (the same basis on which the root CONTRIBUTING and SECURITY files sit at root without one); the whole-repo-walk gates (language, em/en dash, broken-link, secrets, PII) do see it and pass on the clean pointer prose.
+
+### Changed
+- [`.working/session-state.md`](session-state.md): lease heartbeat re-stamped to `2026-07-08T21:28:51Z`; Current-task notes #714 merged and PR 2 in flight.
+- [`.working/validate-pr/history.md`](validate-pr/history.md) and [`.working/improvement-log.md`](improvement-log.md): PR #714's 0-finding `/validate-pr` row and its `/retro` row batched in (recursion-avoidance); each file's Version bumped.
+
+### Verification
+`tools/run_all_audits.sh` 66/66 standalone with the new pointer file present (confirms the allow-list prediction: no new whole-repo-walk gate failure). Pre-push guard green. No per-document Version or Date (the pointer carries no metadata block); no TODO rotation (a maintainer-directed convenience addition, not a backlog item). Library `2026.07.202` to `2026.07.203`; README `1.9.563` to `1.9.564`.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/resume-pointer/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/resume-pointer/MANIFEST.md) (merged scratch-side as PR #114). The candidate pointer file was placed verbatim after the orchestrator verified its two link targets resolve, its style-cleanliness (no em/en dashes; `ensures that`), and the allow-list gate reasoning; the full audit re-run with the file present confirmed 66/66.
+
 ## 2026-07-08, Library Version 2026.07.202, PR #714
 
 The `/resume` Sweep-90 close-out for the 2026-07-08 resumed session (`claude/resume-sweep90-validate`): the loop-break corpus-wide `/validate` over the #700..#712 deltas, the compensating control for the #713 session-closing handoff PR (which skipped its trailing `/validate-pr` + `/retro`).
