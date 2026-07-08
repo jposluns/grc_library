@@ -40,6 +40,37 @@ by construction and still delivers the gate's whole purpose: preventing
 FUTURE drift. Historical entries are immutable, so no new gap can appear
 below the cutoff.
 
+Dynamic floor (current-week model, 2026-07-08). ``CUTOFF_PR`` is now a
+FLOOR, not the comparison boundary: the effective cutoff is
+``max(CUTOFF_PR, oldest PR still present in the in-repo detailed
+mirror)`` (see ``effective_cutoff``). Under the current-week model the
+mirror keeps only the current week's entries in-repo and sweeps
+completed weeks to the ``grc_library_scratch`` archive, while the root
+``CHANGELOG.md`` keeps every entry; a swept (now scratch-only) entry is
+therefore correctly out of parity scope rather than flagged as missing.
+Before any sweep the mirror's oldest PR is far below ``CUTOFF_PR`` so the
+effective cutoff is ``CUTOFF_PR`` and behaviour is unchanged. A genuine
+in-window miss (a root header at or above the mirror's floor with no
+mirror counterpart) still fails.
+
+Boundary limitation (honest note). Because the floor IS the mirror's own
+oldest surviving PR, an orphan that drops the floor-DEFINING oldest
+in-repo entry moves the floor up past it, so that entry's still-present
+root counterpart silently falls out of scope and this gate does not
+catch it (whereas the earlier form of this gate, with its cutoff pinned
+at the constant 463, would). This is an
+inherent limit of moving history out of the in-repo mirror: from root +
+mirror content alone, "the oldest kept entry was dropped" is
+indistinguishable from "that entry was legitimately swept to scratch",
+so no purely-content check can tell them apart. Parity is therefore
+asserted only for the entries the in-repo mirror still holds; historical
+parity moves to git history and to the sweep tool's own guarantees. The
+compensating controls: the sweep tool
+(``tools/sweep-working-records-to-scratch.py``) partitions
+deterministically by entry DATE and re-parses the pruned mirror to
+confirm its entry set is EXACTLY the kept current-week set before it
+finishes, and git history retains every entry regardless.
+
 The ordering assertion reuses the same ``CUTOFF_PR`` scope: the only
 non-decreasing pairs in either file's history sit in the 2026-06-21
 PR #170-#175 window, far below the cutoff, so the scoped assertion is
@@ -82,8 +113,13 @@ VERSION_RE = re.compile(r"\bLibrary Version (\d+)\.(\d+)\.(\d+)\b")
 
 def pr_headers(
     text: str,
+    cutoff: int = CUTOFF_PR,
 ) -> list[tuple[int, int, tuple[int, int, int] | None, str]]:
     """Return ordered ``(lineno, pr, version, version_text)`` per header.
+
+    Only headers with ``PR #N`` where ``N >= cutoff`` are returned;
+    ``cutoff`` defaults to ``CUTOFF_PR`` but ``main`` passes a
+    dynamically-computed effective cutoff (see ``effective_cutoff``).
 
     ``version`` is the header's Library Version as an int 3-tuple (for
     numeric comparison), or ``None`` when the matched header carries no
@@ -98,7 +134,7 @@ def pr_headers(
         if not m:
             continue
         n = int(m.group(1))
-        if n < CUTOFF_PR:
+        if n < cutoff:
             continue
         v = VERSION_RE.search(line)
         version = tuple(int(g) for g in v.groups()) if v else None
@@ -107,9 +143,34 @@ def pr_headers(
     return records
 
 
-def pr_header_counts(text: str) -> Counter:
-    """Return a Counter of PR numbers (>= CUTOFF_PR) appearing in per-PR headers."""
-    return Counter(pr for _, pr, _, _ in pr_headers(text))
+def effective_cutoff(mirror_text: str) -> int:
+    """The parity-comparison floor: ``max(CUTOFF_PR, oldest PR in the mirror)``.
+
+    The current-week model (2026-07-08) keeps only the current week's
+    entries in the in-repo detailed mirror; completed weeks are swept to
+    the scratch archive. The root ``CHANGELOG.md`` keeps EVERY entry. So
+    the set of PRs that still have an in-repo mirror counterpart is
+    exactly ``PR #N >= (oldest PR still in the mirror)``. Scoping the
+    parity comparison to that floor means a swept-out (now scratch-only)
+    entry is correctly out of scope rather than flagged as missing from
+    the mirror, while a genuinely dropped or orphaned in-window header
+    still fails.
+
+    The floor never drops below ``CUTOFF_PR`` (which carries the
+    pre-split historical exemptions #268/#353/#462). Before any sweep the
+    mirror's oldest PR is far below ``CUTOFF_PR``, so the effective cutoff
+    is ``CUTOFF_PR`` and behaviour is identical to the pre-2026-07-08
+    fixed-constant gate.
+    """
+    mirror_prs = [pr for _, pr, _, _ in pr_headers(mirror_text, cutoff=0)]
+    if not mirror_prs:
+        return CUTOFF_PR
+    return max(CUTOFF_PR, min(mirror_prs))
+
+
+def pr_header_counts(text: str, cutoff: int = CUTOFF_PR) -> Counter:
+    """Return a Counter of PR numbers (>= cutoff) appearing in per-PR headers."""
+    return Counter(pr for _, pr, _, _ in pr_headers(text, cutoff=cutoff))
 
 
 def ordering_violations(
@@ -155,8 +216,10 @@ def main(argv: list[str]) -> int:
 
     root_changelog = args.root / ROOT_CHANGELOG_REL
     detailed_mirror = args.root / DETAILED_MIRROR_REL
-    root_records = pr_headers(read_text_safe(root_changelog) or "")
-    mirror_records = pr_headers(read_text_safe(detailed_mirror) or "")
+    mirror_text = read_text_safe(detailed_mirror) or ""
+    cutoff = effective_cutoff(mirror_text)
+    root_records = pr_headers(read_text_safe(root_changelog) or "", cutoff=cutoff)
+    mirror_records = pr_headers(mirror_text, cutoff=cutoff)
     root_counts = Counter(pr for _, pr, _, _ in root_records)
     mirror_counts = Counter(pr for _, pr, _, _ in mirror_records)
 
@@ -172,7 +235,7 @@ def main(argv: list[str]) -> int:
         shared = len(set(root_counts))
         print(
             f"OK: root and detailed-mirror CHANGELOG per-PR headers match "
-            f"for all {shared} PR(s) at or above #{CUTOFF_PR}, and each "
+            f"for all {shared} PR(s) at or above #{cutoff}, and each "
             f"file's Library Versions strictly decrease top-down."
         )
         return 0
@@ -180,36 +243,36 @@ def main(argv: list[str]) -> int:
     if missing:
         print(
             "FAIL: PR header(s) present in root CHANGELOG.md but MISSING from the "
-            f"detailed mirror (>= #{CUTOFF_PR}): "
+            f"detailed mirror (>= #{cutoff}): "
             + ", ".join(f"#{n}" for n in missing)
         )
     if extra:
         print(
             "FAIL: PR header(s) present in the detailed mirror but MISSING from root "
-            f"CHANGELOG.md (>= #{CUTOFF_PR}): "
+            f"CHANGELOG.md (>= #{cutoff}): "
             + ", ".join(f"#{n}" for n in extra)
         )
     if dup_root:
         print(
             "FAIL: PR header(s) appearing more than once in root CHANGELOG.md "
-            f"(>= #{CUTOFF_PR}): " + ", ".join(f"#{n}" for n in dup_root)
+            f"(>= #{cutoff}): " + ", ".join(f"#{n}" for n in dup_root)
         )
     if dup_mirror:
         print(
             "FAIL: PR header(s) appearing more than once in the detailed mirror "
-            f"(>= #{CUTOFF_PR}): " + ", ".join(f"#{n}" for n in dup_mirror)
+            f"(>= #{cutoff}): " + ", ".join(f"#{n}" for n in dup_mirror)
         )
     if order_root:
         print(
             f"FAIL: root CHANGELOG.md Library Version ordering violated "
-            f"(>= #{CUTOFF_PR}):"
+            f"(>= #{cutoff}):"
         )
         for v in order_root:
             print(f"  {v}")
     if order_mirror:
         print(
             f"FAIL: detailed-mirror Library Version ordering violated "
-            f"(>= #{CUTOFF_PR}):"
+            f"(>= #{cutoff}):"
         )
         for v in order_mirror:
             print(f"  {v}")

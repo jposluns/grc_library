@@ -1,0 +1,14 @@
+# Release-export hygiene.
+#
+# Exclude maintainer working-state from `git archive` exports / release
+# tarballs so the distributed artefact is fork-clean. `.working/` holds
+# per-run QA records, session handoffs, metrics, decisions, and the
+# detailed-CHANGELOG mirror (the maintainer's audit trail); an adopter needs
+# none of it.
+#
+# Scope note: `export-ignore` affects `git archive` only. A `git clone` still
+# includes `.working/` and full git history; true clone/history cleanliness is
+# a separate history-rewrite step. Adopters may also simply delete `.working/`
+# after cloning (the fork convention documented in the root CHANGELOG preamble
+# and the change-tracking governance rule). See TODO 3.19.
+.working/ export-ignore
