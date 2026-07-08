@@ -11,6 +11,10 @@
   },
   "disableSkillShellExecution": true,
   "respectGitignore": true,
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.project_dir // empty'); f=\"${dir:-/home/jposluns/grc_library}/.working/next-prs.txt\"; if [ -f \"$f\" ]; then total=$(grep -c '^[0-9]' \"$f\"); line=$(sed -n '1p' \"$f\"); num=$(echo \"$line\" | sed -E 's/^([0-9]+)\\..*/\\1/'); label=$(echo \"$line\" | sed -E 's/^[0-9]+\\. //; s/ \\(.*$//'); extra=$((total-1)); if [ \"$extra\" -gt 0 ]; then printf 'next: %s) %s  (+%d queued)' \"$num\" \"$label\" \"$extra\"; else printf 'next: %s) %s' \"$num\" \"$label\"; fi; else printf 'next: (queue file missing)'; fi"
+  },
   "hooks": {
     "PreToolUse": [
       {

@@ -1,6 +1,6 @@
 ---
 name: deep-assessment
-description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates only on explicit maintainer sign-off, never on an empty finding set.
+description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates only on explicit maintainer sign-off, never on an empty finding set.
 derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
@@ -85,7 +85,7 @@ expectations.
 Invoke, in their full sanctioned shapes with their own records and history rows: the
 sweep pre-flight scanner then a corpus-wide `/validate`; `/full-qa` over the whole
 corpus; `/fitness`; `/matrix-fit` over the whole matrix; `/claim-fit` over Tier A with
-a Tier-B sample; and `/guardrails`. Run the advisory aids whose outputs feed later
+a Tier-B sample; `/reference-audit` in FULL mode over the whole corpus and the in-scope reference base; and `/guardrails`. Run the advisory aids whose outputs feed later
 phases (`verify-reference-modules.py`, `audit-brief-freshness.py`, `residual-scan.py`
 and `tension-scan.py` over the ledgers). Each instrument's findings enter this run's
 routing (step 7) in addition to the instrument's own record; no abbreviation of any

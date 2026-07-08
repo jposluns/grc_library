@@ -10,7 +10,7 @@
 
 ## PRIMORDIAL RULE: PROJECT INTEGRITY, THE AIQT PRINCIPLE (HIGHEST PRECEDENCE)
 
-This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on a quality / speed / cost conflict. The two are complementary, not competing.
+This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on an AIQT-tier / speed / cost conflict. The two are complementary, not competing.
 
 **The AIQT Principle, the priority ordering: (Accuracy = Integrity = Quality = Trust) > Speed > Cost.** The four facets (Accuracy: every claim matches its source and every state assertion rests on an observation; Integrity: no stubbing, suppression, fabrication, or silent change; Quality: the project's standard of craft, complete across every paired surface; Trust: warranted by the record and granted by the maintainer, never claimed by the assistant) form ONE non-negotiable top tier with no internal ranking among them; the tier is lexicographically above Speed, and Speed above Cost. A conflict among the four is a framing defect to surface, not a priority call. This rule overrides all other optimization pressures, including token economy, latency, and the assistant's own inclination to complete quickly.
 
@@ -505,6 +505,14 @@ is external. Two mechanisms:
      unverified-for-now, or relied on a value not confirmed current), a TODO item tracking its
      verification is in the diff (or already exists and is cross-referenced). TODO 1.11 (the
      Brazil citation primary-source verification) is the pattern.
+   - **Per-touch reference-breadth check** (the `/reference-audit` per-touch obligation):
+     if this PR changes a corpus document's body, the per-touch run
+     (`python3 tools/audit-reference-breadth.py --docs <touched paths>`, judge on any
+     non-empty candidate set, then `--update-state`) is done and the
+     [`.working/reference-audit/doc-state.md`](../.working/reference-audit/doc-state.md)
+     refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
+     steady-state note, not skipped silently. (Convention-guarded; the mechanical
+     staleness backstop is a queued TODO item.)
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
@@ -650,6 +658,45 @@ edit to the skill. The obligation runs the other way too: adding a quality-check
 carries the duty to keep `/deep-assessment` covering it (a new gate gains a mutation-probe
 variant, a new slash-command or skill joins the phase-3 invocation set, a new advisory tool
 joins the phase-3 aids).
+
+## Reference-breadth cadence (`/reference-audit`)
+
+The corpus cites what it cites; nothing mechanical asks whether it engages the BEST of
+what the project holds. That class, "held but unused" (the SP 800-154 lesson: an
+authoritative held source relevant to corpus content that no document engages, and the
+reverse, a touched document that newly ingested reference material bears on), is
+gate-blind by construction. The durable instrument is a cadenced audit, the
+[`reference-audit`](../dev-security/claude-rules/skills/reference-audit/SKILL.md) skill
+(slash command `/reference-audit`): it judges candidate document-to-source pairings
+against the held source TEXT and the live document, scoped by the recall-oriented
+worklist [`tools/audit-reference-breadth.py`](../tools/audit-reference-breadth.py)
+produces (per-item usage classification plus topic-ranked candidates; curated aliases
+in [`tools/reference-breadth-aliases.json`](../tools/reference-breadth-aliases.json)).
+
+Run `/reference-audit` on this cadence:
+
+1. **FULL mode as a `/deep-assessment` member** (the exhaustive both-directions pass),
+   and ad-hoc when the maintainer wants the whole picture.
+2. **Per-touch mode on every substantive corpus-document PR**: run the tool in
+   `--docs` mode for the touched documents. The per-document state file
+   [`.working/reference-audit/doc-state.md`](../.working/reference-audit/doc-state.md)
+   delta-filters the candidate set to reference items added or updated since the
+   document's last audit, so the steady-state cost is near zero; the judge is
+   dispatched only on a non-empty candidate set, and `--update-state` refreshes the
+   anchor with the PR's QA batch.
+3. **New-ingest mode after reference-base changes** (`--ref-since <sha>` or
+   `--ref-items <substring>`): judge the corpus documents each changed item topically
+   matches and does not cite.
+
+Trust tiers are load-bearing (maintainer decisions, 2026-07-08): standards,
+frameworks, legislation, and programs are authoritative (citation-grade improvements);
+templates are template-tier (content improvements, never normative citations); books
+are recommendation-tier only, never authoritative (corroborate against a trusted
+source before anything normative rests on a book-sourced suggestion); publications are
+excluded pending the publications-assessment process. It is NOT a gate and NOT a
+substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; it is the breadth
+layer beside them. Findings are fixed in-window or routed under the normal triage; a
+zero-finding or empty-candidate run still gets a history row.
 
 ## Reference-version currency (`grc_library_ref` is storage, upstream is the authority)
 
@@ -866,7 +913,7 @@ default above: it requires an explicit maintainer signal, never a timeout (the r
 the maintainer flagged after the #425 wind-down default ended an overnight run while they
 were briefly up).
 
-**Quality > Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
+**The AIQT tier above Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
 relax any discipline: each additional PR still gets its full per-PR `/validate-pr` +
 `/retro` (no abbreviation), and the assistant re-runs the degradation read at EACH PR
 boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates

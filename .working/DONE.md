@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #707: TODO 2.14 `/reference-audit` cadenced skill (2026-07-08)
+
+Closed TODO 2.14 (maintainer-directed 2026-07-07): built the `/reference-audit` cadenced skill and slash command, the reference-BREADTH layer above `/matrix-fit` (control-fit) and `/claim-fit` (claim-precision), which judges whether the corpus draws on the best held authoritative sources for each topic in both directions (held-but-unused and touched-doc-vs-new-ingest). Shipped across two PRs like the sibling cadences: the advisory tool `tools/audit-reference-breadth.py` in #706 (PR A), the skill + command + wiring + the per-touch close-out obligation here (PR B). Three build residuals routed to TODO (not-held-source detection, publications-after-2.11, and the per-touch mechanical backstop as a `[guardrails]` item).
+
 ### PR #705: AIQT Principle apex-rule codification (2026-07-08)
 
 Reframed the pack's apex rule as the **AIQT Principle**, (Accuracy = Integrity = Quality = Trust) > Speed > Cost: the four facets named as one co-equal non-negotiable tier, each mapped to its enforcing machinery, superseding the "Quality > Speed > Cost" formulation and the "Integrity check:" chant across every live pack and project surface (substance unchanged; the new checkpoint is "AIQT check: ..."). Added the copy-paste AIQT baseline block to the pack README. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #110); the corpus principle document is the required follow-up PR 2.
