@@ -6,9 +6,44 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.195, PR #707
+
+Reference-audit PR B (closes TODO 2.14): the `/reference-audit` cadenced skill and slash command, completing the two-PR build begun by the advisory tool in PR A (#706). This is the reference-BREADTH layer above `/matrix-fit` (control-code fit) and `/claim-fit` (claim precision): it dispatches a semantic judge over the recall-oriented worklist the tool produces, judging in both directions whether the corpus engages the best held authoritative sources per topic (the gate-blind "held but unused" SP 800-154 class). The gate-60 auto-fired guardrail review r6 rides in this PR; its drift fixes and inventory-token refresh are recorded below.
+
+### Added
+- [`dev-security/claude-rules/skills/reference-audit/SKILL.md`](../../dev-security/claude-rules/skills/reference-audit/SKILL.md): the cadenced skill (7 steps), `derives_from` [`evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md). Four-valued verdicts (`adopt-citation` / `adopt-content` / `recommend` / `no-fit`); tier-by-bucket ceilings (standards, frameworks, legislation, programs authoritative; templates content-only; books recommendation-only, never authoritative; publications excluded pending screening); FULL / per-touch / new-ingest cadences.
+- [`.claude/commands/reference-audit.md`](../../.claude/commands/reference-audit.md): the `/reference-audit` slash command, step-identifier parity with the skill (steps 1-7).
+
+### Changed
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): PAIRS registry extended with the reference-audit skill/command pair (gate 44).
+- [`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](../../dev-security/claude-rules/skills/deep-assessment/SKILL.md) and [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the phase-3 semantic-instrument list extended to invoke `/reference-audit` in FULL mode (both surfaces).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack `1.56.0` to `1.57.0` (minor, new skill) with the skills-tree entry and the 1.57.0 version-history row (D6 co-bump); the twentieth-skill count applied.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): growth-narrative count `nineteen` to `twenty` (gate-39-blind word-form).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the `## Reference-breadth cadence (/reference-audit)` section and a PR-close-out per-touch reference-breadth obligation bullet; the PRIMORDIAL-intro conflict-axis phrase harmonized to the AIQT tier.
+- [`TODO.md`](../../TODO.md): closed 2.14 (rotated to [`.working/DONE.md`](../../DONE.md)); added section 3.20 (`/reference-audit` build residuals: not-held-source detection, publications-after-2.11) and two section-3.15 `[guardrails]` bullets from the r6 review; the P2/P3 backlog-totals summary line reconciled (P2 to 9 open, P3 to 9 items).
+- [`.claude/settings.json`](../../.claude/settings.json) and [`.working/next-prs.txt`](../next-prs.txt): a session-convenience status-line config (the maintainer's `/statusline` request) rendering the upcoming-five-PRs queue from that file; bundled here rather than split as a trivial, no-gate-impact working-state change.
+
+### Fixed
+- **Guardrail review r6, drift finding D1 (AIQT partial migration).** #705's `/validate-pr` asserted the AIQT migration complete, but its completion grep was phrasing-specific (`>` form only) and missed the variant phrasings. Four live carriers migrated: [`dev-security/claude-rules/governance/surface-counterproductive-instructions.md`](../../dev-security/claude-rules/governance/surface-counterproductive-instructions.md) and its byte-identical [`.claude/rules/` mirror](../../.claude/rules/governance/surface-counterproductive-instructions.md) (the "Quality versus Speed versus Cost" governed-tradeoff clause to "among the AIQT tier, Speed, and Cost"), the pack [`CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) rules-index bullet (to "the AIQT-tier / Speed / Cost tradeoff"), and [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) wind-down section (the "Quality > Speed remains the tiebreaker" heading to "The AIQT tier above Speed remains the tiebreaker"). A post-edit bare-token grep confirms zero live carriers remain (only the rule's provenance paragraph and the #705 CHANGELOG entry, both whitelisted by design).
+- **Guardrail review r6, drift finding D2 (deep-assessment description).** The one-sentence description and command opener enumerated six composed instruments while phase-3 (correctly) composes seven; `/reference-audit` added to both enumerations.
+- The #706 CHANGELOG leads' "always exit 0" characterization (batched #706 `/validate-pr` note) reworded to "exit 0 on a clean run and 2 on error" in both surfaces, harmonizing the lead with the same entry's documented SIGPIPE correction.
+
+### Verification
+- `tools/run_all_audits.sh` green post-fix (gate 60 now passes on the r6 token refresh 66/12/20/13; parity gates 35/37/39/41/44 green; the two surface-counterproductive-instructions rule copies byte-identical per gate 37).
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) run standalone/unpiped; a substantive-tier refute-briefed verifier dispatched on the diff.
+- Bare-token completion grep (`quality (>|&gt;|versus|vs) speed`) re-run post-fix: zero live carriers, only whitelisted survivors.
+- Every drift/gap finding orchestrator-re-verified at source before action (the r6 record documents each grep).
+- A substantive-tier pre-push refute verifier caught one in-window miss: the P2/P3 backlog-totals summary line was stale after 2.14's close and 3.20's add (the recurring #692/#693 backlog-totals-lag class); fixed before push (P2 to 9 open items dropping 2.14, P3 to 9 items adding 3.20) and re-verified. It also noted the statusline config bundled without a CHANGELOG mention, now recorded above.
+
+### Guardrail review r6 (rides in this PR)
+Auto-fired by gate 60 (drift 4: skills 18 to 20, commands 11 to 13, the deep-assessment and reference-audit skill+command pairs). Four findings, 0 cross-lens duplicates: overlap 0; drift D1 (AIQT partial migration, Low-Medium, fixed above), drift D2 (deep-assessment description, Low, fixed above); gap G1 (the per-touch reference-breadth obligation's "queued TODO item" backstop was a phantom, Medium-High) and gap G2 (the worker-brief gate-number-verification rail uncodified since #702, Low-Medium) both routed to TODO 3.15 `[guardrails]` as maintainer-decision machinery proposals (G1's false-claim half fixed in-window by adding the real TODO item). Record: [`.working/guardrail-reviews/2026-07-08-r6.md`](../guardrail-reviews/2026-07-08-r6.md); history row appended.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/reference-audit-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/reference-audit-build/MANIFEST.md) (merged scratch-side as PR #111, gate-label-corrected in #112). The skill and command were copied from the delivery and the orchestrator authored the wiring, verifying every anchor against live main and every gate number against the specification §6.
+
 ## 2026-07-08, Library Version 2026.07.194, PR #706
 
-The reference-breadth advisory tool (TODO 2.14 PR A of two; PR B ships the skill, command, and wiring). An orchestrator dev-aid in the `audit-*.py` mould (always exit 0, not a gate, no gate-surface wiring or regression fixture). Applied from a Fable worker delivery under validate-then-apply; the tool re-run at apply time and its figures recounted.
+The reference-breadth advisory tool (TODO 2.14 PR A of two; PR B ships the skill, command, and wiring). An orchestrator dev-aid in the `audit-*.py` mould (exit 0 on a clean run and 2 on error, not a gate, no gate-surface wiring or regression fixture). Applied from a Fable worker delivery under validate-then-apply; the tool re-run at apply time and its figures recounted.
 
 ### Added
 - [`tools/audit-reference-breadth.py`](../../tools/audit-reference-breadth.py) (mode 755): measures how the corpus uses the held `grc_library_ref` reference base and emits a recall-oriented breadth worklist for the `/reference-audit` skill's semantic judge. FULL mode (whole corpus and in-scope reference base), per-touch mode (`--docs`, optional `--update-state`), and new-ingest mode (`--ref-since` / `--ref-items`); tier-by-bucket semantics; a catalogue parser keyed to the generated format; identifier-shape key derivation plus the curated aliases; topic-overlap-ranked candidates; per-document delta state.
