@@ -44,7 +44,7 @@ While verifying, also confirm the two adjacent ANPD-resolution citations in the 
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities. The deepen-baselines cluster (FR-15 / 23 / 63 / 74 / 99 / 154 / 41) was decided for operational deepening (maintainer 2026-06-25).
 
-**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.2 (FR-60 HIPAA), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.4 US healthcare, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683; FR-63 (2.7) is apply-ready.
+**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.2 (FR-60 HIPAA), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.4 US healthcare, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683, FR-63 (2.7) in #697.
 
 ### 2.1 Privacy jurisdiction annex operational deepening (FR-59, H, L)
 
@@ -57,10 +57,6 @@ HIPAA adopter has no operational detail beyond a single 261-line sector annex in
 ### 2.3 Crypto-asset / blockchain governance domain (FR-70, H[critical], XL)
 
 New domain for crypto-asset / blockchain governance — digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense. (Cross-references P6.x for domain-level shaping.)
-
-### 2.7 Worked example: adoption, not ingestion (FR-63, M, M)
-
-Worked example walks ingestion not adoption.
 
 ### 2.8 Schrems II operational deepening (FR-74, M, M)
 
@@ -387,7 +383,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 Approximate active counts after the 2026-06-30 work-type re-tier and the 2026-07-02 audit intake (the priority sections themselves are the source of truth; these drift).
 
 - **P1 (fix errors and prevent recurrence)**: 2 items (1.5 reference version-currency, and 1.11 the Brazil ANPD-restructuring and breach-rule citation verification (maintainer-directed 2026-07-05); 1.9 the RM-10 pipe-guardrail hardening CLOSED in #677 as a documented harness limitation (root cause pinned: child sessions leave `CLAUDE_PROJECT_DIR` unset so the PreToolUse hook path fails to resolve; compensating controls active, recorded in [`third-party-issues.md`](.working/third-party-issues.md)); the Quebec 72-hour confabulation sweep closed same-day, #631 catch to #633 fix; the audit-gate candidates closed with S3's `/claim-fit` ship 2026-07-04; the 2026-07-02 audit P1 cluster is fully closed; FR-48 completed in #596 through #607; the section-1.6 D5/CLAUDE.md codifications closed same-day).
-- **P2 (fill significant gaps)**: 11 open items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, of which 2.4 / 2.5 / 2.6 (FR-99 / 15 / 23) closed in #681 / #682 / #683; plus 2.11 publications-assessment, 2.12 DORA, 2.13 NIS2, and 2.14 the `/reference-audit` cadenced skill).
+- **P2 (fill significant gaps)**: 10 open items (2.1-2.10 the FR deepenings FR-59 / 60 / 70 / 99 / 15 / 23 / 63 / 74 / 154 / 41, of which 2.4 / 2.5 / 2.6 / 2.7 (FR-99 / 15 / 23 / 63) closed in #681 / #682 / #683 / #697; plus 2.11 publications-assessment, 2.12 DORA, 2.13 NIS2, and 2.14 the `/reference-audit` cadenced skill).
 - **P3 (clean up and tooling)**: 8 items (3.1, 3.12, plus 3.13 audit tooling extensions, 3.15 the 2026-07-02 guardrail-review machinery extensions, 3.16 / 3.17 the alignment maps, 3.18 environment-detection, and 3.19 the CHANGELOG restructure; sections 3.6, 3.7, 3.8, 3.10, and 3.14 fully closed).
 - **P4 (adopter experience)**: 7 items (4.1-4.5, plus 4.6 adopter-experience enhancements and 4.7 the 2026-07-02 guardrail-review pack-design improvements).
 - **P5 (expand: country / regulator / programme overlays)**: 9 items (5.1-5.9).
