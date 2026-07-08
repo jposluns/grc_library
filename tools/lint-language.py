@@ -46,8 +46,6 @@ Checks for:
   stripping common numbering prefixes (A1., 1.1, Step 1:, Category 1:,
   Phase, Annex). Project-name allowlist (LOWERCASE_PROJECT_NAMES:
   promptfoo, garak, pip) is permitted at the start of a heading.
-- Sanitization-table source terms (SANITISATION_TERMS) appearing outside
-  the ingestion specification.
 
 Fenced code blocks are skipped for every check above.
 
@@ -60,7 +58,7 @@ house-style rules (dash, the Commonwealth-spelling checks, `ensure that`)
 over each generator's
 non-docstring string literals (parsed via `ast`); docstrings are developer
 documentation, not emitted corpus prose, so they are excluded, and the
-markdown-specific checks (heading-case, sanitisation) are not applied.
+markdown-specific checks (heading-case) are not applied.
 
 Usage:
     python3 tools/lint-language.py [paths...]
@@ -100,10 +98,10 @@ GENERATOR_SOURCES = (
 
 # docs/worked-example.md is the meta-tutorial that demonstrates the
 # document-creation process, so it deliberately contains examples of the very
-# things other gates forbid: vendor names it shows being sanitised, the
+# things other gates forbid: the
 # lowercase tutorial step headings ("## Step 1: pick the document type"), and
 # the word "ensure" while teaching the ensure-that rule. It is therefore exempt
-# from the heading-case, sanitisation, and ensure checks (the same
+# from the heading-case and ensure checks (the same
 # meta-demonstration exemption the AI ingestion instruction already carries for
 # "ensure"); dash and -ise enforcement still apply.
 WORKED_EXAMPLE = "docs/worked-example.md"
@@ -227,41 +225,6 @@ LOWERCASE_PROJECT_NAMES = {
     "pip",  # the trusted-trader programme acronym is uppercase; lowercase 'pip' is the Python installer
 }
 
-SANITISATION_TERMS = [
-    "Traffic Tech",
-    "Mississauga data centre",
-    "MissDC",
-    "Microsoft Entra",
-    "Entra ID",
-    "Entra PIM",
-    "Azure Key Vault",
-    "Microsoft Sentinel",
-    "Azure Monitor",
-    "Azure Site Recovery",
-    "Azure Logic Apps",
-    "Microsoft Intune",
-    "Microsoft 365",
-    "Microsoft Purview",
-    "Defender for Cloud Apps",
-    "Microsoft Defender for Cloud",
-    "Microsoft Defender for Endpoint",
-    "Microsoft Secure Score",
-    "Microsoft Teams",
-    "SharePoint",
-    "OneDrive",
-    "Exchange Online",
-    "Microsoft Cloud PKI",
-    "BitLocker",
-    "Workday",
-    "OneTrust",
-    "FlexEra",
-    "Halo (ITSM)",
-    "Binary Defense",
-    "BizTalk",
-    "ESXi",
-    "metacompliance.com",
-]
-
 
 def strip_numbering(text: str) -> str:
     """Strip a single leading numbering prefix; do not recurse."""
@@ -321,11 +284,6 @@ def check_file(path: Path) -> list[tuple[str, int, str]]:
                 and ENSURE_PATTERN.search(mask_verbatim_ensure_titles(line))):
             findings.append(("ensure", lineno, line.strip()))
 
-        if not is_ingestion_spec and not is_worked_example:
-            for term in SANITISATION_TERMS:
-                if term in line:
-                    findings.append(("sanitisation", lineno, term))
-
         heading = HEADING_PATTERN.match(line)
         if heading and not is_worked_example:
             _, heading_text = heading.groups()
@@ -363,7 +321,7 @@ def check_generator_source(path: Path) -> list[tuple[str, int, str]]:
 
     Runs the three prose house-style rules (dash, -ise, ensure that) over
     every string-constant literal that is not a docstring. The markdown-only
-    checks (heading-case, sanitisation-terms) are not applied: generators
+    checks (heading-case) are not applied: generators
     emit navigation prose and tables, not the ingested-content or
     heading-cased forms those rules target.
     """

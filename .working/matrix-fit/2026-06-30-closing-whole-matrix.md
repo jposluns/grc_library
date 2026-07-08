@@ -8,7 +8,7 @@ This file is maintainer working state, exempt from corpus audit gates. `path:lin
 
 - **Scope**: the whole compliance matrix [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) plus the per-document framework-alignment tables (the "matrix completion" cadence).
 - **Mechanical baseline**: `tools/run_all_audits.sh` = all 57 gates pass at `fef6a58` (the post-#489 state). A fit pass judges among rows that already pass the existence gates 48/49/54.
-- **Reference base**: [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) (CSA CCM v4.1 + AICM v1.1 codes and titles), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py) (NIST CSF 2.0 category titles), and the scratch `grc_library_scratch/ref/standards/` extracts. Judges read control TITLES from these, never from memory.
+- **Reference base**: [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) (CSA CCM v4.1 + AICM v1.1 codes and titles), [`tools/nist_csf_reference.py`](../../tools/nist_csf_reference.py) (NIST CSF 2.0 category titles), and the reference-base standards extracts. Judges read control TITLES from these, never from memory.
 
 ## Worklist (Step 2)
 

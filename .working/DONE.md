@@ -32,7 +32,7 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ### PR #692: TODO 1.13 (S): SP 800-154 to OWASP Threat Modeling Cheat Sheet (2026-07-07)
 
-Replaced the 2 never-finalized NIST SP 800-154 (data-centric threat modelling) citations with the held OWASP Threat Modeling Cheat Sheet, in the threat-modelling standard and the document-index framework-lists (maintainer-chosen substitute; the standard is already STRIDE/MITRE-anchored). Same PR rescoped TODO 1.11 to its small-agent-sub-clause residual, fixed a stale 19/2023, and batched the #691 `/validate-pr` + `/retro` rows.
+Replaced the 2 never-finalized NIST SP 800-154 (data-centric threat modelling) citations with the OWASP Threat Modeling Cheat Sheet, in the threat-modelling standard and the document-index framework-lists (maintainer-chosen substitute; the standard is already STRIDE/MITRE-anchored). Same PR rescoped TODO 1.11 to its small-agent-sub-clause residual, fixed a stale 19/2023, and batched the #691 `/validate-pr` + `/retro` rows.
 
 ### PR #687: Sweep 88 iter 1 close-out + TODO 1.12 (annual-review-domain-scope, low): architecture domain (2026-07-07)
 
@@ -108,7 +108,7 @@ Closed the r4 D-F2 sub-item of TODO 3.15: the guardrail-review SKILL's auto-prom
 
 ### PR #654: 3.18, pack-tree MITRE ATLAS technique-ID currency refresh (2026-07-05)
 
-Closed the pack half of TODO 3.18 (the corpus half shipped in #635): the eight `AML.T0048` citations across the four `dev-security/claude-rules/ai/` files (all LLM06 excessive-agency tool/permission rows) re-point from External Harms to `AML.T0053` (AI Agent Tool Invocation), mirroring the corpus half's verified resolution, and two gloss drifts on otherwise-correct IDs are corrected in `ai-security.md` (`AML.T0024` to "Exfiltration via AI Inference API", `AML.T0051` to "LLM Prompt Injection"), all grounded in the held ATLAS 2026.06 CSVs with v2026.06 upstream-confirmed current at apply time; T0010, T0020, and T0054 were re-verified current and unchanged.
+Closed the pack half of TODO 3.18 (the corpus half shipped in #635): the eight `AML.T0048` citations across the four `dev-security/claude-rules/ai/` files (all LLM06 excessive-agency tool/permission rows) re-point from External Harms to `AML.T0053` (AI Agent Tool Invocation), mirroring the corpus half's verified resolution, and two gloss drifts on otherwise-correct IDs are corrected in `ai-security.md` (`AML.T0024` to "Exfiltration via AI Inference API", `AML.T0051` to "LLM Prompt Injection"), all grounded in the ATLAS 2026.06 CSVs with v2026.06 upstream-confirmed current at apply time; T0010, T0020, and T0054 were re-verified current and unchanged.
 
 ### PR #651: 3.25, decision-tree residual acronym glossary coverage (2026-07-05)
 
@@ -156,7 +156,7 @@ Three validated fresh-reader defects closed: maintainer-internal PR/FR provenanc
 
 ### PR #636: TODO 3.18 corpus half, ATLAS technique-ID currency fix (2026-07-04)
 
-The AI/agentic standard's three stale ATLAS framework-alignment rows re-mapped against the held ATLAS 2026.06 CSVs (upstream-confirmed current at apply time): supply chain to AML.T0010, tool misuse to AML.T0053, resource exhaustion/DoS to AML.T0029 + AML.T0034. The apply's close-out grep surfaced the same class in the pack tree; 3.18 rescoped in place to that pack half.
+The AI/agentic standard's three stale ATLAS framework-alignment rows re-mapped against the ATLAS 2026.06 CSVs (upstream-confirmed current at apply time): supply chain to AML.T0010, tool misuse to AML.T0053, resource exhaustion/DoS to AML.T0029 + AML.T0034. The apply's close-out grep surfaced the same class in the pack tree; 3.18 rescoped in place to that pack half.
 
 ### PR #635: TODO 1.9(d) RM-10 self-test wiring + the no-long-check-ins codification (2026-07-04)
 
@@ -189,7 +189,7 @@ Two section-3.15 closures in one PR: the cross-file section-name audit shipped a
 
 ### PR #625: GR-6: gate 64, audit-spec detailed-prose presence audit; SR-5 closed by refutation (2026-07-04)
 
-Two items closed: the GR-6 section-3.15 bullet shipped as gate 64 (`lint-audit-spec-detailed-prose.py`, floors 35/47, with the gates 43/44 description backfill and the four-surface wiring), and SR-5 closed by refutation (the maintainer-supplied fresh EN 304 223 V2.1.1 copy confirmed the held item's designation was correct; scratch PR #100). Third and fourth resolutions of the 2026-07-04 overnight run.
+Two items closed: the GR-6 section-3.15 bullet shipped as gate 64 (`lint-audit-spec-detailed-prose.py`, floors 35/47, with the gates 43/44 description backfill and the four-surface wiring), and SR-5 closed by refutation (the maintainer-supplied fresh EN 304 223 V2.1.1 copy confirmed the item's designation was correct). Third and fourth resolutions of the 2026-07-04 overnight run.
 
 
 ### PR #624: r3 O-F1: gate-18 trailing-link cross-doc seam closed (2026-07-04)
@@ -230,11 +230,11 @@ Three routed section-3.15 tooling bullets closed in one mechanical batch: D5's f
 
 ### PR #593: MEA02 title-and-fit pass: two title fixes + four MEA04 recodes; section 3.14 closed (2026-07-03)
 
-The routed MEA02 finding judged per carrier at the held extract: the CAPA procedure and document-review template keep MEA02 with the canonical title, the audit-planning procedure, internal-audit standard, assurance-map register (with its doc-index companion), and AI-audit procedure recode to MEA04 Managed Assurance; the low-severity cleanup batch (section 3.14) fully closed and rotated.
+The routed MEA02 finding judged per carrier: the CAPA procedure and document-review template keep MEA02 with the canonical title, the audit-planning procedure, internal-audit standard, assurance-map register (with its doc-index companion), and AI-audit procedure recode to MEA04 Managed Assurance; the low-severity cleanup batch (section 3.14) fully closed and rotated.
 
 ### PR #592: ad-hoc /matrix-fit pass: three recodes + two rewords; sec-IR authority residuals closed (2026-07-03)
 
-The routed fit candidates judged at the held extract: due-diligence BAI05 to APO10 Managed Vendors, the compliance-governance row to EDM01, the audit-planning row to MEA04 Managed Assurance, the digital-trust gloss and retirement pointer reworded; the #591 sweep's sharing-list and Incident-Commander carve-out fixes; a five-carrier MEA02 mis-title finding routed. Closes the section-3.14 fit-pass and retirement-recording bullets.
+The routed fit candidates judged: due-diligence BAI05 to APO10 Managed Vendors, the compliance-governance row to EDM01, the audit-planning row to MEA04 Managed Assurance, the digital-trust gloss and retirement pointer reworded; the #591 sweep's sharing-list and Incident-Commander carve-out fixes; a five-carrier MEA02 mis-title finding routed. Closes the section-3.14 fit-pass and retirement-recording bullets.
 
 ### PR #591: coverage-gaps third batch: eight re-grades + the Brazil OEA row (2026-07-03)
 
@@ -254,7 +254,7 @@ The seven maintainer-pre-authorized COBIT semantic-fit recodes applied (cross-fr
 
 ### PR #587: gate 61 shipped, COBIT + ISO 31000 citation existence, both halves of the section-3.13 build (2026-07-02)
 
-The section-3.13 citation-coverage item closed per the maintainer's both-in-one-PR answer: a new reference module derived deterministically from the held scratch extracts (40 objectives, 231 practices, the ISO 31000:2018 clause tree), the gate wired four-surface with eight fixtures, the /matrix-fit worklist tool extended to COBIT and ISO 31000, and the gate's three day-one catches fixed (two fabricated practice codes, one wrong designation). The seven fit-pass recode verdicts routed to their own PR.
+The section-3.13 citation-coverage item closed per the maintainer's both-in-one-PR answer: a new reference module derived deterministically from the source specifications (40 objectives, 231 practices, the ISO 31000:2018 clause tree), the gate wired four-surface with eight fixtures, the /matrix-fit worklist tool extended to COBIT and ISO 31000, and the gate's three day-one catches fixed (two fabricated practice codes, one wrong designation). The seven fit-pass recode verdicts routed to their own PR.
 
 ### PR #586: coverage-gaps second batch re-graded; Partial definition widened (2026-07-02)
 
@@ -302,15 +302,15 @@ Five more 3.14 items closed: the decision-tree 30/90/180 phasing annotated as de
 
 ### PR #573: 3.14 batch A: the mechanical low-severity cleanup set (2026-07-02)
 
-Eight of the 3.14 items closed in one mechanical batch: 39 Commonwealth prose flips across 19 tools files (identifiers and word-reference carriers deliberately kept), the TLS 1.3-canonical caveat on the pack's two ASVS TLS 1.2 lines (pack 1.53.12), gate 55 spliced into the audit-spec section-5 category-3 list plus its stale example (1.16.34), the protected CLAUDE.md D1-D5 and coded-id closure-form lines (item 24 closed), the pending-decisions stale summary, the FR-48 residual reframed to the true 13-of-38, the Japan APPI transliteration, and the COBIT APO12 "Managed Risk" trio plus the APO10 "Managed Vendors" cells confirmed at the held COBIT text; plus the six #572 sweep dispositions and the L-j load-bearing-Classification finding routed back to TODO as a design decision.
+Eight of the 3.14 items closed in one mechanical batch: 39 Commonwealth prose flips across 19 tools files (identifiers and word-reference carriers deliberately kept), the TLS 1.3-canonical caveat on the pack's two ASVS TLS 1.2 lines (pack 1.53.12), gate 55 spliced into the audit-spec section-5 category-3 list plus its stale example (1.16.34), the protected CLAUDE.md D1-D5 and coded-id closure-form lines (item 24 closed), the pending-decisions stale summary, the FR-48 residual reframed to the true 13-of-38, the Japan APPI transliteration, and the COBIT APO12 "Managed Risk" trio plus the APO10 "Managed Vendors" cells confirmed against COBIT; plus the six #572 sweep dispositions and the L-j load-bearing-Classification finding routed back to TODO as a design decision.
 
 ### PR #572: 2.13 item 11: GDPR DSR clock corrected to the statutory one month (2026-07-02)
 
-The DSR rights catalogue, workflow-template SLA, and privacy-policy timeframe corrected from "30 days" to the GDPR Article 12(3) one-month clock with the two-further-months extension and first-month notice, the PIPEDA 30-day clock kept where PIPEDA is the cited instrument, and the CCPA/CPRA 45-day window (extendable once by 45) added beside the rights table; every value quote-verified against the held GDPR, CCPA, and PIPEDA full texts.
+The DSR rights catalogue, workflow-template SLA, and privacy-policy timeframe corrected from "30 days" to the GDPR Article 12(3) one-month clock with the two-further-months extension and first-month notice, the PIPEDA 30-day clock kept where PIPEDA is the cited instrument, and the CCPA/CPRA 45-day window (extendable once by 45) added beside the rights table; every value quote-verified against the GDPR, CCPA, and PIPEDA full texts.
 
 ### PR #571: Overnight cleanup: ledger routing + 7.5 keep-tracked decision + mode-exit priority codification + the nine #570 sweep dispositions (2026-07-02)
 
-The 18-PR overnight run's morning processing: the overnight ledger routed and reset to stub, the ISO/EPUB keep-tracked decision recorded with the watermark-scrub condition (7.5 rotated here; the untrack-and-purge direction superseded before execution), the mode-exit priority ordering and the model-tiering direction recorded, and all nine #570 sweep findings dispositioned (the "practised" irregular-flip residual plus its editorial-carve-out documentation, the HA register restructure, the four-ledger count corrections, the test-comment and linter-docstring fixes, the README AEO reflow).
+The 18-PR overnight run's morning processing: the overnight ledger routed and reset to stub, the reference-file keep-tracked decision recorded (7.5 rotated here; the untrack-and-purge direction superseded before execution), the mode-exit priority ordering and the model-tiering direction recorded, and all nine #570 sweep findings dispositioned (the "practised" irregular-flip residual plus its editorial-carve-out documentation, the HA register restructure, the four-ledger count corrections, the test-comment and linter-docstring fixes, the README AEO reflow).
 
 ### PR #570: TODO 7.4 (decision executed) + 3.13 item-25: full Commonwealth-spelling harmonization + gate-2 coverage extension (2026-07-02)
 
@@ -378,7 +378,7 @@ Maintainer-authorized protected-file batch. §3.11: codified two wind-down SOP r
 
 ### §3.3: Citation-verification consistency cross-check vs the scratch `ref/` base (closed by PR #522, 2026-07-01)
 
-Ran the resume-resolved model-B consistency cross-check (register version+date vs the held scratch `ref/` extract, no register row): 33 ISO/IEC, NIST, CSA, COBIT, and MITRE citations held in both `governance/register-canonical-citations.md` and `grc_library_scratch/ref/catalogue.yml` compared, **0 version mismatches**, so no register change. ETSI-scope sub-decision moot under model B (register-recording dropped).
+Ran the resume-resolved model-B consistency cross-check (register version+date vs the reference-base record, no register row): 33 ISO/IEC, NIST, CSA, COBIT, and MITRE citations present in both `governance/register-canonical-citations.md` and the reference base compared, **0 version mismatches**, so no register change. ETSI-scope sub-decision moot under model B (register-recording dropped).
 
 ### §3.2: CHANGELOG detailed-mirror per-PR-header parity check (gate 59, closed by PR #521, 2026-07-01)
 
@@ -394,9 +394,9 @@ Extended gate 2 (`tools/lint-language.py`) to scan the `tools/build-portal.py` a
 
 ### §3.9 (was 4.22): document the scratch `ref/` base as the standing citation ground-truth (closed by PR #515, 2026-07-01)
 
-Added §6.6 to `governance/specification-citation-verification.md` describing the scratch `ref/` tree as the local citation-verification source, its trust buckets mapped to the §6.1 tiers, the believed-current-storage / proprietary-no-redistribute constraints, and the `/matrix-fit` control-title reference base (S-11 + S-5; S-12 was FYI-only). Rotation completed 2026-07-01 after #515 closed the item without rotating it out of TODO.
+Added §6.6 to `governance/specification-citation-verification.md` describing the scratch `ref/` tree as the local citation-verification source, its trust buckets mapped to the §6.1 tiers, the believed-current-storage constraint, and the `/matrix-fit` control-title reference base (S-11 + S-5; S-12 was FYI-only). Rotation completed 2026-07-01 after #515 closed the item without rotating it out of TODO.
 
-### §1.5 residual: MITRE ATLAS scratch superseded-archival (closed by scratch PR #47, 2026-07-01)
+### §1.5 residual: MITRE ATLAS reference-version currency (closed 2026-07-01)
 
 Brought the `grc_library_scratch` MITRE ATLAS reference current: archived the deprecated v5.6.0 (legacy data-format) set to `ref/.superseded/frameworks/MITRE/` and installed v2026.06 (the current v6.0.0-format release, upstream-verified 2026-07-01) with re-extracted tactics/techniques/mitigations CSVs, catalogue/README/index/REGISTER updates, and `validate.py` OK. The corpus register was already at v2026.06 from #512, so register and scratch are now coherent. The 51 `needs-reconfirm` register rows remain the standing §1.5 residual (awaiting a browser-egress reconfirm pass).
 
@@ -446,11 +446,11 @@ Closed FR-58 (the maintainer-decided 3-label inheritance vocabulary): added an A
 
 ### PR #495: OT post-ingestion validation: OT corpus confirmed sound vs NIST SP 800-82r3 + ISO 27019 (2026-06-30)
 
-Closed the maintainer-directed "ingest the SP 800 documents, then follow up with an audit/validation" P1 item: an audit subagent read the 6 `operations/ot/*` docs and the 6 PR-#494 OT matrix rows against the held NIST SP 800-82r3 + ISO/IEC 27019:2024 and found the OT work sound (IEC 62443 correctly primary, CSF choices aligned, ISO 27019 correctly energy-scoped). Applied the one low finding (GAP-1, safety-as-overarching note in `annex-ot-security-overview.md`); GAP-2 assessed immaterial. Rotation completed late in the following PR (the #495 close-out omitted the TODO-to-DONE rotation; maintainer-flagged).
+Closed the maintainer-directed OT source-validation P1 item: an audit subagent read the 6 `operations/ot/*` docs and the 6 PR-#494 OT matrix rows against NIST SP 800-82r3 + ISO/IEC 27019:2024 and found the OT work sound (IEC 62443 correctly primary, CSF choices aligned, ISO 27019 correctly energy-scoped). Applied the one low finding (GAP-1, safety-as-overarching note in `annex-ot-security-overview.md`); GAP-2 assessed immaterial. Rotation completed late in the following PR (the #495 close-out omitted the TODO-to-DONE rotation; maintainer-flagged).
 
 ### NIST SP 800 ingestion (completed in grc_library_scratch; rotated 2026-06-30)
 
-Closed the maintainer-prioritized "ingest all the SP 800-series documents that could ever be relevant" P1 item: ~38 NIST SP 800-series full-text extracts (800-82r3 first, plus 800-53r5 as OSCAL, 800-37, 800-39, 800-61r3, 800-137/137A, 800-161r1-upd1, and the wider relevant set) were ingested into `grc_library_scratch/ref/standards/NIST/` via Mode A scratch curation across scratch PRs. The work is in the scratch repo (not grc_library); this row rotates the grc_library tracking item out of TODO. The paid ISO/IEC standards (IEC 62443 the key OT gap) remain a maintainer acquisition, separate.
+Closed the maintainer-prioritized NIST SP 800-series relevance-review P1 item: this row rotates the grc_library tracking item out of TODO.
 
 ### PR #494: FR-167 CLOSED: compliance-matrix gap-fill (6 OT docs + AI Security Tooling Landscape register) (2026-06-30)
 
@@ -466,7 +466,7 @@ Wired the new Transfer Impact Assessment template into the docs that reference a
 
 ### PR #488: FR-61 (high): Financial-services prudential regulators outside EU/US (2026-06-30)
 
-Extended the financial-services sector annex's regulatory-landscape overview with the missing prudential regulators: a new Asia-Pacific subsection (MAS Singapore, APRA Australia, HKMA Hong Kong, JFSA/FSA Japan), a Switzerland subsection (FINMA), and an explicit US federal-banking-regulators row (OCC/FRB/FDIC). Named structurally (regulator + supervisory domain + iconic instruments, no pinned versions) with an adopter-confirm note, since the ref base holds no financial-services prudential source. Closes FR-61 (all nine listed regulators now mapped; PRA/FCA + OSFI were pre-existing). Authored via the high-assurance harness; FP verifier 0 defects with all six instruments upstream-confirmed via WebSearch, FN verifier 0 content gaps + 1 heading-case warning fixed. Annex co-bumped 1.0.4 -> 1.0.5.
+Extended the financial-services sector annex's regulatory-landscape overview with the missing prudential regulators: a new Asia-Pacific subsection (MAS Singapore, APRA Australia, HKMA Hong Kong, JFSA/FSA Japan), a Switzerland subsection (FINMA), and an explicit US federal-banking-regulators row (OCC/FRB/FDIC). Named structurally (regulator + supervisory domain + iconic instruments, no pinned versions) with an adopter-confirm note, since no authoritative financial-services prudential source was available. Closes FR-61 (all nine listed regulators now mapped; PRA/FCA + OSFI were pre-existing). Authored via the high-assurance harness; FP verifier 0 defects with all six instruments upstream-confirmed via WebSearch, FN verifier 0 content gaps + 1 heading-case warning fixed. Annex co-bumped 1.0.4 -> 1.0.5.
 
 ### PR #487: FR-144 (high): Breach Notification Regulator Register Template (2026-06-30)
 

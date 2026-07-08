@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.7\
-**Date:** 2026-07-02\
+**Version:** 1.7.8\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -28,7 +28,7 @@ It establishes rules for:
 - Selecting repository domain.
 - Applying metadata and document structure.
 - Separating legal obligation, regulatory interpretation, industry practice, contractual requirement, and architectural recommendation.
-- Avoiding verbatim reproduction of restrictively licensed source material.
+- Avoiding verbatim reproduction of restricted source material.
 - Updating indexes, registers, domain READMEs, and related artefacts.
 
 ---
@@ -45,7 +45,7 @@ It applies to source material from internal documents, public standards, control
 
 All original repository content is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
 
-The library's principle is that it does not copy externally licensed verbatim content. Source material is used for non-verbatim reference (framework identifiers, control families, domain-level alignment, applicability structure, original commentary in the library's own words). This principle applies regardless of the source material's licence terms: even when source material is permissively licensed (CC0, MIT, CC BY 4.0, etc.) the library prefers original synthesis to direct incorporation.
+The library's principle is that it does not copy external third-party verbatim content. Source material is used for non-verbatim reference (framework identifiers, control families, domain-level alignment, applicability structure, original commentary in the library's own words). This principle applies regardless of the source material's licence terms: even when source material carries a permissive licence (CC0, MIT, CC BY 4.0, etc.) the library prefers original synthesis to direct incorporation.
 
 Where a contributor proposes to incorporate any verbatim or near-verbatim third-party content, the contributor must confirm that the source licence is compatible with CC BY-SA 4.0 and that the contribution preserves the source's attribution and licence notices. Inbound licences known to be compatible with CC BY-SA 4.0 include: CC0 1.0 Universal (most permissive), CC BY 4.0 (with attribution), public-domain works (e.g., US government works such as NIST publications), and MIT or Apache 2.0 source code commentary used as cited examples. Inbound licences known to be incompatible (and not permitted as verbatim content): CC BY-NC, CC BY-ND, CC BY-NC-ND, GPL family (one-way the other direction), and proprietary or all-rights-reserved content.
 
@@ -56,7 +56,7 @@ Do not copy into this repository:
 - Implementation guidance.
 - Audit guidance.
 - Metrics catalogue text.
-- Tables reconstructed from restrictively licensed sources.
+- Tables reconstructed from restricted sources.
 - Proprietary examples.
 - Organization-specific evidence.
 
@@ -64,7 +64,7 @@ Permitted use includes independent synthesis, framework name references, high-le
 
 ---
 
-## Identification and sanitization rules
+## Organization-neutrality rules
 
 Repository content must not include:
 
@@ -84,7 +84,7 @@ Repository content must not include:
 - Audit evidence.
 - Screenshots or exports from internal systems.
 
-Replace organization-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the substitution table in Appendix A to all source content before producing output.
+Replace organization-specific details with generic roles, generic system categories, generic data classes, generic supplier classes, and generic evidence classes. Apply the organization-neutrality rules in Appendix A to all source content before producing output.
 
 ---
 
@@ -320,8 +320,8 @@ Before committing a document, validate that:
 1. Metadata is complete and follows the canonical pattern including the `License` field.
 2. Repository path matches actual file path.
 3. License is CC BY-SA 4.0.
-4. No prohibited identifiers are present; Appendix A substitutions have been applied.
-5. No restrictively licensed third-party text is copied.
+4. No prohibited identifiers are present; the Appendix A organization-neutrality rules have been applied.
+5. No restricted third-party text is copied.
 6. Roles are generic and role-based.
 7. Classification is Public.
 8. Framework and regulatory statements are scoped and not overstated.
@@ -332,71 +332,17 @@ Before committing a document, validate that:
 
 ---
 
-## Appendix a: sanitization substitution table
+## Appendix a: organization-neutrality rules
 
-Apply all substitutions below before producing any output. Substitution is case-insensitive. Apply the longer or more specific form first where multiple entries could match.
+Before producing any output, replace organization-specific detail with a generic category equivalent. Substitution is case-insensitive.
 
 ### Organization-specific terms
 
-| Source Term | Replacement |
-|---|---|
-| Traffic Tech | the organization |
-| Mississauga data centre | primary data centre |
-| MissDC | primary data centre |
-| Greenfield | infrastructure programme |
-
-### Microsoft product and service names
-
-| Source Term | Replacement |
-|---|---|
-| Microsoft Entra ID | enterprise identity provider |
-| Entra ID | enterprise identity provider |
-| Entra PIM | Privileged Identity Management (PIM) |
-| Microsoft Entra Password Protection | enterprise password protection service |
-| Azure Key Vault | secrets management service |
-| Microsoft Sentinel | SIEM |
-| Azure Monitor | cloud monitoring service |
-| Azure Site Recovery | cloud-based site recovery service |
-| Azure Logic Apps | integration platform |
-| Azure (used as cloud platform name) | cloud platform |
-| Microsoft Intune | endpoint management platform |
-| Intune | endpoint management platform |
-| Microsoft 365 | cloud productivity platform |
-| M365 | cloud productivity platform |
-| Microsoft Purview DLP | enterprise DLP platform |
-| Purview DLP | enterprise DLP platform |
-| Defender for Cloud Apps | cloud access security broker (CASB) |
-| Microsoft Defender for Cloud | cloud security posture management (CSPM) |
-| Microsoft Defender for Endpoint | endpoint detection and response (EDR) platform |
-| Microsoft Secure Score | cloud security posture score |
-| Microsoft Teams | collaboration platform |
-| SharePoint | collaboration and file storage platform |
-| OneDrive | collaboration and file storage platform |
-| Exchange Online | email platform |
-| Microsoft Cloud PKI | cloud-based PKI service |
-| BitLocker | full-disk encryption |
-
-### Third-party product and vendor names
-
-| Source Term | Replacement |
-|---|---|
-| Workday | HR management system |
-| OneTrust | supplier evaluation platform |
-| FlexEra | IT asset management system |
-| Halo (ITSM) | ITSM portal |
-| Binary Defense | external IR partner |
-| BizTalk | integration middleware platform |
-| ESXi | hypervisor infrastructure |
-| metacompliance.com | security awareness training platform |
+Replace any specific organization name, data-centre name, internal programme name, product, vendor, or system name with a generic category description (for example: the organization; the primary data centre; an enterprise identity provider; a SIEM; a secrets management service; an endpoint management platform; an ITSM portal; an external IR partner; an HR management system). Standard, publicly-recognized vendor products and services may be named directly where doing so does not identify a specific organization's environment.
 
 ### Incident and case references
 
-| Source Term | Replacement |
-|---|---|
-| Any named specific security incident | a prior security incident |
-| CS109236765 or any case reference number | omit |
-| TT-REG-001 | omit: highly confidential; do not publish |
-| TT-REG-002 | omit: highly confidential; do not publish |
+Replace any named or numbered security incident or internal case reference with a generic form (for example: a prior security incident). Omit any confidential internal reference entirely.
 
 ### Personal names
 
@@ -410,7 +356,7 @@ The following are public standards, frameworks, regulatory citations, and progra
 
 ### Named open-source projects
 
-Open-source projects whose canonical name includes a vendor parent (for example PyRIT, originating from a vendor) may be referenced by the project name alone, without the vendor parent, qualified by an explanatory phrase such as "open-source AI red team automation framework". Do not retain the vendor name in body text. Vendor-only proprietary products remain subject to the sanitization substitution table above.
+Open-source projects whose canonical name includes a vendor parent (for example PyRIT, originating from a vendor) may be referenced by the project name alone, without the vendor parent, qualified by an explanatory phrase such as "open-source AI red team automation framework". Do not retain the vendor name in body text. Vendor-only proprietary products remain subject to the organization-neutrality rules above.
 
 ---
 

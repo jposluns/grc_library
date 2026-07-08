@@ -2,8 +2,8 @@
 
 **Document Title:** Security and Content Defect Reporting\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md), [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md)\
@@ -23,7 +23,7 @@ This file describes how to report problems with the contents of this repository.
 This repository contains documentation, not executable software, so the conventional notion of a "security vulnerability" does not strictly apply. The reporting paths below cover the issues that matter for a CC BY-SA 4.0 governance library:
 
 - **Content accuracy defects.** A document overstates compliance, misattributes a regulatory citation, repeats an incorrect framework identifier, or includes guidance that is materially wrong.
-- **Licence concerns.** A document appears to reproduce restrictively-licensed third-party text without permission, or a contribution otherwise raises a licence-compatibility concern with the library's CC BY-SA 4.0 licence.
+- **Licence concerns.** A document appears to reproduce restricted third-party text without permission, or a contribution otherwise raises a licence-compatibility concern with the library's CC BY-SA 4.0 licence.
 - **Organization or personal data leakage.** A document includes a real company name, personal name, email address, phone number, internal system name, incident detail, IP address, or other identifier that should have been substituted per [`specification-ingestion.md`](specification-ingestion.md) Appendix A.
 - **Broken or harmful external link.** An external reference in a document points to a defaced, replaced, or malicious resource.
 - **Specification or tooling defect.** A scripted audit produces false positives or false negatives that allow conformance violations to land.
