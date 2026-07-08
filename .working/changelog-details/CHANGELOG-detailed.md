@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.188, PR #700
+
+The `/resume` close-out for the 2026-07-08 attended-autonomous daytime session (resumed from the #699 session-closing handoff). Runs Sweep 89 (the loop-break corpus-wide `/validate` over the #687..#699 deltas, the compensating control for the #699 handoff's skipped trailing QA), ends overnight mode, prunes the handoff, and acquires the concurrency lease. Sweep 89 returned one in-window warning (C-1), fixed here; no contradiction of any #687 to #698 asserted-clean surface, so the loop-break compensating control passes.
+
+### Changed
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.59` to `1.16.60`): the C-1 fix. The §6 gate-59 detailed-prose narrative and its §5 grouped-list echo still described the static `CUTOFF_PR = 463` comparison boundary; PR #695 had replaced that with a dynamic floor (`effective cutoff = max(CUTOFF_PR, oldest PR still present in the in-repo detailed mirror)` under the current-week model) and updated the linter docstring but not the spec narrative. Both passages are rewritten to match the tool: the dynamic floor, the current-week sweep-to-scratch behaviour, the three pre-split-era exemptions (#268/#353/#462) sitting below the floor, and the honest boundary limitation (a dropped floor-defining oldest entry escaping detection, with the sweep tool's deterministic date partition + re-parse assertion and git history as compensating guards). Documentation only; no gate logic changed. Caught by Sweep 89 Subagent C; the audit-gate-change-completeness guard's "when the detection logic changes, the §6 narrative for that gate" surface, which gate 64 (detailed-prose presence) does not check for currency.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated after the spec Version bump (taxonomy first, then the portal generator; [`docs/portal.md`](../../docs/portal.md) unchanged).
+- [`.working/overnight-pr.md`](../overnight-pr.md): morning-processed to `Status: stub`, ending overnight mode. The 2026-07-07 and 2026-07-08 overnight run sections were routed (design decisions and closed work already in the durable ledgers via their in-run PRs; the deferred/blocked follow-ups in [`pending-decisions.md`](../pending-decisions.md) / TODO / the handoff; the reference-repo `license:`-schema and re-snapshot-cadence ambiguities noted as `grc_library_ref` concerns; build-progress noise discarded), and a single latest-run closure note replaces the prior one.
+- [`.working/session-handoff.md`](../session-handoff.md): pruned to current plus one prior (deleted the `claude/grc-acquisition-reconfirm-brief-k8fppo` next-actions and state-snapshot blocks and the `claude/resume-chptc7` asserted-expectations block; migrate-before-delete confirmed no un-recorded load-bearing item was lost); prepended this session's CURRENT next-actions block and State snapshot; advanced the Resume-cursor to Sweep 89.
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED (`Active-session: claude/resume-sweep89-deep-assessment`, `Status: active`, fresh heartbeat); Current-task and Worker-dispatches updated.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.82` to `2.0.83`): the Sweep 89 row.
+- [`README.md`](../../README.md): library CalVer `2026.07.187` to `2026.07.188`, README Version `1.9.548` to `1.9.549`.
+
+### Added
+- [`.working/validate-sweeps/2026-07-08-sweep89-iter1.md`](../validate-sweeps/2026-07-08-sweep89-iter1.md): the Sweep 89 per-iteration detail file (six H2 sections; the three subagent returns verbatim, orchestrator synthesis, resulting PR).
+
+### Verification
+- Sweep 89: all three subagents dispatched (A recent-PR, B corpus-wide stale-reference, C audit-programme integrity); A and B 0 findings, C 1 in-window warning (C-1) fixed here. Pre-flight scanner 9 candidates, all false positives (comparative/historical phrasing). C-1 validated at source (the gate-59 linter docstring lines 43-72 versus the two spec passages) before the fix; post-fix zero-residual grep of the old static framing confirmed (0 hits for the pre-#695 phrasing; the 3 remaining `463` mentions are the correct floor-baseline usages).
+- `tools/run_all_audits.sh` re-run standalone after the edits (below).
+- Per-PR QA cadence: this is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` run after merge and batch into the next PR (Fable PR A).
+
 ## 2026-07-08, Library Version 2026.07.187, PR #699
 
 Session-closing handoff PR for the 2026-07-08 OVERNIGHT NUC session (which merged PRs #694 through #698, on the long NUC session that resumed 2026-07-07). Working-state and version-surface only; no corpus normative content changed. Per the standing loop-break exception (PR-workflow step 5a; the `ai-assistant-workflow-disciplines` pack rule) this handoff runs no trailing `/validate-pr` or `/retro`; the compensating control is the next session's `/resume` corpus-wide `/validate` over the #687..#699 deltas, cross-checked against this session's asserted-expectations block.
