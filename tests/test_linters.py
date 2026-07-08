@@ -2547,6 +2547,49 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_current_week_model_swept_entries_not_flagged(self) -> None:
+        # Current-week model (2026-07-08): the in-repo mirror keeps only the
+        # current week, so its oldest PR rises above the fixed CUTOFF_PR (463).
+        # Root keeps EVERY entry. A root-only header between 463 and the
+        # mirror's oldest in-repo PR is swept-to-scratch, not missing; the
+        # dynamic effective cutoff (= oldest mirror PR) must leave it out of
+        # scope so it is NOT flagged. Under the old fixed-463 cutoff #520 would
+        # be a false "missing from mirror".
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            root_text = (
+                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nlead.\n"
+                "## 2026-07-01, Library Version 2026.07.5, PR #520\n\nlead.\n"
+            )
+            mirror_text = (
+                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nfull.\n"
+            )
+            self._write_pair(root, root_text, mirror_text)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_current_week_model_in_window_miss_still_flagged(self) -> None:
+        # The dynamic cutoff must not neuter the gate: a root header at or
+        # above the mirror's oldest in-repo PR but absent from the mirror is a
+        # genuine in-window drift and must still fail.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            root_text = (
+                "## 2026-07-08, Library Version 2026.07.10, PR #700\n\nlead.\n"
+                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nlead.\n"
+            )
+            mirror_text = (
+                "## 2026-07-07, Library Version 2026.07.9, PR #690\n\nfull.\n"
+            )
+            self._write_pair(root, root_text, mirror_text)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("#700", result.stdout)
+
 
 class AcronymConsistencyTests(LinterTestCase):
     """tools/lint-acronym-consistency.py"""

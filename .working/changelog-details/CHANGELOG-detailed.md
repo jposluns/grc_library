@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.183, PR #695
+
+CHANGELOG-restructure machinery, step 1 of the maintainer-directed current-week model (TODO 3.19). Adds a dynamic cutoff to the mirror header-parity gate (59), the data-safe sweep tool [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py), a [`.gitattributes`](../../.gitattributes) `export-ignore` on the working-state directory, and the model documentation; no data is moved yet. Tooling and working-state records only; no corpus normative content changed.
+
+### Added
+- [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py): the current-week sweep tool (not an audit gate; an orchestrator follow-up step). Identifies the completed-week detailed-CHANGELOG entries and the pre-current-week dated per-run record files (the `history.md` indexes, operational files, and READMEs stay in-repo), and offers `--dry-run` (default), `--emit-archive DIR` (write the weekly Monday-dated archives + copy record files to the scratch archive), and `--prune` (rewrite the in-repo mirror to current-week-only + delete the swept record files). Data-safe: `--prune` requires `--verify-archived DIR` and refuses unless every artefact already exists in the archive.
+- [`.gitattributes`](../../.gitattributes): `export-ignore` on the working-state directory so `git archive` exports/release tarballs are fork-clean (the TODO 3.19 resolution). Scope note in-file: this affects `git archive` only, not `git clone`/history.
+
+### Changed
+- [`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py) (gate 59): the fixed `CUTOFF_PR` is now a FLOOR; the effective cutoff is `max(CUTOFF_PR, oldest PR still in the in-repo mirror)` (new `effective_cutoff`). A swept (scratch-only) entry is out of parity scope rather than flagged missing, while a genuine in-window drift still fails. On the current unswept mirror the effective cutoff resolves to 463, i.e. behaviour is identical to before.
+- [`.working/changelog-details/README.md`](README.md): documents the current-week model, the sweep tool, and the dynamic gate-59 cutoff.
+- [`.working/overnight-pr.md`](../overnight-pr.md), [`.working/session-state.md`](../session-state.md): the 2026-07-08 overnight-run authorization and the refreshed concurrency lease (overnight mode, this branch, fresh heartbeat).
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 7 stages the change-tracking rule/skill + CLAUDE.md descriptive edits and the per-PR sweep-step wiring for the daytime apply.
+- [`TODO.md`](../../TODO.md): adds P3 item 3.19 (the restructure, its remaining PRs, and the supersedes-the-full-migration note) and corrects the stale P3 backlog-totals count (was "5 items" listing a phantom 3.4 and omitting 3.16/3.17/3.18; now 8 items).
+
+### Verification
+- Gate 59 test class passes (10 tests, including 2 new dynamic-cutoff cases: a swept root-only entry above the fixed floor is NOT flagged; a genuine in-window miss still IS). `effective_cutoff` confirmed = 463 on the current mirror (no behaviour change now).
+- Sweep tool exercised read-only: `--dry-run` (29 current-week entries kept, 647 swept across 5 weeks, 204 record files); `--emit-archive` to a scratchpad dir with a round-trip integrity check (676 original entry headers == 676 kept+archived, 0 lost, 0 bodies dropped); `--prune` guard refuses (exit 1, touches nothing) without a complete `--verify-archived` archive, and the `--prune` rewrite carries a post-rewrite re-parse assertion that aborts before any deletion if the constructed mirror would drop or duplicate an entry.
+- Full `run_all_audits.sh` + `run-pr-time-checks.sh` (the pre-push guard) green.
+
+### Why this is a separate PR
+Machinery first, no data moved: the dynamic gate + the sweep tool + the export-ignore are fully in-repo and CI-verifiable in isolation, so the sensitive cross-repo data movement (PR 2) and the large root reformat (PR 3+) land on a proven foundation.
+
 ## 2026-07-08, Library Version 2026.07.182, PR #694
 
 Follow-up corrections from the `/full-qa` review of PR #693. Completes the organization-neutrality terminology reframe across the quality-review documents, clears stale references to the retired organization-specific check (a tool docstring, the audit-programme gate-2 narrative, a linter exemption comment), disambiguates a duplicated section title, and reconciles the working-state handoff snapshot. Documentation, comment, and working-state records only; no corpus normative content changed. Batches PR #693's `/validate-pr` (QA performed via `/full-qa`; 6 findings, all fixed here) and `/retro` rows.

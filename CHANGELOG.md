@@ -4,6 +4,10 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-07-08, Library Version 2026.07.183, PR #695
+
+CHANGELOG-restructure machinery, step 1 of the maintainer-directed current-week model (TODO 3.19). Adds a dynamic cutoff to the mirror header-parity gate (59), the data-safe sweep tool [`tools/sweep-working-records-to-scratch.py`](tools/sweep-working-records-to-scratch.py), a [`.gitattributes`](.gitattributes) `export-ignore` on the working-state directory, and the model documentation; no data is moved yet (the initial sweep and the root reformat are subsequent PRs). Tooling and working-state records only; no corpus normative content changed. The change-tracking rule/skill and CLAUDE.md descriptive edits are staged in [`.working/deferred-protected-changes.md`](.working/deferred-protected-changes.md) for the maintainer's daytime apply.
+
 ## 2026-07-08, Library Version 2026.07.182, PR #694
 
 Follow-up corrections from the `/full-qa` review of PR #693. Completes the organization-neutrality terminology reframe across the quality-review documents, clears stale references to the retired organization-specific check (a tool docstring, the audit-programme gate-2 narrative, a linter exemption comment), disambiguates a duplicated section title, and reconciles the working-state handoff snapshot. Documentation, comment, and working-state records only; no corpus normative content changed. Batches PR #693's `/validate-pr` (QA performed via `/full-qa`; 6 findings, all fixed here) and `/retro` rows.
