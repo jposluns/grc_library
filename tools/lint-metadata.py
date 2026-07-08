@@ -20,9 +20,9 @@ document:
 
 Additional checks:
 
-- Document Type is one of the 17 allowed types (Charter, Framework,
-  Policy, Standard, Procedure, SOP, Plan, Roadmap, Guideline, Guide,
-  Register, Matrix, Specification, Template, Annex, Checklist,
+- Document Type is one of the 18 allowed types (Charter, Framework,
+  Policy, Principle, Standard, Procedure, SOP, Plan, Roadmap, Guideline,
+  Guide, Register, Matrix, Specification, Template, Annex, Checklist,
   Worklist).
 - Version follows semantic versioning (`x.y.z`).
 - Date follows ISO 8601 (`YYYY-MM-DD`).
@@ -74,6 +74,7 @@ ALLOWED_TYPES = {
     "Charter",
     "Framework",
     "Policy",
+    "Principle",
     "Standard",
     "Procedure",
     "SOP",
@@ -95,6 +96,7 @@ TYPE_TO_PREFIX = {
     "Charter": ["charter-"],
     "Framework": ["framework-"],
     "Policy": ["policy-"],
+    "Principle": ["principle-"],
     "Standard": ["standard-"],
     "Procedure": ["procedure-"],
     "SOP": ["sop-"],
