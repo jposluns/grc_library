@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.192, PR #704
+
+Completes the #703 paired-skill parity gate-number correction, which #703's own post-merge `/validate-pr` found incomplete (three carriers survived a scope-limited verification grep). Prose/working-state accuracy correction; no functional or gate-logic change.
+
+### Fixed
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md) (the #702 entry's Verification line): "Gate 42 (10 pairs, matching steps)" corrected to Gate 44 (the material carrier #703 missed, a fourth line in the very #702 entry #703 claimed to have fully corrected).
+- [`.working/session-state.md`](../session-state.md) and [`.working/session-handoff.md`](../session-handoff.md): the `gate-42 PAIRS registration` phrase corrected to gate 44 (transient working-state carriers).
+- Confirmed by a comprehensive whole-repo grep (`gate[ -]42`, all file types, case-insensitive) that every remaining `gate 42` string is either the legitimate external-overlay-licence-audit gate 42 (spec definition, the preflight-scanner comment, and frozen historical CHANGELOG entries) or a corrected-from quote in the #702/#703/#704 correction meta-prose; no live surface asserts the parity gate is gate 42.
+
+### Verification
+- `tools/run_all_audits.sh`: all 66 gates pass. Root and detailed CHANGELOG carry #704/#703/#702 in parity (gate 59).
+- Root cause recorded (`/retro`): #703's verification grep used a hand-listed path subset (excluding the detailed mirror and working-state) rather than a whole-repo scope, the completion-verification scope-width failure the PR-close-out checklist names; #704's grep is whole-repo.
+- Batches PR #703's `/validate-pr` (the incomplete-correction finding) and `/retro` rows.
+- Quick-fix / prose-correction tier: no standing verifier (the completion is a mechanical whole-repo grep confirmed clean).
+
 ## 2026-07-08, Library Version 2026.07.191, PR #703
 
 Corrects the gate-number mislabel PR #702 introduced (a #702 `/validate-pr` in-window warning). The paired-skill step-parity gate is canonically gate 44; #702 labeled it `gate 42` (which is the external-overlay licence-consistency audit) in five live carriers. Prose-only accuracy correction; no functional or gate-logic change.
@@ -50,7 +65,7 @@ The `/deep-assessment` skill, command, register, and hooks (PR B of the two-PR d
 - Codified in the SKILL (the design-rules paragraph) and the CLAUDE.md section: the count-free, inventory-deriving design makes the live inventory of quality machinery the assessment scope by construction, so any future quality-check process, tool, gate, skill, or check is included automatically; and adding a quality-check instrument carries the reciprocal duty to keep the pass covering it (a new gate gains a mutation-probe variant, a new command or skill joins the phase-3 invocation set, a new advisory tool joins the phase-3 aids).
 
 ### Verification
-- `tools/run_all_audits.sh`: all 66 gates pass on the working tree. Gate 42 (10 pairs, matching steps), gate 41 (skills-tree enumeration), gate 39 (skill count 19), and gate 32 (`derives_from` resolves) all green. The language gate was run on the SKILL, command, and register before the first commit (clean). Gate 60 warns at drift 2 (skills and commands each plus one, under the fail-3 threshold) and passes; the guardrail-review inventory token self-updates at the next `/guardrails` run, not hand-edited.
+- `tools/run_all_audits.sh`: all 66 gates pass on the working tree. Gate 44 (10 pairs, matching steps), gate 41 (skills-tree enumeration), gate 39 (skill count 19), and gate 32 (`derives_from` resolves) all green. The language gate was run on the SKILL, command, and register before the first commit (clean). Gate 60 warns at drift 2 (skills and commands each plus one, under the fail-3 threshold) and passes; the guardrail-review inventory token self-updates at the next `/guardrails` run, not hand-edited.
 - Batches PR #701's `/validate-pr` (0 findings) and `/retro` rows.
 
 ### Worker provenance
