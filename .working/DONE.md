@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #710: TODO 3.15 r6 guardrail G2, worker-brief gate-number rail (2026-07-08)
+
+Codified the r6 guardrail-review gap finding G2 (routed to TODO 3.15 in #707): added DO-rail 14 to `.working/worker-brief-template.md`, requiring every gate NUMBER a delivery cites to be verified against the audit-programme spec §6 (and any asserted corpus-gate interaction by running the gate) before propagating into prose. Targets the gate-42/44 mislabel class that cost the #702/#703/#704 churn. The sibling r6 finding G1 (the per-touch backstop D8 check) stays open in 3.15 for its own PR.
+
 ### PR #707: TODO 2.14 `/reference-audit` cadenced skill (2026-07-08)
 
 Closed TODO 2.14 (maintainer-directed 2026-07-07): built the `/reference-audit` cadenced skill and slash command, the reference-BREADTH layer above `/matrix-fit` (control-fit) and `/claim-fit` (claim-precision), which judges whether the corpus draws on the best held authoritative sources for each topic in both directions (held-but-unused and touched-doc-vs-new-ingest). Shipped across two PRs like the sibling cadences: the advisory tool `tools/audit-reference-breadth.py` in #706 (PR A), the skill + command + wiring + the per-touch close-out obligation here (PR B). Three build residuals routed to TODO (not-held-source detection, publications-after-2.11, and the per-touch mechanical backstop as a `[guardrails]` item).
