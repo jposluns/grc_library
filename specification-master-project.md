@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.8\
-**Date:** 2026-07-06\
+**Version:** 1.6.9\
+**Date:** 2026-07-08\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -43,7 +43,7 @@ This specification applies to every AI response within the project, including:
 4. Document-type rules (policy, standard, procedure, etc.).
 5. Any user-provided overrides.
 
-When conflict occurs, the highest item prevails. Exception: where any conflict concerns licence compatibility with the library's CC BY-SA 4.0 licence (for example, a proposal to incorporate externally licensed content), the more restrictive rule prevails regardless of document position in this order.
+When conflict occurs, the highest item prevails. Exception: where any conflict concerns licence compatibility with the library's CC BY-SA 4.0 licence (for example, a proposal to incorporate external third-party content), the more restrictive rule prevails regardless of document position in this order.
 
 ---
 
@@ -259,7 +259,7 @@ Rules:
 5. One sentence per line recommended for policies and standards.
 6. Section order must follow the canonical order defined in the Ingestion Specification.
 7. All text must be globally reusable and must not contain organization-specific references.
-8. Apply the sanitization substitution table in Appendix A of the Ingestion Specification to all content.
+8. Apply the organization-neutrality rules in Appendix A of the Ingestion Specification to all content.
 9. Use Oxford English with `-ize` forms where applicable.
 10. Do not use em dashes or en dashes.
 11. Pair `ensure` with `that`; do not use bare `ensure` or `ensures`.
@@ -356,7 +356,7 @@ References must be accurate and must not be invented. Do not reference framework
 
 ## 8. Governance document generation rules
 
-1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate externally licensed verbatim text.
+1. All content must be normalized to organization-neutral, original-authorship language. The library does not incorporate third-party verbatim text.
 2. Documents must adhere to the canonical structure:
  - Metadata
  - Purpose

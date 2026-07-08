@@ -4,18 +4,18 @@ Frozen-state archive per the `.working/` convention; cross-references accurate a
 
 ## Scope and baseline
 
-The one-time full Tier-A pass shipping with the `/claim-fit` skill (S3 PR B). Scope: the whole Tier-A census, 11 value-attribution claims from `python3 tools/audit-claim-precision.py --scratch /home/user/grc_library_scratch --tier A` (census: 11 Tier-A + 119 Tier-B; Tier B not sampled this run, the adoption pass is Tier-A-complete by design and the per-batch cadence samples Tier B going forward). Mechanical baseline: `tools/run_all_audits.sh` exit 0 (65/65) on the branch state before the semantic read. Reference base: scratch `ref/` at `e3a088f` (#102); all 11 claims' primary named sources held except UK GDPR and PIPL (see source-not-held).
+The one-time full Tier-A pass shipping with the `/claim-fit` skill (S3 PR B). Scope: the whole Tier-A census, 11 value-attribution claims from `python3 tools/audit-claim-precision.py --scratch <ref-base-path> --tier A` (census: 11 Tier-A + 119 Tier-B; Tier B not sampled this run, the adoption pass is Tier-A-complete by design and the per-batch cadence samples Tier B going forward). Mechanical baseline: `tools/run_all_audits.sh` exit 0 (65/65) on the branch state before the semantic read. Reference base: the base at `e3a088f` (#102); all 11 claims' primary named sources available except UK GDPR and PIPL (see source-not-held).
 
 ## Judge dispatch and verdicts
 
-One citation-precision judge subagent over all 11 claims, four-valued verdict vocabulary, every verdict quoting the held source passage (or the failed index lookup). Orchestrator apply-time re-verification: every `mis-attributed` and `informed-not-prescribed` passage re-read in the held texts before treatment as a finding (GDPR Art 33(1) at `:3296`, Art 33(2) at `:3303`, ISO/IEC 42001 retention-and-disposition at `:1097`, EU AI Act Annex IV heading at `:8015`, Art 18 ten-year documentation at `:4146`, Art 19 six-month log minimum at `:4175`; all confirmed).
+One citation-precision judge subagent over all 11 claims, four-valued verdict vocabulary, every verdict quoting the source passage (or the failed index lookup). Orchestrator apply-time re-verification: every `mis-attributed` and `informed-not-prescribed` passage re-read in the texts before treatment as a finding (GDPR Art 33(1) at `:3296`, Art 33(2) at `:3303`, ISO/IEC 42001 retention-and-disposition at `:1097`, EU AI Act Annex IV heading at `:8015`, Art 18 ten-year documentation at `:4146`, Art 19 six-month log minimum at `:4175`; all confirmed).
 
 Verdicts (per source-half):
 
 - **prescribed (12 source-halves)**: GDPR 72-hour breach notification (energy annex :99; startup roadmap :197); GDPR one-month-plus-two DSAR windows (privacy policy :117; DSAR template :85); CCPA/CPRA 45-day and 45+45 extension (both carriers); PIPEDA 30-day (both carriers); GDPR Art 15 access and Art 16 rectification (DSR rows :60/:61); PIPEDA Sch 1 cl 4.9 / 4.9.5 (DSR rows).
-- **informed-not-prescribed (4)**: the ISO/IEC 42001 half of the three 7-year retention carriers (requires retention and disposition control, states no period); the DORA reporting windows (the held Level 1 text mandates the report structure and delegates the time limits to the Art 20 RTS, which is not held; the corpus row's "(subject to RTS / ITS)" hedge already signals the delegation, so NO text change; the RTS is queued as a source-drop request).
+- **informed-not-prescribed (4)**: the ISO/IEC 42001 half of the three 7-year retention carriers (requires retention and disposition control, states no period); the DORA reporting windows (the Level 1 text mandates the report structure and delegates the time limits to the Art 20 RTS, which is not available; the corpus row's "(subject to RTS / ITS)" hedge already signals the delegation, so NO text change; the RTS is queued as a source-drop request).
 - **mis-attributed (4)**: the EU AI Act Annex IV half of the three 7-year carriers (Annex IV is the technical-documentation content list and carries no retention obligation; the Act's actual figures are 10 years for provider documentation, Art 18, and at least six months for logs, Art 19, neither 7 years); the 24-hour supplier-notification KPI "per GDPR Article 33(2)" (the article sets "without undue delay").
-- **source-not-held (4)**: UK GDPR Arts 15/16 (only the UK DPA 2018 is held, which does not reproduce them) and PIPL Arts 45/46 (a catalogued coverage gap, `ref/COVERAGE-MAP.md` maintainer-drop row). Not adjudicated from memory; queued as source-drop requests.
+- **source-not-held (4)**: UK GDPR Arts 15/16 (only the UK DPA 2018 is available, which does not reproduce them) and PIPL Arts 45/46 (a catalogued coverage gap). Not adjudicated from memory; queued as source-drop requests.
 
 ## Sibling-carrier grep (class width)
 
@@ -36,7 +36,7 @@ Taxonomy regenerated first, then portal; both `--check` exit 0. No value was cha
 
 ## Routed and queued (not fixed in-window)
 
-- **Source-drop requests to the maintainer** (three): the DORA Article 20 RTS on incident-report time limits (would let a future pass verify the 4h/72h/1-month figures the annex states under its RTS hedge); the UK GDPR consolidated text; the PIPL text (already a catalogued gap). Until these land, the affected attributions stand on their existing hedges and the not-held sources stay unjudged.
+- **Sources not available** (three): the DORA Article 20 RTS on incident-report time limits (would let a future pass verify the 4h/72h/1-month figures the annex states under its RTS hedge); the UK GDPR consolidated text; the PIPL text (already a catalogued gap). Until these land, the affected attributions stand on their existing hedges and the unavailable sources stay unjudged.
 - **Currency observation**: the judged `legislation/` and `standards/` catalogue items carry no `last_checked` field, so the scratch 7-day currency throttle has never stamped them; noted for the scratch curation queue (Mode A work, not this repo's).
 
 ## Notes

@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.8\
-**Date:** 2026-07-06\
+**Version:** 1.0.9\
+**Date:** 2026-07-08\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -40,15 +40,15 @@ This file is maintainer working state, exempt from corpus audit gates per the `.
 
 **Impact / resolution.** None lost; the session resumed and completed the QA cycle. Standing mitigation is the project's durable-state design (stop-hook auto-commit/push at turn-end, the session handoff, the concurrency lease): container reclamation is expected, and recovery cost is a short "allocating sandbox" restart on the client. No preventive action available or needed project-side.
 
-### 2026-06-27: scratch-repo `ref/standards` seeded on `main` via the MCP-PR transport (git-proxy 403 recurred)
+### 2026-06-27: reference-base sources seeded on `main` via the MCP-PR transport (git-proxy 403 recurred)
 
-**Observed.** Seeding the `ref/standards/` text extracts + originals onto `grc_library_scratch` `main` (the maintainer re-uploaded the CSA CCM v4.1 / AICM v1.1 / CAIQ + NIST CSWP 29 binaries). Feature-branch pushes to scratch succeeded earlier in the session, but the direct `git push origin main` returned `HTTP 403 (curl 22)`, the same restriction logged 2026-06-25 below.
+**Observed.** Seeding reference-base sources onto `grc_library_scratch` `main` (the maintainer re-uploaded the reference binaries). Feature-branch pushes to scratch succeeded earlier in the session, but the direct `git push origin main` returned `HTTP 403 (curl 22)`, the same restriction logged 2026-06-25 below.
 
 **Diagnosis.** The 2026-06-25 git-proxy write restriction on `grc_library_scratch` persists (per-repo write quota or burst throttle); it is intermittent at the per-push level (some feature-branch pushes went through this session) but blocked the `main` push. Not a credential or corpus defect.
 
 **How it was distinguished from a real defect.** The fast-forward merge succeeded locally; only the push transport 403'd. The GitHub MCP transport (`create_pull_request` + `merge_pull_request`) succeeded where the git proxy failed, matching the 2026-06-25 cross-check (MCP writes to scratch work).
 
-**Impact / resolution.** Bounded and now resolved for the `ref/` seed. Scratch PR #1 (`create_pull_request` then `merge_pull_request`, a clean fast-forward, scratch has no CI) landed the `ref/standards/` CSV/MD extracts AND the 6 source binaries on scratch `main` (merge commit `0b5cee5`). So the "binaries pending" impact noted in the 2026-06-25 entry is closed. Lesson: to persist a scratch change to `main`, use the MCP-PR transport, not a direct `git push`; codified in the [`multi-session-orchestration`](multi-session-orchestration.md) runbook §6 (persist-to-`main` discipline).
+**Impact / resolution.** Bounded and now resolved for the `ref/` seed. Scratch PR #1 (`create_pull_request` then `merge_pull_request`, a clean fast-forward, scratch has no CI) landed the reference-base extracts and source binaries on scratch `main` (merge commit `0b5cee5`). So the "binaries pending" impact noted in the 2026-06-25 entry is closed. Lesson: to persist a scratch change to `main`, use the MCP-PR transport, not a direct `git push`; codified in the [`multi-session-orchestration`](multi-session-orchestration.md) runbook §6 (persist-to-`main` discipline).
 
 ### 2026-06-26: `AskUserQuestion` tool errors with "permission stream closed"
 
@@ -91,9 +91,7 @@ MCP→`grc_library_scratch` (works). Only the git-proxy→scratch path is affect
 overnight PR workflow (all on `grc_library` via git) is unaffected.
 
 **Impact.** Bounded. The scratch `ref/` text indexes (root `README.md`, the calibrated
-`ref/README.md`, `.gitignore`) WERE seeded via the MCP API. The reference BINARIES
-(CSA CCM v4.1 / AICM v1.1 / CAIQ catalogues + guidance PDFs, NIST CSF 2.0 PDF, the
-AI-security and threat-intel PDFs, ~34 MB) could NOT be pushed: the git-proxy→scratch
+`ref/README.md`, `.gitignore`) WERE seeded via the MCP API. The reference binaries (~34 MB) could NOT be pushed: the git-proxy→scratch
 path is blocked, and binary content is not safely expressible through the MCP
 string-content interface (double-base64 corruption risk). The maintainer chose to
 re-upload the binaries tomorrow rather than block the overnight run.

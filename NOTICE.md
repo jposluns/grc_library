@@ -2,8 +2,8 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.4\
-**Date:** 2026-07-02\
+**Version:** 1.4.5\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
@@ -22,7 +22,7 @@ This notice defines how external standards, control frameworks, regulatory texts
 
 The repository content is released under **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**. That licence applies only to original repository content. It does not apply to external reference materials referenced by the library.
 
-The library is built on a clear principle: **we do not copy externally licensed content into this repository.** We reference external standards, frameworks, and resources by name and identifier; we paraphrase publicly documented capabilities; we use external work as inspiration for original synthesis. We do not paste verbatim text, controls, or questionnaire items from licensed third-party sources.
+The library is built on a clear principle: **we do not copy external third-party content into this repository.** We reference external standards, frameworks, and resources by name and identifier; we paraphrase publicly documented capabilities; we use external work as inspiration for original synthesis. We do not paste verbatim text, controls, or questionnaire items from third-party sources.
 
 ---
 
@@ -46,7 +46,7 @@ Do not commit any of the following:
 - Full or partial third-party implementation guidance text.
 - Full or partial third-party audit guidance text.
 - Full or partial third-party metrics catalogue text.
-- Tables reconstructed from proprietary or restrictively licensed source materials.
+- Tables reconstructed from proprietary or otherwise restricted source materials.
 - Copyright notices removed from external materials.
 
 These prohibitions apply regardless of any external material's licence terms. They exist because the library's content is original synthesis, not aggregation.
