@@ -564,6 +564,21 @@ single-session. The project-agnostic form is the partitionable-work SOP in the
 [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
 pack rule (its §2).
 
+**Start-side worker-collision check (the complement to the close-out coverage-pairing
+line).** Before starting to build any backlog item, check the scratch `claims-ledger.md`
+and `research/COVERAGE.md` for an in-flight claim or a pending inbox delivery covering it:
+a claimed or delivered item is apply-work (validate-then-apply on the delivery), not
+build-work, so beginning to build it duplicates a worker's effort or collides with a
+pending delivery. Nothing else in the queueing flow makes a fresh session look at scratch
+before it picks up a TODO item, so this is the start-side of the same loop the close-out
+`Worker-brief coverage pairing` checklist line closes at the other end (that line syncs
+briefs and verdicts for the item set; this check consults claims and deliveries before
+building). It fires not only at `/resume` (whose step-0 sibling-branch cross-check is its
+concurrency analogue) but whenever the queue is resumed mid-session and the next item is
+picked. The operational form (where to look, what an in-flight claim row versus a delivered
+inbox row means) is in the runbook
+[`.working/multi-session-orchestration.md`](../.working/multi-session-orchestration.md).
+
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 
 The compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md))

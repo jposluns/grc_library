@@ -1,6 +1,6 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-07-08\
 **License:** CC BY-SA 4.0
 
@@ -130,6 +130,26 @@ ready but inactive; in-session fan-out (4a) covers partitionable work meanwhile.
   timestamp-ordered UNION of the row sets keyed by work-unit id (every claim row from both
   sides is kept, ordered by claim timestamp); a conflict is never resolved by clobbering
   either side's rows.
+- **Start-side collision check (before the orchestrator starts building any item).**
+  Nothing in the queueing flow otherwise makes a fresh session look at scratch before it
+  picks up a TODO item, so before building any backlog item the orchestrator consults the
+  two scratch artefacts that record worker activity and treats a claimed or delivered item
+  as apply-work, not build-work:
+  - an **in-flight claim** is a `claims-ledger.md` row (a worker has claimed the partition
+    and is building it; starting to build the same item duplicates the worker's effort);
+  - a **delivered** item is a package in `inbox/<worker-id>/` (or a `research/COVERAGE.md`
+    row re-pointed at an inbox path): the build is done and the item is apply-work, so the
+    orchestrator applies it under the validate-then-apply gate (section 2), it does not
+    re-build it.
+
+  State is derived from artefacts (per section 5.1), never a status field. The check fires
+  not only at `/resume` (whose step-0 unmerged-`origin/claude/*` git cross-check is its
+  session-concurrency analogue) but whenever the orchestrator resumes the queue mid-session
+  and picks the next item, so a fresh pick never collides with a claim or a delivery that
+  landed after the session started. This is the start-side complement to the close-out
+  coverage-pairing rule in section 5.1 (that rule stages a brief or a not-eligible verdict
+  for every item at TODO-add time; this check reads the claims and deliveries before the
+  build begins).
 - **Triggering default: human-on-demand.** The orchestrator (or maintainer) launches a
   wave of workers when there is partitionable work queued. This is the default and the
   safe baseline.
