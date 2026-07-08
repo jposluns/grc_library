@@ -2,7 +2,7 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.3\
+**Version:** 1.2.4\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -124,7 +124,7 @@ Each value line ends with a trailing space and the line break is two spaces or a
 ## Filename rules
 
 - Lowercase letters and single hyphens between words only.
-- Filename must start with the document type prefix (`charter-`, `framework-`, `policy-`, `standard-`, `procedure-`, `sop-`, `plan-`, `roadmap-`, `guideline-`, `guide-`, `register-`, `matrix-`, `specification-`, `template-`, `annex-`, `checklist-`).
+- Filename must start with the document type prefix (`charter-`, `framework-`, `policy-`, `principle-`, `standard-`, `procedure-`, `sop-`, `plan-`, `roadmap-`, `guideline-`, `guide-`, `register-`, `matrix-`, `specification-`, `template-`, `annex-`, `checklist-`, `worklist-`).
 - No vendor or product names in filenames.
 
 ## Review

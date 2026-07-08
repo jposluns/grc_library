@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Library Charter\
 **Document Type:** Charter\
-**Version:** 1.2.4\
+**Version:** 1.2.5\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,22 +59,23 @@ It governs:
 | Level | Artefact Type | Purpose |
 | --- | --- | --- |
 | 1 | Charter | Defines repository authority, scope, principles, and governance lifecycle. |
-| 2 | Framework | Defines domain structure, scope, lifecycle, and integration points. |
-| 3 | Policy | States mandatory governance intent and principles. |
-| 4 | Standard | Defines measurable control requirements and baselines. |
-| 5 | Procedure | Defines repeatable multi-actor or cross-functional operational steps. |
-| 6 | SOP | Defines a single-actor or narrow team sequence with explicit step ownership for one repeatable task. |
-| 7 | Plan | Defines coordinated incident, continuity, recovery, migration, or response actions. |
-| 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
-| 9 | Guideline | Provides advisory implementation interpretation of a policy or standard requirement. |
-| 10 | Guide | Provides technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
-| 11 | Register | Records authoritative metadata, obligations, risks, assets, systems, exceptions, or evidence. |
-| 12 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
-| 13 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
-| 14 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
-| 15 | Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
-| 16 | Checklist | Provides a structured verification list for a specific process or gate. |
-| 17 | Worklist | Captures a per-instance working artefact derived from a Template, scoped to one batch or task, and typically retired when the work closes (the authoritative record migrates to a register or log). |
+| 2 | Principle | States the foundational, cross-cutting production principles (such as integrity and trustworthiness) that the frameworks, policies, and standards operationalize. |
+| 3 | Framework | Defines domain structure, scope, lifecycle, and integration points. |
+| 4 | Policy | States mandatory governance intent and principles. |
+| 5 | Standard | Defines measurable control requirements and baselines. |
+| 6 | Procedure | Defines repeatable multi-actor or cross-functional operational steps. |
+| 7 | SOP | Defines a single-actor or narrow team sequence with explicit step ownership for one repeatable task. |
+| 8 | Plan | Defines coordinated incident, continuity, recovery, migration, or response actions. |
+| 9 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome with phased milestones and dependencies. |
+| 10 | Guideline | Provides advisory implementation interpretation of a policy or standard requirement. |
+| 11 | Guide | Provides technical reference material organized for adoption such as patterns, examples, configuration models, or implementation walkthroughs. |
+| 12 | Register | Records authoritative metadata, obligations, risks, assets, systems, exceptions, or evidence. |
+| 13 | Matrix | Maps relationships among controls, risks, obligations, frameworks, lifecycle stages, and evidence. |
+| 14 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
+| 15 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
+| 16 | Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
+| 17 | Checklist | Provides a structured verification list for a specific process or gate. |
+| 18 | Worklist | Captures a per-instance working artefact derived from a Template, scoped to one batch or task, and typically retired when the work closes (the authoritative record migrates to a register or log). |
 
 ---
 

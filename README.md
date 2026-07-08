@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.199 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.560 (semantic per-document version for this file)
+**Library Version:** 2026.07.200 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.561 (semantic per-document version for this file)
 
 ---
 
@@ -216,6 +216,7 @@ The library uses the following artefact types:
 | Type | Purpose |
 | --- | --- |
 | Charter | Establishes authority, mandate, accountability, and decision rights. |
+| Principle | States the foundational, cross-cutting production principles (such as integrity and trustworthiness) that frameworks, policies, and standards operationalize. |
 | Framework | Defines domain scope, governance model, lifecycle, and integration points. |
 | Policy | States binding governance intent and mandatory principles. |
 | Standard | Defines measurable control requirements and baselines. |
@@ -231,6 +232,7 @@ The library uses the following artefact types:
 | Specification | Defines technical or structural requirements for artefact creation, data fields, interfaces, or evidence. |
 | Template | Provides reusable forms, logs, assessments, or evidence structures. |
 | Annex | Provides supplementary domain-specific guidance that remains subordinate to the parent framework, policy, or standard. |
+| Worklist | Captures a per-instance working artefact derived from a Template, scoped to one batch or task, and retired when the work closes (the authoritative record migrates to a register or log). |
 
 Type selection notes:
 

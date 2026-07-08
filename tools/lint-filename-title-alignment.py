@@ -29,7 +29,7 @@ as "AEO-S IT and Cybersecurity Security Requirements" where the
 filename was ``annex-aeo-s-it-cybersecurity-requirements.md`` (the
 duplicate "Security" in the title was a manual editing mistake).
 
-The DOCTYPES set covers all 17 doctypes accepted by
+The DOCTYPES set covers all 18 doctypes accepted by
 lint-metadata.py's ALLOWED_TYPES.
 
 Usage::
@@ -81,7 +81,7 @@ DEFAULT_PATHS = list(AUDITED_DOMAIN_DIRS)
 
 DOCTYPES = {
     "annex", "charter", "checklist", "framework", "guide", "guideline",
-    "matrix", "plan", "policy", "procedure", "register", "roadmap",
+    "matrix", "plan", "policy", "principle", "procedure", "register", "roadmap",
     "sop", "specification", "standard", "template", "worklist",
 }
 

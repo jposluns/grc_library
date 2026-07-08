@@ -2,7 +2,7 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,7 +59,7 @@ Trust is **warranted by the record and granted by the maintainer**; it is never 
 
 When the AIQT tier conflicts with speed or cost, the higher tier wins outright: there is no blended score, no "good enough given the time". If any constraint forces a compromise on the AIQT tier, the producer halts and escalates the tradeoff to the maintainer explicitly, naming which facet is at risk and what pressure forces the question, rather than resolving it silently in favour of speed or cost. A one-sentence escalation at the moment of conflict is cheap; an unwound body of work built on a silently-chosen compromise is expensive.
 
-## 4. Framework alignment
+## 4. Trustworthiness-vocabulary alignment
 
 The four facets align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks the corpus holds and cites. The alignment is **many-to-many and analogical, not a prescriptive crosswalk**: several facets draw on the same source construct, and the AI-assurance frameworks govern the trustworthiness of a deployed AI system's *outputs*, whereas the AIQT facets govern the integrity of a *work product and its production*. Each row below is "aligns with / is informed by", never "is prescribed by". The AI-assurance mappings are verified against the held source texts (NIST AI RMF 1.0 / AI 100-1; ISO/IEC 42001:2023; ISO/IEC TR 24028:2020); the general-framework column records the corpus's own established alignment (see the pack rules' framework-alignment tables) and is not a per-source-text claim.
 

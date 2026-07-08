@@ -2,7 +2,7 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.9\
+**Version:** 1.6.10\
 **Date:** 2026-07-08\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -155,6 +155,7 @@ Allowed types and their canonical filename prefixes (filenames use lowercase; se
 | Charter | `charter-` |
 | Framework | `framework-` |
 | Policy | `policy-` |
+| Principle | `principle-` |
 | Standard | `standard-` |
 | Procedure | `procedure-` |
 | SOP | `sop-` |
