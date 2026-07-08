@@ -39,7 +39,10 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 **Build progress (2026-07-08 overnight, updated as PRs land):**
 
 - PR #694 (pre-overnight, this session): `/full-qa` follow-up corrections merged.
-- Changelog-restructure PR 1 (machinery): in flight on `2026-07-08-changelog-machinery`.
+- Changelog-restructure **PR 1 (machinery) MERGED as #695** (gate-59 dynamic cutoff + `tools/sweep-working-records-to-scratch.py` + `.gitattributes export-ignore` + model docs; pre-push skeptical verifier caught 2 findings (gate-59 floor-boundary limitation documented + a stale by-one count) both fixed and re-verified; a P7 gate-39 phrasing trip caught by the guard and fixed; CI green).
+- Changelog-restructure **PR 2 (the sweep) BLOCKED** on a maintainer decision: staging the archive in scratch trips scratch's `validate.py` Check 5 (the `jposluns` maintainer-watermark token in historical entries) + Check 6 (dash/style). Recorded in [`pending-decisions.md`](pending-decisions.md) with options (recommend exempting the frozen `archive/` from scratch's checks). grc_library and scratch both left clean; no data moved.
+- Changelog-restructure **PR 3 (root reformat + compress) DEFERRED** as a wide sensitive change (de-headings 679 entries + gate-parser changes + a 679-entry judgment compression), recommend attended / fresh-context per the err-on-caution directive. Recorded in `pending-decisions.md`.
+- **Pivoted to the egress-prioritized queue** per the maintainer's directive: TODO 1.11 residual (the ANPD Resolution 15/2024 small-scale-agent deadline-doubling sub-clause) in flight on `2026-07-08-todo111-anpd-residual` (egress confirmed reachable this session). Carries the batched #695 `/validate-pr` + `/retro` rows and the PR-2/PR-3 deferral records.
 
 **Reference-base queue remaining (Phase A, cross-repo-parallel with corpus):** reference-base work (tracked separately in the reference repo).
 
