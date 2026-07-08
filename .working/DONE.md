@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #702: /deep-assessment skill, command, register, and hooks (2026-07-08)
+
+Shipped the rare, maintainer-invoked whole-project deep-assessment instrument: the pack skill plus its paired `/deep-assessment` command (count-free and inventory-deriving, register-backed and re-entrant, sign-off-terminated), wired across the gate-42 PAIRS registry, `/resume` step 7, the pack README (skills tree plus a minor version bump), a project CLAUDE.md section, and the working-records sweep; the two advisory gate-efficacy tools (blind-spot map, mutation probe) shipped in the paired #701. Not previously a TODO item (a maintainer-directed 2026-07-08 build from a Fable worker delivery, scratch #109); also codifies that any future quality-check process or tool is included in the deep assessment by construction.
+
 ### PR #697: FR-63 (2.7): adoption worked example (2026-07-08)
 
 Added a narrative adoption worked example ([`docs/worked-example-adoption.md`](../docs/worked-example-adoption.md)) following one fictional adopter (a mid-size SaaS with EU customers and AI features, reused from the startup-roadmap composition example) from clone through the Day-1 six-artefact floor and the staged Phase 1 and Phase 2 programme with file-by-file decisions; wired it to the ingestion worked example and the adopter guide via mutual Related-Documents pointers (no five-path entry-point-list edit, which would have triggered a count cascade). Closes TODO §2.7 / FR-63.
