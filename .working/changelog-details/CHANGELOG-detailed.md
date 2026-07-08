@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.186, PR #698
+
+Folds in PR #697's out-of-window `/validate-pr` notes, batches its QA, and records the deferral of the GR-8-follow-on-A register-ageing advisory tool. Working-state and README-discoverability only; no corpus normative content changed.
+
+### Changed
+- [`README.md`](../../README.md) (`1.9.546` to `1.9.547`): added a repository-hygiene-files catalogue row for the new adoption worked example beside the ingestion one (the #697 `/validate-pr` out-of-window discoverability note), and labelled the ingestion row "(ingestion)" for symmetry.
+- [`.working/session-state.md`](../session-state.md): the Current-task narrative reconciled to the post-#697 state (FR-63 closed; #695 / #696 / #697 merged; changelog PR 2 / PR 3, the alignment maps, the register-ageing tool, and the egress items all blocked or deferred), heartbeat re-stamped.
+- [`TODO.md`](../../TODO.md) §3.15: recorded that the register-ageing advisory tool was prototyped and deferred, with the design finding.
+- Batched PR #697 [`/validate-pr`](../validate-pr/history.md) and [`/retro`](../improvement-log.md) rows; [`.working/overnight-pr.md`](../overnight-pr.md) build-progress plus an honest queue-state note.
+
+### Verification
+- 66/66 audit gates plus the pre-push guard green. No corpus document body changed except the README catalogue row (Version and Date co-bumped). The register-ageing tool prototype was reverted (not shipped); the tree carries no partial tool.
+
+### Discipline observation
+- The register-ageing tool was built, tested, and DEFERRED rather than shipped. Its output over-flagged (roughly 78 in-window false-positive habit-notes even with a cutoff) because the disposition-token heuristic cannot distinguish a formal pending candidate from an adopted-in-place habit or convention note. Shipping an over-flagging advisory would erode trust in its output (the opposite of the precise brief-freshness sibling it was modelled on), so per Quality over Speed it was deferred with a recorded design finding (a formal-candidate classifier or a structured register marker is needed) rather than forced through at the tail of a long session. The two actionable #697 out-of-window notes were folded in; the third (Related-Documents symmetry) was left informational (not gate-enforced; the wiring was deliberately scoped to the worked-example and adopter-guide pair).
+
 ## 2026-07-08, Library Version 2026.07.185, PR #697
 
 FR-63 (TODO §2.7): adds a narrative adoption worked example complementing the ingestion worked example, following one fictional adopter (reusing the startup-roadmap Example 1 mid-size SaaS) from clone through the Day-1 floor and the staged Phase 1 / Phase 2 programme with file-by-file decisions. Applied from a research delivery; closes TODO §2.7 / FR-63.

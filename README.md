@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.185 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.546 (semantic per-document version for this file)
+**Library Version:** 2026.07.186 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.547 (semantic per-document version for this file)
 
 ---
 
@@ -201,7 +201,8 @@ Additional repository hygiene files:
 | [`CHANGELOG.md`](CHANGELOG.md) | Phase-level history of repository changes. |
 | [`SECURITY.md`](SECURITY.md) | How to report content accuracy defects, licence concerns, organization or personal data leakage, and tooling defects. |
 | [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organization. |
-| [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a library-compliant artefact. |
+| [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a library-compliant artefact (ingestion). |
+| [`docs/worked-example-adoption.md`](docs/worked-example-adoption.md) | End-to-end walkthrough of one adopter forking the library and running a staged first-year programme (adoption). |
 | [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
 | [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) | Auto-generated per-document maturity classification (Mature, Baseline, Draft). |
 | [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, structural, taxonomy, and portal generators. |
