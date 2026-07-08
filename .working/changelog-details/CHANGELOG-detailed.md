@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.201, PR #713
+
+Session-closing handoff for the 2026-07-08 resumed session (which shipped #700 through #712, all with full per-PR QA and zero escaped findings).
+
+### Changed
+- [`.working/session-handoff.md`](session-handoff.md): Current-truth refreshed to the closing state (merged through #712; green-at `bc01515` = 66/66; library `2026.07.201` / README `1.9.562` / pack `1.57.0`; gate 66 / rules 12 / skills 20 / commands 13 / Document-types 18); the next-session queue rewritten (the AIQT scratch one-liner; the first FULL `/reference-audit`; the invoke-only first `/deep-assessment`; the ALLOWED_TYPES-parity gate; changelog PR 3); this session's `## Asserted expectations` block prepended.
+- [`.working/session-state.md`](session-state.md): the concurrency lease RELEASED (`Status: released`, `Active-session: none`).
+- [`.working/session-metrics.md`](session-metrics.md): this session's row prepended (measured floor across the 16 retrievable post-compaction subagents; the pre-compaction subagents not re-retrievable, recorded as a floor per the measured-not-fabricated discipline).
+
+### Verification
+- Per the standing handoff-PR exception (the loop-break), this PR runs NO trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #700..#712 deltas, cross-checked against the asserted expectations. The handoff's `/validate-pr` history row carries the gate-50-recognized `SKIPPED (handoff-PR exception)` marker in its Findings cell.
+- Batches PR #712's `/validate-pr` (0 in-window findings) and `/retro` rows. `tools/run_all_audits.sh` = 66/66; the pre-push guard green. Working-state + version-surface + CHANGELOG only (no corpus document body).
+
+Library `2026.07.200` to `2026.07.201`.
+
 ## 2026-07-08, Library Version 2026.07.200, PR #712
 
 Hot-fix for the #711 post-merge `/validate-pr` Medium finding: the new "Principle" Document Type was registered in [`tools/lint-metadata.py`](../../tools/lint-metadata.py) (#711) but not propagated to the other surfaces that enumerate the allowed-type set. This propagates it everywhere.
