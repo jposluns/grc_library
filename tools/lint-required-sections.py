@@ -21,7 +21,7 @@ loosened the rule to avoid false positives where the convention exists
 in practice but the canonical heading name varies).
 
 Doctypes not in REQUIRED_SECTIONS (SOP, Roadmap, Matrix, Template,
-Checklist, Worklist) are not enforced by this linter. Each has a
+Checklist, Worklist, Principle) are not enforced by this linter. Each has a
 different shape that the orientation rule does not fit cleanly.
 
 Usage:

@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.200, PR #712
+
+Hot-fix for the #711 post-merge `/validate-pr` Medium finding: the new "Principle" Document Type was registered in [`tools/lint-metadata.py`](../../tools/lint-metadata.py) (#711) but not propagated to the other surfaces that enumerate the allowed-type set. This propagates it everywhere.
+
+### Changed
+- [`specification-master-project.md`](../../specification-master-project.md) §4.3 allowed-types table, [`specification-ingestion.md`](../../specification-ingestion.md) allowed-types list, and [`instruction-ai-document-ingestion.md`](../../instruction-ai-document-ingestion.md) (types + `principle-` prefix): Principle added.
+- [`tools/lint-filename-title-alignment.py`](../../tools/lint-filename-title-alignment.py): `principle` added to its `DOCTYPES` set (docstring "17 to 18"), which had SILENTLY SKIPPED the new principle-typed doc and violated its documented cover-all-ALLOWED_TYPES invariant; the linter now checks the doc (confirmed). [`tools/lint-required-sections.py`](../../tools/lint-required-sections.py) docstring notes Principle among the not-enforced types.
+- The two "Document hierarchy" tables ([`governance/charter-governance-library.md`](../../governance/charter-governance-library.md) and [`governance/framework-document-architecture-and-interrelationship.md`](../../governance/framework-document-architecture-and-interrelationship.md)): Principle inserted at level 2 (after Charter, as the foundational cross-cutting principles the frameworks/policies/standards operationalize), the rows below renumbered to 3-18 (verified contiguous in both tables). Both docs Version+Date co-bumped, plus the two specs.
+- [`governance/principle-integrity-and-trustworthiness.md`](../../governance/principle-integrity-and-trustworthiness.md): the numbered analytical section renamed "## 4. Framework alignment" to "## 4. Trustworthiness-vocabulary alignment" to disambiguate from the conventional trailing "## Framework alignment" end-table (the #711 Low duplicate-heading note); Version 0.0.1 to 0.0.2.
+- [`README.md`](../../README.md) (the `## Document types` table) and [`CONTRIBUTING.md`](../../CONTRIBUTING.md) (the filename-prefix list): Principle added; the pre-existing `Worklist` / `worklist-` omission (stale in both since the initial public release, an untracked enumeration pair never in the type-set lockstep) fixed in the same pass, so both enumerations are now complete. CONTRIBUTING Version 1.2.3 to 1.2.4.
+
+### Verification
+- `tools/run_all_audits.sh` = 66/66; the filename-title linter now covers the principle doc (was silently skipped); both hierarchy tables verified levels 1-18 contiguous with Principle at 2; the taxonomy, portal, and scorecard regenerated after the version bumps. A substantive-tier refute verifier ran pre-push and caught that the first pass had missed two further enumeration surfaces (the README `## Document types` table and the CONTRIBUTING filename-prefix list, both also latently missing `Worklist`); both were fixed before push, and a completeness re-grep confirms zero type-enumeration or prefix-list surface now omits Principle.
+- The ALLOWED_TYPES-to-prose parity gate (the gate-blind class this finding exposed, the ~8 doc-type-enumeration surfaces with no parity check) is proposed in the #711 `/retro` row as a maintainer-decision machinery candidate.
+- Batches PR #711's `/validate-pr` (1 Medium + 2 Low, this PR is the fix) and `/retro` rows.
+
+Library `2026.07.199` to `2026.07.200`.
+
 ## 2026-07-08, Library Version 2026.07.199, PR #711
 
 AIQT PR 2 (maintainer-directed, gate-d approved): the corpus **AIQT Principle** document, the citable adopter-facing counterpart to the #705 pack apex rule, carrying the source-verified framework alignment the apex rule refers to but deliberately does not restate.

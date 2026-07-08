@@ -2,8 +2,8 @@
 
 **Document Title:** Document Architecture and Interrelationship Framework\
 **Document Type:** Framework\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-role-authority.md`](register-role-authority.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md)\
@@ -45,22 +45,23 @@ It governs:
 | Level | Type | Function | Parent Relationship | Output |
 | --- | --- | --- | --- | --- |
 | 1 | Charter | Defines authority and governance lifecycle. | Repository root authority. | Mandate, scope, principles, approval model. |
-| 2 | Framework | Defines domain operating model. | Derived from charter. | Scope, lifecycle, domain roles, integration points. |
-| 3 | Policy | States binding intent. | Derived from charter or framework. | Mandatory principles and governance commitments. |
-| 4 | Standard | Defines measurable requirements. | Implements one or more policies. | Control baselines and acceptance criteria. |
-| 5 | Procedure | Defines multi-actor or cross-functional execution steps. | Implements a standard or policy. | Workflow, inputs, outputs, approvals, records. |
-| 6 | SOP | Defines a single-actor or narrow team sequence for one repeatable task. | Implements a procedure, standard, or policy at task level. | Task steps, owner, inputs, outputs, evidence. |
-| 7 | Plan | Defines coordinated response or recovery actions. | Implements resilience, incident, migration, or continuity requirements. | Activation criteria, roles, communications, recovery actions. |
-| 8 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome. | Derived from a policy, framework, or charter that sets the strategic direction. | Phased milestones, dependencies, decision points, target state. |
-| 9 | Guideline | Provides advisory implementation detail. | Interprets policy or standard requirements. | Options, examples, interpretation support. |
-| 10 | Guide | Provides technical reference material organized for adoption. | Supports a policy, standard, or guideline with reference patterns. | Patterns, examples, configuration models, implementation walkthroughs. |
-| 11 | Register | Records authoritative structured data. | Supports frameworks, policies, standards, and procedures. | Inventory, obligation, risk, exception, evidence, or metric records. |
-| 12 | Matrix | Maps relationships. | Supports assurance and traceability. | Control, risk, obligation, evidence, and lifecycle mapping. |
-| 13 | Specification | Defines technical or structural requirements. | Supports artefact creation, interface definition, or evidence structure. | Field definitions, schema, structural rules, acceptance criteria. |
-| 14 | Template | Provides reusable record format. | Supports procedures, plans, or registers. | Forms, logs, assessments, questionnaires, and evidence capture structures. |
-| 15 | Annex | Provides supplementary domain-specific guidance. | Subordinate to a parent framework, policy, or standard. | Jurisdiction, sector, or regime overlay content. |
-| 16 | Checklist | Provides a structured verification list. | Supports a procedure, standard, or gate review. | Verification items, completion criteria, sign-off evidence. |
-| 17 | Worklist | Provides a time-bounded execution checklist for a specific verification, remediation, or campaign batch. | Supports a procedure, register, or specification with a finite scope of work. | Numbered work items, expected values, verifier notes, completion log. |
+| 2 | Principle | States the foundational, cross-cutting production principles. | Derived from the charter; realized by frameworks, policies, and standards. | Priority ordering and non-negotiable facets governing how artefacts are produced. |
+| 3 | Framework | Defines domain operating model. | Derived from charter. | Scope, lifecycle, domain roles, integration points. |
+| 4 | Policy | States binding intent. | Derived from charter or framework. | Mandatory principles and governance commitments. |
+| 5 | Standard | Defines measurable requirements. | Implements one or more policies. | Control baselines and acceptance criteria. |
+| 6 | Procedure | Defines multi-actor or cross-functional execution steps. | Implements a standard or policy. | Workflow, inputs, outputs, approvals, records. |
+| 7 | SOP | Defines a single-actor or narrow team sequence for one repeatable task. | Implements a procedure, standard, or policy at task level. | Task steps, owner, inputs, outputs, evidence. |
+| 8 | Plan | Defines coordinated response or recovery actions. | Implements resilience, incident, migration, or continuity requirements. | Activation criteria, roles, communications, recovery actions. |
+| 9 | Roadmap | Defines a multi-phase forward strategy tied to a strategic outcome. | Derived from a policy, framework, or charter that sets the strategic direction. | Phased milestones, dependencies, decision points, target state. |
+| 10 | Guideline | Provides advisory implementation detail. | Interprets policy or standard requirements. | Options, examples, interpretation support. |
+| 11 | Guide | Provides technical reference material organized for adoption. | Supports a policy, standard, or guideline with reference patterns. | Patterns, examples, configuration models, implementation walkthroughs. |
+| 12 | Register | Records authoritative structured data. | Supports frameworks, policies, standards, and procedures. | Inventory, obligation, risk, exception, evidence, or metric records. |
+| 13 | Matrix | Maps relationships. | Supports assurance and traceability. | Control, risk, obligation, evidence, and lifecycle mapping. |
+| 14 | Specification | Defines technical or structural requirements. | Supports artefact creation, interface definition, or evidence structure. | Field definitions, schema, structural rules, acceptance criteria. |
+| 15 | Template | Provides reusable record format. | Supports procedures, plans, or registers. | Forms, logs, assessments, questionnaires, and evidence capture structures. |
+| 16 | Annex | Provides supplementary domain-specific guidance. | Subordinate to a parent framework, policy, or standard. | Jurisdiction, sector, or regime overlay content. |
+| 17 | Checklist | Provides a structured verification list. | Supports a procedure, standard, or gate review. | Verification items, completion criteria, sign-off evidence. |
+| 18 | Worklist | Provides a time-bounded execution checklist for a specific verification, remediation, or campaign batch. | Supports a procedure, register, or specification with a finite scope of work. | Numbered work items, expected values, verifier notes, completion log. |
 
 ---
 
