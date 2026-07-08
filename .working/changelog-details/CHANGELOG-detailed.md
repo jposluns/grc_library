@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-08, Library Version 2026.07.190, PR #702
+
+The `/deep-assessment` skill, command, register, and hooks (PR B of the two-PR deep-assessment integration; PR A shipped the advisory tools in #701). Applied from the same Fable worker delivery under validate-then-apply, with three maintainer-directed post-#695 integration deltas and one maintainer-directed coverage codification folded in.
+
+### Added
+- [`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](../../dev-security/claude-rules/skills/deep-assessment/SKILL.md): the rare, maintainer-invoked, multi-session whole-project deep-assessment skill (eight-step process; count-free and inventory-deriving; register-backed and re-entrant; sign-off-terminated). `derives_from` [`trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md).
+- [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the paired `/deep-assessment` slash command (step identifiers 1 to 8 matching the SKILL for gate 42).
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the durable run register (one row per run; `in-progress` rows resume; rows close only on maintainer sign-off).
+
+### Changed
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): gate-42 PAIRS registry extended with the deep-assessment pair (10 pairs; gate 42 confirms matching step-identifier sets).
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 7 extended to surface an `in-progress` deep-assessment run register at resume, alongside the other standing registers.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): Version `1.54.7` to `1.55.0` (minor, new skill) with the paired Version-history row (D6); the skills directory tree gained the deep-assessment entry (gate 41).
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the growth-narrative skill count advanced from eighteen to nineteen (the gate-39 count-consistency carrier).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a new whole-project-deep-assessment section (maintainer-approved this session), describing the instrument, its rare-invoked non-cadenced nature, the register and resume surfacing, and the coverage obligation.
+- [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py): `deep-assessment` added to `RECORD_SUBDIRS`, so the dated per-run records join the weekly sweep to the scratch archive (the non-dated register stays in-repo).
+- [`README.md`](../../README.md): library CalVer `2026.07.189` to `2026.07.190`, README Version `1.9.550` to `1.9.551`.
+
+### Post-#695 integration deltas (maintainer-directed)
+- Per-run records are dated files beside the register (the fitness-review `YYYY-MM-DD-rN` naming), not per-run directories; the SKILL step-1 / step-8 / Verification wording, the command step-1 wording, and the register per-run-detail line were adjusted accordingly. The non-dated register is in-repo by design.
+- `deep-assessment` added to `RECORD_SUBDIRS` (above) so its dated records sweep with the others.
+- One model-agnostic model-tiering sentence added to SKILL step 3 with a mirrored clause in command step 3 (orchestration and finding-adjudication on the strongest available model tier, wide fan-out readers on a cheaper tier, mechanical phases model-indifferent). The clause introduces no capitalized step token, so gate-42 parity is unaffected.
+
+### Coverage obligation (maintainer-directed 2026-07-08)
+- Codified in the SKILL (the design-rules paragraph) and the CLAUDE.md section: the count-free, inventory-deriving design makes the live inventory of quality machinery the assessment scope by construction, so any future quality-check process, tool, gate, skill, or check is included automatically; and adding a quality-check instrument carries the reciprocal duty to keep the pass covering it (a new gate gains a mutation-probe variant, a new command or skill joins the phase-3 invocation set, a new advisory tool joins the phase-3 aids).
+
+### Verification
+- `tools/run_all_audits.sh`: all 66 gates pass on the working tree. Gate 42 (10 pairs, matching steps), gate 41 (skills-tree enumeration), gate 39 (skill count 19), and gate 32 (`derives_from` resolves) all green. The language gate was run on the SKILL, command, and register before the first commit (clean). Gate 60 warns at drift 2 (skills and commands each plus one, under the fail-3 threshold) and passes; the guardrail-review inventory token self-updates at the next `/guardrails` run, not hand-edited.
+- Batches PR #701's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/deep-assessment-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/deep-assessment-build/MANIFEST.md) (merged scratch-side as PR #109), the same delivery as PR A. The four staged-default open decisions were confirmed by the maintainer at apply time (command name `/deep-assessment`, `derives_from` trust-recovery-escalation, no TODO item, and the model-tiering sentence added in this PR); the SKILL and command are orchestrator-authored from the candidate files with the post-#695 deltas and the coverage codification integrated, not pasted.
+
 ## 2026-07-08, Library Version 2026.07.189, PR #701
 
 The two advisory gate-efficacy tools for the upcoming `/deep-assessment` cadence (PR A of the two-PR deep-assessment integration; PR B ships the skill, command, register, and hooks). Both are orchestrator dev-aids in the `audit-*.py` mould (exit 0 after their report, not audit gates, no gate-surface wiring or regression fixture; the same shape as the other `audit-*.py` advisory tools). Applied from a Fable worker delivery under validate-then-apply: both tools re-run at apply time and every cited figure recounted against the live checkout (the worker's figures were not transcribed).

@@ -612,6 +612,45 @@ shipped across two PRs: the advisory tool
 [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) in #621 and the skill
 plus the adoption pass in #630.
 
+## Whole-project deep assessment (`/deep-assessment`)
+
+The routine cadence examines changes (per-PR sweeps), recent drift (corpus sweeps), and
+named semantic classes (`/matrix-fit`, `/claim-fit`). None of it examines the quality system
+itself from outside: the gates check the corpus, the skills check the corpus and the gates'
+outputs, and the same assistant lineage that authors the content built the machinery. The
+[`deep-assessment`](../dev-security/claude-rules/skills/deep-assessment/SKILL.md) skill (slash
+command `/deep-assessment`) is the rare, maintainer-invoked, multi-session instrument for that
+residual: a deliberate whole-project pass that runs the existing instruments formally AND
+probes what they cannot see, the width of the gates' own detection patterns (via the
+[`tools/audit-gate-mutation.py`](../tools/audit-gate-mutation.py) probe and the
+[`tools/audit-gate-blindspots.py`](../tools/audit-gate-blindspots.py) blind-spot map), the
+semantic accuracy of citations against held source texts, the adoptability of the library by a
+fresh reader, the integrity of the delivery pipeline, and the honesty of the QA ledgers. It is
+the proactive counterpart to `/trust-recovery`: the trust-recovery suite run at maintainer
+direction without a discipline-failure trigger, inheriting that rule's findings-routing (every
+confirmed finding routed, tiered by severity, none dropped), apply-time verification, and
+maintainer-sign-off-as-the-only-terminal-state conventions.
+
+It is NOT cadenced and NOT self-invoked: it runs only on the maintainer's explicit invocation,
+and it terminates only on the maintainer's explicit sign-off (an empty finding set is presented
+for sign-off, never self-declared complete). A run spans sessions; its phase state lives in the
+durable register [`.working/deep-assessment/register.md`](../.working/deep-assessment/register.md),
+and the `/resume` step-7 surfacing of an `in-progress` run keeps a session boundary from
+silently truncating the pass. Per-run detail lives beside the register as dated files
+(`.working/deep-assessment/YYYY-MM-DD-rN.md`, the fitness-review filename convention); the
+register itself is non-dated and stays in-repo. This cadence shipped across two PRs: the two
+advisory gate-efficacy tools (`audit-gate-blindspots.py`, `audit-gate-mutation.py`) in #701 and
+the skill, command, register, and hooks in #702.
+
+**Coverage obligation (maintainer-directed 2026-07-08).** The skill is count-free and
+inventory-deriving: step 1 re-derives the live instrument inventory from the repo at run time,
+so the live inventory of quality machinery is the assessment's scope by construction, and any
+future quality-check process, tool, gate, skill, or check is included automatically with no
+edit to the skill. The obligation runs the other way too: adding a quality-check instrument
+carries the duty to keep `/deep-assessment` covering it (a new gate gains a mutation-probe
+variant, a new slash-command or skill joins the phase-3 invocation set, a new advisory tool
+joins the phase-3 aids).
+
 ## Reference-version currency (`grc_library_ref` is storage, upstream is the authority)
 
 The project-specific operationalization of the `evidence-grounded-completion` rule's

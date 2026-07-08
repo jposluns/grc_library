@@ -83,6 +83,10 @@ PAIRS: list[tuple[str, str]] = [
         "dev-security/claude-rules/skills/high-assurance-verification/SKILL.md",
         ".claude/commands/high-assurance.md",
     ),
+    (
+        "dev-security/claude-rules/skills/deep-assessment/SKILL.md",
+        ".claude/commands/deep-assessment.md",
+    ),
 ]
 
 # SKILL.md step heading: `### N. ` or `### N<suffix>. ` where
