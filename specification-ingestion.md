@@ -2,7 +2,7 @@
 
 **Document Title:** GRC Library Ingestion and Transformation Specification\
 **Document Type:** Specification\
-**Version:** 1.7.9\
+**Version:** 1.7.10\
 **Date:** 2026-07-08\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -171,6 +171,7 @@ Allowed document types are:
 - Charter
 - Framework
 - Policy
+- Principle
 - Standard
 - Procedure
 - SOP
