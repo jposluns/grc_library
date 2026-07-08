@@ -159,6 +159,7 @@ PREFIX_EXEMPT_BASENAMES = {
     "SECURITY.md",
     "AUTHORS.md",
     "worked-example.md",
+    "worked-example-adoption.md",
     "adopter-guide.md",
     "decision-tree.md",
     "portal.md",

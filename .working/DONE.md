@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #697: FR-63 (2.7): adoption worked example (2026-07-08)
+
+Added a narrative adoption worked example ([`docs/worked-example-adoption.md`](../docs/worked-example-adoption.md)) following one fictional adopter (a mid-size SaaS with EU customers and AI features, reused from the startup-roadmap composition example) from clone through the Day-1 six-artefact floor and the staged Phase 1 and Phase 2 programme with file-by-file decisions; wired it to the ingestion worked example and the adopter guide via mutual Related-Documents pointers (no five-path entry-point-list edit, which would have triggered a count cascade). Closes TODO §2.7 / FR-63.
+
 ### PR #692: TODO 1.13 (S): SP 800-154 to OWASP Threat Modeling Cheat Sheet (2026-07-07)
 
 Replaced the 2 never-finalized NIST SP 800-154 (data-centric threat modelling) citations with the OWASP Threat Modeling Cheat Sheet, in the threat-modelling standard and the document-index framework-lists (maintainer-chosen substitute; the standard is already STRIDE/MITRE-anchored). Same PR rescoped TODO 1.11 to its small-agent-sub-clause residual, fixed a stale 19/2023, and batched the #691 `/validate-pr` + `/retro` rows.
