@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.237, PR #749
+
+Closes TODO §5.1 (FR-62, AI jurisdiction annexes) by applying the second founding annex of `ai/jurisdictions/`, the Colorado AI statute, authored from the held enacted texts (the `worker-20260703-a/fr-62-colorado-ai-act-annex` research delivery informed it; the orchestrator authored all prose and re-verified every citation against the held source).
+
+### Added
+
+- [`ai/jurisdictions/annex-ai-us-colorado.md`](../../ai/jurisdictions/annex-ai-us-colorado.md) (Version 0.0.1): a two-regime per-regime view of Colorado's AI statute, the outgoing Colorado Artificial Intelligence Act (SB 24-205, C.R.S. 6-1-1701 et seq.) and the incoming Automated Decision-Making Technology law (SB 26-189, operative for consequential decisions made on or after 1 January 2027). Nine sections plus a framework-alignment table mirroring the EU AI sibling's shape: purpose, applicable law and regulatory authority, transition timeline, scope (covered actors and covered systems or decisions), core obligations (developer and deployer duties under each regime, with the algorithmic-discrimination-to-disclosure reframe flagged), consumer rights (correction and meaningful human review under SB 26-189), enforcement (Attorney-General-exclusive, deceptive trade practice, a sixty-day cure, no private right of action), the relationship to the Colorado Privacy Act, and limitations (pending xAI v. Colorado litigation and rulemaking). Currency WebSearch-confirmed (SB 26-189 signed May 2026, effective 1 January 2027, sixty-day cure enacted).
+
+### Changed
+
+- [`ai/README.md`](../../ai/README.md) (1.1.4 to 1.1.5): added the Colorado annex row to the AI domain index.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.67 to 1.27.68): added the Colorado annex row.
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) (1.0.16 to 1.0.17): added the Colorado annex to the section 5.1 AI reading list (item 12, under a Colorado-residents conditional) and extended the section 7 FAQ to name both jurisdiction annexes.
+- [`governance/register-glossary.md`](../../governance/register-glossary.md) (1.4.11 to 1.4.12): added an ADMT (Automated Decision-Making Technology) term pointing to the Colorado annex.
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (1.1.26 to 1.1.27): regraded the US-state AI-jurisdiction row to Partial / In library (Colorado), citing the new annex; the NYC bias-audit law and other US states remain the gap.
+- [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) (1.2.0 to 1.2.1, Date to 2026-07-09): the Colorado AI Act bullet now records the enacted SB 26-189 (sixty-day cure, effective 1 January 2027) superseding the Working Group's proposed ninety-day cure, and links the new AI jurisdiction annex.
+- generated artefacts regenerated: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+- [`TODO.md`](../../TODO.md): closed §5.1 (FR-62), fixed the two orphaned §5.1/P5.1 references (the line-37 egress note and the §5.9 body) and updated the P5 count to 8; [`.working/DONE.md`](../DONE.md): added the FR-62 close entry (PR #749).
+- Batches PR #748's `/validate-pr` (0 findings) history row and `/retro` register row.
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 67 gates pass on the committed state.
+- Generator `--check` clean (taxonomy, portal, scorecard).
+- Both held statutory texts (SB 24-205, SB 26-189) read directly for the load-bearing provisions; a refute-briefed skeptical verifier independently re-checked every citation against the held texts (see Discipline observations).
+
+### Discipline observations
+
+- The skeptical verifier (substantive tier, per the pre-push verification standard) caught **two section-citation errors** the orchestrator introduced, both confirmed against the held text and fixed before push: (1) the SB 26-189 "consequential decision" definition was cited as 6-1-1703(3) but is in the Definitions section 6-1-1701(3) (6-1-1703 is Deployer record keeping); (2) the SB 24-205 consequential-decision consumer notice was attributed to 6-1-1704, but 6-1-1704 is the generic "you are interacting with an AI system" disclosure, while the consequential-decision pre-decision notice is 6-1-1703(4)(a)(I). Both are the wrong-regime/wrong-section class that only an independent read of the held text catches; the verifier confirmed all other citations clean. The delivery's flagged "register 60-vs-90-day cure discrepancy" was found to be a worker misread: the register (line 137) carries no cure period; the ninety-day figure lives in the US privacy annex, correctly attributed there to the Working Group proposal, and is now reconciled to the enacted sixty days.
+- The Colorado annex is absent from [`docs/portal.md`](../../docs/portal.md) for the same generator-logic reason as the EU AI annex (Sweep-92 B-5): the audience-shaped portal's `domain: ai` selector omits type Annex. Not claimed as portal-carried here; the B-5 follow-up PR (add an `ai/jurisdictions/` selector) will surface both annexes.
+
 ## 2026-07-09, Library Version 2026.07.236, PR #748
 
 The sweep92 `/resume` loop-break corpus-wide `/validate` close-out (first PR of the resumed `claude/resume-sweep92-validate` session); the compensating control for session-closing handoff PR #747. Sweep 92 (full A/B/C fan-out over the #721 to #746 delta window) surfaced 7 findings; 5 fixed here, 1 (B-5) routed to a follow-up PR, 1 (A-2) surfaced as a judgment-call.

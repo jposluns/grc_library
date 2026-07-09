@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #749: FR-62 (medium): Colorado AI Act jurisdiction annex, closes FR-62 (2026-07-09)
+
+New `ai/jurisdictions/annex-ai-us-colorado.md`, the second founding annex of the AI jurisdictions subdirectory: a two-regime view of Colorado's AI statute (SB 24-205 re-enacted by SB 26-189, operative for consequential decisions on or after 1 January 2027), covering developer and deployer duties, consumer rights and meaningful human review, AG-exclusive enforcement with a 60-day cure, and the SB24-205-to-SB26-189 transition. Closes FR-62: both founding AI-jurisdiction annexes (EU #743, Colorado #749) are now applied; remaining jurisdictions are the source-gated §5.9 expansion.
+
 ### PR #746: TODO 1.11 Brazil ANPD citation verification, primary-source close (2026-07-09)
 
 Closed the last P1 residual: the ANPD Resolution CD/ANPD No. 15/2024 small-agent deadline-doubling sub-clause (Article 6 §8, Article 9 §6, "contados em dobro"), previously confirmed only at secondary tier, upgraded to a PRIMARY-source confirmation against the held Diário Oficial da União text (DOU 26 April 2024, now in `grc_library_ref` ref #35). Dropped the "primary re-confirmation pending" notes from `privacy/jurisdictions/annex-privacy-brazil.md` and the breach-response matrix; the canonical-citations register row needed no change (version-currency and content-attribution axes kept separate, per the TODO instruction). Discharges the accepted-unverified tracker. Also carried the LOW citation-name harmonization (Whistleblower to Whistleblowing) in the whistleblower procedure, #745's QA batch, and a restructure of the handoff Current-truth line.
