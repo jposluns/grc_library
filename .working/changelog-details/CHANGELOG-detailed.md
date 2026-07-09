@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.218, PR #730
+
+The maintainer-directed anti-recurrence preventions after a session-level delivery-status failure (this run): asserting the scratch backlog "applied" from memory, mislabeling about twenty applicable deliveries "egress-gated" without per-item checking, and narrating (not executing) the start-side worker-collision check for TODO 3.13 while `positional-token-lint-313` sat in the inbox. Trust-recovery was deemed not warranted now (a fuller `/deep-assessment` is scheduled after the backlog); these three preventions are the immediate fix.
+
+### Added
+
+- [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py): an advisory, cross-repo reconciliation tool (mirrors the [`tools/audit-brief-freshness.py`](../../tools/audit-brief-freshness.py) pattern: locates the sibling `grc_library_scratch` via `--scratch` / `GRC_SCRATCH_PATH` / sibling default, always exits 0, no-op when scratch is absent, carries a `--self-test`). Default mode reconciles every `inbox/<worker>/<work-unit>/` delivery against the live [`TODO.md`](../../TODO.md) open-item set (section numbers, `### SR-N` ids, `(FR-N ...)` ids in section headings) and buckets each PENDING / APPLIED / UNMAPPED, headlining the review set. `--item <id>` (e.g. `3.13`, `FR-60`, `SR-3`) is the executable start-side worker-collision check, printing the `DELIVERED at <path> (apply-work)` or `no delivery (build-work)` verdict to paste before building. Own-item tokens are read only from the delivery's header region (title / `**Work-unit:**` / `**Backlog item:**` line + directory name), NOT the manifest body, so a sibling id cross-referenced in a cumulative claims-ledger note is not mis-attributed (a bug caught and fixed during the build, with a regression `--self-test` case). The `--item` check distinguishes an OPEN target (apply-work on the delivery) from a closed one (already consumed), and its build-clear is CONSERVATIVE: it refuses to clear to build-work while any UNMAPPED delivery exists (an UNMAPPED delivery, e.g. `dora-operational-deepening` whose manifest states no section, is invisible to token matching, so a clean clear could repeat the TODO-3.13 false-clear), pointing at the full report's UNMAPPED bucket instead.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Multi-session orchestration`: the start-side worker-collision check is now "EXECUTED, not narrated" (run `audit-delivery-status.py --item` and paste the output); added a "Delivery-status-claim discipline (evidence, not memory)" paragraph requiring any applied / cleared / blocked pipeline-status claim to quote the tool's same-turn output and forbidding a per-item blocking reason from being generalized across items. Both name the 2026-07-09 recurrence.
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) step 3: the reconciliation tool is wired as a standing resume action beside [`tools/audit-brief-freshness.py`](../../tools/audit-brief-freshness.py).
+- Corrected the working-state that carried the false claim: [`.working/session-state.md`](../session-state.md)'s Current-task narrative (was "Current PR #728 ... backlog essentially exhausted") and the handoff `Current truth` line's Next segment now reflect the true 33-PENDING review set and the directed per-item triage; the handoff also records the session-level escape honestly rather than "zero escaped findings".
+
+### Verification
+
+- `python3 tools/audit-delivery-status.py --self-test` passes (5 tests, incl. the body-cross-reference-exclusion regression). The live full report and `--item 3.13` / `--item FR-60` were run and their output quoted in-session (52 deliveries: 33 PENDING / 9 APPLIED / 10 UNMAPPED). Full `run_all_audits.sh` 67/67 (the new tool is advisory, not a gate; `.claude/` is gate-exempt; no parity resync).
+
+### Discipline observations
+
+- This is the `evidence-grounded-completion` rule made mechanical for the delivery pipeline: prose rules already forbade the failure and did not bind, so the fix is an instrument that PRODUCES the evidence a status claim must quote, the same move that turned the handoff-snapshot reconcile into gate D7. Honest limit: the tool is advisory and depends on being run; 10 deliveries land in UNMAPPED (manifests without a header id) and are surfaced for manual triage rather than guessed. Not a pre-existing TODO item; recorded in DONE as a maintainer-directed action.
+- The pre-push skeptical verifier returned 2 Low findings (a closed-item `--item` phrasing; a cosmetic dirname display-token). Addressing the first surfaced a genuine safety gap the verifier's mapped-id tests had not probed: `--item` on an item whose delivery is UNMAPPED (e.g. §2.12 DORA) falsely cleared to build-work, the exact false-clear direction the tool exists to prevent. Fixed by the conservative-clear logic (no build-clear while any UNMAPPED delivery exists); the cosmetic display-token is documented and left (tightening its regex would break the legitimate hyphen-less `sr3` to `SR-3` case).
+
 ## 2026-07-09, Library Version 2026.07.217, PR #729
 
 Closes TODO 3.23 (region-scope gate 67's Document-Type enumeration parity checks) and the grc_library-side of SR-5 (the ref-tool cosmetic polish, shipped as `grc_library_ref` #31).
