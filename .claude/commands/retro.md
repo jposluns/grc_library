@@ -6,7 +6,7 @@ Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-secu
 
 3. **Identify friction**: one short observation (1-2 sentences). If no friction, record "No friction observed."
 
-4. **Surface patterns (if any)**: a single occurrence is observation, second is signal, third is pattern. Record the pattern only when the friction in this PR matches friction seen in a recent PR (≤5 PRs prior).
+4. **Surface patterns (if any)**: a single occurrence is observation, second is signal, third is pattern. Record the pattern only when the friction in this PR matches friction seen in a recent PR (≤5 PRs prior). When a pattern's recurrence count reaches three or more distinct PRs, it AUTO-GRADUATES to a gate-or-convention proposal in step 5 (name the false-positive-free gate that would extinguish it, or a convention line where no gate fits), because checklist prose reduces but does not stop a thrice-recurring class.
 
 5. **Propose improvement (if any)**: name a concrete candidate (new audit gate, pack-rule update, worker-brief template addition). Candidates go in the register; the next planning cycle picks them up if priority warrants. Leave blank if no pattern surfaced.
 

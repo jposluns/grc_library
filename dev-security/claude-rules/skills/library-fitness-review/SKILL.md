@@ -1,7 +1,7 @@
 ---
 name: library-fitness-review
 description: Trigger a comprehensive whole-corpus library-fitness review with ten persona reviewers when a governance/security documentation library undergoes a major change (new domain dir, new document type, multiple governance rule additions, major restructure) or quarterly minimum. Each invocation dispatches a fan-out of independent persona subagents (executive, security practitioner, GRC practitioner, auditor, policy editor, process owner, skeptical reader, adoption practitioner, privacy officer, newcomer) who review every page from a fresh-reader perspective without inheriting maintainer mental models. Catches comprehensibility, usability, logical-structure, standardization, governance/security quality, auditability, maintainability, and reader-experience gaps that per-PR validation sweeps and mechanical audit gates do not detect. Surfaces prioritized recommendations and a discrete remediation backlog the maintainer drives through subsequent PRs.
-derives_from: ../../governance/evidence-grounded-completion.md
+derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
 # Library Fitness Review

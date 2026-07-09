@@ -1,7 +1,7 @@
 ---
 name: deep-qa-review
 description: Trust-recovery deep quality-assurance pass. A six-subagent forensic review specialized for AI-failure-pattern classes, run over a defined PR window plus the files those PRs reference, when an AI coding assistant's discipline failures (abbreviated QA, skipped post-commit audits, wrong-cadence timers, inferred-not-validated premises) call for a white-box re-examination beyond the routine per-PR and periodic sweeps. Slash command `/full-qa`. Pairs with `library-fitness-review` (`/fitness`): deep-qa-review is one deeply-contextualized lens tuned to how AI assistants fail; fitness is ten context-stripped persona lenses. Together they form the trust-recovery escalation tier. Findings route to the project backlog tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next tier), none dropped, for maintainer triage; the pass terminates on explicit maintainer sign-off, not on an empty finding-set.
-derives_from: ../../governance/evidence-grounded-completion.md
+derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
 # Deep QA Review (trust-recovery forensic pass)
