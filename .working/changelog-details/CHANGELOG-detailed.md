@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.238, PR #750
+
+Closes the Mexico bullet of TODO §5.8 (privacy jurisdiction gaps) and discharges the FR-59 Mexico accepted-unverified tracker, authored from the held 2025 LFPDPPP (the `worker-20260703-a/mexico-lfpdppp-privacy-annex` research delivery informed it; the orchestrator authored all prose and verified every provision against the held text).
+
+### Added
+
+- [`privacy/jurisdictions/annex-privacy-mexico.md`](../../privacy/jurisdictions/annex-privacy-mexico.md) (Version 0.0.1): a standalone per-regime annex for Mexico's Federal Law on the Protection of Personal Data Held by Private Parties (LFPDPPP, new law DOF 20 March 2025, last reform 14 November 2025). Records the 2025 regime the corpus was stale on: authority is the Secretaría Anticorrupción y Buen Gobierno (the former INAI extinguished); Article 5 principles; consent and the aviso de privacidad (Articles 7 to 16); ARCO rights with a 20-day determination (Articles 21 to 34, response Article 31); cross-border transfers (Articles 35 to 37); security and breach (Articles 18 to 19); enforcement (Articles 55 to 59) with fines in UMA (up to 320,000, up to twofold for sensitive-data infringements) and criminal offences (Article 63). WebSearch upstream-currency confirmed.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-latin-america.md`](../../privacy/jurisdictions/annex-privacy-latin-america.md) (1.0.3 to 1.0.4, Date to 2026-07-09): corrected the stale Mexico facts, 2010 law to the 2025 LFPDPPP, INAI to the Secretaría Anticorrupción y Buen Gobierno, and MXN 320 million to 320,000 UMA (doubled for sensitive data), and pointed the Mexico overview at the new standalone annex.
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (1.0.10 to 1.0.11, Date to 2026-07-09): added a dedicated Mexico row (Americas section) plus a Mexico row in the cross-jurisdiction mapping table, and dropped Mexico from the Latin America row's parenthetical.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.68 to 1.27.69): added the Mexico annex row; removed LFPDPPP from the Latin America row's framework list (now standalone).
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (1.1.27 to 1.1.28): regraded the §2.1 Mexico row to Substantive / In library, citing the new annex.
+- [`privacy/README.md`](../../privacy/README.md) (1.2.8 to 1.2.9, Date to 2026-07-09): added the Mexico annex to the domain jurisdiction-annex listing surface (gate 47 listing-surface completeness).
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (1.5.15 to 1.5.16, Date to 2026-07-09): folded in the #749 out-of-window grammar fix (a lowercase "following" capitalized to "Following" after a full stop in the Colorado AI Act row).
+- generated artefacts regenerated: [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md). Unlike the AI jurisdiction annexes, the Mexico privacy annex DOES appear in the portal (the privacy audience selects the whole domain).
+- [`TODO.md`](../../TODO.md): closed the §5.8 Mexico bullet, discharged the §2.1 fr-59 Mexico accepted-unverified tracker (in #750); [`.working/DONE.md`](../DONE.md): added the Mexico close entry.
+- Batches PR #749's `/validate-pr` (0 in-window findings) history row and `/retro` register row.
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 67 gates pass on the committed state.
+- Generator `--check` clean (taxonomy, portal, scorecard).
+- Held 2025 LFPDPPP text spot-verified for the headline facts (2025 law, Secretaría authority, INAI extinct, UMA fines, ARCO 20-day); a refute-briefed skeptical verifier re-checked the annex citations against the held text pre-push (see Discipline observations).
+
+### Discipline observations
+
+- The delivery flagged a possible corpus-wide INAI-staleness sweep (the INAI-to-Secretaría change affecting other documents). A corpus grep found the only other INAI reference was the FR-59 backlog note in [`TODO.md`](../../TODO.md) describing the very staleness this PR fixed, so no broad sweep was needed; the delivery's flag was over-cautious and refuted by measurement.
+- The delivery's flagged "register 60-vs-90 cure discrepancy" (Colorado) had already been shown in #749 to be a worker misread; this Mexico delivery's headline (2025 law, Secretaría authority) was confirmed accurate against the held text.
+- The refute-briefed skeptical verifier (substantive tier) caught two citation errors in the annex pre-push, both confirmed against the held text and fixed: the criminal-offence citation now reads "Articles 62 and 63" (Article 62 is the authorized-person-breach-for-profit offence, not 63), and the transfer range is "Articles 35 and 36" (Article 37 is self-regulation, not a transfer provision); the over-inclusive "35 to 37" was also corrected in the sibling Latin America annex and the index mapping row. Same wrong-article-number class the verifier caught on the Colorado annex; the independent held-text read is the control.
+
 ## 2026-07-09, Library Version 2026.07.237, PR #749
 
 Closes TODO §5.1 (FR-62, AI jurisdiction annexes) by applying the second founding annex of `ai/jurisdictions/`, the Colorado AI statute, authored from the held enacted texts (the `worker-20260703-a/fr-62-colorado-ai-act-annex` research delivery informed it; the orchestrator authored all prose and re-verified every citation against the held source).

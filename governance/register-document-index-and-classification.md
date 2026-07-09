@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.68\
+**Version:** 1.27.69\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,7 +153,8 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Canada Privacy Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | Data Protection Officer | Annual | PIPEDA, CPPA (pending), Quebec Law 25, AIDA (pending) | template |
 | Privacy | Annex | US Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) | Data Protection Officer | Annual | FTC Act, CCPA/CPRA, state laws, BIPA | template |
 | Privacy | Annex | Brazil Privacy Requirements | [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md) | Data Protection Officer | Annual | LGPD | template |
-| Privacy | Annex | Latin America Privacy Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | Data Protection Officer | Annual | LFPDPPP, Law 1581, Law 25326, Law 19628, Law 29733 | template |
+| Privacy | Annex | Latin America Privacy Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | Data Protection Officer | Annual | Law 1581, Law 25326, Law 19628, Law 29733 | template |
+| Privacy | Annex | Mexico Privacy Requirements | [`privacy/jurisdictions/annex-privacy-mexico.md`](../privacy/jurisdictions/annex-privacy-mexico.md) | Data Protection Officer | Annual | LFPDPPP (2025, DOF 20-03-2025) | template |
 | Privacy | Annex | Singapore Privacy Requirements | [`privacy/jurisdictions/annex-privacy-singapore.md`](../privacy/jurisdictions/annex-privacy-singapore.md) | Data Protection Officer | Annual | PDPA 2012 (amended 2020) | template |
 | Privacy | Annex | Australia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | Data Protection Officer | Annual | Privacy Act 1988, Privacy and Other Legislation Amendment Act 2024 | template |
 | Privacy | Annex | Japan Privacy Requirements | [`privacy/jurisdictions/annex-privacy-japan.md`](../privacy/jurisdictions/annex-privacy-japan.md) | Data Protection Officer | Annual | APPI (amended 2022) | template |
