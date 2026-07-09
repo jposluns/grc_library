@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.229, PR #741
+
+Post-#740 QA batch and provenance corrections; no corpus document body changed.
+
+### Fixed
+
+- **F1 (from #740's `/validate-pr`, WARNING):** [`.working/validate-pr/history.md`](../validate-pr/history.md) #739 row said "registers self-bumped 1.2.513/1.0.456" but #739's actual merge-state (`git show 5ea08eb:`) is validate-pr history `1.2.512` / improvement-log `1.0.455`; the cited 513/456 are #740's own (the writing PR's) register versions. Corrected to `1.2.512/1.0.455`. The meta-prose state-claim measurement class (#630/#631/#663), fourth occurrence.
+- **F2 (from #740's `/validate-pr`, NOTE):** [`CHANGELOG.md`](../../CHANGELOG.md) and this detailed mirror's #740 entry claimed #740 batched PR #738's QA rows; #738's rows were already batched by #739, and #740's diff adds only the `| 739 |` row. Reworded both halves to "Batches PR #739's rows (PR #738's were already batched by #739)".
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): annotated the 4.6 S-c bullet as STALE (its gap is filled by [`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md)); NOT closed (a maintainer close-as-satisfied-vs-enhance decision).
+- [`.working/pending-decisions.md`](../pending-decisions.md): added the S-c redundancy entry (6th pending); the EU AI Act HOLD (item 1) and the other four stand.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL (exhausted), PR ops via REST.
+- F1 verified against `git show 5ea08eb:` (validate-pr 1.2.512, improvement-log 1.0.455) and the unbroken +1 per-row convention (#738 row = 511/454 = its own merge-state). F2 verified against `git show` of the #740 merge's validate-pr history diff (sole added row `| 739 |`).
+- S-c redundancy verified by reading the live [`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md) (its `## Step 3: Substitute roles and identifiers` covers the missing-role case, the private-overlay rule, and the neutral-role invariant) and confirming no multi-entity coverage exists for the genuine-gap sibling S-d.
+
+### Notes
+
+- Batches PR #740's `/validate-pr` (self-Version 1.2.514) and `/retro` (self-Version 1.0.457) rows, per recursion-avoidance.
+- This PR is orchestrator-authored working-state / QA only (no scratch-inbox worker delivery applied), so it carries no worker-provenance marker. The genuine-gap sibling TODO 4.6 S-d (multi-entity adoption) is queued as a focused content PR next.
+
 ## 2026-07-09, Library Version 2026.07.228, PR #740
 
 eIDAS discoverability wiring plus the #738/#739 QA batch. Wires the eIDAS Sector Requirements Annex (shipped in #739) into the two hand-maintained sibling-enumeration surfaces the mechanical gates do not scan, closing the two in-window findings PR #739's `/validate-pr` surfaced.
@@ -28,7 +53,7 @@ eIDAS discoverability wiring plus the #738/#739 QA batch. Wires the eIDAS Sector
 
 ### Notes
 
-- Batches PR #738's `/validate-pr` (self-Version 1.2.513) and `/retro` (self-Version 1.0.456) rows and PR #739's, per recursion-avoidance.
+- Batches PR #739's `/validate-pr` and `/retro` rows, per recursion-avoidance (PR #738's rows were already batched by #739; this PR's diff adds only the #739 rows).
 - The sibling FR-62 EU AI Act jurisdiction annex was authored this session against the held enacted text but its merge is HELD pending maintainer confirmation: TODO line-48 egress-deferral (maintainer Option B, 2026-07-06) of the EU AI Act annex for currency, plus a newly-found pending "Digital Omnibus on AI" amendment (Council doc 9247/26, provisionally agreed 13 May 2026, not yet adopted) surfaced by an upstream check this turn. The built annex is preserved out-of-repo with re-apply notes; the decision is recorded in [`.working/pending-decisions.md`](../../.working/pending-decisions.md). This PR therefore carries only the non-blocked eIDAS discoverability fixes and the QA batch. It is orchestrator-authored (no scratch-inbox worker delivery applied), so it carries no worker-provenance marker.
 
 ## 2026-07-09, Library Version 2026.07.227, PR #739
