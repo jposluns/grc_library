@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #735: FR-41 unified ADM/AI/FRIA workflow (2026-07-09)
+
+Closed TODO section 2.10 (FR-41): applied the `worker-20260703-a/fr-41-article-22-fria` delivery as a new Procedure, `ai/procedure-integrated-ai-and-privacy-assessment.md` (home dir maintainer-chosen), the router that, given a system's regime triggers, decides which of the GDPR Article 35 DPIA, the AI System Impact Assessment, the GDPR Article 22 ADM register entry, and the EU AI Act Article 27 FRIA are required and how they compose (one limb each, shared evidence, FRIA complements not substitutes for the DPIA per Article 27(4)). Wired the four carriers (ADM register, DPIA template, AI-IA procedure Step 5 closing the one-way link, algorithmic checklist with a semantic B3 correction from "PIA or AI-IA / FRIA" alternatives to the composed set). Anchored to held GDPR Article 22/35 and EU AI Act Article 27; the FRIA applicability date (2 August 2026) is cited from the held Article 113. Also fixed the stale P2 count block (the #734 /validate-pr F1: 7 to 5 open items, adding the 2.8 and 2.10 closures).
+
 ### PR #734: FR-74 Schrems II operational deepening (2026-07-09)
 
 Closed TODO section 2.8 (FR-74): applied the `worker-20260703-a/fr-74-schrems-ii` delivery, deepening the EU cross-border treatment in `privacy/procedure-privacy-impact-and-cross-border-transfer.md` Step 4 from a one-line SCC stub to a full GDPR Chapter V / Schrems II operational sequence (transfer-tool selection ladder, the six-step assessment run through the shipped TIA template, supplementary-measures selection, the suspend-or-notify hard stop, and re-assessment triggers), with a pointer from the EU jurisdiction annex's transfer-mechanism inventory. Anchored to GDPR Chapter V (held) and the shipped TIA; kept mechanism-generic (points to the annex's current adequacy list rather than asserting a specific adequacy decision, since EUR-Lex is unfetchable to confirm the DPF status upstream); EDPB methodology routed via the TIA's existing attribution, not the untrusted publications extract.

@@ -2,11 +2,11 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
+**Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md)\
 **Classification:** Public\
 **Category:** Privacy\
 **Review Frequency:** Quarterly and upon material change to any registered ADM system\
@@ -105,7 +105,7 @@ A system is registered when any of the following is true:
 
 ## Coordination with the AI governance programme
 
-Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Data Protection Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension.
+Where an ADM system is also an AI system (most modern cases), the AI System Register is the primary inventory and this register cross-references it. The Data Protection Officer and the AI System Inventory Keeper jointly own the consistency between the two registers. The AI System Impact Assessment Procedure governs the impact analysis; the DPIA covers the privacy dimension. Where a registered high-risk AI system also triggers the EU AI Act Article 27 fundamental rights impact assessment (FRIA), the FRIA complements the DPIA rather than substituting for it (Article 27(4)). The [Integrated AI and Privacy Assessment Procedure](../ai/procedure-integrated-ai-and-privacy-assessment.md) is the router that determines which of the DPIA, the AI System Impact Assessment, and the FRIA a given system needs and how they compose.
 
 ---
 
@@ -128,6 +128,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | GDPR | Articles 13(2)(f), 14(2)(g), 15(1)(h), 22, Recital 71 | Information duty, access, ADM rights |
 | UK GDPR | Same articles | Equivalent provisions |
 | EU AI Act | Articles 6, 14, 26, Annex III | High-risk AI, human oversight, transparency |
+| EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); complements the DPIA per Article 27(4); deployer obligation applicable from 2 August 2026 |
 | LGPD | Article 20 | Right to review of automated decisions |
 | PIPL | Article 24 | Automated decision-making transparency and refusal |
 | CPPA | Section 19 (proposed) | Automated decision system rights |

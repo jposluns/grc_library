@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-09\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -31,6 +31,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md) |
 | Standard | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md) |
 | Procedure | AI System Impact Assessment Procedure | [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md) |
+| Procedure | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md) |
 | Template | AI System Register Template | [`ai/template-ai-system-register.md`](template-ai-system-register.md) |
 | Framework | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md) |
 | Standard | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md) |
