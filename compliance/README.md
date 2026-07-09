@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.7\
+**Version:** 1.4.8\
 **Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -97,6 +97,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | --- | --- | --- |
 | Annex | Healthcare Sector GRC Requirements Annex | [`compliance/healthcare/annex-healthcare-sector-requirements.md`](healthcare/annex-healthcare-sector-requirements.md) |
 | Procedure | HIPAA Operational Compliance Procedure | [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](healthcare/procedure-hipaa-operational-compliance.md) |
+| Annex | United States HIPAA Sector Requirements Annex | [`compliance/healthcare/annex-healthcare-united-states.md`](healthcare/annex-healthcare-united-states.md) |
 
 ### Energy-and-utilities sub-directory artefacts
 

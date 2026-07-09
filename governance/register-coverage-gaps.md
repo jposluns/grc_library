@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.24\
-**Date:** 2026-07-03\
+**Version:** 1.1.25\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -131,7 +131,7 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 
 | Jurisdiction / regulation | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| US HIPAA + HITECH | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Cited in healthcare sector annex; dedicated detailed annex pending |
+| US HIPAA + HITECH | Substantive | In library | n/a | Dedicated US operational overlay [`compliance/healthcare/annex-healthcare-united-states.md`](../compliance/healthcare/annex-healthcare-united-states.md) (Security/Privacy/Breach/Enforcement rule-by-rule plus the NIST SP 800-66r2 crosswalk), the [HIPAA operational procedure](../compliance/healthcare/procedure-hipaa-operational-compliance.md), and the sector annex overview |
 | EU MDR / IVDR | Referenced | Planned | TODO backlog: healthcare country regulator overlays |  |
 | UK NHS DSPT | Partial | Planned | TODO backlog: healthcare country regulator overlays | Re-graded None to Partial 2026-07-02: healthcare-annex regime row plus a dedicated NHS DSPT mapping section (the 10 National Data Guardian standards mapped to library documents); the dedicated overlay remains the gap |
 | Canada PHIPA and provincial frameworks | Referenced | Planned | TODO backlog: healthcare country regulator overlays | Re-graded None to Referenced 2026-07-02: healthcare-annex Canada regime rows name PHIPA and the provincial frameworks (Alberta PIPA and HIA, Manitoba and Nova Scotia PHIA); no operational mapping yet |

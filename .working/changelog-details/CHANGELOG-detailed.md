@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.221, PR #733
+
+Closes the US HIPAA bullet of TODO section 5.4. Applies the `worker-20260703-a/us-hipaa-healthcare-deepening` research delivery under validate-then-apply as a new US operational annex, [`compliance/healthcare/annex-healthcare-united-states.md`](../../compliance/healthcare/annex-healthcare-united-states.md) (name maintainer-chosen, country-overlay convention).
+
+### Added
+
+- [`compliance/healthcare/annex-healthcare-united-states.md`](../../compliance/healthcare/annex-healthcare-united-states.md) (new Annex, Version 0.0.1): the US HIPAA operational regime map, nine sections mirroring the FedRAMP regime annex shape. Role determination (covered entity, business associate, subcontractor); the Security Rule safeguard families (45 CFR 164 Subpart C, the 164.306 required/addressable and flexibility-of-approach model, administrative 164.308, physical 164.310, technical 164.312, organizational 164.314, documentation 164.316 with the six-year retention); the Privacy Rule use-and-disclosure core (Subpart E, cross-referenced to the privacy annex and the operational procedure); the Breach Notification Rule mechanics and timelines (Subpart D, individual 164.404, media 164.406, Secretary 164.408, business associate 164.410, burden of proof 164.414); the four-tier enforcement structure (45 CFR 160 Subpart D, 160.404/408/410); a library-coverage-and-gaps map with the NIST SP 800-66r2 crosswalk; operating expectations; framework alignment; and limitations. Owner Chief Compliance Officer; metadata and section model mirror [`compliance/public-sector/annex-fedramp-requirements.md`](../../compliance/public-sector/annex-fedramp-requirements.md).
+
+### Changed
+
+- [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../../compliance/healthcare/annex-healthcare-sector-requirements.md) (1.1.4 to 1.1.5): a cross-reference pointer from the operational-procedure note to the new US annex; the annex stays the landscape/overview document (no duplication).
+- [`compliance/healthcare/README.md`](../../compliance/healthcare/README.md) (1.0.2 to 1.0.3): the annex added to the documents table and Related Documents; the US-HIPAA future-candidate line updated to point at the new annex.
+- [`compliance/README.md`](../../compliance/README.md) (1.4.7 to 1.4.8): the annex added to the compliance document list (gate 4/47 listing-surface completeness).
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.63 to 1.27.64): the annex row added (gate 47).
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (1.1.24 to 1.1.25): the "US HIPAA + HITECH" row regraded Referenced/Planned to Substantive/In library, with the new annex, the operational procedure, and the sector annex as evidence.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (new document).
+- [`TODO.md`](../../TODO.md): closed the US HIPAA bullet of section 5.4 (rotated to DONE); removed the now-stale "5.4 US healthcare" from the egress-deferred list (the US bullet was carved out and unlocked 2026-07-04, and is a held-source US-CFR item, never truly egress-gated).
+
+### Verification
+
+- Every cited 45 CFR 160, 162, and 164 anchor was verified verbatim against the held full-text extracts in the `grc_library_ref` reference base (the US HIPAA CFR files, eCFR Title 45 issue date 2026-06-24) and the held NIST SP 800-66r2 crosswalk (final February 2024): Subpart C safeguard headings 164.306, 164.308, 164.310, 164.312, 164.314, 164.316; Subpart D breach 164.402, 164.404, 164.406, 164.408, 164.410, 164.414; Subpart E privacy core; 45 CFR 160 Subpart D four-tier penalties; the NIST section 5.1, 5.2, 5.3 to 164.308, 164.310, 164.312 mapping.
+- Reference currency confirmed UPSTREAM this turn (reference-currency SOP): the eCFR versioner API showed 45 CFR 164 Subpart C (164.306 to 164.318) unchanged since 2016-12-30 (164.314 last touched 2020-11-24), so the codified Security Rule is in force as described; the Federal Register showed the "HIPAA Security Rule To Strengthen the Cybersecurity of Electronic Protected Health Information" as a Proposed Rule published 2025-01-06 with NO final rule as of 2026-07-09, so the annex describes the in-force rule and flags the NPRM by cross-reference (matching the corpus's existing "pending as of May 2026" note).
+- Apply-time worker correction: the worker draft reproduced the 45 CFR 160.404 statutory base dollar figures ($100 to $50,000 tiers, $1,500,000 annual cap); a source check confirmed the held CFR text itself states those are base amounts adjusted annually and published at 45 CFR part 102 (not held, not confirmed upstream), so the annex states the four-tier culpability STRUCTURE and defers the dollar amounts to 45 CFR part 102 rather than asserting a stale figure (evidence-grounded, stricter-safe).
+- The annex does not reproduce CFR text (cites by section identifier), so the extraction-artefact glyphs in the held 164.306(d)(3) extract are not carried into the corpus.
+- `lint-language` on the new annex clean (no dashes, no bare "ensure"); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/us-hipaa-healthcare-deepening/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/us-hipaa-healthcare-deepening/MANIFEST.md) (research: corpus census, proposed shape, verified anchors, currency and penalty caveats; orchestrator authored the final prose, re-verified every anchor via an independent source-verification pass, and corrected the penalty-figure treatment).
+
+### Discipline observations
+
+- The reference-currency SOP again earned its keep: the NPRM final-rule status was a genuine load-bearing question (a final rule would have changed the safeguard obligations), and the upstream Federal Register check this turn confirmed it is still proposed, so the annex is correct as written. The penalty-figure correction is the apply-time worker-correction discipline plus evidence-grounded completion: the worker's base figures were not wrong as base figures, but asserting them as current would have been a stale-value defect, so the annex cites the authoritative inflation-adjusted source (part 102) instead.
+
 ## 2026-07-09, Library Version 2026.07.220, PR #732
 
 Codifies the maintainer-directed 2026-07-09 session-depth handoff calibration; batches PR #731's `/validate-pr` and `/retro` rows; closes a #731 `/validate-pr` Low.
