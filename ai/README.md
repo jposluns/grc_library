@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.3\
+**Version:** 1.1.4\
 **Date:** 2026-07-09\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -50,6 +50,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Standard | AI Testing, Validation and Documentation Standard | [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md) |
 | Framework | AI Model Documentation and Transparency Framework | [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md) |
 | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) |
+| Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md) |
 | Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) |
 | Procedure | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) |
 | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) |
