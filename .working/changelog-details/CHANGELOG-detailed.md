@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.225, PR #737
+
+Closes TODO section 2.13 (NIS2 operational deepening). Applies the `worker-20260703-a/nis2-implementation-deepening` research delivery under validate-then-apply; additive, the existing Article 20/21/23 mappings were verified accurate and not corrected.
+
+### Changed
+
+- [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md) (1.1.0 to 1.2.0):
+  - **New "DORA and sector-specific lex specialis (Article 4)" section** (the reciprocal of the #736 DORA-side boundary): Article 4(1) "at least equivalent in effect" displacement including NIS2 Chapter VII, the Article 4(2) equivalence test, DORA as the sector-specific act for financial entities (NIS2 recital 28), a scoped-displacement-not-blanket-exemption caveat, and a cross-reference to the DORA annex. This makes the boundary bidirectional (the #736 DORA-side note pointed forward to this).
+  - **New "Supervision and penalties (Articles 32 to 34)" section**: essential entities under a comprehensive proactive-and-reactive regime (Article 32), important entities under reactive ex-post-only (Article 33), with the distinction attributed to recital 122; the Article 34 directive-level fine floors (essential EUR 10 000 000 or 2 %, Article 34(4); important EUR 7 000 000 or 1,4 %, Article 34(5); "a maximum of at least ..., whichever is higher"), noting national transposition sets the applied maxima.
+  - Reworded the "National transposition specifics" library-gaps item to point to the applied national regime and cross-reference the new directive-level Supervision-and-penalties section (avoiding contradiction).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (the annex's Version and Date).
+- [`TODO.md`](../../TODO.md): deleted the section 2.13 heading (rotated to DONE); removed `2.13 (NIS2)` from the egress-deferred list; decremented the P2 count block from "4 open items" to "3 open items" and added the 2.13 closure. Deleting §2.13 also self-resolves the #736 `/validate-pr` FYI (the §2.13 body's bare "coordinates with 2.12" token is gone).
+
+### Verification
+
+- Every anchor verified verbatim against the held NIS2 (Directive (EU) 2022/2555) text in `grc_library_ref` (an independent source-verification pass): Article 4(1)/(2) and DORA in recital 28; Article 32 (essential, proactive powers with no triggering precondition), Article 33 (important, ex-post, triggered on evidence of non-compliance); Article 34(4)/(5) fine floors verbatim (EUR 10 000 000 / 2 %; EUR 7 000 000 / 1,4 %, "whichever is higher"); Article 41 transposition 17 October 2024.
+- Precision honoured from the source pass: the "ex-ante and ex-post" characterization is explicit in recital 122 (Article 32 does not use "ex ante" literally), so the annex attributes the distinction to recital 122 rather than to Article 32's operative text; Article 4's actual heading is "Sector-specific Union legal acts" ("lex specialis" used only as the informal descriptor in the section title); the Article 34 figures are floors ("a maximum of at least"), so the annex frames national transposition as able to set higher maxima.
+- Bidirectional-boundary integrity: the #736 DORA annex carries the DORA-side boundary and a forward-neutral "see the NIS2 annex"; this PR adds the NIS2-side reciprocal pointing back to the DORA annex, so both cross-references now resolve to a real reciprocal. The DORA-side text did not need revising (its forward-neutral phrasing stays accurate).
+- `lint-language` on the annex clean (no dashes, no bare "shall"); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/nis2-implementation-deepening/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/nis2-implementation-deepening/MANIFEST.md) (research: fresh-read gap map, per-section edit shapes, held-NIS2 anchors; orchestrator re-verified every anchor via an independent source-verification pass and applied the recital-122 / Article-4-heading precision corrections).
+
+### Discipline observations
+
+- The recital-122 attribution is evidence-grounded completion at the citation boundary: the widely-used "ex ante + ex post" shorthand is not in Article 32's operative text, so attributing it to the recital that does state it (rather than to the operative article) keeps the citation precise. The bidirectional-boundary sequencing (DORA-side forward-neutral in #736, NIS2-side reciprocal here) is how a coordinated two-file boundary is applied across two PRs without either side asserting a reciprocal that does not yet exist.
+
 ## 2026-07-09, Library Version 2026.07.224, PR #736
 
 Closes TODO section 2.12 (DORA operational deepening). Applies the `worker-20260703-a/dora-operational-deepening` research delivery under validate-then-apply, with an apply-time reconciliation to the live annex.
