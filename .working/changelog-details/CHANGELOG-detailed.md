@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.219, PR #731
+
+Closes TODO 2.2 (FR-60, HIPAA operational deepening). Applies the `worker-20260703-a/fr-60-hipaa-deepening` research delivery under validate-then-apply, Option B (maintainer-chosen).
+
+### Added
+
+- [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](../../compliance/healthcare/procedure-hipaa-operational-compliance.md) (new Procedure, Version 0.0.1): the executable HIPAA operational obligations, individual right of access (30 days plus one 30-day extension, 164.524), amendment and accounting (60 days, 164.526/528), Notice of Privacy Practices and minimum necessary (164.520/502/514), six-year documentation retention (164.316(b)(2), 164.530(j)), the four-factor breach-determination test and notification clocks (164.402/404/406/408/410/414), and business associate agreement content (164.502(e)/504(e)/314(a)). Metadata and section model mirror an existing Procedure ([`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md)); Owner Chief Compliance Officer.
+
+### Changed
+
+- [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../../compliance/healthcare/annex-healthcare-sector-requirements.md) (1.1.3 to 1.1.4): a pointer note after the breach subsection and a Related-Documents link to the new procedure; the annex stays a landscape/mapping document.
+- [`compliance/healthcare/README.md`](../../compliance/healthcare/README.md) (1.0.1 to 1.0.2): the procedure added to the documents-in-this-directory table and Related Documents.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.62 to 1.27.63): the procedure row added (gate 47 listing-surface completeness).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (new document).
+- F1 fold from #730's `/validate-pr`: reworded the #730 root CHANGELOG and DONE entries from "TODO / DONE" to "[`TODO.md`](../../TODO.md) open-item set" to match the tool's actual read (it opens only TODO.md; APPLIED is inferred from absence from the open set).
+
+### Verification
+
+- Reference currency confirmed UPSTREAM this turn (per the reference-currency SOP): the eCFR versioner API showed Title 45 `latest_amended_on` 2026-07-02, and a Part 164 version query showed every cited section (164.402/404/406/408/410/502/504/514/520/524/526/528/530/316) unchanged since 2024-06-25 or earlier, so the held 2026-06-24 extract is current for all cited sections and the 2026-07-02 amendment did not touch Part 164.
+- Each cited clock and provision was verified against the held 45 CFR 164 full-text extract in the reference base (30/60-day clocks, 6-year retention lines, the 164.402 four-factor test). The one provision I could NOT verify line-by-line, the 164.504(e)(2) BAA required-content term list, is cited to its governing section (164.504(e)) and described at the verified level rather than enumerated (no fabricated term list).
+- `lint-language` on the new doc clean (one bare "Ensures" caught and reworded to "Confirms" pre-commit); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/fr-60-hipaa-deepening/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-60-hipaa-deepening/MANIFEST.md) (research: gap analysis, cited provisions, two edit-shape options; orchestrator authored the final prose and verified every citation).
+
+### Discipline observations
+
+- The reference-currency confirmation earned its keep: it surfaced a real 2026-07-02 Title-45 amendment after the held extract's date, and the per-section check proved it did not touch Part 164. This is the SOP's evidence-first pattern doing exactly what the earlier delivery-status failure lacked. The BAA-term-list non-enumeration is the evidence-grounded-completion rule at the citation boundary: cite what is verified, name (do not invent) what is not.
+
 ## 2026-07-09, Library Version 2026.07.218, PR #730
 
 The maintainer-directed anti-recurrence preventions after a session-level delivery-status failure (this run): asserting the scratch backlog "applied" from memory, mislabeling about twenty applicable deliveries "egress-gated" without per-item checking, and narrating (not executing) the start-side worker-collision check for TODO 3.13 while `positional-token-lint-313` sat in the inbox. Trust-recovery was deemed not warranted now (a fuller `/deep-assessment` is scheduled after the backlog); these three preventions are the immediate fix.

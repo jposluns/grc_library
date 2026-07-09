@@ -2,11 +2,11 @@
 
 **Document Title:** Healthcare Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Compliance: Healthcare Sector\
 **Review Frequency:** Annual and upon material change to a covered regulation\
@@ -42,6 +42,7 @@ This directory applies to organizations operating as any of the following:
 | Document | Type | Description |
 | --- | --- | --- |
 | [`annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md) | Annex | Healthcare sector regulatory landscape, HIPAA and equivalent obligations, medical-device regulations, and cross-jurisdiction requirements. |
+| [`procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md) | Procedure | Executable HIPAA operational obligations: Privacy Rule individual-rights response clocks, Notice of Privacy Practices and minimum necessary, six-year documentation retention, the four-factor breach-determination test and notification clocks, and business associate agreement content. |
 
 ---
 

@@ -2,11 +2,11 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
+**Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
 **Classification:** Public\
 **Category:** Compliance: Sector-Specific\
 **Review Frequency:** Annual and upon material regulatory change in applicable jurisdictions\
@@ -162,6 +162,8 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 | Business associate breach notification to covered entity | Any breach affecting the covered entity's PHI | Within 60 days of discovery |
 
 **HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Penalties up to US$1.9M per violation category per year.
+
+**Operational procedure:** the executable HIPAA operational obligations, the Privacy Rule individual-rights response clocks (access, amendment, accounting), the Notice of Privacy Practices and minimum-necessary duties, the six-year documentation-retention schedule, the four-factor breach-determination test that decides whether the notification clock starts, and the business associate agreement content requirement, are operationalized in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md).
 
 ### NHS DSPT (UK)
 
