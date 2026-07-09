@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.234, PR #746
+
+Closes TODO 1.11 (Brazil ANPD citation verification, primary-source close) + carries the #745 LOW fix, the #745 QA batch, and the handoff-line restructure.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md) (1.1.3 to 1.1.4): the Resolution 15/2024 doubling-sub-clause note upgraded from "verified against two independent reproductions ... a primary-source re-confirmation ... remains pending" to a PRIMARY confirmation against the held DOU text (DOU 26 April 2024, Edição 81, Seção 1, Página 114), quoting Article 6 §8 ("Os prazos constantes no caput e no § 3º ... contados em dobro para os agentes de pequeno porte").
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) (1.4.27 to 1.4.28): the Brazil matrix cell dropped "a primary-source re-confirmation pending"; now "confirmed against the primary Diário Oficial da União text (DOU 26 April 2024)".
+- [`governance/procedure-whistleblower-and-incident-reporting.md`](../../governance/procedure-whistleblower-and-incident-reporting.md) (1.0.4 to 1.0.5): §4.4 popular name harmonized "Whistleblower" to "Whistleblowing" Directive to match the doc's Framework-alignment row (the #745 `/validate-pr` LOW finding); the canonical `Directive (EU) 2019/1937` citation unchanged.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the three carrier bumps.
+- [`TODO.md`](../../TODO.md): deleted the §1.11 section (fully closed) and updated the P1 count (2 items to 1).
+- [`.working/session-handoff.md`](../session-handoff.md): the `Current truth` line RESTRUCTURED from a single ~1500-word run-on paragraph into labelled sub-lines (Session/mode, Version-snapshot, Green-at, In-flight, Shipped, Pending-decisions, Next-queue, Ref, Standing-caveats), each independently reconcilable. This is the `/retro` root fix; a multi-match slip during the restructure (both the current and the prior-#713 current-truth bullets were momentarily replaced) was caught by immediate marker-count verification and the prior block restored from git HEAD.
+
+### Fixed
+
+- The canonical-citations register's Resolution 15/2024 row needed NO change: per the TODO 1.11 instruction the register's version-currency and content-attribution axes stay separate, so the reconciliation is achieved by removing the annex/matrix pending-notes (which now match the register's already-confirmed signposting), not by editing the register row.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL, PR ops via REST.
+- The doubling sub-clause verified against the held DOU text: Article 6 §8 (line 221, "contados em dobro" doubling the caput 3-business-day ANPD deadline + the §3 20-business-day complementary window) and Article 9 §6 (line 279, doubling the data-subject-notification deadline), matching the corpus's existing claim (this upgrades the confirmation TIER, not the substance).
+- §1.11 orphan grep: no dangling `§1.11`/`1.11` forward-pointer in a non-`.working` corpus file (the accepted-unverified-tracker example reference in the project CLAUDE instructions remains valid as a completed-lifecycle example; noted as an optional future protected-file refinement).
+
+### Notes
+
+- Batches PR #745's `/validate-pr` (self-Version 1.2.519) and `/retro` (self-Version 1.0.462) rows, per recursion-avoidance.
+- TODO 1.11 was the last open P1 residual; P1 now has 1 item (1.5, reference version-currency).
+- **Worker provenance:** [`inbox/worker-20260709-fable/todo-1.11-anpd-15-2024/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260709-fable/todo-1.11-anpd-15-2024/MANIFEST.md) (the primary DOU confirmation research; the orchestrator re-verified the Article 6 §8 / Article 9 §6 quotes against the held text and authored the three-surface reconciliation).
+
 ## 2026-07-09, Library Version 2026.07.233, PR #745
 
 Closes TODO 2.9 (FR-154) by applying the last open sub-item (sub-item 5, whistleblower feedback ceiling).
