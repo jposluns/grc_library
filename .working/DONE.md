@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #719: TODO 4.6 S-a/S-b/S-e, adopter-experience batch (2026-07-09)
+
+Applied the Fable adopter-experience-sabe batch: a README routing-table link to the decision tree (S-b), a glossary legend for the "Governance Library Maintainer" meta-role (S-e), and a portal Board/CEO audience section plus inline per-entry maturity tags via a `build-portal.py` generator change (S-a). S-c/S-d stay pending their separate worker-20260703-a research deliveries; S-f remains a design item, so §4.6 stays open.
+
 ### PR #718: TODO 3.20 bullet 1, not-held-source detection (2026-07-09)
 
 Closed the not-held-source-detection residual: applied the Fable delivery `tools/audit-reference-acquisition-gaps.py`, which diffs the corpus canonical-citations register against the `grc_library_ref` catalogue and worklists cited-but-not-held standards as acquisition candidates (feeding the ref-base acquisition queue); the untractable never-cited-never-held direction stays judge-led per TODO 2.14, and 3.20's publications-inclusion bullet stays open. The reference-audit-skill cross-reference sentence (B1) was deferred to a later pack-touching batch.
