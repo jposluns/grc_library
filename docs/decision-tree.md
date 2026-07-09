@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.13\
-**Date:** 2026-07-04\
+**Version:** 1.0.14\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -87,6 +87,7 @@ These bands select reading paths in this document. They are a different axis fro
 - Provide cloud services to US federal agencies (FedRAMP in scope)
 - Operate as a healthcare provider/payer in the US (HIPAA in scope)
 - Designated essential or important entity in EU (NIS 2 in scope)
+- Rely on the EU Digital Identity Wallet or provide trust services in the EU (eIDAS in scope)
 - Participate in a trusted-trader programme (BASC, CTPAT, AEO, PIP)
 - Develop, deploy, or procure AI systems (EU AI Act, ISO/IEC 42001 in scope)
 
@@ -196,6 +197,7 @@ Read the sector-overview annex first, then the programme overlays for programmes
 1. [`compliance/public-sector/README.md`](../compliance/public-sector/README.md): sector index.
 2. [`compliance/public-sector/annex-public-sector-requirements.md`](../compliance/public-sector/annex-public-sector-requirements.md): sector overview.
 3. If providing cloud services to US federal agencies: [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md): FedRAMP.
+4. If relying on the EU Digital Identity Wallet or providing trust services in the EU: [`compliance/public-sector/annex-eidas-requirements.md`](../compliance/public-sector/annex-eidas-requirements.md): eIDAS.
 
 ### 3.7 If "Other / general technology": no sector overlay
 
