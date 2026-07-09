@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.9\
-**Date:** 2026-07-09\
+**Version:** 1.1.10\
+**Date:** 2026-07-10\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -90,7 +90,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, PIPEDA, LGPD, PIPL. |
 | Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301, COBIT DSS04. |
 | AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001, CSA AICM. |
-| Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2021, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
+| Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2025 edition, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001. |
 
 ### Step 4: Contractual review
@@ -158,7 +158,7 @@ A sector-supplier compliance log maintained by the appropriate sector-conditiona
 - ISO/IEC 27036-2:2022: Cybersecurity - Supplier relationships - Part 2: Requirements.
 - COBIT 2019 APO10: Managed Vendors.
 - CSA Cloud Controls Matrix v4.1, STA-01: Supply Chain Risk Management Policies and Procedures.
-- WCO SAFE Framework of Standards 2021: World Customs Organization.
+- WCO SAFE Framework of Standards 2025 edition: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
 Sector-specific references (for example, BASC International Standard v6 2022 for trade and logistics) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).

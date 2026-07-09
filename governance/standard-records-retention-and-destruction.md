@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.15\
-**Date:** 2026-07-05\
+**Version:** 1.4.16\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -184,7 +184,7 @@ Annual audits verify:
 | ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |
 | EU AI Act Annex IV | AI System Documentation |
 
-Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2021 for trade and customs records retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
+Sector-specific framework alignments (for example, BASC International Standard v6 2022 and WCO SAFE Framework 2025 edition for trade and customs records retention) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
 
 ---
 
