@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #724: TODO 3.18 execution-environment probe for `/resume` (2026-07-09)
+
+Closed the environment-detection item: shipped `tools/detect-env.py` (gh presence/auth/rate, hook-firing diagnosis, sibling-repo access with launch-bound `--add-dir`/`settings.local.json` fix lines, per-family egress classes with a HEAD-to-GET fallback; detect-and-adapt only, never a runtime self-grant, always exits 0) and wired it into the `/resume` step-3 verify-state step, with a `.gitignore` line for the machine-local settings override. Applied the Fable `env-detection-build` delivery; at apply the tool's pipe-guard prediction was corrected to an ASSISTANT-PROBE (it had over-generalized from its cloud test, but the NUC harness fires the hook despite `CLAUDE_PROJECT_DIR` being unset), and run on the NUC to capture that profile.
+
 ### PR #723: TODO 3.21 AIQT general-framework columns claim-fit-verified (2026-07-09)
 
 Closed the accepted-unverified tracker for the AIQT principle document: ran `/claim-fit` over the 25 general-framework citations (SSDF / CCM / ISO 27001) against the held source texts; 21 fit/inform consistent with the corpus-convention labelling, 2 findings disposed per the maintainer's decision (CCM `LOG-08` "Audit Logs Sanitization" migrated to `LOG-04, LOG-10` in both audit-trail rows; ISO `A.8.34` swapped to `A.5.33` "Protection of records" in both Integrity rows), each re-verified against the held CCM v4.1 / ISO 27001:2022 texts. The pack-wide `LOG-02, LOG-08` convention migration + the apex-rule A.8.34 row fold into GR-P2.

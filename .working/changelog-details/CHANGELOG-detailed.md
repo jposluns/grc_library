@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.212, PR #724
+
+Closes TODO 3.18, the execution-environment probe for `/resume`. Applies the Fable `env-detection-build` APPLY-READY delivery under validate-then-apply with an apply-time worker-tool correction and a refute-briefed skeptical pre-push verifier.
+
+**Worker provenance:** [`inbox/worker-20260708-fable/env-detection-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/env-detection-build/MANIFEST.md)
+
+### Added
+- [`tools/detect-env.py`](../../tools/detect-env.py) (mode 755): a stdlib-only, always-exit-0 execution-environment probe. Reports gh presence / auth / GraphQL-pool headroom (the #687 REST-fallback signal), sibling-repo (`grc_library_ref` / `grc_library_scratch`) readability with launch-bound `--add-dir` / machine-local-settings fix lines, per-source-family egress classes (HEAD with a GET retry; a 403 classed reachable-but-blocked, the `iso.org` shape), and a decisions block for the `/resume` step; `--json` and `--no-egress` modes. Safety-reviewed: read-only (gh subprocess with timeout, `urllib` HEAD/GET probes, no writes / `os.system` / `eval` / self-grant).
+
+### Changed
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) step 3: an "In the same step, run the execution-environment probe" clause added (parallel to the existing brief-freshness clause), reading the probe's profile to pick the PR mechanism, the CI-poll / merge transport, the commit-push mode, and the pipe-guard expectation, and to verify sibling-repo access. Protected `.claude/` edit, applied per the local-instance overnight authorization (authorization #2); noted in the PR body. `/resume` is unpaired in the gate-44 PAIRS registry (verified), so no step-parity obligation.
+- [`.gitignore`](../../.gitignore): an entry for the machine-local Claude Code session-settings override file (the one the probe's fix lines name), measured absent at the read basis.
+- [`.working/session-handoff.md`](../session-handoff.md): a known-environment-behaviours line noting the probe exists and `/resume` step 3 runs it, with the observed NUC profile.
+
+### Apply-time worker correction
+- The delivered probe's `probe_hooks` computed `pipe_guard_predicted_firing = configured and CLAUDE_PROJECT_DIR_set`, printing "predicted firing=False" on the NUC (where `CLAUDE_PROJECT_DIR` is unset in-process). This is empirically FALSE on the NUC: the pipe-guard hook DID fire this session (it blocked a piped `lint-language` run), because the NUC harness resolves the hook path even when the var is absent from the Bash-tool env, and it contradicted the tool's OWN docstring ("fires on the NUC; silent in cloud"). Corrected: the firing is now reported as an ASSISTANT-PROBE (observe whether a piped verification is blocked; the RM-10 unpiped habit is the control either way), consistent with the tool's design principle that un-observable state is probed, not guessed. The `/resume` wiring text was written to match (not the delivery's original "will not fire" phrasing). All three tool modes re-tested exit 0 after the fix.
+
+### Fixed
+- [`tools/lint-internal-references.py`](../../tools/lint-internal-references.py) (gate 23): the `INTERNAL_TLD_RE` internal-hostname pattern gained a file-extension negative lookahead so a `.local` / `.internal` / `.corp` / etc. stem followed by a file extension (`json`, `ya?ml`, `toml`, `md`, `py`, ...) is treated as a FILENAME, not an internal hostname. Surfaced by placing the probe, which names the canonical Claude Code machine-local settings-override file (under `.claude/`, extension `.json`); gate 23 flagged its `settings.local` stem as a `.local` host. The lookahead does not exclude subdomain chains (a `.corp.example.com` is followed by `.example`, not a listed extension), so genuine internal FQDNs stay flagged. Docstring note + a regression fixture (`test_local_extension_filename_not_flagged`) added; the corpus has zero current internal-reference matches, so the refinement only removes the false positive. A gate-discipline fix (improve the gate's accuracy), not a weakening.
+
+### Removed
+- [`TODO.md`](../../TODO.md): the `### 3.18` section deleted (rotated to DONE); the P3 Backlog-totals count 12 to 11 with 3.18 added to the closed list.
+
+### Verification
+- The probe ran on the NUC (its first exercise of the authenticated-gh path): gh present + authenticated, GraphQL pool healthy, pipe-guard fires (observed), both siblings readable, egress github-api / eur-lex / nist-csrc reachable, `iso.org` 403, `planalto.gov.br` unreachable. The cloud profile is the worker's tested evidence. All 67 gates pass. A refute-briefed skeptical pre-push verifier ran on the diff; the pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #723's `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 0 error/warning, 1 tracked out-of-window note) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+
 ## 2026-07-09, Library Version 2026.07.211, PR #723
 
 Closes TODO 3.21, the claim-fit verification of the AIQT principle document's general-framework columns. Applies the Fable `aiqt-general-columns-claimfit` VERIFICATION delivery (a report, not candidate files) and the maintainer's overnight authorization #3 dispositions, under validate-then-apply with held-source re-verification and a refute-briefed skeptical pre-push verifier.

@@ -58,9 +58,16 @@ EXEMPT_FILES = {
     "test_linters.py",
 }
 
-# Internal-domain hostname suffixes.
+# Internal-domain hostname suffixes. The trailing negative lookahead excludes
+# FILENAMES whose stem ends in one of these words followed by a file extension
+# (e.g. the Claude Code machine-local settings file `settings.local.json`): a
+# `.local`/`.internal`/etc. immediately followed by a `.<ext>` is a file, not an
+# internal hostname. It does not exclude subdomain chains (a `.corp.example.com`
+# is followed by `.example`, not a listed extension), so genuine internal FQDNs
+# stay flagged.
 INTERNAL_TLD_RE = re.compile(
-    r"\b[a-zA-Z0-9\-]+\.(?:local|internal|corp|lan|intranet|home\.arpa)\b",
+    r"\b[a-zA-Z0-9\-]+\.(?:local|internal|corp|lan|intranet|home\.arpa)\b"
+    r"(?!\.(?:json|ya?ml|toml|md|txt|lock|cfg|ini|conf|py|js|ts|sh))",
     re.IGNORECASE,
 )
 
