@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.214, PR #726
+
+Ships GR-P2 tranche 1 (the governance-rule operative-core condense; TODO 4.7 GR-P2 stays open). Applies the Fable `gr-p2-rule-condense` tranche-1 delivery under validate-then-apply, with the condense verified obligation-preserving and a refute-briefed skeptical pre-push verifier.
+
+**Worker provenance:** [`inbox/worker-20260708-fable/gr-p2-rule-condense/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/gr-p2-rule-condense/MANIFEST.md)
+
+### Added
+- [`.working/claude-rules-considerations.md`](../claude-rules-considerations.md): the GR-P2 removal ledger (the PR #441 CLAUDE.md-considerations ledger pattern), with a Purpose, a Review-cadence section (reviewed each `/retro` and the periodic hallucination-metrics pass, the "advise on putting it back" loop), the RM-GDP-1 entry for gate-discipline (the moved why-section verbatim + why / gain / risk / evidence-the-removal-was-wrong analysis), and a pre-analyzed per-rule worklist for the remaining 12 rules (tranches 2+).
+
+### Changed
+- [`dev-security/claude-rules/governance/gate-discipline.md`](../../dev-security/claude-rules/governance/gate-discipline.md) and its byte-identical [`.claude/rules/governance/gate-discipline.md`](../../.claude/rules/governance/gate-discipline.md) mirror (lock-step, gate 37): condensed 1559 to 1173 words. The operative core is retained in full (verified: all 11 prohibited-response bullets, the 4 correct responses, all 6 per-tool anti-pattern blocks, the 6-step exception protocol) and the framework-alignment table is KEPT in the rule; only the `## Why this rule exists` narrative moved to the ledger, with a one-line pointer to the ledger left in the rule. `lint-language` clean; the mirror is `cmp`-byte-identical.
+- [`TODO.md`](../../TODO.md): the GR-P2 bullet annotated TRANCHE 1 SHIPPED with the tranches-2-12 HELD note; the pack README version-history and version bumped (`1.59.0` to `1.59.1`).
+
+### Surfaced design decision (stricter-safe default applied; recorded in pending-decisions)
+- GR-P2's brief lists framework tables among removable rationale, but the pack README names the canonical rule as the framework-alignment source of truth and carries no per-rule matrix, so moving the tables to the `.working/` ledger would strip distributed traceability adopters rely on. Applied the stricter-safe default (KEEP the framework table in each rule; move only the why-section and extended worked examples), recorded in [`.working/pending-decisions.md`](../pending-decisions.md) with the HOLD on tranches 2-12 for the maintainer to confirm or redirect (a redirect that cuts the tables must land them somewhere the pack distributes, reshaping the whole GR-P2 series).
+
+### Verification
+- Obligation-preservation confirmed at apply time: the condensed rule keeps every operative section (11 prohibited bullets, 4 correct responses, 6 tool anti-patterns, 6 exception steps, the framework table); the ONLY removed content is the why-section, preserved verbatim in the ledger. No pack or `.claude/` link to the dropped `## Why this rule exists` anchor (grep clean). All 67 gates pass; `lint-language` clean; mirror `cmp`-identical. A refute-briefed skeptical pre-push verifier ran on the diff; the pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #725's `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 0 findings) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+
 ## 2026-07-09, Library Version 2026.07.213, PR #725
 
 Closes TODO 4.7 GR-P1, the session-lifecycle governance pack rule (the 13th). Applies the Fable `session-lifecycle-rule-build` delivery under validate-then-apply, with the rule content re-read and verified as a faithful distillation of existing project practice (the research-assistant discipline for a new governance rule) and a refute-briefed skeptical pre-push verifier.
