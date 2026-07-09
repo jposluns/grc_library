@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.3\
-**Date:** 2026-06-23\
+**Version:** 1.0.4\
+**Date:** 2026-07-09\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -76,7 +76,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 |---|---|---|---|---|---|
 | B1 | Personal data processing performed by the AI system has been mapped; lawful basis for each processing activity is documented | | | | |
 | B2 | Data minimization principle applied to training and inference data: only data necessary for the stated purpose is collected and processed | | | | |
-| B3 | Privacy Impact Assessment (PIA) or AI-specific impact assessment (AI-IA / FRIA) completed where required by privacy regulation or the AI System Impact Assessment Procedure | | | | |
+| B3 | The required impact assessments (a DPIA under GDPR Article 35, the AI System Impact Assessment, and the EU AI Act Article 27 fundamental rights impact assessment (FRIA) where triggered) are completed and composed per the [Integrated AI and Privacy Assessment Procedure](procedure-integrated-ai-and-privacy-assessment.md); where a FRIA is required it complements the DPIA (Article 27(4)) rather than substituting for it | | | | |
 | B4 | Where the AI system may process data relating to children, specific safeguards are implemented and documented | | | | |
 | B5 | Cross-border data transfer controls are in place and documented for any training or inference data transferred across jurisdictions | | | | |
 | B6 | Data retention and deletion obligations for training data, inference logs, and output data are documented and implemented | | | | |

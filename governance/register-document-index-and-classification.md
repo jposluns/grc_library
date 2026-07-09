@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.64\
+**Version:** 1.27.65\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -178,6 +178,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Standard | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | AI Security Maintainer | 6 to 12 months | OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 27001, NIST AI RMF | template |
 | AI | Framework | AI Model Risk Framework | [`ai/framework-ai-model-risk.md`](../ai/framework-ai-model-risk.md) | AI Governance Approver | 6 to 12 months | Model risk, data provenance, lifecycle assurance | template |
 | AI | Procedure | AI System Impact Assessment Procedure | [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md) | AI Risk Maintainer | 6 to 12 months | EU AI Act, ISO/IEC 42005:2025, NIST AI RMF, GDPR Art 35, privacy | template |
+| AI | Procedure | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | AI Risk Maintainer | 6 to 12 months | GDPR Art 22 and 35, EU AI Act Art 27 (FRIA), the DPIA / AI-IA / FRIA composition | template |
 | AI | Procedure | AI Model Risk Assessment Procedure | [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md) | AI Governance Approver | 6 to 12 months | Model risk assessment, lineage, robustness, residual risk | template |
 | AI | Matrix | AI Model Risk Control to Lifecycle Mapping Matrix | [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI System Inventory Keeper | 6 to 12 months | Model lifecycle, controls, evidence mapping | template |
 | AI | Template | AI System Register Template | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | AI System Inventory Keeper | 6 to 12 months | Inventory, ownership, lifecycle, evidence | template |
