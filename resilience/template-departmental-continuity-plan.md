@@ -2,8 +2,8 @@
 
 **Document Title:** Departmental Continuity Plan Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-07-09\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md)\
@@ -49,8 +49,11 @@ This template provides a reusable structure for documenting departmental or func
 
 ### 2. Critical processes
 
+Derive the Maximum Tolerable Disruption (MTD), Recovery Time Objective (RTO), and Recovery Point Objective (RPO) for each critical process from the organization's Business Impact Analysis (see [`resilience/procedure-business-impact-analysis.md`](procedure-business-impact-analysis.md)), applying the constraints that the MTD is greater than or equal to the RTO and that the RPO is set by the process's data-loss tolerance (consistent with ISO 22301). Complete one row per critical process; the illustrative row shows the expected granularity and is replaced with the department's own processes.
+
 | Process | Criticality Tier | Maximum Tolerable Disruption | Recovery Time Objective | Recovery Point Objective | Minimum Service Level | Manual Workaround |
 | --- | --- | --- | --- | --- | --- | --- |
+| Payroll run (illustrative) | Tier 1 | 5 business days | 24 hours | 4 hours | One pay cycle processed | Provider fallback using a pre-agreed manual template |
 | | | | | | | |
 
 ### 3. Dependencies

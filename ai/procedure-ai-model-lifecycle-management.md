@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-09\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -44,7 +44,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 1.1 The GRC Programme Manager maintains an AI System Inventory covering all AI models in use or under development.
 
-1.2 Inventory records include: model name, version, owner, risk tier, deployment date, last review date, monitoring status, and lifecycle stage.
+1.2 Inventory records include: model name, version, owner, risk tier, deployment date, last review date, monitoring status, lifecycle stage, and the recorded performance thresholds (metric, floor value, and accountable owner) required at deployment by 4.5.
 
 1.3 The inventory is reviewed and updated at minimum quarterly by the GRC Programme Manager.
 
@@ -90,6 +90,8 @@ Applies to all AI models and machine learning systems developed internally, proc
 4.3 Performance below defined thresholds triggers a model review. Outcomes are: continue (document rationale), retrain, restrict scope, or decommission.
 
 4.4 Material monitoring findings are reported to the AIGC at the next quarterly meeting.
+
+4.5 The performance thresholds referenced in 4.3 (and the retraining threshold in 5.1) are defined per model, the metric, the floor value, and the accountable owner, and are recorded in the model's entry in the AI System Inventory at deployment; a model with no recorded threshold does not enter production. This turns "defined thresholds" from an assumption into a deployment obligation, aligned with ISO/IEC 42001 Section 9 (performance evaluation).
 
 ---
 
