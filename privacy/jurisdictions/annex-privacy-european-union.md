@@ -2,7 +2,7 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -109,7 +109,7 @@ GDPR Article 8(1) sets the default age at 16 for child consent to information so
 - **Lower tier (GDPR):** Up to €10 million or 2% of total worldwide annual turnover for data controller and processor obligation violations and notification failures.
 - **EU AI Act: prohibited practices:** Up to €35 million or 7% of worldwide annual turnover.
 - **EU AI Act: high-risk/GPAI violations:** Up to €15 million or 3% of worldwide annual turnover.
-- **EU AI Act: incorrect information:** Up to €7.5 million or 1.5% of worldwide annual turnover. Lower absolute caps apply to SMEs and start-ups.
+- **EU AI Act: incorrect information:** Up to €7.5 million or 1% of worldwide annual turnover. Lower absolute caps apply to SMEs and start-ups.
 - **Enforcement body (AI Act):** the EU AI Office (within DG CNECT) supervises General-Purpose AI (GPAI) at Union level (Articles 88-90, 92-94); the AI Board coordinates member-state authorities and may issue opinions (Articles 65-66); AI supervisory authorities designated by each EU member state enforce per-system obligations within their territory. The EDPB has a consultative role on the interaction between the AI Act and Union data-protection law (Article 67).
 
 ---

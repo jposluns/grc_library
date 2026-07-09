@@ -6,6 +6,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.236, PR #748
+
+The sweep92 `/resume` loop-break corpus-wide `/validate` close-out (first PR of the resumed `claude/resume-sweep92-validate` session); the compensating control for session-closing handoff PR #747. Sweep 92 (full A/B/C fan-out over the #721 to #746 delta window) surfaced 7 findings; 5 fixed here, 1 (B-5) routed to a follow-up PR, 1 (A-2) surfaced as a judgment-call.
+
+### Fixed
+
+- [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md): (Sweep 92 A-1, C2 mis-attributed citation) the EU AI Act "incorrect information" penalty tier read "€7.5 million or 1.5% of worldwide annual turnover"; Article 99(5) prescribes 1% (matching the corpus's own verified AI Act annex at [`ai/jurisdictions/annex-ai-european-union.md`](../../ai/jurisdictions/annex-ai-european-union.md) line 93 and the €7.5M/1% pairing). Corrected "1.5%" to "1%". Out-of-window (the row traces to the initial public release) but a clear accuracy fix. Version 1.1.4 to 1.1.5.
+- [`docs/decision-tree.md`](../../docs/decision-tree.md): (Sweep 92 B-1/B-2/B-4, C8 stale-reference) the FAQ section 7 stated the EU AI Act "does not yet have its own dedicated jurisdiction annex" and that "HIPAA detail beyond the sector annex is a gap", both false after the #743 EU AI Act annex and the #733 US HIPAA annex; the section 3.3 healthcare reading path omitted the US HIPAA annex though section 3.6 already carries the eIDAS conditional bullet. Reworded the two FAQ claims to point at the annexes and added the section 3.3 US-HIPAA conditional bullet. Version 1.0.15 to 1.0.16.
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md): (Sweep 92 B-3, C8 stale-gap-row) the section 2.5 lead said the library "lacks dedicated per-jurisdiction AI annexes" and the EU AI row was graded "Referenced, Planned", while the parallel section 2.4 US-HIPAA row was updated to "Substantive, In library" in #733. Reworded the lead and regraded the EU row to "Substantive, In library" citing the annex. Version 1.1.25 to 1.1.26.
+
+### Changed
+
+- generated artefacts regenerated from the three version bumps (taxonomy first, then the derived pair): [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+- [`.working/session-handoff.md`](../session-handoff.md): pruned per the keep-current-plus-one-prior discipline (dropped the sweep89 next-actions, state-snapshot, and asserted-expectations blocks; kept current sweep91 + one-prior sweep90); advanced the resume cursor to Sweep 92; reconciled the `Current truth` state-snapshot in place to the sweep92-opening state (version tokens `2026.07.236` / `1.9.597`, session/mode, next-queue); noted the D7-marker gap (see discipline observations).
+- [`.working/pending-decisions.md`](../pending-decisions.md): rotated the eIDAS2-naming entry (maintainer KEEP the default) and the FR-59-scope entry (maintainer PROCEED via WebSearch-currency) to resolved-inline per the answers at this resume.
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease (Active-session `claude/resume-sweep92-validate`, Status active, fresh 2026-07-09T21:36:49Z heartbeat); prior lease was cleanly released.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): added the Sweep 92 iter 1 row (7 findings). Version 2.0.86 to 2.0.87.
+- [`README.md`](../../README.md): library CalVer `2026.07.235` to `2026.07.236`, README version 1.9.596 to 1.9.597.
+
+### Added
+
+- [`.working/validate-sweeps/2026-07-09-sweep92-iter1.md`](../validate-sweeps/2026-07-09-sweep92-iter1.md): the Sweep 92 iteration-1 detail file (the six-section per-iteration record).
+
+### Verification
+
+- `tools/run_all_audits.sh`: all 67 gates pass on the committed state (re-baselined post-fix).
+- Generator `--check` clean for taxonomy, portal, and scorecard.
+- Sweep 92 A/B/C dispatched (full three-subagent fan-out, no skip). All five fixed findings grep-verified landed before recording. The eIDAS Article 16(2) penalty ("EUR 5,000,000 or 1%") verified correct via WebSearch of the amended eIDAS text (Regulation 910/2014 as amended by 2024/1183).
+
+### Discipline observations
+
+- Sweep 92 caught one asserted-expectation CONTRADICTION (B-5): PR #747's asserted expectations claimed the portal carries the EU AI Act annex, but the audience-shaped [`docs/portal.md`](../../docs/portal.md) never emitted it (the "Security architecture" audience's `domain: ai` selector restricts to types Standard/Framework/Guide/Guideline/Procedure and omits `Annex`, whereas the privacy audience selects the whole domain). `build-portal.py --check` is legitimately green, so this is a self-assessment miss, not stale-lag; the asserted-expectations cross-check is exactly what surfaced it. Escalated per the resume protocol and routed to a follow-up PR (maintainer-chosen: add an `ai/jurisdictions/` selector, regenerate, with a skeptical verifier).
+- The D7 handoff-snapshot freshness check ([`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py)) keys on the `Current truth` marker line, but the #746 restructure moved the version tokens onto a separate `Version snapshot` sub-line, so D7 now finds a token-free marker line and passes trivially without validating the tokens. The tokens are kept accurate by convention this PR; surfaced for a D7 marker-fix follow-up.
+- B-5 is routed, not fixed here: this PR's diff contains no portal-generator change. A-2 (the whistleblower section 5 LGPD "reasonable timeframe" versus the corpus's precise "3 business days") is an out-of-window judgment-call, surfaced to the maintainer, not auto-changed.
+
 ## 2026-07-09, Library Version 2026.07.235, PR #747
 
 Session-closing handoff for the `claude/resume-sweep91-validate` session (#721 to #746); working-state + version-surface + CHANGELOG only, no corpus document body.
