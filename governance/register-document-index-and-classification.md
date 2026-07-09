@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.62\
-**Date:** 2026-07-08\
+**Version:** 1.27.63\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -333,6 +333,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Dev Security | Standard | Google Cloud Platform Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-gcp.md`](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Chief Information Security Officer | Annual | CIS Google Cloud Platform Foundations Benchmark, Google Cloud Architecture Framework Security Pillar, NIST SP 800-53, ISO/IEC 27001, CSA CCM v4.1 | template |
 | Compliance | Annex | Financial Services Sector GRC Requirements Annex | [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Chief Compliance Officer | Annual | DORA, FCA/PRA PS21/3, OSFI B-13, NY DFS 23 NYCRR 500, GLBA, PCI DSS v4.0.1, FATF | template |
 | Compliance | Annex | Healthcare Sector GRC Requirements Annex | [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../compliance/healthcare/annex-healthcare-sector-requirements.md) | Chief Compliance Officer | Annual | HIPAA Security/Privacy/Breach Rules, NHS DSPT, NDG Caldicott, GDPR Art 9, MDR/IVDR | template |
+| Compliance | Procedure | HIPAA Operational Compliance Procedure | [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | Chief Compliance Officer | Annual | HIPAA 45 CFR 164 (Privacy/Security/Breach Rules), NIST SP 800-66r2, ISO/IEC 27001 Annex A | template |
 | Compliance | Annex | Logistics Sector GRC Requirements Annex | [`compliance/logistics/annex-logistics-sector-requirements.md`](../compliance/logistics/annex-logistics-sector-requirements.md) | Chief Compliance Officer | Annual | TSA Directives, EU NIS 2, IMO MSC-FAL.1/Circ.3, ICAO Doc 10055, UNECE WP.29 R155, IEC 62443 | template |
 | Compliance | Annex | FedRAMP Sector Requirements Annex | [`compliance/public-sector/annex-fedramp-requirements.md`](../compliance/public-sector/annex-fedramp-requirements.md) | Chief Compliance Officer | Annual | FedRAMP Baselines, NIST SP 800-53 Rev. 5, NIST SP 800-37 Rev. 2, NIST SP 800-171, OMB M-22-09, FIPS 140-3 | template |
 | Compliance | Annex | DORA Implementation Annex | [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md) | Chief Compliance Officer | Annual | DORA (EU) 2022/2554, DORA RTS/ITS, TIBER-EU, EBA/EIOPA Guidelines, ISO/IEC 27001 | template |
