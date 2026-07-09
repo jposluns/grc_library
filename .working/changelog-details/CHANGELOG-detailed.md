@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.235, PR #747
+
+Session-closing handoff for the `claude/resume-sweep91-validate` session (#721 to #746); working-state + version-surface + CHANGELOG only, no corpus document body.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): prepended this session's `## Next actions` block (the next session's queue = the loop-break `/validate` over #721 to #746, then the delicate builds on fresh context) and `## Asserted expectations` block (this session's asserted-clean surfaces + the NOT-asserted soft spots); updated the restructured `Current truth` line for the close (In-flight #747, version snapshot `2026.07.235`/`1.9.596`, green-at `0df5820`/#746, shipped through #746).
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Status: released`, `Active-session: none`; the run-on `Current-task` reset to a clean closing statement).
+- [`.working/session-metrics.md`](../session-metrics.md) (self-Version 1.0.43 to 1.0.44): one honest row for this session; the subagent-token tally marked not-precisely-captured (multi-compaction session, no running tally kept), per the measured-versus-not-instrumented discipline, no figure fabricated.
+- [`TODO.md`](../../TODO.md): fixed #746's `/validate-pr` finding, two stale bare-"1.11" references (L37, L93) after the §1.11 close, and reconciled the broader egress-deferred note (the egress premise superseded by WebSearch-currency; EU AI Act applied #743; 1.11 closed #746; the remaining delicate builds sequenced for fresh context).
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL, PR ops via REST.
+- Per the loop-break exception (the session-closing handoff PR), this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #721 to #746 window, cross-checked against the asserted-expectations block. The green-at snapshot (`0df5820`/#746 = 67/67) is the deterministic close-vs-start baseline the next `/resume` confirms.
+
+### Notes
+
+- Batches PR #746's `/validate-pr` (self-Version 1.2.520) and `/retro` (self-Version 1.0.463) rows.
+- The handoff `Current truth` line was RESTRUCTURED in #746 (labelled sub-lines) as the root fix for the append-not-reconcile class that recurred across #742 to #745; this close-out confirms it updated cleanly. The per-session block STACK (older State-snapshot / Next-actions / Asserted-expectations blocks) is left for the next `/resume`'s keep-current-plus-1-prior prune per the refresh-and-pruning discipline.
+- Orchestrator-authored working-state (no worker delivery applied), so no worker-provenance marker.
+
 ## 2026-07-09, Library Version 2026.07.234, PR #746
 
 Closes TODO 1.11 (Brazil ANPD citation verification, primary-source close) + carries the #745 LOW fix, the #745 QA batch, and the handoff-line restructure.
