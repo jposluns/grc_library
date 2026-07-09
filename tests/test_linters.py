@@ -2299,7 +2299,7 @@ class GateCountConsistencyTests(LinterTestCase):
 
     def test_stale_wordform_governance_rules_flagged(self) -> None:
         # P11 (word-form): the qualified "ninety-nine governance rules" can
-        # never match the canonical rule count (12), so it is flagged.
+        # never match the canonical rule count (13), so it is flagged.
         fixture = self.make_fixture(
             "standard-bad-wordform-rules.md",
             "# X\n\nThe pack ships ninety-nine governance rules today.\n",
