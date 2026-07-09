@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #746: TODO 1.11 Brazil ANPD citation verification, primary-source close (2026-07-09)
+
+Closed the last P1 residual: the ANPD Resolution CD/ANPD No. 15/2024 small-agent deadline-doubling sub-clause (Article 6 §8, Article 9 §6, "contados em dobro"), previously confirmed only at secondary tier, upgraded to a PRIMARY-source confirmation against the held Diário Oficial da União text (DOU 26 April 2024, now in `grc_library_ref` ref #35). Dropped the "primary re-confirmation pending" notes from `privacy/jurisdictions/annex-privacy-brazil.md` and the breach-response matrix; the canonical-citations register row needed no change (version-currency and content-attribution axes kept separate, per the TODO instruction). Discharges the accepted-unverified tracker. Also carried the LOW citation-name harmonization (Whistleblower to Whistleblowing) in the whistleblower procedure, #745's QA batch, and a restructure of the handoff Current-truth line.
+
 ### PR #745: FR-154 sub-item 5, whistleblower feedback ceiling (closes TODO 2.9) (2026-07-09)
 
 Closed the last open FR-154 sub-item (§2.9), the whistleblower investigation feedback ceiling, now that the EU Whistleblower Directive 2019/1937 is held in `grc_library_ref`. Made `governance/procedure-whistleblower-and-incident-reporting.md` §4.4 operationally precise: feedback within a reasonable timeframe not exceeding three months from acknowledgment (internal-channel ceiling, verified against held Article 9(1)(f)), with the Article 11 external-channel timeframe (up to six months in duly justified cases) noted. TODO §2.9 fully CLOSED (5 of 6 sub-items in #738, sub-item 5 here; sub-items 2 and 7 did not reproduce).
