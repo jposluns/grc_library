@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.216, PR #728
+
+Closes SR-3 (the reference base's binary-scan and orphan-check coverage gaps) via `grc_library_ref` PR #30, and discharges the deferred TODO 3.20-B1 cross-reference fragment. The SR-3 substance is the cross-repo `grc_library_ref` change (recorded in that repo's PR #30); this entry records the grc_library-side close plus the orchestrator-authored 3.20-B1 pack cross-reference.
+
+### Changed
+
+- **SR-3 close (cross-repo)**: `grc_library_ref` PR #30 widened its validation gate in two ways. Check 12 (disk-to-catalogue orphan) added CSV directory and family-coverage orphan detection: a `.csv` unreferenced by the catalogue AND whose workbook-stem family and directory both lack catalogue presence is flagged, while per-sheet extracts of a catalogued workbook are not (0 false positives on the 50 uncatalogued per-sheet CSVs; no per-sheet cataloguing forced). Check 13 (watermark PII) generalized from PDF-only to every tracked binary: PDF and EPUB via PyMuPDF, OOXML via the stdlib `zipfile`, and legacy or other binaries via a raw latin-1 plus utf-16-le decode scan, reusing the check-5 PII regex. Applied the Fable `sr3-ref-binary-scan-build` delivery to the reference repo under validate-then-apply.
+- **TODO SR-3 rotation**: deleted the `### SR-3` section from [`TODO.md`](../../TODO.md); the Backlog-totals reference-base-work bucket went from 2 open items to 1 (SR-1 alone remains, egress-gated), with SR-3 recorded closed via ref #30; the stale `## Reference-base work` intro enumeration `(SR-1/2/3)` corrected to the single remaining `(SR-1)`. DONE entry added.
+- **TODO 3.20-B1 (pack cross-reference)**: added a See Also bullet to [`dev-security/claude-rules/skills/reference-audit/SKILL.md`](../../dev-security/claude-rules/skills/reference-audit/SKILL.md) and a parenthetical note to the [`.claude/commands/reference-audit.md`](../../.claude/commands/reference-audit.md) command, cross-referencing [`tools/audit-reference-acquisition-gaps.py`](../../tools/audit-reference-acquisition-gaps.py) (the cited-but-not-held acquisition-gap tool shipped in PR #718) as the complementary direction to this skill's held-but-unused breadth judgement. This discharges the fragment DONE #718 deferred to a later pack-touching batch; TODO 3.20 remains open (bullet 2, the publications-inclusion decision).
+
+### Verification
+
+- `grc_library_ref` PR #30: the reference base's validation gate exits 0 on the live base with `validation OK` and 0 findings (the PyMuPDF PDF and EPUB half ran on the NUC). The widened check-13 detection was fire-tested per format (OOXML part, raw UTF-16-LE spaced watermark, and raw ASCII watermark all flagged; a clean OOXML not flagged) and a skeptical verifier confirmed 0 High/0 Medium with real-injection tests, including the per-sheet-CSV no-false-positive property. Ref CI (`validate`) passed.
+- `lint-language` run on the two touched pack-prose files before the first commit (new-pack-prose discipline): no findings; no em or en dashes.
+- The pre-push guard (`run_all_audits.sh` plus `run-pr-time-checks.sh`) green at push.
+
+### Discipline observations
+
+- The SR-3 ref delivery landed clean under validate-then-apply with a per-format fire-test proving the widened check fires (gate-discipline: a governance gate change is not merged on the clean-base pass alone, since a clean pass is equally consistent with a no-op widening; the injected-defect test is what proves detection). Four Low or informational verifier nits (a dead `.gitignore` entry in the ref tool's TEXT_EXTS, the `pdf_note` wording not naming EPUB, pre-existing MuPDF stdout noise, and documented by-design best-effort gaps for cross-run-split OOXML and utf-16-be) were judged non-blocking and recorded here as a small ref-tool polish follow-up rather than churning a re-CI cycle for cosmetics.
+
 ## 2026-07-09, Library Version 2026.07.215, PR #727
 
 Closes TODO 4.7 GR-P3, GR-P4, GR-P5a (the guardrail-review pack-design batch). Applies the Fable `pack-design-gr345-batch` delivery under validate-then-apply with a refute-briefed skeptical pre-push verifier; each GR-P5 sub-claim re-validated against live state (GR-P5c confirmed a stale premise, no edit).
