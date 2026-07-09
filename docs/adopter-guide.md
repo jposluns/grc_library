@@ -2,11 +2,11 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.10\
-**Date:** 2026-07-08\
+**Version:** 1.3.11\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`specification-master-project.md`](../specification-master-project.md)\
+**Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
 **Classification:** Public\
 **Category:** Documentation\
 **Review Frequency:** Annual and upon material change to the library structure or the adoption model\
@@ -42,6 +42,8 @@ You are not required to adopt the entire library. Most organizations will adopt 
 ## Three adoption modes
 
 The repository ships both a GRC corpus and a reference implementation for AI-assisted maintenance of that corpus (the audit toolchain in [`tools/`](../tools/) and the operational pack in [`dev-security/claude-rules/`](../dev-security/claude-rules/)). An adopter can engage at any of three levels; pick the mode that matches what you are actually trying to build, not the most ambitious one.
+
+These modes describe a single organization adopting the library. A group, holding company, or multi-entity structure has a further choice, how to adopt across several legal entities that share governance but differ in jurisdiction and sector; see [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md) for the three group topologies and their trade-offs.
 
 ### Mode A: Fork the whole repo (full adoption)
 
