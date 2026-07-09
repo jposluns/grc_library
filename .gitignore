@@ -18,3 +18,7 @@ __pycache__/
 # The directory exists for fixture isolation; its contents should never
 # be committed.
 /tests/tmp/
+
+# Machine-local Claude Code session settings (per-machine additionalDirectories /
+# permissions overrides the detect-env.py fix lines name); never committed.
+.claude/settings.local.json

@@ -2917,6 +2917,25 @@ class InternalReferencesTests(LinterTestCase):
         result = run_linter("tools/lint-internal-references.py", fixture)
         self.assertLinterFails(result, "GCP region")
 
+    def test_local_extension_filename_not_flagged(self) -> None:
+        # A `.local`/`.internal`/etc. stem followed by a file extension is a
+        # FILENAME, not an internal hostname: the canonical Claude Code
+        # machine-local settings file `.claude/settings.local.json` must not
+        # trip the internal-hostname check (the detect-env.py / TODO 3.18 case).
+        fixture = self.make_fixture(
+            "standard-local-filename.md",
+            VALID_METADATA
+            + "\n\nAdd the directory to `.claude/settings.local.json` or "
+            + "launch with `--add-dir`; see also `config.internal.yaml`.\n",
+        )
+        result = run_linter("tools/lint-internal-references.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"linter should pass on file-extension names.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 class ExternalLinkDomainsTests(LinterTestCase):
     """tools/lint-external-link-domains.py"""
