@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.220, PR #732
+
+Codifies the maintainer-directed 2026-07-09 session-depth handoff calibration; batches PR #731's `/validate-pr` and `/retro` rows; closes a #731 `/validate-pr` Low.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Wind-down decision framework`: replaced the single "narrow evidence-grounded exception" block (which allowed offering a handoff only for expected-chained-large-PRs backed by the project's historical metrics) with a two-case calibration, and reconciled item 1's propose-bar with it. Session depth is stated as a legitimate CONTRIBUTING factor to OFFERING a handoff as a non-default suggestion (the offer regime, distinct from the evidence-triggered PROPOSAL the trigger section governs), one of many signals, never the SOLE reason, in (i) a very-long-run of expected chained work ahead where the metrics show a measured quality decline and (ii) excessively-sensitive work whose integrity requires fresh context with no accumulated session history (the first `/deep-assessment` run the canonical case); depth ALONE, with no long-run-ahead, no sensitivity reason, and no metric behind it, stays not-a-trigger. Item 1's calibration ("the assistant does not propose a handoff absent the named evidence above") gained an explicit carve-out naming the offer as the maintainer's call to weigh, so it does not require the degradation evidence a PROPOSAL does.
+- [`dev-security/claude-rules/governance/session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md) section 4 (wind-down): appended the same calibration in project-agnostic form (operator wording; a whole-project assessment or audit named as the canonical sensitivity case), and synced its byte-identical mirror [`.claude/rules/governance/session-lifecycle.md`](../../.claude/rules/governance/session-lifecycle.md) (gate 37).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (pack `1.59.3` to `1.59.4`): Version bump plus a version-history row for the calibration (a patch; no new rule or skill).
+- [`TODO.md`](../../TODO.md): removed the closed `2.2 (FR-60 HIPAA)` from the egress-deferred item list (the #731 `/validate-pr` Low, a section-close cross-file cleanup miss; FR-60 closed in #731).
+
+### Verification
+
+- `lint-language` run directly on the edited pack rule and [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): my additions to both are dash-free (confirmed by a targeted dash grep of the added regions); the pack rule has 0 findings. The 24 `lint-language` hits are all pre-existing em-dashes elsewhere in the project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), which is gate-exempt (`DEFAULT_EXEMPT_DIRS` includes `.claude`), not additions from this PR.
+- Mirror byte-identical (`cmp`, gate 37 green). Full `run_all_audits.sh` 67/67 on the committed state. `preflight-changelog` clean on the added lines.
+- Pre-push skeptical verifier, 2 iterations (substantive-tier pack-prose change): iteration 1 found a Medium internal contradiction in the project CLAUDE.md wind-down section (the new calibration labelled the depth case a "PROPOSAL" and item 1's propose-bar was not reconciled with it, so item 1's "do not propose absent degradation evidence" contradicted the calibration for the very-long-run case); fixed by reframing the depth case as an OFFER distinct from the evidence-triggered PROPOSAL and adding the explicit item-1 carve-out; iteration 2 re-verified clean (propose-vs-offer distinction held consistently, "default is to continue" preserved, no new contradiction, no breakage).
+
+### Discipline observations
+
+- This closes the codification the maintainer explicitly deferred to "the next appropriate time" ("keep considering session depth as one of many potential reasons to propose a hand off, but it should not be the ONLY reason... If you should codify this, then please do"). It is a discipline-calibration change, not a mechanism change: no gate, no new skill, no behaviour a gate enforces changes; the wind-down decision stays maintainer-surfaced, and the calibration only sharpens WHEN depth may contribute to an offered proposal. The `/validate-pr` for this PR is the batched-in #731 sweep plus this PR's own coverage under the next resume's compensating control.
+
 ## 2026-07-09, Library Version 2026.07.219, PR #731
 
 Closes TODO 2.2 (FR-60, HIPAA operational deepening). Applies the `worker-20260703-a/fr-60-hipaa-deepening` research delivery under validate-then-apply, Option B (maintainer-chosen).
