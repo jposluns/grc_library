@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.7\
-**Date:** 2026-07-03\
+**Version:** 1.6.0\
+**Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-transfer-impact-assessment.md`](template-transfer-impact-assessment.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -96,9 +96,7 @@ Define and implement:
 
 - Data minimization, pseudonymization, encryption, RBAC, and privacy-by-design features.
 
-For cross-border transfers:
-
-- Use Standard Contractual Clauses (SCCs), APEC CBPR 2.0, or approved adequacy frameworks.
+For cross-border transfers, select and run the destination regime's operational sequence. The European Union (GDPR Chapter V and Schrems II) and China (PIPL) sequences are detailed below. For a destination without a dedicated sequence, use an EU adequacy framework where one applies, or Standard Contractual Clauses (SCCs) or APEC CBPR 2.0 as the baseline, supplemented by a transfer risk assessment.
 
 **For transfers from China (PIPL Articles 38 to 40).**
 
@@ -159,6 +157,26 @@ CIIO designation is made by the relevant industry regulator under the Cybersecur
 | Cross-reference China annex | On amendments to PIPL, DSL, or CAC implementing regulations |
 
 **Step G: Coordinated triggers across regimes.** Where the same transfer is also subject to GDPR (e.g., the data is also EU-subject data flowing through a China branch), the GDPR Chapter V mechanisms (Articles 44-49) apply in parallel; the strictest applicable regime governs. Where the transfer triggers Article 36 prior consultation, follow Step 5.2 above in addition to the PIPL mechanism.
+
+**For transfers from the European Union (GDPR Chapter V, Articles 44 to 49; Schrems II, CJEU Case C-311/18, judgment of 16 July 2020).**
+
+GDPR Chapter V permits a transfer of personal data to a third country only under an adequacy decision, an appropriate-safeguard tool, or a narrow derogation. The Schrems II judgment held that an appropriate-safeguard tool, such as Standard Contractual Clauses, is lawful only where the destination's law and practice afford protection essentially equivalent to that guaranteed within the European Union, assessed case by case and backed by supplementary measures where the tool alone is insufficient; where essential equivalence cannot be achieved, the transfer is suspended. The sequence below runs that assessment through the shipped [Transfer Impact Assessment template](template-transfer-impact-assessment.md) (which encodes the six-step methodology) and the [EU jurisdiction annex](jurisdictions/annex-privacy-european-union.md) transfer-mechanism inventory; it references both rather than restating either.
+
+**Step EU-1: Transfer-tool selection (GDPR Chapter V ladder).** Select the lowest-burden lawful tool for the destination, in order:
+
+| Order | Tool | Condition |
+|---|---|---|
+| 1 | Adequacy decision (Article 45) | The destination is covered by a current EU adequacy decision; no further transfer safeguard is required. Confirm the destination's adequacy status is in force at transfer time against the [EU annex adequacy list](jurisdictions/annex-privacy-european-union.md), since adequacy decisions are adopted, amended, and can be invalidated. |
+| 2 | Appropriate safeguards (Article 46) plus a TIA | No adequacy decision: use the 2021 European Commission Standard Contractual Clauses, or Article 47 Binding Corporate Rules for intra-group transfers, and complete a Transfer Impact Assessment (Step EU-2). |
+| 3 | Derogation (Article 49) | Only as a narrow, non-routine last resort (explicit consent, contract performance, legal claims, and the other Article 49 grounds); not a standing transfer mechanism. |
+
+**Step EU-2: Run the Schrems II six-step assessment via the TIA.** Where an Article 46 tool is used, complete [Transfer Impact Assessment template](template-transfer-impact-assessment.md) Sections 1 to 7: map the transfer and identify the tool, assess the destination's law and government-access practice against the essential-equivalence standard, select supplementary measures, take the procedural steps, re-evaluate at the defined cadence, and record the outcome. The procedure references the TIA sections by number rather than restating them.
+
+**Step EU-3: Supplementary-measures selection.** Where the destination's law or government-access regime would undermine the Article 46 tool, select supplementary measures per TIA Section 4: technical (for example strong encryption with keys held in the European Economic Area, or pseudonymization where re-identification requires information kept in the European Economic Area), contractual, and organizational. Record the conclusion on whether essential equivalence is achieved with the measures in place.
+
+**Step EU-4: Suspend-or-notify.** Where essential equivalence cannot be achieved even with supplementary measures, do not proceed: pause or suspend the transfer (the TIA Section 7 verdict), and notify or consult the competent supervisory authority where the GDPR requires it. This is the Schrems II hard stop that a bare Standard-Contractual-Clauses posture omits.
+
+**Step EU-5: Re-assessment triggers.** Re-run the Transfer Impact Assessment on any of: a change to the destination's adequacy status (adoption, amendment, or invalidation of an adequacy decision); a material change to the destination's law or government-access practice; a change to the transfer tool (for example a new European Commission Standard Contractual Clauses decision); and the TIA Section 6 periodic re-evaluation cadence.
 
 For EU transfers involving AI systems:
 

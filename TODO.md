@@ -45,7 +45,7 @@ While verifying, also confirm the two adjacent ANPD-resolution citations in the 
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities. The deepen-baselines cluster (FR-15 / 23 / 63 / 74 / 99 / 154 / 41) was decided for operational deepening (maintainer 2026-06-25).
 
-**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683, FR-63 (2.7) in #697.
+**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683, FR-63 (2.7) in #697.
 
 ### 2.1 Privacy jurisdiction annex operational deepening (FR-59, H, L)
 
@@ -54,10 +54,6 @@ Privacy jurisdiction annexes are too shallow for operational sufficiency; deepen
 ### 2.3 Crypto-asset / blockchain governance domain (FR-70, H[critical], XL)
 
 New domain for crypto-asset / blockchain governance — digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense. (Cross-references P6.x for domain-level shaping.)
-
-### 2.8 Schrems II operational deepening (FR-74, M, M)
-
-Schrems II-light treatment. **Update 2026-06-30: the TIA instrument shipped in #483 (FR-34), which delivers the six-step transfer-impact assessment; FR-74's residual is the Schrems II operational deepening of the EU jurisdiction annex and the cross-border procedure (per the FR-154 "deepen to operational depth" decision). The TIA cross-reference wiring shipped in #489.** Consolidates with FR-34 (Transfer Impact Assessment, now shipped).
 
 ### 2.9 Operational-vagueness cluster (FR-154, M, M) ⚠
 

@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -57,6 +57,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - **Standard Contractual Clauses (SCCs) (Article 46(2)(c)):** The 2021 European Commission SCCs are the primary mechanism for transfers to non-adequate third countries. SCCs must be supplemented by a Transfer Impact Assessment (TIA); see the [TIA template](../template-transfer-impact-assessment.md).
 - **Binding Corporate Rules (BCRs) (Articles 46(2)(b) and 47):** Approved by a lead supervisory authority; permit intra-group international transfers. BCR approval is a multi-year process.
 - **Derogations (Article 49):** Narrow exceptions for explicit consent, contract performance, vital interests, public interest, or legal claims. Not suitable as routine transfer mechanisms.
+
+**Running a transfer:** the operational sequence that applies these mechanisms (the GDPR Chapter V transfer-tool selection ladder, the Schrems II six-step assessment run through the Transfer Impact Assessment, supplementary-measures selection, the suspend-or-notify hard stop when essential equivalence cannot be reached, and the re-assessment triggers) is in the [Privacy Impact and Cross-Border Transfer Procedure](../procedure-privacy-impact-and-cross-border-transfer.md), Step 4 (the European Union sequence). This inventory lists the mechanisms; the procedure runs them.
 
 ---
 
