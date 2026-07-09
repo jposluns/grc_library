@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.209, PR #721
+
+The `/resume` Sweep-91 close-out, the first PR of the 2026-07-08/09 overnight backlog run (on the local NUC `nuc125h-a`; protected-apply authorized as local-instance per the recorded overnight authorizations). Working-state, version-surface, and CHANGELOG only; no corpus document body changed.
+
+### Added
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep 91 row (subagents A, B, C; 0 findings; Detail `none`, Resulting-PR this close-out). Zero-finding sweep, so no per-iteration detail file is written. Own Version `2.0.85` to `2.0.86`.
+
+### Changed
+- [`.working/session-state.md`](../session-state.md): the concurrency lease ACQUIRED for `claude/resume-sweep91-validate` (`Active-session` set, `Status: active`, fresh heartbeat `2026-07-09T01:25:22Z`, `Current-task` set to the overnight-run summary, `Worker-dispatches` refreshed to record the unmerged Fable/Opus delivery branches the START-side check surfaced and the 3.16/3.17 delivery status change).
+- [`.working/session-handoff.md`](../session-handoff.md): the Resume-cursor "Last validation sweep" advanced to Sweep 91 (Sweep 90 demoted to "Prior"); pruned per the current + 1 prior retention discipline (the sweep88 `claude/sweep88-todo112-nuc-resume` asserted-expectations block removed; its forward items are all already recorded in the retained sweep90/sweep89 blocks, [`TODO.md`](../../TODO.md), and [`.working/pending-decisions.md`](../pending-decisions.md), so nothing needed migrating).
+
+### Verification
+- Sweep 91 loop-break `/validate`: mechanical baseline `tools/run_all_audits.sh` reported all 67 gates pass at `ca33c49` (matches the asserted green-at `0f1c41b`/#719 = 67/67, of which `ca33c49` is a descendant; no close-vs-start drift). Clone confirmed non-shallow. Three subagents (recent-PR deep review of the #714..#719 delta, corpus-wide stale-reference sweep, audit-programme integrity reviewer) each returned 0 findings; the 9 pre-flight-scanner candidates were all the standing comparative/historical false-positive class ("two skills"/"two rules", the "five to twelve ... to twenty ... to sixty-seven" growth narrative). No asserted-expectation contradiction of any #714-#719 claimed-clean surface; the loop-break compensating control for #720 PASSES.
+- The [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) START-side worker-collision check ran once at resume: every overnight-queue item is worker-DELIVERED apply-work (its delivery branch exists in `grc_library_scratch`), so there is no build collision.
+
+### Discipline observation
+- The START-side check surfaced a state drift the #720 handoff did not yet record: the scratch claims ledger and coverage index on scratch `main` are stale (newer claim rows live on the unmerged `fable-claims-batch`, `fable-claims-batch2`, and `fable-claims-batch3` branches), and the 3.16 ETSI-SAI and 3.17 MITRE-ATLAS crosswalks are now DELIVERED (their `worker/etsi-sai-crosswalk-316`, `worker/fix-etsi316-bare-ensure`, and `worker/atlas-crosswalk-317` branches exist), moving them from the handoff's "in-flight, do not touch" into the apply queue at lower priority. Recorded in the lease file's `Worker-dispatches` line; the scratch coverage-refresh sync remains queued.
+
 ## 2026-07-09, Library Version 2026.07.208, PR #720
 
 Session-closing OVERNIGHT-SWAP handoff for the 2026-07-08/09 resumed session (#714-#719). Working-state + version-surface + CHANGELOG only; no corpus document body changed. The session's last act: land its working-state on `main` as a green merge so the next session (an OVERNIGHT BACKLOG run) resumes from `main`, not from an unmerged branch.
