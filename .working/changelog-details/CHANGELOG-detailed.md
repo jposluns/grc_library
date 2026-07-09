@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.211, PR #723
+
+Closes TODO 3.21, the claim-fit verification of the AIQT principle document's general-framework columns. Applies the Fable `aiqt-general-columns-claimfit` VERIFICATION delivery (a report, not candidate files) and the maintainer's overnight authorization #3 dispositions, under validate-then-apply with held-source re-verification and a refute-briefed skeptical pre-push verifier.
+
+**Worker provenance:** [`inbox/worker-20260708-fable/aiqt-general-columns-claimfit/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/aiqt-general-columns-claimfit/MANIFEST.md)
+
+### Changed
+- [`governance/principle-integrity-and-trustworthiness.md`](../../governance/principle-integrity-and-trustworthiness.md) (Version `0.0.2` to `0.0.3`, Date to `2026-07-09`): two attribution-accuracy corrections, applied in BOTH the AIQT-facet mapping table and the Framework-alignment table. (F1) the audit-trail-trust rows migrate CSA CCM `LOG-02, LOG-08, GRC-04` to `LOG-02, LOG-04, LOG-10, GRC-04` (`LOG-08` = "Audit Logs Sanitization" is a mis-fit for audit-trail trust; `LOG-04` "Audit Logs Access and Accountability" + `LOG-10` "Audit Records Protection" fit). (F2) the Integrity rows swap ISO/IEC 27001 `A.8.34` to `A.5.33` "Protection of records". The corpus-convention caveat sentences are unchanged (this pass corrected two mis-fit codes; it did not convert the general column into a prescriptive crosswalk).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the AIQT doc Version bump (portal unchanged).
+
+### Added
+- [`.working/claim-fit/2026-07-09-aiqt-general-columns.md`](../claim-fit/2026-07-09-aiqt-general-columns.md): the `/claim-fit` run detail file (25 citations judged, the 2 findings + held-source re-verification, the no-change census); the `/claim-fit` [`history.md`](../claim-fit/history.md) row (Version `1.0.5` to `1.0.6`).
+
+### Removed
+- [`TODO.md`](../../TODO.md): the `### 3.21` section deleted (rotated to DONE); the P3 Backlog-totals count corrected 9 to 12 (it had also gone stale omitting the pre-existing 3.22/3.23; measured live at 12 open P3 sections) with 3.21 added to the closed list; the pack-wide class-scope fix folded into the GR-P2 item (TODO 4.7).
+
+### Verification
+- Both findings re-verified against held sources at apply time (validate-then-apply): CCM LOG titles via the authoritative in-repo [`tools/ccm_aicm_reference.py`](../../tools/ccm_aicm_reference.py) (`LOG-08` = "Audit Logs Sanitization", `LOG-04`/`LOG-10` as cited); ISO `A.5.33` via a context read of the held (conversion-scrambled) ISO/IEC 27001:2022 Annex A extract, with the number `5.33`, the title "Protection of records", and the operative falsification text confirmed adjacent. All 67 gates pass; generators `--check` clean.
+- A refute-briefed skeptical pre-push verifier ran on the diff; the pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #722's `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 0 error/warning findings) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+- FR-59 (privacy-jurisdiction deepenings) deferred-blocked as egress-gated, recorded in [`.working/pending-decisions.md`](../pending-decisions.md) for the next attended boundary.
+
 ## 2026-07-09, Library Version 2026.07.210, PR #722
 
 Ships the publications-screening process (corpus half), closing the former TODO 2.11 and its paired reference-base gap SR-2. Applies the Fable `publications-screening-build` worker delivery as the second repo of a two-repo build; the reference-base half shipped in `grc_library_ref` PR #29. Substantive tier: a new pack skill + command + tool + a protected-file cadence section, applied under validate-then-apply with a refute-briefed skeptical pre-push verifier.
