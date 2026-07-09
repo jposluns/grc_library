@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.16\
+**Version:** 1.0.17\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -259,6 +259,10 @@ If you place AI systems on the EU market, put them into service in the EU, or yo
 
 11. [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md): EU AI Act (Regulation (EU) 2024/1689) per-regime consolidated view (operator roles, risk tiers, obligation chains, timeline, penalties).
 
+If you develop or deploy AI that makes consequential decisions affecting Colorado residents:
+
+12. [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md): Colorado AI statute (SB 24-205, re-enacted by SB 26-189) two-regime per-regime view (developer and deployer duties, consumer rights, meaningful human review, enforcement, transition timeline).
+
 ### 5.2 If you operate cloud workloads
 
 1. [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md): cloud baseline.
@@ -342,7 +346,7 @@ Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privac
 
 **"I'm building AI products. Where do I start?"**
 
-Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act has a dedicated jurisdiction annex (`ai/jurisdictions/annex-ai-european-union.md`, see 5.1).
+Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act and the Colorado AI statute each have a dedicated jurisdiction annex in `ai/jurisdictions/` (see 5.1).
 
 ---
 
