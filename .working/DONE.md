@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #723: TODO 3.21 AIQT general-framework columns claim-fit-verified (2026-07-09)
+
+Closed the accepted-unverified tracker for the AIQT principle document: ran `/claim-fit` over the 25 general-framework citations (SSDF / CCM / ISO 27001) against the held source texts; 21 fit/inform consistent with the corpus-convention labelling, 2 findings disposed per the maintainer's decision (CCM `LOG-08` "Audit Logs Sanitization" migrated to `LOG-04, LOG-10` in both audit-trail rows; ISO `A.8.34` swapped to `A.5.33` "Protection of records" in both Integrity rows), each re-verified against the held CCM v4.1 / ISO 27001:2022 texts. The pack-wide `LOG-02, LOG-08` convention migration + the apex-rule A.8.34 row fold into GR-P2.
+
 ### PR #722: TODO 2.11 publications-screening process + SR-2 screening-record check (2026-07-09)
 
 Closed the publications-assessment / poisoning-detection process (former TODO 2.11) and its paired reference-base gap (SR-2), applying the Fable `publications-screening-build` delivery as a two-repo build. Corpus side (this PR): the `publication-screening` pack skill (twenty-first skill) + `/screen-publications` command + the advisory instruction-content scanner + gate-44 PAIRS + pack `1.58.0` + a project CLAUDE.md cadence section. Reference-base side (`grc_library_ref` #29): the `publications/SCREENING.md` register (29 rows, 16 screened, 13 pending), `validate.py` check 14, and the README protocol section (resolving SR-2's "15 of 27 without records"). The 13 pending EDPB/WP29 rows become the screening wave, TODO 3.24.
