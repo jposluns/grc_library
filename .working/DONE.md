@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #732: Session-depth handoff calibration codification (2026-07-09)
+
+None (maintainer-directed discipline calibration, not a backlog item). Codified the maintainer's 2026-07-09 direction that session depth is a CONTRIBUTING (never SOLE) factor to a handoff PROPOSAL into the `.claude/CLAUDE.md` wind-down framework and the project-agnostic `session-lifecycle` pack rule (byte-identical mirror synced; pack `1.59.3` to `1.59.4`): depth warrants an offered handoff only alongside a very-long-run-ahead or excessively-sensitive fresh-context work (the first `/deep-assessment` run), never on its own. Also closed a #731 `/validate-pr` Low (removed the closed FR-60 from TODO's egress-deferred list).
+
 ### PR #731: TODO 2.2 FR-60 HIPAA operational deepening (2026-07-09)
 
 Closed FR-60 (§2.2): applied the `worker-20260703-a/fr-60-hipaa-deepening` research delivery as a new `compliance/healthcare/procedure-hipaa-operational-compliance.md` Procedure (Option B, maintainer-chosen) operationalizing the HIPAA clocks and content duties: individual right of access (30 days + one extension, 164.524), amendment and accounting (60 days, 164.526/528), Notice of Privacy Practices and minimum necessary (164.520/502/514), six-year documentation retention (164.316(b)(2), 164.530(j)), the four-factor breach-determination test and notification clocks (164.402/404/406/408/410/414), and business associate agreement content (164.502(e)/504(e)/314(a)). Citations verified against the held 45 CFR 164 extract and confirmed current upstream (eCFR: Part 164 unchanged since 2024-06-25; the 2026-07-02 Title-45 amendment did not touch it). The annex links to it; the healthcare README and the document-index register carry it.

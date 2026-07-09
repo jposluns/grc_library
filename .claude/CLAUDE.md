@@ -914,16 +914,22 @@ keeps working through them, sustaining quality with skeptical verifier subagents
 note in the trigger section) rather than reaching for a handoff. The maintainer is welcome
 to be offered a handoff to consider before a substantial, critical, or long piece of work
 begins, but that is a non-default SUGGESTION for the maintainer's choice, never the
-assistant's default, and absent the maintainer's decision the assistant continues. The one
-narrow evidence-grounded exception to "heavy context is never a trigger" is a
-run of *expected chained large PRs* for which the project's OWN historical metrics (the
+assistant's default, and absent the maintainer's decision the assistant continues. Session depth is a
+legitimate CONTRIBUTING factor to OFFERING a handoff as a non-default suggestion (that offer
+regime, just above, distinct from the evidence-triggered PROPOSAL the trigger section below
+governs), one of many potential reasons but NEVER the SOLE reason (maintainer calibration,
+2026-07-09): it is weighed alongside other signals, and warrants OFFERING a handoff for the
+maintainer's choice (never an auto-handoff) in two named cases. (i) A very-long-run of *expected chained large PRs* ahead,
+especially where the project's OWN historical metrics (the
 [`hallucination-metrics.md`](../.working/hallucination-metrics.md) and
 [`session-metrics.md`](../.working/session-metrics.md) ledgers) show a measured quality
-decline on comparable prior runs: that is a NAMED, externally-observable signal (the
-metrics), not the un-instrumented "I feel degraded", and it warrants OFFERING the handoff
-as a suggestion before the run begins (still the maintainer's choice, still never an
-auto-handoff). Context-heaviness with no such metric behind it is not a quasi-trigger; the
-assistant keeps working and sustains quality with skeptical verifier subagents. On the
+decline on comparable prior runs, a NAMED, externally-observable signal, not the
+un-instrumented "I feel degraded". (ii) Excessively-sensitive work whose integrity requires
+fresh context with no accumulated session history to skew it, the canonical case being the
+first `/deep-assessment` run, which must open on a fresh session so prior findings and
+framing do not bias it. Depth ALONE, with no long-run-ahead, no sensitivity reason, and no
+metric behind it, is still NOT a trigger: the assistant keeps working and sustains quality
+with skeptical verifier subagents. On the
 rare occasion a handoff IS warranted (genuine evidence of degradation), taking it silently
 is the same failure the `clarify-before-acting` and `action-before-explanation-of-inaction`
 rules forbid: narrating an inaction (the handoff) as if forced, without surfacing the
@@ -948,7 +954,13 @@ all three of:
    correction, or a concrete self-inconsistency that can be quoted. Absent such a signal,
    the default is to continue. **Calibration:** the bar to even *propose* a handoff is high
    (see the intro's empirical observation and its offer-as-non-default note, the single
-   source for both); the assistant does not propose a handoff absent the named evidence above.
+   source for both); the assistant does not propose a handoff, concluding it warranted and
+   surfacing it as this trigger section describes, absent the named evidence above. The one
+   carve-out is OFFERING a handoff as a non-default suggestion in the two contributing-factor
+   cases the intro names (a very-long-run-ahead with a measured metric decline, or
+   excessively-sensitive fresh-context work): that is the maintainer's call to weigh, not the
+   assistant concluding a handoff is warranted, so it does not require the degradation
+   evidence a PROPOSAL under this section does.
 2. **A per-PR likelihood-of-success assessment** for each of the pending next-five PRs
    (from `TODO.md`), each anchored to objective tractability factors: partitionable vs
    single-session; incremental-edit vs fresh-context-class; count of cross-surface
