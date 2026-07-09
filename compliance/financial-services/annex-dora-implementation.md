@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.5\
-**Date:** 2026-06-20\
+**Version:** 0.0.6\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -36,6 +36,12 @@ DORA applies to a broad set of financial entities established in the EU. The lib
 6. Critical ICT third-party service provider designated by the ESAs.
 
 The micro-enterprise carve-out and the simplified ICT risk management framework apply to a defined subset; consult Article 16 and the related RTS for the exact thresholds.
+
+---
+
+## Relationship to NIS2 (lex specialis)
+
+DORA is a sector-specific Union legal act in relation to the NIS2 Directive (Directive (EU) 2022/2555) for financial entities (NIS2 recital 28). Under NIS2 Article 4, where a sector-specific act's requirements are at least equivalent in effect to the corresponding NIS2 obligations, those NIS2 obligations, including the supervision and enforcement provisions of NIS2 Chapter VII, do not apply to the covered entities. DORA's ICT risk-management, ICT-related-incident-reporting, resilience-testing, information-sharing, and ICT third-party-risk requirements therefore apply to financial entities in place of the equivalent NIS2 obligations; a financial entity in scope of DORA follows this annex for those requirements rather than the NIS2 annex. See the [NIS2 implementation annex](../annex-nis-2-implementation.md) for the NIS2 side of this boundary. This is a scoped lex-specialis displacement of equivalent obligations, not a blanket exemption; a financial entity remains subject to any NIS2 obligation not covered by an at-least-equivalent DORA requirement.
 
 ---
 
@@ -85,7 +91,7 @@ DORA requires a comprehensive digital operational resilience testing programme. 
 | End-to-end testing | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md) |
 | Threat-led penetration testing (TLPT) | [`security/standard-penetration-testing-and-red-team.md`](../../security/standard-penetration-testing-and-red-team.md) provides the baseline; TLPT must additionally follow the TIBER-EU framework or equivalent as set by the ESAs |
 
-TLPT-scope entities are those identified by competent authorities based on their importance to the financial sector. Frequency: at minimum every three years.
+TLPT-scope entities are those identified by competent authorities based on their importance to the financial sector (Article 26(8), applying the Article 4(2) criteria). Each test covers several or all of the entity's critical or important functions and is performed on live production systems, with the precise scope validated by the competent authority (Article 26(2)). Frequency: at minimum every three years, which the competent authority may reduce or increase for a given entity based on its risk profile (Article 26(1)).
 
 ---
 
@@ -103,9 +109,11 @@ This pillar materially extends standard third-party risk management. The library
 | Exit strategies | [`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../../supply-chain/standard-cloud-exit-and-data-portability.md) |
 | Ongoing monitoring | [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../../supply-chain/procedure-supplier-ongoing-monitoring.md) |
 
+**Register of information (Article 28(3)).** In-scope financial entities maintain and update a register of all contractual arrangements for the use of ICT services, at entity, sub-consolidated, and consolidated levels, documented so as to distinguish arrangements that support critical or important functions from those that do not, and report at least yearly to the competent authority on new arrangements, the categories of ICT third-party service providers, the types of contractual arrangement, and the ICT services and functions provided. The library's supplier and concentration registers ([`supply-chain/register-supplier-risk-template.md`](../../supply-chain/register-supplier-risk-template.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)) are the operational inputs; the DORA register itself is a supervisory artefact the entity maintains at the regulation's granularity and produces to the competent authority on request.
+
 ### Critical ICT third-party service providers
 
-Designation criteria are set in Article 31 (criticality, substitutability, market impact). Designated providers are subject to Oversight Framework supervision by a Lead Overseer (ECB, EBA, EIOPA, or ESMA depending on designation).
+Designated providers are designated by the ESAs, through the Joint Committee and on a recommendation from the Oversight Forum, following an assessment against the Article 31(2) criteria: the systemic impact of a large-scale operational failure of the provider, the systemic character or importance of the financial entities relying on it, the reliance on the provider for critical or important functions, and the degree of substitutability. For each designated provider the ESAs appoint a Lead Overseer (the ESA responsible for the financial entities holding the largest share of total assets among those using the provider, Article 31(1)(b)), which has powers to request information and documentation and to conduct general investigations and inspections (Article 35, exercised through Articles 37 to 39). A designated provider established in a third country may be used by a financial entity only if the provider establishes a subsidiary in the Union within the 12 months following its designation (Article 31(12)). The consequence for an adopter: a financial entity relying on a designated critical provider verifies the Union-subsidiary condition, maintains the Article 30 contractual arrangements and an exit strategy for the provider ([`supply-chain/procedure-supplier-exit-and-data-return.md`](../../supply-chain/procedure-supplier-exit-and-data-return.md)), and carries the provider in its Article 28 register.
 
 ---
 

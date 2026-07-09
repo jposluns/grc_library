@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.224, PR #736
+
+Closes TODO section 2.12 (DORA operational deepening). Applies the `worker-20260703-a/dora-operational-deepening` research delivery under validate-then-apply, with an apply-time reconciliation to the live annex.
+
+### Changed
+
+- [`compliance/financial-services/annex-dora-implementation.md`](../../compliance/financial-services/annex-dora-implementation.md) (0.0.5 to 0.0.6):
+  - **Critical ICT third-party service providers** subsection deepened: ESA designation (Article 31(1)(a)) and the Article 31(2) criteria (systemic impact, systemic character of relying entities, reliance on critical/important functions, substitutability); Lead Overseer appointment (Article 31(1)(b)) and its Article 35 powers to request information and conduct investigations and inspections (Articles 37 to 39); the Article 31(12) Union-subsidiary requirement (third-country designated provider, within 12 months); and the adopter consequence (verify the Union-subsidiary condition, maintain Article 30 arrangements and an exit strategy, carry the provider in the Article 28 register).
+  - **Register of information (Article 28(3))** operational paragraph added to Pillar 4: entity / sub-consolidated / consolidated levels, distinguishing arrangements that support critical or important functions, at-least-yearly reporting to the competent authority; cross-referenced to the corpus supplier and concentration registers.
+  - **Pillar 3 TLPT scope** enriched with Article 26(2) (critical or important functions on live production systems, competent-authority-validated) and the Article 26(1) authority-adjustable frequency.
+  - **New "Relationship to NIS2 (lex specialis)" section**: NIS2 Article 4 displaces the equivalent NIS2 obligations, including NIS2 Chapter VII supervision and enforcement, for financial entities covered by DORA (DORA named in NIS2 recital 28); scoped displacement of equivalent obligations, not a blanket exemption; cross-referenced to the NIS2 annex.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (the annex's Version and Date).
+- [`TODO.md`](../../TODO.md): deleted the section 2.12 heading (rotated to DONE); removed `2.12 (DORA)` from the egress-deferred list; decremented the P2 count block from "5 open items" to "4 open items" and added the 2.12 closure.
+
+### Verification
+
+- Every anchor verified verbatim against the held DORA (Regulation (EU) 2022/2554) and NIS2 (Directive (EU) 2022/2555) text in `grc_library_ref` (an independent source-verification pass): Article 26(1) "at least every 3 years" (authority-adjustable) and 26(2)/26(8) scope; Article 28(3) three-level register; Article 31(1)(a)/(2) designation, 31(1)(b) Lead Overseer, 31(12) Union subsidiary; Article 35 Lead Overseer powers; Article 64 applicability "from 17 January 2025"; NIS2 Article 4(1)/(2) "at least equivalent in effect" and the Chapter VII carve-out; DORA named in NIS2 recital 28.
+- **Apply-time worker-correction / live-state reconciliation:** the worker's research (read at the staler `8cc492e`) flagged the TLPT cadence as missing and unverified, but the LIVE annex (v0.0.5) already stated "at minimum every three years". The cadence was therefore verified accurate against Article 26(1) and NOT re-added (avoiding a redundant/duplicate insertion); the deepening was scoped to the genuine residual gaps (the CTPP consequences, the register-of-information operational detail, the Article 26(2) scope enrichment, and the NIS2 boundary).
+- Currency handled per the FR-74/FR-41 pattern: DORA and NIS2 are enacted 2022 texts with stable article numbering; DORA is in force (17 January 2025, from the held Article 64); citations use the version-stable regulation-number-plus-article form anchored to the held text; EUR-Lex not fetchable this turn, and no time-varying value is asserted.
+- The NIS2-side reciprocal boundary is NOT written yet (the NIS2 annex deepening is the next work-unit), so the DORA-side text uses a forward-neutral cross-reference ("see the NIS2 annex for the NIS2 side of this boundary") rather than asserting the reciprocal already exists.
+- Deepen-not-duplicate: the additions cross-reference the corpus supplier, concentration, and exit instruments rather than restating them.
+- `lint-language` on the annex clean (no dashes, no bare "shall"); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/dora-operational-deepening/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/dora-operational-deepening/MANIFEST.md) (research: fresh-read gap map, per-pillar edit shapes, held-DORA anchors with the TLPT-cadence flagged unverified; orchestrator re-verified every anchor via an independent source-verification pass, RESOLVED the TLPT-cadence flag from held Article 26(1), and reconciled the edit to the live annex's already-present cadence).
+
+### Discipline observations
+
+- The TLPT-cadence reconciliation is the apply-time worker-correction discipline plus live-state validation: the worker read a staler revision and flagged the cadence as a gap, but the live annex already had it, so re-adding it would have duplicated content. Reconciling to the live file (not the worker's read basis) and verifying the existing claim against Article 26(1) is the correct handling. The forward-neutral NIS2 cross-reference is evidence-grounded completion: the reciprocal boundary does not exist yet, so the text does not assert it does.
+
 ## 2026-07-09, Library Version 2026.07.223, PR #735
 
 Closes TODO section 2.10 (FR-41). Applies the `worker-20260703-a/fr-41-article-22-fria` research delivery under validate-then-apply. Home directory maintainer-chosen (`ai/`, AI-governance placement next to the AI System Impact Assessment Procedure).
