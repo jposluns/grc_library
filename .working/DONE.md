@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #750: Mexico LFPDPPP privacy annex, closes TODO §5.8 Mexico bullet (2026-07-09)
+
+New `privacy/jurisdictions/annex-privacy-mexico.md`, a standalone per-regime annex for Mexico's 2025 LFPDPPP (DOF 20 March 2025): the Secretaría Anticorrupción y Buen Gobierno authority (the former INAI extinguished), Article 5 principles, consent and privacy notice, ARCO rights (20-day response), cross-border transfers, security and breach, and UMA-based enforcement (up to 320,000 UMA, doubled for sensitive data). Corrected the stale 2010/INAI/MXN-320m facts in the Latin America annex and wired the standalone into the privacy jurisdiction index, doc-index, and coverage-gaps; discharged the fr-59 Mexico accepted-unverified tracker. Verified against the held 2025 text with WebSearch currency confirmation.
+
 ### PR #749: FR-62 (medium): Colorado AI Act jurisdiction annex, closes FR-62 (2026-07-09)
 
 New `ai/jurisdictions/annex-ai-us-colorado.md`, the second founding annex of the AI jurisdictions subdirectory: a two-regime view of Colorado's AI statute (SB 24-205 re-enacted by SB 26-189, operative for consequential decisions on or after 1 January 2027), covering developer and deployer duties, consumer rights and meaningful human review, AG-exclusive enforcement with a 60-day cure, and the SB24-205-to-SB26-189 transition. Closes FR-62: both founding AI-jurisdiction annexes (EU #743, Colorado #749) are now applied; remaining jurisdictions are the source-gated §5.9 expansion.
