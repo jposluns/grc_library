@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.25\
+**Version:** 1.1.26\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,11 +139,11 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 
 ### 2.5 AI jurisdictions
 
-The library cites the EU AI Act extensively in the AI domain but lacks dedicated per-jurisdiction AI annexes (parallel to the privacy/jurisdictions/ structure).
+The library cites the EU AI Act extensively in the AI domain. The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex; other AI jurisdictions remain source-gated.
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
-| EU (AI Act 2024/1689) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Heavy citation; dedicated jurisdiction annex would consolidate |
+| EU (AI Act 2024/1689) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) (per-regime consolidated view: operator roles, risk tiers, obligation chains, timeline, penalties), founding the `ai/jurisdictions/` structure |
 | Canada AIDA | Referenced | Planned | TODO backlog: AI jurisdiction overlays |  |
 | UK AI regulatory framework | Partial | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Partial 2026-07-02: the AI compliance policy carries a dedicated UK subsection (7.3, AI Safety Institute and ICO commitments, UK GDPR and DPA 2018) and a framework-table row; the dedicated jurisdiction annex remains the gap |
 | US state-by-state (Colorado AI Act, NYC bias audit, etc.) | Referenced | Planned | TODO backlog: AI jurisdiction overlays | Re-graded None to Referenced 2026-07-02: the Colorado AI Act carries a canonical-citations register row, a privacy jurisdiction-index cell, and a US privacy-annex legislative-status bullet; the NYC bias-audit law is not yet cited in any corpus document, so the grade rests on Colorado alone |

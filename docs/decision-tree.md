@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -181,6 +181,7 @@ Read the sector-overview annex first, then the programme overlays for programmes
 
 1. [`compliance/healthcare/README.md`](../compliance/healthcare/README.md): sector index.
 2. [`compliance/healthcare/annex-healthcare-sector-requirements.md`](../compliance/healthcare/annex-healthcare-sector-requirements.md): sector overview.
+3. If subject to US HIPAA: [`compliance/healthcare/annex-healthcare-united-states.md`](../compliance/healthcare/annex-healthcare-united-states.md): US HIPAA operational overlay.
 
 ### 3.4 If energy and utilities
 
@@ -337,11 +338,11 @@ Universal baseline orientation (2.1), governance core (2.2, but treat as aspirat
 
 **"I'm a multinational healthcare system. Where do I start?"**
 
-Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privacy jurisdiction annexes for every country your patients reside in or where data is processed (4.1). Then capability-conditional sections for AI (5.1) if you operate clinical AI, cloud (5.2), identity (5.4). HIPAA detail beyond the sector annex is a gap under the healthcare country regulator overlays TODO backlog item.
+Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privacy jurisdiction annexes for every country your patients reside in or where data is processed (4.1). Then capability-conditional sections for AI (5.1) if you operate clinical AI, cloud (5.2), identity (5.4). US HIPAA has a dedicated operational overlay in the healthcare sector (`compliance/healthcare/annex-healthcare-united-states.md`, see 3.3).
 
 **"I'm building AI products. Where do I start?"**
 
-Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act is heavily cited throughout the AI domain but does not yet have its own dedicated jurisdiction annex (TODO backlog: AI jurisdiction overlays).
+Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act has a dedicated jurisdiction annex (`ai/jurisdictions/annex-ai-european-union.md`, see 5.1).
 
 ---
 
