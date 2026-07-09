@@ -445,6 +445,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 - [Kenya Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-kenya.md) (maturity: Baseline)
 - [Latin America Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-latin-america.md) (maturity: Baseline)
 - [Malaysia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-malaysia.md) (maturity: Mature)
+- [Mexico Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-mexico.md) (maturity: Draft)
 - [New Zealand Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-new-zealand.md) (maturity: Baseline)
 - [Nigeria Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-nigeria.md) (maturity: Baseline)
 - [Philippines Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-philippines.md) (maturity: Baseline)

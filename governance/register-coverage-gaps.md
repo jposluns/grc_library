@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.27\
+**Version:** 1.1.28\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -84,7 +84,7 @@ The library's privacy domain has 25 jurisdiction-specific annexes in [`privacy/j
 | --- | --- | --- | --- | --- |
 | Argentina (PDPA 2025 update) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Existing Latin America annex; Argentina-specific update pending |
 | Saudi Arabia (PDPL 2023 update) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Existing annex; recent regulatory updates not yet reflected |
-| Mexico (LFPDPPP) | Partial | Planned | TODO backlog: privacy jurisdiction gaps | Covered within Latin America annex; standalone annex possible |
+| Mexico (LFPDPPP 2025) | Substantive | In library | n/a | Dedicated standalone annex [`privacy/jurisdictions/annex-privacy-mexico.md`](../privacy/jurisdictions/annex-privacy-mexico.md) (2025 LFPDPPP, Secretaría Anticorrupción y Buen Gobierno authority, ARCO rights, UMA fines); the Latin America annex Mexico section defers to it |
 | Israel | None | Deferred | TODO backlog: privacy jurisdiction gaps | Privacy Protection Law and 2024 amendments |
 | Egypt | None | Deferred | TODO backlog: privacy jurisdiction gaps | PDPL 2020 |
 | Bahrain | None | Deferred | TODO backlog: privacy jurisdiction gaps | PDPL 2018 |
