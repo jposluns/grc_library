@@ -61,6 +61,15 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
         ],
     ),
     (
+        "Board / CEO",
+        "The board and chief executive need the top-of-house accountability picture: governance charters, the enterprise risk posture and board risk reporting, and the programme's maturity and compliance standing.",
+        [
+            {"domain": "governance", "type": ("Charter",)},
+            {"path_prefix": "risk/template-board-risk-report"},
+            {"domain": "compliance", "type": ("Matrix",)},
+        ],
+    ),
+    (
         "CISO",
         "The Chief Information Security Officer needs policies, standards, and procedures that govern security architecture, identity, data protection, monitoring, and incident response.",
         [
@@ -323,6 +332,8 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.")
     out.append("")
+    out.append("Each document entry below carries an inline maturity tag (for example `(maturity: Mature)`), the same classification the [`docs/maturity-scorecard.md`](maturity-scorecard.md) reports, so a reader can gauge at a glance how settled an artefact is.")
+    out.append("")
     out.append("The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.")
     out.append("")
     out.append("---")
@@ -368,7 +379,7 @@ def build_portal(docs: list[dict]) -> str:
                 path = d["path"]
                 title = d.get("title", path)
                 rel = f"../{path}"
-                out.append(f"- [{title}]({rel})")
+                out.append(f"- [{title}]({rel}) (maturity: {classify_maturity(d)})")
             out.append("")
         out.append("---")
         out.append("")
