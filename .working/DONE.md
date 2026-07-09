@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #733: US HIPAA healthcare annex (section 5.4 US bullet) (2026-07-09)
+
+Closed the US HIPAA bullet of TODO section 5.4: applied the `worker-20260703-a/us-hipaa-healthcare-deepening` delivery as a new `compliance/healthcare/annex-healthcare-united-states.md` (US operational regime map), deepening the sector annex with role determination, the Security Rule safeguard families (45 CFR 164 Subpart C), the Breach Notification mechanics and 60-day/500-individual timelines (Subpart D), the four-tier civil-money-penalty structure (45 CFR 160 Subpart D, amounts deferred to the inflation-adjusted 45 CFR part 102 rather than asserted), and the NIST SP 800-66r2 crosswalk. Deepens by cross-reference (the NPRM and privacy-law framing stay in the sector and privacy annexes). Citations verified against the held 45 CFR 160/162/164 extracts; codified Security Rule confirmed current upstream (Subpart C unchanged since 2016; the 2024 NPRM remains proposed, no final rule as of 2026-07-09). The remaining section-5.4 overlays (UK NHS DSPT, EU MDR/IVDR, Canada, Australia) stay open.
+
 ### PR #732: Session-depth handoff calibration codification (2026-07-09)
 
 None (maintainer-directed discipline calibration, not a backlog item). Codified the maintainer's 2026-07-09 direction that session depth is a CONTRIBUTING (never SOLE) factor to a handoff PROPOSAL into the `.claude/CLAUDE.md` wind-down framework and the project-agnostic `session-lifecycle` pack rule (byte-identical mirror synced; pack `1.59.3` to `1.59.4`): depth warrants an offered handoff only alongside a very-long-run-ahead or excessively-sensitive fresh-context work (the first `/deep-assessment` run), never on its own. Also closed a #731 `/validate-pr` Low (removed the closed FR-60 from TODO's egress-deferred list).

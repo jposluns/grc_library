@@ -45,7 +45,7 @@ While verifying, also confirm the two adjacent ANPD-resolution citations in the 
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities. The deepen-baselines cluster (FR-15 / 23 / 63 / 74 / 99 / 154 / 41) was decided for operational deepening (maintainer 2026-06-25).
 
-**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.4 US healthcare, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683, FR-63 (2.7) in #697.
+**Egress-deferred legislation deepenings (Option B, maintainer 2026-07-06):** the deepenings that cite primary legislation whose currency cannot be confirmed upstream this session are deferred pending the maintainer's egress instance, like the 1.5 and 1.11 items: 2.1 (FR-59 remaining batch 2), 2.8 (FR-74 Schrems II), 2.10 (FR-41 EU AI Act Article 22), 2.12 (DORA), 2.13 (NIS2), and the jurisdiction annexes (5.1 / 5.9 Colorado and EU AI Act, 5.7 eIDAS2, 5.8 Mexico). The non-legislation deepenings proceed this session: FR-99 (2.4) closed in #681, FR-15 (2.5) in #682, FR-23 (2.6) in #683, FR-63 (2.7) in #697.
 
 ### 2.1 Privacy jurisdiction annex operational deepening (FR-59, H, L)
 
@@ -244,7 +244,7 @@ Within `compliance/financial-services/`: UK PRA / FCA (`annex-uk-pra-fca.md`); U
 
 ### 5.4 Healthcare country regulator overlays (was 5.3)
 
-Within `compliance/healthcare/`: US HIPAA detail (Privacy/Security/Breach-Notification Rules, HITECH); UK NHS DSPT; EU MDR / IVDR; Canada PHIPA and provincial frameworks; Australia My Health Records Act. **US HIPAA bullet UNLOCKED 2026-07-04 (maintainer): carved out of the delivered fr-60 work-unit as its own NEW US annex; research brief staged in scratch (`research/us-hipaa-healthcare-deepening/`, held HIPAA 45 CFR 160/162/164 plus NIST SP 800-66r2).** The other bullets stay source-gated (HITECH rides the US annex where the held CFR text supports it).
+Within `compliance/healthcare/`: UK NHS DSPT; EU MDR / IVDR; Canada PHIPA and provincial frameworks; Australia My Health Records Act. **Closed the US HIPAA bullet of section 5.4 in #733** (the new US annex `compliance/healthcare/annex-healthcare-united-states.md`, applying the `worker-20260703-a/us-hipaa-healthcare-deepening` delivery: role determination, the Security Rule safeguard families, the Privacy Rule use-and-disclosure core, the Breach Notification mechanics and timelines, the four-tier enforcement structure, and the NIST SP 800-66r2 crosswalk; HITECH covered in Framework-alignment). The remaining bullets stay source-gated (EU MDR/IVDR full text is now held in the ref base; the rest pending).
 
 ### 5.5 Energy and utilities country regulator overlays (was 5.4)
 

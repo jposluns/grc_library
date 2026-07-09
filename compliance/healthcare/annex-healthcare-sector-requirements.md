@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -163,7 +163,7 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 
 **HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Penalties up to US$1.9M per violation category per year.
 
-**Operational procedure:** the executable HIPAA operational obligations, the Privacy Rule individual-rights response clocks (access, amendment, accounting), the Notice of Privacy Practices and minimum-necessary duties, the six-year documentation-retention schedule, the four-factor breach-determination test that decides whether the notification clock starts, and the business associate agreement content requirement, are operationalized in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md).
+**Operational procedure:** the executable HIPAA operational obligations, the Privacy Rule individual-rights response clocks (access, amendment, accounting), the Notice of Privacy Practices and minimum-necessary duties, the six-year documentation-retention schedule, the four-factor breach-determination test that decides whether the notification clock starts, and the business associate agreement content requirement, are operationalized in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md). The full US operational regime map, role determination, the Security Rule safeguard families, the Breach Notification mechanics and timelines, the four-tier enforcement structure, and the mapping of these obligations to library controls through the NIST SP 800-66r2 crosswalk, is in the [United States HIPAA Sector Requirements Annex](annex-healthcare-united-states.md).
 
 ### NHS DSPT (UK)
 
