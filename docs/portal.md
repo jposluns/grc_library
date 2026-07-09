@@ -232,6 +232,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
+- [eIDAS Sector Requirements Annex](../compliance/public-sector/annex-eidas-requirements.md) (maturity: Draft)
 
 ### Charter
 
@@ -523,6 +524,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
+- [eIDAS Sector Requirements Annex](../compliance/public-sector/annex-eidas-requirements.md) (maturity: Draft)
 
 ### Matrix
 

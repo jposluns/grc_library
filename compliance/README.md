@@ -2,7 +2,7 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.8\
+**Version:** 1.4.9\
 **Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -117,6 +117,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | --- | --- | --- |
 | Annex | Public Sector GRC Requirements Annex | [`compliance/public-sector/annex-public-sector-requirements.md`](public-sector/annex-public-sector-requirements.md) |
 | Annex | FedRAMP Requirements Annex | [`compliance/public-sector/annex-fedramp-requirements.md`](public-sector/annex-fedramp-requirements.md) |
+| Annex | eIDAS Sector Requirements Annex | [`compliance/public-sector/annex-eidas-requirements.md`](public-sector/annex-eidas-requirements.md) |
 
 ---
 

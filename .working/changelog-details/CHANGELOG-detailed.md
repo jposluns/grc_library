@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.227, PR #739
+
+Closes the EU eIDAS bullet of TODO section 5.7. Applies the `worker-20260703-a/eidas2-public-sector-annex` research delivery under validate-then-apply as a new public-sector annex; name a stricter-safe default (unattended).
+
+### Added
+
+- [`compliance/public-sector/annex-eidas-requirements.md`](../../compliance/public-sector/annex-eidas-requirements.md) (new Annex, Version 0.0.1): eIDAS (Regulation (EU) No 910/2014 as amended by Regulation (EU) 2024/1183) sector requirements, 8 sections mirroring the FedRAMP annex shape (Purpose, Applicability triggers, Role determination, Obligations by role, Library coverage and gaps, Operating expectations, Framework alignment, Limitations). Organized by role because obligations differ sharply: wallet-relying party (Article 5b), trust-service provider (qualified/non-qualified, Articles 16/19a), public-sector body (Article 5f(1)), wallet provider (Article 5a, 5c). Owner Chief Compliance Officer; Category Compliance: Sector-Specific; metadata mirrors [`compliance/public-sector/annex-fedramp-requirements.md`](../../compliance/public-sector/annex-fedramp-requirements.md).
+
+### Changed
+
+- [`compliance/public-sector/README.md`](../../compliance/public-sector/README.md) (1.0.1 to 1.0.2): the annex added to the documents table and Related Documents; the EU-eIDAS future-candidate line updated to point at the new annex.
+- [`compliance/README.md`](../../compliance/README.md) (1.4.8 to 1.4.9): the annex added to the compliance document list.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.65 to 1.27.66): the annex row added (gates 4/47 listing-surface completeness).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (new document).
+- [`TODO.md`](../../TODO.md): closed the EU eIDAS bullet of section 5.7 (rotated to DONE; the other §5.7 overlays stay open); removed `5.7 eIDAS2` from the egress-deferred list; **fixed the #738 `/validate-pr` finding** (the §2.9 annotation's dangling relative link at TODO:60, a stray `../` prefix on the pending-decisions reference, corrected to the root-relative form).
+
+### Verification
+
+- Every cited article verified verbatim against the held eIDAS2 text in the `grc_library_ref` reference base (the EU-eIDAS2 Regulation 2024/1183 extract, CELEX 32024R1183) by an independent source-verification pass: Article 5a (wallet, assurance-high, dashboard/GDPR-Art-17 erasure), 5b (relying-party registration/data-min/self-ID/pseudonyms/intermediaries), 5c (certification), 5f(1)/(2) (public-body acceptance / private-relying-party 36-month clock), 16(1)/(2) (NIS2 Art 31 deference and the trust-service-provider penalty), and Article 2 (entry into force).
+- **Precision corrections honoured from the source pass:** the 36-month private-relying-party clock is in Article 5f(2) (NOT Article 5b, a common mis-location); both the 24-month (wallet) and 36-month clocks are RELATIVE to the implementing-act entry into force, not absolute calendar dates, so the annex frames them as relative; the Article 16(2) penalty is "a maximum of at least EUR 5 000 000" (a floor on the maximum, "whichever is higher" with 1 % turnover for legal persons, for trust-service providers), NOT a fixed ceiling, so the annex frames it as a floor national transposition must reach.
+- Currency per the held-source pattern (EUR-Lex not fetchable): eIDAS2 in force since 20 May 2024 (computed from the 30 April 2024 OJ publication, corroborated by the transitional "before 20 May 2024" wording); the annex cites by the version-stable regulation-number-plus-article form and asserts no unverifiable upstream value.
+- Deepen-not-duplicate: the annex cites by article and does not reproduce regulatory text; it cross-references the IAM/authentication/identity library docs and the NIS2 annex for coverage rather than restating them.
+- `lint-language` on the annex clean (one bare "Ensure" caught and reworded to "Ensure that" pre-commit; no dashes); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/eidas2-public-sector-annex/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/eidas2-public-sector-annex/MANIFEST.md) (research: corpus census confirming no prior eIDAS coverage, the FedRAMP-shape section model, per-role edit shapes, held-eIDAS2 anchors; orchestrator authored the final prose, re-verified every anchor via an independent source-verification pass, and applied the Article-5f/penalty-floor/relative-clock precision corrections the pass surfaced).
+
+### Discipline observations
+
+- The two precision corrections (the 36-month clock's Article 5f(2) location, and the penalty being a floor-on-the-maximum rather than a fixed ceiling) are the source-verification-before-authoring discipline catching what a from-memory draft would have got subtly wrong; both were surfaced by the independent held-text pass and folded before the annex shipped. The relative-clock framing is the held-source currency pattern applied to a phase-in date: the enacted text ties the deadline to the implementing acts, so the annex states the relation rather than inventing an absolute date.
+
 ## 2026-07-09, Library Version 2026.07.226, PR #738
 
 Advances TODO section 2.9 (FR-154, operational-vagueness cluster). Applies 5 of the 6 reproducing sub-items from the `worker-20260703-a/fr-154-operational-vagueness` delivery under the maintainer's orchestrator-sets-stricter-safe decision model; sub-item 5 deferred (unheld source); section 2.9 stays open.

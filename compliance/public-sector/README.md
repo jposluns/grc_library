@@ -2,11 +2,11 @@
 
 **Document Title:** Public Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/public-sector/annex-fedramp-requirements.md`](annex-fedramp-requirements.md), [`compliance/public-sector/annex-eidas-requirements.md`](annex-eidas-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Compliance: Public Sector\
 **Review Frequency:** Annual and upon material change to a covered regulation\
@@ -41,12 +41,13 @@ This directory applies to organizations operating as any of the following:
 | --- | --- | --- |
 | [`annex-public-sector-requirements.md`](annex-public-sector-requirements.md) | Annex | Public-sector regulatory landscape across jurisdictions: procurement requirements, records management, freedom-of-information obligations, accessibility, and public-sector-specific cyber-hygiene frameworks. |
 | [`annex-fedramp-requirements.md`](annex-fedramp-requirements.md) | Annex | US Federal Risk and Authorization Management Program (FedRAMP) requirements for cloud-service providers to US federal agencies. |
+| [`annex-eidas-requirements.md`](annex-eidas-requirements.md) | Annex | EU eIDAS (Regulation 910/2014 as amended by Regulation 2024/1183, the European Digital Identity Framework) requirements by role: wallet-relying party, trust-service provider, public-sector body, and wallet provider. |
 
 ---
 
 ## Future-coverage placeholders
 
-Country-level public-sector overlays. Candidates for future addition include UK Government Cyber Security Strategy and GovAssure, EU eIDAS public-sector authentication, Canada IT Standards for federal departments, Australia ISM (Information Security Manual) and PSPF (Protective Security Policy Framework), and other jurisdiction-specific frameworks as adopting organizations require.
+Country-level public-sector overlays. EU eIDAS now has a dedicated annex ([`annex-eidas-requirements.md`](annex-eidas-requirements.md)). Candidates for future addition include UK Government Cyber Security Strategy and GovAssure, Canada IT Standards for federal departments, Australia ISM (Information Security Manual) and PSPF (Protective Security Policy Framework), and other jurisdiction-specific frameworks as adopting organizations require.
 
 ---
 
