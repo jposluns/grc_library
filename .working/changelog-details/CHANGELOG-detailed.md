@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.207, PR #719
+
+Applies the Fable `adopter-experience-sabe-batch` delivery (TODO 4.6 S-a/S-b/S-e; edit-payload delivery, no candidate files, so the orchestrator authored the three edits).
+
+### Changed
+- [`README.md`](../../README.md): S-b, a routing-table row pointing to [`docs/decision-tree.md`](../../docs/decision-tree.md) (validated linked zero times in the README at the read basis, reachable only via the portal).
+- [`governance/register-glossary.md`](../../governance/register-glossary.md): S-e, a legend row for the "Governance Library Maintainer" meta-role (a role not a named person: the party accountable for the library's integrity and the Approving Authority on the majority of the corpus, with per-document Owner and Approving-Authority values otherwise distributed across the domain roles the content addresses, including CIO as the second-most-common approving authority and not an anomaly, per the audit's S-e correction; an adopter substitutes its own owner). The row was refined at apply time from the delivered candidate after the pre-push verifier flagged a metadata tension: an orchestrator recount confirmed the maintainer is the Approving Authority on the large majority of the corpus (265 of 315 docs carrying the field, with CIO second at 39) while Owner is domain-distributed, which the candidate's "governance artefacts vs corpus content" split had mis-framed. Version `1.4.8` to `1.4.9`.
+- [`tools/build-portal.py`](../../tools/build-portal.py): S-a, a generator change, a new "Board / CEO" audience tuple (governance Charter plus the board-risk-report template plus the compliance-alignment Matrix) and an inline `(maturity: ...)` tag on every entry render reusing the existing `classify_maturity`, plus an Overview sentence explaining the tag. The delivery's `title_contains` selector was dropped (not supported by `matches_selector`, which keys on domain / type / path_prefix), and the compliance selector was corrected from the non-existent compliance-Framework type to the Matrix that actually carries compliance standing.
+- [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md), and [`taxonomy.yml`](../../taxonomy.yml): regenerated (taxonomy-first for the glossary Version bump, then portal and scorecard for the generator change).
+- [`TODO.md`](../../TODO.md): §4.6 S-a/S-b/S-e closed and rotated to DONE; §4.6 stays open (S-c/S-d pending their separate worker-20260703-a deliveries, S-f a design item).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) and [`.working/improvement-log.md`](../improvement-log.md): PR #718's 0-finding `/validate-pr` row and its `/retro` row batched in.
+
+### Verification
+`tools/run_all_audits.sh` 67/67 standalone; both generators `--check` green after the taxonomy-first regen; the S-a Board/CEO section eyeballed (three exec-facing docs, the Governance Library Charter, the GRC Compliance Alignment Matrix, and the Board Risk Report Template, each carrying a maturity tag). Library `2026.07.206` to `2026.07.207`; README `1.9.567` to `1.9.568`.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/adopter-experience-sabe-batch/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/adopter-experience-sabe-batch/MANIFEST.md) (Fable delivery, scratch #124). The orchestrator authored the three edits from the payload, adapting S-a's selectors to the live `matches_selector` vocabulary (dropping the unsupported `title_contains`, correcting the compliance type to Matrix), tested the generator, eyeballed the Board/CEO section, and re-ran both generator `--check` modes green.
+
 ## 2026-07-09, Library Version 2026.07.206, PR #718
 
 Applies the Fable `reference-acquisition-gap-build` delivery (TODO 3.20 bullet 1, the not-held-source-detection residual of the `/reference-audit` build). Tool-only core; the pack cross-reference sentence deferred.

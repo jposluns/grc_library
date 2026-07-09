@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.8\
-**Date:** 2026-07-05\
+**Version:** 1.4.9\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -152,6 +152,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | --- | --- |
 | **GDPR** | General Data Protection Regulation (EU). |
 | **GICS** | Global Industry Classification Standard. |
+| **Governance Library Maintainer** | Meta-role, not a named individual: the party accountable for the library's own integrity (the maintainer of this repository), recorded as the Approving Authority on the majority of the corpus. It is not the sole role holder: per-document Owner and Approving-Authority values are otherwise distributed across the domain roles the content addresses (CISO, DPO, CIO, and others; CIO is the second-most-common approving authority and is not an anomaly). An adopting organization substitutes its own accountable owner when it adopts an artefact. |
 | **GRC** | Governance, Risk, and Compliance. |
 
 ## H

@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.0\
-**Date:** 2026-07-08\
+**Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -28,6 +28,8 @@ This page is a navigation aid for the most common adopter audiences. Each sectio
 This portal is the canonical front door for adopters. The audience-keyed groupings below are the primary entry point. Five further adopter-facing documents support the portal as deeper-dive paths for specific questions; the "Other entry points and when to use them" section immediately below maps each to its purpose so a reader can pick the path that matches their question.
 
 This portal is generated; the source of truth is each document's canonical metadata block. Inclusion of a document in an audience section is selector-based; a document may legitimately appear under more than one audience.
+
+Each document entry below carries an inline maturity tag (for example `(maturity: Mature)`), the same classification the [`docs/maturity-scorecard.md`](maturity-scorecard.md) reports, so a reader can gauge at a glance how settled an artefact is.
 
 The metadata block above carries a generator schema constant for `Version` and the latest source `Date` found in the taxonomy. Bumps to the schema constant are recorded in [`CHANGELOG.md`](../CHANGELOG.md); the `Date` advances automatically with the corpus.
 
@@ -58,44 +60,62 @@ The Chief Information Officer needs the enterprise picture: governance, risk, te
 
 ### Charter
 
-- [Governance Library Charter](../governance/charter-governance-library.md)
+- [Governance Library Charter](../governance/charter-governance-library.md) (maturity: Mature)
 
 ### Framework
 
-- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md)
-- [Document Architecture and Interrelationship Framework](../governance/framework-document-architecture-and-interrelationship.md)
-- [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md)
-- [Human Capital and Ethical Conduct Framework](../governance/framework-human-capital-and-ethical-conduct.md)
-- [IT Service Management Framework](../operations/framework-it-service-management.md)
-- [Metrics, Monitoring and Performance Reporting Framework](../governance/framework-metrics-monitoring-and-performance-reporting.md)
-- [Sustainability and Responsible Technology Framework](../governance/framework-sustainability-and-responsible-technology.md)
+- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md) (maturity: Mature)
+- [Document Architecture and Interrelationship Framework](../governance/framework-document-architecture-and-interrelationship.md) (maturity: Mature)
+- [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md) (maturity: Baseline)
+- [Human Capital and Ethical Conduct Framework](../governance/framework-human-capital-and-ethical-conduct.md) (maturity: Baseline)
+- [IT Service Management Framework](../operations/framework-it-service-management.md) (maturity: Baseline)
+- [Metrics, Monitoring and Performance Reporting Framework](../governance/framework-metrics-monitoring-and-performance-reporting.md) (maturity: Mature)
+- [Sustainability and Responsible Technology Framework](../governance/framework-sustainability-and-responsible-technology.md) (maturity: Mature)
 
 ### Policy
 
-- [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md)
-- [Enterprise Governance and Risk Management Policy](../risk/policy-enterprise-governance-and-risk-management.md)
-- [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md)
+- [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md) (maturity: Baseline)
+- [Enterprise Governance and Risk Management Policy](../risk/policy-enterprise-governance-and-risk-management.md) (maturity: Mature)
+- [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (maturity: Mature)
 
 ### Specification
 
-- [GRC Library Ingestion and Transformation Specification](../specification-ingestion.md)
-- [Master Project Specification](../specification-master-project.md)
+- [GRC Library Ingestion and Transformation Specification](../specification-ingestion.md) (maturity: Mature)
+- [Master Project Specification](../specification-master-project.md) (maturity: Mature)
 
 ### Standard
 
-- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md)
-- [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md)
-- [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md)
-- [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md)
-- [IT Financial Management Standard](../operations/standard-it-financial-management.md)
-- [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md)
-- [OT/ICS Security Standard](../operations/ot/standard-ot-ics-security.md)
-- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md)
-- [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md)
-- [Production Security Requirements](../operations/standard-production-security-requirements.md)
-- [Service Level Management Standard](../operations/standard-service-level-management.md)
-- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md)
-- [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md)
+- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md) (maturity: Baseline)
+- [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md) (maturity: Mature)
+- [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md) (maturity: Mature)
+- [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md) (maturity: Mature)
+- [IT Financial Management Standard](../operations/standard-it-financial-management.md) (maturity: Baseline)
+- [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md) (maturity: Mature)
+- [OT/ICS Security Standard](../operations/ot/standard-ot-ics-security.md) (maturity: Baseline)
+- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md) (maturity: Draft)
+- [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md) (maturity: Mature)
+- [Production Security Requirements](../operations/standard-production-security-requirements.md) (maturity: Mature)
+- [Service Level Management Standard](../operations/standard-service-level-management.md) (maturity: Baseline)
+- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md) (maturity: Baseline)
+- [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md) (maturity: Mature)
+
+---
+
+## Board / CEO
+
+The board and chief executive need the top-of-house accountability picture: governance charters, the enterprise risk posture and board risk reporting, and the programme's maturity and compliance standing.
+
+### Charter
+
+- [Governance Library Charter](../governance/charter-governance-library.md) (maturity: Mature)
+
+### Matrix
+
+- [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md) (maturity: Mature)
+
+### Template
+
+- [Board Risk Report Template](../risk/template-board-risk-report.md) (maturity: Baseline)
 
 ---
 
@@ -105,90 +125,90 @@ The Chief Information Security Officer needs policies, standards, and procedures
 
 ### Framework
 
-- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md)
-- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md)
-- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md)
+- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
+- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
+- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
 
 ### Policy
 
-- [Acceptable Use Policy](../security/policy-acceptable-use.md)
-- [Acceptance Into Service Policy](../security/policy-acceptance-into-service.md)
-- [Bring Your Own Device (BYOD) Policy](../security/policy-byod.md)
-- [Encryption and Key Management Policy](../security/policy-encryption-and-key-management.md)
-- [Identity and Access Management Policy](../security/policy-identity-and-access-management.md)
-- [Information Security Policy](../security/policy-information-security.md)
-- [Network Communications Security Policy](../security/policy-network-communications-security.md)
-- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md)
+- [Acceptable Use Policy](../security/policy-acceptable-use.md) (maturity: Mature)
+- [Acceptance Into Service Policy](../security/policy-acceptance-into-service.md) (maturity: Baseline)
+- [Bring Your Own Device (BYOD) Policy](../security/policy-byod.md) (maturity: Mature)
+- [Encryption and Key Management Policy](../security/policy-encryption-and-key-management.md) (maturity: Mature)
+- [Identity and Access Management Policy](../security/policy-identity-and-access-management.md) (maturity: Mature)
+- [Information Security Policy](../security/policy-information-security.md) (maturity: Mature)
+- [Network Communications Security Policy](../security/policy-network-communications-security.md) (maturity: Mature)
+- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md) (maturity: Baseline)
 
 ### Procedure
 
-- [Access Control Procedure](../security/procedure-access-control.md)
-- [Change Management and Configuration Control Procedure](../operations/procedure-change-management-and-configuration-control.md)
-- [Cryptographic Key Operations Procedure](../security/procedure-cryptographic-key-operations.md)
-- [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md)
-- [IT Onboarding and Offboarding Procedure](../security/procedure-onboarding-and-offboarding.md)
-- [Identity Management Procedure](../security/procedure-identity-management.md)
-- [Key Escrow and Recovery Procedure](../security/procedure-key-escrow-and-recovery.md)
-- [Media Handling and Transport Procedure](../operations/procedure-media-handling-and-transport.md)
-- [OT Change Management Procedure](../operations/ot/procedure-ot-change-management.md)
-- [OT Incident Response Procedure](../operations/ot/procedure-ot-incident-response.md)
-- [Patch Management Procedure](../operations/procedure-patch-management.md)
-- [Release Management Procedure](../operations/procedure-release-management.md)
-- [Security Disciplinary Process Procedure](../security/procedure-security-disciplinary-process.md)
-- [Security Incident Response Procedure](../security/procedure-security-incident-response.md)
-- [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md)
-- [Threat Intelligence and SIEM Operations Procedure](../operations/procedure-threat-intelligence-and-siem-operations.md)
-- [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md)
+- [Access Control Procedure](../security/procedure-access-control.md) (maturity: Mature)
+- [Change Management and Configuration Control Procedure](../operations/procedure-change-management-and-configuration-control.md) (maturity: Mature)
+- [Cryptographic Key Operations Procedure](../security/procedure-cryptographic-key-operations.md) (maturity: Baseline)
+- [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) (maturity: Mature)
+- [IT Onboarding and Offboarding Procedure](../security/procedure-onboarding-and-offboarding.md) (maturity: Baseline)
+- [Identity Management Procedure](../security/procedure-identity-management.md) (maturity: Baseline)
+- [Key Escrow and Recovery Procedure](../security/procedure-key-escrow-and-recovery.md) (maturity: Baseline)
+- [Media Handling and Transport Procedure](../operations/procedure-media-handling-and-transport.md) (maturity: Mature)
+- [OT Change Management Procedure](../operations/ot/procedure-ot-change-management.md) (maturity: Baseline)
+- [OT Incident Response Procedure](../operations/ot/procedure-ot-incident-response.md) (maturity: Baseline)
+- [Patch Management Procedure](../operations/procedure-patch-management.md) (maturity: Baseline)
+- [Release Management Procedure](../operations/procedure-release-management.md) (maturity: Baseline)
+- [Security Disciplinary Process Procedure](../security/procedure-security-disciplinary-process.md) (maturity: Baseline)
+- [Security Incident Response Procedure](../security/procedure-security-incident-response.md) (maturity: Mature)
+- [Security Monitoring and Alert Management Procedure](../operations/procedure-security-monitoring-and-alert-management.md) (maturity: Mature)
+- [Threat Intelligence and SIEM Operations Procedure](../operations/procedure-threat-intelligence-and-siem-operations.md) (maturity: Mature)
+- [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) (maturity: Mature)
 
 ### Roadmap
 
-- [Post-Quantum Cryptography Readiness Roadmap](../security/roadmap-post-quantum-cryptography.md)
+- [Post-Quantum Cryptography Readiness Roadmap](../security/roadmap-post-quantum-cryptography.md) (maturity: Mature)
 
 ### SOP
 
-- [Incident Escalation Matrix](../security/sop-incident-escalation-matrix.md)
-- [Security Ticket Reporting Scheme](../security/sop-security-ticket-reporting-scheme.md)
+- [Incident Escalation Matrix](../security/sop-incident-escalation-matrix.md) (maturity: Mature)
+- [Security Ticket Reporting Scheme](../security/sop-security-ticket-reporting-scheme.md) (maturity: Mature)
 
 ### Standard
 
-- [API Security Standard](../dev-security/standard-api-security.md)
-- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md)
-- [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md)
-- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md)
-- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md)
-- [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md)
-- [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md)
-- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md)
-- [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md)
-- [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md)
-- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md)
-- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md)
-- [Email Security Standard](../security/standard-email-security.md)
-- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md)
-- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md)
-- [IT Financial Management Standard](../operations/standard-it-financial-management.md)
-- [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md)
-- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md)
-- [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md)
-- [OT/ICS Security Standard](../operations/ot/standard-ot-ics-security.md)
-- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md)
-- [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md)
-- [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md)
-- [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md)
-- [Privileged Access Management Standard](../security/standard-privileged-access-management.md)
-- [Production Security Requirements](../operations/standard-production-security-requirements.md)
-- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md)
-- [Remote Working Security Standard](../security/standard-remote-working-security.md)
-- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md)
-- [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md)
-- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md)
-- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md)
-- [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
-- [Service Level Management Standard](../operations/standard-service-level-management.md)
-- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md)
-- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
-- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
-- [Threat Modelling Standard](../security/standard-threat-modelling.md)
+- [API Security Standard](../dev-security/standard-api-security.md) (maturity: Draft)
+- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md) (maturity: Draft)
+- [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md) (maturity: Mature)
+- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md) (maturity: Draft)
+- [Capacity and Performance Management Standard](../operations/standard-capacity-and-performance-management.md) (maturity: Baseline)
+- [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md) (maturity: Mature)
+- [Cloud Security Configuration Baseline](../operations/standard-cloud-security-configuration-baseline.md) (maturity: Mature)
+- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md) (maturity: Baseline)
+- [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md) (maturity: Mature)
+- [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md) (maturity: Mature)
+- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md) (maturity: Baseline)
+- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md) (maturity: Mature)
+- [Email Security Standard](../security/standard-email-security.md) (maturity: Baseline)
+- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md) (maturity: Baseline)
+- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md) (maturity: Draft)
+- [IT Financial Management Standard](../operations/standard-it-financial-management.md) (maturity: Baseline)
+- [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md) (maturity: Mature)
+- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md) (maturity: Mature)
+- [Network Security and Segmentation Standard](../operations/standard-network-security-and-segmentation.md) (maturity: Mature)
+- [OT/ICS Security Standard](../operations/ot/standard-ot-ics-security.md) (maturity: Baseline)
+- [Observability and Telemetry Standard](../operations/standard-observability-and-telemetry.md) (maturity: Draft)
+- [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md) (maturity: Baseline)
+- [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md) (maturity: Baseline)
+- [Physical Security of IT Infrastructure Standard](../operations/standard-physical-security-of-it-infrastructure.md) (maturity: Mature)
+- [Privileged Access Management Standard](../security/standard-privileged-access-management.md) (maturity: Baseline)
+- [Production Security Requirements](../operations/standard-production-security-requirements.md) (maturity: Mature)
+- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md) (maturity: Baseline)
+- [Remote Working Security Standard](../security/standard-remote-working-security.md) (maturity: Baseline)
+- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md) (maturity: Baseline)
+- [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md) (maturity: Baseline)
+- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md) (maturity: Mature)
+- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md) (maturity: Baseline)
+- [Security Quick Reference](../dev-security/standard-security-quick-reference.md) (maturity: Mature)
+- [Service Level Management Standard](../operations/standard-service-level-management.md) (maturity: Baseline)
+- [Site Reliability Engineering Standard](../operations/standard-site-reliability-engineering.md) (maturity: Baseline)
+- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md) (maturity: Mature)
+- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (maturity: Baseline)
+- [Threat Modelling Standard](../security/standard-threat-modelling.md) (maturity: Baseline)
 
 ---
 
@@ -198,122 +218,122 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 
 ### Annex
 
-- [AI-Specific Risk Methodology Annex](../risk/annex-ai-risk-methodology.md)
-- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md)
-- [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md)
-- [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md)
-- [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md)
-- [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md)
-- [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md)
-- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md)
-- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
-- [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md)
-- [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md)
-- [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md)
-- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)
+- [AI-Specific Risk Methodology Annex](../risk/annex-ai-risk-methodology.md) (maturity: Baseline)
+- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md) (maturity: Mature)
+- [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md) (maturity: Draft)
+- [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) (maturity: Draft)
+- [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md) (maturity: Draft)
+- [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md) (maturity: Baseline)
+- [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
+- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md) (maturity: Baseline)
+- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md) (maturity: Mature)
+- [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
+- [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
+- [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
+- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 
 ### Charter
 
-- [Governance Library Charter](../governance/charter-governance-library.md)
+- [Governance Library Charter](../governance/charter-governance-library.md) (maturity: Mature)
 
 ### Framework
 
-- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md)
-- [Document Architecture and Interrelationship Framework](../governance/framework-document-architecture-and-interrelationship.md)
-- [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md)
-- [Human Capital and Ethical Conduct Framework](../governance/framework-human-capital-and-ethical-conduct.md)
-- [Metrics, Monitoring and Performance Reporting Framework](../governance/framework-metrics-monitoring-and-performance-reporting.md)
-- [Sustainability and Responsible Technology Framework](../governance/framework-sustainability-and-responsible-technology.md)
+- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md) (maturity: Mature)
+- [Document Architecture and Interrelationship Framework](../governance/framework-document-architecture-and-interrelationship.md) (maturity: Mature)
+- [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md) (maturity: Baseline)
+- [Human Capital and Ethical Conduct Framework](../governance/framework-human-capital-and-ethical-conduct.md) (maturity: Baseline)
+- [Metrics, Monitoring and Performance Reporting Framework](../governance/framework-metrics-monitoring-and-performance-reporting.md) (maturity: Mature)
+- [Sustainability and Responsible Technology Framework](../governance/framework-sustainability-and-responsible-technology.md) (maturity: Mature)
 
 ### Guideline
 
-- [ESG and AI Ethics Disclosure Guideline](../governance/guideline-esg-and-ai-ethics-disclosure.md)
-- [Minimum Viable Governance Structure Guideline](../governance/guideline-minimum-viable-governance-structure.md)
-- [Quantitative Risk Analysis Guideline](../risk/guideline-quantitative-risk-analysis.md)
+- [ESG and AI Ethics Disclosure Guideline](../governance/guideline-esg-and-ai-ethics-disclosure.md) (maturity: Mature)
+- [Minimum Viable Governance Structure Guideline](../governance/guideline-minimum-viable-governance-structure.md) (maturity: Baseline)
+- [Quantitative Risk Analysis Guideline](../risk/guideline-quantitative-risk-analysis.md) (maturity: Baseline)
 
 ### Matrix
 
-- [Cross-Framework Alignment Matrix](../governance/matrix-cross-framework-alignment.md)
-- [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md)
-- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md)
+- [Cross-Framework Alignment Matrix](../governance/matrix-cross-framework-alignment.md) (maturity: Mature)
+- [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md) (maturity: Mature)
+- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md) (maturity: Baseline)
 
 ### Policy
 
-- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md)
-- [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
-- [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md)
-- [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md)
-- [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md)
+- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md) (maturity: Mature)
+- [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md) (maturity: Baseline)
+- [Digital Twin and Simulation Governance Policy](../governance/policy-digital-twin-and-simulation-governance.md) (maturity: Baseline)
+- [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (maturity: Mature)
+- [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md) (maturity: Baseline)
 
 ### Principle
 
-- [Integrity and Trustworthiness Principle](../governance/principle-integrity-and-trustworthiness.md)
+- [Integrity and Trustworthiness Principle](../governance/principle-integrity-and-trustworthiness.md) (maturity: Draft)
 
 ### Procedure
 
-- [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
-- [Continuous Improvement Register Procedure](../governance/procedure-continuous-improvement-register.md)
-- [Control Testing Procedure](../compliance/procedure-control-testing.md)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
-- [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md)
-- [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md)
-- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md)
-- [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md)
-- [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md)
-- [Risk Register Procedure](../risk/procedure-risk-register.md)
-- [Standard Version Upgrade Procedure](../governance/procedure-standard-version-upgrade.md)
-- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
-- [Whistleblower and Incident Reporting Procedure](../governance/procedure-whistleblower-and-incident-reporting.md)
+- [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
+- [Continuous Improvement Register Procedure](../governance/procedure-continuous-improvement-register.md) (maturity: Baseline)
+- [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
+- [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) (maturity: Baseline)
+- [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md) (maturity: Baseline)
+- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md) (maturity: Baseline)
+- [Risk Acceptance Procedure](../risk/procedure-risk-acceptance.md) (maturity: Mature)
+- [Risk Assessment Methodology Procedure](../risk/procedure-risk-assessment-methodology.md) (maturity: Mature)
+- [Risk Register Procedure](../risk/procedure-risk-register.md) (maturity: Mature)
+- [Standard Version Upgrade Procedure](../governance/procedure-standard-version-upgrade.md) (maturity: Baseline)
+- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) (maturity: Baseline)
+- [Whistleblower and Incident Reporting Procedure](../governance/procedure-whistleblower-and-incident-reporting.md) (maturity: Baseline)
 
 ### Register
 
-- [AI Security Tooling Landscape Register](../governance/register-ai-security-tooling-landscape.md)
-- [Assurance Map Register](../risk/register-assurance-map.md)
-- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md)
-- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
-- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
-- [Canonical Citations Register](../governance/register-canonical-citations.md)
-- [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
-- [Coverage Gap Analysis Register](../governance/register-coverage-gaps.md)
-- [Data Retention Schedule](../governance/register-data-retention-schedule.md)
-- [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md)
-- [Document Index and Classification Register](../governance/register-document-index-and-classification.md)
-- [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
-- [Glossary and Acronym Index](../governance/register-glossary.md)
-- [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md)
-- [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md)
-- [Role Authority Register](../governance/register-role-authority.md)
-- [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md)
-- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
-- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md)
+- [AI Security Tooling Landscape Register](../governance/register-ai-security-tooling-landscape.md) (maturity: Mature)
+- [Assurance Map Register](../risk/register-assurance-map.md) (maturity: Mature)
+- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md) (maturity: Mature)
+- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md) (maturity: Mature)
+- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md) (maturity: Baseline)
+- [Canonical Citations Register](../governance/register-canonical-citations.md) (maturity: Mature)
+- [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md) (maturity: Baseline)
+- [Coverage Gap Analysis Register](../governance/register-coverage-gaps.md) (maturity: Mature)
+- [Data Retention Schedule](../governance/register-data-retention-schedule.md) (maturity: Baseline)
+- [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md) (maturity: Mature)
+- [Document Index and Classification Register](../governance/register-document-index-and-classification.md) (maturity: Mature)
+- [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md) (maturity: Baseline)
+- [Glossary and Acronym Index](../governance/register-glossary.md) (maturity: Mature)
+- [Key Risk Indicator Catalogue](../risk/register-key-risk-indicators.md) (maturity: Mature)
+- [Key Terms and Definitions Register](../governance/register-key-terms-and-definitions.md) (maturity: Mature)
+- [Role Authority Register](../governance/register-role-authority.md) (maturity: Mature)
+- [Scenario Risk Catalogue](../risk/register-scenario-risk-catalogue.md) (maturity: Baseline)
+- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
+- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md) (maturity: Baseline)
 
 ### Specification
 
-- [Audit Programme Specification](../governance/specification-audit-programme.md)
-- [Citation Verification Specification](../governance/specification-citation-verification.md)
-- [Project Governance Separation Specification](../governance/specification-project-governance-separation.md)
+- [Audit Programme Specification](../governance/specification-audit-programme.md) (maturity: Mature)
+- [Citation Verification Specification](../governance/specification-citation-verification.md) (maturity: Mature)
+- [Project Governance Separation Specification](../governance/specification-project-governance-separation.md) (maturity: Baseline)
 
 ### Standard
 
-- [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md)
-- [Internal Audit Standard](../compliance/standard-internal-audit.md)
-- [Maturity Assessment Methodology Standard](../governance/standard-maturity-assessment-methodology.md)
-- [Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md)
-- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md)
-- [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md)
+- [Enterprise Risk Management Standard](../risk/standard-enterprise-risk-management.md) (maturity: Mature)
+- [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
+- [Maturity Assessment Methodology Standard](../governance/standard-maturity-assessment-methodology.md) (maturity: Baseline)
+- [Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md) (maturity: Mature)
+- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
+- [Third-Party and Supply Chain Risk Standard](../risk/standard-third-party-and-supply-chain-risk.md) (maturity: Mature)
 
 ### Template
 
-- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md)
-- [Board Risk Report Template](../risk/template-board-risk-report.md)
-- [Citation Verification Worklist Template](../governance/template-citation-verification-worklist.md)
-- [Document Review Record Template](../governance/template-document-review-record.md)
-- [Enterprise Risk Register Template](../risk/template-enterprise-risk-register.md)
-- [Library Health Report Template](../governance/template-library-health-report.md)
-- [Operational Risk Register Template](../risk/template-operational-risk-register.md)
-- [Regulator Interaction Templates](../compliance/template-regulator-interaction.md)
-- [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md)
-- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
+- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md) (maturity: Mature)
+- [Board Risk Report Template](../risk/template-board-risk-report.md) (maturity: Baseline)
+- [Citation Verification Worklist Template](../governance/template-citation-verification-worklist.md) (maturity: Baseline)
+- [Document Review Record Template](../governance/template-document-review-record.md) (maturity: Baseline)
+- [Enterprise Risk Register Template](../risk/template-enterprise-risk-register.md) (maturity: Mature)
+- [Library Health Report Template](../governance/template-library-health-report.md) (maturity: Baseline)
+- [Operational Risk Register Template](../risk/template-operational-risk-register.md) (maturity: Baseline)
+- [Regulator Interaction Templates](../compliance/template-regulator-interaction.md) (maturity: Baseline)
+- [Risk Appetite Statement Template](../risk/template-risk-appetite-statement.md) (maturity: Baseline)
+- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md) (maturity: Baseline)
 
 ---
 
@@ -323,84 +343,84 @@ Security architects need the dev-security standards, the AI security guides, the
 
 ### Framework
 
-- [AI Governance and Risk Framework](../ai/framework-ai-governance-and-risk.md)
-- [AI Model Documentation and Transparency Framework](../ai/framework-ai-model-documentation-and-transparency.md)
-- [AI Model Risk Framework](../ai/framework-ai-model-risk.md)
-- [AI System Audit and Certification Framework](../ai/framework-ai-system-audit-certification.md)
-- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md)
-- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md)
-- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md)
+- [AI Governance and Risk Framework](../ai/framework-ai-governance-and-risk.md) (maturity: Mature)
+- [AI Model Documentation and Transparency Framework](../ai/framework-ai-model-documentation-and-transparency.md) (maturity: Baseline)
+- [AI Model Risk Framework](../ai/framework-ai-model-risk.md) (maturity: Baseline)
+- [AI System Audit and Certification Framework](../ai/framework-ai-system-audit-certification.md) (maturity: Baseline)
+- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
+- [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
+- [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
 
 ### Guide
 
-- [AI Adversarial Test Reference](../ai/guide-ai-adversarial-test-reference.md)
-- [AI Security Technical Implementation Guide](../ai/guide-ai-security-technical-implementation.md)
+- [AI Adversarial Test Reference](../ai/guide-ai-adversarial-test-reference.md) (maturity: Mature)
+- [AI Security Technical Implementation Guide](../ai/guide-ai-security-technical-implementation.md) (maturity: Mature)
 
 ### Guideline
 
-- [AI Coding Assistant Security Guideline](../dev-security/guideline-ai-coding-assistant-security.md)
-- [Adversarial Evaluation Suite Development Guideline](../ai/guideline-adversarial-evaluation-suite-development.md)
-- [Ethical AI Use Guideline](../ai/guideline-ethical-ai-use.md)
+- [AI Coding Assistant Security Guideline](../dev-security/guideline-ai-coding-assistant-security.md) (maturity: Mature)
+- [Adversarial Evaluation Suite Development Guideline](../ai/guideline-adversarial-evaluation-suite-development.md) (maturity: Baseline)
+- [Ethical AI Use Guideline](../ai/guideline-ethical-ai-use.md) (maturity: Baseline)
 
 ### Matrix
 
-- [Cross-Framework Alignment Matrix](../governance/matrix-cross-framework-alignment.md)
-- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md)
+- [Cross-Framework Alignment Matrix](../governance/matrix-cross-framework-alignment.md) (maturity: Mature)
+- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md) (maturity: Baseline)
 
 ### Policy
 
-- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md)
+- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md) (maturity: Baseline)
 
 ### Procedure
 
-- [AI Audit Procedure](../ai/procedure-ai-audit.md)
-- [AI Evaluation Procedure](../ai/procedure-ai-evaluation.md)
-- [AI Model Lifecycle Management Procedure](../ai/procedure-ai-model-lifecycle-management.md)
-- [AI Model Risk Assessment Procedure](../ai/procedure-ai-model-risk-assessment.md)
-- [AI System Impact Assessment Procedure](../ai/procedure-ai-system-impact-assessment.md)
-- [Foundation Model Lifecycle Procedure](../ai/procedure-foundation-model-lifecycle.md)
-- [Secure Code Review Procedure](../dev-security/procedure-secure-code-review.md)
-- [Training Data Governance Procedure](../ai/procedure-training-data-governance.md)
+- [AI Audit Procedure](../ai/procedure-ai-audit.md) (maturity: Mature)
+- [AI Evaluation Procedure](../ai/procedure-ai-evaluation.md) (maturity: Baseline)
+- [AI Model Lifecycle Management Procedure](../ai/procedure-ai-model-lifecycle-management.md) (maturity: Baseline)
+- [AI Model Risk Assessment Procedure](../ai/procedure-ai-model-risk-assessment.md) (maturity: Baseline)
+- [AI System Impact Assessment Procedure](../ai/procedure-ai-system-impact-assessment.md) (maturity: Baseline)
+- [Foundation Model Lifecycle Procedure](../ai/procedure-foundation-model-lifecycle.md) (maturity: Draft)
+- [Secure Code Review Procedure](../dev-security/procedure-secure-code-review.md) (maturity: Draft)
+- [Training Data Governance Procedure](../ai/procedure-training-data-governance.md) (maturity: Draft)
 
 ### Register
 
-- [Compliance Controls and Gap Register Template](../dev-security/register-compliance-controls-and-gap-register.md)
+- [Compliance Controls and Gap Register Template](../dev-security/register-compliance-controls-and-gap-register.md) (maturity: Baseline)
 
 ### Standard
 
-- [AI Access and Agent Permissions Standard](../ai/standard-ai-access-and-agent-permissions.md)
-- [AI Inference Cost Governance Standard](../ai/standard-ai-inference-cost-governance.md)
-- [AI Model Risk Standard](../ai/standard-ai-model-risk.md)
-- [AI Security and Risk Standard](../ai/standard-ai-security-and-risk.md)
-- [AI Testing, Validation and Documentation Standard](../ai/standard-ai-testing-validation-and-documentation.md)
-- [AI and Agentic Development Security Standard](../ai/standard-ai-and-agentic-development-security.md)
-- [API Security Standard](../dev-security/standard-api-security.md)
-- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md)
-- [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md)
-- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md)
-- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md)
-- [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md)
-- [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md)
-- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md)
-- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md)
-- [Email Security Standard](../security/standard-email-security.md)
-- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md)
-- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md)
-- [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md)
-- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md)
-- [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md)
-- [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md)
-- [Privileged Access Management Standard](../security/standard-privileged-access-management.md)
-- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md)
-- [Remote Working Security Standard](../security/standard-remote-working-security.md)
-- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md)
-- [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md)
-- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md)
-- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md)
-- [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
-- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
-- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
-- [Threat Modelling Standard](../security/standard-threat-modelling.md)
+- [AI Access and Agent Permissions Standard](../ai/standard-ai-access-and-agent-permissions.md) (maturity: Draft)
+- [AI Inference Cost Governance Standard](../ai/standard-ai-inference-cost-governance.md) (maturity: Draft)
+- [AI Model Risk Standard](../ai/standard-ai-model-risk.md) (maturity: Mature)
+- [AI Security and Risk Standard](../ai/standard-ai-security-and-risk.md) (maturity: Mature)
+- [AI Testing, Validation and Documentation Standard](../ai/standard-ai-testing-validation-and-documentation.md) (maturity: Baseline)
+- [AI and Agentic Development Security Standard](../ai/standard-ai-and-agentic-development-security.md) (maturity: Mature)
+- [API Security Standard](../dev-security/standard-api-security.md) (maturity: Draft)
+- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md) (maturity: Draft)
+- [Authentication and Password Management Standard](../security/standard-authentication-and-password-management.md) (maturity: Mature)
+- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md) (maturity: Draft)
+- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md) (maturity: Baseline)
+- [Data Classification and Handling Standard](../security/standard-data-classification-and-handling.md) (maturity: Mature)
+- [Data Loss Prevention Standard](../security/standard-data-loss-prevention.md) (maturity: Mature)
+- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md) (maturity: Baseline)
+- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md) (maturity: Mature)
+- [Email Security Standard](../security/standard-email-security.md) (maturity: Baseline)
+- [Endpoint Hardening Standard](../security/standard-endpoint-hardening.md) (maturity: Baseline)
+- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md) (maturity: Draft)
+- [Logging and Monitoring Standard](../security/standard-logging-and-monitoring.md) (maturity: Mature)
+- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md) (maturity: Mature)
+- [Penetration Testing and Red Team Standard](../security/standard-penetration-testing-and-red-team.md) (maturity: Baseline)
+- [Personnel Security Screening Standard](../security/standard-personnel-security-screening.md) (maturity: Baseline)
+- [Privileged Access Management Standard](../security/standard-privileged-access-management.md) (maturity: Baseline)
+- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md) (maturity: Baseline)
+- [Remote Working Security Standard](../security/standard-remote-working-security.md) (maturity: Baseline)
+- [SaaS Security Posture Management Standard](../security/standard-saas-security-posture-management.md) (maturity: Baseline)
+- [Security Awareness and Training Standard](../security/standard-security-awareness-and-training.md) (maturity: Baseline)
+- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md) (maturity: Mature)
+- [Security Operations Centre Operating Model Standard](../security/standard-soc-operating-model.md) (maturity: Baseline)
+- [Security Quick Reference](../dev-security/standard-security-quick-reference.md) (maturity: Mature)
+- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md) (maturity: Mature)
+- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (maturity: Baseline)
+- [Threat Modelling Standard](../security/standard-threat-modelling.md) (maturity: Baseline)
 
 ---
 
@@ -410,74 +430,74 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ### Annex
 
-- [Australia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-australia.md)
-- [Brazil Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-brazil.md)
-- [Canada Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-canada.md)
-- [China Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-china.md)
-- [European Union Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-european-union.md)
-- [India Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-india.md)
-- [Indonesia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-indonesia.md)
-- [Japan Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-japan.md)
-- [Kenya Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-kenya.md)
-- [Latin America Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-latin-america.md)
-- [Malaysia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-malaysia.md)
-- [New Zealand Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-new-zealand.md)
-- [Nigeria Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-nigeria.md)
-- [Philippines Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-philippines.md)
-- [Privacy Jurisdiction Index](../privacy/annex-privacy-jurisdiction-index.md)
-- [Saudi Arabia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-saudi-arabia.md)
-- [Singapore Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-singapore.md)
-- [South Africa Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-africa.md)
-- [South Korea Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-korea.md)
-- [Switzerland Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-switzerland.md)
-- [Thailand Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-thailand.md)
-- [Turkey Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-turkey.md)
-- [United Arab Emirates Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-uae.md)
-- [United Kingdom Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-kingdom.md)
-- [United States Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-states.md)
-- [Vietnam Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-vietnam.md)
+- [Australia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-australia.md) (maturity: Baseline)
+- [Brazil Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-brazil.md) (maturity: Mature)
+- [Canada Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-canada.md) (maturity: Mature)
+- [China Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-china.md) (maturity: Mature)
+- [European Union Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-european-union.md) (maturity: Mature)
+- [India Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-india.md) (maturity: Mature)
+- [Indonesia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-indonesia.md) (maturity: Baseline)
+- [Japan Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-japan.md) (maturity: Mature)
+- [Kenya Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-kenya.md) (maturity: Baseline)
+- [Latin America Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-latin-america.md) (maturity: Baseline)
+- [Malaysia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-malaysia.md) (maturity: Mature)
+- [New Zealand Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-new-zealand.md) (maturity: Baseline)
+- [Nigeria Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-nigeria.md) (maturity: Baseline)
+- [Philippines Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-philippines.md) (maturity: Baseline)
+- [Privacy Jurisdiction Index](../privacy/annex-privacy-jurisdiction-index.md) (maturity: Baseline)
+- [Saudi Arabia Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) (maturity: Baseline)
+- [Singapore Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-singapore.md) (maturity: Baseline)
+- [South Africa Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-africa.md) (maturity: Baseline)
+- [South Korea Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-south-korea.md) (maturity: Baseline)
+- [Switzerland Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-switzerland.md) (maturity: Baseline)
+- [Thailand Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-thailand.md) (maturity: Baseline)
+- [Turkey Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-turkey.md) (maturity: Baseline)
+- [United Arab Emirates Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-uae.md) (maturity: Baseline)
+- [United Kingdom Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-kingdom.md) (maturity: Mature)
+- [United States Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-united-states.md) (maturity: Mature)
+- [Vietnam Privacy Regulatory Requirements](../privacy/jurisdictions/annex-privacy-vietnam.md) (maturity: Baseline)
 
 ### Charter
 
-- [Privacy Management Programme Charter](../privacy/charter-privacy-management-programme.md)
+- [Privacy Management Programme Charter](../privacy/charter-privacy-management-programme.md) (maturity: Mature)
 
 ### Framework
 
-- [Children's Data Framework](../privacy/framework-childrens-data.md)
-- [Consent Management Framework](../privacy/framework-consent-management.md)
-- [Privacy by Design Framework](../privacy/framework-privacy-by-design.md)
+- [Children's Data Framework](../privacy/framework-childrens-data.md) (maturity: Baseline)
+- [Consent Management Framework](../privacy/framework-consent-management.md) (maturity: Baseline)
+- [Privacy by Design Framework](../privacy/framework-privacy-by-design.md) (maturity: Baseline)
 
 ### Policy
 
-- [Privacy and Data Governance Policy](../privacy/policy-privacy-and-data-governance.md)
+- [Privacy and Data Governance Policy](../privacy/policy-privacy-and-data-governance.md) (maturity: Mature)
 
 ### Procedure
 
-- [Data Protection and Privacy Breach Response Procedure](../privacy/procedure-data-protection-and-privacy-breach-response.md)
-- [Data Subject Rights Management Procedure](../privacy/procedure-data-subject-rights-management.md)
-- [Privacy Impact and Cross-Border Transfer Procedure](../privacy/procedure-privacy-impact-and-cross-border-transfer.md)
+- [Data Protection and Privacy Breach Response Procedure](../privacy/procedure-data-protection-and-privacy-breach-response.md) (maturity: Mature)
+- [Data Subject Rights Management Procedure](../privacy/procedure-data-subject-rights-management.md) (maturity: Mature)
+- [Privacy Impact and Cross-Border Transfer Procedure](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (maturity: Mature)
 
 ### Register
 
-- [Automated Decision-Making and Profiling Register](../privacy/register-automated-decision-making.md)
-- [Cookie and Tracker Register](../privacy/register-cookie-and-tracker.md)
-- [Cross-Border Data Flow Register](../privacy/register-cross-border-data-flow.md)
+- [Automated Decision-Making and Profiling Register](../privacy/register-automated-decision-making.md) (maturity: Baseline)
+- [Cookie and Tracker Register](../privacy/register-cookie-and-tracker.md) (maturity: Baseline)
+- [Cross-Border Data Flow Register](../privacy/register-cross-border-data-flow.md) (maturity: Baseline)
 
 ### Standard
 
-- [Pseudonymization and Anonymization Standard](../privacy/standard-pseudonymization-and-anonymization.md)
+- [Pseudonymization and Anonymization Standard](../privacy/standard-pseudonymization-and-anonymization.md) (maturity: Baseline)
 
 ### Template
 
-- [Breach Notification Regulator Register Template](../privacy/template-breach-notification-regulator-register.md)
-- [DPIA (Data Protection Impact Assessment) Template](../privacy/template-dpia.md)
-- [Data Processing Agreement Template (GDPR Article 28)](../privacy/template-dpa-article-28.md)
-- [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md)
-- [Joint Controller Arrangement Template](../privacy/template-joint-controller-arrangement.md)
-- [Legitimate Interest Assessment (LIA) Template](../privacy/template-legitimate-interest-assessment.md)
-- [Privacy Notice Template](../privacy/template-privacy-notice.md)
-- [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md)
-- [Transfer Impact Assessment (TIA) Template](../privacy/template-transfer-impact-assessment.md)
+- [Breach Notification Regulator Register Template](../privacy/template-breach-notification-regulator-register.md) (maturity: Baseline)
+- [DPIA (Data Protection Impact Assessment) Template](../privacy/template-dpia.md) (maturity: Baseline)
+- [Data Processing Agreement Template (GDPR Article 28)](../privacy/template-dpa-article-28.md) (maturity: Baseline)
+- [Data Subject Access Request Workflow Template](../privacy/template-dsar-workflow.md) (maturity: Mature)
+- [Joint Controller Arrangement Template](../privacy/template-joint-controller-arrangement.md) (maturity: Baseline)
+- [Legitimate Interest Assessment (LIA) Template](../privacy/template-legitimate-interest-assessment.md) (maturity: Baseline)
+- [Privacy Notice Template](../privacy/template-privacy-notice.md) (maturity: Baseline)
+- [Record of Processing Activities Template](../privacy/template-record-of-processing-activities.md) (maturity: Baseline)
+- [Transfer Impact Assessment (TIA) Template](../privacy/template-transfer-impact-assessment.md) (maturity: Baseline)
 
 ---
 
@@ -487,57 +507,57 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 ### Annex
 
-- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md)
-- [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md)
-- [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md)
-- [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md)
-- [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md)
-- [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md)
-- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md)
-- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md)
-- [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md)
-- [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md)
-- [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md)
-- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)
+- [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md) (maturity: Mature)
+- [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md) (maturity: Draft)
+- [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) (maturity: Draft)
+- [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md) (maturity: Draft)
+- [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md) (maturity: Baseline)
+- [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
+- [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md) (maturity: Baseline)
+- [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md) (maturity: Mature)
+- [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
+- [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
+- [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
+- [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 
 ### Matrix
 
-- [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md)
+- [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md) (maturity: Mature)
 
 ### Policy
 
-- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md)
-- [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md)
-- [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md)
+- [BASC Information Security Policy](../compliance/logistics/policy-basc-information-security.md) (maturity: Mature)
+- [Compliance, Audit, and CAPA Management Policy](../compliance/policy-compliance-and-audit-management.md) (maturity: Baseline)
+- [Legal and Regulatory Compliance Policy](../compliance/policy-legal-and-regulatory-compliance.md) (maturity: Baseline)
 
 ### Procedure
 
-- [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
-- [Control Testing Procedure](../compliance/procedure-control-testing.md)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
-- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md)
-- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md)
+- [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
+- [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
+- [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md) (maturity: Baseline)
+- [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) (maturity: Baseline)
 
 ### Register
 
-- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md)
-- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md)
-- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md)
-- [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md)
-- [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md)
-- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md)
-- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md)
+- [BASC IT Compliance Monitoring and KPIs](../compliance/logistics/register-basc-it-compliance-kpis.md) (maturity: Mature)
+- [BASC IT and Information Security Responsibilities](../compliance/logistics/register-basc-it-responsibilities.md) (maturity: Mature)
+- [Canada PIP IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-pip-canada-controls.md) (maturity: Baseline)
+- [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md) (maturity: Baseline)
+- [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md) (maturity: Baseline)
+- [US CTPAT Full Minimum Security Criteria Controls Register](../compliance/logistics/register-ctpat-united-states-msc-controls.md) (maturity: Baseline)
+- [US CTPAT IT and Cybersecurity Compliance Controls Register](../compliance/logistics/register-ctpat-united-states-it-controls.md) (maturity: Baseline)
 
 ### Standard
 
-- [Internal Audit Standard](../compliance/standard-internal-audit.md)
-- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md)
+- [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
+- [Sanctions and Export-Control Screening Standard](../compliance/standard-sanctions-and-export-control-screening.md) (maturity: Baseline)
 
 ### Template
 
-- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md)
-- [Regulator Interaction Templates](../compliance/template-regulator-interaction.md)
-- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md)
+- [Audit Evidence Package Template](../compliance/template-audit-evidence-package.md) (maturity: Mature)
+- [Regulator Interaction Templates](../compliance/template-regulator-interaction.md) (maturity: Baseline)
+- [Trade Compliance Programme Gap Assessment Template](../compliance/logistics/template-trade-compliance-gap-assessment.md) (maturity: Baseline)
 
 ---
 
@@ -547,26 +567,26 @@ Internal Audit and external auditors need the internal audit standard, the contr
 
 ### Framework
 
-- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md)
+- [Continuous Assurance and Improvement Framework](../governance/framework-continuous-assurance-and-improvement.md) (maturity: Mature)
 
 ### Matrix
 
-- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md)
+- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md) (maturity: Baseline)
 
 ### Procedure
 
-- [Audit Planning Procedure](../compliance/procedure-audit-planning.md)
-- [Control Testing Procedure](../compliance/procedure-control-testing.md)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md)
+- [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
+- [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
 
 ### Register
 
-- [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md)
-- [Document Index and Classification Register](../governance/register-document-index-and-classification.md)
+- [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md) (maturity: Mature)
+- [Document Index and Classification Register](../governance/register-document-index-and-classification.md) (maturity: Mature)
 
 ### Standard
 
-- [Internal Audit Standard](../compliance/standard-internal-audit.md)
+- [Internal Audit Standard](../compliance/standard-internal-audit.md) (maturity: Mature)
 
 ---
 
@@ -576,49 +596,49 @@ The Resilience Owner needs the business continuity framework and policy, the dis
 
 ### Framework
 
-- [Business Continuity and Resilience Framework](../resilience/framework-business-continuity-and-resilience.md)
+- [Business Continuity and Resilience Framework](../resilience/framework-business-continuity-and-resilience.md) (maturity: Baseline)
 
 ### Guideline
 
-- [Emergency Response and Protective Actions Guideline](../resilience/guideline-emergency-response-and-protective-actions.md)
+- [Emergency Response and Protective Actions Guideline](../resilience/guideline-emergency-response-and-protective-actions.md) (maturity: Baseline)
 
 ### Plan
 
-- [Business Continuity and Crisis Management Plan](../resilience/plan-business-continuity-and-crisis-management.md)
-- [Crisis Communication Plan](../resilience/plan-crisis-communication.md)
-- [IT Disaster Recovery Plan](../resilience/plan-it-disaster-recovery.md)
-- [Pandemic Continuity Plan](../resilience/plan-pandemic-continuity.md)
-- [Physical Site Continuity Plan](../resilience/plan-physical-site-continuity.md)
+- [Business Continuity and Crisis Management Plan](../resilience/plan-business-continuity-and-crisis-management.md) (maturity: Mature)
+- [Crisis Communication Plan](../resilience/plan-crisis-communication.md) (maturity: Baseline)
+- [IT Disaster Recovery Plan](../resilience/plan-it-disaster-recovery.md) (maturity: Mature)
+- [Pandemic Continuity Plan](../resilience/plan-pandemic-continuity.md) (maturity: Baseline)
+- [Physical Site Continuity Plan](../resilience/plan-physical-site-continuity.md) (maturity: Baseline)
 
 ### Policy
 
-- [Business Continuity and Disaster Recovery Policy](../resilience/policy-business-continuity-and-disaster-recovery.md)
+- [Business Continuity and Disaster Recovery Policy](../resilience/policy-business-continuity-and-disaster-recovery.md) (maturity: Baseline)
 
 ### Procedure
 
-- [Backup and Recovery Procedure](../resilience/procedure-backup-and-recovery.md)
-- [Business Impact Analysis Procedure](../resilience/procedure-business-impact-analysis.md)
-- [Continuity and Recovery Testing Procedure](../resilience/procedure-continuity-and-recovery-testing.md)
-- [Crisis Management and Emergency Operations Activation Procedure](../resilience/procedure-crisis-management-eoc-activation.md)
-- [Cross-Domain Incident Coordination Procedure](../resilience/procedure-cross-domain-incident-coordination.md)
-- [Security Incident Reporting and Escalation Procedure](../resilience/procedure-security-incident-reporting-and-escalation.md)
+- [Backup and Recovery Procedure](../resilience/procedure-backup-and-recovery.md) (maturity: Baseline)
+- [Business Impact Analysis Procedure](../resilience/procedure-business-impact-analysis.md) (maturity: Baseline)
+- [Continuity and Recovery Testing Procedure](../resilience/procedure-continuity-and-recovery-testing.md) (maturity: Baseline)
+- [Crisis Management and Emergency Operations Activation Procedure](../resilience/procedure-crisis-management-eoc-activation.md) (maturity: Baseline)
+- [Cross-Domain Incident Coordination Procedure](../resilience/procedure-cross-domain-incident-coordination.md) (maturity: Mature)
+- [Security Incident Reporting and Escalation Procedure](../resilience/procedure-security-incident-reporting-and-escalation.md) (maturity: Baseline)
 
 ### Register
 
-- [Emergency Operations Contact Directory Register](../resilience/register-eoc-contact-directory.md)
-- [Resilience Metrics and Testing Log Register](../resilience/register-resilience-metrics-and-testing-log.md)
-- [Resilience Terms and Definitions Register](../resilience/register-resilience-terms-and-definitions.md)
+- [Emergency Operations Contact Directory Register](../resilience/register-eoc-contact-directory.md) (maturity: Mature)
+- [Resilience Metrics and Testing Log Register](../resilience/register-resilience-metrics-and-testing-log.md) (maturity: Mature)
+- [Resilience Terms and Definitions Register](../resilience/register-resilience-terms-and-definitions.md) (maturity: Baseline)
 
 ### Standard
 
-- [Business Continuity and Disaster Recovery Standard](../resilience/standard-business-continuity-and-disaster-recovery.md)
+- [Business Continuity and Disaster Recovery Standard](../resilience/standard-business-continuity-and-disaster-recovery.md) (maturity: Baseline)
 
 ### Template
 
-- [Departmental Continuity Plan Template](../resilience/template-departmental-continuity-plan.md)
-- [Lessons Learned Template](../resilience/template-lessons-learned.md)
-- [Recovery Runbook Template](../resilience/template-recovery-runbook.md)
-- [Tabletop Exercise Template](../resilience/template-tabletop-exercise.md)
+- [Departmental Continuity Plan Template](../resilience/template-departmental-continuity-plan.md) (maturity: Mature)
+- [Lessons Learned Template](../resilience/template-lessons-learned.md) (maturity: Baseline)
+- [Recovery Runbook Template](../resilience/template-recovery-runbook.md) (maturity: Baseline)
+- [Tabletop Exercise Template](../resilience/template-tabletop-exercise.md) (maturity: Baseline)
 
 ---
 
@@ -628,36 +648,36 @@ Engineering leaders need the developer security standards, the DevOps and softwa
 
 ### Guide
 
-- [AI Adversarial Test Reference](../ai/guide-ai-adversarial-test-reference.md)
-- [AI Security Technical Implementation Guide](../ai/guide-ai-security-technical-implementation.md)
+- [AI Adversarial Test Reference](../ai/guide-ai-adversarial-test-reference.md) (maturity: Mature)
+- [AI Security Technical Implementation Guide](../ai/guide-ai-security-technical-implementation.md) (maturity: Mature)
 
 ### Guideline
 
-- [AI Coding Assistant Security Guideline](../dev-security/guideline-ai-coding-assistant-security.md)
+- [AI Coding Assistant Security Guideline](../dev-security/guideline-ai-coding-assistant-security.md) (maturity: Mature)
 
 ### Policy
 
-- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md)
+- [Secure Development and Engineering Policy](../dev-security/policy-secure-development-and-engineering.md) (maturity: Baseline)
 
 ### Register
 
-- [Compliance Controls and Gap Register Template](../dev-security/register-compliance-controls-and-gap-register.md)
+- [Compliance Controls and Gap Register Template](../dev-security/register-compliance-controls-and-gap-register.md) (maturity: Baseline)
 
 ### Standard
 
-- [API Security Standard](../dev-security/standard-api-security.md)
-- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md)
-- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md)
-- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md)
-- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md)
-- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md)
-- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md)
-- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md)
-- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md)
-- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md)
-- [Security Quick Reference](../dev-security/standard-security-quick-reference.md)
-- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md)
-- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)
+- [API Security Standard](../dev-security/standard-api-security.md) (maturity: Draft)
+- [AWS Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-aws.md) (maturity: Draft)
+- [Azure Cloud Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-azure.md) (maturity: Draft)
+- [Container and Image Security Standard](../dev-security/standard-container-and-image-security.md) (maturity: Baseline)
+- [DevOps Security Requirements](../dev-security/standard-devops-security-requirements.md) (maturity: Baseline)
+- [Developer Security Requirements](../dev-security/standard-developer-security-requirements.md) (maturity: Mature)
+- [Google Cloud Platform Hardening Baseline Standard](../dev-security/standard-cloud-hardening-baseline-gcp.md) (maturity: Draft)
+- [Mobile Application Security Standard](../dev-security/standard-mobile-application-security.md) (maturity: Mature)
+- [Quality Assurance and Testing Standard](../dev-security/standard-quality-assurance-and-testing.md) (maturity: Baseline)
+- [Security Baseline and Standards Reference](../dev-security/standard-security-baseline-and-standards-reference.md) (maturity: Mature)
+- [Security Quick Reference](../dev-security/standard-security-quick-reference.md) (maturity: Mature)
+- [Software Composition Analysis Standard](../dev-security/standard-software-composition-analysis.md) (maturity: Mature)
+- [Software Evaluation, Acceptance and Lifecycle Management Standard](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (maturity: Baseline)
 
 ---
 
