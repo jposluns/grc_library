@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #725: TODO 4.7 GR-P1 session-lifecycle pack rule (2026-07-09)
+
+Closed the GR-P1 pack-design item: shipped the 13th governance rule `session-lifecycle.md`, distilling the project's own session apparatus (durable reconciled handoff, explicit operator-set operating modes, graceful degradation with an absolute reversibility gate, evidence-gated wind-down, the green-merge close with its loop-break, and the advisory concurrency lease) into a project-agnostic discipline any multi-session AI-assisted project inherits. Wired across all rule-enumeration surfaces (README tree + two-areas list + scope table, pack + project CLAUDE.md, the byte-identical `.claude/rules` mirror + MIRROR_MAP, the gate-39 word-form and collection-enum docstring counts); pack `1.58.0`→`1.59.0`. Applied the Fable `session-lifecycle-rule-build` delivery; the project CLAUDE.md sections it distills are retained (project-specific operationalization). GR-P2..P5 stay open.
+
 ### PR #724: TODO 3.18 execution-environment probe for `/resume` (2026-07-09)
 
 Closed the environment-detection item: shipped `tools/detect-env.py` (gh presence/auth/rate, hook-firing diagnosis, sibling-repo access with launch-bound `--add-dir`/`settings.local.json` fix lines, per-family egress classes with a HEAD-to-GET fallback; detect-and-adapt only, never a runtime self-grant, always exits 0) and wired it into the `/resume` step-3 verify-state step, with a `.gitignore` line for the machine-local settings override. Applied the Fable `env-detection-build` delivery; at apply the tool's pipe-guard prediction was corrected to an ASSISTANT-PROBE (it had over-generalized from its cloud test, but the NUC harness fires the hook despite `CLAUDE_PROJECT_DIR` being unset), and run on the NUC to capture that profile.

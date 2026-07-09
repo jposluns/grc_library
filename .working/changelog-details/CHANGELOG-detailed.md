@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.213, PR #725
+
+Closes TODO 4.7 GR-P1, the session-lifecycle governance pack rule (the 13th). Applies the Fable `session-lifecycle-rule-build` delivery under validate-then-apply, with the rule content re-read and verified as a faithful distillation of existing project practice (the research-assistant discipline for a new governance rule) and a refute-briefed skeptical pre-push verifier.
+
+**Worker provenance:** [`inbox/worker-20260708-fable/session-lifecycle-rule-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/session-lifecycle-rule-build/MANIFEST.md)
+
+### Added
+- [`dev-security/claude-rules/governance/session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md) (the 13th governance rule): six disciplines across the RESUME / WORK / CLOSE phases (durable reconciled handoff; explicit operator-set operating modes; graceful degradation with an absolute reversibility gate; evidence-gated wind-down with continue as default; the green-merge close with its loop-break compensating control; an advisory concurrency lease), plus anti-patterns, tool guidance, an exception posture, a framework table, and a why-section. Lean-authored per the GR-P2 condense philosophy. Verified: every discipline traces to a named project-CLAUDE.md section or the `/resume` interlock (no invented obligation); it does not overlap the existing 12 rules (session lifecycle is a distinct concern from the decision/instruction rules); house-style clean (`lint-language`).
+- [`.claude/rules/governance/session-lifecycle.md`](../../.claude/rules/governance/session-lifecycle.md): the byte-identical gate-37 local mirror (verified `cmp`-identical), with the [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) MIRROR_MAP entry added in the same commit.
+
+### Changed
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): the rule added to the governance tree (gate 41), the "two areas" prose list, and the scope table; pack Version `1.58.0` to `1.59.0` with the paired version-history row; the tree-header rule-version narrative extended.
+- [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md): the rule added to the governance-rules bullet list (gate 41) and a thirteenth-rule sentence added to the rollout narrative.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the rule added to the `## Security and governance requirements` index (gate 41; protected `.claude/` edit, applied per the local-instance overnight authorization).
+- [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) docstring and [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) growth narrative: "twelve" to "thirteen" governance rules (the gate-39-blind word-form and the collection-enum count).
+
+### Removed
+- [`TODO.md`](../../TODO.md): the `### 4.7` GR-P1 bullet deleted (rotated to DONE; the 4.7 header and GR-P2..P5 stay); the GR-P2 bullet's stale "The 12 governance rules" corrected to 13 (a carrier the pack-dir-scoped bare-token sweep missed because TODO.md is at the repo root, caught by a full-repo re-sweep).
+
+### Verification
+- `lint-language` clean on the new rule before the first commit; the mirror is `cmp`-byte-identical; all 67 gates pass (gate 41 enumeration parity, gate 37 mirror-sync + MIRROR_MAP, gate 39 the thirteen-rule word-form). A full-repo bare-token sweep for stale "12"/"twelve" rule-count carriers confirmed all live carriers updated. A refute-briefed skeptical pre-push verifier ran on the diff; the pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #724's `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 0 findings) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+
 ## 2026-07-09, Library Version 2026.07.212, PR #724
 
 Closes TODO 3.18, the execution-environment probe for `/resume`. Applies the Fable `env-detection-build` APPLY-READY delivery under validate-then-apply with an apply-time worker-tool correction and a refute-briefed skeptical pre-push verifier.

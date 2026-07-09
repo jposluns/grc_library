@@ -1171,6 +1171,17 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   `trust-recovery-escalation`; its sensitive items persist across sessions in
   [`.working/high-assurance/register.md`](../.working/high-assurance/register.md), surfaced
   at `/resume`.
+- `.claude/rules/governance/session-lifecycle.md` — the session-lifecycle and
+  operating-modes discipline for multi-session work: a durable reconciled handoff record,
+  explicit operator-set operating modes (fully attended / attended-autonomous with green-CI
+  merge authority as the default / unattended with no-idle-stop), graceful degradation for
+  blocked operator decisions (an absolute reversibility gate so a timeout never
+  auto-executes a destructive action), evidence-gated wind-down (continue is the default),
+  the closing green-merge with its loop-break compensating control, and an advisory
+  concurrency lease. The project-agnostic distillation of this file's own attended-autonomous,
+  wind-down, session-migration/close-out, and concurrency-lease sections plus the `/resume`
+  interlock; those sections remain here as the project-specific operationalization (concrete
+  files, the timer value, the mode-exit ordering).
 
 The `dev-security/claude-rules/README.md` is the authoritative pack version history and
 future-work signalling; pack changes are tracked through the library's CHANGELOG and
