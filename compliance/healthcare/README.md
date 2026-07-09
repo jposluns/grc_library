@@ -2,11 +2,11 @@
 
 **Document Title:** Healthcare Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
+**Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/healthcare/annex-healthcare-united-states.md`](annex-healthcare-united-states.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
 **Classification:** Public\
 **Category:** Compliance: Healthcare Sector\
 **Review Frequency:** Annual and upon material change to a covered regulation\
@@ -43,12 +43,13 @@ This directory applies to organizations operating as any of the following:
 | --- | --- | --- |
 | [`annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md) | Annex | Healthcare sector regulatory landscape, HIPAA and equivalent obligations, medical-device regulations, and cross-jurisdiction requirements. |
 | [`procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md) | Procedure | Executable HIPAA operational obligations: Privacy Rule individual-rights response clocks, Notice of Privacy Practices and minimum necessary, six-year documentation retention, the four-factor breach-determination test and notification clocks, and business associate agreement content. |
+| [`annex-healthcare-united-states.md`](annex-healthcare-united-states.md) | Annex | US HIPAA operational regime map: role determination, the Security Rule safeguard families, the Privacy Rule use-and-disclosure core, the Breach Notification Rule mechanics and timelines, the four-tier enforcement structure, and the NIST SP 800-66r2 crosswalk to library controls. |
 
 ---
 
 ## Future-coverage placeholders
 
-Country-level healthcare-regulator overlays. Candidates for future addition include US HIPAA Privacy/Security/Breach Notification rules, US HITECH, UK NHS DSPT (Data Security and Protection Toolkit), EU MDR/IVDR (Medical Device Regulation, In-Vitro Diagnostic Regulation), Canada PHIPA and similar provincial frameworks, Australia My Health Records Act, and other jurisdiction-specific regulations as adopting organizations require.
+Country-level healthcare-regulator overlays. US HIPAA now has a dedicated operational overlay ([`annex-healthcare-united-states.md`](annex-healthcare-united-states.md)). Candidates for future addition include US HITECH-specific depth, UK NHS DSPT (Data Security and Protection Toolkit), EU MDR/IVDR (Medical Device Regulation, In-Vitro Diagnostic Regulation), Canada PHIPA and similar provincial frameworks, Australia My Health Records Act, and other jurisdiction-specific regulations as adopting organizations require.
 
 ---
 
