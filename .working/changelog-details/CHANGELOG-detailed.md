@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.232, PR #744
+
+Bookkeeping PR; no corpus document body changed.
+
+### Fixed
+
+- The one in-window finding from #743's `/validate-pr`: [`.working/session-handoff.md`](../session-handoff.md) `Current truth` line carried a stale "#742 (this PR, in flight)" recap clause alongside the "#742 ... MERGED" shipped-list entry (append-not-reconcile residual, the #619/#622/#628 class, second consecutive occurrence after #742's mode-field one); reconciled ("#742 applied TODO 4.6 S-d; #743 applied the FR-62 EU AI Act annex").
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): closed 4.6 item S-c as satisfied (bullet deleted, the 4.6 intro updated); section 4.6 now retains only S-f (S-a through S-e all done).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the S-c entry marked RESOLVED (close-as-satisfied); the maintainer's 2026-07-09 batch of 4 resolutions is recorded in the Status line.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL, PR ops via REST.
+- S-c close is a decision-execution (maintainer chose close-as-satisfied 2026-07-09); the satisfying document [`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md) confirmed present with its role-substitution Step 3.
+
+### Notes
+
+- Batches PR #743's `/validate-pr` (self-Version 1.2.517) and `/retro` (self-Version 1.0.460) rows, per recursion-avoidance.
+- `/retro` proposed (maintainer decision) restructuring the handoff `Current truth` run-on line into short labelled sub-lines, after two consecutive same-class append-not-reconcile residuals on it; surfaced, not applied here.
+- Orchestrator-authored bookkeeping (no worker delivery applied), so no worker-provenance marker.
+
 ## 2026-07-09, Library Version 2026.07.231, PR #743
 
 Applies the FR-62 EU AI Act jurisdiction annex (TODO 5.1/5.9 part 1 of 2); maintainer-approved 2026-07-09 (merge-as-is + a Digital-Omnibus-pending caveat).

@@ -28,7 +28,7 @@ The detailed overnight backlog queue (the delivery list, per-delivery handling a
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
-### TODO 4.6 S-c adopter-direction demo: NOT built, its gap already filled (2026-07-09 unattended run, apply-time reconciliation)
+### TODO 4.6 S-c adopter-direction demo: NOT built, its gap already filled (2026-07-09 unattended run, apply-time reconciliation) [RESOLVED 2026-07-09 daytime: maintainer chose close-as-satisfied; TODO 4.6 S-c CLOSED and rotated to DONE in #744; no new doc built]
 
 The TODO 4.6 S-c work-unit (`worker-20260703-a/s-c-adopter-direction-demo`) proposed a NEW `docs/worked-example-adopter-direction.md` walking a fictional adopter through role substitution (direct / combined / missing-role cases) onto the decision-tree direction sequence. **Apply-time reconciliation found the delivery's gap analysis is STALE:** the worker read the corpus at `8cc492e`, but `docs/worked-example-adoption.md` was added 2026-07-08 (after that read) and ALREADY fills the gap: it "follows one fictional organization from cloning through its first year," with a `## Step 3: Substitute roles and identifiers` covering the missing-role case (CISO to part-time engineering-security lead), the private-overlay rule, the neutral-role invariant, and the `register-role-authority.md` keying, plus a "Common pitfalls" entry against editing named individuals into artefacts.
 
