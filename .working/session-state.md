@@ -4,7 +4,7 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-09T04:38:30Z
+**Last-heartbeat-UTC:** 2026-07-09T05:45:33Z
 
 **Current-task:** ACQUIRED at the `/resume` from session-closing OVERNIGHT-SWAP handoff #720 (prior lease `released`, no live `origin/claude/*` sibling inside the 60-minute window; the recent sibling commits are #720's own now-merged branches, HEAD `ca33c49`). This is the **OVERNIGHT BACKLOG RUN** (maintainer-directed 2026-07-09, on the local NUC `nuc125h-a`; protected-apply AUTHORIZED because local-instance). Environment: local NUC, `gh` CLI (no GitHub MCP), `CLAUDE_CODE_CHILD_SESSION` set BUT the PreToolUse pipe-guard hook DOES fire here (the NUC harness resolves the hook path even with `CLAUDE_PROJECT_DIR` unset; the earlier acquire-time note that it does not fire was wrong and is corrected across the session records); run verification unpiped by habit either way. **Progress:** shipped #721 (Sweep-91 close-out, loop-break `/validate` clean), ref #29 + #722 (2.11 + SR-2), #723 (3.21), #724 (3.18), #725 (GR-P1 13th rule), #726 (GR-P2 tranche 1, tranches 2-12 HELD), #727 (GR-P3/4/5a), ref #30 (SR-3), all with full per-PR QA and zero escaped findings. **Current PR #728:** SR-3 grc_library-side close + TODO 3.20-B1 pack cross-reference + batched #727 QA rows. The readily-applicable backlog is now essentially exhausted (remaining items HELD/egress-blocked/authorial); the last non-blocked work is the scratch-side coverage-refresh sync + fragments, then the session-closing handoff. Autonomy = fix + route + APPLY protected `.claude/`/pack edits (LOCAL-INSTANCE) + stricter-safe defaults + NO idle-stop; full per-PR QA never abbreviated; green CI = merge authority. Run the #716 START-side check before each item.
 

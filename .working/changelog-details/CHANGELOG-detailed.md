@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.217, PR #729
+
+Closes TODO 3.23 (region-scope gate 67's Document-Type enumeration parity checks) and the grc_library-side of SR-5 (the ref-tool cosmetic polish, shipped as `grc_library_ref` #31).
+
+### Changed
+
+- **Gate 67 region-scoping (3.23)**: [`tools/lint-doctype-parity.py`](../../tools/lint-doctype-parity.py) gained a `doctype_region(text, anchor)` helper and two per-surface anchor maps (`NAME_REGION_ANCHOR`, `PREFIX_REGION_ANCHOR`). Checks 3 (type-name cells) and 4 (filename prefixes) now run over each surface's specific doctype table or list block, not the whole file: a heading block (from the anchor heading to the next same-or-shallower heading) for the six heading-bearing surfaces (README `## Document types`, the ingestion spec `## Document types`, the two governance `## Document hierarchy` tables, the master-spec `### 4.3 Document-type definitions`, CONTRIBUTING `## Filename rules`), and the distinctive prefix-list line for the heading-less AI-ingestion numbered-list instruction. This closes the former latent false-pass vector (documented as the gate's known limitation): a canonical type word appearing as a cell in an UNRELATED table on a name-surface, or a prefix appearing inside a document-link filename elsewhere on a prefix-surface, could previously satisfy the presence check even if the actual doctype table omitted it. An anchor that cannot be located is now itself a hard parity failure (the enumeration the gate keys on is gone).
+- Updated the module docstring (the "Known limitation (tracked, TODO 3.23)" paragraph replaced with the region-scoping description) and the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) section 6 detailed-prose narrative for gate 67 (the detection-logic change; the §6 table row, the §5 grouped-list high-level entry, and the four gate-35 parity surfaces are unchanged, so no parity resync).
+- **SR-5 (grc_library-side close)**: the four Low ref-tool nits the SR-3 verifier surfaced shipped as `grc_library_ref` #31 (dead `.gitignore` TEXT_EXTS entry removed, the graceful-skip note widened to name EPUB, MuPDF's structure-tree stdout noise suppressed via `fitz.TOOLS.mupdf_display_errors(False)`).
+
+### Added
+
+- Three regression tests in [`tests/test_linters.py`](../../tests/test_linters.py) `DoctypeParityTests`: `test_doctype_region_extraction` (heading-block boundary, phrase anchor, absent-anchor None), `test_region_scoping_closes_out_of_region_false_pass` (the core hardening proof: a type as a cell in an unrelated section is NOT counted in the doctype region, while the whole-file scan WOULD have counted it), and `test_region_anchors_resolve_on_real_surfaces` (every configured anchor resolves on its live surface).
+
+### Verification
+
+- [`tools/lint-doctype-parity.py`](../../tools/lint-doctype-parity.py) exits 0: "parity holds across all surfaces (18 type names, 18 prefixes)". Before authoring, each proposed region was tested to contain all 18 types / 18 prefixes (absent set empty for all seven surfaces), so region-scoping keeps the gate green.
+- `DoctypeParityTests` (6 tests: 3 new + 3 existing) all pass.
+- Full `run_all_audits.sh` and the pre-push guard green at push.
+
+### Discipline observations
+
+- The #728 `/validate-pr` returned 0 findings but the reference-base-work Backlog-totals bucket still read "1 open item (SR-1)" after #728 added the `### SR-5` section, a count-completeness miss (it should have read "2 open (SR-1, SR-5)") the sweep did not surface. It self-resolves here (SR-5 closes, so the bucket correctly returns to "1 open (SR-1)"), but this PR's skeptical verifier was briefed to hunt count and enumeration inconsistencies specifically. Recorded as the observation, not routed (the end state is correct).
+
 ## 2026-07-09, Library Version 2026.07.216, PR #728
 
 Closes SR-3 (the reference base's binary-scan and orphan-check coverage gaps) via `grc_library_ref` PR #30, and discharges the deferred TODO 3.20-B1 cross-reference fragment. The SR-3 substance is the cross-repo `grc_library_ref` change (recorded in that repo's PR #30); this entry records the grc_library-side close plus the orchestrator-authored 3.20-B1 pack cross-reference.
