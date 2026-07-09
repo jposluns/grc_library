@@ -163,6 +163,7 @@ PREFIX_EXEMPT_BASENAMES = {
     "worked-example.md",
     "worked-example-adoption.md",
     "adopter-guide.md",
+    "adopter-guide-multi-entity.md",
     "decision-tree.md",
     "portal.md",
     "maturity-scorecard.md",
