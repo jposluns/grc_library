@@ -12,6 +12,20 @@ stalling.
 On `/resume`, the assistant reads this file first, surfaces the still-`pending` entries to
 the maintainer, resolves those tasks, and only then continues to the next queued items.
 
+## Overnight-run authorizations (2026-07-09, maintainer-batched for a no-pause overnight backlog run)
+
+The maintainer batched these (2026-07-09) to enable an autonomous overnight BACKLOG-clearing run (the swap session). All four are RESOLVED; the overnight `/resume` executes them without re-asking.
+
+1. **Overnight scope = BACKLOG ONLY.** The first `/deep-assessment` run is DEFERRED (NOT run overnight); the overnight session clears the scratch-delivery backlog and authors the research deliveries. This supersedes the earlier "deep-assessment overnight" plan; `/deep-assessment` stays maintainer-invoke-only (Opus 4.8 when run, per the earlier decision), for a later session.
+
+2. **Overnight autonomy = fix + route + APPLY protected edits.** Fix clear findings in in-window PRs (full per-PR `/validate-pr` + `/retro` + a refute-briefed skeptical verifier on substantive changes; green CI = merge authority); route authorial/ambiguous findings to the register; apply stricter-safe defaults where reversible and evidence-backed; defer-and-skip irreversible/outward-facing; **APPLY (not stage) protected `.claude/` + `dev-security/claude-rules/` pack edits overnight.** CONSTRAINT (maintainer): protected-apply is **LOCAL-INSTANCE-ONLY.** If the overnight session runs on the local NUC, apply protected edits; if it runs on a CLOUD instance, STAGE them in [`deferred-protected-changes.md`](deferred-protected-changes.md) instead (the standing overnight-defer discipline). No idle-stop; work the priority-ordered queue.
+
+3. **TODO 3.21 = fix cell + pack-wide.** F1: migrate the audit-trail-trust attribution from CCM `LOG-08` to the fitting held `LOG-04` / `LOG-10` BOTH in the AIQT principle document §4 AND across the pack-wide `LOG-02, LOG-08` convention (fold the pack half into the GR-P2 condense). F2: swap ISO `A.8.34` to `A.5.33` ("Protection of records", the stronger anchor) in the AIQT doc §4. Attribution-accuracy corrections; spot-check each against the held CCM v4.1 and ISO/IEC 27001:2022 texts (the ISO Annex A.1 extract is conversion-scrambled, so use context reads, not line adjacency). Closes TODO 3.21.
+
+4. **Big / cross-repo deliveries = APPLY overnight.** Apply 2.11 publications-screening (the two-repo new-skill + new-command build: `grc_library_ref` PR A first, then the grc_library PR B) and the cross-repo `grc_library_ref` PRs (SR-3 ref binary-scan; 2.11's ref half) overnight under full autonomy, each with per-PR QA + a skeptical verifier. The `grc_library_ref` writes go via PR (the local git proxy 403s direct pushes).
+
+The detailed overnight backlog queue (the delivery list, per-delivery handling apply-ready-vs-research-authoring, and the priority order) is in the [`session-handoff.md`](session-handoff.md) `## Next actions` overnight block.
+
 ## Pending (open; surface at next attended boundary / `/resume`)
 
 ### Changelog-restructure PR 2 (sweep-to-scratch): how to reconcile the archive's maintainer-watermark tokens with scratch's privacy gate (2026-07-08 overnight; RESOLVED 2026-07-08 to Option A, EXECUTED in scratch PR #113 + grc_library #708)
