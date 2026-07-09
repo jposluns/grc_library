@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.206, PR #718
+
+Applies the Fable `reference-acquisition-gap-build` delivery (TODO 3.20 bullet 1, the not-held-source-detection residual of the `/reference-audit` build). Tool-only core; the pack cross-reference sentence deferred.
+
+### Added
+- [`tools/audit-reference-acquisition-gaps.py`](../../tools/audit-reference-acquisition-gaps.py): an advisory dev-aid (not a gate; exit 0 clean, 2 on error) that diffs the corpus canonical-citations register against the `grc_library_ref` catalogue and worklists cited-but-not-held standards as acquisition candidates, feeding the ref-base acquisition queue. FULL / `--section` / `--include-tooling` modes; identifier-key plus topic-expansion matching; reuses [`tools/reference-breadth-aliases.json`](../../tools/reference-breadth-aliases.json) (no new alias file); the opposite direction to [`tools/audit-reference-breadth.py`](../../tools/audit-reference-breadth.py). Re-run read-only at apply time against the live corpus register and ref catalogue: exit 0, worklist reproduced (a worklist size, not a defect count; the documented acronym/expansion residual over-reports and the judge clears it).
+
+### Changed
+- [`TODO.md`](../../TODO.md): the §3.20 not-held-source-detection bullet closed and rotated to DONE; the publications-bucket-inclusion bullet (the TODO 2.11 dependency) stays open, so §3.20 remains open.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) and [`.working/improvement-log.md`](../improvement-log.md): PR #717's 0-finding `/validate-pr` row and its `/retro` row batched in.
+
+### Verification
+`tools/run_all_audits.sh` 67/67 standalone; the language linter clean on the tool docstring; the tool re-run read-only (exit 0, worklist reproduced). No pack version change (a `tools/` add). The reference-audit skill and command cross-reference sentence (delivery item B1, a pack plus `.claude/` edit) is deferred to a later deliberate pack-touching batch; TODO 3.20 bullet 1 closes on the tool existing, not on B1. Library `2026.07.205` to `2026.07.206`; README `1.9.566` to `1.9.567`.
+
+### Worker provenance
+- **Worker provenance:** applied from [`inbox/worker-20260708-fable/reference-acquisition-gap-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/reference-acquisition-gap-build/MANIFEST.md) (Fable delivery, scratch #121). The orchestrator placed the tool verbatim, re-ran it read-only against the live corpus register and the ref catalogue to reproduce the worklist and confirm exit 0, and lint-language-checked the docstring; the B1 pack sentence deferred.
+
 ## 2026-07-08, Library Version 2026.07.205, PR #717
 
 Adds gate 67, the Document-Type enumeration parity audit, closing the gate-blind class the #711/#712 cascade exposed. Bundles PR #716's `/validate-pr` F1 entry-count fix and its QA rows.

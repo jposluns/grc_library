@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #718: TODO 3.20 bullet 1, not-held-source detection (2026-07-09)
+
+Closed the not-held-source-detection residual: applied the Fable delivery `tools/audit-reference-acquisition-gaps.py`, which diffs the corpus canonical-citations register against the `grc_library_ref` catalogue and worklists cited-but-not-held standards as acquisition candidates (feeding the ref-base acquisition queue); the untractable never-cited-never-held direction stays judge-led per TODO 2.14, and 3.20's publications-inclusion bullet stays open. The reference-audit-skill cross-reference sentence (B1) was deferred to a later pack-touching batch.
+
 ### PR #710: TODO 3.15 r6 guardrail G2, worker-brief gate-number rail (2026-07-08)
 
 Codified the r6 guardrail-review gap finding G2 (routed to TODO 3.15 in #707): added DO-rail 14 to `.working/worker-brief-template.md`, requiring every gate NUMBER a delivery cites to be verified against the audit-programme spec §6 (and any asserted corpus-gate interaction by running the gate) before propagating into prose. Targets the gate-42/44 mislabel class that cost the #702/#703/#704 churn. The sibling r6 finding G1 (the per-touch backstop D8 check) stays open in 3.15 for its own PR.
