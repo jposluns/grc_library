@@ -25,17 +25,17 @@ enumerates it, and the second linter's set must equal the canonical set exactly.
 The gate treats `lint-metadata.py` as the single source of truth; a surface that
 diverges is the failure, and the fix is to update the surface, never the gate.
 
-Known limitation (tracked, TODO 3.23): the name-cell and prefix checks scan each
-surface's WHOLE file, not the specific doctype table/list region. This is robust
-against a coincidental prose mention, and it catches the target class (a newly
-added type absent everywhere), but it has a latent false-pass vector: a canonical
-type word appearing as a cell in an UNRELATED table on a name-surface, or a prefix
-appearing in a document-link filename elsewhere on a prefix-surface, could satisfy
-the presence check even if the actual doctype table omitted the type. The corpus
-is verified clear of that condition at build time (no type appears as a cell in
-more than one location on any name-surface; each prefix appears once per
-prefix-surface). Region-scoping each check to its table/list block is the queued
-hardening.
+Region-scoping (TODO 3.23, closed): the name-cell and prefix checks are scoped to
+each surface's specific doctype table/list block, not the whole file, via
+`doctype_region` and the per-surface `NAME_REGION_ANCHOR` / `PREFIX_REGION_ANCHOR`
+maps. Each anchor is a heading (the block runs to the next same-or-shallower
+heading) or, for the heading-less AI-ingestion numbered list, the distinctive
+prefix-list line. This closes the former latent false-pass vector (a canonical type
+word appearing as a cell in an UNRELATED table on a name-surface, or a prefix
+appearing in a document-link filename elsewhere on a prefix-surface, satisfying the
+presence check even if the actual doctype table omitted it). An anchor that cannot
+be located on its surface is itself a hard parity failure (the enumeration the gate
+keys on is gone).
 
 Exit 0 clean, exit 1 on any parity break; prints every break with its surface and
 the missing token(s).
@@ -86,6 +86,59 @@ def name_is_cell(text: str, name: str) -> bool:
     return False
 
 
+# Per-surface doctype-region anchors (TODO 3.23). Each enumeration check is scoped
+# to the specific table/list block that carries the doctype vocabulary, not the
+# whole file, so a coincidental type word in an UNRELATED table (name-surfaces) or
+# a prefix inside a document-link filename elsewhere on the surface (prefix-
+# surfaces) cannot satisfy the presence check. An anchor is a heading (the block
+# runs to the next same-or-shallower heading) or, for the heading-less AI-ingestion
+# numbered list, the distinctive prefix-list line.
+NAME_REGION_ANCHOR = {
+    "README.md": ("heading", "## Document types"),
+    "specification-ingestion.md": ("heading", "## Document types"),
+    "governance/charter-governance-library.md": ("heading", "## Document hierarchy"),
+    "governance/framework-document-architecture-and-interrelationship.md":
+        ("heading", "## Document hierarchy"),
+}
+PREFIX_REGION_ANCHOR = {
+    "specification-master-project.md": ("heading", "### 4.3 Document-type definitions"),
+    "instruction-ai-document-ingestion.md":
+        ("phrase", "canonical filename using the type prefix"),
+    "CONTRIBUTING.md": ("heading", "## Filename rules"),
+}
+
+
+def doctype_region(text: str, anchor: tuple) -> str | None:
+    """Extract a surface's doctype-enumeration region. Returns None if the anchor
+    is absent (a hard parity failure: the region the gate keys on is gone). For a
+    `heading` anchor, the block runs from the heading line to the next heading of
+    the same or shallower level. For a `phrase` anchor (the heading-less
+    AI-ingestion numbered list), the single line containing the phrase (its prefix
+    list is one list item)."""
+    kind, value = anchor
+    if kind == "heading":
+        level = len(value) - len(value.lstrip("#"))
+        out: list[str] = []
+        capturing = False
+        for ln in text.splitlines():
+            if ln.strip() == value:
+                capturing = True
+                continue
+            if capturing:
+                stripped = ln.lstrip("#")
+                depth = len(ln) - len(stripped)
+                if ln.startswith("#") and 1 <= depth <= level and ln[depth:depth + 1] == " ":
+                    break
+                out.append(ln)
+        return "\n".join(out) if capturing else None
+    if kind == "phrase":
+        for ln in text.splitlines():
+            if value in ln:
+                return ln
+        return None
+    return None
+
+
 def main() -> int:
     names, prefixes = canonical_sets()
     failures: list[str] = []
@@ -122,7 +175,9 @@ def main() -> int:
         )
 
     # Check 3: name-cell surfaces. Every canonical type name must appear as a
-    # table cell or list item in each of these enumerations.
+    # table cell or list item in the surface's DOCTYPE REGION (region-scoped per
+    # TODO 3.23 to its enumeration block, so a type word in an unrelated table
+    # elsewhere on the surface cannot false-pass the presence check).
     name_surfaces = {
         "README.md": "README `## Document types` table",
         "specification-ingestion.md": "the ingestion spec allowed-type list",
@@ -131,24 +186,41 @@ def main() -> int:
             "the document-architecture `Document hierarchy` table",
     }
     for rel, label in name_surfaces.items():
-        text = read(rel)
-        absent = sorted(n for n in names if not name_is_cell(text, n))
+        region = doctype_region(read(rel), NAME_REGION_ANCHOR[rel])
+        if region is None:
+            failures.append(
+                f"{rel} ({label}): the doctype-region anchor "
+                f"{NAME_REGION_ANCHOR[rel][1]!r} is absent (cannot locate the enumeration)"
+            )
+            continue
+        absent = sorted(n for n in names if not name_is_cell(region, n))
         if absent:
-            failures.append(f"{rel} ({label}) omits type name(s) as a cell/item: {absent}")
+            failures.append(
+                f"{rel} ({label}) omits type name(s) as a cell/item in its doctype region: {absent}"
+            )
 
-    # Check 4: prefix-presence surfaces. Every canonical prefix must appear in
-    # each of these enumerations (prefixes are distinctive; substring presence
-    # is a robust, low-false-positive signal).
+    # Check 4: prefix-presence surfaces. Every canonical prefix must appear in the
+    # surface's DOCTYPE REGION (region-scoped per TODO 3.23, so a prefix inside a
+    # document-link filename elsewhere on the surface cannot false-pass; prefixes
+    # are distinctive, so substring presence within the region is robust).
     prefix_surfaces = {
         "specification-master-project.md": "the master-spec section 4.3 Type-to-prefix table",
         "instruction-ai-document-ingestion.md": "the AI-ingestion instruction",
         "CONTRIBUTING.md": "the CONTRIBUTING filename-prefix list",
     }
     for rel, label in prefix_surfaces.items():
-        text = read(rel)
-        absent = sorted(p for p in prefixes if p not in text)
+        region = doctype_region(read(rel), PREFIX_REGION_ANCHOR[rel])
+        if region is None:
+            failures.append(
+                f"{rel} ({label}): the doctype-region anchor "
+                f"{PREFIX_REGION_ANCHOR[rel][1]!r} is absent (cannot locate the enumeration)"
+            )
+            continue
+        absent = sorted(p for p in prefixes if p not in region)
         if absent:
-            failures.append(f"{rel} ({label}) omits filename prefix(es): {absent}")
+            failures.append(
+                f"{rel} ({label}) omits filename prefix(es) in its doctype region: {absent}"
+            )
 
     if failures:
         print("FAIL: Document-Type enumeration parity break(s):")

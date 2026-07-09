@@ -6472,6 +6472,66 @@ class DoctypeParityTests(LinterTestCase):
         finally:
             mod.canonical_sets = real
 
+    def test_doctype_region_extraction(self) -> None:
+        # Region-scoping (TODO 3.23): a heading anchor extracts the block up to
+        # the next same-or-shallower heading; a phrase anchor extracts the
+        # containing line; an absent anchor returns None (a hard failure signal).
+        mod = self._load()
+        text = (
+            "## Document types\n"
+            "| Charter | ... |\n"
+            "### A subsection stays inside\n"
+            "still in the block\n"
+            "## Next section ends it\n"
+            "outside the block\n"
+        )
+        region = mod.doctype_region(text, ("heading", "## Document types"))
+        self.assertIn("| Charter |", region)
+        self.assertIn("still in the block", region)  # deeper heading does not end the block
+        self.assertNotIn("outside the block", region)  # same-level heading ends it
+        # Phrase anchor: the single containing line.
+        self.assertEqual(
+            mod.doctype_region("a\nuse the type prefix (`x-`)\nb", ("phrase", "type prefix")),
+            "use the type prefix (`x-`)",
+        )
+        # Absent anchor: None (the region the gate keys on is gone).
+        self.assertIsNone(mod.doctype_region(text, ("heading", "## No such heading")))
+
+    def test_region_scoping_closes_out_of_region_false_pass(self) -> None:
+        # The TODO 3.23 hardening's core regression: a canonical type appearing as
+        # a cell in an UNRELATED table outside the doctype region must NOT count as
+        # present. The old whole-file scan false-passed this; the region-scoped
+        # check does not.
+        mod = self._load()
+        text = (
+            "## Document types\n"
+            "| Charter | the only type actually enumerated here |\n"
+            "\n"
+            "## Unrelated table elsewhere on the page\n"
+            "| Principle | mentioned only in an unrelated context |\n"
+        )
+        region = mod.doctype_region(text, ("heading", "## Document types"))
+        self.assertTrue(mod.name_is_cell(region, "Charter"))
+        self.assertFalse(
+            mod.name_is_cell(region, "Principle"),
+            "a type as a cell in an unrelated section must not count as present in "
+            "the doctype region (the false-pass vector TODO 3.23 closed)",
+        )
+        # The whole-file scan (pre-3.23 behaviour) WOULD have counted it, proving
+        # the region-scoping is what closes the gap.
+        self.assertTrue(mod.name_is_cell(text, "Principle"))
+
+    def test_region_anchors_resolve_on_real_surfaces(self) -> None:
+        # Every configured anchor must locate a region on its live surface (a
+        # None here is a hard parity failure the gate would emit).
+        mod = self._load()
+        for rel, anchor in {**mod.NAME_REGION_ANCHOR, **mod.PREFIX_REGION_ANCHOR}.items():
+            text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+            self.assertIsNotNone(
+                mod.doctype_region(text, anchor),
+                f"anchor {anchor!r} did not resolve on {rel}",
+            )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

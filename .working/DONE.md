@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #729: TODO 3.23 gate-67 region-scoping + SR-5 ref-tool polish close (2026-07-09)
+
+Closed 3.23 (region-scope gate 67's Document-Type enumeration parity checks): checks 3 and 4 now read each surface's specific doctype table/list block (a heading block for the six heading-bearing surfaces, the distinctive prefix-list line for the heading-less AI-ingestion numbered list) via a new `doctype_region` helper and per-surface anchor maps, rather than scanning the whole file, closing the latent false-pass vector where a type word in an unrelated table or a prefix in a document-link filename could satisfy the presence check; 3 new regression tests (including the false-pass-vector proof) plus the docstring and §6 narrative. Also closed SR-5 (grc_library-side): the ref-tool cosmetic polish shipped as `grc_library_ref` #31 (dead TEXT_EXTS entry removed, EPUB note widened, MuPDF stdout noise suppressed).
+
 ### PR #728: SR-3 `grc_library_ref` binary-scan coverage + TODO 3.20-B1 cross-reference (2026-07-09)
 
 Closed SR-3 (reference-base `validate.py` binary-scan gaps, items 28-29) via `grc_library_ref` #30: check 12 widened to flag CSV extracts whose workbook-family and directory both lack catalogue presence (per-sheet extracts of a catalogued workbook not flagged, 0 false positives on the 50 uncatalogued per-sheet CSVs), and check 13 widened from PDF-only to every tracked binary (PDF+EPUB via PyMuPDF, OOXML via `zipfile`, legacy via a raw latin-1 + utf-16-le scan); 0 findings on the live base, detection fire-tested per format. Also discharged the deferred TODO 3.20-B1 fragment: added the reference-audit SKILL See Also bullet (and a `/reference-audit` command note) cross-referencing the complementary `audit-reference-acquisition-gaps.py` cited-but-not-held tool shipped in #718.
