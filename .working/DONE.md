@@ -30,9 +30,13 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #731: TODO 2.2 FR-60 HIPAA operational deepening (2026-07-09)
+
+Closed FR-60 (§2.2): applied the `worker-20260703-a/fr-60-hipaa-deepening` research delivery as a new `compliance/healthcare/procedure-hipaa-operational-compliance.md` Procedure (Option B, maintainer-chosen) operationalizing the HIPAA clocks and content duties: individual right of access (30 days + one extension, 164.524), amendment and accounting (60 days, 164.526/528), Notice of Privacy Practices and minimum necessary (164.520/502/514), six-year documentation retention (164.316(b)(2), 164.530(j)), the four-factor breach-determination test and notification clocks (164.402/404/406/408/410/414), and business associate agreement content (164.502(e)/504(e)/314(a)). Citations verified against the held 45 CFR 164 extract and confirmed current upstream (eCFR: Part 164 unchanged since 2024-06-25; the 2026-07-02 Title-45 amendment did not touch it). The annex links to it; the healthcare README and the document-index register carry it.
+
 ### PR #730: Delivery-status anti-recurrence preventions (2026-07-09)
 
-Not a pre-existing TODO item; a maintainer-directed anti-recurrence action after a session-level failure (a false "scratch backlog applied" claim, ~20 applicable deliveries mislabeled "egress-gated" without per-item checking, and a narrated-not-executed start-side check for TODO 3.13 while its delivery existed). Shipped three preventions: `tools/audit-delivery-status.py` (advisory inbox-vs-TODO/DONE reconciliation, PENDING/APPLIED/UNMAPPED, plus an `--item` executed start-side check), a `.claude/CLAUDE.md` delivery-status-claim discipline (quote the tool's output; per-item blocking reasons never generalized), and `/resume` step-3 wiring. The tool immediately surfaced 33 PENDING unapplied deliveries.
+Not a pre-existing TODO item; a maintainer-directed anti-recurrence action after a session-level failure (a false "scratch backlog applied" claim, ~20 applicable deliveries mislabeled "egress-gated" without per-item checking, and a narrated-not-executed start-side check for TODO 3.13 while its delivery existed). Shipped three preventions: `tools/audit-delivery-status.py` (advisory inbox-vs-`TODO.md` reconciliation, PENDING/APPLIED/UNMAPPED, plus an `--item` executed start-side check), a `.claude/CLAUDE.md` delivery-status-claim discipline (quote the tool's output; per-item blocking reasons never generalized), and `/resume` step-3 wiring. The tool immediately surfaced 33 PENDING unapplied deliveries.
 
 ### PR #729: TODO 3.23 gate-67 region-scoping + SR-5 ref-tool polish close (2026-07-09)
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Domain README\
 **Document Type:** Register\
-**Version:** 1.4.6\
-**Date:** 2026-07-02\
+**Version:** 1.4.7\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/logistics/README.md`](logistics/README.md), [`compliance/financial-services/README.md`](financial-services/README.md), [`compliance/healthcare/README.md`](healthcare/README.md), [`compliance/energy-and-utilities/README.md`](energy-and-utilities/README.md), [`compliance/telecommunications/README.md`](telecommunications/README.md), [`compliance/public-sector/README.md`](public-sector/README.md)\
@@ -96,6 +96,7 @@ Each sub-directory has its own README listing the artefacts within and the regul
 | Type | Title | Path |
 | --- | --- | --- |
 | Annex | Healthcare Sector GRC Requirements Annex | [`compliance/healthcare/annex-healthcare-sector-requirements.md`](healthcare/annex-healthcare-sector-requirements.md) |
+| Procedure | HIPAA Operational Compliance Procedure | [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](healthcare/procedure-hipaa-operational-compliance.md) |
 
 ### Energy-and-utilities sub-directory artefacts
 
