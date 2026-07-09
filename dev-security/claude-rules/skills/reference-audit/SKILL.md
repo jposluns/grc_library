@@ -46,8 +46,10 @@ policy adopting structure or coverage from the held template), never a normative
 citation. The books bucket is RECOMMENDATION-tier only, never authoritative: a
 book-sourced suggestion must be corroborated against a trusted source before anything
 normative rests on it, and a book is engaged by topic rather than cited by identifier.
-The publications bucket is EXCLUDED by default (screen-first tier, pending the
-publications-assessment process).
+The publications bucket is EXCLUDED by default (screen-first tier; the
+`publication-screening` process (`/screen-publications`) now exists, so its inclusion
+awaits the screening wave that flips `pending` register rows to `screened` plus the
+maintainer's inclusion decision).
 
 The verdict vocabulary is four-valued, because the right action differs by verdict:
 
@@ -260,6 +262,11 @@ The pass is complete on a given run when:
 - Related skill [`deep-assessment`](../deep-assessment/SKILL.md) (`/deep-assessment`):
   the periodic whole-project assessment whose semantic-instruments phase invokes this
   skill in FULL mode.
+- Related skill [`publication-screening`](../publication-screening/SKILL.md)
+  (`/screen-publications`): the admission-control screen that gates this skill's
+  publications tier; a publication is a candidate here only once its screening register
+  row is `screened` (recommendation tier, never authoritative), and `pending` /
+  `quarantined` items are never candidates.
 - The advisory tool [`tools/audit-reference-breadth.py`](../../../../tools/audit-reference-breadth.py):
   the recall-oriented triage step that feeds this skill's worklist (not a gate; always
   exits 0; `--docs` for per-touch with `--update-state` for the delta anchor,
