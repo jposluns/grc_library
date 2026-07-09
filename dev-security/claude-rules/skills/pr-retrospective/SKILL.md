@@ -63,7 +63,7 @@ If the friction in this PR matches a friction seen in a recent PR (≤ 5 PRs pri
 - "Third consecutive findings-producing /validate-pr (#187 → 2; #188 → 2; #189 → 2). Pattern: meta-PRs that touch fitness-review and validation artefacts introduce subtle multi-surface drift."
 - "Recurring acronym-expansion gap in adopter-facing surfaces (PR #172 README; PR #179 README; PR #196 README). Pattern: each new README polish needs first-occurrence expansion checked against the existing convention."
 
-Patterns drive proposed improvements (step 5). A single occurrence is observation; a second occurrence is signal; a third is pattern.
+Patterns drive proposed improvements (step 5). A single occurrence is observation; a second occurrence is signal; a third is pattern. When a pattern's recurrence count (across the improvement-log Pattern column) reaches three or more distinct PRs, it AUTO-GRADUATES to a gate-or-convention proposal in step 5: name the mechanical check that would extinguish it (a false-positive-free gate where one exists, else a convention line), because checklist prose demonstrably reduces but does not stop a thrice-recurring class.
 
 ### 5. Propose improvement (if any)
 

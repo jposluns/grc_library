@@ -1191,6 +1191,10 @@ The GRC Library pack above is the **primary** source. `.claude/rules/external/` 
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani — all
 MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict
 with the primary layer; the primary GRC pack wins on conflict. The overlay can be pruned
-or refreshed independently. addyosmani's content is engineering-workflow skills (TDD, code
+or refreshed independently: the pruning stance is that the overlay is reviewed at each
+periodic pack review, a near-duplicate wrapper the primary pack already covers is a prune
+candidate, and a stale upstream file is refreshed from source or dropped rather than left
+to diverge. Each overlay directory carries a `PROVENANCE.md` recording this precedence and
+pruning stance beside its `LICENSE`. addyosmani's content is engineering-workflow skills (TDD, code
 review, CI/CD, security-and-hardening, etc.) in Claude Code's `SKILL.md` discovery format;
 scope is engineering practice rather than additional GRC governance.
