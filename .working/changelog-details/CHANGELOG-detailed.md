@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.230, PR #742
+
+Closes TODO 4.6 item S-d (multi-entity / group adoption guidance).
+
+### Added
+
+- [`docs/adopter-guide-multi-entity.md`](../../docs/adopter-guide-multi-entity.md) (new, Version 0.0.1): group/multi-entity adoption Guide, 7 sections (Purpose; the three topologies; versioning/CalVer per topology; role mapping when authorities differ per entity; jurisdictional layering; a trade-offs table; limitations/cross-references). Corpus-grounded synthesis (no held external source); PII-safe (no fictional org/person names, topology-level guidance only). Founds no subdirectory (a `docs/` sibling of the adopter guide).
+
+### Changed
+
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md) (1.3.10 to 1.3.11): added the new guide to Related Documents and a one-line group pointer in the "Three adoption modes" intro.
+- [`TODO.md`](../../TODO.md): rotated 4.6 S-d to DONE (bullet deleted, the 4.6 intro updated to record S-d applied + S-c not-built); section 4.6 stays open for S-c (pending maintainer) and S-f.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL (exhausted), PR ops via REST.
+- Independent refute-briefed skeptical verifier on the new guide (substantive tier).
+- Apply-time reconciliation: the S-d research (read at `8cc492e`) cross-referenced the S-c doc as the single-entity building block; since S-c was not built, the guide cross-references the live [`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md) instead.
+- Wiring scope confirmed against the sibling: `docs/` meta-documents carry no taxonomy / document-index-register row (the register has zero `docs/` entries by design; the generators do not scan `docs/`), so the regen was a no-op and no register row was added, matching how the adoption worked example is wired.
+
+### Notes
+
+- Batches PR #741's `/validate-pr` (self-Version 1.2.515) and `/retro` (self-Version 1.0.458) rows, per recursion-avoidance.
+- The sibling S-c was NOT built (its gap is filled by the adoption worked example); TODO 4.6 S-c stays open pending a maintainer close-as-satisfied-vs-enhance decision (recorded in [`.working/pending-decisions.md`](../pending-decisions.md)).
+- New-doc version 0.0.1 follows the documented convention (README metadata note); the sibling adoption worked example used 1.0.0, a pre-existing inconsistency not introduced here.
+- **Worker provenance:** [`inbox/worker-20260703-a/s-d-multi-entity-adoption/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/s-d-multi-entity-adoption/MANIFEST.md).
+
 ## 2026-07-09, Library Version 2026.07.229, PR #741
 
 Post-#740 QA batch and provenance corrections; no corpus document body changed.
