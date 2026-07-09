@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.233, PR #745
+
+Closes TODO 2.9 (FR-154) by applying the last open sub-item (sub-item 5, whistleblower feedback ceiling).
+
+### Changed
+
+- [`governance/procedure-whistleblower-and-incident-reporting.md`](../../governance/procedure-whistleblower-and-incident-reporting.md) (1.0.3 to 1.0.4): section 4.4 made operationally precise. The prior text ("The reporter is informed of the outcome to the extent permitted...") now states the feedback timeframe: not exceeding three months from acknowledgment of receipt (or, where no acknowledgment was sent, three months from the expiry of the seven-day period after the report was made), per the EU Whistleblower Directive (Directive (EU) 2019/1937) Article 9(1)(f) internal-channel requirement; an adopter operating external channels applies the Directive's Article 11 timeframe, which permits up to six months in duly justified cases.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the carrier version bump.
+- [`TODO.md`](../../TODO.md): deleted the §2.9 section (FR-154 fully closed) and updated the P2 count (3 open to 2 open; 2.9 added to the closed list).
+
+### Fixed
+
+- The two in-window findings from #744's `/validate-pr`: [`.working/session-handoff.md`](../session-handoff.md) `Current truth` line still described the TODO 4.6 S-c close as "rotation pending" (in two sibling clauses) and the EU AI Act annex as parked "BUILT-but-HELD", both stale (S-c closed + rotated in #744; the annex applied in #743). Reconciled via a whole-line pass (S-c clauses to CLOSED-in-#744; the "stay parked" clause marked HISTORICAL/superseded; a `[BUILT, HELD]` tail marker corrected to `[APPLIED #743]`). Third-consecutive occurrence of the handoff append-not-reconcile class; the restructure of this run-on line is scheduled for the session-closing handoff (the `/retro` proposal).
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL, PR ops via REST.
+- The three-month internal-channel feedback ceiling verified verbatim against the held EU Whistleblower Directive extract, Article 9(1)(f) ("a reasonable timeframe to provide feedback, not exceeding three months from the acknowledgment of receipt..."); the six-month external-channel figure verified against Article 11 (competent-authority feedback "not exceeding three months, or six months in duly justified cases"). The Article-11 paragraph number was not asserted (verified only to the article), per claim-fit precision.
+- Independent skeptical verifier not run (a single-clause value-confirmation against a held source; the source-verification is the substantive check and the value is prescribed verbatim).
+
+### Notes
+
+- Batches PR #744's `/validate-pr` (self-Version 1.2.518) and `/retro` (self-Version 1.0.461) rows, per recursion-avoidance.
+- TODO §2.9 is now fully CLOSED: 5 of 6 sub-items in #738, sub-item 5 here; sub-items 2 (DSR restriction clock) and 7 (incident escalation thresholds) did not reproduce.
+- **Worker provenance:** [`inbox/worker-20260703-a/fr-154-operational-vagueness/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-154-operational-vagueness/MANIFEST.md) (the sub-item-5 source flag; the orchestrator verified the held Directive value and authored the §4.4 edit).
+
 ## 2026-07-09, Library Version 2026.07.232, PR #744
 
 Bookkeeping PR; no corpus document body changed.

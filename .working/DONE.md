@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #745: FR-154 sub-item 5, whistleblower feedback ceiling (closes TODO 2.9) (2026-07-09)
+
+Closed the last open FR-154 sub-item (§2.9), the whistleblower investigation feedback ceiling, now that the EU Whistleblower Directive 2019/1937 is held in `grc_library_ref`. Made `governance/procedure-whistleblower-and-incident-reporting.md` §4.4 operationally precise: feedback within a reasonable timeframe not exceeding three months from acknowledgment (internal-channel ceiling, verified against held Article 9(1)(f)), with the Article 11 external-channel timeframe (up to six months in duly justified cases) noted. TODO §2.9 fully CLOSED (5 of 6 sub-items in #738, sub-item 5 here; sub-items 2 and 7 did not reproduce).
+
 ### PR #744: TODO 4.6 S-c closed as satisfied (2026-07-09)
 
 Closed TODO 4.6 item S-c (adopter-direction role-substitution demo) as SATISFIED by the existing `docs/worked-example-adoption.md` (whose Step 3 already walks role substitution, the missing-role case, and the private-overlay rule), per the maintainer's 2026-07-09 decision. No new document was built (a third overlapping adopter doc was avoided); the stale delivery gap analysis had been superseded by `worked-example-adoption.md` landing after the worker's source read. Bookkeeping PR also carried #743's QA batch and a handoff append-not-reconcile-residual fix.

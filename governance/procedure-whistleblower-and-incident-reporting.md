@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-09\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -105,7 +105,7 @@ Reports are made to the relevant team lead, IT/security helpdesk, or the CISO as
 - Significant concerns: formal investigation with documented findings.
 - Criminal or regulatory matters: referred to Legal Counsel for guidance on external reporting.
 
-4.4 The reporter is informed of the outcome to the extent permitted by confidentiality and legal constraints.
+4.4 The reporter is provided feedback within a reasonable timeframe not exceeding three months from the acknowledgment of receipt (or, where no acknowledgment was sent, three months from the expiry of the seven-day period after the report was made), and is informed of the outcome to the extent permitted by confidentiality and legal constraints. The three-month internal-channel ceiling follows the EU Whistleblower Directive (Directive (EU) 2019/1937) Article 9(1)(f); an adopter operating external reporting channels applies the Directive's Article 11 timeframe, which permits up to six months in duly justified cases.
 
 4.5 Investigations are documented and retained per the Data Retention Schedule.
 
