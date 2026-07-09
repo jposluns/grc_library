@@ -273,6 +273,13 @@ The pass is complete on a given run when:
   `--ref-since` / `--ref-items` for new-ingest, `--include-publications` only under an
   explicit screening decision), with its curated alias map
   [`tools/reference-breadth-aliases.json`](../../../../tools/reference-breadth-aliases.json).
+- The advisory tool [`tools/audit-reference-acquisition-gaps.py`](../../../../tools/audit-reference-acquisition-gaps.py):
+  the complementary cited-but-not-held direction to this skill's breadth judgement. Where
+  this skill and `audit-reference-breadth.py` ask whether the corpus USES what the base
+  holds, the acquisition tool asks whether the corpus CITES a source the base does NOT
+  hold (an acquisition candidate for the ref-base acquisition queue and the maintainer
+  source-drop list), diffing the corpus canonical-citations register against the ref
+  catalogue. Also advisory, never a gate; always exits 0.
 - The reference base: the `grc_library_ref` repo located via its indexes, with the
   per-source currency confirmation, the superseded-archival workflow, and the
   trust-bucket rules the `grc_library_ref` repo's own conventions define.

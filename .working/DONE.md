@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #728: SR-3 `grc_library_ref` binary-scan coverage + TODO 3.20-B1 cross-reference (2026-07-09)
+
+Closed SR-3 (reference-base `validate.py` binary-scan gaps, items 28-29) via `grc_library_ref` #30: check 12 widened to flag CSV extracts whose workbook-family and directory both lack catalogue presence (per-sheet extracts of a catalogued workbook not flagged, 0 false positives on the 50 uncatalogued per-sheet CSVs), and check 13 widened from PDF-only to every tracked binary (PDF+EPUB via PyMuPDF, OOXML via `zipfile`, legacy via a raw latin-1 + utf-16-le scan); 0 findings on the live base, detection fire-tested per format. Also discharged the deferred TODO 3.20-B1 fragment: added the reference-audit SKILL See Also bullet (and a `/reference-audit` command note) cross-referencing the complementary `audit-reference-acquisition-gaps.py` cited-but-not-held tool shipped in #718.
+
 ### PR #727: TODO 4.7 GR-P3 / GR-P4 / GR-P5a pack-design batch (2026-07-09)
 
 Closed three GR-P pack-design items: GR-P3 (the third-occurrence-to-gate escalation convention, codified in the pr-retrospective SKILL step 4 + the `/retro` command mirror + an improvement-log `## Convention` bullet), GR-P4 (a `PROVENANCE.md` in each of the three external overlay directories stating the primary-pack-wins precedence + the pruning/refresh stance, plus that stance appended to the project CLAUDE.md overlay paragraph), and GR-P5a (re-pointed the `deep-qa-review` and `library-fitness-review` `derives_from` to `trust-recovery-escalation`, the rule that defines them as its two-skill suite). GR-P5b (exception-register hoist) folded into the GR-P2 condense; GR-P5c validated already-correct (no-op); the GR-P5 derived-skill-coverage-gap residual stays open.
