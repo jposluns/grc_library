@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.5\
-**Date:** 2026-07-05\
+**Version:** 1.2.6\
+**Date:** 2026-07-09\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -124,6 +124,8 @@ Residual likelihood and residual impact are re-assessed on the same 1-to-5 scale
 | 5 to 9 | Medium | Treat or formally accept with documented rationale |
 | 10 to 16 | High | Treat; corrective action required within 90 days |
 | 17 to 25 | Critical | Treat immediately; escalate to ERC within 5 business days |
+
+For a Critical risk, the risk owner together with the CISO (or the relevant domain executive) may direct immediate interim containment or treatment measures pending the Enterprise Risk Committee review, without waiting for the five-business-day escalation window to complete. Interim containment does not constitute risk acceptance: formal acceptance of a Critical risk remains with the Executive Committee or the Board through the risk-acceptance chain ([`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md) Section 4.2.2, and the [`governance/register-role-authority.md`](../governance/register-role-authority.md)).
 
 5.2 Risks above the organization's risk tolerance require a treatment plan or formal risk acceptance.
 

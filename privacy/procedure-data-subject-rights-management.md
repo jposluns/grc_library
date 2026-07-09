@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.6\
-**Date:** 2026-07-03\
+**Version:** 1.6.7\
+**Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -79,7 +79,7 @@ Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
 - Written correspondence to the organization's registered address, directed to the Data Protection Officer.
-- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer on the same business day.
+- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day.
 
 The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
