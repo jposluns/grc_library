@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.8\
-**Date:** 2026-07-03\
+**Version:** 1.1.9\
+**Date:** 2026-07-09\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -82,7 +82,7 @@ Each supplier must be assessed and assigned a risk tier based on business impact
 
 ### Step 3: Due diligence evaluation
 
-Assessments must be conducted across all applicable domains. Suppliers scoring below 70% of the maximum assessment score require documented remediation plans before engagement may proceed.
+Assessments must be conducted across all applicable domains. Suppliers scoring below 70% of the maximum assessment score require remediation before engagement may proceed, with the gate conditioned on the supplier's tier and the deficiency severity: for a Tier 1 (Critical) supplier, or any critical-severity deficiency at any tier, the remediation must be completed and independently verified closed before engagement proceeds; for lower tiers with non-critical deficiencies, a documented remediation plan with a binding deadline and interim monitoring is sufficient for engagement to proceed. A Tier 1 supplier with an unremediated critical deficiency is not engaged on a plan alone.
 
 | Domain | Assessment Focus | Applicable Standards |
 | --- | --- | --- |
