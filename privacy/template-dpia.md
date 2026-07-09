@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-07-03\
+**Version:** 1.0.7\
+**Date:** 2026-07-09\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -38,7 +38,7 @@ This template addresses Data Protection Impact Assessments only. Assessments of 
 
 This template applies wherever the organization, acting as a controller (or as a joint controller jointly with another party), proposes to carry out, or has carried out, processing that is likely to result in a high risk to the rights and freedoms of natural persons. It applies before processing begins (the prior-assessment rule of Article 35(1)) and on each material change to the processing operation.
 
-Where the processing involves an AI system, this template is used together with the AI System Impact Assessment Procedure (see [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)); the DPIA addresses the data protection limb and the AI System Impact Assessment addresses the AI-specific limb. The two assessments share evidence and reference each other.
+Where the processing involves an AI system, this template is used together with the AI System Impact Assessment Procedure (see [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)); the DPIA addresses the data protection limb and the AI System Impact Assessment addresses the AI-specific limb. The two assessments share evidence and reference each other. The [Integrated AI and Privacy Assessment Procedure](../ai/procedure-integrated-ai-and-privacy-assessment.md) is the router that determines, for a system in scope of more than one regime, which of the DPIA, the AI System Impact Assessment, and the EU AI Act Article 27 fundamental rights impact assessment (FRIA) are required and how they compose; where a FRIA is triggered it complements this DPIA rather than substituting for it (Article 27(4)).
 
 ---
 

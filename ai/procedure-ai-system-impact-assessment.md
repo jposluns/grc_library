@@ -2,11 +2,11 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-06-23\
+**Version:** 1.0.3\
+**Date:** 2026-07-09\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI risk or regulatory change\
@@ -109,6 +109,8 @@ Assess exposure to:
 Determine whether the system processes personal data, sensitive data, regulated data, employee data, customer data, confidential business data, or data subject to retention, transfer, or deletion obligations.
 
 Record whether review is required from privacy, legal, compliance, labour, sector regulatory, procurement, or information security roles.
+
+Where personal data is processed, route to the privacy-side instruments through the [Integrated AI and Privacy Assessment Procedure](procedure-integrated-ai-and-privacy-assessment.md): record the activity in the [automated decision-making register](../privacy/register-automated-decision-making.md) where the system makes a solely-automated decision producing legal or similarly significant effects (GDPR Article 22), complete a [DPIA](../privacy/template-dpia.md) where the Article 35 trigger is met, and complete the EU AI Act Article 27 fundamental rights impact assessment (FRIA) where the deployer meets the Article 27(1) test. The FRIA complements the DPIA (Article 27(4)) and does not substitute for it.
 
 ### Step 6: Assess supplier and external service dependency
 

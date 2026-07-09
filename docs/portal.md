@@ -381,6 +381,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Model Risk Assessment Procedure](../ai/procedure-ai-model-risk-assessment.md) (maturity: Baseline)
 - [AI System Impact Assessment Procedure](../ai/procedure-ai-system-impact-assessment.md) (maturity: Baseline)
 - [Foundation Model Lifecycle Procedure](../ai/procedure-foundation-model-lifecycle.md) (maturity: Draft)
+- [Integrated AI and Privacy Assessment Procedure](../ai/procedure-integrated-ai-and-privacy-assessment.md) (maturity: Draft)
 - [Secure Code Review Procedure](../dev-security/procedure-secure-code-review.md) (maturity: Draft)
 - [Training Data Governance Procedure](../ai/procedure-training-data-governance.md) (maturity: Draft)
 

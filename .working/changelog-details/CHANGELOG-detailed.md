@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.223, PR #735
+
+Closes TODO section 2.10 (FR-41). Applies the `worker-20260703-a/fr-41-article-22-fria` research delivery under validate-then-apply. Home directory maintainer-chosen (`ai/`, AI-governance placement next to the AI System Impact Assessment Procedure).
+
+### Added
+
+- [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md) (new Procedure, Version 0.0.1): the router for a system in scope of more than one assessment regime. Sections: Purpose, Trigger events, Procedure (Step 1 the ADM register entry point, Step 2 regime-trigger determination, Step 3 the routing table, Step 4 composition, Step 5 applicability and timing), Roles and responsibilities, Required outputs. Metadata and section model mirror [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md); Owner AI Risk Maintainer.
+
+### Changed
+
+- [`privacy/register-automated-decision-making.md`](../../privacy/register-automated-decision-making.md) (1.0.5 to 1.0.6): the router added to Related Documents; the coordination section extended to name the FRIA and the complement-not-substitute rule; a new EU AI Act Article 27 (FRIA) row in the framework-alignment table (which previously stopped at Article 26).
+- [`privacy/template-dpia.md`](../../privacy/template-dpia.md) (1.0.6 to 1.0.7): the AI-system-pairing paragraph gains a cross-reference to the router and the Article 27(4) complement relationship.
+- [`ai/procedure-ai-system-impact-assessment.md`](../../ai/procedure-ai-system-impact-assessment.md) (1.0.2 to 1.0.3): Step 5 (privacy and legal context) closes the previously one-way DPIA link, routing to the DPIA template, the ADM register, the FRIA, and the router; the DPIA template, ADM register, and router added to Related Documents.
+- [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) (1.0.3 to 1.0.4): item B3 corrected from "Privacy Impact Assessment (PIA) or AI-specific impact assessment (AI-IA / FRIA)" (interchangeable alternatives) to the composed set (DPIA, AI System Impact Assessment, and FRIA where triggered) with the FRIA complementing the DPIA per Article 27(4), plus a cross-reference to the router. This is a semantic correction, not only a cross-reference.
+- [`ai/README.md`](../../ai/README.md) (1.1.2 to 1.1.3) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.64 to 1.27.65): the new Procedure registered in the AI domain README and the document-index register (gate 4 structural index, gate 47 listing-surface completeness).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (new document plus the four carriers' and two registers' Version and Date).
+- [`TODO.md`](../../TODO.md): deleted the section 2.10 heading (rotated to DONE); removed `2.10 (FR-41 EU AI Act Article 22)` from the egress-deferred list; **fixed the P2 count block** (the #734 `/validate-pr` finding F1) from "7 open items" to "5 open items" and added the 2.8 (FR-74, #734) and 2.10 (FR-41, #735) closures.
+
+### Verification
+
+- Every cited provision was verified verbatim against the held trusted texts in `grc_library_ref` (an independent source-verification pass): GDPR Article 22(1) to (4), Article 35(1) and 35(3)(a); EU AI Act Article 27(1) trigger, 27(2) reuse, and 27(4) the "shall complement" composition hook (verbatim). The complement-not-substitute correction to checklist B3 is supported directly by the enacted Article 27(4) text.
+- Currency handled per the FR-74 pattern (EUR-Lex not fetchable from this environment): citations use the version-stable regulation-number-plus-article form anchored to the held enacted text, and the FRIA applicability date is not a live-currency question but a settled fact in the held EU AI Act Article 113: Article 27 sits in Chapter III Section 3 and so falls under the Regulation's general application date, **2 August 2026** (verbatim from Article 113; not the earlier Section-4 2025 carve-out, nor the Article 6(1) 2027 bucket). The workflow is forward-framed ("applicable from 2 August 2026") rather than asserting a currently-binding FRIA obligation.
+- Deepen-not-duplicate: the router references the DPIA content checklist, the AI-IA steps, and the checklist controls by name rather than restating them.
+- `lint-language` on the new document and all four carriers clean (no dashes, no bare "ensure"); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/fr-41-article-22-fria/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-41-article-22-fria/MANIFEST.md) (research: fresh-read coverage and overlap map, proposed workflow shape and home-directory options, per-carrier edit shapes, load-bearing citations with the currency flag; orchestrator authored the final prose, re-verified every citation via an independent source-verification pass, and derived the FRIA applicability date from the held Article 113 rather than the worker's "24 months" gloss).
+
+### Discipline observations
+
+- The FRIA applicability date is the currency lesson generalized from FR-74: rather than accept the worker's "24 months after entry into force" gloss or attempt an unavailable EUR-Lex fetch, the source-verification pass located Article 27 structurally within Chapter III Section 3 and read the verbatim "2 August 2026" application date from the held Article 113. This is evidence-grounded completion applied to a phase-in date: the enacted text settles it, so no upstream fetch is needed, but the derivation (Article 113 plus Article 27's placement) is recorded so it can be re-checked. The B3 semantic correction is the apply-time worker-correction discipline on a control assertion: "PIA or AI-IA / FRIA" as alternatives contradicted Article 27(4), so the control was rewritten to the composed, complement-not-substitute form.
+
 ## 2026-07-09, Library Version 2026.07.222, PR #734
 
 Closes TODO section 2.8 (FR-74, Schrems II operational deepening). Applies the `worker-20260703-a/fr-74-schrems-ii` research delivery under validate-then-apply.
