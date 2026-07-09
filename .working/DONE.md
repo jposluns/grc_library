@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #744: TODO 4.6 S-c closed as satisfied (2026-07-09)
+
+Closed TODO 4.6 item S-c (adopter-direction role-substitution demo) as SATISFIED by the existing `docs/worked-example-adoption.md` (whose Step 3 already walks role substitution, the missing-role case, and the private-overlay rule), per the maintainer's 2026-07-09 decision. No new document was built (a third overlapping adopter doc was avoided); the stale delivery gap analysis had been superseded by `worked-example-adoption.md` landing after the worker's source read. Bookkeeping PR also carried #743's QA batch and a handoff append-not-reconcile-residual fix.
+
 ### PR #743: EU AI Act jurisdiction annex (TODO 5.1/5.9, part 1 of 2) (2026-07-09)
 
 Applied the `worker-20260703-a/fr-62-eu-ai-act-annex` delivery as a new `ai/jurisdictions/annex-ai-european-union.md` (founds the `ai/jurisdictions/` subdirectory), an 11-section per-regime view of EU AI Act Regulation (EU) 2024/1689: operator roles (Art 3), risk tiers (Art 5/6 + Annex III), the high-risk provider chain (Art 16/49/50), the deployer chain (Art 26/27), GPAI (Art 51/53/55, the 10^25 FLOP systemic threshold), the phased timeline (Art 113, applies 2 Aug 2026), and penalties (Art 99/101). Every article verified against the held enacted text; a Limitations caveat flags the pending, not-adopted Digital Omnibus on AI (COM(2025) 836). Wired into ai/README, the doc-index register, the decision-tree §5.1, and the glossary. Maintainer-approved (2026-07-09) merge-as-is + caveat. Sibling Colorado AI Act annex (the second §5.1/5.9 founding annex) remains to build.
