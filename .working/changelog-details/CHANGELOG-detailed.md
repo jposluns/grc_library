@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.222, PR #734
+
+Closes TODO section 2.8 (FR-74, Schrems II operational deepening). Applies the `worker-20260703-a/fr-74-schrems-ii` research delivery under validate-then-apply.
+
+### Changed
+
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (1.5.7 to 1.6.0): replaced the one-line EU cross-border stub in Step 4 with a full GDPR Chapter V and Schrems II operational sequence (five sub-steps EU-1 to EU-5: transfer-tool selection ladder, the six-step assessment via the TIA, supplementary-measures selection, suspend-or-notify, re-assessment triggers), parallel in depth to the existing China (PIPL) Steps A to G; reworded the generic cross-border lead to route to the EU and China sequences.
+- [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md) (1.1.3 to 1.1.4): a bounded pointer from the cross-border transfer-mechanism inventory to the new procedural sequence (the inventory lists the mechanisms; the procedure runs them). No change to the annex's Article citations or adequacy list.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (the two touched documents' Version and Date).
+- [`TODO.md`](../../TODO.md): deleted the section 2.8 heading (rotated to DONE); removed `2.8 (FR-74 Schrems II)` from the egress-deferred list (now applied).
+
+### Verification
+
+- GDPR Chapter V is held (`grc_library_ref` GDPR extract, Regulation 2016/679); the transfer-tool ladder cites Articles 45, 46, 47, and 49 as already carried in the EU annex's validated inventory, introducing no new external citation. The Schrems II judgment (CJEU Case C-311/18, 16 July 2020) is a settled landmark, held in the reference base (`legislation/EU/case-law/`); it is cited by its established identifier, not added as a standards-register entry (the canonical-citations register is standards-scoped and carries no case-law).
+- Untrusted-bucket discipline held: the six-step methodology is referenced through the shipped TIA template's existing EDPB Recommendations 01/2020 attribution, not the untrusted `publications/` EDPB extract; no load-bearing claim rests on the untrusted bucket.
+- Currency constraint stated honestly: EUR-Lex is not fetchable from this environment, so the EU-US Data Privacy Framework adequacy status could not be confirmed upstream this turn. The edit is therefore mechanism-generic, it points to the annex's current adequacy list (which already reflects the DPF, not the invalidated Privacy Shield) and carries a re-assessment trigger for adequacy-status change, and it asserts no specific adequacy decision. GDPR Chapter V Articles, the 2021 Commission SCCs, and the Schrems II judgment are stable and do not require an EUR-Lex currency check.
+- Deepen-not-duplicate held: the TIA (six steps) and the annex inventory are read-only and referenced by section/number, not restated.
+- `lint-language` on both edited documents clean (no dashes, no bare "ensure"); full `run_all_audits.sh` 67/67; generators `--check` clean.
+
+**Worker provenance:** applies [`inbox/worker-20260703-a/fr-74-schrems-ii/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-74-schrems-ii/MANIFEST.md) (research: gap analysis, per-target edit shape, EDPB-source flag, caveats; orchestrator authored the final prose, re-read both target files and the TIA anchor, and confirmed the held GDPR Chapter V and Schrems II sources).
+
+### Discipline observations
+
+- The EUR-Lex-unfetchable constraint is the reason the edit is mechanism-generic rather than adequacy-specific: rather than assert a DPF status I cannot confirm upstream, the sequence points to the annex's adequacy list and makes adequacy-status change a re-assessment trigger. This is evidence-grounded completion at the currency boundary, cite the stable held sources, defer the time-varying fact to the surface that owns it. The EDPB-via-TIA routing is the untrusted-reference discipline: a load-bearing methodology claim rests on the corpus's own already-vetted attribution, not the untrusted extract.
+
 ## 2026-07-09, Library Version 2026.07.221, PR #733
 
 Closes the US HIPAA bullet of TODO section 5.4. Applies the `worker-20260703-a/us-hipaa-healthcare-deepening` research delivery under validate-then-apply as a new US operational annex, [`compliance/healthcare/annex-healthcare-united-states.md`](../../compliance/healthcare/annex-healthcare-united-states.md) (name maintainer-chosen, country-overlay convention).
