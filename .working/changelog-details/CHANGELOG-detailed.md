@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.215, PR #727
+
+Closes TODO 4.7 GR-P3, GR-P4, GR-P5a (the guardrail-review pack-design batch). Applies the Fable `pack-design-gr345-batch` delivery under validate-then-apply with a refute-briefed skeptical pre-push verifier; each GR-P5 sub-claim re-validated against live state (GR-P5c confirmed a stale premise, no edit).
+
+**Worker provenance:** [`inbox/worker-20260708-fable/pack-design-gr345-batch/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/pack-design-gr345-batch/MANIFEST.md)
+
+### Added
+- A per-directory provenance file added to each of the three `.claude/rules/external/` overlay directories (`addyosmani`, `kariedo`, `tikitribe`) (GR-P4): stating the overlay is supplementary, the primary GRC pack wins on conflict, the source + licence, and the review/prune/refresh stance. Source name substituted per directory.
+
+### Changed
+- [`dev-security/claude-rules/skills/pr-retrospective/SKILL.md`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md) step 4 and its [`.claude/commands/retro.md`](../../.claude/commands/retro.md) mirror (GR-P3): a sentence auto-graduating a Pattern-column class recurring across three or more PRs to a gate-or-convention proposal in step 5 (a false-positive-free gate where one exists, else a convention line).
+- [`.working/improvement-log.md`](../improvement-log.md) `## Convention` (GR-P3 + a GR-P2-t1 residual): the paired third-occurrence-to-gate bullet, and the removal-ledger `/retro`-review convention widened to name BOTH ledgers (the PR #441 CLAUDE.md ledger and the new GR-P2 pack-rule ledger), closing the consistency gap GR-P2 tranche 1 left (the new ledger claimed `/retro` review but nothing in the `/retro` process referenced it).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) overlay paragraph (GR-P4): the review/prune/refresh stance and the per-directory PROVENANCE-file pointer appended (protected `.claude/` edit, per the local-instance overnight authorization).
+- [`dev-security/claude-rules/skills/deep-qa-review/SKILL.md`](../../dev-security/claude-rules/skills/deep-qa-review/SKILL.md) and [`dev-security/claude-rules/skills/library-fitness-review/SKILL.md`](../../dev-security/claude-rules/skills/library-fitness-review/SKILL.md) `derives_from` (GR-P5a): re-pointed from `evidence-grounded-completion` to `trust-recovery-escalation` (the rule that defines them as its two-skill suite; gate 32 stays green).
+
+### Removed
+- [`TODO.md`](../../TODO.md): the GR-P3 and GR-P4 bullets deleted (rotated to DONE); the GR-P5 bullet rewritten to the slimmed derived-skill-coverage-gap residual (migrate-before-delete: GR-P5's un-actioned "two rules with no derived skill" observation preserved), recording GR-P5a done / GR-P5b folded-to-GR-P2 / GR-P5c no-op.
+
+### Not changed (validated no-op)
+- GR-P5c: the project CLAUDE.md Boundaries-trio premise was already correct at the read basis (it names `gate-discipline` / `change-tracking` / `artefact-and-branch-discipline`); no edit, per the delivery's own validation.
+
+### Verification
+- `lint-language` clean on the pack SKILL edit; the new provenance files and the `.claude/` edits (gate-2-exempt) dash-checked clean (the one em-dash in the `/retro` command is pre-existing, not in the edited line). gate 32 (skill derives-from) green on the re-point; gate 44 parity holds (no new step identifier). All 67 gates pass. A refute-briefed skeptical pre-push verifier ran on the diff; the pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #726's `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 0 findings) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+
 ## 2026-07-09, Library Version 2026.07.214, PR #726
 
 Ships GR-P2 tranche 1 (the governance-rule operative-core condense; TODO 4.7 GR-P2 stays open). Applies the Fable `gr-p2-rule-condense` tranche-1 delivery under validate-then-apply, with the condense verified obligation-preserving and a refute-briefed skeptical pre-push verifier.

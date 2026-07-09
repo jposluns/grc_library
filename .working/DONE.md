@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #727: TODO 4.7 GR-P3 / GR-P4 / GR-P5a pack-design batch (2026-07-09)
+
+Closed three GR-P pack-design items: GR-P3 (the third-occurrence-to-gate escalation convention, codified in the pr-retrospective SKILL step 4 + the `/retro` command mirror + an improvement-log `## Convention` bullet), GR-P4 (a `PROVENANCE.md` in each of the three external overlay directories stating the primary-pack-wins precedence + the pruning/refresh stance, plus that stance appended to the project CLAUDE.md overlay paragraph), and GR-P5a (re-pointed the `deep-qa-review` and `library-fitness-review` `derives_from` to `trust-recovery-escalation`, the rule that defines them as its two-skill suite). GR-P5b (exception-register hoist) folded into the GR-P2 condense; GR-P5c validated already-correct (no-op); the GR-P5 derived-skill-coverage-gap residual stays open.
+
 ### PR #725: TODO 4.7 GR-P1 session-lifecycle pack rule (2026-07-09)
 
 Closed the GR-P1 pack-design item: shipped the 13th governance rule `session-lifecycle.md`, distilling the project's own session apparatus (durable reconciled handoff, explicit operator-set operating modes, graceful degradation with an absolute reversibility gate, evidence-gated wind-down, the green-merge close with its loop-break, and the advisory concurrency lease) into a project-agnostic discipline any multi-session AI-assisted project inherits. Wired across all rule-enumeration surfaces (README tree + two-areas list + scope table, pack + project CLAUDE.md, the byte-identical `.claude/rules` mirror + MIRROR_MAP, the gate-39 word-form and collection-enum docstring counts); pack `1.58.0`→`1.59.0`. Applied the Fable `session-lifecycle-rule-build` delivery; the project CLAUDE.md sections it distills are retained (project-specific operationalization). GR-P2..P5 stay open.
