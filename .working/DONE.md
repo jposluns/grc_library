@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #734: FR-74 Schrems II operational deepening (2026-07-09)
+
+Closed TODO section 2.8 (FR-74): applied the `worker-20260703-a/fr-74-schrems-ii` delivery, deepening the EU cross-border treatment in `privacy/procedure-privacy-impact-and-cross-border-transfer.md` Step 4 from a one-line SCC stub to a full GDPR Chapter V / Schrems II operational sequence (transfer-tool selection ladder, the six-step assessment run through the shipped TIA template, supplementary-measures selection, the suspend-or-notify hard stop, and re-assessment triggers), with a pointer from the EU jurisdiction annex's transfer-mechanism inventory. Anchored to GDPR Chapter V (held) and the shipped TIA; kept mechanism-generic (points to the annex's current adequacy list rather than asserting a specific adequacy decision, since EUR-Lex is unfetchable to confirm the DPF status upstream); EDPB methodology routed via the TIA's existing attribution, not the untrusted publications extract.
+
 ### PR #733: US HIPAA healthcare annex (section 5.4 US bullet) (2026-07-09)
 
 Closed the US HIPAA bullet of TODO section 5.4: applied the `worker-20260703-a/us-hipaa-healthcare-deepening` delivery as a new `compliance/healthcare/annex-healthcare-united-states.md` (US operational regime map), deepening the sector annex with role determination, the Security Rule safeguard families (45 CFR 164 Subpart C), the Breach Notification mechanics and 60-day/500-individual timelines (Subpart D), the four-tier civil-money-penalty structure (45 CFR 160 Subpart D, amounts deferred to the inflation-adjusted 45 CFR part 102 rather than asserted), and the NIST SP 800-66r2 crosswalk. Deepens by cross-reference (the NPRM and privacy-law framing stay in the sector and privacy annexes). Citations verified against the held 45 CFR 160/162/164 extracts; codified Security Rule confirmed current upstream (Subpart C unchanged since 2016; the 2024 NPRM remains proposed, no final rule as of 2026-07-09). The remaining section-5.4 overlays (UK NHS DSPT, EU MDR/IVDR, Canada, Australia) stay open.
