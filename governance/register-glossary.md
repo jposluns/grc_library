@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.10\
+**Version:** 1.4.11\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -55,6 +55,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AEO** | Authorized Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
 | **AI** | Artificial Intelligence. |
+| **AI Act** | The EU Artificial Intelligence Act, Regulation (EU) 2024/1689, laying down harmonized rules on artificial intelligence. See [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md). |
 | **AICM** | AI Controls Matrix. Cloud Security Alliance (CSA) framework of AI-specific controls. |
 | **AIDA** | Artificial Intelligence and Data Act. Canadian federal legislation introduced in Bill C-27 (which lapsed at the January 2025 prorogation; would require reintroduction). Distinct from "AI Data Act" in some other contexts; the library uses AIDA for the Canadian Artificial Intelligence and Data Act only. |
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |

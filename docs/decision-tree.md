@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.14\
+**Version:** 1.0.15\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -253,6 +253,10 @@ If you build agentic AI:
 8. [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md)
 9. [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)
 10. [`ai/register-mcp-server.md`](../ai/register-mcp-server.md)
+
+If you place AI systems on the EU market, put them into service in the EU, or your AI system's output is used in the EU:
+
+11. [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md): EU AI Act (Regulation (EU) 2024/1689) per-regime consolidated view (operator roles, risk tiers, obligation chains, timeline, penalties).
 
 ### 5.2 If you operate cloud workloads
 

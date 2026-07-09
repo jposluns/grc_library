@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #743: EU AI Act jurisdiction annex (TODO 5.1/5.9, part 1 of 2) (2026-07-09)
+
+Applied the `worker-20260703-a/fr-62-eu-ai-act-annex` delivery as a new `ai/jurisdictions/annex-ai-european-union.md` (founds the `ai/jurisdictions/` subdirectory), an 11-section per-regime view of EU AI Act Regulation (EU) 2024/1689: operator roles (Art 3), risk tiers (Art 5/6 + Annex III), the high-risk provider chain (Art 16/49/50), the deployer chain (Art 26/27), GPAI (Art 51/53/55, the 10^25 FLOP systemic threshold), the phased timeline (Art 113, applies 2 Aug 2026), and penalties (Art 99/101). Every article verified against the held enacted text; a Limitations caveat flags the pending, not-adopted Digital Omnibus on AI (COM(2025) 836). Wired into ai/README, the doc-index register, the decision-tree §5.1, and the glossary. Maintainer-approved (2026-07-09) merge-as-is + caveat. Sibling Colorado AI Act annex (the second §5.1/5.9 founding annex) remains to build.
+
 ### PR #742: multi-entity adoption guidance (TODO 4.6 S-d) (2026-07-09)
 
 Closed TODO 4.6 item S-d: applied the `worker-20260703-a/s-d-multi-entity-adoption` delivery as a new `docs/adopter-guide-multi-entity.md`, group/multi-entity adoption guidance covering three topologies (single shared library, per-entity forks with a group baseline, hub-and-spoke with entity annexes) with per-topology versioning/CalVer, role-mapping-when-authorities-differ, jurisdictional layering (reusing the jurisdiction-annex model), and a trade-offs table. Corpus-grounded synthesis (no external source); wired via the adopter-guide cross-reference (docs/ meta-documents are outside the taxonomy/doc-index scope). The sibling S-c was NOT built (its gap was already filled by `docs/worked-example-adoption.md`); it stays open pending a maintainer decision.

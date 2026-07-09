@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.231, PR #743
+
+Applies the FR-62 EU AI Act jurisdiction annex (TODO 5.1/5.9 part 1 of 2); maintainer-approved 2026-07-09 (merge-as-is + a Digital-Omnibus-pending caveat).
+
+### Added
+
+- [`ai/jurisdictions/annex-ai-european-union.md`](../../ai/jurisdictions/annex-ai-european-union.md) (new, Version 0.0.1): the founding annex of a new `ai/jurisdictions/` subdirectory. 11-section per-regime view of Regulation (EU) 2024/1689 (Purpose; applicable law + authorities; scope/extraterritorial reach Art 2; operator roles Art 3; risk tiers Art 5/6 + Annex III + the Art 51 10^25-FLOP GPAI-systemic threshold; high-risk obligation chain Art 16/49/50 provider, Art 26/27 deployer; GPAI Art 53/55; timeline Art 113; penalties Art 99/101; adopter-role framing; limitations). Consolidates by cross-reference to [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) and [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md), does not duplicate. Owner/Category = Chief Information Security Officer / AI Governance (stricter-safe default, matches the AI compliance policy).
+
+### Changed
+
+- [`ai/README.md`](../../ai/README.md) (1.1.3 to 1.1.4): Annex row for the new document.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (1.27.66 to 1.27.67): AI Annex row.
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) (1.0.14 to 1.0.15): section 5.1 EU-conditional routing line to the new annex.
+- [`governance/register-glossary.md`](../../governance/register-glossary.md) (1.4.10 to 1.4.11): "AI Act" entry linking the annex, placed after "AI".
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+- [`TODO.md`](../../TODO.md): section 5.1 status updated (EU AI Act annex APPLIED; Colorado remains); not fully closed (Colorado is part 2).
+
+### Fixed
+
+- The one in-window finding from #742's `/validate-pr`: [`.working/session-handoff.md`](../session-handoff.md) current-truth line asserted BOTH the old "Operating mode: OVERNIGHT BACKLOG run (ACTIVE)" field and the newly-added DAYTIME-ATTENDED-AUTONOMOUS switch (append-not-reconcile, the #619/#622/#628 class on a mode field); reconciled to daytime, overnight run CLOSED.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard, unpiped / tail-safe; no gh-GraphQL (exhausted), PR ops via REST.
+- Every cited article verified verbatim against the held EU AI Act text in the `grc_library_ref` reference base (the Regulation (EU) 2024/1689 extract). Currency confirmed upstream this turn (2024/1689 in force; the Digital Omnibus COM(2025) 836 is a pending, not-adopted proposal, captured as a caveat only). The Digital Omnibus caveat's facts (COM(2025) 836, 19 November 2025, provisional Council agreement 13 May 2026, inserting Articles 4a/60a/75a-75e + Annex XIV) verified against the held proposal extract now on `grc_library_ref` main.
+- Independent refute-briefed skeptical verifier on the annex: found + fixed 2 (a fabricated verbatim quotation, corrected to a paraphrase; an imprecise concentration-risk characterization, corrected), re-verified clean; no other fabricated quote in the class.
+
+### Notes
+
+- Batches PR #742's `/validate-pr` (self-Version 1.2.516) and `/retro` (self-Version 1.0.459) rows, per recursion-avoidance.
+- This is part 1 of the two FR-62 founding annexes; the Colorado AI Act annex is part 2 (next).
+- **Worker provenance:** [`inbox/worker-20260703-a/fr-62-eu-ai-act-annex/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260703-a/fr-62-eu-ai-act-annex/MANIFEST.md) (research: corpus census, the privacy-EU-annex shape model, held-EU-AI-Act anchors; orchestrator authored the final prose, re-verified every article anchor via a source-verification pass, added the Digital Omnibus caveat from the newly-held proposal, and applied the timeline-precision corrections the pass surfaced).
+
 ## 2026-07-09, Library Version 2026.07.230, PR #742
 
 Closes TODO 4.6 item S-d (multi-entity / group adoption guidance).
