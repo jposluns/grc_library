@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #722: TODO 2.11 publications-screening process + SR-2 screening-record check (2026-07-09)
+
+Closed the publications-assessment / poisoning-detection process (former TODO 2.11) and its paired reference-base gap (SR-2), applying the Fable `publications-screening-build` delivery as a two-repo build. Corpus side (this PR): the `publication-screening` pack skill (twenty-first skill) + `/screen-publications` command + the advisory instruction-content scanner + gate-44 PAIRS + pack `1.58.0` + a project CLAUDE.md cadence section. Reference-base side (`grc_library_ref` #29): the `publications/SCREENING.md` register (29 rows, 16 screened, 13 pending), `validate.py` check 14, and the README protocol section (resolving SR-2's "15 of 27 without records"). The 13 pending EDPB/WP29 rows become the screening wave, TODO 3.24.
+
 ### PR #719: TODO 4.6 S-a/S-b/S-e, adopter-experience batch (2026-07-09)
 
 Applied the Fable adopter-experience-sabe batch: a README routing-table link to the decision tree (S-b), a glossary legend for the "Governance Library Maintainer" meta-role (S-e), and a portal Board/CEO audience section plus inline per-entry maturity tags via a `build-portal.py` generator change (S-a). S-c/S-d stay pending their separate worker-20260703-a research deliveries; S-f remains a design item, so §4.6 stays open.

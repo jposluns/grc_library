@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.210, PR #722
+
+Ships the publications-screening process (corpus half), closing the former TODO 2.11 and its paired reference-base gap SR-2. Applies the Fable `publications-screening-build` worker delivery as the second repo of a two-repo build; the reference-base half shipped in `grc_library_ref` PR #29. Substantive tier: a new pack skill + command + tool + a protected-file cadence section, applied under validate-then-apply with a refute-briefed skeptical pre-push verifier.
+
+**Worker provenance:** [`inbox/worker-20260708-fable/publications-screening-build/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260708-fable/publications-screening-build/MANIFEST.md)
+
+### Added
+- [`dev-security/claude-rules/skills/publication-screening/SKILL.md`](../../dev-security/claude-rules/skills/publication-screening/SKILL.md): the twenty-first pack skill, the seven-step screening protocol for the untrusted publications bucket (provenance and integrity, the mechanical instruction-content scan, corroboration of load-bearing claims against trusted sources, a four-valued verdict `screened`/`pending`/`quarantined`/`discard-candidate` recorded in the reference base register, gate-usage-downstream, record-and-surface). `derives_from` [`evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md); admission-control semantics engineered against the trust-upgrade misreading.
+- [`.claude/commands/screen-publications.md`](../../.claude/commands/screen-publications.md): the paired `/screen-publications` slash command, step-identifier parity with the skill (steps 1-7).
+- [`tools/scan-publication-instruction-content.py`](../../tools/scan-publication-instruction-content.py) (mode 755): the advisory mechanical half, a stdlib-only recall-oriented instruction-content scanner over publication extracts (seven pattern classes: override-instruction, role-reassignment, imperative-to-assistant, exfiltration-hook, tool-invocation, hidden-text, encoded-blob); always exits 0 (2 on usage error); a hit is a judge-read, not a verdict. Safety-reviewed: read-only, no writes / network / exec.
+
+### Changed
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): the gate-44 PAIRS registry extended with the `(publication-screening SKILL, screen-publications command)` pair (step-parity re-verified, symmetric difference empty).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): the skill added to the `skills/` tree; pack Version `1.57.0` to `1.58.0` (minor, new skill) with the paired `## Version history` row.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the growth-narrative skill count `twenty` advanced to `twenty-one` (gate-39-keyed word-form; the new skill directory bumps the count source).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a `## Publications screening (/screen-publications)` cadence section added beside the other cadence sections (protected file; the maintainer's acceptance of this delivery plus the local-instance overnight protected-apply authorization is the authorization).
+- [`governance/specification-citation-verification.md`](../../governance/specification-citation-verification.md): the one live stale `TODO §2.11` forward pointer reworded to name the shipped `/screen-publications` process (the §N-orphan cross-file cleanup); Version `1.2.10` to `1.2.11`, Date to `2026-07-09`.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the citation-verification Version bump.
+
+### Removed
+- [`TODO.md`](../../TODO.md): the `### 2.11` and `### SR-2` sections deleted (rotated to DONE); the P2 count 9 to 8 and the reference-base count 3 to 2 in Backlog totals; the three in-TODO `§2.11` cross-references (in the FR-167/worker-staging item, the fork-reference-base item, and its low-urgency note) reworded to name the shipped process; the 3.20 bullet 2 reworded (kept open) to record that the screening process now exists.
+
+### Verification
+- [`tools/lint-language.py`](../../tools/lint-language.py) run clean on the new pack prose before the first commit. gate 44 (paired-skill step-parity) re-run green with the new pair. The reference-base half (`grc_library_ref` #29) verified check 14 fires by injected-defect negative test (unknown status, missing row) and the register-to-catalogue join is clean (29/29, 0 missing, 0 orphan), with three screened rows spot-checked against the reference base's ingest queue. Generated artefacts regenerated after the citation-verification Version bump (taxonomy first, then portal and scorecard). Whole-repo grep confirmed no live stale `§2.11`/`SR-2` forward pointer remains outside frozen `.working/` history and historical provenance mentions. A refute-briefed skeptical pre-push verifier ran on the diff and caught one gate-blind Medium (the r7 guardrail-review history row written without a trailing newline, merging the r7 and r6 rows onto one physical line, invisible to all 67 gates because `.working/` is exempt from the markdown-structure gates); fixed by splitting the rows and re-verified (7 rows, each standalone) before push. The pre-push guard is green.
+
+### Batched bookkeeping (recursion-avoidance)
+- PR #721's Sweep-91 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md)) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)).
+
 ## 2026-07-09, Library Version 2026.07.209, PR #721
 
 The `/resume` Sweep-91 close-out, the first PR of the 2026-07-08/09 overnight backlog run (on the local NUC `nuc125h-a`; protected-apply authorized as local-instance per the recorded overnight authorizations). Working-state, version-surface, and CHANGELOG only; no corpus document body changed.

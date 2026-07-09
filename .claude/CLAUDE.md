@@ -713,6 +713,41 @@ substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; it is the bre
 layer beside them. Findings are fixed in-window or routed under the normal triage; a
 zero-finding or empty-candidate run still gets a history row.
 
+## Publications screening (`/screen-publications`)
+
+The reference base's `publications/` bucket is untrusted by default, and an untrusted
+document in an AI's reference context is a trust boundary (bias, factual error, or
+prompt-injection content can steer corpus authoring; the OWASP LLM01/LLM05 classes the
+corpus's own AI guidance describes). The formal control is the
+[`publication-screening`](../dev-security/claude-rules/skills/publication-screening/SKILL.md)
+skill (slash command `/screen-publications`): provenance and integrity, the mechanical
+instruction-content scan
+([`tools/scan-publication-instruction-content.py`](../tools/scan-publication-instruction-content.py)),
+corroboration of load-bearing claims against trusted sources, then a per-publication
+verdict recorded in the reference base's `publications/SCREENING.md` register, which
+the reference-base validation gate enforces (a missing row, an unknown status, or an
+orphan row fails it).
+
+Run `/screen-publications` on this cadence:
+
+1. **On every new `publications/` ingest** (the register row ships in the same change
+   that catalogues the item).
+2. **On the pending backlog** (the screening wave over `pending` rows; partitionable
+   worker research applied through validate-then-apply).
+3. **Ad-hoc before reliance** on a publication whose row is `pending`, stale, or in
+   doubt.
+
+The standing rules: a `pending` publication's content never informs corpus work;
+`screened` gates admission to AI context and never upgrades trust (load-bearing claims
+are corroborated at use time, and normative claims cite the trusted source);
+`quarantined` extracts carry a DO-NOT-USE banner and go to the maintainer;
+`discard-candidate` items route to the maintainer, never a silent delete. Honest-backstop framing: the
+process raises the bar against poisoned reference input; it does not by itself guarantee
+detection. It is NOT a gate and NOT a substitute for use-time corroboration; it is the
+admission-control layer for the one untrusted reference bucket. This cadence shipped
+across two PRs: the reference-base register + validate check (`grc_library_ref` PR #29)
+and the pack skill + `/screen-publications` command + scanner + wiring (this PR).
+
 ## Reference-version currency (`grc_library_ref` is storage, upstream is the authority)
 
 The project-specific operationalization of the `evidence-grounded-completion` rule's
