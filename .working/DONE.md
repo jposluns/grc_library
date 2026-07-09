@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #730: Delivery-status anti-recurrence preventions (2026-07-09)
+
+Not a pre-existing TODO item; a maintainer-directed anti-recurrence action after a session-level failure (a false "scratch backlog applied" claim, ~20 applicable deliveries mislabeled "egress-gated" without per-item checking, and a narrated-not-executed start-side check for TODO 3.13 while its delivery existed). Shipped three preventions: `tools/audit-delivery-status.py` (advisory inbox-vs-TODO/DONE reconciliation, PENDING/APPLIED/UNMAPPED, plus an `--item` executed start-side check), a `.claude/CLAUDE.md` delivery-status-claim discipline (quote the tool's output; per-item blocking reasons never generalized), and `/resume` step-3 wiring. The tool immediately surfaced 33 PENDING unapplied deliveries.
+
 ### PR #729: TODO 3.23 gate-67 region-scoping + SR-5 ref-tool polish close (2026-07-09)
 
 Closed 3.23 (region-scope gate 67's Document-Type enumeration parity checks): checks 3 and 4 now read each surface's specific doctype table/list block (a heading block for the six heading-bearing surfaces, the distinctive prefix-list line for the heading-less AI-ingestion numbered list) via a new `doctype_region` helper and per-surface anchor maps, rather than scanning the whole file, closing the latent false-pass vector where a type word in an unrelated table or a prefix in a document-link filename could satisfy the presence check; 3 new regression tests (including the false-pass-vector proof) plus the docstring and §6 narrative. Also closed SR-5 (grc_library-side): the ref-tool cosmetic polish shipped as `grc_library_ref` #31 (dead TEXT_EXTS entry removed, EPUB note widened, MuPDF stdout noise suppressed).

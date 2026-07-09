@@ -578,6 +578,32 @@ concurrency analogue) but whenever the queue is resumed mid-session and the next
 picked. The operational form (where to look, what an in-flight claim row versus a delivered
 inbox row means) is in the runbook
 [`.working/multi-session-orchestration.md`](../.working/multi-session-orchestration.md).
+**This check is EXECUTED, not narrated.** Run
+`python3 tools/audit-delivery-status.py --item <backlog-id>` (e.g. `--item 3.13`, `--item
+FR-60`, `--item SR-3`) and PASTE its output before building any backlog item: a
+`DELIVERED ... (apply-work)` result means validate-then-apply on the named delivery, never a
+from-scratch build; a `no delivery ... (build-work)` result clears the build. A spoken
+conclusion ("no collision, build-work") not backed by the tool's same-turn output is a
+discipline failure (the 2026-07-09 recurrence: the check was asserted clear for TODO 3.13
+while a `positional-token-lint-313` delivery sat in the inbox and a from-scratch rebuild was
+begun; the tool makes the check evidence-producing so a narrated pass is no longer possible).
+
+**Delivery-status-claim discipline (evidence, not memory).** Any assertion about the
+delivery pipeline's state, that the backlog is applied / cleared / done, that a specific
+delivery is applied, or that an item is blocked / gated, MUST quote the same-turn output of
+`python3 tools/audit-delivery-status.py` (the full reconciliation: the PENDING / APPLIED /
+UNMAPPED buckets and the review-set count), never a mental model. The tool is advisory
+(cross-repo, un-gated, so nothing mechanical forces it); this discipline is the forcing
+function, and running it is a standing `/resume` step-3 action alongside
+`audit-brief-freshness.py`. A per-item blocking reason (egress-gated, source-gated,
+authorial, maintainer-schedule-gated) is recorded PER ITEM against the authoritative
+per-item verdict in the scratch `research/COVERAGE.md` and
+[`pending-decisions.md`](../.working/pending-decisions.md); it is NEVER generalized across
+items from one item's reason (the 2026-07-09 recurrence: about twenty applicable content
+deliveries were mislabeled "egress-gated" by generalizing FR-59's blocker, and the backlog
+was declared applied; the reconciliation report lists the review set that refutes such a
+claim). This is `evidence-grounded-completion` applied to the delivery pipeline: the status
+claim is composed FROM the tool's output, not from inference.
 
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 
