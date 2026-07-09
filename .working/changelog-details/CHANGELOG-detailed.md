@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-09, Library Version 2026.07.228, PR #740
+
+eIDAS discoverability wiring plus the #738/#739 QA batch. Wires the eIDAS Sector Requirements Annex (shipped in #739) into the two hand-maintained sibling-enumeration surfaces the mechanical gates do not scan, closing the two in-window findings PR #739's `/validate-pr` surfaced.
+
+### Changed
+
+- [`docs/decision-tree.md`](../../docs/decision-tree.md) (1.0.13 to 1.0.14): added a section 3.6 public-sector routing line for the eIDAS annex (peer to the existing FedRAMP line) and a section 1.4 regulated-activity scope-trigger bullet ("Rely on the EU Digital Identity Wallet or provide trust services in the EU (eIDAS in scope)"), so an adopter routing an EU digital-identity / trust-services scenario is reached to [`compliance/public-sector/annex-eidas-requirements.md`](../../compliance/public-sector/annex-eidas-requirements.md).
+- [`governance/register-glossary.md`](../../governance/register-glossary.md) (1.4.9 to 1.4.10): added an **eIDAS** entry ("electronic IDentification, Authentication and trust Services", Regulation (EU) No 910/2014 as amended by Regulation (EU) 2024/1183, linking the annex), placed alphabetically between EECC and EIOPA, matching the DORA / NIS 2 / FedRAMP convention of a glossary entry that links each regime's dedicated annex.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the two version bumps ([`docs/portal.md`](../../docs/portal.md) unchanged).
+
+### Fixed
+
+- The two in-window gate-blind multi-surface-incompleteness findings from PR #739's `/validate-pr` (F1 WARNING decision-tree routing at `docs/decision-tree.md:198`; F2 NOTE glossary entry at `governance/register-glossary.md:143`): the eIDAS annex reached the gated README and document-index register but not the decision tree or glossary, the gate-blind sibling-enumeration surfaces. Folded here per recursion-avoidance rather than a dedicated hot-fix PR.
+
+### Verification
+
+- 67/67 audit gates green on the pre-push guard (`run_all_audits.sh` plus `run-pr-time-checks.sh`), unpiped / tail-safe; no gh-GraphQL (exhausted), PR ops via REST.
+- eIDAS reg-number anchors (910/2014, 2024/1183) reconfirmed against #739's source-verification; the glossary expansion is the standard eIDAS form. Generators `--check` clean.
+- The decision tree's FedRAMP/DORA/NIS 2 routing lines and scope-triggers, and the DORA/NIS 2/FedRAMP glossary annex-links, were re-read to confirm the eIDAS additions match the established sibling pattern exactly.
+
+### Notes
+
+- Batches PR #738's `/validate-pr` (self-Version 1.2.513) and `/retro` (self-Version 1.0.456) rows and PR #739's, per recursion-avoidance.
+- The sibling FR-62 EU AI Act jurisdiction annex was authored this session against the held enacted text but its merge is HELD pending maintainer confirmation: TODO line-48 egress-deferral (maintainer Option B, 2026-07-06) of the EU AI Act annex for currency, plus a newly-found pending "Digital Omnibus on AI" amendment (Council doc 9247/26, provisionally agreed 13 May 2026, not yet adopted) surfaced by an upstream check this turn. The built annex is preserved out-of-repo with re-apply notes; the decision is recorded in [`.working/pending-decisions.md`](../../.working/pending-decisions.md). This PR therefore carries only the non-blocked eIDAS discoverability fixes and the QA batch. It is orchestrator-authored (no scratch-inbox worker delivery applied), so it carries no worker-provenance marker.
+
 ## 2026-07-09, Library Version 2026.07.227, PR #739
 
 Closes the EU eIDAS bullet of TODO section 5.7. Applies the `worker-20260703-a/eidas2-public-sector-annex` research delivery under validate-then-apply as a new public-sector annex; name a stricter-safe default (unattended).

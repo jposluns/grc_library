@@ -2481,7 +2481,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Glossary and Acronym Index"
-  version: "1.4.9"
+  version: "1.4.10"
   date: "2026-07-09"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

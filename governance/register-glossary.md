@@ -2,7 +2,7 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.9\
+**Version:** 1.4.10\
 **Date:** 2026-07-09\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -129,6 +129,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **EBA** | European Banking Authority. |
 | **EDI** | Electronic Data Interchange. |
 | **EECC** | European Electronic Communications Code. |
+| **eIDAS** | electronic IDentification, Authentication and trust Services. EU Regulation (EU) No 910/2014 as amended by Regulation (EU) 2024/1183 ("eIDAS2"), covering electronic identification, trust services, and the EU Digital Identity Wallet. See [`compliance/public-sector/annex-eidas-requirements.md`](../compliance/public-sector/annex-eidas-requirements.md). |
 | **EIOPA** | European Insurance and Occupational Pensions Authority. |
 | **ELT** | Executive Leadership Team. |
 | **ERC** | Enterprise Risk Committee. Executive-level forum delegated by the Board Risk Committee. See [`governance/register-role-authority.md`](register-role-authority.md). |
