@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.1\
-**Date:** 2026-07-02\
+**Version:** 1.2.2\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -174,6 +174,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Access governance |
 | ISO/IEC 27002:2022 | §5.15 to 5.18 | Access request, review, and revocation |
+| ISO/IEC 29146:2024 | A framework for access management | Access-management framework and lifecycle |
 | NIST SP 800-53 | AC: Access Control Family | Access management controls |
 | COBIT 2019 | DSS05: Manage Security Services | Access security services |
 | CSA CCM v4.1 | IAM-01 through IAM-14: Identity and Access Management | Cloud IAM controls |

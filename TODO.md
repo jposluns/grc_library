@@ -169,7 +169,7 @@ FULL-mode `/reference-audit` found 27 held-but-unused authoritative citations (t
 - **(R12-devsec) Dev-security / cloud / metrics / workforce**: NIST SP 800-204D (devops-security); ISO/IEC 27017:2015 (cloud-security-baseline; also resolves a dangling register row); NIST SP 800-55 Vol.1 & Vol.2 (metrics framework); NIST SP 800-181 Rev.1 NICE (security-awareness-and-training role-based table).
 - **(R12-bonus) Citation-precision bonuses**: the NIST SP 800-207A cited-title mismatch (a phrasing fix in the ZTA reference); the ISO/IEC 27017 dangling register row (resolved by the cloud-baseline citation above).
 
-**Progress:** R12-risk (risk/ERM) applied in #770; R12-privacy (ISO/IEC 29100:2024, 29151:2017; NIST IR 8062; NIST SP 800-226) applied in #771 (2026-07-10). Remaining clusters: IAM, incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce, and the bonus precision pair. §3.29 closes when the last cluster lands.
+**Progress:** R12-risk (risk/ERM) applied in #770; R12-privacy applied in #771; R12-iam (ISO/IEC 24760 2025 parts, ISO/IEC 29146:2024, NIST SP 800-63A-4, NIST SP 800-210) applied in #772 (2026-07-10). Remaining clusters: incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce, and the bonus precision pair. §3.29 closes when the last cluster lands.
 
 ### 3.39 Dependabot refresh-companion for the SHA-pinned CI actions (R9 follow-on, maintainer decision, XS)
 
