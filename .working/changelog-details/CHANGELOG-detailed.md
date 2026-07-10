@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.277, PR #789
+
+**Session-closing handoff PR** for the `claude/resume-sweep95-validate` session (#780-#788). Working-state only; no corpus document body changed. Takes the standing handoff-PR exemption from its own trailing `/validate-pr` + `/retro` (loop-break).
+
+### Changed
+
+- Refreshed [`.working/session-handoff.md`](../session-handoff.md): a new sweep95 CLOSING block in `## Next actions` (the session's work #780-#788 and the next session's queue: Sweep 96, then AI-workstream PR 1-10 with PR 1 scoped, then the closing `/deep-assessment`; the sweep94 block relabelled PRIOR and sweep93 marked prune-at-next-resume), a new `## State snapshot`, and a new `## Asserted expectations` block (what this session mechanically verified, scoped to touched surfaces, plus the soft spots NOT asserted clean). Green-at `e3b155c` (#788) = 67/67.
+- Wrote the [`.working/session-metrics.md`](../session-metrics.md) row (Version 1.0.47 to 1.0.48): 9 PRs; 8 measured post-compaction subagents at ~1.50M tokens (1,496,319; the pre-compaction subagents were not captured across the compaction and the true total is omitted per the measured-versus-not-instrumented discipline); orchestrator tokens `not instrumented`.
+- RELEASED the concurrency lease in [`.working/session-state.md`](../session-state.md) (`Active-session: none`, `Status: released`; the sweep95 session demoted to a PRIOR-released block).
+- Added the #789 handoff-exempt row to [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.560 to 1.2.561) with the gate-50 marker `SKIPPED` + `handoff-PR exception` in the Findings cell.
+
+### Verification
+
+- No corpus document body changed (the diff touches only the backlog, the working-state ledgers, the changelog, and the readme). The compensating control for the skipped trailing QA is the next `/resume`'s corpus-wide `/validate` (Sweep 96) over #780..#788. `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean (pre-push guard). Batches PR #788's `/validate-pr` (2 in-window cosmetic findings, both fixed) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.276, PR #788
 
 **AI gaps-and-expansion workstream, PR 0.5 (unheld-citation routing; advances TODO §2.2, completes workstream PR 0)**. Working-state routing PR: no corpus body changed. Bookkeeping tier (no skeptical verifier).
