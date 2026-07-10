@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.69\
-**Date:** 2026-07-09\
+**Version:** 1.27.70\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -191,7 +191,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, AIDA, ISO/IEC 42001, NIST AI RMF, UK AI Safety Institute | template |
 | AI | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) | Chief Information Security Officer | Annual | EU AI Act Regulation (EU) 2024/1689, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) | Chief Information Security Officer | Annual | Colorado SB 24-205, Colorado SB 26-189, NIST AI RMF, ISO/IEC 42001 | template |
-| AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, EU AI Act Title VIII, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
+| AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, EU AI Act Chapter IX, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
 | AI | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 42001 | template |
 | Dev Security | Standard | Developer Security Requirements Standard | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Security Architecture Maintainer | Annual | OWASP Top 10, ISO/IEC 27001 Annex A.8.25 to 28, NIST SP 800-218 | template |
 | Dev Security | Standard | DevOps Security Requirements Standard | [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md) | Security Architecture Maintainer | Annual | NIST SP 800-218, SLSA, CIS Benchmarks, OWASP SAMM | template |
