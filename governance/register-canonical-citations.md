@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.16\
-**Date:** 2026-07-09\
+**Version:** 1.5.17\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -60,32 +60,32 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements | 2013 | - | needs-reconfirm |
-| ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | - | needs-reconfirm |
-| ISO/IEC 27005 | 2022 | 2022-10 | Information security risk management | 2018 | - | needs-reconfirm |
-| ISO/IEC 27017 | 2015 | 2015-12 | Cloud-service-specific information security controls | - | - | needs-reconfirm |
-| ISO/IEC 27018 | 2025 | 2025-08 | Protection of personally identifiable information in public clouds acting as PII processors | 2019 | - | needs-reconfirm |
-| ISO/IEC 27019 | 2024 | 2024-10 | Information security controls for the energy utility industry (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | 2017 | - | needs-reconfirm |
+| ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements | 2013 | https://www.iso.org/standard/27001 | verified 2026-07-09 |
+| ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | https://www.iso.org/standard/75652.html | verified 2026-07-09 |
+| ISO/IEC 27005 | 2022 | 2022-10 | Information security risk management | 2018 | https://www.iso.org/standard/80585.html | verified 2026-07-09 |
+| ISO/IEC 27017 | 2015 | 2015-12 | Cloud-service-specific information security controls | - | https://www.iso.org/standard/43757.html | verified 2026-07-09 |
+| ISO/IEC 27018 | 2025 | 2025-08 | Protection of personally identifiable information in public clouds acting as PII processors | 2019 | https://www.iso.org/standard/27018 | verified 2026-07-09 |
+| ISO/IEC 27019 | 2024 | 2024-10 | Information security controls for the energy utility industry (Edition 2; based on ISO/IEC 27002:2022 with 12 additional energy-sector controls) | 2017 | https://www.iso.org/standard/85056.html | verified 2026-07-09 |
 | ISO/IEC 27033-1 | 2015 | 2015 | Network security - Part 1: Overview and concepts (the roadmap part of the multi-part ISO/IEC 27033 series on network security architecture and segmentation; confirmed unchanged 2021) | 2009 | https://www.iso.org/standard/63461.html | verified 2026-06-30 |
 | ISO/IEC 27036-2 | 2022 | 2022-06 | Cybersecurity - Supplier relationships - Part 2: Requirements (Edition 2; cancels and replaces the 2014 first edition) | 2014 | https://www.iso.org/standard/82060.html | verified 2026-06-30 |
-| ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | - | needs-reconfirm |
-| ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | - | needs-reconfirm |
-| ISO/IEC 27701 | 2025 | 2025-10 | Privacy information management system (PIMS); standalone standard since the 2025 revision (previously an extension to ISO/IEC 27001 in the 2019 edition; transition deadline October 2028) | 2019 | - | needs-reconfirm |
-| ISO 22301 | 2019 | 2019-10 | Business continuity management systems | - | - | needs-reconfirm |
-| ISO 31000 | 2018 | 2018-02 | Risk management: principles and guidelines | - | - | needs-reconfirm |
-| ISO/IEC 38500 | 2024 | 2024 | Governance of IT for the organization | 2015 | - | needs-reconfirm |
-| ISO/IEC 23894 | 2023 | 2023-02 | AI risk management guidance | - | - | needs-reconfirm |
-| ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | - | needs-reconfirm |
-| ISO/IEC 42005 | 2025 | 2025-05 | AI system impact assessment | - | - | needs-reconfirm |
-| ISO/IEC 42006 | 2025 | 2025 | Requirements for bodies providing audit and certification of AI management systems | draft, draft 2024, 2024 draft | - | needs-reconfirm |
-| ISO 28000 | 2022 | 2022-03 | Security management systems for the supply chain | 2007 | - | needs-reconfirm |
-| ISO 28001 | 2007 | 2007 | Best practices for implementing supply chain security | - | - | needs-reconfirm |
-| ISO 15489 | 2016 | 2016-04 | Records management | - | - | needs-reconfirm |
-| ISO 50001 | 2018 | 2018-08 | Energy management systems | - | - | needs-reconfirm |
-| ISO/IEC 5259 | 2024 | 2024 | Data quality for AI and machine learning | - | - | needs-reconfirm |
-| ISO 37301 | 2021 | 2021-04 | Compliance management systems | - | - | needs-reconfirm |
-| ISO 37001 | 2025 | 2025-02 | Anti-bribery management systems - Requirements with guidance for use (Edition 2; transition deadline February 2027; changes from 2016 edition are not extensive) | 2016 | - | needs-reconfirm |
-| ISO/IEC 17021 | 2015 | 2015 | Conformity assessment: requirements for bodies providing audit and certification of management systems | - | - | needs-reconfirm |
+| ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | https://www.iso.org/standard/82890.html | verified 2026-07-09 |
+| ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | https://www.iso.org/standard/59689.html | verified 2026-07-09 |
+| ISO/IEC 27701 | 2025 | 2025-10 | Privacy information management system (PIMS); standalone standard since the 2025 revision (previously an extension to ISO/IEC 27001 in the 2019 edition; transition deadline October 2028) | 2019 | https://www.iso.org/standard/27701 | verified 2026-07-09 |
+| ISO 22301 | 2019 | 2019-10 | Business continuity management systems | - | https://www.iso.org/standard/75106.html | verified 2026-07-09 |
+| ISO 31000 | 2018 | 2018-02 | Risk management: principles and guidelines | - | https://www.iso.org/standard/65694.html | verified 2026-07-09 |
+| ISO/IEC 38500 | 2024 | 2024 | Governance of IT for the organization | 2015 | https://www.iso.org/standard/81684.html | verified 2026-07-09 |
+| ISO/IEC 23894 | 2023 | 2023-02 | AI risk management guidance | - | https://www.iso.org/standard/77304.html | verified 2026-07-09 |
+| ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | https://www.iso.org/standard/42001 | verified 2026-07-09 |
+| ISO/IEC 42005 | 2025 | 2025-05 | AI system impact assessment | - | https://www.iso.org/standard/42005 | verified 2026-07-09 |
+| ISO/IEC 42006 | 2025 | 2025 | Requirements for bodies providing audit and certification of AI management systems | draft, draft 2024, 2024 draft | https://www.iso.org/standard/42006 | verified 2026-07-09 |
+| ISO 28000 | 2022 | 2022-03 | Security management systems for the supply chain | 2007 | https://www.iso.org/standard/79612.html | verified 2026-07-09 |
+| ISO 28001 | 2007 | 2007 | Best practices for implementing supply chain security | - | https://www.iso.org/standard/45654.html | verified 2026-07-09 |
+| ISO 15489 | 2016 | 2016-04 | Records management | - | https://www.iso.org/standard/62542.html | verified 2026-07-09 |
+| ISO 50001 | 2018 | 2018-08 | Energy management systems | - | https://www.iso.org/standard/69426.html | verified 2026-07-09 |
+| ISO/IEC 5259 | 2024 | 2024 | Data quality for AI and machine learning | - | https://www.iso.org/standard/81088.html | verified 2026-07-09 |
+| ISO 37301 | 2021 | 2021-04 | Compliance management systems | - | https://www.iso.org/standard/75080.html | verified 2026-07-09 |
+| ISO 37001 | 2025 | 2025-02 | Anti-bribery management systems - Requirements with guidance for use (Edition 2; transition deadline February 2027; changes from 2016 edition are not extensive) | 2016 | https://www.iso.org/standard/37001 | verified 2026-07-09 |
+| ISO/IEC 17021 | 2015 | 2015 | Conformity assessment: requirements for bodies providing audit and certification of management systems | - | https://www.iso.org/standard/61651.html | verified 2026-07-09 |
 
 ## NIST publications
 
@@ -129,33 +129,33 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| US HIPAA | 1996 (with HITECH 2009 and Omnibus 2013 amendments); HIPAA Security Rule NPRM issued by HHS OCR on 27 December 2024, published in the Federal Register on 6 January 2025, comment period closed 7 March 2025 with approximately 5,000 comments. The NPRM would (among other changes) make encryption of ePHI and multi-factor authentication mandatory, eliminate the "required vs addressable" implementation-specification distinction, and require an annually-refreshed asset inventory and ePHI network map. Final rule pending as of May 2026 | - | Health Insurance Portability and Accountability Act | - | - | needs-reconfirm |
+| US HIPAA | 1996 (with HITECH 2009 and Omnibus 2013 amendments); HIPAA Security Rule NPRM issued by HHS OCR on 27 December 2024, published in the Federal Register on 6 January 2025, comment period closed 7 March 2025 with approximately 5,000 comments. The NPRM would (among other changes) make encryption of ePHI and multi-factor authentication mandatory, eliminate the "required vs addressable" implementation-specification distinction, and require an annually-refreshed asset inventory and ePHI network map. Final rule pending as of May 2026 | - | Health Insurance Portability and Accountability Act | - | https://www.hhs.gov/hipaa/for-professionals/security/hipaa-security-rule-nprm/index.html | verified 2026-07-09 |
 | US HITECH | 2009 | 2009 | Health Information Technology for Economic and Clinical Health Act | - | https://www.govinfo.gov/app/details/PLAW-111publ5 | 2026-06-30 |
 | US SOX | 2002 | 2002-07 | Sarbanes-Oxley Act | - | https://www.govinfo.gov/app/details/PLAW-107publ204 | 2026-06-30 |
 | US CCPA | 2018 (CPRA amendments 2020) | 2018 | California Consumer Privacy Act | - | https://oag.ca.gov/privacy/ccpa | 2026-06-30 |
 | Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognizes electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - | https://www.ilga.gov/Legislation/ILCS/Articles?ActID=3004&ChapterID=57 | 2026-06-30 |
 | Colorado AI Act | 2024 (Colorado SB 24-205, signed 17 May 2024). Original effective date 1 February 2026; postponed by Colorado SB 25B-004 (signed 28 August 2025) to 30 June 2026. Enforcement effectively frozen by U.S. District Court for the District of Colorado on 27 April 2026 pending litigation (xAI v. Colorado). Following the Governor's Working Group framework (17 March 2026), the legislature repealed and re-enacted SB 24-205 via Colorado SB 26-189 (Automated Decision-Making Technology), signed into law May 2026, with revised automated-decision-making requirements and a revised effective date of 1 January 2027 | 2024-05-17 | Colorado Consumer Protections for Artificial Intelligence (SB 24-205) as re-enacted by SB 26-189 | - | https://leg.colorado.gov/bills/sb24-205 | 2026-06-30 |
 | US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 | https://www.fedramp.gov/ | 2026-06-30 |
-| US CMMC | 2.0 | 2024 | Cybersecurity Maturity Model Certification | 1.0, 1.02 | - | needs-reconfirm |
+| US CMMC | 2.0 (model); the 48 CFR / DFARS acquisition rule took effect 2025-11-10 (Phase 1 live) | 2024 (model); 2025-11-10 (acquisition rule) | Cybersecurity Maturity Model Certification | 1.0, 1.02 | https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170 | verified 2026-07-09 |
 | Canada CPPA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; no replacement bill introduced as of 2026-05) | 2022 (proposed) | Consumer Privacy Protection Act (never enacted) | n/a; PIPEDA remains in force | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
 | Canada PIPEDA | 2000 (with 2015 DBSA amendments) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-06-30 |
 | Canada AIDA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; per June 2025 ministerial statement, AIDA will not return in its original form) | 2022 (proposed) | Artificial Intelligence and Data Act (never enacted) | n/a; no federal AI law enacted | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
-| Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An Act to modernize legislative provisions as regards the protection of personal information | - | - | needs-reconfirm |
+| Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An Act to modernize legislative provisions as regards the protection of personal information | - | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | verified 2026-07-09 |
 
 ## Other privacy regulations
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | UK GDPR | 2018 (DPA 2018) as amended by Data (Use and Access) Act 2025 (c. 18), royal assent 19 June 2025; main data-protection provisions commenced 5 February 2026 (Commencement No. 6 Regulations 2026) | 2018 | UK General Data Protection Regulation (retained EU GDPR as amended by the Data Protection Act 2018 and the Data (Use and Access) Act 2025) | - | https://www.legislation.gov.uk/eur/2016/679/contents | 2026-06-30 |
-| Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados | - | - | needs-reconfirm |
+| Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados | - | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | verified 2026-07-09 |
 | Resolution CD/ANPD No. 15/2024 | 2024 | 2024-04-26 | ANPD Security Incident Communication Regulation (RCIS): 3-business-day breach notification to the ANPD and data subjects, staged communication, doubled deadlines for small-scale agents (the resolution is enacted "de 24 de abril de 2024"; this column records the later DOU publication date) | - | https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis | 2026-07-07 |
-| China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | - | needs-reconfirm |
+| China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | https://www.cac.gov.cn/ | verified 2026-07-09 |
 | China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
-| Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | - | needs-reconfirm |
-| Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | - | needs-reconfirm |
-| Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | - | needs-reconfirm |
+| Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.kmu.admin.ch/kmu/en/home/facts-and-trends/digitization/data-protection/new-federal-act-on-data-protection-nfadp.html | verified 2026-07-09 |
+| Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
+| Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |
 | Australia Privacy Act | 1988 (with 2024 amendments) | 1988 | Privacy Act | - | https://www.legislation.gov.au/C2004A03712/latest | 2026-06-30 |
-| India DPDPA | 2023 (Act enacted 2023-08-11); Digital Personal Data Protection Rules 2025 notified 13 November 2025 by MeitY with phased commencement (Data Protection Board provisions immediate; consent-manager registration after 12 months; remainder after 18 months) | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | - | needs-reconfirm |
+| India DPDPA | 2023 (Act enacted 2023-08-11); Digital Personal Data Protection Rules 2025 notified 13 November 2025 by MeitY with phased commencement (Data Protection Board provisions immediate; consent-manager registration after 12 months; remainder after 18 months) | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf | verified 2026-07-09 |
 | Malaysia PDPA | 2010 (Act 709) as amended by Personal Data Protection (Amendment) Act 2024 (Act A1727); phased commencement: tranche 1 from 1 January 2025, tranche 2 from 1 April 2025, tranche 3 (including the mandatory DPO appointment and 72-hour breach notification) from 1 June 2025. DPO and breach-notification Guidelines issued 25 February 2025 | 2010 | Personal Data Protection Act (Malaysia) | - | https://www.pdp.gov.my/ppdpv1/en/akta/pdp-act-2010-en/ | 2026-06-30 |
 
 ## CSA frameworks
@@ -200,31 +200,31 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| WCO SAFE Framework | 2021 | 2021 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018 | - | needs-reconfirm |
+| WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-09 |
 | BASC International Standard | v6 (2022) | 2022 | Business Alliance for Secure Commerce international security standard | v5 | https://www.wbasco.org/en/certification/basc-certification | 2026-06-30 |
-| CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | - | needs-reconfirm |
+| CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
 
 ## Sector-specific (energy, telecom, finance)
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| NERC CIP | Standards family CIP-002 through CIP-014 (each standard has its own revision number) | various per individual standard | North American Electric Reliability Corporation Critical Infrastructure Protection standards family | - | - | needs-reconfirm |
+| NERC CIP | Standards family CIP-002 through CIP-015 (each standard has its own revision number; CIP-015 Internal Network Security Monitoring FERC-approved 2025-06-26, effective 2025-09-02) | various per individual standard | North American Electric Reliability Corporation Critical Infrastructure Protection standards family | - | https://www.nerc.com/pa/Stand/Reliability%20Standards/CIP-015-1.pdf | verified 2026-07-09 |
 | PCI DSS | 4.0.1 | 2024-06 | Payment Card Industry Data Security Standard | 3.2.1, 4.0 | https://www.pcisecuritystandards.org/document_library/ | 2026-06-30 |
 | IEC 62443-1-1 | 2009 | 2009 | Industrial communication networks: Security: Part 1-1: Concepts and models | - | https://webstore.iec.ch/publication/7029 | 2026-06-30 |
-| IEC 62443-2-1 | 2024 | 2024 | Security for industrial automation and control systems: Part 2-1: Establishing an IACS security programme | 2010 | - | needs-reconfirm |
-| IEC 62443-2-4 | 2023 | 2023 | Security for industrial automation and control systems: Part 2-4: Security programme requirements for IACS service providers | 2015 | - | needs-reconfirm |
-| IEC 62443-3-2 | 2020 | 2020 | Security for industrial automation and control systems: Part 3-2: Security risk assessment for system design | - | - | needs-reconfirm |
+| IEC 62443-2-1 | 2024 | 2024 | Security for industrial automation and control systems: Part 2-1: Establishing an IACS security programme | 2010 | https://webstore.iec.ch/en/publication/62883 | verified 2026-07-09 |
+| IEC 62443-2-4 | 2023 | 2023 | Security for industrial automation and control systems: Part 2-4: Security programme requirements for IACS service providers | 2015 | https://webstore.iec.ch/en/publication/67631 | verified 2026-07-09 |
+| IEC 62443-3-2 | 2020 | 2020 | Security for industrial automation and control systems: Part 3-2: Security risk assessment for system design | - | https://webstore.iec.ch/en/publication/30727 | verified 2026-07-09 |
 | IEC 62443-3-3 | 2013 | 2013 | Security for industrial automation and control systems: Part 3-3: System security requirements and security levels | - | https://webstore.iec.ch/en/publication/7033 | 2026-06-30 |
-| IEC 62443-4-1 | 2018 | 2018 | Security for industrial automation and control systems: Part 4-1: Secure product development lifecycle requirements | - | - | needs-reconfirm |
-| IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - | - | needs-reconfirm |
-| IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) | - | needs-reconfirm |
-| IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 | - | needs-reconfirm |
-| ISO 16484 | parts published 2010 to 2020 | various | Building automation and control systems (BACS) | - | - | needs-reconfirm |
+| IEC 62443-4-1 | 2018 | 2018 | Security for industrial automation and control systems: Part 4-1: Secure product development lifecycle requirements | - | https://webstore.iec.ch/en/publication/33615 | verified 2026-07-09 |
+| IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - | https://webstore.iec.ch/en/publication/34421 | verified 2026-07-09 |
+| IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) | https://webstore.iec.ch/en/publication/61289 | verified 2026-07-09 |
+| IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 | https://webstore.iec.ch/en/publication/5515 | verified 2026-07-09 |
+| ISO 16484 | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025; Part 3 at draft (DIS) | 2024 to 2025 | Building automation and control systems (BACS) | parts published 2010 to 2020 | https://www.iso.org/standard/84890.html | verified 2026-07-09 |
 | ASHRAE 135 | 2020 (with subsequent addenda) | 2020 | BACnet protocol for building automation and control networks (incl. BACnet/SC) | - | https://www.ashrae.org/technical-resources/bookstore/bacnet | 2026-06-30 |
-| NIST SP 1900 series | 2023 | 2023 | Smart-building cybersecurity and IoT guidance | - | - | needs-reconfirm |
+| NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
-| EN 54 | series, current parts published 2017 to 2023 | various | Fire detection and fire alarm systems (European standard series) | - | - | needs-reconfirm |
-| TSA Pipeline Security Directive | SD02 (with subsequent revisions) | 2021 (initial; revised through 2024) | US Transportation Security Administration pipeline cybersecurity requirements | - | - | needs-reconfirm |
+| EN 54 | series, current parts published 2017 to 2023 (multi-part; per-part currency not enumerated) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | needs-reconfirm |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03, expires 2026-05-02) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | verified 2026-07-09 |
 | Basel III | 2017 (with 2023 finalization, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
 
 ## OECD and global
@@ -232,14 +232,14 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | OECD AI Principles | 2019 Recommendation as updated 2024 | 2019 (original); 2024 (update) | AI policy principles | - | https://oecd.ai/en/ai-principles | 2026-06-30 |
-| OECD Privacy Guidelines | 2013 (revised) | 2013 | Privacy and transborder data flows | 1980 | - | needs-reconfirm |
+| OECD Privacy Guidelines | 2013 (revised) | 2013 | Privacy and transborder data flows | 1980 | https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0188 | verified 2026-07-09 |
 | WTO TFA | 2017 | 2017 | Trade Facilitation Agreement | - | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | 2026-06-30 |
 
 ## ICAO and IMO
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| ICAO Doc 10026 | 2nd edition | 2024 | Manual on Aviation Security | 1st edition | - | needs-reconfirm |
+| ICAO Doc 10026 | 2nd edition | 2024 | Manual on Aviation Security | 1st edition | https://store.icao.int/ | needs-reconfirm |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-06-30 |
 | IMO Resolution MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
 

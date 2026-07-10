@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-07-02\
+**Version:** 0.0.7\
+**Date:** 2026-07-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -45,7 +45,7 @@ Subsector-specific obligations vary materially. The annex identifies overlay are
 
 | Regime | Applicability | Library support |
 | --- | --- | --- |
-| NERC CIP (CIP-002 through CIP-014) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorization |
+| NERC CIP (CIP-002 through CIP-015) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorization |
 | EU NIS 2 | Energy and water sectors as Essential entities | See [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) |
 | US TSA Pipeline Security Directives and Rail Cybersecurity Directives | Critical pipelines and rail | Library supports; entities follow the directive's specific identification of measures and reporting |
 | IEC 62443 series | ICS / OT cybersecurity | Architectural alignment in library; per-zone and per-conduit requirements layered |
@@ -150,7 +150,7 @@ Energy and utilities outages have direct safety and societal impact; resilience 
 | --- | --- | --- |
 | IEC 62443 series | International | OT and ICS cybersecurity |
 | ISA 62443 | ISA-aligned to IEC 62443 | OT cybersecurity in North American practice |
-| NERC CIP | CIP-002 through CIP-014 | Bulk electric system cybersecurity (North America) |
+| NERC CIP | CIP-002 through CIP-015 | Bulk electric system cybersecurity (North America) |
 | NIS 2 | (EU) 2022/2555 | EU essential entities including energy and water |
 | US TSA Pipeline Security Directives | TSA SDs | Pipelines |
 | US TSA Rail Cybersecurity Directives | TSA SDs | Rail |

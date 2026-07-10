@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.6\
-**Date:** 2026-07-03\
+**Version:** 1.1.7\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -151,7 +151,7 @@ Where the organization participates in a sector programme that imposes additiona
 | CSA CCM v4.1 | I&S-01: Network Security and Virtualization Controls | Cloud and virtualized network security |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
-Sector-specific framework alignments (for example, BASC v6 (2022) Section 6, WCO SAFE Framework (2021), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+Sector-specific framework alignments (for example, BASC v6 (2022) Section 6, WCO SAFE Framework (2025 edition), and ISO 28000:2022 for trade and customs network security) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
 
 ---
 

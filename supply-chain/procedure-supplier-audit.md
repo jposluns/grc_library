@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-07-05\
+**Version:** 1.0.12\
+**Date:** 2026-07-10\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -134,7 +134,7 @@ Supplier Audit Reports and their supporting evidence are retained for a minimum 
 For suppliers in scope of a sector programme (for example, BASC for Latin American logistics, customs brokerage, or cargo operations; CTPAT for US trade; AEO for EU trade), the audit must additionally confirm:
 
 - Validity of current sector certification (for example, BASC, CTPAT, AEO) and scheduled renewal date.
-- Compliance with the WCO SAFE Framework of Standards 2021.
+- Compliance with the WCO SAFE Framework of Standards 2025 edition.
 - Compliance with ISO 28000:2022 supply chain security management requirements.
 - Adequacy of cargo inspection procedures, seal integrity controls, and tamper-evidence mechanisms.
 - Security of communication channels with customs authorities and regulatory systems.
@@ -175,7 +175,7 @@ Sector-programme compliance metrics must be reported to the sector-conditional r
 - CSA Cloud Controls Matrix v4.1, STA-05: Supply Chain Management, Transparency, and Accountability.
 - ENISA AI cybersecurity work (feasibility studies and standardization gap analyses under the EU Cybersecurity Act framework; no dedicated AI cybersecurity certification scheme has been formally published as of 2026).
 - BASC International Standard v6 2022: Business Alliance for Secure Commerce.
-- WCO SAFE Framework of Standards 2021: World Customs Organization.
+- WCO SAFE Framework of Standards 2025 edition: World Customs Organization.
 - ISO 28000:2022, Security and resilience, Security management systems for the supply chain.
 
 ---

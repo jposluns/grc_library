@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -129,7 +129,7 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
 | CSA CCM v4.1 | DSP-02: Data Security / Protection | Data encryption requirements |
 | BASC International Standard v6 | Trade and Customs Encryption Integrity | Trade system key management |
-| WCO SAFE Framework (2021) | AEO cryptographic integrity | Customs communication security |
+| WCO SAFE Framework (2025 edition) | AEO cryptographic integrity | Customs communication security |
 
 ---
 

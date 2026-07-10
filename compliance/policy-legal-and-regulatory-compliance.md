@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.10\
-**Date:** 2026-07-05\
+**Version:** 1.0.11\
+**Date:** 2026-07-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -143,7 +143,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls |
 | BASC v6 (2022) | Trade and Customs Compliance | BASC obligations, Chapter reporting |
-| WCO SAFE Framework (2021) | AEO Security | Customs compliance and AEO obligations |
+| WCO SAFE Framework (2025 edition) | AEO Security | Customs compliance and AEO obligations |
 | EU GDPR | Arts 33 to 34, Data protection | Breach notification, DPA reporting |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | 24-hour incident notification |
 | EU AI Act (2024) | Arts 65 to 74 | AI serious incident reporting |
