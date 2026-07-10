@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.240, PR #752
+
+Session-closing handoff PR for the 2026-07-09/10 sweep92 session (#748 through #751). Working-state and bookkeeping only; no corpus document body changed. This closing PR lands the session's working state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, per the session-lifecycle discipline.
+
+### Added
+
+- TODO §3.25 (Sweep 92 / #748-retro machinery follow-ups): three items migrated from [`.working/improvement-log.md`](../improvement-log.md) so they survive the session boundary: (B-5) the audience-shaped [`tools/build-portal.py`](../../tools/build-portal.py) does not emit `ai/jurisdictions/` annexes (the #743 "portal carries it" self-assessment miss Sweep 92 caught); (D7) [`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py) locates version tokens on the handoff `Current truth` marker line, which the #746 restructure moved to a separate `Version snapshot` sub-line, so D7 validates zero tokens and passes trivially; (discoverability) a new-jurisdiction/sector-annex discoverability checklist enumerating the full surface set a new annex must touch.
+- A ref-side NERC CIP-015 note under TODO §1.5: `grc_library_ref` marks CIP-015-2 `authoritative: true`, but upstream confirms CIP-015-1 is the FERC-approved revision (Order No. 907) and CIP-015-2 (Project 2025-02) is pending NERC Board adoption and FERC filing, so the register's CIP-015-1 citation is correct; annotate the ref entry so the register/ref delta is not re-flagged.
+- The [`.working/validate-pr/2026-07-10-PR-751.md`](../validate-pr/2026-07-10-PR-751.md) per-PR record; the #751 `/validate-pr` history row and the #752 handoff-exemption row in [`.working/validate-pr/history.md`](../validate-pr/history.md); the #751 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+- The [`.working/session-metrics.md`](../session-metrics.md) sweep92 row (measured: the #751 `/validate-pr` Subagent A at 228,589 subagent tokens; pre-compaction dispatches not re-tallied; orchestrator tokens not instrumented, per the measured-versus-not-instrumented discipline).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): new sweep92 CLOSING next-actions block (sweep91 demoted to PRIOR, sweep90 pruned); the State snapshot Current-truth sub-lines reconciled to the post-#751 / this-#752 state (library `2026.07.240`, README `1.9.601`; green-at `4c3acde`); a new sweep92 asserted-expectations block (sweep90 pruned); keep-current-plus-one-prior pruning applied.
+- [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED (`Active-session: none`, `Status: released`, heartbeat re-stamped).
+- Renamed the maintainer's system from the specific hardware name to the generic "VM" across the living working-state surfaces (session-handoff, session-state, session-metrics), per maintainer direction.
+- Library CalVer `2026.07.239` to `2026.07.240`; README Version `1.9.600` to `1.9.601`.
+
+### Verification
+
+- #751 `/validate-pr` (Subagent A, refute-briefed): 67/67 gates on merged `main`; grep-grounded clean bill on the eight failure classes (link linter 518 files OK, gate 6 clean over 126 standards / 393 files, taxonomy/portal/scorecard in sync, all 12 cascade docs Version and Date bumped, both new allow-list domains on both surfaces, CHANGELOG counts match the diff). One in-window WARNING (NERC CIP-015 register-vs-ref revision) adjudicated a NON-DEFECT via upstream FERC/NERC verification this turn; two out-of-window NOTEs (a frozen `.project-governance` worklist cell; WCO SAFE name-form variation with a consistent "2025 edition" token), no action.
+- Loop-break: this closing PR takes no trailing `/validate-pr` and `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over #748 through #751, cross-checked against the handoff asserted-expectations.
+- `tools/pre-push-guard.sh` green before push.
+
 ## 2026-07-09, Library Version 2026.07.239, PR #751
 
 Runs the TODO 1.5 reference version-currency sweep, applying the `worker-20260709-fable/currency-ledger-sync` delivery (all 49 `needs-reconfirm` register standards verified upstream 2026-07-09: 41 confirmed-current, 5 stale, 3 cannot-check). The orchestrator re-verified the headline claims and each new current version upstream before propagation, and applied the confirmed rows by a deterministic script (exact Standard-ID match) plus hand-edits for the 8 nuanced rows.
