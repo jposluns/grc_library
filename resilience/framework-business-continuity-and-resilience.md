@@ -2,8 +2,8 @@
 
 **Document Title:** Business Continuity and Resilience Framework\
 **Document Type:** Framework\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-10\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md)\
@@ -21,6 +21,8 @@
 This framework defines an organization-neutral model for business continuity, disaster recovery, crisis management, operational resilience, and recovery assurance.
 
 The framework connects business impact, service dependency, recovery objectives, supplier exposure, technology recovery, communication, test evidence, corrective action, and governance reporting.
+
+The cyber-resilience dimension of this model aligns with NIST SP 800-160 Vol. 2 Rev. 1 (Developing Cyber-Resilient Systems: A Systems Security Engineering Approach), which provides the systems-security-engineering practices for anticipating, withstanding, recovering from, and adapting to adverse cyber conditions.
 
 ---
 
