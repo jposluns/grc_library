@@ -2,7 +2,7 @@
 
 **Document Title:** Ethical AI Use Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -30,7 +30,7 @@ Applies to all employees, contractors, and third parties who use, develop, procu
 
 ## Foundational ethical principles
 
-The organization's approach to AI is grounded in the following principles, aligned with the OECD AI Principles and ISO/PAS 8800:
+The organization's approach to AI is grounded in the following principles, aligned with the OECD AI Principles, the UNESCO Recommendation on the Ethics of Artificial Intelligence, and CAN/DGSI 101 on the ethical design and use of artificial intelligence by small and medium organizations:
 
 | Principle | What it means in practice |
 | --- | --- |
@@ -137,7 +137,8 @@ These are absolute prohibitions. Requests to deploy AI for these purposes are es
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | OECD AI Principles (2023) | Human-centric, fair, transparent, accountable AI | Core ethical principles |
-| ISO/PAS 8800:2023 | Responsible Innovation Management | Responsible AI use |
+| UNESCO Recommendation on the Ethics of AI (2021) | Human dignity, human oversight, fairness, transparency, accountability | Global AI ethics baseline |
+| CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Responsible AI design and use |
 | EU AI Act (2024) | Articles 5, 9: Prohibited practices and risk management | AI red lines and high-risk governance |
 | ISO/IEC 42001:2023 | §6, Planning; §8, Operation | AI ethics integration |
 | NIST AI RMF (2023) | GOVERN and MAP functions | AI risk governance and ethics |
