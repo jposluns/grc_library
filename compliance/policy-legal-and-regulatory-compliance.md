@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-07-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -99,7 +99,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 8.3 Data breaches must be reported to supervisory authorities within required periods (GDPR: 72 hours; NIS 2: 24 hours).
 
-8.4 AI serious incidents or malfunctions must be reported per EU AI Act Article 65 to 74 obligations.
+8.4 AI serious incidents or malfunctions must be reported per the EU AI Act serious-incident reporting obligation (Article 73; the deployer duty at Article 26(5)).
 
 ---
 
