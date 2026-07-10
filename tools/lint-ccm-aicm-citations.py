@@ -79,7 +79,7 @@ Checks:
     are ``UEM``; ``ISM``; ``GVN`` -- governance is ``GRC``) is silently skipped
     even when cited in a column explicitly headed ``CSA CCM v4.1`` or ``AICM``.
     This check closes that blind spot (the deep-assessment r1 R11 discovery,
-    TODO §3.40): in a framework-alignment table whose header row has a cell
+    PR #782): in a framework-alignment table whose header row has a cell
     matching ``CSA CCM`` / ``Cloud Controls Matrix`` / ``AICM``, every
     control-code-shaped token in that column's body cells must use a real
     CCM/AICM domain prefix; a token whose prefix is outside the CCM/AICM family
@@ -310,7 +310,7 @@ def scan_file(path: Path) -> list[Finding]:
         # known-bad) is invisible to Check 1 (which only policies recognized-family
         # prefixes), so an invented family like ``END-04`` or ``ISM-01`` cited in a
         # CCM column passes silently. This check closes that blind spot (the
-        # deep-assessment r1 R11 discovery, TODO §3.40): it reports such a token as
+        # deep-assessment r1 R11 discovery, PR #782): it reports such a token as
         # an unknown CCM/AICM family. Scoped to the named column only, so a NIST
         # ``AC-2`` in a NIST column or an ISO clause elsewhere is untouched. Known-bad
         # domains (in CCM_FAMILY) stay with Check 1, so there is no double-flag.

@@ -154,6 +154,28 @@
         "path": "@any-corpus-md",
         "text": "The organization is certified against ISO/IEC 27001:2022."
       }
+    },
+    {
+      "gate": "lint-ccm-aicm-citations.py",
+      "id": "ccm-unknown-family-in-column-detect",
+      "description": "An invented CCM/AICM family code (END-04; END is not a CCM domain, endpoints are UEM) in a framework-alignment column headed 'CSA CCM v4.1'. Gate 48's Check 5 (framework-as-column family-validity, PR #782) should DETECT it as an unknown family, closing the structured-surface blind spot the recognized-prefix code-validity check (Check 1) leaves. create_file because gate 48 scans corpus-wide, so a new corpus .md with the offending table is in scope (unlike the fixed-surface gates 49/55).",
+      "expect": "detect",
+      "action": {
+        "type": "create_file",
+        "path": "governance/zz-mutation-probe-ccm-column.md",
+        "text": "# Mutation probe fixture\n\n| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | COBIT 2019 |\n| --- | --- | --- | --- |\n| Patch management | A.8.8 | END-04, TVM-06 | DSS05.07 |"
+      }
+    },
+    {
+      "gate": "lint-ccm-aicm-citations.py",
+      "id": "ccm-valid-family-in-column-clean",
+      "description": "Valid CCM codes (DSP-04, DCS-05) in a 'CSA CCM v4.1' column; gate 48's Check 5 should NOT flag them (near-miss guarding against over-fire on a legitimate CCM code column).",
+      "expect": "clean",
+      "action": {
+        "type": "create_file",
+        "path": "governance/zz-mutation-probe-ccm-clean.md",
+        "text": "# Mutation probe fixture\n\n| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | COBIT 2019 |\n| --- | --- | --- | --- |\n| Media handling | A.8.10 | DSP-04, DCS-05 | DSS05.06 |"
+      }
     }
   ]
 }

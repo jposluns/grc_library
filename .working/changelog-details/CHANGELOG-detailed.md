@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.271, PR #783
+
+**Deep-assessment r1 R10 remainder (advances TODO §3.13)** plus the #782 `/validate-pr` docstring-provenance reword. Two small, verified tooling changes; no corpus-document body changed, so no per-document version bump and no generated-artefact regeneration.
+
+### Added
+
+- **Mutation-probe DETECT + CLEAN pair for gate-48 Check 5** in [`tools/gate-mutation-variants.json`](../../tools/gate-mutation-variants.json) (16 variants now): `ccm-unknown-family-in-column-detect` (a `create_file` fixture with a "CSA CCM v4.1" column carrying the invented `END-04`, expect `detect`) and `ccm-valid-family-in-column-clean` (the near-miss: valid `DSP-04, DCS-05` in a CCM column, expect `clean`). Verified by running [`tools/audit-gate-mutation.py`](../../tools/audit-gate-mutation.py) `--gate lint-ccm-aicm-citations.py` over a disposable clone: **1 DETECTED, 1 CLEAN-PASS, 0 missed, 0 false-positive**. This advances §3.13's structured-surface-gate coverage using the one structured check (Check 5, shipped #782) that is `create_file`-testable, because gate 48 scans corpus-wide; the genuinely fixed-surface gates (gate 49 the matrix, gate 55 retention pairs, cross-doc-numbers) still cannot be exercised by the probe's append-at-EOF / create-elsewhere actions (a mutation lands outside the gate's fixed target surface), so §3.13 stays **open (rescoped, not closed)** pending a probe-action enhancement (in-table insertion), a larger tooling change kept for a future increment. This mirrors how #768 and #710 grew the variant library run over run.
+
+### Changed
+
+- **Docstring provenance reword** (the #782 `/validate-pr` note): the gate-48 [`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py) docstring Check-5 bullet and the inline Check-5 comment referenced `TODO §3.40`, the section PR #782 closed, so the TODO-slot token was renumber-fragile (the exact anti-fragile-reference class Sweep 95 / #780 cleaned up); reworded both to the immutable `PR #782` while keeping the "deep-assessment r1 R11 discovery" descriptive provenance. No logic change (gate 48 still exits 0 corpus-wide; the gate-48 test class still passes).
+- [`TODO.md`](../../TODO.md): §3.13 body appended with the #783 advancement and the rescoped-open status.
+- Library CalVer + README Version bumped once for the PR.
+
+### Verification
+
+- Mutation probe: 1 DETECTED + 1 CLEAN-PASS on the two new variants (over a disposable clone with the `DISPOSABLE-COPY-OK` marker). Gate 48 exits 0 corpus-wide post-reword; the `CcmAicmCitationTests` class (14 tests) passes; zero `TODO §3.40` residual in the gate file. `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean (pre-push guard). Bookkeeping-tier change (test-variant addition + comment reword, both verified; no detection-logic change), so no standing skeptical-verifier subagent per the tiered standard; the probe verdict is the verification.
+- Batches PR #782's `/validate-pr` (0 blocking) row and `/retro` row (the recursion-avoidance carry).
+
 ## 2026-07-10, Library Version 2026.07.270, PR #782
 
 **Deep-assessment r1 R11 gate discovery (closes TODO §3.40)**: a hardening of gate 48 ([`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py)) that closes the control-code-family blind spot behind the r1 R11 finding, plus the fix for the third invalid family the new check immediately caught. Design choice: harden the existing CCM gate (which owns CCM/AICM citation accuracy) rather than add a new gate (no count churn) or broaden the NIST-only gate 54 (which would muddy its single-framework identity); the gate count stays 67, so no four-surface parity change, only the detection-logic-change lockstep (docstring + §6 narrative + regression fixture).
