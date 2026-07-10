@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-07-05\
+**Version:** 1.0.8\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -211,6 +211,8 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | Container security | A.8.25 | I&S-04 | PW.2 | CM-7, SI-3 | N/A |
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to 09 | N/A | CM-3 | N/A |
+
+This standard also aligns with NIST SP 800-204D (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines) for the software supply-chain security of the CI/CD pipeline.
 
 ---
 

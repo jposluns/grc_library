@@ -2,8 +2,8 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.4\
-**Date:** 2026-07-02\
+**Version:** 0.0.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-network-communications-security.md`](policy-network-communications-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -190,7 +190,7 @@ The Chief Information Security Officer publishes an annual maturity assessment p
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | NIST SP 800-207 | Zero Trust Architecture | Authoritative US federal model |
-| NIST SP 800-207A | Zero Trust Architecture for Cloud-native and Hybrid Environments | Cloud-native pattern |
+| NIST SP 800-207A | A Zero Trust Architecture Model for Access Control in Cloud-Native Applications in Multi-Cloud Environments | Cloud-native pattern |
 | CISA Zero Trust Maturity Model 2.0 | CISA | Maturity ladder |
 | OMB M-22-09 | Federal Zero Trust Strategy | US federal direction |
 | DoD Zero Trust Reference Architecture | US DoD | Defence-sector model |
