@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.20\
-**Date:** 2026-07-04\
+**Version:** 1.3.21\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -335,6 +335,8 @@ The SOC must track and report the following metrics at the monthly security oper
 | Post-incident review | Clause 7 | §3.5 | A.5.27 | DSS02.06 | SEF-07 |
 | Evidence handling | Clause 6.5 | §3.3 | A.5.28 | DSS02.04 | SEF-08 |
 | Incident response metrics | Clause 8 | §4 | A.5.35 | MEA01 | SEF-09, SEF-10 |
+
+Beyond the incident-lifecycle mappings above, this procedure aligns with NIST SP 800-184 (Guide for Cybersecurity Event Recovery) for the recovery phase, and with NIST SP 800-86 (Guide to Integrating Forensic Techniques into Incident Response) and ISO/IEC 27037:2012 (Guidelines for identification, collection, acquisition and preservation of digital evidence) for evidence handling and digital forensics.
 
 ---
 

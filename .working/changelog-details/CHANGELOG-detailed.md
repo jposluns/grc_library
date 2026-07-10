@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.261, PR #773
+
+Deep-assessment r1 **R12 cluster 4 of 7** (incident response), the thirteenth PR of the sweep94 session: the fourth apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md): a prose line after the matrix-shaped framework-alignment table (control-area by framework-column, no single-standard row slot) citing `NIST SP 800-184` (Guide for Cybersecurity Event Recovery) for the recovery phase, and `NIST SP 800-86` (Guide to Integrating Forensic Techniques into Incident Response) plus `ISO/IEC 27037:2012` (Guidelines for identification, collection, acquisition and preservation of digital evidence) for evidence handling and digital forensics. The ISO/IEC 27037 citation closes a sibling cross-reference asymmetry: [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) already cited 27037, but the security incident-response procedure, its evidence-handling sibling, did not. Version 1.3.20 to 1.3.21.
+
+### Verification
+
+- All three editions confirmed held via the `grc_library_ref` INDEX: `NIST SP 800-184` (Guide for Cybersecurity Event Recovery), `NIST SP 800-86` (Guide to Integrating Forensic Techniques into Incident Response), `ISO/IEC 27037:2012` (digital evidence identification/collection/acquisition/preservation). Held source titles confirm on-point fit for the recovery and evidence-handling rows.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #772's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+
+- R12 remains open per-cluster (§3.29). Clusters remaining after this: resilience/EA, AI, dev-security/cloud/metrics/workforce, plus the 2 bonus precision items.
+- Post-PR ref-repo resync (new standing per-PR step, maintainer-directed 2026-07-10): after #772 the `grc_library_ref` copy was resynced (fetched + fast-forwarded to `aff7a3f`), picking up a new reference-currency ledger (a CURRENCY ledger plus its build tool) and a last-updated back-fill; no new citable standard (ISO 5259, flagged as incoming, had not landed yet).
+
 ## 2026-07-10, Library Version 2026.07.260, PR #772
 
 Deep-assessment r1 **R12 cluster 3 of 7** (identity and access management), the twelfth PR of the sweep94 session: the third apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
