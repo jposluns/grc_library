@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.241, PR #753
+
+The `/resume` Sweep 93 corpus-wide `/validate` close-out, first PR of the resumed `claude/resume-sweep93-validate` session (daytime attended-autonomous on the VM), the loop-break compensating control for session-closing handoff PR #752. One in-window corpus edit (a one-clause glossary broadening) plus the standard sweep-close-out bookkeeping.
+
+### Added
+
+- [`governance/register-glossary.md`](../../governance/register-glossary.md): the ADMT entry (Automated Decision-Making Technology) is broadened to add that the same acronym is also used for California's CPRA automated decision-making technology regulations, with a cross-link to [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md). Previously the entry was scoped only to Colorado's SB 26-189, while the acronym was already used pre-existing for CPRA in the US privacy annex (`:45`) and the privacy jurisdiction index (`:104`). Version `1.4.12` to `1.4.13`, Date `2026-07-10`. This is the Sweep 93 Subagent B `note`-level, out-of-window finding, which the maintainer elected to fix.
+- The Sweep 93 detail file [`.working/validate-sweeps/2026-07-10-sweep93-iter1.md`](../validate-sweeps/2026-07-10-sweep93-iter1.md) and the Sweep 93 history row in [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.87` to `2.0.88`).
+
+### Changed
+
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the glossary version bump ([`docs/portal.md`](../../docs/portal.md) re-emitted identically; the glossary version is not surfaced there). Regeneration order was taxonomy first, then portal/scorecard.
+- [`.working/session-handoff.md`](../session-handoff.md): the `## Resume cursor` "Last validation sweep" line advanced to Sweep 93 (gate 45 reads this). No per-session-block pruning was needed (the file already held current plus one prior after the sweep92 resume prune).
+- [`.working/session-state.md`](../session-state.md): the concurrency lease acquired for this session (`Active-session: claude/resume-sweep93-validate`, `Status: active`, fresh heartbeat, refreshed `Current-task`).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the FR-154 #738 confirm-or-redirect item closed (the maintainer confirmed all 5 proceeded stricter-safe values as-is after a per-item walk-through; no corpus change).
+
+### Verification
+
+- Mechanical baseline 67/67 at `2a141e2`/#752 (= `origin/main`), a descendant of the closing session's asserted green-at `4c3acde`/#751 (no close-vs-start drift); clone non-shallow.
+- Full three-subagent `/validate` dispatch (A recent-PR, B corpus-wide stale-reference, C audit-programme integrity) over the #748..#751 window. A and C: zero findings; B: one out-of-window `note` (the ADMT scope, fixed here). All four asserted-clean expectations corroborated by Subagent A; no asserted-expectation contradiction; the loop-break compensating control for #752 passes.
+- The WCO SAFE cascade completeness, both new annexes' citation accuracy against the held reference texts, their multi-surface wiring, and the NERC CIP-015 scoping were all independently re-verified by Subagent A. Subagent C confirmed four-surface gate parity at 67, the #751 allow-list `ecfr.gov`/`pib.gov.in` addition mirrored on both surfaces, and no stale prose count.
+- The one corpus edit's cross-link target (the US privacy annex, linked in the Added section above) is a live file carrying the pre-existing CPRA ADMT usage the broadening references (Subagent B evidence).
+- `tools/run_all_audits.sh` green on the committed state; `tools/run-pr-time-checks.sh` green.
+
 ## 2026-07-10, Library Version 2026.07.240, PR #752
 
 Session-closing handoff PR for the 2026-07-09/10 sweep92 session (#748 through #751). Working-state and bookkeeping only; no corpus document body changed. This closing PR lands the session's working state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, per the session-lifecycle discipline.
