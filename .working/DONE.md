@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #778: Deep-assessment r1 §1.6, EN 54 series currency confirmed + stamped (closes TODO §1.6) (2026-07-10)
+
+The EN 54 fire-detection register row was `needs-reconfirm`; confirmed upstream that EN 54 is an active CEN/TC 72 series (25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011), and the corpus cites it only at series level (BMS overlay annex + doc-index register), so stamped the row `verified 2026-07-10` at series level rather than enumerating 25+ parts the corpus does not cite at part level. Also added TODO §3.42 (the ISO/IEC 5259 + AI-governance new-ingest reference-breadth pass surfaced by the post-PR ref-repo resync).
+
 ### PR #777: Deep-assessment r1 §1.5, ICAO Doc 10026 mis-citation corrected to Annex 17 (closes TODO §1.5) (2026-07-10)
 
 The corpus cited "ICAO Doc 10026" as the Manual on Aviation Security across three carriers (canonical-citations register, logistics sector annex, and the Q4 citation-verification worklist whose fabricated 404 store URL seeded the error); Doc 10026 is actually the Report of the Legal Commission and the AVSEC manual is the Restricted Doc 8973. Per the maintainer's decision, corrected all three to ICAO Annex 17 (Chicago Convention), confirmed upstream (title + Edition 12, 2022).

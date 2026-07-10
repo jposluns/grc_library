@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.18\
+**Version:** 1.5.19\
 **Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -223,7 +223,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ASHRAE 135 | 2020 (with subsequent addenda) | 2020 | BACnet protocol for building automation and control networks (incl. BACnet/SC) | - | https://www.ashrae.org/technical-resources/bookstore/bacnet | 2026-06-30 |
 | NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
-| EN 54 | series, current parts published 2017 to 2023 (multi-part; per-part currency not enumerated) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | needs-reconfirm |
+| EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
 | TSA Pipeline Security Directive | SD Pipeline-2021-02F (effective 2025-05-03, expires 2026-05-02) | 2025-05-03 | US Transportation Security Administration pipeline cybersecurity requirements | SD02, SD 02C | https://www.tsa.gov/sites/default/files/tsa-security-directive-pipeline-2021-02f-and-memo-508c.pdf | verified 2026-07-09 |
 | Basel III | 2017 (with 2023 finalization, in force 2025) | - | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-06-30 |
 
