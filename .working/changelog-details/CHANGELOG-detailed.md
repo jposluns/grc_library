@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.260, PR #772
+
+Deep-assessment r1 **R12 cluster 3 of 7** (identity and access management), the twelfth PR of the sweep94 session: the third apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) framework-alignment table: an `ISO/IEC 24760 (Parts 1 to 3, 2025)` "A framework for identity management" row (after ISO/IEC 27002) and a `NIST SP 800-63A-4` "Digital Identity Guidelines: Identity Proofing and Enrollment" row (after NIST SP 800-53). Version 1.0.1 to 1.0.2.
+- [`security/procedure-access-control.md`](../../security/procedure-access-control.md) framework-alignment table: an `ISO/IEC 29146:2024` "A framework for access management" row (after ISO/IEC 27002). Version 1.2.1 to 1.2.2.
+- [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md): a prose line after its matrix-shaped framework-alignment table naming `ISO/IEC 24760` (Parts 1 to 3, 2025) and `ISO/IEC 29146:2024` (the matrix is framework-per-column with no single-standard row slot, so the prose line is the natural home, the same placement pattern used for the privacy policy in cluster 2). Version 1.3.10 to 1.3.11.
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) framework-alignment table: a `NIST SP 800-210` "General Access Control Guidance for Cloud Systems" row (after NIST SP 800-53). Version 1.4.10 to 1.4.11.
+
+### Verification
+
+- All editions confirmed held via the `grc_library_ref` INDEX: `ISO/IEC 24760-1/-2/-3:2025` (identity-management framework, the 3 parts), `ISO/IEC 29146:2024` (access-management framework), `NIST SP 800-63A-4` (Identity Proofing and Enrollment), `NIST SP 800-210` (General Access Control Guidance for Cloud Systems). Held source titles confirm on-point fit.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #771's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+
+- R12 remains open per-cluster (§3.29). Clusters remaining after this: incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce, plus the 2 bonus precision items.
+
 ## 2026-07-10, Library Version 2026.07.259, PR #771
 
 Deep-assessment r1 **R12 cluster 2 of 7** (privacy), the eleventh PR of the sweep94 session: the second apply batch of the r1 `/reference-audit` findings. Substantive (citation additions to authoritative sources), so a refute-briefed verifier reviewed the change pre-push.
