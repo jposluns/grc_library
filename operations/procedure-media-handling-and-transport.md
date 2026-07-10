@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.5\
+**Version:** 1.3.6\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -290,6 +290,8 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 | Media storage | A.8.10, A.7.9 | 800-88 Rev. 2: programme | DSP-07 | DSS05.01 |
 | Sanitization and destruction | A.8.10 | IEEE 2883: Purge / Destruct | DSP-02 | DSS05.06 |
 | Certificate of Destruction and records | A.5.33 | 800-88 Rev. 2: documentation | DSP-07 | DSS05.06 |
+
+This procedure also aligns with ISO/IEC 27040:2024 (Storage security) for the secure handling, storage, and sanitization of storage media.
 
 ---
 

@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.262, PR #774
+
+Deep-assessment r1 **R12 cluster 5 of 7** (resilience and enterprise architecture), the fourteenth PR of the sweep94 session: the fifth apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`architecture/framework-enterprise-architecture.md`](../../architecture/framework-enterprise-architecture.md) framework-alignment table: a `NIST SP 800-160 Vol. 1 Rev. 1` "Engineering Trustworthy Secure Systems" row, placed after the ISO/IEC 27001 security cross-walk row. Version 1.0.2 to 1.0.3.
+- [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md) Purpose: an inline `NIST SP 800-160 Vol. 2 Rev. 1` (Developing Cyber-Resilient Systems: A Systems Security Engineering Approach) citation for the framework's cyber-resilience dimension (this framework has no framework-alignment table, so the Purpose is the natural home, the same inline-placement pattern used for the quantitative-risk-analysis guideline in cluster 1). Version 1.0.1 to 1.0.2.
+- [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md): a prose line after its matrix-shaped framework table citing `ISO/IEC 27040:2024` (Storage security) for secure storage, retention, and sanitization of classified data at rest. Version 1.4.4 to 1.4.5.
+- [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md): a prose line after its matrix-shaped framework table citing `ISO/IEC 27040:2024` (Storage security) for secure handling, storage, and sanitization of storage media. Version 1.3.5 to 1.3.6 (this doc was last touched in #769 for the R11 control-code fixes).
+
+### Verification
+
+- All editions confirmed held via the `grc_library_ref` INDEX: `NIST SP 800-160 Vol. 1 Rev. 1` (Engineering Trustworthy Secure Systems), `NIST SP 800-160 Vol. 2 Rev. 1` (Developing Cyber-Resilient Systems), `ISO/IEC 27040:2024` (Storage security). Held source titles confirm on-point fit.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #773's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+
+- R12 remains open per-cluster (§3.29). Clusters remaining after this: AI, dev-security/cloud/metrics/workforce, plus the 2 bonus precision items.
+
 ## 2026-07-10, Library Version 2026.07.261, PR #773
 
 Deep-assessment r1 **R12 cluster 4 of 7** (incident response), the thirteenth PR of the sweep94 session: the fourth apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.

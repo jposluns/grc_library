@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Architecture Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-10\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`architecture/standard-api-design.md`](standard-api-design.md), [`architecture/standard-data-architecture.md`](standard-data-architecture.md), [`architecture/standard-integration-architecture.md`](standard-integration-architecture.md), [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -206,6 +206,7 @@ Fitness functions are evolved alongside the architecture; the framework does not
 | Wardley mapping | Strategy and evolution | Strategic architecture |
 | Accelerate (DORA research) | Capabilities, fitness functions | Engineering performance |
 | ISO/IEC 27001:2022 | A.5.1 Policies for information security; A.5.8 Information security in project management | Information security cross-walk |
+| NIST SP 800-160 Vol. 1 Rev. 1 | Engineering Trustworthy Secure Systems | Systems security engineering discipline for the architecture |
 | NIST CSF 2.0 | Govern function | Risk integration |
 
 ---
