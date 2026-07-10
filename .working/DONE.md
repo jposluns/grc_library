@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #759: Deep-assessment r1 matrix GRC-07 semantic-fit corrections (closes TODO §3.24) (2026-07-10)
+
+Corrected three compliance-matrix regulatory-mapping rows that carried off-subject GRC controls where GRC-07 (Information System Regulatory Mapping) is the on-point control: the Global Regulatory Applicability register (GRC-06 to GRC-07) and the Privacy Jurisdiction Index (GRC-03 to GRC-07) had their off-subject codes replaced, and the Compliance Obligations Template gained GRC-07 alongside its existing GRC-06 (which fits its obligation-ownership aspect). Held-verified by the r1 matrix-fit judge against the CCM v4.1 control titles.
+
 ### PR #758: Deep-assessment r1 claim-fit precision fixes (closes TODO §3.26 + §3.27) (2026-07-10)
 
 Two held-verified claim-precision corrections: narrowed the EU AI Act serious-incident reporting citation from the over-broad "Article 65 to 74" to Article 73 (plus the Article 26(5) deployer duty) in the legal-and-regulatory-compliance policy; and reworded the executive-review cadence from "at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3" to "at planned intervals (the organization sets at least annually)", since ISO/IEC 27001 §9.3 prescribes planned intervals, not an annual cadence. The ISO 9001 §9.3 held-verification continues in RB-R6 (source-not-held).

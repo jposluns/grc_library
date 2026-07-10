@@ -156,10 +156,6 @@ Two portal-generator ([`tools/build-portal.py`](tools/build-portal.py)) routing 
 
 A recurring multi-surface-incompleteness class: new jurisdiction/sector annexes (#733 US HIPAA, #743 EU AI Act) wired the primary surfaces but left sibling discoverability surfaces stale (decision-tree FAQ §7, decision-tree §3.3, register-coverage-gaps §2.5). Codify a new-annex discoverability checklist enumerating the FULL surface set a new annex must touch (README/doc-index, decision-tree §5.1/§3.3/FAQ §7, register-coverage-gaps §2.5, glossary, taxonomy/portal/scorecard). Convention-level (a CLAUDE.md close-out line or a worker-brief rail); no gate fits cleanly.
 
-### 3.24 Matrix GRC-07 semantic-fit corrections (deep-assessment r1 R4, S)
-
-`/matrix-fit` found regulatory-mapping matrix rows in [`compliance/matrix-grc-compliance-alignment.md`](compliance/matrix-grc-compliance-alignment.md) carrying off-subject GRC controls where GRC-07 (Information System Regulatory Mapping) is on-point and used on sibling rows (one file, one edit): `matrix:101` (global-regulatory-applicability register, GRC-06 -> GRC-07); `matrix:279` (privacy jurisdiction index, GRC-03 -> GRC-07); `matrix:112` (compliance-obligations template, GRC-06 weaker-fit, consider adding GRC-07). Semantic-fit corrections for maintainer confirmation (signed off 2026-07-10).
-
 ### 3.25 `/matrix-fit` source-doc framework-table follow-up pass (deep-assessment r1 R11, M)
 
 The r1 matrix-fit judged the 66 compliance-matrix worklist rows but deferred the 27 source-doc framework-table rows (per-document COBIT/CCM tables carrying APO/BAI/MEA/EDM/DSS codes) as out of the named-matrix scope. Run a `/matrix-fit` pass over those 27 rows.
@@ -337,7 +333,7 @@ Sources cited in the corpus but not held in `grc_library_ref`, so their attribut
 - **ISO 9001** (Quality management systems) §9.3 — cited at [`governance/framework-governance-performance-and-improvement.md:55`](governance/framework-governance-performance-and-improvement.md). Upstream: iso.org/standard/62085.html (paywalled).
 - **DORA RTS on incident reporting** (the Commission Delegated Regulation carrying the 4h / 72h / 1-month major-incident windows) — cited at [`compliance/financial-services/annex-dora-implementation.md:78`](compliance/financial-services/annex-dora-implementation.md) (already correctly qualified "subject to RTS/ITS", so NO corpus change; this is a value-verification tracker only). Upstream: EUR-Lex (the DORA Art 20 delegated instrument, likely freely fetchable, unlike the ISO standards).
 
-On ingest, the ISO 9001 §9.3 attribution in [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) (reworded to the safe "planned intervals" framing when §3.27 closed) and the ISO 37301 attribution at [`compliance/policy-compliance-and-audit-management.md:44`](compliance/policy-compliance-and-audit-management.md) can be adjudicated against the held text.
+On ingest, the ISO 9001 §9.3 attribution in [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) (reworded to the safe "planned intervals" framing in PR #758) and the ISO 37301 attribution at [`compliance/policy-compliance-and-audit-management.md:44`](compliance/policy-compliance-and-audit-management.md) can be adjudicated against the held text.
 
 ### Reference-base acquisition and assessment queue (`grc_library_ref`; maintainer-directed 2026-07-07)
 

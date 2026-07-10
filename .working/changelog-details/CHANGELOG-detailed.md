@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.247, PR #759
+
+Deep-assessment r1 matrix GRC-07 semantic-fit corrections (§3.24 R4), a single-file three-row control-code fix.
+
+### Fixed
+
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (Version `1.11.12` to `1.11.13`): three regulatory-mapping rows corrected to carry GRC-07 (Information System Regulatory Mapping), the on-point CCM control used on sibling regulatory rows: the Global Regulatory Applicability register row `GRC-01, GRC-06` to `GRC-01, GRC-07` (GRC-06 Governance Responsibility Model is off-subject for a regulatory-applicability register); the Privacy Jurisdiction Index row `GRC-01, DSP-19, GRC-03` to `GRC-01, DSP-19, GRC-07` (GRC-03 Organizational Policy Reviews is off-subject for a jurisdiction/regulatory index; DSP-19 Data Location retained); and the Compliance Obligations Template row `GRC-01, GRC-06` to `GRC-01, GRC-06, GRC-07` (GRC-06 kept for the obligation-ownership aspect, GRC-07 added for the regulatory-mapping aspect).
+
+### Verification
+
+- GRC-07 = "Information System Regulatory Mapping" confirmed a valid CSA CCM v4.1 code in the in-repo CCM reference module; gate 49 (matrix control-code validity) stays green (all codes valid and well-formed). The semantic fit was established by the r1 `/matrix-fit` judge against the CCM control titles (findings F9/F10/F11).
+- Matrix bumped Version + Date, so taxonomy regenerated first, then portal/scorecard; full audit 67/67; PR-time checks green.
+
+### Changed (bookkeeping, batched)
+
+- Rotated TODO §3.24 to [`.working/DONE.md`](../DONE.md); batched PR #758's `/validate-pr` and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.246, PR #758
 
 Deep-assessment r1 claim-fit precision fixes (§3.26 R5a + §3.27 R5b), two held-verified attribution-phrasing corrections of the same type.
