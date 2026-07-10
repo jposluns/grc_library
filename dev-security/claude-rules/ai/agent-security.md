@@ -119,7 +119,7 @@ Before deploying an agentic system to production, adversarial testing must inclu
 | --- | --- | --- | --- | --- |
 | Trust hierarchy | LLM06, LLM08 | AML.T0053 | IAM-04 | Govern 1.4 |
 | Tool validation | LLM06 | AML.T0053 | AIS-02 | Manage 1.3 |
-| Human-in-the-loop | LLM06 | AML.T0054 | GVN-05 | Govern 6.2 |
+| Human-in-the-loop | LLM06 | AML.T0054 | GRC-15 | Govern 6.2 |
 | Prompt injection (agentic) | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Memory security | LLM02 | AML.T0024 | DSP-05 | Measure 2.7 |
 | Recursion limits | LLM06 | N/A | N/A | Manage 1.3 |
