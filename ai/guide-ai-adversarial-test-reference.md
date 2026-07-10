@@ -2,8 +2,8 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.1\
-**Date:** 2026-06-21\
+**Version:** 1.3.2\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
@@ -186,6 +186,7 @@ Relevant directories:
 | OWASP LLM Top 10 | Primary threat taxonomy for LLM-specific risks |
 | OWASP GenAI Security Project | Ongoing AI security guidance and test case updates |
 | MITRE ATLAS | Adversarial machine learning threat catalogue |
+| NIST AI 100-2e2025 | Adversarial ML attack taxonomy and terminology |
 | NVIDIA Garak | Open-source LLM vulnerability scanner |
 | PyRIT | Open-source AI red team automation framework |
 | promptfoo | Open-source prompt testing and evaluation |

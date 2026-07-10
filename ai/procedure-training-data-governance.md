@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.6\
-**Date:** 2026-07-02\
+**Version:** 0.0.7\
+**Date:** 2026-07-10\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -210,6 +210,7 @@ Where a retrieval index materially shapes model output:
 | PIPL | Articles 13, 14, 24, 44 to 50 | Chinese lawful basis and rights |
 | NIST AI RMF | MAP, MEASURE | AI risk management |
 | ISO/IEC 5259 series | Data quality for analytics and ML | Quality framework |
+| ISO/IEC 8183:2023 | AI data life cycle framework | Data lifecycle for AI training data |
 | OECD AI Principles | All five values | Foundational principles |
 
 ---

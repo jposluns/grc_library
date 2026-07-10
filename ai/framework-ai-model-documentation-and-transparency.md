@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -140,6 +140,8 @@ For High-risk AI systems under the EU AI Act, technical documentation per Annex 
 | ISO/IEC 42001:2023 | §8.4: AI System Documentation | AI documentation requirements |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
+| ISO/IEC 12792:2025 | Transparency taxonomy of AI systems | AI transparency taxonomy |
+| NIST IR 8312 | Four Principles of Explainable Artificial Intelligence | Explainability principles |
 | OECD AI Principles (2023) | Transparency and Explainability | AI transparency obligations |
 | GDPR (2018) | Article 22: Automated Decision-Making | Transparency and human review rights |
 

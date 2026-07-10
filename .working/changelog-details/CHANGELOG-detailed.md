@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.263, PR #775
+
+Deep-assessment r1 **R12 cluster 6 of 7** (AI), the fifteenth PR of the sweep94 session: the sixth and largest apply batch of the r1 `/reference-audit` findings (6 documents, 8 citations). Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md): `ISO/IEC 38507:2022` "Governance implications of the use of AI by organizations" row (after the ISO/IEC 42001 rows). Version 1.2.4 to 1.2.5.
+- [`ai/procedure-ai-model-lifecycle-management.md`](../../ai/procedure-ai-model-lifecycle-management.md): `ISO/IEC 5338:2023` "AI system life cycle processes" row. Version 1.0.2 to 1.0.3.
+- [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md): `ISO/IEC 8183:2023` "AI data life cycle framework" row (beside the pre-existing ISO/IEC 5259-series data-quality citation). Version 0.0.6 to 0.0.7.
+- [`ai/guideline-ethical-ai-use.md`](../../ai/guideline-ethical-ai-use.md): `ISO/IEC TR 24027:2021` "Bias in AI systems and AI aided decision making" and `NIST SP 1270` "Towards a Standard for Identifying and Managing Bias in Artificial Intelligence" rows (the bias/fairness pair). Version 1.0.1 to 1.0.2.
+- [`ai/framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md): `ISO/IEC 12792:2025` "Transparency taxonomy of AI systems" and `NIST IR 8312` "Four Principles of Explainable Artificial Intelligence" rows (the transparency/explainability pair). Version 1.0.4 to 1.0.5.
+- [`ai/guide-ai-adversarial-test-reference.md`](../../ai/guide-ai-adversarial-test-reference.md): `NIST AI 100-2e2025` "Adversarial ML attack taxonomy and terminology" row in the B5 external-references table (beside MITRE ATLAS). Version 1.3.1 to 1.3.2.
+
+### Verification
+
+- All editions confirmed held via the `grc_library_ref` INDEX: `ISO/IEC 38507:2022`, `ISO/IEC 5338:2023`, `ISO/IEC 8183:2023`, `ISO/IEC TR 24027:2021`, `ISO/IEC 12792:2025`, `NIST SP 1270`, `NIST IR 8312`, `NIST AI 100-2e2025`. Held source titles confirm on-point fit.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #774's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+
+- R12 remains open per-cluster (§3.29). Remaining after this: cluster 7 (dev-security / cloud / metrics / workforce) plus the 2 bonus precision items (NIST SP 800-207A cited-title, ISO/IEC 27017 dangling register row), which will close §3.29.
+- Bookkeeping-hygiene note: the ledger-row-insert edits used the header-anchored form with a post-edit read-back (the cluster-5 row-merge lesson), and both the inserted and displaced rows were confirmed structurally intact.
+
 ## 2026-07-10, Library Version 2026.07.262, PR #774
 
 Deep-assessment r1 **R12 cluster 5 of 7** (resilience and enterprise architecture), the fourteenth PR of the sweep94 session: the fifth apply batch of the r1 `/reference-audit` findings. Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.
