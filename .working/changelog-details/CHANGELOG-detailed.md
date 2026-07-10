@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.243, PR #755
+
+Deep-assessment r1 finding F1, a clear-mechanical in-window fix: the stale privacy jurisdiction-annex count.
+
+### Fixed
+
+- The privacy jurisdiction count was stale at "25" on three live surfaces after PR #750 added the Mexico annex (taking `privacy/jurisdictions/` to 26 annex files). Bumped to 26: [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md):81 ("26 jurisdiction-specific annexes"), Version `1.1.28` to `1.1.29`; [`privacy/annex-regional-privacy-requirements.md`](../../privacy/annex-regional-privacy-requirements.md):26 ("all 26 jurisdiction files"), Version `2.1.2` to `2.1.3`; [`docs/decision-tree.md`](../../docs/decision-tree.md):215 ("currently 26 jurisdictions"), Version `1.0.17` to `1.0.18`. All three carry today's Date.
+
+### Verification
+
+- The count tracks the annex-file count: the annex-file count in the privacy jurisdictions directory is 26 (verified); it was 25 before #750. Bare-token corpus grep `\b25 jurisdiction` returns zero live carriers post-fix (surviving hits are `.working/` frozen archives, correct as-of-write-time historical records, gate-exempt). No `\b26 jurisdiction` carrier existed before this fix.
+- Two corpus docs (register-coverage-gaps, annex-regional-privacy-requirements) bumped, so [`taxonomy.yml`](../../taxonomy.yml) regenerated first, then [`docs/portal.md`](../../docs/portal.md) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); the decision-tree is not a taxonomy artefact. Full audit 67/67 on the committed state; PR-time checks green.
+
+### Changed (deep-assessment r1 finalization, batched)
+
+- [`.working/deep-assessment/2026-07-10-r1.md`](../deep-assessment/2026-07-10-r1.md): removed the leftover stub-scaffolding the #754 `/validate-pr` caught (duplicate PENDING placeholder sections for phases 5-8 + an empty duplicate findings register at the file tail; the stale top-of-file Status line; the stale Phase-3 "in flight" clause), so the record no longer self-contradicts.
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the r1 row moved to Status `signed-off` (phases 1-8 complete); the maintainer signed off 2026-07-10 on the finding set and authorized actioning every actionable routed item overnight (R6 source-not-held and R8b maintainer-owned GitHub setting excepted), including the protected R7 and the generator R2.
+- Batched PR #754's `/validate-pr` (1 in-window warning, the record-scaffolding contradiction, fixed here) and `/retro` rows into [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.526` to `1.2.527`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.468` to `1.0.469`).
+
+### Discipline observation
+
+- Sweep 93 (this session) and PR #750's own `/validate-pr` both recorded clean yet missed this count drift; the deep-assessment full-qa forensic pass caught it. The ledger-meta observation is recorded in the r1 run record (phase 6c): the per-PR QA is not infallible on cross-surface count consistency that no gate checks; a future gate for "privacy jurisdiction count vs file count" is a candidate (not routed this run; the cross-doc-numbers gate does not currently key this pair).
+
 ## 2026-07-10, Library Version 2026.07.242, PR #754
 
 Records and routes the first-ever `/deep-assessment` run (r1), maintainer-invoked 2026-07-10 (attended-autonomous then overnight, VM). Working-state + backlog + bookkeeping only; no corpus document body changed. The four clear-mechanical fixes the run surfaced ship as separate PRs (not this one).

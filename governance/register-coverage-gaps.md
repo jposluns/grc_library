@@ -2,8 +2,8 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.28\
-**Date:** 2026-07-09\
+**Version:** 1.1.29\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/register-glossary.md`](register-glossary.md), [`README.md`](../README.md), [`TODO.md`](../TODO.md)\
@@ -78,7 +78,7 @@ Industry sectors covered by `/compliance/<sector>/` sub-directories or otherwise
 
 ### 2.1 Privacy jurisdictions
 
-The library's privacy domain has 25 jurisdiction-specific annexes in [`privacy/jurisdictions/`](../privacy/jurisdictions/). Coverage of major jurisdictions is generally substantive; the gaps below are known.
+The library's privacy domain has 26 jurisdiction-specific annexes in [`privacy/jurisdictions/`](../privacy/jurisdictions/). Coverage of major jurisdictions is generally substantive; the gaps below are known.
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |

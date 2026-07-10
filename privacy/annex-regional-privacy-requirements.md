@@ -3,8 +3,8 @@
 **Document Title:** Privacy Jurisdiction Requirements: Superseded\
 **Document Type:** Annex\
 **Status:** Superseded\
-**Version:** 2.1.2\
-**Date:** 2026-07-02\
+**Version:** 2.1.3\
+**Date:** 2026-07-10\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -23,7 +23,7 @@ This document has been superseded. Jurisdiction-specific privacy and AI regulato
 
 **Navigate to:**
 
-- [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md): Index of all 25 jurisdiction files with cross-jurisdiction compliance mapping summary.
+- [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md): Index of all 26 jurisdiction files with cross-jurisdiction compliance mapping summary.
 - [`privacy/jurisdictions/`](jurisdictions/): Individual jurisdiction annexes for EU, UK, Switzerland, Canada, United States, Brazil, Latin America, Singapore, Australia, Japan, South Korea, New Zealand, UAE, Saudi Arabia, South Africa, Turkey, Nigeria, Kenya, China, India, Thailand, Indonesia, Philippines, Vietnam, and Malaysia.
 
 ---

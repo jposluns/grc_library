@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.17\
-**Date:** 2026-07-09\
+**Version:** 1.0.18\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -212,7 +212,7 @@ Layer the privacy jurisdiction annexes for every jurisdiction in which you proce
 
 ### 4.1 Privacy jurisdictions (per Section 1.3)
 
-Each is found in [`privacy/jurisdictions/`](../privacy/jurisdictions/). The directory carries jurisdiction annexes for every region the library covers (currently 25 jurisdictions, including the Anglosphere examples listed below and additional non-Anglosphere jurisdictions across Asia-Pacific, Latin America, Middle East, Africa, and Europe). For the complete list, see the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md).
+Each is found in [`privacy/jurisdictions/`](../privacy/jurisdictions/). The directory carries jurisdiction annexes for every region the library covers (currently 26 jurisdictions, including the Anglosphere examples listed below and additional non-Anglosphere jurisdictions across Asia-Pacific, Latin America, Middle East, Africa, and Europe). For the complete list, see the [jurisdiction index](../privacy/annex-privacy-jurisdiction-index.md).
 
 Common Anglosphere selections (representative, not exhaustive):
 
