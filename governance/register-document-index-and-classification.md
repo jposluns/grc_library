@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.72\
+**Version:** 1.27.73\
 **Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -226,7 +226,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Supply Chain | Procedure | Supplier Audit Procedure | [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md) | Supplier Risk Maintainer | Annual | ISO 19011:2018, ISO 28000, BASC §9.2, tiered audit cadence | template |
 | Supply Chain | Procedure | Third-Party AI Due Diligence Procedure | [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) | Supplier Risk Maintainer | 6 to 12 months | EU AI Act, ISO/IEC 42001, NIST AI RMF, OWASP LLM Top 10, AI supply chain | template |
 | Supply Chain | Standard | Cloud Exit and Data Portability Standard | [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md) | Chief Information Security Officer | Annual | CSA CCM v4.1 IPY-01 to 05, ISO/IEC 27001 Annex A.5.20, GDPR Art 20, NIST SP 800-53 SA-9 | template |
-| Governance | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) | Chief Information Officer | Annual | ISO 37001:2025, ISO 37301, ISO/PAS 8800, OECD AI Principles, COBIT APO07 | template |
+| Governance | Framework | Human Capital and Ethical Conduct Framework | [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md) | Chief Information Officer | Annual | ISO 37001:2025, ISO 37301, CAN/DGSI 101, OECD AI Principles, COBIT APO07 | template |
 | Governance | Framework | Sustainability and Responsible Technology Framework | [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md) | Chief Information Officer | Annual | ISO 50001, ISO 26000, OECD Digital Security Framework, UN SDGs, CSA AICM v1.1 | template |
 | Governance | Policy | Digital Twin and Simulation Governance Policy | [`governance/policy-digital-twin-and-simulation-governance.md`](policy-digital-twin-and-simulation-governance.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8, ISO/IEC 27001, ISO 23247, NIST SP 800-82r3 | template |
 | Governance | Register | Data Retention Schedule | [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md) | Data Protection Officer | Annual | GDPR Arts 5/17/30, PIPEDA, ISO/IEC 27001 Annex A.5.33, BASC v6, ISO 15489 | template |
@@ -283,7 +283,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Procedure | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8/10, EU AI Act Art 9, NIST AI RMF all functions, COBIT BAI09 | template |
 | AI | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md) | Chief Information Officer | Annual | ISO/IEC 42001 §8, ISO/IEC 42005:2025, EU AI Act Art 9, NIST AI RMF MAP/MEASURE | template |
 | AI | Register | AI Risk Register | [`ai/register-ai-risk.md`](../ai/register-ai-risk.md) | GRC Programme Manager | Quarterly | ISO/IEC 42001 §6.1/9, EU AI Act Art 9, NIST AI RMF MAP/MEASURE, ISO 31000 | template |
-| AI | Guideline | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) | Chief Information Officer | Annual | OECD AI Principles, ISO/PAS 8800, EU AI Act Arts 5/9, ISO/IEC 42001 §6/8 | template |
+| AI | Guideline | Ethical AI Use Guideline | [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md) | Chief Information Officer | Annual | OECD AI Principles, UNESCO Ethics of AI, CAN/DGSI 101, EU AI Act Arts 5/9, ISO/IEC 42001 §6/8 | template |
 | AI | Plan | AI Incident Response Plan | [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MANAGE, ISO/IEC 42001 §9-10, EU AI Act Arts 15/17/26, ISO/IEC 27035-3 | template |
 | AI | Template | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | AI Data Steward | Annual | Datasheets for Datasets, ISO/IEC 42001 §8.4, EU AI Act Arts 10-12, NIST AI RMF MAP, GDPR Arts 5/6/9/25/30, ISO/IEC 5259 | template |
 | AI | Register | Model Registry | [`ai/register-model-registry.md`](../ai/register-model-registry.md) | AI System Inventory Keeper | Continuous | ISO/IEC 42001 §8/§8.4, EU AI Act Arts 9/11/12/26/50/Annex IV, NIST AI RMF MAP/MEASURE/MANAGE, ISO/IEC 42006:2025, ISO/IEC 23894 | template |

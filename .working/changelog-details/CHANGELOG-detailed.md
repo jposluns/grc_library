@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.274, PR #786
+
+**AI gaps-and-expansion workstream, PR 0.3 (ISO/PAS 8800 mis-attribution corrected corpus-wide; advances TODO §2.2)**. Third corpus-accuracy fix of the workstream. Substantive change: one skeptical pre-push verifier.
+
+### Fixed
+
+- **ISO/PAS 8800 mis-attribution.** The corpus cited "ISO/PAS 8800:2023, Responsible Innovation Management" as an anchor for responsible/ethical AI use. Upstream verification this turn (WebSearch: the ISO Online Browsing Platform entry plus UL Solutions, SGS, TÜV Rheinland, and Perforce corroborating pages; a direct WebFetch of iso.org returned HTTP 403, so the search-corroborated result stands) established the actual instrument: **ISO/PAS 8800:2024, "Road vehicles, Safety and artificial intelligence"**, developed by ISO/TC 22/SC 32/WG 1423 and published December 2024, a functional-safety specification addressing safety-related insufficiencies and malfunctions of AI elements in series-production road vehicles. The citation was wrong on the year (2023 vs 2024), the title (not "Responsible Innovation Management"), and the domain fit (road-vehicle functional safety, not general responsible-AI-use ethics), so it is the wrong anchor for the responsible-AI-principles claims it supported.
+- ISO/PAS 8800 is **not held** in `grc_library_ref` (the earlier "8800" grep hits were PDF byte-offset false matches in unrelated ISO originals), so it could not serve as a held authoritative citation regardless.
+
+### Changed
+
+- The plan (item 0.3) named [`ai/guideline-ethical-ai-use.md`](../../ai/guideline-ethical-ai-use.md); a full-corpus grep found the identical mis-citation replicated across several documents, so it was corrected everywhere as one coherent accuracy fix (a half-fix leaving the verified-wrong citation in a sibling document would fail the workstream's absolute-accuracy standard). Each responsible-AI anchor re-pointed to held authoritative sources:
+  - [`ai/guideline-ethical-ai-use.md`](../../ai/guideline-ethical-ai-use.md): the "Foundational ethical principles" intro and the framework-alignment table (the ISO/PAS 8800 row replaced by an OECD-companion pair) now cite the **OECD AI Principles**, the **UNESCO Recommendation on the Ethics of Artificial Intelligence (2021)**, and **CAN/DGSI 101:2025** (Ethical design and use of artificial intelligence by small and medium organizations, 2nd edition). Version `1.0.2` to `1.0.3`.
+  - [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): the §Purpose alignment line, the §5 Responsible-AI-training clause, and the framework-alignment table row re-anchored from ISO/PAS 8800 to **CAN/DGSI 101:2025** (the held Canadian ethical automated-decision-system standard, the apt single anchor for an HR/conduct framework). Version `1.0.5` to `1.0.6`, Date `2026-07-02` to `2026-07-10`.
+  - [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../../governance/guideline-esg-and-ai-ethics-disclosure.md): the "Responsible AI training completion rate" disclosure framework re-anchored from ISO/PAS 8800 to **CAN/DGSI 101**. Version `1.1.2` to `1.1.3`, Date `2026-07-05` to `2026-07-10`.
+  - [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md): the paired framework-alignment cells for both affected documents updated to match their new anchors. Version `1.27.72` to `1.27.73`, Date to `2026-07-10`.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated; TODO §2.2 tracker marks PR 0.3 done.
+
+### Verification
+
+- **Trust tiers:** OECD Recommendation (OECD/LEGAL/0449) and UNESCO Recommendation (2021) are held frameworks-tier; CAN/DGSI 101:2025 is held standards-tier; all authoritative, all confirmed present via the `grc_library_ref` index. The OECD-year designations in these documents (some "2023", some "2019 updated 2024") were left untouched, that inconsistency is the separate TODO §1.10 item routed from #785's `/validate-pr`, not part of this ISO/PAS 8800 fix.
+- **Scope-expansion note:** item 0.3 named one file; the corpus-wide correction is a stricter-safe accuracy default (reversible, on-branch) surfaced to the maintainer, consistent with the workstream's "absolute perfection / government reliance" standard.
+- **Contradiction scan:** zero residual `ISO/PAS 8800` or "Responsible Innovation Management" in any corpus body (the one surviving hit is the [`TODO.md`](../../TODO.md) workstream-tracker description of the work item itself). Skeptical pre-push verifier (substantive tier): see the pre-push record. `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean. Batches PR #785's `/validate-pr` and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.273, PR #785
 
 **AI gaps-and-expansion workstream, PR 0.2 (`policy-ai-compliance` Canada AIDA reconcile + US-state subsection; advances TODO §2.2)**. Second corpus-accuracy fix of the workstream (0.1 shipped as #784). Substantive change: one skeptical pre-push verifier.
