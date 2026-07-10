@@ -28,7 +28,7 @@ The detailed overnight backlog queue (the delivery list, per-delivery handling a
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
- ### Unheld-citation acquisition (WS 0.5 / #788): route to the maintainer source-drop queue [PENDING maintainer]
+### Unheld-citation acquisition (WS 0.5 / #788): route to the maintainer source-drop queue [PENDING maintainer]
 
 The AI-workstream item 0.5 identified seven unheld citations, all accurate references to real sources, all cited corroboratively (no corpus value rests on their unverified content), so none was reworded (rewording accurate references loses information). **Maintainer decision:** for each, acquire into `grc_library_ref` (so future normative reliance can be verified) or leave as corroborative-tier. The seven: Hiroshima Process (G7 code of conduct); Mitchell et al. 2019 (Model Cards paper, arXiv); Gebru et al. 2018 (Datasheets paper, arXiv); OWASP MCP Top 10; OWASP GenAI Red Teaming Guide; PTES (Penetration Testing Execution Standard); IEEE 7000-2021 (paid standard; the one §7.3 locator is unverifiable without it). Full per-citation detail (where each is cited, usage class) is in [`TODO.md`](../TODO.md) §1.11. Recommendation: acquire the freely-available ones (OWASP items, G7 Hiroshima, the two arXiv papers) on the next `grc_library_ref` egress cycle; IEEE 7000 is licence-gated (maintainer download). No corpus change pending the decision; the citations stay as accurate corroborative-tier references. Surfaced 2026-07-10 during #788.
 
