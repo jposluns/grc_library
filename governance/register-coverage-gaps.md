@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.29\
+**Version:** 1.1.30\
 **Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -167,6 +167,7 @@ Regulations and frameworks named in the library but without dedicated operationa
 | IEC 62443 (OT security) | Referenced | Planned | Backlog candidate: IEC 62443 depth annex (not currently scheduled in TODO; the OT suite itself shipped, see section 4) | High-priority for industrial/energy/logistics sectors |
 | NERC CIP | Referenced | Planned | TODO backlog: energy and utilities country regulator overlays | High-priority for energy sector |
 | SWIFT CSP (Customer Security Programme) | Referenced | Deferred | Backlog candidate: SWIFT CSP annex (not currently scheduled in TODO; the financial-services TODO item covers country regulators only). Re-graded None to Referenced 2026-07-02: the financial-services annex names SWIFT CSP in its regime table and attestation row ([`compliance/financial-services/annex-financial-services-sector-requirements.md`](../compliance/financial-services/annex-financial-services-sector-requirements.md)) | Financial-services payment networks |
+| SOC 2 (Trust Services Criteria) | Referenced | Deferred | Backlog candidate: SOC 2 TSC-to-document mapping (not currently scheduled in TODO) | Named as a target attestation corpus-wide (the audit-evidence and regulator-interaction templates, the glossary, the maturity self-assessment) but no matrix maps the Trust Services Criteria (the CC-series common criteria plus the Availability, Confidentiality, Processing Integrity, and Privacy categories) to library documents; disclosure row added per deep-assessment r1 |
 | ITIL 4 | Partial | Out of scope | n/a | Service management framework; operational rather than governance. Re-graded None to Partial 2026-07-02: [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) consolidates the ITIL-based ITSM processes (SMO oversight, process ownership); dedicated ITIL-instrument treatment stays out of scope |
 | TOGAF | Referenced | Out of scope | n/a | Architecture framework; operational. Re-graded None to Referenced 2026-07-02: framework-table rows in six shipped architecture documents (the enterprise-architecture framework, the reference-architecture standard, the architecture-review procedure, and three further standards); dedicated TOGAF treatment stays out of scope |
 | COBIT 2019 | Substantive | In library | n/a | Cited throughout governance and compliance |
