@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.4\
-**Date:** 2026-07-03\
+**Version:** 1.8.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -251,6 +251,8 @@ The Risk Owner role's six accountability actions (defined in §3) map to specifi
 | COBIT 2019 | APO12 Managed Risk; APO10 Managed Vendors; MEA01 |
 | CSA CCM v4.1 | GRC-01 Risk Management Framework |
 | NIST SP 800-39 | Managing Information Security Risk |
+| NIST IR 8286 (Rev. 1; and 8286A/B/C/D) | Integrating Cybersecurity and Enterprise Risk Management |
+| NIST SP 800-221 / 800-221A | Enterprise Impact of ICT Risk; ICT Risk Outcomes |
 | NIST AI RMF | Govern, Map, Measure, Manage functions |
 | OECD AI Principles | Transparency, robustness, accountability |
 | GDPR | As applicable to EU personal data |

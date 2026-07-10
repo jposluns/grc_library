@@ -2,8 +2,8 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-10\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -20,7 +20,7 @@
 
 This guideline provides voluntary guidance for applying quantitative risk analysis techniques alongside the qualitative 5×5 matrix approach defined in [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md). Quantitative methods complement qualitative scoring by expressing risk in financial terms, supporting capital allocation decisions, cyber insurance sizing, and Board-level risk reporting.
 
-The primary methodology referenced is **FAIR (Factor Analysis of Information Risk)**, an open quantitative risk analysis standard. This guideline does not require formal FAIR tool adoption and can be applied manually for individual high-priority risk analyses.
+The primary methodology referenced is **FAIR (Factor Analysis of Information Risk)**, an open quantitative risk analysis standard. This guideline does not require formal FAIR tool adoption and can be applied manually for individual high-priority risk analyses. The quantitative techniques applied here sit within the broader family catalogued in IEC 31010:2019 (Risk management, Risk assessment techniques), the technique companion to the ISO 31000:2018 guidelines.
 
 ---
 
