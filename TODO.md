@@ -172,10 +172,6 @@ The r1 matrix-fit judged the 66 compliance-matrix worklist rows but deferred the
 
 [`governance/framework-governance-performance-and-improvement.md:55`](governance/framework-governance-performance-and-improvement.md) says executive review is "at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3", but ISO/IEC 27001 §9.3 prescribes "planned intervals", not "annually" (the annual cadence is the organization's choice). Reword to "at planned intervals (the organization sets at least annually) per ISO/IEC 27001 §9.3". (The ISO 9001 §9.3 half is source-not-held, tracked for acquisition in RB-R6.)
 
-### 3.28 Claim-fit precision: serious-incident Art 3(49) limbs (deep-assessment r1 R5c, S)
-
-[`ai/policy-ai-compliance.md:280`](ai/policy-ai-compliance.md) paraphrases the EU AI Act Art 3(49) "serious incident" definition but drops statutory limb (c) (fundamental-rights infringement) and softens limb (b) ("significant disruption" vs the statutory "serious and irreversible disruption of critical infrastructure"). The citation is correct; align the enumeration to the four statutory limbs or mark the list non-exhaustive.
-
 ### 3.29 Reference-breadth citations from r1 `/reference-audit` (deep-assessment r1 R12, M; per-cluster)
 
 FULL-mode `/reference-audit` found 27 held-but-unused authoritative citations (the "cites the headline standard, leaves the purpose-built companion on the shelf" class), all confirmed against held source text + the live document; additive citation-grade recommendations, applied per-domain-cluster (each cluster = one coherent apply to those docs' framework-alignment tables). The full enumerated per-item list with locations is in [`.working/deep-assessment/2026-07-10-r1.md`](.working/deep-assessment/2026-07-10-r1.md). Clusters:

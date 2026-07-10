@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -81,9 +81,9 @@ All AI systems must be classified before deployment. Classification determines t
 
 | EU AI Act Risk Tier | EU AI Act Scope | Regulatory Obligations | Organization Approach |
 |---|---|---|---|
-| **Prohibited** | AI systems that pose unacceptable risk: social scoring by public authorities; real-time remote biometric identification in public spaces (subject to narrow exceptions); AI exploiting vulnerabilities of specific groups; subliminal manipulation that causes harm (EU AI Act Title II) | Deployment prohibited | The organization does not deploy prohibited AI systems. Any proposed use case that may fall within this tier must be referred to the AIGC and Legal before any procurement or development activity |
+| **Prohibited** | AI systems that pose unacceptable risk: social scoring by public authorities; real-time remote biometric identification in public spaces (subject to narrow exceptions); AI exploiting vulnerabilities of specific groups; subliminal manipulation that causes harm (EU AI Act Chapter II, Article 5) | Deployment prohibited | The organization does not deploy prohibited AI systems. Any proposed use case that may fall within this tier must be referred to the AIGC and Legal before any procurement or development activity |
 | **High-risk** | AI systems listed in EU AI Act Annex III: AI in critical infrastructure; educational or vocational training decisions; employment and workforce management; access to essential services; law enforcement; migration and border control; administration of justice; AI used as safety components in regulated products (Annex I) | Conformity assessment; registration in the EU database; fundamental rights impact assessment; human oversight; technical documentation (Annex IV); logging; post-market monitoring; serious incident reporting | Full compliance programme applies; AI System Impact Assessment required before deployment; annual audit; human oversight mandatory; incident reporting pathway established |
-| **General-purpose AI (GPAI) model with systemic risk** | GPAI models with training compute above 10^25 FLOPs or designated by the European Commission (EU AI Act Title III Chapter 5) | Adversarial testing; incident reporting to the AI Office; cybersecurity measures; energy efficiency transparency | Where the organization deploys or integrates GPAI models meeting this threshold, it ensures that the provider's obligations are met and documents its own deployer obligations |
+| **General-purpose AI (GPAI) model with systemic risk** | GPAI models with training compute above 10^25 FLOPs or designated by the European Commission (EU AI Act Chapter V) | Adversarial testing; incident reporting to the AI Office; cybersecurity measures; energy efficiency transparency | Where the organization deploys or integrates GPAI models meeting this threshold, it ensures that the provider's obligations are met and documents its own deployer obligations |
 | **General-purpose AI (GPAI) model: standard** | GPAI models that do not meet the systemic risk threshold | Technical and copyright compliance documentation; transparency obligations | Transparency and documentation obligations met; AI System Register entry required |
 | **Limited-risk** | AI systems with specific transparency obligations: chatbots; AI-generated content; emotion recognition and biometric categorization systems (EU AI Act Art. 50) | Disclose AI interaction to users; label AI-generated content | User notification implemented; AI-generated content labelling policy applied |
 | **Minimal-risk** | All other AI systems | No mandatory obligations under EU AI Act | Best-practice governance applied; AI System Register entry still required; periodic review conducted |
@@ -155,7 +155,7 @@ Where the organization fine-tunes a GPAI model using proprietary, licensed, or t
 
 ### 6.3 Systemic risk assessment
 
-Where a GPAI model is identified as presenting systemic risk under EU AI Act Title III Chapter 5 (whether because the model provider has designated it as such or because the European Commission has so determined), the organization must assess and document:
+Where a GPAI model is identified as presenting systemic risk under EU AI Act Chapter V (Articles 51 to 56, general-purpose AI models) (whether because the model provider has designated it as such or because the European Commission has so determined), the organization must assess and document:
 
 - The nature of the systemic risks introduced by the model in its deployment context.
 - Adversarial testing results or, where the organization is relying on the provider's testing, the provider's testing summary.
@@ -277,7 +277,7 @@ An AI incident is any unintended behaviour of an AI system, or an event resultin
 - Results in a significant deviation from the AI system's intended purpose.
 - Involves a security compromise of an AI system (including adversarial attacks, data poisoning, or model extraction).
 - Generates discriminatory, unlawful, or harmful outputs at scale.
-- Constitutes a "serious incident" under EU AI Act Art. 3(49): a malfunctioning that directly or indirectly causes death, serious harm to health, serious harm to property, or significant disruption to the provision of essential services.
+- Constitutes a "serious incident" under EU AI Act Art. 3(49): an incident or malfunctioning that directly or indirectly leads to any of (a) the death of a person or serious harm to a person's health; (b) a serious and irreversible disruption of the management or operation of critical infrastructure; (c) the infringement of obligations under Union law intended to protect fundamental rights; or (d) serious harm to property or the environment.
 
 ### 10.2 Internal reporting
 
