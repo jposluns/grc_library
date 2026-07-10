@@ -173,9 +173,9 @@ FULL-mode `/reference-audit` found 27 held-but-unused authoritative citations (t
 - **(R12-devsec) Dev-security / cloud / metrics / workforce**: NIST SP 800-204D (devops-security); ISO/IEC 27017:2015 (cloud-security-baseline; also resolves a dangling register row); NIST SP 800-55 Vol.1 & Vol.2 (metrics framework); NIST SP 800-181 Rev.1 NICE (security-awareness-and-training role-based table).
 - **(R12-bonus) Citation-precision bonuses**: the NIST SP 800-207A cited-title mismatch (a phrasing fix in the ZTA reference); the ISO/IEC 27017 dangling register row (resolved by the cloud-baseline citation above).
 
-### 3.30 CI workflow hardening focused audit (deep-assessment r1 R9, S-M)
+### 3.39 Dependabot refresh-companion for the SHA-pinned CI actions (R9 follow-on, maintainer decision, XS)
 
-[`.github/workflows/quality.yml`](.github/workflows/quality.yml) was not deep-audited in r1 for permissions scoping (a least-privilege `permissions:` block) and action pinning (SHA-pinned `uses:`) against the project's own CI/CD-gates and supply-chain rules. Run a focused hardening pass.
+R9 (#767) SHA-pinned the two GitHub actions in [`.github/workflows/quality.yml`](.github/workflows/quality.yml) (`actions/checkout`, `actions/setup-python`) to exact commits with `# v4` / `# v5` comments. SHA-pins do not auto-update, so without a refresh mechanism they go stale and miss upstream security patches. Decide the refresh approach: add a `.github/dependabot.yml` for the `github-actions` ecosystem (weekly/monthly; keeps the SHA-pins current with low-noise PRs on a two-action docs repo) OR accept manual periodic bumps. Maintainer-owned because it adds repo automation (Dependabot PRs). Low urgency (the lint CI is read-only, `permissions: contents: read`, so the stale-pin blast radius is small). Surfaced building R9 2026-07-10.
 
 ### 3.31 `/reference-audit` per-touch staleness backstop (r6 guardrails, M, M; DEFERRED)
 

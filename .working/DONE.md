@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #767: Deep-assessment r1 R9, CI workflow hardening (closes TODO §3.30) (2026-07-10)
+
+Hardened [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) per the project's own CI/CD-gates and supply-chain rules: added a least-privilege top-level `permissions: contents: read` block (the lint job is read-only) and SHA-pinned both GitHub actions (`actions/checkout` to `34e1148…` # v4, `actions/setup-python` to `a26af69…` # v5, real SHAs fetched via `gh api`) with version comments. A follow-on TODO (§3.39) tracks the Dependabot-vs-manual refresh decision so the SHA-pins do not silently rot.
+
 ### PR #766: Deep-assessment r1 R2, portal generator emits `ai/jurisdictions/` + routes Compliance to the reverse crosswalk (closes TODO §3.21) (2026-07-10)
 
 The audience-shaped portal generator ([`tools/build-portal.py`](../tools/build-portal.py)) omitted the AI jurisdiction annexes (no audience selected an `ai`-domain `Annex`) and never routed the Compliance audience to the reverse framework crosswalk. Added an `ai/jurisdictions/` path-prefix selector and a `Reverse Framework` title selector to the Compliance audience; the regenerated `docs/portal.md` now lists the EU AI Act and Colorado AI Act annexes and the Reverse Framework Control Crosswalk under Compliance (closes the Sweep-92 B-5 gap and the r1 R2 finding as one generator change).
