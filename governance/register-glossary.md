@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.12\
-**Date:** 2026-07-09\
+**Version:** 1.4.13\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`README.md`](../README.md)\
@@ -51,7 +51,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **ADMT** | Automated Decision-Making Technology. The organizing concept of Colorado's re-enacted AI statute (SB 26-189): technology that materially influences a consequential decision. See [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md). |
+| **ADMT** | Automated Decision-Making Technology. The organizing concept of Colorado's re-enacted AI statute (SB 26-189): technology that materially influences a consequential decision. See [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md). The same acronym is also used for California's CPRA automated decision-making technology regulations (see [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md)). |
 | **AEAD** | Authenticated Encryption with Associated Data. Symmetric encryption mode providing confidentiality, integrity, and authenticity in a single primitive. Canonical examples: AES-GCM (NIST SP 800-38D), AES-CCM, ChaCha20-Poly1305 (RFC 8439). |
 | **AEO** | Authorized Economic Operator. WCO SAFE Framework partnership programme administered by national customs authorities granting trade facilitation benefits to businesses meeting security and safety standards. |
 | **AEO-S** | AEO Security and Safety strand (UK-specific designation for the security-focused AEO certification). |
