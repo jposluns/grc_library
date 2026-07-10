@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.266, PR #778
+
+Deep-assessment r1 P1 residual **§1.6** (EN 54 currency stamp), the eighteenth PR of the sweep94 session. A register-currency confirmation backed by an upstream check.
+
+### Changed
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): the EN 54 row moved from `needs-reconfirm` to `verified 2026-07-10`, with the description updated to note the series is CEN/TC 72's (25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) and the status qualified as series-level (the corpus cites the series generically, no specific part). Version 1.5.18 to 1.5.19 (Date already 2026-07-10, Version-only).
+
+### Added
+
+- TODO §3.42: a `/reference-audit` new-ingest pass for the ISO/IEC 5259 parts 1-6 and the Canadian/international AI-governance sources that the standing post-PR `grc_library_ref` resync ingested on 2026-07-10, judging which corpus documents they topically match and do not yet cite (known candidate: the training-data-governance procedure, which already cites the 5259 series generically and could cite specific parts).
+
+### Verification
+
+- The EN 54 series' active status was confirmed upstream this turn (WebSearch: CEN/TC 72, 25+ parts, CPR-harmonized). The corpus's EN 54 usage was grepped: only series-level references exist (the BMS overlay annex and the document-index register), so no per-part citation needed reconfirming, which is why the stamp is scoped series-level rather than enumerating parts.
+- `tools/run_all_audits.sh` 67/67 green; the standards-currency gate accepts the change. Generated taxonomy and scorecard regenerated.
+- Batches PR #777's `/validate-pr` (0 blocking findings) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.265, PR #777
 
 Deep-assessment r1 P1 residual **§1.5** (ICAO citation error correction), the seventeenth PR of the sweep94 session and the first of the P1 reference-currency residuals. Substantive (a citation correction resolved by upstream verification), so a refute-briefed verifier reviewed the change pre-push.
