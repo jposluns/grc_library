@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ This annex applies where an organization:
 
 | Standard / Programme | Body | Scope |
 |---|---|---|
-| **ICAO Doc 10026: Aviation Security** | International Civil Aviation Organization | States; aviation operators |
+| **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
 | **ICAO Doc 10055: Aviation Cybersecurity Strategy** | ICAO | States; airlines; ANSPs; airports |
 | **IMO Resolution MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management | International Maritime Organization | Shipping companies; port operators |
 | **IMO MSC-FAL.1/Circ.3 Rev. 1** | IMO | Incorporated into ISM Code |

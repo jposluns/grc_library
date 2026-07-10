@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.265, PR #777
+
+Deep-assessment r1 P1 residual **§1.5** (ICAO citation error correction), the seventeenth PR of the sweep94 session and the first of the P1 reference-currency residuals. Substantive (a citation correction resolved by upstream verification), so a refute-briefed verifier reviewed the change pre-push.
+
+### Changed
+
+- Corrected the mis-cited "ICAO Doc 10026 (Manual on Aviation Security)" to `ICAO Annex 17 (Chicago Convention)` in three carriers:
+  - [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): the canonical-citation row (edition, year, topic, URL, and status all corrected; status `needs-reconfirm` to `verified 2026-07-10`). Version 1.5.17 to 1.5.18.
+  - [`compliance/logistics/annex-logistics-sector-requirements.md`](../../compliance/logistics/annex-logistics-sector-requirements.md): the sector-requirements table row. Version 1.0.5 to 1.0.6.
+  - [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](../../.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md): the citation-verification pre-fill row whose AI-pre-filled (fabricated, 404) store URL seeded the error, corrected to the Annex 17 target with a note documenting the correction. Version 1.0.10 to 1.0.11.
+
+### Verification
+
+- The error was confirmed by upstream check this turn: the worklist's purported store URL `store.icao.int/en/doc-10026-manual-on-aviation-security` returns HTTP 404; a WebSearch confirmed Doc 10026 is not the aviation-security manual (those are Doc 8973 and Doc 10047), corroborating the r1 finding.
+- The replacement was confirmed upstream: `ICAO Annex 17` to the Chicago Convention is titled "Security: Safeguarding International Civil Aviation Against Acts of Unlawful Interference" (ICAO postal-history page), current Edition 12 (July 2022, ICAO store / e-library). Annex 17 is publicly citable, unlike the Restricted Doc 8973, per the maintainer's decision.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept the change. Generated taxonomy, portal, and scorecard regenerated. Zero residual "Doc 10026" citation remains (only the worklist's explanatory correction note references the old number).
+- Batches PR #776's `/validate-pr` (0 blocking findings) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.264, PR #776
 
 Deep-assessment r1 **R12 cluster 7 of 7** (dev-security / cloud / metrics / workforce), the sixteenth PR of the sweep94 session and the **closing R12 batch**: it applies the last cluster's citations plus the two bonus precision items, and closes TODO §3.29 (rotated to DONE). Substantive (citation additions plus a citation-title correction), so a refute-briefed verifier reviewed the change pre-push.

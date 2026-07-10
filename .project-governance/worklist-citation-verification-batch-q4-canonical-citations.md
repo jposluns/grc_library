@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.10\
-**Date:** 2026-07-02\
+**Version:** 1.0.11\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -185,7 +185,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | OECD AI Principles | https://oecd.ai/en/ai-principles | all | 2024 updated, AI policy principles; supersedes 2019 |  |  |  |  |  |  |
 | OECD Privacy Guidelines | https://www.oecd.org/digital/ieconomy/privacy-guidelines.htm | all | 2013 revised, Privacy and transborder data flows; supersedes 1980 |  |  |  |  |  |  |
 | WTO TFA | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | all | 2017, Trade Facilitation Agreement |  |  |  |  |  |  |
-| ICAO Doc 10026 | https://store.icao.int/en/doc-10026-manual-on-aviation-security | all | 2nd edition, 2024; supersedes 1st edition |  |  |  |  |  |  |
+| ICAO Annex 17 (Chicago Convention) | https://store.icao.int/en/annex-17-security | all | Edition 12, 2022; Security (safeguarding international civil aviation against acts of unlawful interference). Corrected 2026-07-10: the prior "Doc 10026 / Manual on Aviation Security" pre-fill was wrong (its store URL 404s; Doc 10026 is the Report of the Legal Commission, and the AVSEC manual is the Restricted Doc 8973). |  |  |  |  |  |  |
 | ICAO Doc 10055 | https://store.icao.int/en/aviation-cybersecurity-strategy-doc-10055 | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
 | IMO Resolution MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 2, 2022-06, Maritime cyber risk management guidelines; supersedes Rev. 1 |  |  |  |  |  |  |
 

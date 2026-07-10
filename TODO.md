@@ -28,10 +28,6 @@ Correctness fixes and the **error-prevention tooling** that keeps the corpus fro
 
 The §1.5 reference version-currency register shipped in #505 and the full `needs-reconfirm` sweep ran in #751 (49 rows verified upstream 2026-07-09: 41 confirmed-stamped, 5 stale-corrected with corpus cascade, 1 data-defect). The 51-row egress deferral is discharged. The remaining residuals are split below (each its own resolution path).
 
-### 1.5 ICAO Doc 10026 mis-citation (reference-currency residual, error, maintainer decision, S)
-
-The register row and [`compliance/logistics/annex-logistics-sector-requirements.md`](compliance/logistics/annex-logistics-sector-requirements.md) cite "ICAO Doc 10026" as the Manual on Aviation Security, but Doc 10026 is the Report of the Legal Commission; the aviation-security manual is ICAO Doc 8973 (Restricted, not publicly citable). Decide the intended reference (Doc 8973, Annex 17 to the Chicago Convention, or drop the citation) and correct both the register row and the logistics annex together. Held for the maintainer's decision because Doc 8973 is Restricted.
-
 ### 1.6 EN 54 per-part currency enumeration (reference-currency residual, S)
 
 The multi-part CEN EN 54 fire-detection series register row stays `needs-reconfirm` (no single fetchable edition page); enumerate the cited parts and confirm each upstream, then stamp the row.

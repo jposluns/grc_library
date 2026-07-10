@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #777: Deep-assessment r1 §1.5, ICAO Doc 10026 mis-citation corrected to Annex 17 (closes TODO §1.5) (2026-07-10)
+
+The corpus cited "ICAO Doc 10026" as the Manual on Aviation Security across three carriers (canonical-citations register, logistics sector annex, and the Q4 citation-verification worklist whose fabricated 404 store URL seeded the error); Doc 10026 is actually the Report of the Legal Commission and the AVSEC manual is the Restricted Doc 8973. Per the maintainer's decision, corrected all three to ICAO Annex 17 (Chicago Convention), confirmed upstream (title + Edition 12, 2022).
+
 ### PR #776: Deep-assessment r1 R12, reference-breadth citations (closes TODO §3.29) (2026-07-10)
 
 The r1 `/reference-audit` reference-breadth track: 27 held-but-unused authoritative citations across 7 domain clusters (risk/ERM, privacy, IAM, incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce), plus 2 bonus precision fixes (the NIST SP 800-207A citation-title correction and the ISO/IEC 27017 dangling-registration resolution), applied per-cluster across PRs #770-#776. Each cluster was held-edition-confirmed, refute-briefed-verifier-SHIP'd, and post-merge `/validate-pr` 0-findings. Closes §3.29 and discharges the r1 `/deep-assessment` reference-breadth findings.

@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.17\
+**Version:** 1.5.18\
 **Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -239,7 +239,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| ICAO Doc 10026 | 2nd edition | 2024 | Manual on Aviation Security | 1st edition | https://store.icao.int/ | needs-reconfirm |
+| ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
 | ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-06-30 |
 | IMO Resolution MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
 

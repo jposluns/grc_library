@@ -4,7 +4,7 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-10T16:13:13Z
+**Last-heartbeat-UTC:** 2026-07-10T16:46:13Z
 
 **Current-task:** ACQUIRED at the sweep94 `/resume` (2026-07-10 UTC, ATTENDED-AUTONOMOUS on the NUC). Resumed cleanly from the released #760 lease (no live sibling branch inside the 60-min window). Session plan (maintainer-directed at this resume): (1) the loop-break corpus-wide **Sweep 94** `/validate` over the **#753..#759** window (mandatory first task); (2) then a maintainer-directed **log-mining pass** (review the improvement / hallucination logs, extract TODO-worthy improvements, assess each, populate TODO, add an "assessed-through" marker, propose cycling fully-mined old rows to scratch); (3) then the signed-off deep-assessment r1 actionable items (R1/R3/F3/F6/R8a small; R7 apply-directly PROTECTED, R2/R11/R12/R9/R10 delicate-at-scale). Green-at `4115ada` (#759) = 67/67 confirmed live at resume; HEAD #760.
 
