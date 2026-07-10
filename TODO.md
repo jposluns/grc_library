@@ -44,6 +44,10 @@ Build the advisory register-currency drift-check tool per the `worker-20260709-f
 
 Two `grc_library_ref` currency corrections that ship together as one ref-side PR (same repo, same superseded-archival workflow): (a) **WCO SAFE edition refresh** — `grc_library_ref` holds the superseded 2021 SAFE edition; refresh it to the 2025 edition via the superseded-archival workflow. (b) **NERC CIP-015 revision-flag note** — the #751 `/validate-pr` flagged that `grc_library_ref` holds `CIP-015-2` marked `authoritative: true`, while the corpus register correctly cites `CIP-015-1` (FERC Order No. 907 approved CIP-015-1, 2025-06-26, effective 2025-09-02; CIP-015-2, Project 2025-02, passed the NERC final ballot 2026-03-05 but is pending NERC Board adoption and FERC filing as of July 2026, so not yet approved). No corpus change; annotate `grc_library_ref`'s CIP-015-2 entry as not-yet-FERC-approved (or move the `authoritative` flag to CIP-015-1) so the discrepancy is not re-flagged at a future sweep.
 
+### 1.9 Completion-verification guard: add a file-type-width axis (log-mining #688/#689, protected CLAUDE.md edit, S)
+
+Extend the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) completion-verification / find-every-carrier guard with an explicit **file-type-width axis**: a rename, cutover, or completion grep must run over ALL file types (`.py`, `.yml`, config, docstrings), not `.md` alone (the current guards are pattern-width and scope-width but implicitly `.md`-centric). Surfaced by the #688/#689 retros as a pending candidate; confirmed absent from the current guard set. Protected pack edit (stage in [`.working/deferred-protected-changes.md`](.working/deferred-protected-changes.md) or apply on a local-instance attended run). Optionally pair a `/matrix-fit`-style old-location-token advisory. Mined 2026-07-10 (sweep94 log-mining pass).
+
 ---
 
 ## Priority 2 — Fill significant gaps
@@ -188,6 +192,22 @@ The figure-drift family's mechanizable subset: a delta-scoped advisory (not a ga
 ### 3.33 Formalize the (severity, effort) convention across surfaces (S)
 
 The `(severity, effort)` tags are in use in this file and the scale is now stated in the header, but the convention is not yet propagated to its sibling surfaces. When the convention formally lands, update: `library-fitness-review/SKILL.md`; `validation-sweep/SKILL.md`; the [`.working/DONE.md`](.working/DONE.md) heading shape; future fitness-review templates and sweep detail files. Schedule: after the current FR backlog closes.
+
+### 3.34 Detailed-mirror markdown-link resolution check (log-mining #715, S)
+
+[`tools/preflight-changelog.py`](tools/preflight-changelog.py) checks that added CHANGELOG lines are dash-free and that path-shaped references are WRAPPED as markdown links, but it does not check that each link TARGET RESOLVES; and the detailed mirror lives under `.working/` (gate-exempt), so the corpus broken-link gate (gate 3) does not scan it. A dangling relative-link target in [`.working/changelog-details/CHANGELOG-detailed.md`](.working/changelog-details/CHANGELOG-detailed.md) is therefore ungated. Proposed: extend `preflight-changelog.py` (or a companion advisory) to verify every bare-relative markdown-link target in the detailed mirror resolves against the repo, failing on a dangling target. Distinct from §3.19 (cross-repo worker-provenance links). Also closes the `.working/`-prose "bare-code-span / dangling-link" residue the hallucination-metrics ungated-residue note names. Mined 2026-07-10 (sweep94 log-mining pass).
+
+### 3.35 Path-resolution fixture rail for path-enumerating gates (log-mining #634, XS)
+
+A gate-building convention line: any new gate or check whose config enumerates live repo paths ships a path-resolution fixture that asserts every configured path exists and its parse target matches (the F6 class). Precedent: D7's `test_surfaces_table_paths_resolve_in_real_repo`. A small convention/test-rail line (worker-brief rail or CLAUDE.md gate-building note). Mined 2026-07-10 (sweep94 log-mining pass).
+
+### 3.36 Improvement-log cycle-to-scratch mechanism (log-mining, maintainer-directed 2026-07-10, M)
+
+The `/retro` register ([`.working/improvement-log.md`](.working/improvement-log.md)) grows one row per PR (~469 rows and counting) and accumulates a large aged-pending tail that is no longer useful for forward improvement once mined and dispositioned. Mirror the CHANGELOG sweep-to-scratch model (§3.16/§3.17): a tool that moves fully-dispositioned improvement-log rows older than a cutoff (below the TODO-mining cursor and past a date/PR window) into a `grc_library_scratch` archive, keeping the live register to a recent window; the aged rows stay recoverable but stop weighing on every session's mining. Pairs with the TODO-mining cursor added to the register 2026-07-10. Maintainer-directed at the sweep94 resume. Mined 2026-07-10 (sweep94 log-mining pass).
+
+### 3.37 `(was X.Y)` breadcrumb-collision cleanup (deep-assessment Sweep-94 C cross-lens, maintainer-convention, XS)
+
+The #756 one-item-one-action restructure left `(was X.Y)` breadcrumbs on renumbered TODO items to keep older references resolvable "for one cycle". Two of those numbers were then REUSED by post-#756 items that have since closed: `(was 3.24)` on §3.20 (Publications screening) collides with the matrix GRC-07 item that reused number 3.24 post-restructure and was closed by #759 (now in [`.working/DONE.md`](.working/DONE.md)); `(was 3.22)` on §3.19 collides with the live §3.22 (the D7 handoff-snapshot item). The DONE ledger names each closed item, so this is a latent ambiguity, not an active defect. A cycle has passed (the sweep94 `/resume`), so the served breadcrumbs can be dropped, or the reuse-collision otherwise resolved. Maintainer-convention call (the `(was X.Y)` mechanism is the maintainer's). Surfaced by Sweep 94 Subagent C. Mined 2026-07-10.
 
 ---
 

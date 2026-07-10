@@ -116,3 +116,13 @@ Reverse-chronological. Each entry: date, original PR, catching mechanism, one-li
 - **Specific error class clusters** (e.g., several consecutive citation-year escapes) suggest a structural worker-prompt fix is needed.
 
 The metric is a maintenance signal, not a production gate. Use it to calibrate the discipline; do not use it as a CI requirement.
+
+---
+
+## TODO-mining cursor
+
+Records how far this file has been mined for TODO-worthy improvements (the companion to the [`improvement-log.md`](improvement-log.md) `## TODO-mining cursor`). Maintainer-directed 2026-07-10.
+
+**Mined-for-TODO-extraction through the sweep94 pass (2026-07-10, PR #762).** Two forward-references in this file were confirmed already-shipped (stale-as-written, annotated here rather than edited in place, since this file is an opportunistically-updated trend log):
+- The #187 catch's "**Future gate candidate**: a mechanical check that every merged PR appears in `.working/validate-pr/history.md` ... Queued for consideration" **SHIPPED** as **gate 50 Check 1** (bookkeeping-parity); the skip-class gate exists.
+- The trend-read's "still-ungated residue is hand-authored `.working/` prose hygiene (em-dash and bare-code-span classes) ... the queued §4.14 pre-flight aid" is **partly shipped**: the em-dash + must-be-linked half is `tools/preflight-changelog.py` + gate 51; the remaining dangling-link-resolution half is now **TODO §3.34** (the `§4.14` number is a pre-restructure positional token, superseded). No un-captured TODO-worthy signal remains in this file's "Future signals to watch" (generic monitoring guidance) or escapes log (two pre-#167 worker escapes, the #482 recurrence caught pre-merge).
