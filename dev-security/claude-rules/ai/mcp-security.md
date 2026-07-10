@@ -122,5 +122,5 @@ Before deploying any MCP server to production, conduct:
 | Tool-call injection | LLM01, LLM06 | AML.T0051 | TVM-12 | Measure 2.5 |
 | Input validation | LLM06 | N/A | AIS-02 | Manage 1.3 |
 | Transport security | N/A | N/A | I&S-09 | N/A |
-| Privileged operations | LLM06 | AML.T0054 | GVN-05 | Govern 6.2 |
+| Privileged operations | LLM06 | AML.T0054 | IAM-10 | Govern 6.2 |
 | Resource authorization | LLM06, LLM08 | AML.T0053 | IAM-05 | Manage 1.3 |
