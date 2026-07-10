@@ -2,8 +2,8 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.6\
-**Date:** 2026-07-09\
+**Version:** 1.2.7\
+**Date:** 2026-07-10\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md)\
@@ -180,6 +180,7 @@ For a Critical risk, the risk owner together with the CISO (or the relevant doma
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 31000:2018 | Risk Management: Guidelines | Enterprise risk assessment framework |
+| IEC 31010:2019 | Risk Assessment Techniques | Technique selection for risk identification and analysis |
 | ISO/IEC 27005:2022 | Information Security Risk Management | Information security risk methodology |
 | ISO/IEC 42001:2023 | §6: Planning (AI risk) | AI risk assessment integration |
 | NIST SP 800-30r1 | Guide for Conducting Risk Assessments | Risk assessment methodology |

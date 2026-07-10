@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.258, PR #770
+
+Deep-assessment r1 **R12 cluster 1 of 7** (risk / ERM), the tenth PR of the sweep94 session: the first apply batch of the r1 `/reference-audit` FULL-mode findings (27 held-but-unused authoritative citations across 7 domain clusters, applied one coherent cluster per PR). Substantive (citation additions to authoritative sources), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`risk/procedure-risk-assessment-methodology.md`](../../risk/procedure-risk-assessment-methodology.md) framework-alignment table: a `IEC 31010:2019` "Risk Assessment Techniques" row, placed immediately after ISO 31000:2018 (its parent guidelines standard). Version 1.2.6 to 1.2.7.
+- [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) framework-alignment table: a `NIST IR 8286 (Rev. 1; and 8286A/B/C/D)` "Integrating Cybersecurity and Enterprise Risk Management" row and a `NIST SP 800-221 / 800-221A` "Enterprise Impact of ICT Risk; ICT Risk Outcomes" row, placed after NIST SP 800-39. Version 1.8.4 to 1.8.5.
+- [`risk/guideline-quantitative-risk-analysis.md`](../../risk/guideline-quantitative-risk-analysis.md) Purpose section: an inline `IEC 31010:2019` (Risk management, Risk assessment techniques) citation in the FAIR framing, at the title level (the source catalogues the technique family the guideline applies). This guideline has no framework-alignment table, so the FAIR-methodology framing is the natural citation home. Version 1.0.2 to 1.0.3.
+
+### Verification
+
+- All editions confirmed held-and-current via the `grc_library_ref` INDEX: `IEC 31010:2019` (standards/ISO), `NIST SP 800-221` + `800-221A`, `NIST IR 8286 Rev. 1` + `8286A r1` / `8286B-upd1` / `8286C r1` / `8286D-upd1` (standards/NIST). Held source titles confirm on-point fit for each target document.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all three additions. The generated taxonomy, portal, and scorecard were regenerated.
+- Batches PR #769's `/validate-pr` (0 net-new findings) and `/retro` rows.
+
+### Notes
+
+- R12 is applied per-cluster; TODO §3.29 stays open until all 7 clusters land (this PR closes no backlog item, it advances §3.29). Remaining clusters: privacy, IAM, incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce, plus the 2 bonus precision items (NIST SP 800-207A cited-title, ISO/IEC 27017 dangling register row).
+
 ## 2026-07-10, Library Version 2026.07.257, PR #769
 
 Deep-assessment r1 **R11** (closes TODO §3.25), the ninth PR of the sweep94 resumed session: the `/matrix-fit` semantic-fit pass over the source-document framework-alignment tables (the per-document COBIT/CCM/CSF/AICM tables) that the r1 matrix-fit deferred (it judged the 66 compliance-matrix rows only). This is the sensitive class (gate-blind control-code correctness, delicate at scale, cited downstream), so the pass used two independent refute-briefed judges and every mismatch was apply-time-verified against the held reference title before it was routed. The full run record is [`.working/matrix-fit/2026-07-10-source-docs.md`](../matrix-fit/2026-07-10-source-docs.md).
