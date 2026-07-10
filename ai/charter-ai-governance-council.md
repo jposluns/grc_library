@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Council Charter\
 **Document Type:** Charter\
-**Version:** 1.2.4\
-**Date:** 2026-07-02\
+**Version:** 1.2.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-ethics-review-panel.md`](charter-ai-ethics-review-panel.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -157,6 +157,7 @@ The AIGC reports to the Enterprise Risk Committee (ERC). Quarterly AI Governance
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §5: Leadership and Governance | AI management system governance |
 | ISO/IEC 42001:2023 | §9: Performance Evaluation | AI maturity monitoring |
+| ISO/IEC 38507:2022 | Governance implications of the use of AI by organizations | Governing-body AI oversight responsibilities |
 | EU AI Act (2024) | Chapter III: High-Risk AI Systems | High-risk AI oversight |
 | NIST AI RMF (2023) | GOVERN function | AI governance structure |
 | OECD AI Principles (2023) | Accountability and oversight | AI ethics oversight |
