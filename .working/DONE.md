@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #782: Deep-assessment r1 R11 §3.40, framework-column CCM/AICM family-validation gate (closes TODO §3.40) (2026-07-10)
+
+Hardened gate 48 (`lint-ccm-aicm-citations.py`) with Check 5: a control-code-shaped token in a framework-alignment column headed "CSA CCM" / "AICM" whose domain prefix is outside the CCM/AICM family (the blind spot the recognized-prefix code-validity check leaves) is now flagged as an unknown family, scoped to that named column so other frameworks' codes are untouched. On first corpus run it immediately caught a third invalid family, `GVN-05`, in two pack AI-security docs (after the `ISM` family R11 closed and the `END` family §3.41 closed), corrected to `GRC-15` and `IAM-10` (maintainer-confirmed). Added a detect + false-positive-guard regression fixture and updated the docstring and the §6 narrative in lockstep; no new gate (count stays 67).
+
 ### PR #781: Deep-assessment r1 R11 residue §3.41, matrix-fit loose-supporting reconciliation + an invalid CCM code family (closes TODO §3.41) (2026-07-10)
 
 Closed §3.41 via a held-source-verified control-fit remap across 6 corpus docs plus the compliance matrix: the loose-supporting rows (media-handling DSP-07 to DSP-04/DSP-10/DCS-04/DSP-02, library-quality COBIT APO01 to APO11 "Managed Quality", logging LOG-12 to LOG-09) and the two matrix-vs-per-doc divergences (threat-modelling CCC-06 dropped to match the doc's TVM-04; media-handling matrix set reconciled to DSP-04/DCS-05/DSP-02). A held-source judge caught two mis-attributions beyond the routed scope, both fixed: an entire invalid `END-01`..`END-05` CCM family in the endpoint doc (the real endpoint domain is `UEM`, a §3.40-class correctness defect the existence gates skip) remapped to UEM controls, and `CEK-14` "Key Destruction" mis-cited on the media digital-transfer row corrected to `CEK-03` "Data Protection". The two stale paired surfaces in the doc-index register were updated; §3.40 gained the END family as its second confirming instance.

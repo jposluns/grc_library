@@ -4567,6 +4567,66 @@ class CcmAicmCitationTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_unknown_family_in_ccm_column_flagged(self) -> None:
+        # Check 5 (TODO §3.40): a control-code-shaped token whose prefix is not
+        # a CCM/AICM domain, sitting in a framework-alignment column headed "CSA
+        # CCM", is invisible to the recognized-prefix code-validity check (Check
+        # 1) but must be flagged as an unknown CCM/AICM family. END is not a CCM
+        # domain (endpoints are UEM); the real-world instances were an END-01..05
+        # family and a GVN-05 code cited under CSA CCM / AICM columns.
+        fixture = self.make_fixture(
+            "fake-ccm-unknown-family-column.md",
+            "# X\n\n"
+            "| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | COBIT 2019 |\n"
+            "| --- | --- | --- | --- |\n"
+            "| Patch management | A.8.8 | END-04, TVM-06 | DSS05.07 |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "ccm-unknown-family-in-column")
+
+    def test_ccm_column_valid_family_and_other_column_not_flagged(self) -> None:
+        # False-positive guards for Check 5: valid CCM codes and an N/A cell in a
+        # CSA CCM column pass, and a non-CCM code (NIST 'AC-2') in a DIFFERENT
+        # column is NOT policed (Check 5 is scoped to the CCM/AICM column only,
+        # so it does not fire on other frameworks' identifiers).
+        fixture = self.make_fixture(
+            "fake-ccm-valid-family-column.md",
+            "# X\n\n"
+            "| Control Area | NIST | CSA CCM v4.1 | COBIT 2019 |\n"
+            "| --- | --- | --- | --- |\n"
+            "| Media handling | AC-2 | DSP-04, DCS-05 | DSS05.06 |\n"
+            "| Traceability | AC-3 | N/A | DSS05.06 |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"valid CCM codes in a CCM column, an N/A cell, and a non-CCM 'AC-2' "
+            f"in a NIST column must not be flagged by Check 5.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_ccm_prose_header_column_not_policed(self) -> None:
+        # False-positive guard for Check 5 (verifier-caught, §3.40 PR): a PROSE
+        # header that merely mentions the matrix mid-phrase ("Notes on AICM
+        # adoption") is not a code column, so a foreign code (NIST 'AC-2') in its
+        # body must not be flagged. CCM_COLUMN_HEADER_RE is anchored at the cell
+        # start, so only a header that LEADS with the matrix label declares a
+        # policed code column.
+        fixture = self.make_fixture(
+            "fake-ccm-prose-header.md",
+            "# X\n\n"
+            "| Requirement | Notes on AICM adoption | Status |\n"
+            "| --- | --- | --- |\n"
+            "| Governance | AC-2 applies here | planned |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a prose header merely mentioning the matrix must not make its "
+            f"column a policed CCM code column.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 class MatrixControlCodeTests(LinterTestCase):
     """tools/lint-matrix-control-codes.py"""

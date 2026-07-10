@@ -72,6 +72,21 @@ Checks:
     heading is generic is not caught here (the orchestrator's apply-time
     standalone-token grep and the periodic sweep cover that tail).
 
+  * **Framework-as-column family** (framework-alignment tables with a CSA CCM /
+    AICM column): the code-validity check above policies only tokens whose
+    DOMAIN prefix it *recognizes* (a valid CCM/AICM domain or a known-bad one),
+    so an INVENTED family prefix that no matrix defines (``END`` -- endpoints
+    are ``UEM``; ``ISM``; ``GVN`` -- governance is ``GRC``) is silently skipped
+    even when cited in a column explicitly headed ``CSA CCM v4.1`` or ``AICM``.
+    This check closes that blind spot (the deep-assessment r1 R11 discovery,
+    TODO §3.40): in a framework-alignment table whose header row has a cell
+    matching ``CSA CCM`` / ``Cloud Controls Matrix`` / ``AICM``, every
+    control-code-shaped token in that column's body cells must use a real
+    CCM/AICM domain prefix; a token whose prefix is outside the CCM/AICM family
+    is flagged as an unknown family. Scoped to the named column only, so a NIST
+    ``AC-2`` in a NIST column or an ISO clause elsewhere is untouched, and
+    known-bad domains stay with the code-validity check (no double-flag).
+
 Scope: ``*.md`` under the repository root, minus DEFAULT_EXEMPT_DIRS (which
 includes ``.working`` and ``.claude``) and the append-only CHANGELOG files.
 
@@ -161,6 +176,19 @@ BARE_BAD_CODE_RE = re.compile(
 # non-CCM uses of these letters that happen to sit outside any CCM context.
 CCM_CONTEXT_RE = re.compile(r"(?i)(CCM|CSA|Cloud Controls Matrix|AICM|AI Controls Matrix)")
 
+# A framework-alignment-table COLUMN HEADER that declares a CSA CCM / AICM column
+# (Check 5). Tighter than CCM_CONTEXT_RE (which matches a bare "CSA"): a column
+# whose header IS the matrix label, "CSA CCM v4.1", "CSA AICM", "AICM v1.1.0",
+# "CCM v4.1", "Cloud Controls Matrix", etc. The check reads codes from that
+# column's body cells, so the header must specifically NAME the CCM/AICM matrix,
+# not merely mention it mid-phrase: a prose header like "Notes on AICM adoption"
+# must NOT be treated as a code column. Anchored at the cell start (cells are
+# stripped by split_row), with an optional leading "CSA ", so the matrix label
+# must LEAD the header cell; a matrix name buried in prose does not match. Bare
+# "CCM v4.1" (no "CSA") is accepted too, closing that false-negative.
+CCM_COLUMN_HEADER_RE = re.compile(
+    r"(?i)^\s*(?:CSA\s+)?(CCM|Cloud\s+Controls\s+Matrix|AICM|AI\s+Controls\s+Matrix)\b")
+
 # A historical / rename-note / supersession line legitimately names an old code
 # while describing its replacement (it is not a current citation), so Check 4
 # exempts it. The canonical cases are the glossary I&S rename-note ("Renamed from
@@ -233,6 +261,21 @@ class Finding:
     text: str
 
 
+def split_row(line: str) -> list[str]:
+    """Return the stripped cells of a markdown table row (bounding pipes dropped)."""
+    parts = line.split("|")
+    if parts and parts[0].strip() == "":
+        parts = parts[1:]
+    if parts and parts[-1].strip() == "":
+        parts = parts[:-1]
+    return [c.strip() for c in parts]
+
+
+def is_separator_row(cells: list[str]) -> bool:
+    """True for a ``|---|---|`` style separator row."""
+    return bool(cells) and set("".join(cells)) <= set("-: ")
+
+
 def scan_file(path: Path) -> list[Finding]:
     text = read_text_safe(path)
     if text is None:
@@ -240,18 +283,64 @@ def scan_file(path: Path) -> list[Finding]:
     findings: list[Finding] = []
     in_fence = False
     section: str | None = None
+    prev_cells: list[str] | None = None  # previous table row, for header lookahead (Check 5)
+    ccm_col: int | None = None  # set when the current table has a CSA-CCM/AICM column
     for i, line in enumerate(text.splitlines(), start=1):
         stripped = line.lstrip()
         if stripped.startswith("```") or stripped.startswith("~~~"):
             in_fence = not in_fence
+            prev_cells = None
+            ccm_col = None
             continue
         if in_fence:
             continue
 
-        # Track the current catalogue section for the title check below.
+        # Track the current catalogue section for the title check below. A heading
+        # also ends any open table, so reset the Check-5 column state.
         hm = HEADING_RE.match(line)
         if hm:
             section = _section_kind(hm.group(1))
+            prev_cells = None
+            ccm_col = None
+
+        # Check 5: framework-as-column CSA CCM / AICM family-validity. When a
+        # framework-alignment table has a column headed "CSA CCM v4.1" (or AICM),
+        # every control-code-shaped token in that column must use a real CCM/AICM
+        # domain prefix. A token whose prefix is NOT a CCM/AICM domain (valid or
+        # known-bad) is invisible to Check 1 (which only policies recognized-family
+        # prefixes), so an invented family like ``END-04`` or ``ISM-01`` cited in a
+        # CCM column passes silently. This check closes that blind spot (the
+        # deep-assessment r1 R11 discovery, TODO §3.40): it reports such a token as
+        # an unknown CCM/AICM family. Scoped to the named column only, so a NIST
+        # ``AC-2`` in a NIST column or an ISO clause elsewhere is untouched. Known-bad
+        # domains (in CCM_FAMILY) stay with Check 1, so there is no double-flag.
+        if stripped.startswith("|"):
+            cells = split_row(line)
+            if is_separator_row(cells):
+                if prev_cells is not None and ccm_col is None:
+                    for idx, c in enumerate(prev_cells):
+                        if CCM_COLUMN_HEADER_RE.search(c):
+                            ccm_col = idx
+                            break
+            else:
+                if (ccm_col is not None and len(cells) > ccm_col
+                        and not CCM_COLUMN_HEADER_RE.search(cells[ccm_col])):
+                    seen_unknown: set[str] = set()
+                    for m in CODE_RE.finditer(cells[ccm_col]):
+                        domain = m.group(1)
+                        if domain in CCM_FAMILY or m.group(0) in seen_unknown:
+                            continue
+                        seen_unknown.add(m.group(0))
+                        findings.append(Finding(
+                            path, i, "ccm-unknown-family-in-column",
+                            f"'{m.group(0)}' sits in a CSA CCM / AICM column but "
+                            f"'{domain}' is not a CCM v4.1 / AICM v1.1 domain "
+                            f"(no such domain in the matrices)",
+                            line.strip()[:140]))
+                prev_cells = cells
+        else:
+            prev_cells = None
+            ccm_col = None
 
         # Check 1: code validity.
         for m in CODE_RE.finditer(line):
