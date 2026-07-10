@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-09\
+**Version:** 1.0.3\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -140,6 +140,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI model lifecycle governance |
 | ISO/IEC 42001:2023 | §10: Improvement | Model performance monitoring and improvement |
+| ISO/IEC 5338:2023 | AI system life cycle processes | AI system lifecycle process model |
 | EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |
 | NIST AI RMF (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
 | COBIT 2019 | BAI09: Manage Assets | AI asset lifecycle management |
