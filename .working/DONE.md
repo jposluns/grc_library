@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #757: Deep-assessment r1 EU AI Act citation-accuracy sweep (closes TODO §3.28) (2026-07-10)
+
+Corrected the EU AI Act structure citations from stale 2021-proposal-era "Title" numbering to the enacted Regulation 2024/1689 Chapters across four docs (Chapter II for prohibited practices at Article 5, Chapter V for GPAI-with-systemic-risk, Chapter IX for post-market monitoring / serious-incident reporting), and aligned the serious-incident Art 3(49) paraphrase to the four statutory limbs. Bundles the r1 clear-fix F12 (which a full-file grep widened from one flagged line to seven carriers) with the same-doc §3.28 claim-precision fix (F17); all verified against the held EU AI Act text.
+
 ### PR #750: Mexico LFPDPPP privacy annex, closes TODO §5.8 Mexico bullet (2026-07-09)
 
 New `privacy/jurisdictions/annex-privacy-mexico.md`, a standalone per-regime annex for Mexico's 2025 LFPDPPP (DOF 20 March 2025): the Secretaría Anticorrupción y Buen Gobierno authority (the former INAI extinguished), Article 5 principles, consent and privacy notice, ARCO rights (20-day response), cross-border transfers, security and breach, and UMA-based enforcement (up to 320,000 UMA, doubled for sensitive data). Corrected the stale 2010/INAI/MXN-320m facts in the Latin America annex and wired the standalone into the privacy jurisdiction index, doc-index, and coverage-gaps; discharged the fr-59 Mexico accepted-unverified tracker. Verified against the held 2025 text with WebSearch currency confirmation.

@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.245, PR #757
+
+Deep-assessment r1 EU AI Act citation-accuracy sweep: stale 2021-proposal-era "Title" structure numbering corrected to the enacted Regulation (EU) 2024/1689 Chapter numbering, closing routed TODO §3.28. Bundles the r1 clear-mechanical fix F12 (widened by a full-file grep from the one flagged line to seven carriers across four documents) with the same-document, same-type §3.28 claim-precision fix (F17).
+
+### Fixed
+
+- [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) (Version `1.0.4` to `1.0.5`): the GPAI-systemic-risk tier row (`:86`) and the narrative (`:158`) "EU AI Act Title III Chapter 5" to "Chapter V" (the enacted Act places general-purpose AI models with systemic risk in Chapter V, Articles 51 to 56); the prohibited-tier "EU AI Act Title II" (`:84`) to "Chapter II, Article 5"; and the serious-incident Art 3(49) paraphrase (`:280`) aligned to the four statutory limbs, restoring the dropped fundamental-rights limb (c) and the softened "serious and irreversible disruption of critical infrastructure" (b), matching the held text verbatim.
+- [`ai/framework-ai-system-audit-certification.md`](../../ai/framework-ai-system-audit-certification.md) (Version `1.0.5` to `1.0.6`): two "EU AI Act Title VIII" to "Chapter IX" (the narrative at `:25` and the framework-alignment table at `:260`; the enacted Act places post-market monitoring / serious-incident reporting / market surveillance in Chapter IX).
+- [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) (Version `1.0.4` to `1.0.5`): the "Synthesized from: EU AI Act 2024 Title I-VIII" provenance note (`:122`) to "Regulation (EU) 2024/1689" (the enacted Act uses Chapters, not the proposal-era Titles).
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version `1.27.69` to `1.27.70`): the AI-audit-framework row's Framework-alignment cell (`:194`) "EU AI Act Title VIII" to "Chapter IX".
+
+### Verification
+
+- Every Chapter mapping was read from the held EU AI Act text in the reference base and quoted: CHAPTER II = "PROHIBITED AI PRACTICES" (Article 5); CHAPTER V = "GENERAL-PURPOSE AI MODELS" (Section 1 Classification rules, Articles 51 to 56); CHAPTER IX = "POST-MARKET MONITORING, INFORMATION SHARING AND MARKET SURVEILLANCE"; Art 3(49) = the four limbs (a) death/serious harm to health, (b) serious and irreversible disruption of critical infrastructure, (c) infringement of Union-law fundamental-rights obligations, (d) serious harm to property or the environment.
+- A corpus-wide grep (both `AI Act ... Title [roman]` and the reverse) confirms zero residual live "Title" carrier for the EU AI Act; the only remaining hits are the `.working/` r1 record's own finding descriptions (historical).
+- The claim-fit judge had flagged only `:158`; the full-file grep discipline surfaced the six parallel carriers (`:86`, `:84`, `:280`, the two audit-framework lines, the doc-index cell) the single-finding pass missed.
+- Four corpus docs bumped, so [`taxonomy.yml`](../../taxonomy.yml) regenerated first, then [`docs/portal.md`](../../docs/portal.md) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); full audit 67/67; PR-time checks green.
+
+### Changed (bookkeeping, batched)
+
+- Rotated TODO §3.28 to [`.working/DONE.md`](../DONE.md); fixed the PR #756 root CHANGELOG lead the #756 `/validate-pr` caught (the old §3.15 "seven machinery bullets" to "nine", and the "renumbered cleanly" wording softened to acknowledge the §2.2/§5.1 closed-item position gaps); batched PR #756's `/validate-pr` (1 warning + 1 note, both fixed here) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.244, PR #756
 
 Maintainer-directed [`TODO.md`](../../TODO.md) restructure: split grouped items so each is one functional action / one distinct resolution path. No corpus document body changed.

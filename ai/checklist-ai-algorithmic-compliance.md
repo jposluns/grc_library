@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.4\
-**Date:** 2026-07-09\
+**Version:** 1.0.5\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -119,7 +119,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section e: regulatory compliance
 
-*Synthesized from: EU AI Act 2024 Title I-VIII; Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
+*Synthesized from: EU AI Act 2024 (Regulation (EU) 2024/1689); Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|

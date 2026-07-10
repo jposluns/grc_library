@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -22,7 +22,7 @@
 
 This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
 
-The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Title VIII (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
+The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Chapter IX (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
 
 ### 1.2 Scope
 
@@ -257,7 +257,7 @@ CAPAs are tracked in the organization's CAPA management system and reviewed at e
 | ISO/IEC 42001:2023 §9.2 | Internal audit programme; audit criteria, scope, frequency, and methods | 3, 5 |
 | ISO/IEC 42001:2023 §9.3 | Management review of the AIMS; inputs including audit results, incidents, performance data | 2.1, 8 |
 | ISO/IEC 42006:2025 | AI audit requirements; auditor competence; audit evidence; audit reporting | 4, 5, 9 |
-| EU AI Act Title VIII | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
+| EU AI Act Chapter IX | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
 | NIST AI RMF: Measure function | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
 | NIST AI RMF: Manage function | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
 | CSA AICM v1.1 | AI control families covering governance, transparency, data, model, security, and operations | 3, 4, 5 |
