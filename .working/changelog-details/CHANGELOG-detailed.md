@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.246, PR #758
+
+Deep-assessment r1 claim-fit precision fixes (§3.26 R5a + §3.27 R5b), two held-verified attribution-phrasing corrections of the same type.
+
+### Fixed
+
+- [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) (Version `1.0.11` to `1.0.12`) §8.4: "reported per EU AI Act Article 65 to 74 obligations" to "reported per the EU AI Act serious-incident reporting obligation (Article 73; the deployer duty at Article 26(5))". The held text places the provider serious-incident reporting duty at Article 73; Articles 65 to 72 are governance/enforcement-structure articles and Article 74 is market surveillance, so the "65 to 74" range was over-broad.
+- [`governance/framework-governance-performance-and-improvement.md`](../../governance/framework-governance-performance-and-improvement.md) (Version `1.0.6` to `1.0.7`) §55: "conducted at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3" to "conducted at planned intervals (the organization sets at least annually) per ISO/IEC 27001 §9.3 (and ISO 9001 §9.3 for the quality-management-system review)". The held ISO/IEC 27001:2022 §9.3.1 prescribes "planned intervals", not an annual cadence (an informed-not-prescribed attribution: the annual value is the organization's choice); the ISO 9001 §9.3 held-verification remains tracked in RB-R6 (source-not-held), and the "planned intervals" framing is the accurate management-review wording for both standards.
+
+### Verification
+
+- Both corrections verified against the held ISO/IEC 27001:2022 and EU AI Act texts (Article 73 = serious-incident reporting; §9.3.1 = "at planned intervals"). Neither value was fabricated; the fix is to the attribution phrasing, not to any organization-chosen value.
+- Both corpus docs bumped Version + Date, so [`taxonomy.yml`](../../taxonomy.yml) regenerated first, then [`docs/portal.md`](../../docs/portal.md) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); full audit 67/67; PR-time checks green.
+
+### Changed (bookkeeping, batched)
+
+- Rotated TODO §3.26 and §3.27 to [`.working/DONE.md`](../DONE.md); reworded the RB-R6 line that cited the now-closed §3.26/§3.28 (the #757 `/validate-pr` §N-orphan finding) to name the target documents directly; batched PR #757's `/validate-pr` and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.245, PR #757
 
 Deep-assessment r1 EU AI Act citation-accuracy sweep: stale 2021-proposal-era "Title" structure numbering corrected to the enacted Regulation (EU) 2024/1689 Chapter numbering, closing routed TODO §3.28. Bundles the r1 clear-mechanical fix F12 (widened by a full-file grep from the one flagged line to seven carriers across four documents) with the same-document, same-type §3.28 claim-precision fix (F17).

@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #758: Deep-assessment r1 claim-fit precision fixes (closes TODO §3.26 + §3.27) (2026-07-10)
+
+Two held-verified claim-precision corrections: narrowed the EU AI Act serious-incident reporting citation from the over-broad "Article 65 to 74" to Article 73 (plus the Article 26(5) deployer duty) in the legal-and-regulatory-compliance policy; and reworded the executive-review cadence from "at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3" to "at planned intervals (the organization sets at least annually)", since ISO/IEC 27001 §9.3 prescribes planned intervals, not an annual cadence. The ISO 9001 §9.3 held-verification continues in RB-R6 (source-not-held).
+
 ### PR #757: Deep-assessment r1 EU AI Act citation-accuracy sweep (closes TODO §3.28) (2026-07-10)
 
 Corrected the EU AI Act structure citations from stale 2021-proposal-era "Title" numbering to the enacted Regulation 2024/1689 Chapters across four docs (Chapter II for prohibited practices at Article 5, Chapter V for GPAI-with-systemic-risk, Chapter IX for post-market monitoring / serious-incident reporting), and aligned the serious-incident Art 3(49) paraphrase to the four statutory limbs. Bundles the r1 clear-fix F12 (which a full-file grep widened from one flagged line to seven carriers) with the same-doc §3.28 claim-precision fix (F17); all verified against the held EU AI Act text.

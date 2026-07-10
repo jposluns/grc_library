@@ -164,14 +164,6 @@ A recurring multi-surface-incompleteness class: new jurisdiction/sector annexes 
 
 The r1 matrix-fit judged the 66 compliance-matrix worklist rows but deferred the 27 source-doc framework-table rows (per-document COBIT/CCM tables carrying APO/BAI/MEA/EDM/DSS codes) as out of the named-matrix scope. Run a `/matrix-fit` pass over those 27 rows.
 
-### 3.26 Claim-fit precision: EU AI Act Article 73 (deep-assessment r1 R5a, S)
-
-[`compliance/policy-legal-and-regulatory-compliance.md:102`](compliance/policy-legal-and-regulatory-compliance.md) cites "EU AI Act Article 65 to 74" for serious-incident reporting; the reporting duty is Article 73 (the range is over-broad, verified against held text). Narrow to Article 73 (optionally noting Art 26(5) for the deployer duty).
-
-### 3.27 Claim-fit precision: ISO/IEC 27001 §9.3 review cadence (deep-assessment r1 R5b, S)
-
-[`governance/framework-governance-performance-and-improvement.md:55`](governance/framework-governance-performance-and-improvement.md) says executive review is "at least annually per ISO 9001 §9.3 and ISO/IEC 27001 §9.3", but ISO/IEC 27001 §9.3 prescribes "planned intervals", not "annually" (the annual cadence is the organization's choice). Reword to "at planned intervals (the organization sets at least annually) per ISO/IEC 27001 §9.3". (The ISO 9001 §9.3 half is source-not-held, tracked for acquisition in RB-R6.)
-
 ### 3.29 Reference-breadth citations from r1 `/reference-audit` (deep-assessment r1 R12, M; per-cluster)
 
 FULL-mode `/reference-audit` found 27 held-but-unused authoritative citations (the "cites the headline standard, leaves the purpose-built companion on the shelf" class), all confirmed against held source text + the live document; additive citation-grade recommendations, applied per-domain-cluster (each cluster = one coherent apply to those docs' framework-alignment tables). The full enumerated per-item list with locations is in [`.working/deep-assessment/2026-07-10-r1.md`](.working/deep-assessment/2026-07-10-r1.md). Clusters:
@@ -345,7 +337,7 @@ Sources cited in the corpus but not held in `grc_library_ref`, so their attribut
 - **ISO 9001** (Quality management systems) §9.3 — cited at [`governance/framework-governance-performance-and-improvement.md:55`](governance/framework-governance-performance-and-improvement.md). Upstream: iso.org/standard/62085.html (paywalled).
 - **DORA RTS on incident reporting** (the Commission Delegated Regulation carrying the 4h / 72h / 1-month major-incident windows) — cited at [`compliance/financial-services/annex-dora-implementation.md:78`](compliance/financial-services/annex-dora-implementation.md) (already correctly qualified "subject to RTS/ITS", so NO corpus change; this is a value-verification tracker only). Upstream: EUR-Lex (the DORA Art 20 delegated instrument, likely freely fetchable, unlike the ISO standards).
 
-On ingest, the ISO 9001 §9.3 half of §3.27 and the ISO 37301 attribution at [`compliance/policy-compliance-and-audit-management.md:44`](compliance/policy-compliance-and-audit-management.md) can be adjudicated against held text (the §3.26 and §3.28 EU AI Act claims are already adjudicable, since the Act is held).
+On ingest, the ISO 9001 §9.3 attribution in [`governance/framework-governance-performance-and-improvement.md`](governance/framework-governance-performance-and-improvement.md) (reworded to the safe "planned intervals" framing when §3.27 closed) and the ISO 37301 attribution at [`compliance/policy-compliance-and-audit-management.md:44`](compliance/policy-compliance-and-audit-management.md) can be adjudicated against the held text.
 
 ### Reference-base acquisition and assessment queue (`grc_library_ref`; maintainer-directed 2026-07-07)
 
