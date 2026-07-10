@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 This policy establishes the organization's obligations and commitments for AI regulatory compliance. It defines the classification of AI systems, the governance structures accountable for compliance, the obligations that apply to the organization as an AI deployer and, where relevant, as a provider, and the obligations that arise under applicable national and international AI governance frameworks.
 
-The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and UK AI Safety Institute guidance. References to Canada's proposed Artificial Intelligence and Data Act (AIDA) are retained as illustrative of expected high-impact-AI obligations, but AIDA lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction; adopting entities should treat AIDA as a planning indicator rather than a binding instrument until reintroduced.
+The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and UK AI Safety Institute guidance. Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction, so adopting entities treat it as a planning indicator rather than a binding instrument until reintroduced and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
 
 ### 1.2 Scope
 
@@ -178,17 +178,15 @@ Key compliance obligations:
 - Serious incident reporting per Section 10.
 - Post-market monitoring for high-risk systems per [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md).
 
-### 7.2 Canada: artificial intelligence and data act (AIDA)
+### 7.2 Canada: automated decision-making governance
 
-AIDA establishes obligations for persons involved in the international and interprovincial trade and commerce of AI systems, with specific obligations for "high-impact AI systems." Where the organization operates in Canada or processes data in connection with Canadian trade operations:
+Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation and would require reintroduction to take effect (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments:
 
-- High-impact AI systems must have risk mitigation measures in place.
-- Human oversight must be implemented for high-impact systems.
-- Organizations must maintain records enabling audit and assessment.
-- Anonymous data used to train AI systems must comply with AIDA requirements.
-- Serious harm caused by AI systems must be reported to the Minister.
+- **Treasury Board Directive on Automated Decision-Making**, the mandatory federal instrument governing automated decision systems. It binds federal government institutions directly; other organizations use it as a leading-practice benchmark. Where the organization is a federal institution or delivers automated decisions on behalf of one, it complies with the Directive's requirements, using the **Algorithmic Impact Assessment (AIA)** tool to classify and document each automated decision system by impact level.
+- **ISED Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (2023)**, the voluntary code for advanced generative-AI systems. The organization adopts its commitments (accountability; safety; fairness and equity; transparency; human oversight and monitoring; and validity and robustness) for generative-AI systems it develops or manages, pending binding legislation.
+- The federal Personal Information Protection and Electronic Documents Act (PIPEDA) remains the private-sector privacy law governing personal data used in AI systems.
 
-The AIGC is responsible for tracking AIDA's passage into law and updating this policy and associated procedures when AIDA is enacted.
+The AIGC is responsible for monitoring AIDA-successor legislation and updating this policy and associated procedures when a binding federal AI statute is enacted.
 
 ### 7.3 UK AI safety priorities
 
@@ -211,6 +209,15 @@ ISO/IEC 42001:2023 specifies requirements for an AI management system (AIMS). Th
 | 5 | Certification to ISO/IEC 42001:2023 | Upon successful Stage 2 audit |
 | 6 | Annual surveillance audits | Annually post-certification |
 | 7 | Three-year recertification audit | Every 3 years post-certification |
+
+### 7.5 United States: state and municipal AI laws
+
+The United States has no comprehensive federal AI statute; specific AI uses are governed by state and municipal laws that apply where the organization operates in, or makes covered decisions affecting individuals in, the relevant jurisdiction:
+
+- **Colorado Artificial Intelligence Act** (Senate Bill 24-205, C.R.S. 6-1-1701 et seq.), the first US-state AI law of its kind, imposing a duty of reasonable care on developers and deployers of high-risk AI systems to protect consumers from algorithmic discrimination in consequential decisions. Colorado has repealed and re-enacted this part, with substantial amendments, as the Automated Decision-Making Technology in Consequential Decisions act (Senate Bill 26-189). The effective-date sequence and litigation status are version-sensitive; the organization tracks them via [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) and applies the requirements in force for each covered decision.
+- **New York City Local Law 144 (2021)** on automated employment decision tools requires that an automated employment decision tool (AEDT) used to screen candidates or employees for a role in New York City undergo an independent bias audit within one year of use, that a summary of the audit results be published, and that affected candidates receive notice; an AEDT may not be used if its most recent bias audit is more than one year old (New York City Department of Consumer and Worker Protection rule, 6 RCNY 5-300 to 5-304).
+
+Where the organization deploys AI in hiring, lending, housing, insurance, or other consequential decisions affecting United States residents, it assesses applicability against these and successor state laws and applies the classification and oversight controls in Sections 4 and 5.
 
 ---
 
@@ -331,7 +338,9 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | NIST AI RMF 1.0: Map/Measure/Manage | AI risk classification; control effectiveness; incident response | 4, 5, 10 |
 | OECD AI Principles 2023 | Responsible AI development; human oversight; transparency; accountability | 2, 5.3, 9 |
 | UK AI Safety Institute guidance 2024 | Frontier model safety; evaluation criteria | 7.3 |
-| Canada AIDA 2024 | High-impact AI obligations; risk mitigation; incident reporting | 7.2 |
+| Canada: TBS Directive on Automated Decision-Making; ISED Voluntary Code (2023) | Federal automated-decision governance; algorithmic impact assessment; voluntary generative-AI commitments | 7.2 |
+| Colorado AI Act (SB24-205, re-enacted SB26-189) | High-risk AI developer and deployer duties; algorithmic-discrimination protection in consequential decisions | 7.5 |
+| NYC Local Law 144 (2021) | Automated employment decision tools; bias audit; candidate notice | 7.5 |
 | GDPR (UK and EU) | Personal data processing; automated decision-making; breach reporting | 5.2, 9.3, 10.4 |
 
 ### Related GRC library documents
