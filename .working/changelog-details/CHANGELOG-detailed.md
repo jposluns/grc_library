@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.250, PR #762
+
+Log-mining pass, the second PR of the sweep94 resumed session (attended-autonomous on the NUC). Maintainer-directed at the resume: review the improvement / hallucination logs, extract TODO-worthy improvements not yet captured, populate TODO, add an assessed-through marker, and propose cycling fully-mined old rows to scratch. Executed via the research-assistant discipline (a subagent mined and classified; the orchestrator verified every candidate against live files and authored the edits).
+
+### Added
+
+- [`TODO.md`](../../TODO.md): five new items from the mining pass. **§1.9** completion-verification guard file-type-width axis (from the #688/#689 retros; a protected CLAUDE.md edit, P1 prevent-recurrence). **§3.34** detailed-mirror markdown-link resolution check (from #715; [`preflight-changelog.py`](../../tools/preflight-changelog.py) checks link-shape not link-resolution, and the `.working/` mirror is gate-3-exempt, so a dangling target is ungated). **§3.35** path-resolution fixture rail for path-enumerating gates (from #634; the F6 class, D7's real-repo path test is the precedent). **§3.36** improvement-log cycle-to-scratch mechanism (maintainer-directed; mirrors the CHANGELOG sweep-to-scratch §3.16/§3.17). **§3.37** `(was X.Y)` breadcrumb-collision cleanup (Sweep 94 Subagent C cross-lens; `(was 3.24)`/`(was 3.22)` collide with reused-then-closed numbers, a latent ambiguity, maintainer-convention call).
+- [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.474` to `1.0.475`): a `## TODO-mining cursor` section recording the assessment frontier (mined-for-TODO through PR #761), the already-shipped verdicts (#711/#712/#716 -> gate 67; #702/#703/#704 -> worker-brief rail 14; #687 -> [`detect-env.py`](../../tools/detect-env.py) + `/resume` step 3; #187 -> gate 50), the WATCH-latent candidates, and the cycle-to-scratch endgame (TODO §3.36).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): a companion `## TODO-mining cursor` annotating two stale forward-references confirmed already-shipped (the #187 "future gate candidate" -> gate 50 Check 1; the ungated-`.working/`-prose-hygiene residue -> [`preflight-changelog.py`](../../tools/preflight-changelog.py) + gate 51, dangling-link half now TODO §3.34).
+
+### Fixed
+
+- [`.working/session-handoff.md`](../session-handoff.md) `## Standing disciplines`: the pre-commit dash-grep was documented as `grep -nP "\xe2\x80\x93|\xe2\x80\x94"` (byte-sequence form), which matches nothing in a UTF-8 locale (`\xe2` is the character U+00E2, not the byte 0xE2), so it returns a false-clean on prose that actually contains em/en-dashes. Confirmed 2026-07-10 (the byte-form missed 3 em-dashes gate 51 then caught in the #761 sweep detail file). Corrected to the codepoint form `grep -nP '[\x{2013}\x{2014}]'` (with a note that `LC_ALL=C` + the byte form also works), and annotated with the false-clean cause. The D3 gate and gate 51 are the real backstops (both caught it), so nothing shipped; the fix restores the convenience check's reliability.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.532` to `1.2.533`): the PR #761 `/validate-pr` row (Subagent A, 0 findings, batched per recursion-avoidance).
+- [`.working/improvement-log.md`](../improvement-log.md): the PR #761 `/retro` row (the loop-break-validated wind-down; the em-dash + dash-grep-false-clean friction; the dash-grep fix codified this PR).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state (no corpus doc body changed, so no per-document version bump or generator regeneration; the register files carry their own bumped Versions).
+- Every mining candidate verified against live files before acting: #687 corrected from "open" to already-shipped ([`detect-env.py`](../../tools/detect-env.py) present); #715 confirmed ungated (preflight sets only REPO_ROOT, no link-resolution); #634 and #688/#689 confirmed absent from TODO / worker-brief / CLAUDE.md; gate 67 and worker-brief rail 14 confirmed present (already-shipped tokens).
+- The dash-grep defect reproduced and the fix verified: byte-form `\xe2\x80\x94` returns NO MATCH on an em-dash line in this `en_US.UTF-8` locale; codepoint form `[\x{2013}\x{2014}]` MATCHES.
+
+### Discipline observation
+
+The mining pass is the research-assistant discipline working as designed: the subagent surfaced candidates fast, and apply-time verification caught a worker miss (the #687 already-shipped candidate mislabeled TODO-worthy) before it became a spurious TODO item. The assessed-through cursor is the durable answer to the maintainer's "mark until what date they were assessed" so the ~469-row register is not re-mined end-to-end each session; the cycle-to-scratch item (§3.36) is the endgame the maintainer named ("at some point they just become logs").
+
 ## 2026-07-10, Library Version 2026.07.249, PR #761
 
 Sweep 94 `/validate` close-out, the first PR of the 2026-07-10 sweep94 resumed session (attended-autonomous on the NUC). The loop-break corpus-wide `/validate` over the #753 through #759 window (the compensating control for session-closing handoff PR #760, which skipped its trailing `/validate-pr` and `/retro`): full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity), baseline 67/67 at `39d988a`/#760 (descendant of the closing session's asserted green-at `4115ada`/#759, no close-vs-start drift). Four findings, all fixed this PR; no finding contradicts an enumerated asserted-clean expectation.
