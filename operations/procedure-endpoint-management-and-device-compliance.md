@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.5\
-**Date:** 2026-07-03\
+**Version:** 1.3.6\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -305,7 +305,7 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 | Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | END-04 | DSS05.05 |
 | Patch and vulnerability management | A.8.8 | §4.5 Patch Management | END-05, TVM-06 | DSS05.07 |
 | Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | END-01 | DSS05.03 |
-| Decommissioning and media sanitization | A.8.10 | §4.7 Disposal | DSP-07 | DSS05.06 |
+| Decommissioning and media sanitization | A.8.10 | §4.7 Disposal | DSP-02 | DSS05.06 |
 
 ---
 
