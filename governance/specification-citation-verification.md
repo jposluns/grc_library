@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.11\
-**Date:** 2026-07-09\
+**Version:** 1.2.12\
+**Date:** 2026-07-10\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -187,7 +187,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | ISACA | `isaca.org` | COBIT. |
 | MITRE | `attack.mitre.org`, `cve.mitre.org`, `cwe.mitre.org` | ATT&CK, CVE, CWE. |
 | NIST FedRAMP | `fedramp.gov` | FedRAMP. |
-| US Federal | `federalregister.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX). |
+| US Federal | `federalregister.gov`, `ecfr.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170). |
 | EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu` | EU regulations, directives, ENISA. |
 | UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk` | UK regulation and ICO/NCSC. |
 | Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca` | Canadian federal regulation and OPC. |
@@ -200,6 +200,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | AICPA | `aicpa.org`, `aicpa-cima.com` | SOC reporting standards. |
 | Brazil | `gov.br`, `planalto.gov.br` | Brazilian federal regulation (LGPD). |
 | Singapore | `pdpc.gov.sg` | Singapore PDPA. |
+| India | `pib.gov.in` | India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau). |
 | Australia | `oaic.gov.au`, `legislation.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act). |
 | Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
 | China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
@@ -215,6 +216,8 @@ The allow-list itself is subject to the same verification discipline as register
 ### 7.2 Additions
 
 A standard or regulation cited in the library that is not covered by an allow-list entry triggers a methodology update. The new publisher domain is added to §7.1 in a new revision of this specification, with the date and rationale.
+
+**2026-07-09 (register v1.5.17, TODO 1.5 currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
 
 ---
 
