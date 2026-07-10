@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -119,16 +119,16 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section e: regulatory compliance
 
-*Synthesized from: EU AI Act 2024 (Regulation (EU) 2024/1689); Canada AIDA 2024; UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
+*Synthesized from: EU AI Act 2024 (Regulation (EU) 2024/1689); Canada TBS Directive on Automated Decision-Making and ISED Voluntary Code (AIDA lapsed with Bill C-27 at the January 2025 prorogation); UK AI Safety Institute guidance 2024; ISO/IEC 42001:2023; NIST AI RMF Govern function*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | E1 | EU AI Act compliance obligations identified and documented for this specific system: risk tier confirmed; applicable Articles listed; deployer obligations addressed | | | | |
-| E2 | Canada AIDA obligations assessed and documented: determination made as to whether AIDA high-impact AI system obligations apply; obligations documented and tracked | | | | |
+| E2 | Canada automated-decision-making governance assessed and documented: applicability of the TBS Directive on Automated Decision-Making determined (binding on federal institutions; a leading-practice benchmark otherwise); ISED Voluntary Code commitments considered for generative-AI systems; AIDA tracked as a lapsed planning indicator pending reintroduction | | | | |
 | E3 | UK AI safety priorities reviewed: ICO AI and data protection guidance considered; AI Safety Institute evaluation criteria reviewed for applicable system types | | | | |
 | E4 | ISO/IEC 42001:2023 alignment gaps for this system identified and tracked: gaps are recorded in the CAPA system and assigned to owners | | | | |
 | E5 | Post-market monitoring plan in place for high-risk systems: plan documents metrics, thresholds, frequency, responsible party, and escalation path | | | | |
-| E6 | Serious incident reporting pathway to competent authority established: reporting contacts documented; internal escalation path tested; 15 business day reporting deadline acknowledged | | | | |
+| E6 | Serious incident reporting pathway to competent authority established: reporting contacts documented; internal escalation path tested; the EU AI Act Art. 73 reporting deadlines acknowledged (15 days general; no later than 2 days for a widespread infringement or critical-infrastructure disruption; no later than 10 days for a fatality) | | | | |
 
 ---
 

@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -213,9 +213,10 @@ Where post-market monitoring or any other signal identifies a serious incident a
 
 | Incident Type | Reporting Deadline | Report Recipient |
 |---|---|---|
-| Serious incident (death, serious harm to health or property, significant disruption to essential services) | Within 15 business days of becoming aware | National competent authority |
-| Immediate risk to life or safety | Without undue delay; immediately upon becoming aware | National competent authority |
-| Near-miss or significant malfunction that could lead to a serious incident if not addressed | Within 15 business days of becoming aware | National competent authority |
+| Serious incident, general case (serious harm to a person's health; infringement of obligations under Union law protecting fundamental rights; serious harm to property or the environment) | Immediately after establishing a causal link, and no later than 15 days of becoming aware (EU AI Act Art. 73) | National competent authority |
+| Widespread infringement, or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 3(49)(b)) | Immediately, and no later than 2 days of becoming aware (Art. 73(3)) | National competent authority |
+| Death of a person | Immediately, and no later than 10 days of becoming aware (Art. 73) | National competent authority |
+| Near-miss or significant malfunction that could lead to a serious incident if not addressed | Internal escalation without undue delay; reported to the authority if it develops into a serious incident | National competent authority (if escalated) |
 
 The CISO is responsible for preparing and submitting reports, in coordination with Legal. Reports are logged in the AI Incident Register.
 
