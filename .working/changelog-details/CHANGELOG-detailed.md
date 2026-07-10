@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.272, PR #784
+
+**AI gaps-and-expansion workstream, PR 0.1 (§36 CSA AICM re-map; advances TODO §2.2)**, the first and most sensitive corpus-accuracy fix of the workstream, built via the [high-assurance verification harness](../../dev-security/claude-rules/governance/high-assurance-verification.md). Split out alone (per the plan's directive to treat the AICM re-map as sensitive); PR 0.2-0.5 follow as #785.
+
+### Fixed
+
+- **The invalid CSA AICM pseudo-code family in [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) §36.** The "CSA AICM v1" column cited `AI-TM-01 to 05`, `AI-SC-01 to 08`, `AI-PP-01 to 05`, `AI-TM-08`, `AI-SC-05`, `AI-AU-01 to 06`, `AI-EC-01`, `AI-SC-06`, `AI-EC-03` across all 9 rows. None are real AICM v1.1.0 domains (which are A&A/AIS/BCR/CCC/CEK/DCS/DSP/GRC/HRS/I&S/IAM/IPY/LOG/MDS/SEF/STA/TVM/UEM). This is a **fourth** invalid CSA control-code family surfaced this session (after `ISM` R11, `END` §3.41, `GVN` §3.40), and it is gate-invisible for a distinct reason: the `AI-XX-NN` shape has a hyphen before the domain token, so the gate-48 `CODE_RE` excludes it exactly as it excludes the corpus-internal `AI-GOV`/`MODEL-GOV` identifiers (which is why gate 48 ran clean while the codes were invalid). Re-mapped each row to real AICM v1.1.0 controls, verified against the held catalogue title + spec:
+  - Prompt injection to `AIS-15` (Prompt Differentiation) + `AIS-09` (Input Validation)
+  - Supply chain to `STA-10` (Supply Chain Risk Management) + `STA-09` (Service Bill of Material)
+  - Sensitive data disclosure to `DSP-17` (Sensitive Data Protection) + `IAM-16` (Knowledge Access Control - Need to Know)
+  - Tool misuse / overreach to `AIS-11` (Agents Security Boundaries) + `IAM-18` (Agent Access Restriction)
+  - Unsafe code generation to `AIS-10` (Output Validation) + `AIS-05` (Application Security Testing)
+  - Excessive agency to `IAM-18` + `IAM-05` (Least Privilege)
+  - Overreliance to `GRC-15` (Human supervision) + `GRC-13` (Explainability Requirement)
+  - Model resource exhaustion / DoS to `I&S-02` (Capacity and Resource Planning) + `I&S-09` (Network Defense)
+  - Hallucination / output validation to `AIS-10` + `LOG-16` (Output Monitoring)
+
+### Changed
+
+- §36 column header "CSA AICM v1" to "CSA AICM v1.1.0" (matches the held `AICM_VERSION`); the two `LLM09` cells to "LLM09 Misinformation" (OWASP LLM Top 10 v2.0 folded 2023's LLM09 "Overreliance" into LLM09 "Misinformation"; the doc already commits to v2.0 via "LLM10 Unbounded Consumption").
+- Doc Version `1.8.7` to `1.8.8`, Date `2026-07-04` to `2026-07-10`; [`taxonomy.yml`](../../taxonomy.yml) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (portal unchanged).
+- [`TODO.md`](../../TODO.md): added the §2.2 AI-workstream tracker (PRs 0-10, execution model, PR-0.1-done marker). [`.working/DONE.md`](../DONE.md): PR-0.1 entry.
+- **Discharged the #783 `/validate-pr` finding**: the two `§3.40` references in the gate-48 regression-fixture comments ([`tests/test_linters.py`](../../tests/test_linters.py):4571, :4609) reworded to `PR #782` (completing the fragile-closed-slot-token cleanup the #783 reword left incomplete).
+
+### Verification (high-assurance harness)
+
+- **Research** fan-out produced candidate mappings against the held AICM catalogue; **invariant floor**: every recommended code confirmed present in `AICM_V11` with a title matching its justification; **deterministic apply** of the 9 rows + header + labels, then **re-parse**: zero `AI-*` residual corpus-wide, gate 48 exit 0 over 409 files (Check 1 + the new Check 5 now mechanically validate the re-mapped column's existence and range), and a direct re-read of the rendered §36 table. **Independent adversarial verifier** (refute-briefed, false-negative + false-positive lenses) returned **SHIP**: every mapping best-available or co-equal, no clearly-better control missed, no over-assignment; it refuted the DoS-row alternatives (`TVM-13` is not DoS-flagged; `IPY-02` is data-portability, wrong for DoS), confirmed the header + LLM09 relabel, and judged the shared codes (`AIS-10` in rows 5/9, `IAM-18` in rows 4/6) honest. One non-blocking soft note recorded: row 7 could use `GRC-14` (Explainability Evaluation, communicating limits) over `GRC-13` as the overreliance complement (co-equal, not clearly better; `GRC-13` is the foundational requirement); kept `GRC-13`, reversible on maintainer preference.
+- `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean (pre-push guard). Batches PR #783's `/validate-pr` (1 in-window finding, discharged in this PR) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.271, PR #783
 
 **Deep-assessment r1 R10 remainder (advances TODO §3.13)** plus the #782 `/validate-pr` docstring-provenance reword. Two small, verified tooling changes; no corpus-document body changed, so no per-document version bump and no generated-artefact regeneration.
