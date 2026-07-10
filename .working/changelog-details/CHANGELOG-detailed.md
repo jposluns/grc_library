@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.255, PR #767
+
+Deep-assessment r1 **R9** (CI workflow hardening, closes TODO §3.30), the seventh PR of the sweep94 resumed session. A refute-briefed verifier reviewed the change; the PR's own CI run exercises the modified workflow directly.
+
+### Changed
+
+- [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml): **R9** hardening, two changes. (a) Added a top-level least-privilege `permissions: contents: read` block: the sole `lint` job only reads the repository (checkout with `fetch-depth: 0` for the history-aware gates, set up Python, run the markdown/Python linters); it never writes contents, posts comments, or uploads artefacts, so `contents: read` is sufficient and the default read-write token scope was over-privileged. (b) SHA-pinned both GitHub actions to their exact commits with version comments: `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4` and `actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5`. The SHAs were fetched from the upstream repos via `gh api repos/actions/<name>/commits/v<n>` (the exact commit each moving major tag points to), not guessed; SHA-pinning closes the moved-tag supply-chain vector the project's CI/CD-gates and supply-chain rules call out.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) §3.39: a maintainer decision on the Dependabot-vs-manual refresh companion for the new SHA-pins. SHA-pins do not auto-update, so without a refresh mechanism they miss upstream security patches; §3.39 tracks adding a Dependabot config (`github-actions` ecosystem) versus accepting manual bumps. Maintainer-owned (it adds Dependabot PR automation). Low urgency: the lint CI is read-only (`contents: read`), so the stale-pin blast radius is small.
+- [`.working/DONE.md`](../DONE.md): a #767 entry (closes §3.30).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state (no corpus doc touched; `.github/` is outside the corpus gate scope).
+- The workflow YAML validates (`python3 -c "import yaml; ..."` parses; `permissions == {contents: read}`; both `uses:` lines SHA-pinned).
+- The SHAs are authentic (re-fetched via `gh api`, matching the pins); `contents: read` is sufficient for every step (all read-only).
+- The PR's own `Lint markdown corpus` CI run executes the modified workflow, so a permissions-too-narrow or bad-SHA error would fail the PR's CI directly (the strongest test for a workflow change).
+- Batched PR #766's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.537` to `1.2.538`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.479` to `1.0.480`).
+
+### Discipline observation
+
+SHA-pinning without a refresh mechanism is itself an anti-pattern (stale pins miss security updates), so the pin is paired with TODO §3.39 rather than left silent; the honest hardening is the pin PLUS a tracked refresh decision, not the pin alone. The read-only-CI blast-radius note keeps the follow-on correctly low-urgency.
+
 ## 2026-07-10, Library Version 2026.07.254, PR #766
 
 Deep-assessment r1 **R2** (portal generator, closes TODO §3.21), the sixth PR of the sweep94 resumed session, plus an in-window catch of a #765 TODO-rotation miss. A refute-briefed verifier returned SHIP (0 defects).
