@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-07-10\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -146,7 +146,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | WCO SAFE Framework (2025 edition) | AEO Security | Customs compliance and AEO obligations |
 | EU GDPR | Arts 33 to 34, Data protection | Breach notification, DPA reporting |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | 24-hour incident notification |
-| EU AI Act (2024) | Arts 65 to 74 | AI serious incident reporting |
+| EU AI Act (2024) | Art 73 | AI serious incident reporting |
 | Canada PIPEDA / AIDA | Privacy and AI compliance | Canadian regulatory obligations |
 | NIST AI RMF 1.0 | Govern function | AI compliance governance |
 | ISO/IEC 42001:2023 | AI management system conformity | AI regulatory evidence management |
