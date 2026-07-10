@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.254, PR #766
+
+Deep-assessment r1 **R2** (portal generator, closes TODO §3.21), the sixth PR of the sweep94 resumed session, plus an in-window catch of a #765 TODO-rotation miss. A refute-briefed verifier returned SHIP (0 defects).
+
+### Changed
+
+- [`tools/build-portal.py`](../../tools/build-portal.py), **R2** (deep-assessment r1 finding + Sweep-92 B-5): the "Compliance" audience block gained two selectors and an expanded description. Before, the audience-shaped portal selected AI-domain docs only via the Security-architecture audience's `{"domain": "ai", "type": (...)}` selector, which excludes type `Annex`, so the `ai/jurisdictions/` annexes (EU AI Act #743, Colorado #749) matched NO audience and were absent from [`docs/portal.md`](../../docs/portal.md); and the Compliance audience's sole `{"domain": "compliance"}` selector never reached the governance-domain reverse framework crosswalk. Added `{"path_prefix": "ai/jurisdictions/"}` (surfaces exactly the two AI annexes) and `{"title_regex": "Reverse Framework"}` (surfaces the one reverse crosswalk, matching how the Security-architecture and Audit audiences already reach it).
+- Regenerated [`docs/portal.md`](../../docs/portal.md) (692 to 695 lines) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (scorecard unchanged, audience-agnostic). The Compliance section now lists the Colorado and EU AI Act annexes and the Reverse Framework Control Crosswalk.
+- [`TODO.md`](../../TODO.md): §3.21 deleted (R2 done); §4.10 deleted (see the rotation catch below).
+- [`.working/DONE.md`](../DONE.md): a #766 entry (§3.21 / R2) and a #765 entry (§4.10 / R7) added.
+- Batched PR #765's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.536` to `1.2.537`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.478` to `1.0.479`).
+
+### Fixed
+
+- **TODO §4.10 rotation (a #765 close-out miss, caught in-window):** #765 completed R7 (which IS TODO §4.10) but did not rotate §4.10 out of TODO into DONE. Root cause: R7's #765 CHANGELOG framed the change as "add /screen-publications" (its deep-assessment finding-name) rather than a `closes TODO §4.10` phrase, so the D5 rotation check (keyed on a closure phrase) never fired, and the orchestrator's rotation reflex was anchored to the finding-name. Caught during this PR's DONE-format read; §4.10 is now deleted from TODO with a #765 DONE entry. The `/retro` for #765 records this as a recurrence of the #495 "backlog-item-keyed, not FR/§-keyed" class (a PR completing a TODO item under a non-§ name evades both D5 and the reflex).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state; `build-portal.py --check` (gate 34) green (the committed portal matches regeneration).
+- A refute-briefed verifier confirmed: the two AI annexes had zero occurrences in the prior [`docs/portal.md`](../../docs/portal.md) (fully orphaned, validating the B-5 premise); the two new selectors match exactly the intended docs and cannot over-match (`ai/jurisdictions/` holds exactly the two annexes; exactly one corpus doc has a "Reverse Framework" title); the portal diff is minimal and additive within the Compliance section; the scorecard is correctly unchanged; the description does not overclaim.
+- §N-orphan cross-file check for the closed §3.21 / §4.10: all live references to those tokens are document-section citations (unrelated standards' §4.10), historical/stable-name references to the earlier #469 §4.10 (the TODO/DONE-rotation gate family, a closed number since reused), or D5 test-fixture / detector-example strings; none is a live forward-pointer to the R2 §3.21 or R7 §4.10 now closed.
+
+### Discipline observation
+
+The §4.10 rotation miss is the recurrence signal: a finding worked under its deep-assessment label (R7) rather than its backlog id (§4.10) evaded the rotation reflex and the phrase-keyed D5 check. The reinforcement (recorded in the #765 `/retro`) is to map a finding-label to its TODO §-number at close-out and rotate on completion regardless of CHANGELOG phrasing; a mechanical gate is not feasible because "this diff completes TODO item X" is not detectable from the diff.
+
 ## 2026-07-10, Library Version 2026.07.253, PR #765
 
 Deep-assessment r1 finding **R7** (a PROTECTED pack edit, maintainer-authorized to apply directly on the NUC with a skeptical verifier), the fifth PR of the sweep94 resumed session. The `/deep-assessment` skill's own coverage obligation says a newly-shipped quality instrument joins its phase-3 invocation set, but the phase-3 lists hardcoded a set that omitted `/screen-publications` (the publications-screening cadence shipped in #722), so the r1 run's phase 3 skipped it. A refute-briefed verifier reviewed the change (verdict SHIP).
