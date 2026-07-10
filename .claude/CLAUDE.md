@@ -812,7 +812,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 
 `grc_library_ref` writes go via PR (the local git proxy 403s direct pushes, per
 [`third-party-issues.md`](../.working/third-party-issues.md)), so the `grc_library_ref` half of any
-update is a separate cross-repo step. The version-currency register is TODO §1.5.
+update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the remaining reference-currency residuals are the P1 §1.5-§1.8 items.
 
 ## Attended-autonomous operating mode
 
