@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.276, PR #788
+
+**AI gaps-and-expansion workstream, PR 0.5 (unheld-citation routing; advances TODO §2.2, completes workstream PR 0)**. Working-state routing PR: no corpus body changed. Bookkeeping tier (no skeptical verifier).
+
+### Changed
+
+- **Routed the seven unheld citations to the maintainer source-drop queue.** The plan's item 0.5 named eight "not held and unverified" citations; a `grc_library_ref` index check found **DORA is held** (the 2026-07-10 resync ingested it), leaving seven genuinely unheld. Each was read in its citing document; all seven are accurate references to real sources and all are cited **corroboratively** (framework-alignment rows, a "see also", or a "synthesized from" note), never as a load-bearing normative-value anchor:
+  - Hiroshima Process, [`ai/procedure-foundation-model-lifecycle.md`](../../ai/procedure-foundation-model-lifecycle.md):179 (framework-alignment row).
+  - Mitchell et al. 2019 (Model Cards), [`ai/register-model-registry.md`](../../ai/register-model-registry.md):148.
+  - Gebru et al. 2018 (Datasheets), [`ai/register-model-registry.md`](../../ai/register-model-registry.md):149.
+  - OWASP MCP Top 10, [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md):108 ("see also").
+  - OWASP GenAI Red Teaming Guide, [`ai/template-ai-red-team-report.md`](../../ai/template-ai-red-team-report.md):221.
+  - PTES, [`ai/template-ai-red-team-report.md`](../../ai/template-ai-red-team-report.md):220.
+  - IEEE 7000-2021 §7.3, [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md):107 ("synthesized from"; the §7.3 locator is the single element unverifiable without the held standard).
+- **No rewording.** Because all seven are accurate and none is a normative-value anchor, none was reworded or removed; rewording an accurate reference would lose correct information, and the "do not treat any as verified" discipline is already satisfied (no corpus value rests on their unverified content). Routed to [`TODO.md`](../../TODO.md) §1.11 (a P1 acquisition tracker with per-citation detail and egress/licence notes) and [`.working/pending-decisions.md`](../pending-decisions.md) (the maintainer decides acquire-which vs leave-as-corroborative).
+
+### Verification
+
+- Each citation's usage class confirmed by reading its citing line; DORA's held status confirmed via the `grc_library_ref` index. No corpus document body changed (the diff touches only the backlog, the working-state ledgers, the changelog, and the readme, no domain document). Bookkeeping tier, so no skeptical verifier (the mechanical gates plus this record suffice). `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean. Batches PR #787's `/validate-pr` (0 findings) and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.275, PR #787
 
 **AI gaps-and-expansion workstream, PR 0.4 (EU AI Act Art. 73 reporting-deadline correction + GPAI FLOP confirmation + `/claim-fit`; advances TODO §2.2)**. Fourth corpus-accuracy fix of the workstream. Substantive change: one skeptical pre-push verifier.
