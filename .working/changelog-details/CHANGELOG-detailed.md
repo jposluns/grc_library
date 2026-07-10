@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.259, PR #771
+
+Deep-assessment r1 **R12 cluster 2 of 7** (privacy), the eleventh PR of the sweep94 session: the second apply batch of the r1 `/reference-audit` findings. Substantive (citation additions to authoritative sources), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) Purpose "Applicable Frameworks" line: `ISO/IEC 29100:2024` (Privacy Framework) and `ISO/IEC 29151:2017` (Code of Practice for PII Protection), placed beside the existing ISO/IEC 27701:2025 (the matrix-shaped framework-alignment table maps policy areas across framework columns and has no single-standard row slot, so the Applicable-Frameworks prose line is the natural home). Version 1.4.12 to 1.4.13.
+- [`privacy/framework-privacy-by-design.md`](../../privacy/framework-privacy-by-design.md) framework-alignment table: a `NIST IR 8062` "An Introduction to Privacy Engineering and Risk Management" row, placed after the ISO/IEC 29134:2017 PIA-methodology row. Version 1.0.1 to 1.0.2.
+- [`privacy/standard-pseudonymization-and-anonymization.md`](../../privacy/standard-pseudonymization-and-anonymization.md) framework-alignment table: a `NIST SP 800-226` "Guidelines for Evaluating Differential Privacy Guarantees" row, placed after NIST SP 800-188. On-point: the standard already describes differential privacy as an anonymization technique (its technique table and its high-risk-category guidance), and SP 800-226 is the evaluation guidance for that technique's guarantees. Version 1.0.6 to 1.0.7.
+
+### Verification
+
+- All four editions confirmed held via the `grc_library_ref` INDEX: `ISO/IEC 29100:2024` (Privacy framework), `ISO/IEC 29151:2017` (Code of practice for PII protection), `NIST IR 8062` (Privacy Engineering and Risk Management), `NIST SP 800-226` (Evaluating Differential Privacy Guarantees). Held source titles confirm on-point fit.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #770's `/validate-pr` (0 findings) and `/retro` rows.
+
+### Notes
+
+- R12 remains open per-cluster (§3.29). Clusters remaining after this: IAM, incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce, plus the 2 bonus precision items.
+
 ## 2026-07-10, Library Version 2026.07.258, PR #770
 
 Deep-assessment r1 **R12 cluster 1 of 7** (risk / ERM), the tenth PR of the sweep94 session: the first apply batch of the r1 `/reference-audit` FULL-mode findings (27 held-but-unused authoritative citations across 7 domain clusters, applied one coherent cluster per PR). Substantive (citation additions to authoritative sources), so a refute-briefed verifier reviewed the change pre-push.

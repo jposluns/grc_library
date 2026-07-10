@@ -2,8 +2,8 @@
 
 **Document Title:** Pseudonymization and Anonymization Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-10\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -146,6 +146,7 @@ The percentages above are default thresholds. Adopting organizations may tighten
 | ISO/IEC 20889:2018 | Privacy enhancing data de-identification terminology and classification of techniques | Authoritative technique taxonomy |
 | ISO/IEC 27559:2022 | Privacy-enhancing data de-identification framework | De-identification programme |
 | NIST SP 800-188 | De-identifying government data sets | US de-identification baseline |
+| NIST SP 800-226 | Guidelines for Evaluating Differential Privacy Guarantees | Evaluation of the differential-privacy technique's privacy-loss guarantees |
 | Article 29 Working Party Opinion 05/2014 | Anonymization techniques | EU regulator guidance (the Article 29 Working Party was the EDPB's predecessor; EDPB was established by the GDPR in May 2018 and assumed the Working Party's role) |
 | EDPB Opinion 28/2024 (December 2024) | Use of personal data for AI models | Current EU regulator guidance on AI-model personal-data processing |
 | ENISA | Pseudonymization techniques and best practices | EU technical guidance |
