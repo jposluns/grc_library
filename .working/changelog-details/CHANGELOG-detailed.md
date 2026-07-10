@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.275, PR #787
+
+**AI gaps-and-expansion workstream, PR 0.4 (EU AI Act Art. 73 reporting-deadline correction + GPAI FLOP confirmation + `/claim-fit`; advances TODO §2.2)**. Fourth corpus-accuracy fix of the workstream. Substantive change: one skeptical pre-push verifier.
+
+### Fixed
+
+- **EU AI Act Article 73 serious-incident reporting deadline mis-stated as "15 business days".** The held Regulation (EU) 2024/1689 text (Art. 73, held-text lines 6406-6430) prescribes: the report is made immediately after a causal link is established and **no later than 15 days** of becoming aware (general case); **immediately, and no later than 2 days** where the incident is a widespread infringement or a serious and irreversible disruption of critical infrastructure (Art. 3(49)(b)); and **immediately, and no later than 10 days** in the event of the death of a person. The corpus said "15 business days" (a "business" qualifier the source does not state, an over-specification of the same class as the #287 "90 business days" slip) and omitted the two shorter statutory sub-deadlines. A full-corpus scan found three carriers, all corrected:
+  - [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) §10.3: the two bullets ("15 business days" + a vague "immediately for life/safety") rewritten to the three statutory deadlines. Version `1.0.6` to `1.0.7`.
+  - [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) E6: "15 business day reporting deadline" to the Art. 73 deadlines (15 days general; 2 days critical-infrastructure; 10 days fatality). Version `1.0.5` to `1.0.6`.
+  - [`ai/framework-ai-system-audit-certification.md`](../../ai/framework-ai-system-audit-certification.md) §8.2: the reporting-timeline table (which conflated death / harm / disruption into one "15 business days" row) restructured to the three Art. 73 statutory-deadline rows plus a correctly-framed internal near-miss row (a near-miss is not a reportable Art. 73 serious incident, so it now reads as an internal escalation, not a statutory deadline). Version `1.0.6` to `1.0.7`.
+
+### Confirmed (plan-flagged unverified)
+
+- **GPAI systemic-risk FLOP threshold "10^25 FLOPs"** ([`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) §4.1) confirmed `prescribed` against the held Art. 51(2) ("A general-purpose AI model shall be presumed to have high impact capabilities ... when the cumulative amount of computation used for its training measured in floating point operations is greater than 10²⁵", held-text lines 5336-5338), read directly this turn. No change.
+
+### Changed (checklist AIDA reconcile, folded from TODO §1.10)
+
+- Since the checklist was already being edited for E6, its residual AIDA carriers were reconciled in the same PR: [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) E2 (the "Canada AIDA obligations assessed" control item) re-pointed to the in-force Canadian ADM governance (TBS Directive applicability; ISED Voluntary Code commitments; AIDA tracked as a lapsed planning indicator), and the Section-E "Synthesized from" provenance note re-pointed from "Canada AIDA 2024" to "Canada TBS Directive on Automated Decision-Making and ISED Voluntary Code (AIDA lapsed with Bill C-27 at the January 2025 prorogation)". This discharges the checklist half of TODO §1.10; the [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md) AIDA carrier remains that item's residual.
+
+### Added
+
+- A `/claim-fit` history row ([`.working/claim-fit/history.md`](../claim-fit/history.md), Version `1.0.6` to `1.0.7`) recording the two normative-value verdicts (Art. 73 over-specification fixed; 10^25 FLOP `prescribed`).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated; TODO §2.2 tracker marks PR 0.4 done, §1.10 updated.
+
+### Verification
+
+- Both normative values read directly against the held EU AI Act clause this turn (Art. 73 lines 6406-6430; Art. 51(2) lines 5336-5338), not from memory or a prior record. Contradiction scan: zero remaining EU-AI-Act "15 business day" carrier (the other corpus "15 business day" hits are unrelated internal SLAs, RCA / supplier-audit / CAPA / incident-response, correctly left alone). Skeptical pre-push verifier (substantive tier): see the pre-push record. `tools/run_all_audits.sh` 67/67 + `tools/run-pr-time-checks.sh` clean. Batches PR #786's `/validate-pr` and `/retro` rows.
+
 ## 2026-07-10, Library Version 2026.07.274, PR #786
 
 **AI gaps-and-expansion workstream, PR 0.3 (ISO/PAS 8800 mis-attribution corrected corpus-wide; advances TODO §2.2)**. Third corpus-accuracy fix of the workstream. Substantive change: one skeptical pre-push verifier.

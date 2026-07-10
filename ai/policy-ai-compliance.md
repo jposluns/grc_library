@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -294,8 +294,9 @@ All AI incidents must be reported internally within 24 hours of detection to the
 
 For serious incidents involving high-risk AI systems deployed in the EU, the organization must report to the relevant national competent authority:
 
-- **Within 15 business days** of becoming aware of a serious incident involving a high-risk AI system (EU AI Act Art. 73).
-- Immediately, without undue delay, where the incident involves a risk to the life or safety of individuals.
+- **Within 15 days** of becoming aware of a serious incident involving a high-risk AI system, the general deadline (EU AI Act Art. 73).
+- **Immediately, and no later than 2 days**, where the serious incident is a widespread infringement or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 73(3), referencing Art. 3(49)(b)).
+- **Immediately, and no later than 10 days**, in the event of the death of a person (Art. 73).
 
 The CISO is responsible for preparing and submitting the report, in coordination with Legal.
 
