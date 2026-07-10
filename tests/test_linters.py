@@ -4568,7 +4568,7 @@ class CcmAicmCitationTests(LinterTestCase):
         )
 
     def test_unknown_family_in_ccm_column_flagged(self) -> None:
-        # Check 5 (TODO §3.40): a control-code-shaped token whose prefix is not
+        # Check 5 (PR #782): a control-code-shaped token whose prefix is not
         # a CCM/AICM domain, sitting in a framework-alignment column headed "CSA
         # CCM", is invisible to the recognized-prefix code-validity check (Check
         # 1) but must be flagged as an unknown CCM/AICM family. END is not a CCM
@@ -4606,7 +4606,7 @@ class CcmAicmCitationTests(LinterTestCase):
         )
 
     def test_ccm_prose_header_column_not_policed(self) -> None:
-        # False-positive guard for Check 5 (verifier-caught, §3.40 PR): a PROSE
+        # False-positive guard for Check 5 (verifier-caught, PR #782): a PROSE
         # header that merely mentions the matrix mid-phrase ("Notes on AICM
         # adoption") is not a code column, so a foreign code (NIST 'AC-2') in its
         # body must not be flagged. CCM_COLUMN_HEADER_RE is anchored at the cell
