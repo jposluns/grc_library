@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.242, PR #754
+
+Records and routes the first-ever `/deep-assessment` run (r1), maintainer-invoked 2026-07-10 (attended-autonomous then overnight, VM). Working-state + backlog + bookkeeping only; no corpus document body changed. The four clear-mechanical fixes the run surfaced ship as separate PRs (not this one).
+
+### Added
+
+- [`.working/deep-assessment/2026-07-10-r1.md`](../deep-assessment/2026-07-10-r1.md): the full r1 run record (phases 1-8, the live instrument inventory, the green-at-SHA baseline, all six semantic-instrument returns, the phase-4 audit-programme audit, the phase-5/6 outcomes, and the F1-F21 + 27-reference-breadth findings register with per-finding disposition).
+- [`TODO.md`](../../TODO.md) §3.26 "Deep-assessment r1 routed findings (HELD for maintainer sign-off)": the 13 routed items R1-R13, split per functional action and grouped only by same-type, each tagged with its home section for migration on sign-off. HELD pending sign-off (the deep-assessment terminal state).
+
+### Changed
+
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the r1 row advanced to phases 1-7 complete, phase 8 in-progress, findings routed (4 fixed in-window + 13 routed), Status `in-progress`, sign-off pending; the prose paragraph updated with the run outcome.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.525` to `1.2.526`) and [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.467` to `1.0.468`): the batched PR #753 `/validate-pr` (0 findings) and `/retro` rows.
+
+### Verification
+
+- Environment (phase 1) and mechanical baseline (phase 2) verified before any semantic phase: full clone (all three repos non-shallow), lease held by this session, live inventory 67 gates / 14 commands / 21 skills / 13 governance rules / 15 advisory tools; the full audit runner 67/67, the PR-time checks, the regression suite, both generator check modes, and both sibling reference-repo validate gates all EXIT 0. Green-at `4f043f6` (#753), consistent with the sweep92 asserted green-at `4c3acde`/#751 (no drift).
+- Every routed finding re-read at source before routing; refutations recorded not routed (the future-date "finding" refuted as correct per UTC; the matrix/claim/reference already-cited and not-on-point sets). The mutation probe ran only in the disposable copy `<scratchpad>/da-mut-r1` with the `DISPOSABLE-COPY-OK` marker; the working repos were never mutated.
+- This PR's own diff is limited to working-state records, the backlog file, the changelog, and the README; the full audit runner is green on the committed state and the PR-time checks pass.
+
 ## 2026-07-10, Library Version 2026.07.241, PR #753
 
 The `/resume` Sweep 93 corpus-wide `/validate` close-out, first PR of the resumed `claude/resume-sweep93-validate` session (daytime attended-autonomous on the VM), the loop-break compensating control for session-closing handoff PR #752. One in-window corpus edit (a one-clause glossary broadening) plus the standard sweep-close-out bookkeeping.
