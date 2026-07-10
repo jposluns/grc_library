@@ -110,6 +110,50 @@
         "path": "governance/policy-mutation-probe-synthetic.md",
         "text": "# Synthetic Mutation-Probe Policy\n\nBody text with no metadata block."
       }
+    },
+    {
+      "gate": "lint-citations.py",
+      "id": "hallucinated-citation-csa-ccm-v5",
+      "description": "A denylisted hallucinated citation (CSA CCM v5; the current CSA Cloud Controls Matrix version is v4.1) in appended body prose; the citation denylist gate should flag it. Grounded in the CitationsLinterTests fixture.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The programme maps to CSA CCM v5 controls."
+      }
+    },
+    {
+      "gate": "lint-citations.py",
+      "id": "current-csa-ccm-v41-clean",
+      "description": "The valid current CSA CCM v4.1 version in appended body prose; the citation denylist gate should NOT flag a current, non-denylisted version (near-miss guarding against over-fire).",
+      "expect": "clean",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The programme maps to CSA CCM v4.1 controls."
+      }
+    },
+    {
+      "gate": "lint-standards-currency.py",
+      "id": "superseded-iso-27001-2013",
+      "description": "A superseded standard edition (ISO/IEC 27001:2013; the current edition is :2022) in appended body prose; the standards-currency gate should flag the superseded edition. Grounded in the StandardsCurrencyTests fixture.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The organization is certified against ISO/IEC 27001:2013."
+      }
+    },
+    {
+      "gate": "lint-standards-currency.py",
+      "id": "current-iso-27001-2022-clean",
+      "description": "The current ISO/IEC 27001:2022 edition in appended body prose; the standards-currency gate should NOT flag the current edition (near-miss guarding against over-fire).",
+      "expect": "clean",
+      "action": {
+        "type": "append_file",
+        "path": "@any-corpus-md",
+        "text": "The organization is certified against ISO/IEC 27001:2022."
+      }
     }
   ]
 }

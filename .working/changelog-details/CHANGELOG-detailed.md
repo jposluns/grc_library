@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.256, PR #768
+
+Deep-assessment r1 **R10** (mutation-probe variant expansion), the eighth PR of the sweep94 resumed session. The change is test-data for the gate-mutation probe, verified by running the probe itself (the authoritative independent mechanical check), so no separate pre-push verifier subagent was dispatched (a probe run over the real gates directly confirms each variant's expected verdict; the post-merge `/validate-pr` still runs).
+
+### Added
+
+- [`tools/gate-mutation-variants.json`](../../tools/gate-mutation-variants.json): 4 new variants (5 gate classes to 7), each a DETECT + CLEAN (near-miss) pair so phase 4(b) probes both the gate's detection AND its non-over-fire width:
+  - **citation-denylist** (`lint-citations`): `hallucinated-citation-csa-ccm-v5` (append "maps to CSA CCM v5 controls", a denylisted hallucinated version, expect detect) and `current-csa-ccm-v41-clean` (append the valid "CSA CCM v4.1", expect clean). Grounded in the `CitationsLinterTests` fixture.
+  - **standards-currency** (`lint-standards-currency`): `superseded-iso-27001-2013` (append "certified against ISO/IEC 27001:2013", a superseded edition, expect detect) and `current-iso-27001-2022-clean` (append the current ":2022", expect clean). Grounded in the `StandardsCurrencyTests` fixture.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) §3.13 rescoped (not closed): records the 2 classes added in #768 and narrows the remaining scope to the structured-surface gates (control-code gate 49 = the compliance matrix; retention-consistency gate 55; cross-doc-numbers), whose detection reads a SPECIFIC surface, so an append/create payload to `@any-corpus-md` is not scanned by them and each needs a bespoke variant targeting the exact surface, verified DETECTED before it lands. The variant library is designed to extend run over run, so §3.13 stays open as the incremental tracker.
+- Batched PR #767's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.538` to `1.2.539`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.480` to `1.0.481`).
+
+### Verification
+
+- **Mutation probe (the authoritative check for this change):** cloned the repo (`--no-hardlinks`) to a disposable copy carrying the 4 new variants, marked it `DISPOSABLE-COPY-OK`, and ran the probe ([`tools/audit-gate-mutation.py`](../../tools/audit-gate-mutation.py)) against the copy scoped to the two new gates. Result: `hallucinated-citation-csa-ccm-v5` DETECTED, `current-csa-ccm-v41-clean` CLEAN-PASS, `superseded-iso-27001-2013` DETECTED, `current-iso-27001-2022-clean` CLEAN-PASS (2 detected, 2 clean-pass, 0 missed, 0 false-positive). Each variant's expected verdict matched.
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state; the variants JSON parses (14 variants).
+- The payloads are ASCII (no literal dashes), consistent with the file's dash-free convention.
+
+### Discipline observation
+
+For a change whose correctness property is "the gate detects / ignores this payload", the mutation probe (which runs the real gate against the payload) is a stronger, more direct verification than a separate verifier subagent reasoning about it, so the probe run stands in for the pre-push verifier here; the formal post-merge `/validate-pr` is unchanged. §3.13 was rescoped rather than closed because the finding named structured-surface gate classes (control-code, retention, cross-doc) that this append-testable increment does not reach, and claiming closure would overstate the coverage added.
+
 ## 2026-07-10, Library Version 2026.07.255, PR #767
 
 Deep-assessment r1 **R9** (CI workflow hardening, closes TODO §3.30), the seventh PR of the sweep94 resumed session. A refute-briefed verifier reviewed the change; the PR's own CI run exercises the modified workflow directly.
