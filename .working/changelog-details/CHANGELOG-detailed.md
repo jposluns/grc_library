@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.264, PR #776
+
+Deep-assessment r1 **R12 cluster 7 of 7** (dev-security / cloud / metrics / workforce), the sixteenth PR of the sweep94 session and the **closing R12 batch**: it applies the last cluster's citations plus the two bonus precision items, and closes TODO §3.29 (rotated to DONE). Substantive (citation additions plus a citation-title correction), so a refute-briefed verifier reviewed the change pre-push.
+
+### Added
+
+- [`dev-security/standard-devops-security-requirements.md`](../../dev-security/standard-devops-security-requirements.md): a prose line after its matrix-shaped framework table citing `NIST SP 800-204D` (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines). Version 1.0.7 to 1.0.8.
+- [`governance/framework-metrics-monitoring-and-performance-reporting.md`](../../governance/framework-metrics-monitoring-and-performance-reporting.md) framework-alignment table: `NIST SP 800-55 Vol. 1` "Measurement Guide for Information Security: Identifying and Selecting Measures" and `Vol. 2` "Developing an Information Security Measurement Program" rows (after ISO/IEC 27004). Version 1.1.1 to 1.1.2 (Date already 2026-07-10, so Version-only).
+- [`security/standard-security-awareness-and-training.md`](../../security/standard-security-awareness-and-training.md): a prose line after its matrix-shaped framework table citing `NIST SP 800-181 Rev. 1` (Workforce Framework for Cybersecurity, the NICE Framework) for role-based training and work-role competency mapping. Version 1.0.3 to 1.0.4.
+- [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md) framework-alignment table: an `ISO/IEC 27017:2015` "Code of practice for cloud-services information security controls" row. Version 1.4.11 to 1.4.12 (Date already 2026-07-10, so Version-only).
+
+### Changed (bonus precision items)
+
+- [`security/framework-zero-trust-architecture.md`](../../security/framework-zero-trust-architecture.md): the `NIST SP 800-207A` citation title corrected from the paraphrase "Zero Trust Architecture for Cloud-native and Hybrid Environments" to the held title "A Zero Trust Architecture Model for Access Control in Cloud-Native Applications in Multi-Cloud Environments". Version 0.0.4 to 0.0.5. (Bonus 1: the r1 `/claim-fit`-adjacent citation-precision finding.)
+- The `ISO/IEC 27017` dangling canonical-citation registration (bonus 2): [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) registered ISO/IEC 27017:2015 but no corpus document cited it; the cloud-baseline citation above now gives it a citer, resolving the dangling registration. No edit to the register itself was needed (the registration was already correct; it just lacked a consumer).
+
+### Verification
+
+- All editions confirmed held via the `grc_library_ref` INDEX: `NIST SP 800-204D`, `NIST SP 800-55 Vol. 1` and `Vol. 2`, `NIST SP 800-181 Rev. 1`, `ISO/IEC 27017:2015`; the corrected `NIST SP 800-207A` title matches the held title verbatim. Held source titles confirm on-point fit.
+- `tools/run_all_audits.sh` 67/67 green; the citation-existence and standards-currency gates accept all additions. Generated taxonomy, portal, and scorecard regenerated.
+- Batches PR #775's `/validate-pr` (0 findings) and `/retro` rows. The improvement-log `/retro` row insert hit the ledger-row-merge class a second time (the #774 row was displaced); the post-edit read-back caught it, the file was restored from HEAD and the row re-inserted header-anchored, and a second read-back confirmed all rows structurally intact before commit.
+
+### Notes
+
+- **R12 COMPLETE.** TODO §3.29 (the r1 `/reference-audit` reference-breadth track) is closed and rotated to DONE. All 27 held-but-unused authoritative citations across 7 domain clusters, plus the 2 bonus precision items, are applied. The reference-breadth findings from the r1 `/deep-assessment` are fully discharged.
+
 ## 2026-07-10, Library Version 2026.07.263, PR #775
 
 Deep-assessment r1 **R12 cluster 6 of 7** (AI), the fifteenth PR of the sweep94 session: the sixth and largest apply batch of the r1 `/reference-audit` findings (6 documents, 8 citations). Substantive (citation additions), so a refute-briefed verifier reviewed the change pre-push.

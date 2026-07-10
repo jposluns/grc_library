@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #776: Deep-assessment r1 R12, reference-breadth citations (closes TODO §3.29) (2026-07-10)
+
+The r1 `/reference-audit` reference-breadth track: 27 held-but-unused authoritative citations across 7 domain clusters (risk/ERM, privacy, IAM, incident-response, resilience/EA, AI, dev-security/cloud/metrics/workforce), plus 2 bonus precision fixes (the NIST SP 800-207A citation-title correction and the ISO/IEC 27017 dangling-registration resolution), applied per-cluster across PRs #770-#776. Each cluster was held-edition-confirmed, refute-briefed-verifier-SHIP'd, and post-merge `/validate-pr` 0-findings. Closes §3.29 and discharges the r1 `/deep-assessment` reference-breadth findings.
+
 ### PR #769: Deep-assessment r1 R11, `/matrix-fit` source-doc semantic-fit pass (closes TODO §3.25) (2026-07-10)
 
 Ran `/matrix-fit` over the 27 source-doc framework-table rows the r1 pass deferred; two refute-briefed judges surfaced 12 held-verified valid-but-wrong-control mismatches (SEF-06->CCC-02, I&S-09/SEF-01->LOG codes, CCC-06/CCC-04->TVM-04, DSP-02->DSP-08, DSP-07->DCS-05/DSP-02), all fixed in-window, plus an invalid `ISM-xx` code family (8 instances cited as CSA CCM in 2 docs) remapped to real CCM controls; routed the gate blind-spot to §3.40 and the loose-supporting residue to §3.41.

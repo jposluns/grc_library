@@ -2,8 +2,8 @@
 
 **Document Title:** Security Awareness and Training Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-04\
+**Version:** 1.0.4\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md)\
@@ -99,6 +99,6 @@ The CISO reviews programme effectiveness annually using: training completion rat
 | Role-based training | A.6.3 | AT-3 | HRS-12 | BASC v6 §7.2 |
 | Training governance | Clause 7.2 | AT-1 | N/A | N/A |
 
-
+This standard also aligns with NIST SP 800-181 Rev. 1 (Workforce Framework for Cybersecurity, the NICE Framework) for role-based training design and work-role competency mapping.
 
 **End of Document**

@@ -2,7 +2,7 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-07-10\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,6 +78,8 @@ Poorly defined metrics without these fields must not be published in governance 
 | --- | --- | --- |
 | ISO 9001:2015 | §9: Performance Evaluation | KPI measurement and management review |
 | ISO/IEC 27004:2022 | Information Security Measurement and Metrics | Security metric design and reporting |
+| NIST SP 800-55 Vol. 1 | Measurement Guide for Information Security: Identifying and Selecting Measures | Security measure identification and selection |
+| NIST SP 800-55 Vol. 2 | Measurement Guide for Information Security: Developing an Information Security Measurement Program | Security measurement programme design |
 | ISO/IEC 42001:2023 | §10: AI Management System Performance Indicators | AI governance KPIs |
 | ISO 22301:2019 | Business continuity performance | BCP/DR metrics |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
