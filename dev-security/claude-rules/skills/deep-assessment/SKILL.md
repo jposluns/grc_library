@@ -1,6 +1,6 @@
 ---
 name: deep-assessment
-description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates only on explicit maintainer sign-off, never on an empty finding set.
+description: Maintainer-invoked, rare-cadence whole-project deep assessment. Runs the full layered examination of the library and its own quality machinery from a fresh session, composing the existing semantic instruments (/validate, /full-qa, /fitness, /matrix-fit, /claim-fit, /reference-audit, /screen-publications, /guardrails) by invocation and adding the lenses the routine cadence does not apply to itself, gate-efficacy probing (mutation and blind-spot analysis), ground-truth citation sampling, adoptability and pipeline-integrity review, and a QA-ledger meta-audit. Multi-session and re-entrant: a durable register carries phase state across session boundaries, every confirmed finding is routed tiered with none dropped, and the pass terminates only on explicit maintainer sign-off, never on an empty finding set.
 derives_from: ../../governance/trust-recovery-escalation.md
 ---
 
@@ -37,7 +37,12 @@ quality-check process or instrument added in future is included automatically, w
 edit to this skill. The obligation runs the other way too: adding a quality-check
 instrument carries the duty to ensure that this pass covers it, so a new gate gains a
 phase-4 mutation-probe variant, a new slash-command or skill joins the phase-3 invocation
-set, and a new advisory tool joins the phase-3 aids. Second, phase state lives in a
+set, and a new advisory tool joins the phase-3 aids. The phase-3 instrument set is
+therefore a named enumeration this obligation keeps synced with the live inventory,
+not an auto-derived list: "inventory-deriving" describes the SCOPE re-derivation of
+step 1 (nothing falls out of scope silently), while a newly-shipped instrument is
+added to the phase-3 invocations by this duty, as `/screen-publications` (from the
+#722 publications-screening cadence) is here. Second, phase state lives in a
 durable register (`.working/deep-assessment/register.md`), so the pass survives session
 boundaries and a bare re-invocation resumes rather than restarts.
 
@@ -85,7 +90,7 @@ expectations.
 Invoke, in their full sanctioned shapes with their own records and history rows: the
 sweep pre-flight scanner then a corpus-wide `/validate`; `/full-qa` over the whole
 corpus; `/fitness`; `/matrix-fit` over the whole matrix; `/claim-fit` over Tier A with
-a Tier-B sample; `/reference-audit` in FULL mode over the whole corpus and the in-scope reference base; and `/guardrails`. Run the advisory aids whose outputs feed later
+a Tier-B sample; `/reference-audit` in FULL mode over the whole corpus and the in-scope reference base; `/screen-publications` over the reference base's `pending` publications rows; and `/guardrails`. Run the advisory aids whose outputs feed later
 phases (`verify-reference-modules.py`, `audit-brief-freshness.py`, `residual-scan.py`
 and `tension-scan.py` over the ledgers). Each instrument's findings enter this run's
 routing (step 7) in addition to the instrument's own record; no abbreviation of any
@@ -217,6 +222,8 @@ A run is complete on a given invocation when:
   [`deep-qa-review`](../deep-qa-review/SKILL.md),
   [`library-fitness-review`](../library-fitness-review/SKILL.md),
   [`matrix-fit`](../matrix-fit/SKILL.md), [`claim-fit`](../claim-fit/SKILL.md),
+  [`reference-audit`](../reference-audit/SKILL.md),
+  [`publication-screening`](../publication-screening/SKILL.md),
   [`guardrail-review`](../guardrail-review/SKILL.md). This skill composes them by
   invocation and deliberately does not restate their procedures, so they cannot drift.
 - The advisory tools [`tools/audit-gate-blindspots.py`](../../../../tools/audit-gate-blindspots.py)
