@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.239 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.600 (semantic per-document version for this file)
+**Library Version:** 2026.07.240 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.601 (semantic per-document version for this file)
 
 ---
 
