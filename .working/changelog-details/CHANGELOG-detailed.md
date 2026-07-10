@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.267, PR #779
+
+**Session-closing handoff PR** for the sweep94 resumed session (`claude/resume-sweep94-validate`, #761-#778), the nineteenth and final PR of the session. Per the loop-break standing exception, this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 95) over the #761..#778 window, cross-checked against this handoff's Asserted-expectations block.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): full sweep94 close-out reconcile. Added the sweep94 CLOSING Next-actions block, the sweep94 State snapshot, and the sweep94 Asserted-expectations block; relabelled the sweep93 blocks as the one retained prior; **pruned the sweep92 blocks** (keep current + 1 prior); recorded the three P1 maintainer decisions (§1.5 = Annex 17, done; §1.8 = do both incl. the WCO SAFE 2025 fetch; §1.9 = apply the protected guard now, local) in the CLOSING block for next-session execution; set green-at `80c2144` (#778) = 67/67.
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (Active-session none, Status released, final heartbeat, Current-task rewritten to the released-sweep94 summary).
+- [`.working/session-metrics.md`](../session-metrics.md): added the sweep94 session row (~6h42m, 18 PRs + this handoff, ~40+ QA subagents; the exact subagent-token sum is not tallied this compaction-spanning session, per the measured-versus-not-instrumented discipline and the prior partial-measure precedent).
+- Batched PR #778's `/validate-pr` (0 blocking) row into [`validate-pr/history.md`](../validate-pr/history.md) and its `/retro` row into [`improvement-log.md`](../improvement-log.md).
+
+### Session summary (sweep94)
+
+18 PRs merged, all full per-PR QA, zero escaped defects: the loop-break Sweep 94 `/validate` (#761); a log-mining TODO population (#762); the maintainer-signed-off deep-assessment r1 items (R1/R3/F6 #763, R8a/F3 #764, R7 #765, R2 #766, R9 #767, R10 #768, R11 #769, R12 seven clusters #770-#776 closing §3.29); and the P1 residuals §1.5 #777 + §1.6 #778. Deep-assessment r1's reference-breadth (R12) and matrix-fit source-doc (R11) findings are fully discharged. New standing directive: resync `grc_library_ref` after each PR (ISO/IEC 5259 landed mid-session, now held). 
+
+### Wind-down rationale
+
+Maintainer-accepted handoff after §1.6, on a **bookkeeping-precision degradation signal**: the improvement-log `/retro` ledger-row-merge class recurred twice (R12 clusters 5 and 7) and §1.6 hit a multi-gate slip cluster (skipped artefact regen, non-`&&`-chained preflight, British `-ise`). ALL were caught pre-push by the read-back habit, the gates, and preflight; NOTHING shipped; every substantive citation/currency change was verifier-SHIP'd and `/validate-pr`-clean (content precision held with zero escapes throughout). The fraying was confined to the ancillary bookkeeping mechanics, so per the wind-down framework the remaining work moves to fresh context.
+
 ## 2026-07-10, Library Version 2026.07.266, PR #778
 
 Deep-assessment r1 P1 residual **§1.6** (EN 54 currency stamp), the eighteenth PR of the sweep94 session. A register-currency confirmation backed by an upstream check.
