@@ -508,13 +508,15 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ## Compliance
 
-The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, and the audit programme.
+The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, the audit programme, the AI jurisdiction annexes (EU AI Act, Colorado AI Act), and the reverse framework crosswalk (GDPR / EU AI Act / DORA / NIS 2 mappings).
 
 ### Annex
 
 - [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md) (maturity: Mature)
+- [Colorado AI and Automated Decision-Making Technology Regulatory Requirements](../ai/jurisdictions/annex-ai-us-colorado.md) (maturity: Draft)
 - [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md) (maturity: Draft)
 - [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) (maturity: Draft)
+- [European Union AI Regulatory Requirements](../ai/jurisdictions/annex-ai-european-union.md) (maturity: Draft)
 - [FedRAMP Sector Requirements Annex](../compliance/public-sector/annex-fedramp-requirements.md) (maturity: Draft)
 - [Financial Services Sector GRC Requirements Annex](../compliance/financial-services/annex-financial-services-sector-requirements.md) (maturity: Baseline)
 - [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
@@ -530,6 +532,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 ### Matrix
 
 - [GRC Library Compliance Alignment Matrix](../compliance/matrix-grc-compliance-alignment.md) (maturity: Mature)
+- [Reverse Framework Control Crosswalk Matrix](../governance/matrix-reverse-framework-control-crosswalk.md) (maturity: Baseline)
 
 ### Policy
 

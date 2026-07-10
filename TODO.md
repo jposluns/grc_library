@@ -148,10 +148,6 @@ The detailed-CHANGELOG `**Worker provenance:**` lines link the scratch-side mani
 
 Work the 13 `pending` EDPB / WP29 rows in the reference base's `publications/SCREENING.md` register through `/screen-publications` (per-item screen: provenance + integrity, the instruction-content scan, corroboration of load-bearing claims against held texts), flipping each to `screened` (or `quarantined` / `discard-candidate`), recorded as `grc_library_ref` PRs through the ref validation gate. Partitionable worker research (apply through validate-then-apply). Cross-references §3.18 (the inclusion decision follows this wave).
 
-### 3.21 Portal generator: emit `ai/jurisdictions/` + Compliance-audience reverse-crosswalk (deep-assessment r1 B-5 + R2, M)
-
-Two portal-generator ([`tools/build-portal.py`](tools/build-portal.py)) routing gaps that resolve as one generator change: (a) **B-5 (Sweep 92)** the audience-shaped generator never selects the `ai/jurisdictions/` subdirectory, so the AI jurisdiction annexes (EU AI Act #743, Colorado #749) do not appear in `docs/portal.md`; add an `ai/jurisdictions/` selector. (b) **R2 (r1 fitness)** the Compliance audience group is routed only to the nine-framework alignment matrix, not to `governance/matrix-reverse-framework-control-crosswalk.md` (which carries the GDPR / EU AI Act / DORA / NIS 2 mappings a CCO needs); tag the reverse crosswalk to the Compliance audience in the generator metadata. Regenerate the portal after; verify the AI annexes render and the Compliance audience lists the reverse crosswalk.
-
 ### 3.22 D7 handoff-snapshot version-token check defeated by the #746 restructure (deep-assessment Sweep-92, S)
 
 [`tools/check-handoff-snapshot-on-pr.py`](tools/check-handoff-snapshot-on-pr.py) (PR-time check D7) locates version tokens on the handoff's `Current truth` marker line, but the #746 restructure moved the tokens onto a separate `**Version snapshot (D7 validates these tokens):**` sub-line, so D7 validates 0 tokens and passes trivially. Fix: update D7's marker to locate the `Version snapshot` sub-line, re-confirm it flags a deliberately-stale token in a fixture, and keep the CLAUDE.md convention-guard note consistent.
@@ -254,10 +250,6 @@ The 13 governance rules total ~31,000 words always-on, with fixed per-rule scaff
 ### 4.9 Derived-skill coverage gap (GR-P5 residual, guardrail review 2026-07-02, L, S)
 
 `validate-inference-before-action` and `surface-counterproductive-instructions` have no derived skill (the strongest candidates for a workflow wrapper). The un-actioned remainder of the GR-P5 batch (GR-P5a re-point shipped; GR-P5b folded into §4.8; GR-P5c confirmed no-op at #713).
-
-### 4.10 `/deep-assessment` phase-3 instrument set + count-free reconcile (deep-assessment r1 R7, S; PROTECTED, maintainer-authorized 2026-07-10)
-
-The `/deep-assessment` SKILL step-3 list ([`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](dev-security/claude-rules/skills/deep-assessment/SKILL.md)), the SKILL description, and [`.claude/commands/deep-assessment.md`](.claude/commands/deep-assessment.md) hardcode seven phase-3 instruments and omit `/screen-publications` (added #722), violating the skill's own coverage obligation (the r1 run's phase 3 omitted it as a result). Add `/screen-publications` to the phase-3 invocation set (or record an explicit exclusion rationale), and reconcile the "count-free / inventory-deriving" design claim (in the SKILL's phase-3 / process narrative and the red-flags table) with the hardcoded step-3 list (derive the invocation set from the live command inventory minus a named exclude-list, or soften the count-free claim to scope-only). Protected pack edit; the maintainer authorized applying it overnight on the VM (2026-07-10), with a skeptical verifier.
 
 ---
 

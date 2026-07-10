@@ -108,9 +108,11 @@ AUDIENCES: list[tuple[str, str, list[dict]]] = [
     ),
     (
         "Compliance",
-        "The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, and the audit programme.",
+        "The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, the audit programme, the AI jurisdiction annexes (EU AI Act, Colorado AI Act), and the reverse framework crosswalk (GDPR / EU AI Act / DORA / NIS 2 mappings).",
         [
             {"domain": "compliance"},
+            {"path_prefix": "ai/jurisdictions/"},
+            {"title_regex": r"Reverse Framework"},
         ],
     ),
     (

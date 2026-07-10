@@ -30,6 +30,14 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #766: Deep-assessment r1 R2, portal generator emits `ai/jurisdictions/` + routes Compliance to the reverse crosswalk (closes TODO §3.21) (2026-07-10)
+
+The audience-shaped portal generator ([`tools/build-portal.py`](../tools/build-portal.py)) omitted the AI jurisdiction annexes (no audience selected an `ai`-domain `Annex`) and never routed the Compliance audience to the reverse framework crosswalk. Added an `ai/jurisdictions/` path-prefix selector and a `Reverse Framework` title selector to the Compliance audience; the regenerated `docs/portal.md` now lists the EU AI Act and Colorado AI Act annexes and the Reverse Framework Control Crosswalk under Compliance (closes the Sweep-92 B-5 gap and the r1 R2 finding as one generator change).
+
+### PR #765: Deep-assessment r1 R7, `/screen-publications` added to the `/deep-assessment` phase-3 set (closes TODO §4.10) (2026-07-10)
+
+Added `/screen-publications` (the publications-screening cadence shipped #722) to all four hardcoded phase-3 instrument lists in the `deep-assessment` SKILL and command, completed the `## See Also` with the previously-omitted `reference-audit` plus `publication-screening`, and reconciled the "count-free / inventory-deriving" claim with the obligation-synced named enumeration; pack `1.59.4` to `1.59.5`. (The TODO §4.10 rotation was missed in #765 itself and is completed here in #766, an in-window catch.)
+
 ### PR #759: Deep-assessment r1 matrix GRC-07 semantic-fit corrections (closes TODO §3.24) (2026-07-10)
 
 Corrected three compliance-matrix regulatory-mapping rows that carried off-subject GRC controls where GRC-07 (Information System Regulatory Mapping) is the on-point control: the Global Regulatory Applicability register (GRC-06 to GRC-07) and the Privacy Jurisdiction Index (GRC-03 to GRC-07) had their off-subject codes replaced, and the Compliance Obligations Template gained GRC-07 alongside its existing GRC-06 (which fits its obligation-ownership aspect). Held-verified by the r1 matrix-fit judge against the CCM v4.1 control titles.
