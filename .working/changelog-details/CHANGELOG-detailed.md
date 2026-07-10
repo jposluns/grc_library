@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.244, PR #756
+
+Maintainer-directed [`TODO.md`](../../TODO.md) restructure: split grouped items so each is one functional action / one distinct resolution path. No corpus document body changed.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) rewritten with clean per-priority renumbering and grouped-item splits, applying the maintainer's "one item, one functional action; group only very-similar-resolution-path bullets" rule (2026-07-10):
+  - **P1**: the old §1.5 (five reference-currency residuals) split into §1.5 (ICAO Doc 10026), §1.6 (EN 54 per-part), §1.7 (register-currency drift-check tool), §1.8 (ref-side WCO SAFE + CIP-015 corrections, kept together as one `grc_library_ref` PR).
+  - **P3**: the old §3.1 split into §3.1 (designation-debt tracker) + §3.2 (authoritative-standards register + gate, absorbing the generic-family carve-out); the old §3.15 (nine machinery bullets) split into §3.6-§3.12 plus §3.31 (r6 per-touch `/reference-audit` backstop, DEFERRED) and §3.32 (count-vs-enumeration close-candidate); the old §3.19 into §3.16 (root reformat) + §3.17 (per-PR sweep-step wiring); the old §3.25 (three items) into §3.21-§3.23; the old §3.1 tail's (severity, effort) convention-propagation task retained as §3.33; the deep-assessment r1 §3.26 (R1-R13) dissolved into individual items (§3.5 gate-31 future-date, §3.13 mutation-variant expansion, §3.21 portal B-5+R2, §3.24 matrix GRC-07, §3.25 matrix-fit source-doc pass, §3.26-§3.28 the three claim-precision fixes, §3.29 the reference-breadth clusters, §3.30 CI-hardening) with the non-P3 r1 items placed by home (R1 -> §5.9, R3 -> §6.3, R7 -> §4.10, R13 -> §4.7, R6 -> RB-R6, R8b -> §7.1).
+  - **P4**: §4.6/§4.7 split so GR-P2 (§4.8) and GR-P5 (§4.9) are separate, and the adopter items each stand alone.
+  - The reference-breadth R12 (27 recommendations) grouped per-domain-cluster (§3.29 sub-bullets), each cluster a coherent apply to those docs' framework-alignment tables.
+  - Closed-item residue was trimmed where it obscured the forward-looking items; the durable history stays in CHANGELOG/DONE/git.
+- Added the "One item, one functional action" standing convention and an effort-scale note to the header.
+- [`.working/deep-assessment/2026-07-10-r1.md`](../deep-assessment/2026-07-10-r1.md): the Status line corrected from "in-progress" to "signed-off (phases 1-8 complete)" (the #755 `/validate-pr` finding: the line was edited in #755 to fix the #754 stale-Status finding but left the value stale after the sign-off was recorded in the same PR).
+- Batched PR #755's `/validate-pr` (1 warning, fixed here) and `/retro` rows into [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.527` to `1.2.528`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.469` to `1.0.470`).
+
+### Verification
+
+- Full audit 67/67 on the restructured TODO (the intra-doc-ref, cross-file-section, todo-staleness, and P7-phrasing gates all scan TODO.md). Two stale internal cross-references the rewrite introduced were caught by a self-grep and fixed before commit (the old "§3.24 screening wave" -> "§3.20"; the RB-R6 closing claim cross-ref reworded to name only the genuinely R6-dependent claims). PR-time checks green.
+- A refute-briefed skeptical verifier CAUGHT two silently-dropped open items in the first-cut rewrite (r1 finding R7, the `/deep-assessment` `/screen-publications` phase-3 gap; and the r6 per-touch `/reference-audit` backstop that DONE.md records as open) plus three lower-severity items (a near-closed count-vs-enumeration candidate dropped without a DONE entry; the effort-convention propagation task dropped; a semantically-wrong `§3.28-adjacent` cross-reference the existence-only intra-doc gate would not catch). All were fixed before merge: R7 re-added as §4.10, the r6 backstop as §3.31, the count-vs-enumeration candidate as §3.32, the effort-convention task as §3.33, the cross-reference corrected to RB-R6; the dropped sweep-history standing convention was restored and SR-1's stale "51 needs-reconfirm rows" egress reference (pre-existing) reworded. The re-added items were grep-confirmed present with no duplicate `### N.M`.
+
 ## 2026-07-10, Library Version 2026.07.243, PR #755
 
 Deep-assessment r1 finding F1, a clear-mechanical in-window fix: the stale privacy jurisdiction-annex count.
