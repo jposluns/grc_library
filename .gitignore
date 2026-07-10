@@ -22,3 +22,6 @@ __pycache__/
 # Machine-local Claude Code session settings (per-machine additionalDirectories /
 # permissions overrides the detect-env.py fix lines name); never committed.
 .claude/settings.local.json
+
+# Local VM terminal-output mirror (Stop hook; never committed)
+claude-output.log

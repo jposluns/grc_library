@@ -3878,6 +3878,31 @@ class DocumentDateStalenessTests(LinterTestCase):
         finally:
             shutil.rmtree(synthetic_root, ignore_errors=True)
 
+    def test_future_dated_date_flagged(self) -> None:
+        # R8a: a metadata Date AFTER today (UTC) is impossible for a
+        # "last updated" field and must fail, even when the commit date
+        # is otherwise fine (the lag check alone leaves a future Date
+        # gate-invisible). A far-future date is used so the assertion is
+        # stable regardless of the day the suite runs; the commit is
+        # at/after the baseline so grandfathering does not apply.
+        import shutil
+
+        synthetic_root = self._build_synthetic_repo(
+            metadata_date="2099-01-01",
+            commit_date="2026-06-19T12:00:00Z",
+        )
+        try:
+            result = run_linter(
+                "tools/lint-document-date-staleness.py",
+                "--root",
+                str(synthetic_root),
+                "--baseline-date",
+                "2026-06-19",
+            )
+            self.assertLinterFails(result, "AFTER the current UTC date")
+        finally:
+            shutil.rmtree(synthetic_root, ignore_errors=True)
+
     def test_malformed_date_is_finding_not_skip(self) -> None:
         # A PRESENT but malformed Date (trailing annotation) must be a
         # FINDING, not a silent skipped_no_date (the GR-3 fail-loud
