@@ -179,7 +179,7 @@ def check_file(path: Path, entries: list[dict[str, object]]) -> list[tuple[int, 
                 # The optional "v?" admits a "v"-prefixed version label
                 # ("PCI DSS v4.0"), a citation style the bare separator group
                 # (":", "(", whitespace) otherwise missed; the continuation
-                # guard still protects the current "v4.0.1" (TODO 3.22 half b).
+                # guard still protects the current "v4.0.1".
                 pattern = re.compile(
                     rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
                     flags=re.IGNORECASE,

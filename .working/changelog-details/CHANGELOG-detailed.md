@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.249, PR #761
+
+Sweep 94 `/validate` close-out, the first PR of the 2026-07-10 sweep94 resumed session (attended-autonomous on the NUC). The loop-break corpus-wide `/validate` over the #753 through #759 window (the compensating control for session-closing handoff PR #760, which skipped its trailing `/validate-pr` and `/retro`): full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity), baseline 67/67 at `39d988a`/#760 (descendant of the closing session's asserted green-at `4115ada`/#759, no close-vs-start drift). Four findings, all fixed this PR; no finding contradicts an enumerated asserted-clean expectation.
+
+### Fixed
+
+- [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) (Version `1.0.12` to `1.0.13`), **A-1** (multi-surface-incompleteness, in-window): the framework-alignment summary table row at line 149 still read `| EU AI Act (2024) | Arts 65 to 74 | AI serious incident reporting |` after PR #758 corrected the same file's normative clause 8.4 from the over-broad "Article 65 to 74" to "Article 73". The table row was the sole live (non-`.working`, non-CHANGELOG) `65 to 74` carrier, so #758's own CHANGELOG completion claim was only partially true. Corrected the row to `Art 73` to match clause 8.4. This is the "Full-file-grep and parallel-case re-verification for prose corrections" class: a full-file grep of the touched file for the offending phrase at #758's commit time would have caught it.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), **B-1** (section-orphan cross-FILE, in-window): the `## Reference-version currency` section's closing line read "The version-currency register is TODO §1.5." The #756 one-item-one-action restructure reassigned the §1.5 slot from the (shipped) version-currency register to the ICAO Doc 10026 item, so the pointer was doubly stale (the register shipped in #505; §1.5 now denotes an unrelated item). Reworded to name the register as shipped in #505 (the `needs-reconfirm` sweep ran in #751) and to point at the P1 §1.5-§1.8 reference-currency residuals. Gate-exempt file (`.claude/` is outside gate 62/65's scan), so CI-invisible; caught only by the corpus-wide sweep grep. Protected-file edit applied on the local NUC in attended-autonomous mode.
+- [`tools/lint-standards-currency.py`](../../tools/lint-standards-currency.py), **C-1** (stale-docstring section-ref, out-of-window): the gate-6 linter comment `# guard still protects the current "v4.0.1" (TODO 3.22 half b).` false-resolved (§3.22 is now the D7 handoff-snapshot item after #756-era renumbers). Dropped the stale positional TODO-token; the guard is live code and needs no backlog pointer.
+- [`tools/residual-scan.py`](../../tools/residual-scan.py), **C-2** (stale-docstring section-ref, out-of-window): the module docstring `The GR-12 aid (TODO 3.15; guardrail review 2026-07-02).` false-resolved (§3.15 is now the MITRE ATLAS item). Dropped the stale positional `TODO 3.15` token, keeping the stable `GR-12` id and the guardrail-review date (preferring the stable id over the renumber-fragile positional token, per the TODO header convention).
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version `2.0.88` to `2.0.89`): added the Sweep 94 iter 1 row (4 findings, all fixed).
+- [`.working/validate-sweeps/2026-07-10-sweep94-iter1.md`](../validate-sweeps/2026-07-10-sweep94-iter1.md): new per-iteration detail file (six H2 sections, the three verbatim subagent returns + orchestrator synthesis).
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the `## Resume cursor` to Sweep 94; confirmed the handoff is already pruned to current (sweep93) plus one prior (sweep92), so the receiving-session prune is a verified no-op (sweep92 will be pruned when the sweep94 closing block is written).
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED for `claude/resume-sweep94-validate` (`Status: active`, fresh heartbeat, `Current-task` refreshed with the sweep94 session plan).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) Version bump (taxonomy first, then portal/scorecard; [`docs/portal.md`](../../docs/portal.md) was byte-identical). Both `--check` clean.
+
+### Verification
+
+- `tools/run_all_audits.sh`: **67/67** on the working tree and (to re-confirm) on the committed state; generator `--check` gates green.
+- A-1 residual: corpus-wide bare-token `grep "65 to 74"` (excluding `.working/` and CHANGELOG) returns zero live carriers post-fix.
+- Loop-break cross-check: the three subagents independently corroborated every enumerated asserted-clean expectation from the #753..#759 closing block (F1 26 files/3 surfaces; F12+§3.28 zero "Title" residual + Chapter II/V/IX citations consistent + Art 3(49) verbatim; §3.27 ISO §9.3 "planned intervals"; §3.24 GRC-07 on 3 rows; #756 no duplicate `### N.M`; four-surface parity 67; counts 67/13/21/14/18/26; generators in sync). No contradiction of a claimed-clean surface, so the loop-break compensating control for #760 PASSES.
+
+### Discipline observation
+
+All four findings are the section-orphan / multi-surface-incompleteness bookkeeping-precision class the prior session's wind-down explicitly anticipated (its recorded trigger was this class recurring 3x, with content precision holding). The loop-break sweep catching exactly this residual class validates both the wind-down decision and the fresh-context handoff: the residuals were caught by the designed compensating control, not shipped uncaught. Carried forward (not fixed, a maintainer-convention call): the `(was 3.24)` / `(was 3.22)` breadcrumb-collision Subagent C surfaced (a latent, not active, ambiguity, since the DONE ledger names the closed item), routed into the session's TODO-curation task where the maintainer is engaged.
+
 ## 2026-07-10, Library Version 2026.07.248, PR #760
 
 Session-closing handoff for the 2026-07-10 sweep93 session (#753 through #759). Working-state and bookkeeping only; no corpus document body changed. Lands the session's state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, per the session-lifecycle discipline.

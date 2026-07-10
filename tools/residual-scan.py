@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post-fix residual scan: find every carrier of a corrected token, full lines, no truncation.
 
-The GR-12 aid (TODO 3.15; guardrail review 2026-07-02). When a fix corrects a token
+The GR-12 aid (guardrail review 2026-07-02). When a fix corrects a token
 (a count, a title, a spelling, a value), the recurring miss is the SIBLING carrier:
 the named occurrence is fixed while another carrier of the same token survives in the
 same file or a parallel surface. The narrow-scan class recurred well past the GR-P3
