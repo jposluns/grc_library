@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.11\
-**Date:** 2026-07-09\
+**Version:** 1.0.12\
+**Date:** 2026-07-10\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -101,7 +101,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | UK | UK GDPR, DPA 2018 | ICO AI guidance; automated decision rights | Adequacy regulations, IDTA | £17.5M / 4% turnover |
 | Switzerland | nFADP/revDSG | Automated decision review; DPIA for high-risk | Adequacy (EU, UK); FDPIC SCCs; BCRs | CHF 250,000 (natural persons only) |
 | Canada | PIPEDA / CPPA (pending), Quebec Law 25, AIDA (pending) | Algorithmic transparency (CPPA, if enacted); automated decision review (QC Law 25); AIDA high-impact AI | Contractual safeguards; adequacy under CPPA (if enacted) | CAD 25M / 5% revenue (CPPA, if enacted); CAD 25M / 4% turnover (QC Law 25) |
-| United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT opt-out (CPRA); Colorado AI Act (effective date deferred to 2026-06-30, enforcement frozen pending litigation) | DPF (EU/UK); contractual (CCPA) | USD 7,500/violation (CCPA); USD 5,000/violation (BIPA class action) |
+| United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT opt-out (CPRA); Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending) | DPF (EU/UK); contractual (CCPA) | USD 7,500/violation (CCPA); USD 5,000/violation (BIPA class action) |
 | Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024) | BRL 50M per violation / 2% Brazil revenue |
 | Mexico | LFPDPPP (2025) | Privacy-notice transparency for automated processing; ARCO rights | Privacy-notice disclosure + consent (Arts. 35 and 36) | 320,000 UMA (up to 2x for sensitive data) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |

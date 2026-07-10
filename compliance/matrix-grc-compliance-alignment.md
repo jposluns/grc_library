@@ -2,11 +2,11 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.13\
+**Version:** 1.11.14\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
+**Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
 **Classification:** Public\
 **Category:** Compliance Management\
 **Review Frequency:** Annual and upon material regulatory or framework change\
@@ -99,8 +99,8 @@ This matrix is indicative only. It reflects the best available assessment of con
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Compliance | Policy: Compliance, Audit, and CAPA Management | [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) | GRC-06, GRC-07, A&A-05 | GRC-11 | §9.2, §9.3, §10.1, §10.2 | GV.OC, ID.IM | N/A | Programme governance | §9.2, §10 | N/A | IT controls review and testing |
 | Compliance | Register: Global Regulatory Applicability | [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md) | GRC-01, GRC-07 | N/A | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | Programme governance | §4.1, §6.1 | N/A | Management commitment |
-| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A | N/A | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
-| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](../compliance/logistics/register-basc-it-compliance-kpis.md) | A&A-04, GRC-07 | N/A | §9.1 | GV.OC, ID.IM | N/A | N/A | §9.1 | N/A | IT controls review and testing |
+| Compliance | Register: BASC IT and Information Security Responsibilities | [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md) | GRC-01, GRC-02 | N/A | §5.3, §6.1, §9.1 | GV.OC, GV.RM | N/A | N/A | §5.1, §6.1, §7.2, §7.5, §8.1, §8.3, §8.4, §8.5, §9.1, §9.2, §10 | Pillar II (Customs-to-Business; Standard 6) | All AEO-S IT requirement areas |
+| Compliance | Register: BASC IT Compliance Monitoring and KPIs | [`compliance/logistics/register-basc-it-compliance-kpis.md`](logistics/register-basc-it-compliance-kpis.md) | A&A-04, GRC-07 | N/A | §9.1 | GV.OC, ID.IM | N/A | N/A | §9.1 | N/A | IT controls review and testing |
 | Compliance | Annex: AEO-S IT and Cybersecurity Requirements | [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md) | IAM-01, SEF-01, DSP-01 | N/A | §5.3, §8.1, §9.1 | GV.OC, PR.AA, DE.CM | IT security requirements | IT security | §8.4, §8.5 | Pillar II (ICT security) | Access to IT systems; Information systems security; IT security incidents; Trade records retention |
 | Compliance | Policy: Legal and Regulatory Compliance | [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md) | GRC-01, GRC-06, GRC-07 | N/A | §4.1, §4.2, §6.1 | GV.OC, GV.RM | N/A | N/A | N/A | Pillar II (Customs-to-Business; AEO) | Customs compliance and AEO obligations |
 | Compliance | Standard: Internal Audit | [`compliance/standard-internal-audit.md`](standard-internal-audit.md) | A&A-01, A&A-02, A&A-03 | N/A | §9.2 | DE.AE, ID.IM | N/A | N/A | §9.2 | N/A | N/A |
