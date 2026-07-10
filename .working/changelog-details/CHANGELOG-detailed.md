@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.268, PR #780
+
+**Sweep 95 `/validate` close-out**, the first PR of the 2026-07-10 sweep95 resumed session (`claude/resume-sweep95-validate`, UNATTENDED DAYTIME on the VM). This is the loop-break compensating control for session-closing handoff PR #779 (which skipped its trailing `/validate-pr` + `/retro`): a corpus-wide `/validate` over the #761..#778 deltas, cross-checked against #779's Asserted-expectations. Full three-subagent dispatch on a 67/67 baseline at `bbbedfb`; non-shallow clone; pre-flight 410 files / 35 suppressed / 11 candidates all false-positive. Findings: **A** 1 fit-quality warning (routed), **B** 6 stale-positional-token warnings (fixed) + 1 note-cluster (left per convention), **C** 0; plus an orchestrator in-window bookkeeping catch (§3.5 rotation). No finding contradicts an asserted-clean #761..#778 surface, so the loop-break control for #779 PASSES. Detail: [`.working/validate-sweeps/2026-07-10-sweep95-iter1.md`](../validate-sweeps/2026-07-10-sweep95-iter1.md).
+
+### Fixed
+
+- **Stale positional TODO tokens (Subagent B, 6 misdirecting references, one class).** #756's one-item-one-action TODO restructure reused TODO slot numbers, so several gate-exempt tool docstrings and `.claude/` prose cited an OLD TODO number that now misdirects a reader to an unrelated live item. Fixed with stable closing-PR references (anti-fragile per TODO §3.4's intent):
+  - [`tools/lint-doctype-parity.py`](../../tools/lint-doctype-parity.py) lines 28/89/179/203: `TODO 3.23` (region-scoping, closed #729; slot reused for the open discoverability item) to `#729`.
+  - [`tools/detect-env.py`](../../tools/detect-env.py) line 4: `(TODO 3.18)` (env-detection, closed #724; slot reused for the open publications-bucket item) to `(#724)`; lines 13/102: `TODO 1.9 root cause` (hook-firing limitation, closed #677; slot reused for the open completion-verification-guard item) to `#677 root cause`.
+  - [`tools/audit-reference-acquisition-gaps.py`](../../tools/audit-reference-acquisition-gaps.py) lines 6/15: `TODO 3.20, closing TODO 2.14` (not-held-source detection, closed #718; slot reused for the open publications-screening wave) to `#718`.
+  - [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) line 175: `closed as TODO 1.9 in #677` to `closed as a documented harness limitation in #677`.
+  - [`.claude/commands/resume.md`](../../.claude/commands/resume.md) line 40: `(TODO 3.18)` to `(#724)`.
+  - The two `.claude/` edits are protected-tree factual-staleness one-liners, applied under the standing 2026-07-03 authorization (local-VM instance; repo root `/home/jposluns`, not the `/home/user` cloud sandbox), each logged here. The 5 non-misdirecting dangling-provenance notes (closed-not-reused numbers 1.5/1.11/2.11/2.14 in [`audit-reference-breadth.py`](../../tools/audit-reference-breadth.py), [`scan-publication-instruction-content.py`](../../tools/scan-publication-instruction-content.py), [`screen-publications.md`](../../.claude/commands/screen-publications.md), [`lint-external-link-domains.py`](../../tools/lint-external-link-domains.py), and [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) line 506) were LEFT per convention (they do not misdirect) and recorded as candidates for the open §3.4 positional-token-lint mechanization.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): **rotated §3.5** (deep-assessment r1 R8a, gate-31 future-dated-Date detection) out, since it was fully implemented in #764 (the future-date check, the `test_future_dated_date_flagged` fixture, and the §5 gate-31 narrative are all present) but never rotated to DONE; gate 57 did not fire because #764's CHANGELOG used no "closes §3.5" phrasing. **Rescoped §3.41** to add the LOG-12 loose-supporting row Subagent A surfaced (the matrix-fit residue item, itself a #769 product).
+- [`.working/DONE.md`](../DONE.md): added the §3.5 rotation entry keyed to PR #764 (rotation completed in this close-out).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): added the Sweep 95 iter 1 row; Version `2.0.89` to `2.0.90`.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the resume cursor to Sweep 95 iter 1. The sweep93 per-session block prune is DEFERRED to this session's closing handoff PR (where sweep93 is removed in one coherent refresh as the sweep95 block is added), matching the sweep94 precedent (which pruned at its close, #779); the file already holds exactly current + 1 prior (sweep94 + sweep93), so the bounded-size invariant already holds and no mid-session mega-edit of the load-bearing resume file was warranted.
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease for `claude/resume-sweep95-validate` (Active-session, Status active, fresh heartbeat, Current-task set to the sweep95 priority chain).
+
+### Verification
+
+- `tools/run_all_audits.sh` = 67/67 on the committed state; `tools/run-pr-time-checks.sh` clean (via the pre-push guard). No per-document corpus version bump (no corpus `.md` body changed; all edits are under `tools/`, `.claude/`, `.working/`, and [`TODO.md`](../../TODO.md)); generated artefacts unchanged (no corpus metadata changed), so no regeneration. `lint-language` clean on the edited pack files. Library CalVer + README Version bumped once for the PR.
+- Session-metrics (validation phase, this sweep): Subagent A ~228.8k, B ~215.6k, C ~189.6k subagent tokens (recorded at session close).
+
 ## 2026-07-10, Library Version 2026.07.267, PR #779
 
 **Session-closing handoff PR** for the sweep94 resumed session (`claude/resume-sweep94-validate`, #761-#778), the nineteenth and final PR of the session. Per the loop-break standing exception, this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 95) over the #761..#778 window, cross-checked against this handoff's Asserted-expectations block.

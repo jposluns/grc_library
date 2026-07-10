@@ -25,7 +25,7 @@ enumerates it, and the second linter's set must equal the canonical set exactly.
 The gate treats `lint-metadata.py` as the single source of truth; a surface that
 diverges is the failure, and the fix is to update the surface, never the gate.
 
-Region-scoping (TODO 3.23, closed): the name-cell and prefix checks are scoped to
+Region-scoping (added in #729): the name-cell and prefix checks are scoped to
 each surface's specific doctype table/list block, not the whole file, via
 `doctype_region` and the per-surface `NAME_REGION_ANCHOR` / `PREFIX_REGION_ANCHOR`
 maps. Each anchor is a heading (the block runs to the next same-or-shallower
@@ -86,7 +86,7 @@ def name_is_cell(text: str, name: str) -> bool:
     return False
 
 
-# Per-surface doctype-region anchors (TODO 3.23). Each enumeration check is scoped
+# Per-surface doctype-region anchors (#729). Each enumeration check is scoped
 # to the specific table/list block that carries the doctype vocabulary, not the
 # whole file, so a coincidental type word in an UNRELATED table (name-surfaces) or
 # a prefix inside a document-link filename elsewhere on the surface (prefix-
@@ -176,7 +176,7 @@ def main() -> int:
 
     # Check 3: name-cell surfaces. Every canonical type name must appear as a
     # table cell or list item in the surface's DOCTYPE REGION (region-scoped per
-    # TODO 3.23 to its enumeration block, so a type word in an unrelated table
+    # #729 to its enumeration block, so a type word in an unrelated table
     # elsewhere on the surface cannot false-pass the presence check).
     name_surfaces = {
         "README.md": "README `## Document types` table",
@@ -200,7 +200,7 @@ def main() -> int:
             )
 
     # Check 4: prefix-presence surfaces. Every canonical prefix must appear in the
-    # surface's DOCTYPE REGION (region-scoped per TODO 3.23, so a prefix inside a
+    # surface's DOCTYPE REGION (region-scoped per #729, so a prefix inside a
     # document-link filename elsewhere on the surface cannot false-pass; prefixes
     # are distinctive, so substring presence within the region is robust).
     prefix_surfaces = {

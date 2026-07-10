@@ -3,7 +3,7 @@
 reference base does NOT hold.
 
 WHAT THIS IS (and is NOT). An orchestrator dev-AID feeding the not-held-source
-direction of the /reference-audit cadence (TODO 3.20, closing TODO 2.14 spec item
+direction of the /reference-audit cadence (#718, closing the reference-audit spec item
 (d)), not an audit gate. It always exits 0 after printing its report (2 only on
 internal or usage error); CI cannot host it because the ground truth lives in the
 sibling private reference repo. Its companion `tools/audit-reference-breadth.py`
@@ -12,7 +12,7 @@ answers the CITED -> not-held direction (does the corpus cite a source we do not
 hold, so it is an acquisition candidate for the ref-base acquisition queue and the
 maintainer source-drop list).
 
-It is deliberately the tractable half of TODO 3.20's not-held-source problem. The
+It is deliberately the tractable half of the not-held-source problem (#718). The
 untractable half ("what authoritative sources exist upstream that we neither cite
 nor hold") a tool cannot know and stays judge-led and ad-hoc in the skill. This
 tool measures the KNOWN gap: the corpus's own canonical citations register

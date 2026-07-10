@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Execution-environment detection for session start (/resume step aid).
 
-WHAT THIS IS (and is NOT). An advisory orchestrator dev-AID (TODO 3.18), not a
+WHAT THIS IS (and is NOT). An advisory orchestrator dev-AID (#724), not a
 gate. It always exits 0 after printing its report (2 only on internal error). The
 project runs across materially-different execution environments (a managed cloud
 sandbox; the maintainer's local NUC) whose transport and tooling assumptions
@@ -10,7 +10,7 @@ CLI), the CI-poll and merge transport (GraphQL vs the REST fallback when the
 shared 5,000/hr GraphQL pool is exhausted, observed in #687), the stop-hook
 auto-commit-push (present in cloud, absent on the NUC), the pipe-guard PreToolUse
 hook (fires on the NUC; silent in cloud resumed sessions because
-``CLAUDE_PROJECT_DIR`` is unset there, the TODO 1.9 root cause), egress
+``CLAUDE_PROJECT_DIR`` is unset there, the #677 root cause), egress
 reachability per source family, and sibling-repo access. This tool probes what a
 SCRIPT can observe and prints one profile block the resume step consumes; the
 items only the assistant can observe from its own side (which MCP tools are in
@@ -99,7 +99,7 @@ def probe_hooks() -> dict:
         "CLAUDE_PROJECT_DIR_set": project_dir_set,
         # The hook command resolves the guard script through $CLAUDE_PROJECT_DIR.
         # When that var is unset IN THIS PROCESS the cloud harness fails to resolve
-        # it and the hook silently does not fire (the TODO 1.9 root cause); but the
+        # it and the hook silently does not fire (the #677 root cause); but the
         # NUC harness has been OBSERVED to fire the hook anyway (it resolves the path
         # for hook execution even when the var is absent from the Bash-tool env). So
         # actual firing is NOT reliably script-predictable across environments; it is

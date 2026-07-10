@@ -58,6 +58,10 @@ The audience-shaped portal generator ([`tools/build-portal.py`](../tools/build-p
 
 Added `/screen-publications` (the publications-screening cadence shipped #722) to all four hardcoded phase-3 instrument lists in the `deep-assessment` SKILL and command, completed the `## See Also` with the previously-omitted `reference-audit` plus `publication-screening`, and reconciled the "count-free / inventory-deriving" claim with the obligation-synced named enumeration; pack `1.59.4` to `1.59.5`. (The TODO §4.10 rotation was missed in #765 itself and is completed here in #766, an in-window catch.)
 
+### TODO §3.5: Deep-assessment r1 R8a, gate-31 future-dated-Date detection (closed by PR #764, rotation completed in the Sweep 95 close-out, 2026-07-10)
+
+Gate 31 (`lint-document-date-staleness.py`) was extended in #764 to also fail on a metadata Date dated after the current UTC date (a "last updated" field cannot be in the future), with a far-future regression fixture and the §5 gate-31 narrative updated. #764's CHANGELOG did not use a "closes TODO §3.5" phrasing, so gate 57 did not flag the missing rotation; Sweep 95 Subagent-adjacent triage caught the stale §3.5 heading and this close-out completes the rotation.
+
 ### PR #759: Deep-assessment r1 matrix GRC-07 semantic-fit corrections (closes TODO §3.24) (2026-07-10)
 
 Corrected three compliance-matrix regulatory-mapping rows that carried off-subject GRC controls where GRC-07 (Information System Regulatory Mapping) is the on-point control: the Global Regulatory Applicability register (GRC-06 to GRC-07) and the Privacy Jurisdiction Index (GRC-03 to GRC-07) had their off-subject codes replaced, and the Compliance Obligations Template gained GRC-07 alongside its existing GRC-06 (which fits its obligation-ownership aspect). Held-verified by the r1 matrix-fit judge against the CCM v4.1 control titles.

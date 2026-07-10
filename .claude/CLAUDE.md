@@ -172,7 +172,7 @@ drive end-to-end on the maintainer's behalf:
    [`.claude/hooks/block-verification-pipes.py`](hooks/block-verification-pipes.py)
    refuses the named verification commands piped to truncating sinks (defence in depth,
    not a substitute for the habit; incident seven ran unblocked in a worker-restarted
-   session, the hook-firing limitation later closed as TODO 1.9 in #677). Read the verification's own terminal
+   session, the hook-firing limitation later closed as a documented harness limitation in #677). Read the verification's own terminal
    PASS/FAIL line before relying on any chain. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
