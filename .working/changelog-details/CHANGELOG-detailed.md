@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.251, PR #763
+
+Deep-assessment r1 small corpus fixes, a velocity bundle (R1, R3, F6), the third PR of the sweep94 resumed session. A refute-briefed skeptical verifier returned SHIP (0 defects; all three held-verified against source, structurally correct, gate-clean).
+
+### Changed
+
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (Version `1.0.11` to `1.0.12`, Date to 2026-07-10), **R1**: the United States row's AI/ADMT cell headlined the superseded SB 24-205 "effective date deferred to 2026-06-30, enforcement frozen" detail. Refreshed to the operative forward regime: "Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending)". Verified against the held annex [`ai/jurisdictions/annex-ai-us-colorado.md`](../../ai/jurisdictions/annex-ai-us-colorado.md) (SB 24-205 repealed and re-enacted by SB 26-189; SB 26-189 applies to consequential decisions made on or after 1 January 2027; enforcement frozen pending litigation).
+- [`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) (Version `1.1.29` to `1.1.30`), **R3**: added a SOC 2 (Trust Services Criteria) row to §3 (regulations and frameworks referenced but not detailed), Coverage "Referenced" / Status "Deferred" (matching the sibling PCI DSS and SWIFT CSP rows). SOC 2 is named as a target attestation corpus-wide (the audit-evidence and regulator-interaction templates, the glossary, the maturity self-assessment) but no governance matrix maps the Trust Services Criteria to library documents, and the section previously omitted it.
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (Version `1.11.13` to `1.11.14`) and [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) (Version `1.0.13` to `1.0.14`), **F6**: canonicalized non-canonical `../compliance/` same-domain self-links per the README link-target convention (same-directory bare filename; subdirectory relative traversal). The matrix's 3 subdirectory file links dropped the `../compliance/` root round-trip (now `logistics/...`); the policy's 4 directory self-links to the compliance domain became the current-directory form `./`.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the four Version bumps (taxonomy first; [`docs/portal.md`](../../docs/portal.md) byte-identical). Both `--check` clean.
+- Batched PR #762's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.533` to `1.2.534`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.475` to `1.0.476`).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state; the link gate green (the `./` directory target resolves via `.exists()`); the language gate clean on the changed prose; generator `--check` clean.
+- A refute-briefed skeptical verifier (substantive tier) re-verified each change against its held source: R1's regime accurate and not overstated against the Colorado annex; R3's premise true (SOC 2 named corpus-wide, absent from every matrix incl. the reverse crosswalk) and the grade/columns/Notes correct; F6's targets resolve and are canonical per README:266, with no missed `../compliance/` self-link in either file. Verdict SHIP, 0 real defects.
+
+### Discipline observation
+
+The `](./)` current-directory link form F6 introduces has no prior corpus precedent (the verifier flagged this as a non-defect awareness note): the link gate (gate 3) accepts it because the check is `resolved.exists()`, not a file-only check, so a directory target passes. It is the canonical relative-to-current-dir form for a compliance/ file referencing the compliance/ domain, and it is gate-clean today; recorded here so that if a future link gate ever tightens to require file targets, these 4 lines surface with intent understood.
+
 ## 2026-07-10, Library Version 2026.07.250, PR #762
 
 Log-mining pass, the second PR of the sweep94 resumed session (attended-autonomous on the NUC). Maintainer-directed at the resume: review the improvement / hallucination logs, extract TODO-worthy improvements not yet captured, populate TODO, add an assessed-through marker, and propose cycling fully-mined old rows to scratch. Executed via the research-assistant discipline (a subagent mined and classified; the orchestrator verified every candidate against live files and authored the edits).
