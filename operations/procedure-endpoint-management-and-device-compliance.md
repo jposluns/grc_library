@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.6\
+**Version:** 1.3.7\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -299,12 +299,12 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 | Control Area | ISO/IEC 27001:2022 | NIST SP 800-124 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
-| Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | END-01 | DSS05.01 |
-| Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | END-02 | DSS05.03 |
-| Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | END-03 | DSS05.04 |
-| Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | END-04 | DSS05.05 |
-| Patch and vulnerability management | A.8.8 | §4.5 Patch Management | END-05, TVM-06 | DSS05.07 |
-| Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | END-01 | DSS05.03 |
+| Asset inventory and lifecycle | A.8.1 to A.8.3 | §4.1 Device Inventory | UEM-04 | DSS05.01 |
+| Endpoint protection deployment | A.8.7 | §4.2 Configuration Mgmt | UEM-09 | DSS05.03 |
+| Configuration compliance and hardening | A.8.9 | §4.3 Security Baseline | UEM-05 | DSS05.04 |
+| Policy-based access-control enforcement | A.5.15, A.8.2 | §4.4 Access Control | UEM-05 | DSS05.05 |
+| Patch and vulnerability management | A.8.8 | §4.5 Patch Management | UEM-07, TVM-06 | DSS05.07 |
+| Mobile and BYOD | A.8.1, A.6.7 | §4.6 Mobile Devices | UEM-01 | DSS05.03 |
 | Decommissioning and media sanitization | A.8.10 | §4.7 Disposal | DSP-02 | DSS05.06 |
 
 ---
