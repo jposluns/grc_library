@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.253, PR #765
+
+Deep-assessment r1 finding **R7** (a PROTECTED pack edit, maintainer-authorized to apply directly on the NUC with a skeptical verifier), the fifth PR of the sweep94 resumed session. The `/deep-assessment` skill's own coverage obligation says a newly-shipped quality instrument joins its phase-3 invocation set, but the phase-3 lists hardcoded a set that omitted `/screen-publications` (the publications-screening cadence shipped in #722), so the r1 run's phase 3 skipped it. A refute-briefed verifier reviewed the change (verdict SHIP).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](../../dev-security/claude-rules/skills/deep-assessment/SKILL.md): (a) the description parenthetical instrument list and (b) the phase-3 step-3 invoke list both gained `/screen-publications` (over the reference base's `pending` publications rows), placed after `/reference-audit` (both reference-base-facing). (c) The `## See Also` invoked-instruments list was completed: it had listed only six of the invoked instruments, omitting BOTH `reference-audit` and `screen-publications`; both are now linked ([`skills/reference-audit/SKILL.md`](../../dev-security/claude-rules/skills/reference-audit/SKILL.md) and [`skills/publication-screening/SKILL.md`](../../dev-security/claude-rules/skills/publication-screening/SKILL.md)). (d) The coverage-obligation paragraph gained a sentence reconciling the "inventory-deriving / count-free" design claim with the named phase-3 enumeration: count-free describes the SCOPE re-derivation of step 1 (nothing falls out of scope silently), while the phase-3 instrument list is a named enumeration the coverage obligation keeps synced with the live inventory (not auto-derived), so a newly-shipped instrument is added by the obligation, as this `/screen-publications` addition exercises.
+- [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the intro instrument parenthetical and the step-3 list both gained `/screen-publications`, matching the SKILL.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (pack Version `1.59.4` to `1.59.5`, Date to 2026-07-10): a new version-history row recording R7.
+- Batched PR #764's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.535` to `1.2.536`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.477` to `1.0.478`).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state. Gate 44 (paired-skill step parity) green: the edits added instruments WITHIN step 3, not a new step, so the SKILL/command step parity is unchanged.
+- `lint-language` clean on the edited SKILL and command prose (the new-pack-prose discipline, run before the first commit).
+- A refute-briefed verifier confirmed: `/screen-publications` is a real shipped command with the correct whole-project shape (pending publications), both new See Also links resolve, all four hardcoded lists now include `/screen-publications` consistently with no missed carrier, the reconciliation sentence is coherent and does not contradict the description's "no edit to this skill" scope claim (that claim is about SCOPE-derivation, which the reconciliation makes explicit), and no stale instrument-count word remains.
+- Taxonomy/portal/scorecard regeneration was a no-op (the pack README's pack-version field is not a taxonomy-tracked value), so no generated-artefact change.
+
+### Discipline observation
+
+The See Also had silently omitted `reference-audit` as well as `screen-publications`; completing it with both (rather than only the R7-named `screen-publications`) was the coherent fix for "the See Also must match the invoked-instrument set", surfaced while applying R7. This is the coverage obligation the SKILL states, applied to its own See Also surface.
+
 ## 2026-07-10, Library Version 2026.07.252, PR #764
 
 Gate 31 improvements (deep-assessment r1 items R8a + F3) plus small backlog bookkeeping and the NUC-local output-log wiring, the fourth PR of the sweep94 resumed session. A refute-briefed skeptical verifier reviewed the gate-logic change pre-push.
