@@ -209,6 +209,10 @@ The `/retro` register ([`.working/improvement-log.md`](.working/improvement-log.
 
 The #756 one-item-one-action restructure left `(was X.Y)` breadcrumbs on renumbered TODO items to keep older references resolvable "for one cycle". Two of those numbers were then REUSED by post-#756 items that have since closed: `(was 3.24)` on §3.20 (Publications screening) collides with the matrix GRC-07 item that reused number 3.24 post-restructure and was closed by #759 (now in [`.working/DONE.md`](.working/DONE.md)); `(was 3.22)` on §3.19 collides with the live §3.22 (the D7 handoff-snapshot item). The DONE ledger names each closed item, so this is a latent ambiguity, not an active defect. A cycle has passed (the sweep94 `/resume`), so the served breadcrumbs can be dropped, or the reuse-collision otherwise resolved. Maintainer-convention call (the `(was X.Y)` mechanism is the maintainer's). Surfaced by Sweep 94 Subagent C. Mined 2026-07-10.
 
+### 3.38 Broaden gate-39 count-idiom coverage (log-mining #272/#465, mechanizable half, S)
+
+Extend the gate-count-consistency audit ([`tools/lint-gate-count-consistency.py`](tools/lint-gate-count-consistency.py), gate 39) count-idiom detection to catch more count-claim phrasings (e.g. `N audits`, additional spelled-word-form numbers) so a stale collection-count in those phrasings is caught mechanically, with a regression fixture per new idiom. This is the **mechanizable half** of the recurring #272/#465 improvement-log candidate. Maintainer disposition (2026-07-10): "do what we can, enhance where possible, drop what won't work": the mechanizable gate-39 idiom-broadening is pursued here; the **free-prose-rule-count half** (parsing an arbitrary `the N governance rules` prose sentence, which no count gate can reliably do) is inherently un-gateable and is **DROPPED** (recorded, not pursued). Scope to gate 39's existing pattern family; do not attempt free-prose parsing. Mined 2026-07-10 (sweep94 log-mining pass).
+
 ---
 
 ## Priority 4 — Adopter experience

@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.252, PR #764
+
+Gate 31 improvements (deep-assessment r1 items R8a + F3) plus small backlog bookkeeping and the NUC-local output-log wiring, the fourth PR of the sweep94 resumed session. A refute-briefed skeptical verifier reviewed the gate-logic change pre-push.
+
+### Added
+
+- [`tools/lint-document-date-staleness.py`](../../tools/lint-document-date-staleness.py), **R8a** future-dated-Date detection: a new `--max-future-days` argument (default 0) and a check that fails when a metadata Date is more than that many days AFTER the current UTC date. The lag-only check left a future-dated Date gate-invisible (a Date ahead of the commit is not a lag). The future check compares the Date to today (UTC), NOT to the commit date, so a working-tree Date freshly bumped to today is never a false positive even when the file's last commit is older; and it runs before the baseline grandfather skip so a future Date on an old-commit file is still caught. The failure output is a distinct section from the lag findings.
+- A regression fixture [`tests/test_linters.py`](../../tests/test_linters.py) `DocumentDateStalenessTests.test_future_dated_date_flagged`: a synthetic repo with a far-future metadata Date (`2099-01-01`, date-stable) and an at-baseline commit, asserting the linter fails with "AFTER the current UTC date". The five existing gate-31 tests still pass (the change is backward-compatible: past/present Dates are unaffected).
+- [`TODO.md`](../../TODO.md) §3.38: broaden the gate-39 ([`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py)) count-idiom coverage, the mechanizable half of the #272/#465 log-mining candidate. Maintainer disposition 2026-07-10 ("do what we can, enhance where possible, drop what won't work"): the gate-39 idiom-broadening is pursued; the free-prose-rule-count half (parsing an arbitrary "the N governance rules" sentence) is inherently un-gateable and is DROPPED, recorded not pursued.
+- A `claude-output.log` entry in [`.gitignore`](../../.gitignore): the maintainer-directed NUC-local terminal-output mirror. A `Stop` hook appends each turn's main-thread assistant text (plus one-line tool summaries) to a repo-root `claude-output.log` for `tail -f` scroll-back. The hook is wired ONLY in the gitignored .claude/settings.local.json (absent from any cloud clone, so it never runs on a cloud container) and the hook script lives outside the repo under the user home (`~/.claude/hooks/`), so the corpus footprint is this one `.gitignore` line. The extractor was dry-run-verified against the live transcript (accurate text + tool-summary extraction; the per-session cursor makes it incremental).
+
+### Fixed
+
+- [`tools/lint-document-date-staleness.py`](../../tools/lint-document-date-staleness.py), **F3**: an invalid-escape `SyntaxWarning` (a backslash-backtick sequence in the module docstring's description of the tolerated trailing line-break) was resolved by doubling the backslash. Confirmed absent from the interpreter's warning output post-fix.
+
+### Changed
+
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (Version `1.16.62` to `1.16.63`): the §5 grouped-list gate-31 narrative now records the future-date check alongside the existing lag and malformed-Date behaviours (per the audit-gate-change-completeness guard, since the detection logic changed; gate 31 has no separate §6 detailed-prose paragraph, gate 64 requiring that only for gates 35+).
+- Module docstring summary updated to describe the future-date behaviour.
+- Batched PR #763's `/validate-pr` (0 findings) row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.534` to `1.2.535`) and its `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.476` to `1.0.477`).
+
+### Verification
+
+- `tools/run_all_audits.sh`: 67/67 on the working tree and committed state (gate 31 clean on the corpus: no future-dated Dates exist; the new message confirms "none is dated after today (UTC)").
+- Gate-31 regression class: all 6 tests pass, including the new future-date test; the change is backward-compatible with the five existing tests.
+- Functional test: a synthetic doc dated 120 days ahead was flagged (exit 1); a today-dated doc with an older commit was NOT flagged (no working-tree false positive). SyntaxWarning confirmed gone under `python3 -W all`.
+- The output-log hook was dry-run-verified (328 turns extracted from the live transcript with clean tool summaries; a second run was incremental, 328 to 330, no re-log); the settings.local.json JSON validated with `jq -e`.
+
+### Discipline observation
+
+R8a is a case where the finding's literal wording ("fail on a Date after the commit date") would have been wrong: comparing the metadata Date to the commit date flags every working-tree edit whose Date is bumped to today but whose last commit is older. The correct, false-positive-free semantics is "Date after today (UTC)", which is what a future-dated "last updated" field actually violates. Interpreting the finding's intent over its literal text (and verifying no false positive on the working tree) is the surface-counterproductive-instructions discipline applied to a routed self-finding.
+
 ## 2026-07-10, Library Version 2026.07.251, PR #763
 
 Deep-assessment r1 small corpus fixes, a velocity bundle (R1, R3, F6), the third PR of the sweep94 resumed session. A refute-briefed skeptical verifier returned SHIP (0 defects; all three held-verified against source, structurally correct, gate-clean).
