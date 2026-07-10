@@ -4,7 +4,11 @@
 For every Markdown file under corpus scope that carries a canonical
 ``**Date:**`` metadata field, compare the Date value to the file's
 most-recent git commit date (committer date). Fail when the metadata
-Date is more than ``--max-lag-days`` behind the commit date.
+Date is more than ``--max-lag-days`` behind the commit date, OR when
+the Date is more than ``--max-future-days`` AHEAD of the current UTC
+date (a "last updated" Date cannot be in the future; the future-date
+check compares to today, not the commit date, so a working-tree Date
+freshly bumped to today is never a false positive).
 
 This audit catches a class of defect that no other gate catches: a
 file's content was edited in a commit, but the per-document ``Date``
@@ -27,7 +31,7 @@ How the audit decides what is in scope:
      the metadata audit uses (corpus directories plus the repo-root
      meta files). Override via positional arguments.
   2. Inside each scanned file, the linter looks for a metadata Date
-     field of the form ``**Date:** YYYY-MM-DD`` (trailing ``\`` line
+     field of the form ``**Date:** YYYY-MM-DD`` (trailing ``\\`` line
      break tolerated) via the shared metadata parser in
      ``lint_common``. Files without a Date field are skipped (and the
      skip count is reported); a file whose Date field is PRESENT but
@@ -87,10 +91,12 @@ resolved from the configured scan paths, not from external input.
 Exit codes:
 
     0   every in-scope file's metadata Date is within
-        ``--max-lag-days`` of its most-recent commit date, or no
+        ``--max-lag-days`` of its most-recent commit date and no more
+        than ``--max-future-days`` ahead of today (UTC), or no
         in-scope files were found / had Date metadata (bootstrap
         pass).
-    1   one or more staleness findings.
+    1   one or more findings: a stale Date (lags the commit date), a
+        future-dated Date (ahead of today), or a malformed Date value.
     2   internal error (a subprocess failed unexpectedly).
 """
 
@@ -203,6 +209,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--max-future-days",
+        type=int,
+        default=0,
+        help=(
+            "Maximum whole days the metadata Date may LEAD the current "
+            "UTC date. Default 0: a Date after today is a finding (a "
+            "document cannot have been updated in the future). Compared "
+            "to today, not to the commit date, so a freshly-bumped "
+            "working-tree Date is never a false positive."
+        ),
+    )
+    parser.add_argument(
         "--baseline-date",
         type=datetime.date.fromisoformat,
         default=DEFAULT_BASELINE_DATE,
@@ -303,7 +321,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     root: Path = args.root.resolve()
     max_lag_days: int = args.max_lag_days
+    max_future_days: int = args.max_future_days
     baseline_date: datetime.date = args.baseline_date
+    # "Today" for the future-date check is the current UTC date, matching the
+    # project's UTC date convention. Compared to the metadata Date directly
+    # (never to the commit date), so a working-tree Date freshly bumped to
+    # today is not flagged even when the file's last commit is older.
+    today_utc: datetime.date = datetime.datetime.now(datetime.timezone.utc).date()
 
     # Resolve scan paths against --root.
     scan_paths = [root / p for p in args.paths]
@@ -313,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     findings: list[tuple[str, datetime.date, datetime.date, int]] = []
+    future_findings: list[tuple[str, datetime.date, int]] = []
     malformed: list[tuple[str, str]] = []
     scanned = 0
     skipped_no_date = 0
@@ -341,6 +366,13 @@ def main(argv: list[str] | None = None) -> int:
         if metadata_date is None:
             skipped_no_date += 1
             continue
+        # Future-dated Date check (R8a): a Date after today (UTC) is impossible
+        # for a "last updated" field. Compared to today, not the commit date,
+        # and evaluated before the baseline grandfather skip so a future Date on
+        # an old-commit file is still caught.
+        future_lead = (metadata_date - today_utc).days
+        if future_lead > max_future_days:
+            future_findings.append((rel, metadata_date, future_lead))
         commit_date = get_file_commit_date(f, repo_root=root)
         if commit_date is None:
             skipped_no_history += 1
@@ -372,7 +404,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
 
-    if scanned == 0:
+    if scanned == 0 and not future_findings:
         print(
             f"OK: no files with both a metadata Date and a git "
             f"commit history were found under {len(scan_paths)} "
@@ -380,34 +412,57 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    if not findings:
+    if not findings and not future_findings:
         print(
             f"OK: {scanned} file(s) checked; "
             f"all metadata Dates are within {max_lag_days} day(s) "
-            f"of the file's most-recent commit date. "
+            f"of the file's most-recent commit date and none is dated "
+            f"after today (UTC). "
             f"Skipped: {skipped_no_date} with no Date field, "
             f"{skipped_no_history} with no git history."
         )
         return 0
 
-    findings.sort(key=lambda row: (-row[3], row[0]))
-    print(
-        f"FAIL: {len(findings)} document(s) carry a metadata Date "
-        f"that lags the file's most-recent commit date by more than "
-        f"{max_lag_days} day(s)."
-    )
-    print(
-        "Each entry shows: file | metadata Date | most-recent commit "
-        "date (UTC) | lag (days)."
-    )
-    for rel, mdate, cdate, lag in findings:
-        print(f"  {rel} | {mdate.isoformat()} | {cdate.isoformat()} | {lag}")
-    print(
-        "\nRemediation: bump the document's `**Date:**` metadata "
-        "to the current date (and its `**Version:**` per the "
-        "ingestion specification's disposition rules) in the same "
-        "commit that changed the document's content."
-    )
+    # One or both finding classes are non-empty; report each present class.
+    if future_findings:
+        future_findings.sort(key=lambda row: (-row[2], row[0]))
+        print(
+            f"FAIL: {len(future_findings)} document(s) carry a metadata "
+            f"Date AFTER the current UTC date ({today_utc.isoformat()}); a "
+            f"'last updated' Date cannot be in the future."
+        )
+        print(
+            "Each entry shows: file | metadata Date | days ahead of today."
+        )
+        for rel, mdate, lead in future_findings:
+            print(f"  {rel} | {mdate.isoformat()} | +{lead}")
+        print(
+            "\nRemediation: correct the `**Date:**` to the date the "
+            "document was actually last updated (today, in UTC, if the "
+            "change is current)."
+        )
+        if findings:
+            print()
+
+    if findings:
+        findings.sort(key=lambda row: (-row[3], row[0]))
+        print(
+            f"FAIL: {len(findings)} document(s) carry a metadata Date "
+            f"that lags the file's most-recent commit date by more than "
+            f"{max_lag_days} day(s)."
+        )
+        print(
+            "Each entry shows: file | metadata Date | most-recent commit "
+            "date (UTC) | lag (days)."
+        )
+        for rel, mdate, cdate, lag in findings:
+            print(f"  {rel} | {mdate.isoformat()} | {cdate.isoformat()} | {lag}")
+        print(
+            "\nRemediation: bump the document's `**Date:**` metadata "
+            "to the current date (and its `**Version:**` per the "
+            "ingestion specification's disposition rules) in the same "
+            "commit that changed the document's content."
+        )
     return 1
 
 
