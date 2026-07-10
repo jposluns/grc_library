@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.12\
+**Version:** 1.4.13\
 **Date:** 2026-07-10\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -140,7 +140,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 | Time synchronization | §8.15.3 | SP 800-92 §4.2 | DSS01.03 | LOG-06 | SOX |
 | Central collection and retention | §8.15.5 | CSF Detect | DSS05.02 | LOG-02 | NIS 2 Directive |
 | Access and protection | §8.15.7 | SP 800-53 AC-6 | DSS05.04 | LOG-04 | Privacy laws |
-| AI system traceability | N/A | AI RMF | DSS05.06 | LOG-12 | ENISA AI Certification Scheme |
+| AI system traceability | N/A | AI RMF | DSS05.06 | LOG-09 | ENISA AI Certification Scheme |
 | Monitoring and alerting | §8.16 | CSF Respond | DSS05.03 | LOG-03 | Incident reporting laws |
 | BASC trade logging | N/A | N/A | N/A | N/A | BASC v6, WCO SAFE, ISO 28000 |
 

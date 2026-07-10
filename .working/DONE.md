@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #781: Deep-assessment r1 R11 residue §3.41, matrix-fit loose-supporting reconciliation + an invalid CCM code family (closes TODO §3.41) (2026-07-10)
+
+Closed §3.41 via a held-source-verified control-fit remap across 6 corpus docs plus the compliance matrix: the loose-supporting rows (media-handling DSP-07 to DSP-04/DSP-10/DCS-04/DSP-02, library-quality COBIT APO01 to APO11 "Managed Quality", logging LOG-12 to LOG-09) and the two matrix-vs-per-doc divergences (threat-modelling CCC-06 dropped to match the doc's TVM-04; media-handling matrix set reconciled to DSP-04/DCS-05/DSP-02). A held-source judge caught two mis-attributions beyond the routed scope, both fixed: an entire invalid `END-01`..`END-05` CCM family in the endpoint doc (the real endpoint domain is `UEM`, a §3.40-class correctness defect the existence gates skip) remapped to UEM controls, and `CEK-14` "Key Destruction" mis-cited on the media digital-transfer row corrected to `CEK-03` "Data Protection". The two stale paired surfaces in the doc-index register were updated; §3.40 gained the END family as its second confirming instance.
+
 ### PR #778: Deep-assessment r1 §1.6, EN 54 series currency confirmed + stamped (closes TODO §1.6) (2026-07-10)
 
 The EN 54 fire-detection register row was `needs-reconfirm`; confirmed upstream that EN 54 is an active CEN/TC 72 series (25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011), and the corpus cites it only at series level (BMS overlay annex + doc-index register), so stamped the row `verified 2026-07-10` at series level rather than enumerating 25+ parts the corpus does not cite at part level. Also added TODO §3.42 (the ISO/IEC 5259 + AI-governance new-ingest reference-breadth pass surfaced by the post-PR ref-repo resync).
