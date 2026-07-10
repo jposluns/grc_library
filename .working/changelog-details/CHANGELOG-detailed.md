@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-10, Library Version 2026.07.248, PR #760
+
+Session-closing handoff for the 2026-07-10 sweep93 session (#753 through #759). Working-state and bookkeeping only; no corpus document body changed. Lands the session's state on `main` as a green merge so the next session's `/resume` rebuilds from `main`, per the session-lifecycle discipline.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): prepended the sweep93 `## Next actions` CLOSING block, refreshed the `## State snapshot` to the sweep93 close state, and prepended the sweep93 `## Asserted expectations` block; pruned to keep current (sweep93) plus one prior (sweep92), deleting the sweep91 blocks. The next-actions queue records the remaining actionable r1 items (R1 §5.9, R3 §6.3, F3, F6, R8a §3.5 small; R7 §4.10, R2 §3.21, R11 §3.25, R12 §3.29, R9 §3.30, R10 §3.13 delicate-at-scale) plus the maintainer-only RB-R6 and §7.1, all with the maintainer's standing sign-off.
+- [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED (`Active-session: none`, `Status: released`, fresh heartbeat, `Current-task` refreshed).
+- [`.working/session-metrics.md`](../session-metrics.md) (Version `1.0.45` to `1.0.46`): the sweep93 row (measured 3,511,909 subagent tokens across 17 subagents; wall-clock ~3h10m; 7 PRs + this handoff; orchestrator tokens `not instrumented`, never fabricated).
+- Batched PR #759's `/validate-pr` (0 findings) and `/retro` rows into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version `1.2.531` to `1.2.532`, which also carries the #760 handoff-exemption row) and [`.working/improvement-log.md`](../improvement-log.md) (Version `1.0.473` to `1.0.474`).
+
+### Verification
+
+- Green-at `4115ada` (#759) = 67/67; #760 is working-state + version-surface + CHANGELOG only, so `main` stays 67/67 at #760's descendant merge (verify post-merge).
+- Per the loop-break, this closing PR takes no trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #753 through #759 delta window, cross-checked against the handoff `## Asserted expectations` block. The `/validate-pr` history carries the #760 row marked `SKIPPED` + `handoff-PR exception` in its Findings cell (the gate-50-recognized handoff marker).
+- Session summary: zero escaped defects across the seven merged PRs; the deep-assessment r1 is complete and signed off; the wind-down was on the recorded §N-orphan degradation trigger, not depth or a felt state.
+
 ## 2026-07-10, Library Version 2026.07.247, PR #759
 
 Deep-assessment r1 matrix GRC-07 semantic-fit corrections (§3.24 R4), a single-file three-row control-code fix.
