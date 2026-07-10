@@ -2,8 +2,8 @@
 
 **Document Title:** Quality Assurance and Testing Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-10\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -125,7 +125,7 @@ AI model testing is governed by the AI Testing, Validation and Documentation Sta
 | ISO 9001:2015 | §8.6: Release of Products and Services | Quality gate and release requirements |
 | ISO/IEC 27001:2022 | Annex A.8.29 | Security testing in development |
 | COBIT 2019 | BAI03: Manage Solutions Identification and Build | Solution quality assurance |
-| CSA CCM v4.1 | SEF-06: Testing and Quality Assurance | Cloud software testing controls |
+| CSA CCM v4.1 | CCC-02: Quality Testing | Cloud software testing controls |
 | NIST SP 800-53 | SA: System and Services Acquisition Family | Software assurance controls |
 
 ---

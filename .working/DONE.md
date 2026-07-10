@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #769: Deep-assessment r1 R11, `/matrix-fit` source-doc semantic-fit pass (closes TODO §3.25) (2026-07-10)
+
+Ran `/matrix-fit` over the 27 source-doc framework-table rows the r1 pass deferred; two refute-briefed judges surfaced 12 held-verified valid-but-wrong-control mismatches (SEF-06->CCC-02, I&S-09/SEF-01->LOG codes, CCC-06/CCC-04->TVM-04, DSP-02->DSP-08, DSP-07->DCS-05/DSP-02), all fixed in-window, plus an invalid `ISM-xx` code family (8 instances cited as CSA CCM in 2 docs) remapped to real CCM controls; routed the gate blind-spot to §3.40 and the loose-supporting residue to §3.41.
+
 ### PR #767: Deep-assessment r1 R9, CI workflow hardening (closes TODO §3.30) (2026-07-10)
 
 Hardened [`.github/workflows/quality.yml`](../.github/workflows/quality.yml) per the project's own CI/CD-gates and supply-chain rules: added a least-privilege top-level `permissions: contents: read` block (the lint job is read-only) and SHA-pinned both GitHub actions (`actions/checkout` to `34e1148…` # v4, `actions/setup-python` to `a26af69…` # v5, real SHAs fetched via `gh api`) with version comments. A follow-on TODO (§3.39) tracks the Dependabot-vs-manual refresh decision so the SHA-pins do not silently rot.
