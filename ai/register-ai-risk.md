@@ -2,7 +2,7 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-07-11\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -59,7 +59,7 @@ Each AI risk entry must contain the following fields:
 | **Privacy** | AI system processes or exposes personal data beyond declared purpose or in violation of privacy laws |
 | **Safety** | AI system behaviour, especially an action-capable or autonomous system, endangers human life, health, physical safety, property, or the environment (ISO/IEC 23894 A.10; NIST AI RMF Safe characteristic) |
 | **Performance** | AI model accuracy degrades to the point of causing operational or compliance failures |
-| **Compliance** | AI system fails to meet applicable regulatory requirements (EU AI Act, GDPR, AIDA, etc.) |
+| **Compliance** | AI system fails to meet applicable regulatory requirements (EU AI Act, GDPR, the Treasury Board Directive on Automated Decision-Making, etc.) |
 | **Governance** | AI system lacks adequate documentation, oversight, or lifecycle controls |
 | **Environmental and Sustainability** | The energy, carbon, and water footprint of training or operating the AI system imposes a material environmental cost that is not measured or weighed (ISO/IEC 23894 A.5) |
 

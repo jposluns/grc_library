@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.10\
-**Date:** 2026-07-05\
+**Version:** 1.1.11\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -33,7 +33,7 @@ In the event of conflict, higher layers take precedence.
 | Obligation | Jurisdiction | Relevance |
 | --- | --- | --- |
 | PIPEDA / Bill C-27 / Quebec Law 25 | Canada | Personal data processing, breach notification, data residency |
-| Canada Artificial Intelligence and Data Act (AIDA) | Canada | AI system governance, high-impact AI risk classification |
+| Canada AI governance (Treasury Board Directive on Automated Decision-Making; Voluntary Code of Conduct on Generative AI; AIDA lapsed) | Canada | AI system governance; high-impact AI (AIDA not in force; the Treasury Board Directive on Automated Decision-Making is binding on federal institutions) |
 | Criminal Code of Canada (cybercrime provisions) | Canada | Unauthorized access, data destruction |
 | State and provincial breach notification laws | Multiple | Customer and partner data exposure |
 | GDPR (Article 3 extraterritorial scope) | EU | Where EU data subjects are processed |
@@ -112,7 +112,7 @@ Requirements include: documented cybersecurity programme; password and access co
 
 ### 5.4 AI regulation
 
-Canada's AIDA requires: risk classification of AI systems; algorithmic impact assessments before deployment; transparency and explainability; retention of compliance records. Treat as near-term compliance target. Refer to the AI and agentic development security standard for AI security requirements.
+Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The in-force Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Were AIDA reintroduced and enacted, it would describe risk classification of AI systems, algorithmic impact assessments before deployment, transparency and explainability, and retention of compliance records. Refer to the AI and agentic development security standard for AI security requirements.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** AI-Specific Risk Methodology Annex\
 **Document Type:** Annex\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-11\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](procedure-risk-assessment-methodology.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -33,7 +33,7 @@ AI risks span multiple enterprise risk categories. This annex organizes them int
 | **Transparency and Explainability** | Legal and Regulatory; Strategic | Inability to explain AI decisions to affected parties, regulators, or courts; opacity in high-stakes decisions |
 | **Security and Adversarial** | Cybersecurity | Prompt injection; model extraction; training data poisoning; API abuse; output manipulation |
 | **Privacy** | Privacy | Training data privacy violations; inference attacks; re-identification; unlawful data use in training |
-| **Regulatory and Legal** | Legal and Regulatory | EU AI Act classification obligations; AIDA compliance; sector-specific AI regulation; liability for automated decisions |
+| **Regulatory and Legal** | Legal and Regulatory | EU AI Act classification obligations; Canadian AI-governance obligations (Treasury Board Directive on Automated Decision-Making; AIDA lapsed); sector-specific AI regulation; liability for automated decisions |
 | **Dependency and Concentration** | Supplier; Resilience | Over-reliance on single AI provider; model API unavailability; third-party AI supply chain risks |
 
 ---
@@ -143,7 +143,7 @@ The following events must trigger an unscheduled AI risk review:
 | Regulation | Key AI Risk Obligations | Applicability |
 |---|---|---|
 | **EU AI Act** | Risk-tiered obligations; prohibited systems list; high-risk system requirements; conformity assessment | EU market; global operators with EU users |
-| **AIDA (Canada)** | Risk mitigation for high-impact AI systems; transparency; algorithmic impact assessments | Canadian operations; Canadian personal data |
+| **Canada (Treasury Board Directive on Automated Decision-Making in force; AIDA lapsed)** | Algorithmic impact assessment and transparency for federal automated decision systems; AIDA's proposed high-impact AI regime lapsed at the 2025-01-06 prorogation and is not in force | Canadian operations; Canadian personal data |
 | **UK AI approach** | Principles-based; sector regulator-led; cross-sector AI Safety Institute oversight | UK operations and markets |
 | **GDPR / UK GDPR** | Automated decision-making rights (Article 22); purpose limitation in training data; Data Protection Impact Assessments for AI | Processing EU/UK personal data |
 | **CPPA (Canada, proposed)** | Algorithmic transparency obligations; automated decision explanation rights | Canadian personal data processing |

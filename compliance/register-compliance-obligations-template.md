@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.12\
-**Date:** 2026-07-06\
+**Version:** 1.0.13\
+**Date:** 2026-07-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -116,7 +116,7 @@ Populate the register across the following obligation categories. Each category 
 | **Data Protection and Privacy** | GDPR, UK GDPR, PIPEDA, PIPL, LGPD, Quebec Law 25 | High |
 | **Information Security** | ISO 27001, NIST CSF, sector-specific cybersecurity regulations | High |
 | **Trade and Customs Compliance** | CTPAT, PIP, AEO-S, BASC, NEEC, OEA, WCO SAFE, import/export regulations | High |
-| **AI and Algorithmic Systems** | EU AI Act, AIDA, proposed national AI regulations | High |
+| **AI and Algorithmic Systems** | EU AI Act, Canadian AI instruments (Treasury Board Directive on Automated Decision-Making; AIDA lapsed), proposed national AI regulations | High |
 | **Employment and Labour Law** | Employment standards legislation per jurisdiction | Medium |
 | **Financial Compliance** | Anti-money laundering, financial reporting, tax obligations | Medium |
 | **Environmental and Sustainability** | Environmental reporting, emissions disclosure, TCFD | Medium |

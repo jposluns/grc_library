@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.15\
-**Date:** 2026-07-10\
+**Version:** 1.3.16\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -144,7 +144,7 @@ Where the organization participates in a sector-specific security programme (for
 
 Note: ISO/IEC 27002:2022 reorganized the previous 2013 edition's 14 control clauses (5-18) into four themes covering 93 controls (clause 5 Organizational, 6 People, 7 Physical, 8 Technological). Citations elsewhere in the corpus that use 2013-style chapter numbers (9 to 18) refer to the superseded edition.
 
-**Additional alignments:** ISO 28000:2022; PIPEDA; AIDA. Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2025 edition) apply where the organization participates in those programmes; see [`compliance/`](../compliance/).
+**Additional alignments:** ISO 28000:2022; PIPEDA; the Treasury Board Directive on Automated Decision-Making (AIDA lapsed). Sector-specific overlays including BASC International Standard (v6 2022) and WCO SAFE Framework (2025 edition) apply where the organization participates in those programmes; see [`compliance/`](../compliance/).
 
 
 
