@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security and Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-11\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/procedure-identity-management.md`](../security/procedure-identity-management.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -192,6 +192,23 @@ At minimum, each AI system should maintain:
 ## 6. Compliance notes
 
 This standard does not establish legal compliance or certification. It defines a reusable security and risk baseline. Adopting organizations must validate requirements against applicable laws, sector obligations, contracts, deployment architecture, data categories, and risk appetite.
+
+---
+
+## 7. Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.2.1-1 (Principle 5, Secure Development) | Asset inventory and ownership (Section 4.1) |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.2-2 and 5.1.3-1 (Principles 2 and 3, Secure Design) | Design to withstand adversarial attacks, and threat management for data poisoning, model inversion, and membership inference (Section 4.5) |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.4-1 and 5.1.4-3 (Principle 4, Secure Design) | Human oversight (Section 4.8) |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.2.3-1 (Principle 7, Secure Development) | Supplier and supply-chain controls (Section 4.9) |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.5.1-2 (Principle 13, Secure End of Life) | Secure decommissioning and data or model disposal (Section 4.11) |
+| NIST AI 100-2e2025 | Adversarial machine-learning taxonomy | Model and data attack resistance (Section 4.5) |
+| ISO/IEC 42001:2023 | Clause 8: Operation | AI security controls within the AI management system |
+| ISO/IEC 27001:2022 | Annex A | Information-security controls underpinning AI security |
+| NIST AI RMF (2023) | MEASURE and MANAGE functions | AI risk measurement and treatment |
+| OWASP LLM Top 10 | LLM-specific vulnerabilities | Prompt, retrieval, and tool security (Sections 4.4 and 4.5) |
 
 ---
 

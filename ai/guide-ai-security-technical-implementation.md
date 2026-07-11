@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Technical Implementation Guide\
 **Document Type:** Guide\
-**Version:** 1.3.2\
-**Date:** 2026-07-02\
+**Version:** 1.3.3\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -297,6 +297,8 @@ Consult your cloud provider's policy framework documentation for the exact JSON/
 ---
 
 ## A3. Secure prompt engineering patterns
+
+These patterns map to the CSA AICM v1.1.0 controls: structural isolation (A3.1) and session-scoped context (A3.4) to AIS-15 Prompt Differentiation; structured output enforcement (A3.2) and safe AI output insertion (A3.5) to AIS-10 Output Validation; the tool allow-list pattern (A3.3) to AIS-11 Agents Security Boundaries, with AIS-13 AI Sandboxing where tools execute in isolated environments.
 
 ### A3.1 Structural isolation (required template)
 
@@ -622,6 +624,8 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 - **promptfoo**: Prompt testing and evaluation framework (open source)
 - **NIST AI RMF**: AI risk management framework
 - **OWASP GenAI Security Project**: genai.owasp.org
+- **NIST SP 800-218A**: Secure Software Development Practices for Generative AI and Dual-Use Foundation Models; model scanning (PW.7.2) and provenance via a software bill of materials and Supply-chain Levels for Software Artifacts (PS.3.2)
+- **CSA AICM v1.1.0**: AI Controls Matrix; the A3 patterns map to AIS-10, AIS-11, AIS-13, and AIS-15
 
 ---
 
