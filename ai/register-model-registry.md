@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.5\
-**Date:** 2026-07-02\
+**Version:** 0.0.6\
+**Date:** 2026-07-11\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -61,7 +61,10 @@ Each model entry is one row keyed by Model ID. Mandatory fields:
 | Training compute | Approximate compute used, where disclosed |
 | Energy and emissions | Where disclosed; supports the sustainability framework |
 | Lineage | Predecessor and successor model identifiers |
+| Dependencies | Models, data sources, and operational components the model depends on |
 | Owner role | Role accountable for the model |
+| Model developer | Team or role that developed the model, or, for an external model, the supplier |
+| Model reviewer | Role that independently reviewed the model's conceptual soundness and performance, distinct from the developer |
 | Approving authority | Role that approved promotion to production |
 | Tier | AI system tier classification per the AI governance and risk framework |
 | Use cases | Cross-reference to AI System Register entries that depend on this model |
@@ -69,6 +72,7 @@ Each model entry is one row keyed by Model ID. Mandatory fields:
 | Deployment environments | Where the model is deployed (cloud, edge, embedded) |
 | Inference endpoints | Internal endpoint identifiers in private use |
 | Risk classification | EU AI Act risk class where applicable; internal risk classification |
+| Model risk rating | Inherent model-risk tier from quantitative and qualitative criteria, recorded as provisional or confirmed |
 | Impact assessment reference | Cross-reference to the AI System Impact Assessment |
 | Privacy classification | Personal-data exposure profile |
 | Security classification | Per the data classification standard |
@@ -80,6 +84,7 @@ Each model entry is one row keyed by Model ID. Mandatory fields:
 | Last evaluation date | |
 | Next evaluation due | |
 | Retirement plan | Conditions under which the model is retired |
+| Decommissioned-model retention | Where the retired model is kept as a benchmark or fallback, the retention window and its basis |
 | Customer-facing transparency | Whether the model is disclosed to end users (per the privacy notice and EU AI Act Article 50) |
 
 ---
@@ -144,6 +149,7 @@ For each model, the registry records two lineage chains:
 | NIST AI RMF | MAP, MEASURE, MANAGE | Risk-management functions |
 | ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline |
 | ISO/IEC 23894:2023 | AI risk management | Risk integration |
+| OSFI Guideline E-23 (2025, effective 2027) | Model risk management: inventory information (Appendix 1), risk rating, independent review | Model-risk governance, adopted sector-neutrally |
 | OECD AI Principles | Transparency and accountability | Governance reference |
 | Model card pattern | Mitchell et al. 2019 | Model documentation |
 | Datasheets for datasets | Gebru et al. 2018 | Dataset documentation |

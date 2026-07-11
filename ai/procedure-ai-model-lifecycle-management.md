@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-10\
+**Version:** 1.0.4\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -93,6 +93,10 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 4.5 The performance thresholds referenced in 4.3 (and the retraining threshold in 5.1) are defined per model, the metric, the floor value, and the accountable owner, and are recorded in the model's entry in the AI System Inventory at deployment; a model with no recorded threshold does not enter production. This turns "defined thresholds" from an assumption into a deployment obligation, aligned with ISO/IEC 42001 Section 9 (performance evaluation).
 
+4.6 For deployments that apply automated continuous learning without human interaction, an automated rollback process is enabled at defined performance thresholds, defaulting to a safe alternative model on a threshold breach (ISO/IEC 5338:2023 Section 6.4.14, continuous validation).
+
+4.7 Contingency plans for model unavailability, performance deterioration, or outright failure, with the associated escalation procedures, are defined and recorded.
+
 ---
 
 ## 5. Retraining and model updates
@@ -129,6 +133,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 - [ ] Model monitoring disabled and alerts removed.
 - [ ] AI System Inventory status updated to Decommissioned.
 - [ ] Decommission record retained for audit purposes.
+- [ ] Where the retired model may serve as a benchmark or fallback, the model and its documentation are retained for a defined period before disposal.
 
 7.3 Training data and model artefacts containing personal data are disposed of per privacy obligations and the Records Retention and Destruction Standard.
 
@@ -140,7 +145,8 @@ Applies to all AI models and machine learning systems developed internally, proc
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI model lifecycle governance |
 | ISO/IEC 42001:2023 | §10: Improvement | Model performance monitoring and improvement |
-| ISO/IEC 5338:2023 | AI system life cycle processes | AI system lifecycle process model |
+| ISO/IEC 5338:2023 | AI system life cycle processes; §6.4.14 continuous validation | AI system lifecycle process model and automated rollback |
+| OSFI Guideline E-23 (2025, effective 2027) | Model risk management: inventory, review triggers, decommission retention, unavailability contingency | Model-risk lifecycle governance, adopted sector-neutrally |
 | EU AI Act (2024) | Article 9: Risk Management System | Ongoing AI risk management |
 | NIST AI RMF (2023) | GOVERN, MAP, MEASURE, MANAGE functions | End-to-end AI lifecycle |
 | COBIT 2019 | BAI09: Manage Assets | AI asset lifecycle management |

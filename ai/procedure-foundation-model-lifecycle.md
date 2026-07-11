@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.4\
-**Date:** 2026-07-05\
+**Version:** 0.0.5\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md)\
@@ -158,6 +158,27 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 ---
 
+## Generative-AI risk classes
+
+Beyond the supplier-facing risks above, a foundation model carries the generative-AI risk classes of NIST AI 600-1 (the Generative AI Profile). Assess each class for the deployment and record the applicable mitigations in the AI System Register and the risk register:
+
+| Risk class (NIST AI 600-1) | Mitigation direction |
+| --- | --- |
+| CBRN information or capabilities | Capability evaluations and red-teaming for chemical, biological, radiological, and nuclear uplift; refusal and content filters; restricted access for high-risk domains |
+| Confabulation | Output grounding and retrieval, confidence signalling, human verification of consequential claims, factuality regression tests in the evaluation suite |
+| Dangerous, violent, or hateful content | Content-safety classifiers, refusal policies, adversarial red-teaming, incident escalation |
+| Data privacy | Minimization and filtering of personal data in training data and prompts, output privacy checks, de-identification, retention controls |
+| Environmental impacts | Track training and inference compute and energy; efficiency measures; report per the inference-cost-governance standard |
+| Harmful bias or homogenization | Bias evaluation across affected groups, diverse data and review, monitoring for representational harm and output homogenization |
+| Human-AI configuration | Disclose AI interaction, guard against over-reliance and automation bias, design human oversight, avoid inappropriate anthropomorphization |
+| Information integrity | Provenance and labelling of synthetic content, misinformation-resistance evaluation, source attribution |
+| Information security | Secure the model supply chain, adversarial-attack testing, guard against offensive-capability uplift and expanded attack surface |
+| Intellectual property | Training-data provenance and licensing, output-similarity checks, indemnity where the model is externally sourced |
+| Obscene, degrading, and/or abusive content | Detection and blocking of child sexual abuse material and non-consensual intimate imagery, content filters, legal-escalation paths |
+| Value chain and component integration | Track upstream third-party components and their provenance, supplier due diligence, the AI System Register dependency fields |
+
+---
+
 ## Operating expectations
 
 1. Foundation-model selection is approved by the AI Governance Council with a documented Go decision.
@@ -174,6 +195,8 @@ If the version transition is involuntary (provider deprecates the prior version 
 | ISO/IEC 42001:2023 | §8 operation; §8.4 documentation; §9 performance evaluation | AI management system |
 | EU AI Act | Articles 26 (deployer obligations), 50 (transparency), 53 (general-purpose AI obligations) | Foundation-model regulation |
 | NIST AI RMF | All four functions | AI risk management |
+| NIST AI 600-1 | Generative AI Profile: the generative-AI risk classes | Generative-AI risk taxonomy |
+| ISO/IEC 5338:2023 | §6.4.14 continuous validation | Automated rollback for continuous-learning deployments |
 | ISO/IEC 23894:2023 | AI risk management | Risk integration |
 | OECD AI Principles | All five values | Foundational principles |
 | Hiroshima Process on Generative AI | Voluntary code of conduct for advanced AI | Provider expectations |
