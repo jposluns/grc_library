@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.295, PR #807
+
+AI gaps-and-expansion workstream, CHANGELOG nested-link cleanup plus the #806 `/validate-pr` Finding 1 consistency fix (TODO 3.44, part 1 of 2). Batches the #806 `/validate-pr` and `/retro` rows. Library `2026.07.294` to `2026.07.295`.
+
+### Fixed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): two pre-existing malformed nested markdown links in historical (early-PR) entries, the project-instruction-file references that a prior bare-code-span global replace had corrupted into the nested `[[ code ]( url )]( url )` form, restored to the well-formed single-link form. This is a maintainer-authorized edit to shipped historical entries (the maintainer directed folding the TODO 3.44 nested-link cleanup into this session); no other historical entry text changed.
+
+### Changed
+
+- [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md) (`1.1.11`->`1.1.12`): the #806 `/validate-pr` Finding 1, the section 5.4 sentence grouped the voluntary federal Voluntary Code of Conduct on Generative AI under "the in-force Canadian instruments"; tightened the umbrella to "the current Canadian instruments" (the parenthetical "(binding on federal institutions)" / "(voluntary)" per-instrument tags are unchanged), matching the four sibling AIDA carriers #806 wrote and the canonical annex's distinction between "in force" and "voluntary".
+- [`TODO.md`](../../TODO.md): the §1.10 residual bullet gains a note that four neutral bare-`AIDA` registry cells are correctly left, for optional "(lapsed)" annotation in the follow-up. TODO 3.44 remains open for its part 2 (the preventive gate).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.577`->`1.2.578`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.517`->`1.0.518`): the batched #806 `/validate-pr` history row (with Finding 1 marked fixed here) and `/retro` row.
+
+### Verification
+
+- The two nested links were the exact `[[ ... ]( ... )]( ... )` shape the #802 pre-push verifier first caught and reverted in-scope; these are the two that survived in unrelated early-PR historical entries. Post-fix `grep -nF '[[' CHANGELOG.md` returns zero. The single-link target resolves (the referenced file exists); the link-coverage gate stays green.
+- The section-5.4 tightening changes no load-bearing claim (AIDA still lapsed; the Directive still binding, the Code still voluntary); it is a one-word umbrella-precision fix.
+- Quick-fix / cleanup tier (two mechanical link reverts plus a one-word umbrella tightening): no standing skeptical verifier per the tier guidance; mechanically verified (zero `[[` residual by grep, link resolution, full 67-gate audit green). Pre-push guard green.
+
 ## 2026-07-11, Library Version 2026.07.294, PR #806
 
 AI gaps-and-expansion workstream, AIDA and EO-14110 corpus-accuracy reconcile (advances TODO §1.10): stale live-framing of the lapsed AIDA and the rescinded EO-14110 corrected across eight non-privacy corpus documents. Batches the #805 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.293` to `2026.07.294`.
