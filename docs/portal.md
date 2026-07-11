@@ -516,6 +516,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 ### Annex
 
 - [BASC Programme Overview Annex](../compliance/logistics/annex-basc-programme-overview.md) (maturity: Mature)
+- [Canada AI Regulatory Requirements](../ai/jurisdictions/annex-ai-canada.md) (maturity: Draft)
 - [Colorado AI and Automated Decision-Making Technology Regulatory Requirements](../ai/jurisdictions/annex-ai-us-colorado.md) (maturity: Draft)
 - [DORA Implementation Annex](../compliance/financial-services/annex-dora-implementation.md) (maturity: Draft)
 - [Energy and Utilities Sector Requirements Annex](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) (maturity: Draft)
