@@ -6,9 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.303, PR #815
+
+AI gaps-and-expansion workstream PR 9 (A5), the value-and-decision-governance cluster; completes the workstream's content builds (PR 1 through 10). Library `2026.07.302` to `2026.07.303`.
+
+### Added
+
+- [`ai/framework-ai-value-and-decision-governance.md`](../../ai/framework-ai-value-and-decision-governance.md) (`0.0.1`): new Framework. Sections: Purpose (value and decision quality as governance evidence, distinct from the accountability/risk framework and the process-maturity framework); Scope (with explicit out-of-scope hand-offs to A4, framework-ai-governance-and-risk, the cost-governance standard, and the model-lifecycle procedure); the three-tier value-maturity ladder (Production / Scaled / Transformation) as a governance signal, tabled with the evidence a reviewer inspects and explicitly NOT the CMMI capability ladder; the idea-stage AI use-case decision record (fixed KPIs, named accountable owner, anticipated audit requirements, each cross-referencing the existing corpus construct rather than redefining it); workflow embedding and per-deployment-surface adoption tracking as post-deployment governance evidence (a genuinely new construct A5 owns); the green-vs-brown-dollars benefits taxonomy (net-new value versus cost avoidance, explicitly financial not environmental); Framework alignment; Limitations.
+
+### Changed
+
+- [`ai/README.md`](../../ai/README.md) (`1.1.12`->`1.1.13`) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.81`->`1.27.82`): listing rows for the new Framework.
+- [`TODO.md`](../../TODO.md) §2.2: updated to mark all PR 1-10 content builds COMPLETE (A5 = PR 9; A6c = PR 10 / #809), with only the maintainer-invoked fresh-session closing `/deep-assessment` remaining; §2.2 stays open for that step only.
+- In-window fix for the #814 `/validate-pr` LOW finding: the #814 records misnamed the repointed sweep-model citation's section as §3.14 (ETSI); the actual repoint was in §3.36 (improvement-log cycle-to-scratch). Corrected `§3.14`->`§3.36` in [`CHANGELOG.md`](../../CHANGELOG.md), this detailed mirror, [`.working/DONE.md`](../DONE.md), and [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.585`->`1.2.586`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.525`->`1.0.526`): the batched #814 `/validate-pr` and `/retro` rows.
+
+### Verification
+
+- Held-source grounding (research subagent + orchestrator re-read): the CMU SEI AI Adoption Maturity Model v1.0 is HELD (`grc_library_ref/frameworks/SEI/`), copyright-restricted with partial-re-use-with-attribution authorized (2026-07-04); its five-level progression (Exploratory / Implemented / Aligned / Scaled / Future Ready) corroborates the three-tier value ladder as a governance signal. It is cited by reference only, not reproduced, reusing A4's exact reference-only disclaimer phrasing.
+- The "Pilot to Production" playbook (the value-delivery seed) is NOT held; A5 is authored as original governance constructs, with the playbook cited by reference as origin only and no content reproduced. This resolves the pending A5 decision toward authoring-as-original (the maintainer's complete-2.2 direction).
+- Corpus-fit: A5 is a new standalone Framework (zero content overlap with framework-ai-governance-and-risk; distinct value/decision axis from A4's process-maturity axis); the green-vs-brown taxonomy has zero corpus collision (no environmental-"green" content), and a one-line financial-not-environmental definition is included; the accountable-owner, KPI, audit, and cost constructs are cross-referenced, not duplicated.
+- All new/changed docs Version+Date co-bumped (A5 0.0.1; ai/README 1.1.13; register 1.27.82; all 2026-07-11); taxonomy/portal/scorecard regenerated (A5 present). All 68 audit gates pass.
+- Substantive tier (new citable Framework): one refute-briefed skeptical verifier pre-push.
+
+### Discipline observation
+
+- A sequencing error was caught and recovered mid-work: #814 (the prior PR) was pushed but not opened/merged before the A5 branch was cut from main, stranding #814's changes on its branch. Recovery: committed the A5 WIP, opened and merged #814, then rebased the A5 branch onto the #814-inclusive main (clean, disjoint files). Recorded so the pre-branch-cut merge-confirmation step is reinforced.
+
 ## 2026-07-11, Library Version 2026.07.302, PR #814
 
-Working-state bookkeeping (no corpus or protected file changed). Closes TODO §3.17 (per-PR sweep-step wiring), which #813 satisfied by adding the advisory detailed-mirror-sweep close-out bullet to [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md); rotated to [`.working/DONE.md`](../DONE.md). This is also the in-window fix for the #813 `/validate-pr` finding: #813 deleted deferred-protected-changes item 7, but TODO §3.17's body still pointed at it, so closing §3.17 (deliverable done) removes the dangling reference. The [`TODO.md`](../../TODO.md) §3.14 body's `§3.16/§3.17` sweep-model citation was repointed to §3.16, and a new TODO §3.46 tracks the `/retro` lesson (extend the §N-orphan close-out guard with a reference-key-width clause so an `item N` reference is grepped, not only `§N`). Batches the #813 `/validate-pr` and `/retro` rows ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.584`->`1.2.585`, [`.working/improvement-log.md`](../improvement-log.md) `1.0.524`->`1.0.525`). Library `2026.07.301` to `2026.07.302`.
+Working-state bookkeeping (no corpus or protected file changed). Closes TODO §3.17 (per-PR sweep-step wiring), which #813 satisfied by adding the advisory detailed-mirror-sweep close-out bullet to [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md); rotated to [`.working/DONE.md`](../DONE.md). This is also the in-window fix for the #813 `/validate-pr` finding: #813 deleted deferred-protected-changes item 7, but TODO §3.17's body still pointed at it, so closing §3.17 (deliverable done) removes the dangling reference. The [`TODO.md`](../../TODO.md) §3.36 body's `§3.16/§3.17` sweep-model citation was repointed to §3.16, and a new TODO §3.46 tracks the `/retro` lesson (extend the §N-orphan close-out guard with a reference-key-width clause so an `item N` reference is grepped, not only `§N`). Batches the #813 `/validate-pr` and `/retro` rows ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.584`->`1.2.585`, [`.working/improvement-log.md`](../improvement-log.md) `1.0.524`->`1.0.525`). Library `2026.07.301` to `2026.07.302`.
 
 ## 2026-07-11, Library Version 2026.07.301, PR #813
 

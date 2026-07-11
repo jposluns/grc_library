@@ -351,6 +351,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Model Documentation and Transparency Framework](../ai/framework-ai-model-documentation-and-transparency.md) (maturity: Baseline)
 - [AI Model Risk Framework](../ai/framework-ai-model-risk.md) (maturity: Baseline)
 - [AI System Audit and Certification Framework](../ai/framework-ai-system-audit-certification.md) (maturity: Baseline)
+- [AI Value and Decision-Governance Framework](../ai/framework-ai-value-and-decision-governance.md) (maturity: Draft)
 - [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
 - [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
 - [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
