@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.310, PR #822
+
+Session-resume close-out for the sweep97 resumed session (the maintainer-invoked whole-project `/deep-assessment` session, opened fresh-context per the deep-assessment discipline). Records the loop-break corpus-wide `/validate` **Sweep 97**, the compensating control for the #821 session-closing handoff PR (which skipped its trailing `/validate-pr` and `/retro`). Bookkeeping only (no corpus document body changed). Library `2026.07.309` to `2026.07.310`.
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.91`->`2.0.92`): added the **Sweep 97 iter 1** row over the **#790..#821** delta window (the 2026-07-11 sweep96 session: AI gaps-and-expansion workstream PR 1-10 incl. gate 68, corpus-accuracy reconciles, all P1 §1.7-§1.11 closes, §2.2/§3.17/§3.46, the §4.8 pack-hygiene consolidation, the new §1.1). Full three-subagent dispatch (A recent-PR deep review, B corpus-wide stale-reference sweep, C audit-programme integrity). Mechanical baseline **68/68** at `10cff59`/#821, a descendant of the closing session's asserted green-at `68f1aa3`/#820 (no close-vs-start drift); clone non-shallow. Pre-flight scanner: 418 files, 35 suppressed, 11 candidates, ALL false positives (the collection-count-word class). **A: 0 / B: 0 / C: 0 findings** (0 error / 0 warning / 0 note). Zero-finding iteration, so no per-iteration detail file (row only).
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the **Resume cursor** to Sweep 97 (gate 45 reads it); PRUNED to keep current plus one prior per `## Refresh and pruning discipline`, deleting the sweep94 Next-actions PRIOR block and the sweep94 Asserted-expectations block (their content is durably recorded in this mirror, [`DONE.md`](../DONE.md), the sweep history, and git; migrate-before-delete confirmed, no un-recorded load-bearing item lost).
+- [`.working/pending-decisions.md`](../pending-decisions.md): marked the **§1.10** Canada AIDA-replacement mapping decision **RESOLVED** (maintainer confirmed at this resume: Quebec Law 25 s.3.3/12.1 primary plus TBS Directive s.6.1 federal analogue, AIDA lapsed; no corpus change). The two upstream date-verification items stay open for an egress-capable instance.
+- [`TODO.md`](../../TODO.md) §4.8: recorded the **standing pack-hygiene worker-ping reminder obligation** (remind the maintainer the gated worker needs a go-ahead after `/deep-assessment` finishes and whenever phase 1 GR-P2 merges), and updated the §4.8 note to reflect the consolidated scratch drop now merged at `inbox/claude-pack-hygiene/` (the GR-345 GR-P3/P4/P5a-already-applied-via-#727 status folded in).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.592`->`1.2.593`): added the **#821 handoff-exemption row** (`SKIPPED (handoff-PR exception)` in the Findings cell). The #821 session-closing handoff PR omitted its own exemption row, so gate 50 (bookkeeping-parity) flagged it the moment this #822 entry demoted #821 from highest-numbered, the recurring handoff-no-row miss (the #445/#450 lesson). Adding the row here, at the resumed session's first PR, is the loop-break compensating control working as designed.
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease for this session (`Active-session: claude/resume-sweep97-validate`, `Status: active`, fresh heartbeat).
+- [`README.md`](../../README.md): library CalVer `2026.07.309`->`2026.07.310`, README Version `1.9.670`->`1.9.671`.
+
+### Verification
+
+- The full audit suite is green (68 of 68 gates) at the pre-sweep baseline and re-confirmed on this bookkeeping branch; the D-checks pass via the pre-push guard.
+- **Sweep 97 loop-break control for #821 PASSES**: every asserted-clean touched surface from the #821 closing session was corroborated by at least one subagent, 0 contradicted; Subagent A held-verified the new-AI-document citations against the reference base, B refuted the closed-section-orphan / term-drift / count-drift classes corpus-wide, C confirmed four-surface parity plus the detailed-prose / docstring / regression-fixture set at gate 68 and collection counts 13/21/14/18. No escaped defect from the closing session.
+- Subagent coverage limits (recorded, not findings): A did not deep-verify the NIST AI 600-1 / OWASP AIMA attributions or the maturity-model / value-governance / board-oversight / synthetic-content-provenance citation sets, nor TBS dates against a primary source; these are ordinary in-scope surfaces whose per-PR QA is the record and which the whole-project `/deep-assessment` (r2, next) covers more thoroughly.
+
 ## 2026-07-11, Library Version 2026.07.309, PR #821
 
 Session-closing handoff for the sweep96 resumed session (#790-#820). Bookkeeping only (no corpus document body changed): a maintainer-directed TODO consolidation, a new P1 item, the batched #820 QA rows, and the session close-out (handoff refresh, metrics row, lease release). Library `2026.07.308` to `2026.07.309`.
