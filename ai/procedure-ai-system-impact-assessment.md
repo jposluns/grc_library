@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-11\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -86,6 +86,8 @@ Evaluate each lifecycle stage:
 | Retention | How long is each data class retained, and why? |
 | Deletion | Can data, embeddings, logs, and supplier-held copies be deleted or rendered inaccessible? |
 
+Document the dataset's data quality per ISO/IEC 42005:2025 Clause 6.4.3: which data-quality characteristics apply to the context; the data-quality requirements that are met; the plans for those not yet met; the use of a data-quality life cycle in development; and the approved use of the dataset by appropriate interested parties. The measurable targets, the acceptance criteria, and the readiness sign-off gate are owned by the [AI Data Quality and Readiness Validation Standard](standard-ai-data-quality-and-readiness-validation.md).
+
 ### Step 4: Assess threats and control exposure
 
 Assess exposure to:
@@ -140,14 +142,14 @@ Assign a risk tier using criteria such as:
 
 Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force 24 June 2025) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields an impact level, which this procedure aligns to its tier:
 
-| TBS AIA impact level | Character (severity, reversibility, duration) | This procedure's tier |
+| Treasury Board AIA impact level | Character (severity, reversibility, duration) | This procedure's tier |
 | --- | --- | --- |
 | Level I | Little to no, easily reversible, brief impacts | Low |
 | Level II | Moderate, likely reversible, short-term impacts | Moderate |
 | Level III | High, difficult to reverse, potentially ongoing impacts | High |
 | Level IV | Very high, irreversible, perpetual impacts | Critical |
 
-Where the tier and the impact level differ, the higher of the two governs. ISO/IEC 42005:2025 §5.7 informs this tiering approach: it directs an organization to define its own impact thresholds and impact scales for sensitive and restricted uses (it does not prescribe a fixed set of tiers). The four-level model and its area, reversibility, and duration axes are the TBS AIA's.
+Where the tier and the impact level differ, the higher of the two governs. ISO/IEC 42005:2025 §5.7 informs this tiering approach: it directs an organization to define its own impact thresholds and impact scales for sensitive and restricted uses (it does not prescribe a fixed set of tiers). The four-level model and its area, reversibility, and duration axes are the Treasury Board AIA's.
 
 ### Step 8: Define required controls
 

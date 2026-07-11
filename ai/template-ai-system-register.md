@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Register Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-07-11\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/register-ai-risk.md`](register-ai-risk.md)\
@@ -43,6 +43,7 @@ Do not populate this public template with real systems, company names, personal 
 | Data Provenance | Source and rights basis for data use. | Yes |
 | Data Lineage | Data flow, transformation, storage, retrieval, and deletion path. | Yes |
 | Training or Improvement Use | Whether submitted or stored data is used for training, fine-tuning, provider improvement, or evaluation. | Yes |
+| Data Quality Validation Status | Not started, in progress, validated, validated with conditions, failed, or waived, per the AI Data Quality and Readiness Validation Standard readiness sign-off. | Conditional |
 | Retrieval Sources | Document stores, vector stores, databases, applications, memory sources, or knowledge bases accessed by the system. | Conditional |
 | Tool Access | APIs, plugins, code execution, workflow actions, transaction actions, or external system actions. | Conditional |
 | Reversibility Classification | For action-capable agents: per production-impacting action class, Reversible, Compensable, or Irreversible, per the agentic development security standard. | Conditional |

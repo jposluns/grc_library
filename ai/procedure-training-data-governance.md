@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.7\
-**Date:** 2026-07-10\
+**Version:** 0.0.8\
+**Date:** 2026-07-11\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -82,6 +82,7 @@ Before any training, fine-tuning, or RL pipeline consumes the dataset:
 | Approval | Trigger | Approver |
 | --- | --- | --- |
 | Dataset acceptance | Every new dataset or material refresh | AI Data Steward with Data Protection Officer co-sign if personal data; Legal Counsel co-sign if licensed corpus |
+| Data-quality readiness | Every new dataset or material refresh, before the training pipeline consumes it | AI Data Steward, per the [AI Data Quality and Readiness Validation Standard](standard-ai-data-quality-and-readiness-validation.md) readiness sign-off gate |
 | Use-case fit | Per training run | Service owner |
 | Risk assessment | High-risk training run (e.g. foundation-model-scale, regulated-sector model, agentic system) | AI Governance Council |
 | Sustainability check | High-compute training | Per the sustainability framework |
@@ -209,7 +210,9 @@ Where a retrieval index materially shapes model output:
 | LGPD | Articles 7, 9, 18 | Brazilian lawful basis and rights |
 | PIPL | Articles 13, 14, 24, 44 to 50 | Chinese lawful basis and rights |
 | NIST AI RMF | MAP, MEASURE | AI risk management |
-| ISO/IEC 5259 series | Data quality for analytics and ML | Quality framework |
+| ISO/IEC 5259-2:2024 | Data quality measures | Data-quality model, measures, and targets |
+| ISO/IEC 5259-3:2024 | Data quality management requirements | Data-quality plan, verification and validation, and supply chain |
+| ISO/IEC 5259-4:2024 | Data quality process framework | Plan, evaluate, improve, and validate loop and data-use approval |
 | ISO/IEC 8183:2023 | AI data life cycle framework | Data lifecycle for AI training data |
 | OECD AI Principles | All five values | Foundational principles |
 
