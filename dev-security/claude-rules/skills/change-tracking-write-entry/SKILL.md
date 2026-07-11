@@ -45,6 +45,8 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 9. **Re-read the entry once before committing**. Catch the stale claims now: a file mentioned in the title that the diff did not touch; a version number that does not match the heading; a section heading that misclassifies the change.
 
+When the project runs the detailed mirror under a **current-week model** (completed weeks swept to an archive; see the canonical rule's current-week-model section), the write path here is unchanged: new detailed entries still prepend to the in-repo mirror, and the completed-week sweep is a separate close-out step, not part of writing the entry. The compact root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary`, a plain hyphen, no em-dash or en-dash) applies only once the project has adopted it in a root-reformat step; until then the root line keeps the header-plus-lead-paragraph form above.
+
 ## Terse Entry Discipline
 
 When the change qualifies for the terse form, the entry is the date-and-version header followed by a single sentence describing what was accomplished. No structured sections, no file links, no verification block.

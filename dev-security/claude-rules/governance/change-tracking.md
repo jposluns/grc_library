@@ -22,6 +22,20 @@ A project's CHANGELOG may be a single file, OR may be split into two files for a
 
 The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location (exempt from corpus audit gates) is the recommended default. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
 
+### Current-week model for the detailed mirror (optional)
+
+A long-lived project accumulates detailed entries indefinitely, and the detailed mirror eventually grows past the point where it is browser-openable or quick to scan. The optional current-week model keeps the in-repo mirror small: it holds only the **current week's** detailed entries, and completed weeks are swept out to a wipeable archive the project designates (in this project, the exchange repository, as weekly Monday-dated files). No record is lost: the full audit trail is preserved both in the swept archive and in this repository's own git history (the sweep removes tree content, not history).
+
+The model has three project-provided parts:
+
+- **A data-safe sweep tool** (not an audit gate; an orchestrator close-out step; in this project `tools/sweep-working-records-to-scratch.py`). It emits the weekly archive files, then refuses to prune anything from the repository unless a verify step confirms every artefact already exists in the archive (emit, verify, then prune).
+- **A dynamic-cutoff parity gate.** The mirror-header-parity gate's cutoff is a dynamic floor, `max(CUTOFF_PR, oldest PR still present in the in-repo mirror)`, so a swept (now archive-only) entry is out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
+- **A release-export exclusion.** The working-state tree carries a `git archive` `export-ignore` attribute, so a release tarball is fork-clean however much detail has accumulated. This affects `git archive` only; a `git clone` still includes the tree and full history, and adopters may simply delete the working-state tree after cloning.
+
+The write path is unchanged under this model: new detailed entries still prepend to the in-repo mirror, and only completed weeks leave it, at the close-out sweep step. The rollout is staged: the machinery lands first, then an initial sweep of the already-completed weeks, then the per-PR sweep becomes a standing close-out action.
+
+A **compact root-entry format** pairs naturally with this model, a one-line `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary` per entry (a plain hyphen separator, no em-dash or en-dash, a blank line between entries), so the root file stays scannable as the entry count grows. Adopting that format is a distinct root-reformat step, applied when the project chooses to reformat the root file; until then the root keeps the lead-paragraph-per-entry form the sections below describe.
+
 ## What a CHANGELOG entry must contain
 
 Every entry must include the following. Items 1, 2, and the lead "why" are recorded in the **root** file; items 3-7 (structured sections, file references, verification, phase context) are recorded in the **detailed** file when the project uses the two-file split, or in the root file when the project does not.

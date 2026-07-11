@@ -41,7 +41,7 @@ scope row; pack `1.54.6`). Landed in PR #657 (2026-07-05): item 4's remaining
 project-CLAUDE.md clause, so TODO 3.15 D-F3 is now FULLY closed and item 4 is rotated out.
 Item 5's remaining r5 close-out-checklist clauses re-scope from the former #657 bundle to a
 focused #658 (maintainer-directed 2026-07-05: after #657, small Priority 3 and Priority 1
-items first to clear TODO count; the larger GR-P design track, item 6, defers). Landed in PR #674 (2026-07-06): item 5's remaining `/claim-fit` cadence-section clause, applied as a new `## Normative-attribution claim-precision cadence (/claim-fit)` section in `.claude/CLAUDE.md` sibling to `/matrix-fit`, so item 5 is fully rotated out; only item 6 (the GR-P design track) remains._
+items first to clear TODO count; the larger GR-P design track, item 6, defers). Landed in PR #674 (2026-07-06): item 5's remaining `/claim-fit` cadence-section clause, applied as a new `## Normative-attribution claim-precision cadence (/claim-fit)` section in `.claude/CLAUDE.md` sibling to `/matrix-fit`, so item 5 is fully rotated out. Landed in PR #813 (2026-07-11): item 7 (changelog-restructure prose), the current-week model documented in the change-tracking rule (both copies) and the `change-tracking-write-entry` skill (pack copy only; there is NO `.claude/` skill copy, contrary to the prepared note), plus an advisory per-PR detailed-mirror-sweep close-out bullet and the current-week model / `.gitattributes` export-ignore / deferred compact root-entry format described in `.claude/CLAUDE.md`. The compact-format ADOPTION and the initial completed-weeks sweep remain the deferred root-reformat (TODO 3.16, post-deep-assessment). Only item 6 (the GR-P design track) remains._
 
 ### 6. [TODO 4.7 GR-P1..P5] Pack design improvements (design-tier)
 
@@ -51,16 +51,6 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers). 
   pack rule; GR-P2 rule operative-core condense; GR-P3 third-occurrence-to-gate escalation;
   GR-P4 overlay primary-wins pointers + pruning stance; GR-P5 `derives_from` re-point + exception-
   register hoist + the CLAUDE.md Boundaries-line wrong-trio correction. These are their own PRs.
-
-### 7. [changelog-restructure] Current-week model + compact root format (descriptive doc edits)
-
-- **Targets:** the change-tracking governance rule (`dev-security/claude-rules/governance/change-tracking.md` and its `.claude/rules/governance/change-tracking.md` mirror), the `change-tracking-write-entry` skill (pack + `.claude/` copies), and `.claude/CLAUDE.md`.
-- **Why deferred:** protected surfaces; the non-protected machinery (gate-59 dynamic cutoff, `tools/sweep-working-records-to-scratch.py`, `.gitattributes`, `.working/changelog-details/README.md`) shipped in the overnight PR 1, but the prose that DESCRIBES the model and wires the per-PR step into the workflow lives in protected files.
-- **Prepared edits (apply at daytime):**
-  1. **change-tracking rule (both copies):** add the current-week model, the in-repo detailed mirror holds only the current week; completed weeks are swept to the `grc_library_scratch` weekly Monday-dated archives via `tools/sweep-working-records-to-scratch.py` (data-safe: emit-then-verify-then-prune); gate 59's cutoff is a dynamic floor `max(CUTOFF_PR, oldest in-repo mirror PR)`. State that removed content remains in git history, so the sweep is tree-tidiness, not clone-cleanliness. Document the compact root-entry format: `**YYYY-MM-DD | X.Y.Z | PR #N** - one-or-two-sentence summary`, blank line between entries, plain hyphen separator (no em/en dash).
-  2. **change-tracking-write-entry skill (both copies):** the write path is UNCHANGED (new detailed entries still prepend to `.working/changelog-details/CHANGELOG-detailed.md`; only completed weeks are swept out later); add the compact root-entry format instruction for the root `CHANGELOG.md` lead line.
-  3. **CLAUDE.md:** add the per-PR sweep step to the PR-workflow close-out (run `tools/sweep-working-records-to-scratch.py --emit-archive <scratch>/archive` then `--prune --verify-archived <scratch>/archive` as a cross-repo follow-up, like `/validate-pr`); describe the current-week model + the `.gitattributes export-ignore` fork-hygiene (3.19 resolution) + the compact root format; note the detailed-mirror path description is now "current week only".
-- **Cross-refs:** the machinery landed in changelog-restructure PR 1; the initial sweep in PR 2; the root reformat/compress in PR 3+. TODO 3.19 is resolved (export-ignore adopted; current-week model instead of a full `.working` migration).
 
 ---
 
