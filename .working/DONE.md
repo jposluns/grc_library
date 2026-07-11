@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #804: AI workstream, OECD-AI-Principles year harmonization (closes the TODO §1.10 OECD bullet, corpus side) (2026-07-11)
+
+Harmonized the five corpus carriers of the OECD AI Principles citation year off the stale "2023" form to the current "(2019, updated 2024)" form (four docs) and the "(2019 Recommendation as updated 2024)" form (policy-ai-compliance §12, matching its own §1.1), resolving the #798/#785/#786-flagged inconsistency; the 2023-vs-2024 currency was resolved upstream in #798 (OECD/LEGAL/0449 revised both 8 November 2023 and 3 May 2024, 2024 current). The `grc_library_ref` catalogue "revised 2023" correction is folded into TODO 1.8(e) as the cross-repo ref-side half.
+
 ### PR #784: AI workstream PR 0.1, §36 CSA AICM re-map (advances TODO §2.2) (2026-07-10)
 
 Re-mapped the invalid `AI-TM/SC/PP/AU/EC-*` pseudo-code family (a fourth invalid CSA control-code family, gate-48-invisible because the `AI-XX-NN` shape is excluded by the domain-token regex like the corpus-internal `AI-GOV` IDs) across all 9 rows of `ai/standard-ai-and-agentic-development-security.md` §36 to real AICM v1.1.0 controls, via the full high-assurance harness (research fan-out, invariant floor, deterministic apply + re-parse, and an independent refute-briefed adversarial-verifier SHIP): prompt-injection to AIS-15/AIS-09, supply-chain to STA-10/STA-09, sensitive-data to DSP-17/IAM-16, tool-misuse to AIS-11/IAM-18, unsafe-code to AIS-10/AIS-05, excessive-agency to IAM-18/IAM-05, overreliance to GRC-15/GRC-13, resource-exhaustion/DoS to I&S-02/I&S-09, hallucination to AIS-10/LOG-16. Also corrected the header to "CSA AICM v1.1.0" and the two LLM09 cells to "LLM09 Misinformation" (the OWASP LLM Top 10 v2.0 rename the doc already commits to via "LLM10 Unbounded Consumption"). Gate 48's Check 5 (built #782) now mechanically validates the re-mapped column. Also discharged the #783 fragile-token finding (the two `§3.40` test-comment refs reworded to `PR #782`).

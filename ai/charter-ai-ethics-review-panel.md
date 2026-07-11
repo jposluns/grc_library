@@ -2,7 +2,7 @@
 
 **Document Title:** AI Ethics Review Panel Charter\
 **Document Type:** Charter\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-11\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Chief Risk Officer\
@@ -148,7 +148,7 @@ The Panel reports to the **Chief Risk Officer** and, for escalated unresolved ch
 | ISO/IEC 42001:2023 | §5: Leadership and Governance | Independent governance of AI ethics within the AI management system |
 | EU AI Act (2024) | Chapter III: High-Risk AI Systems | Independent ethical review and human oversight of high-risk AI |
 | NIST AI RMF (2023) | GOVERN function | Independent oversight and accountability structure |
-| OECD AI Principles (2023) | Accountability and oversight (Principle 1.5) | Independent ethics review, challenge, and the record step |
+| OECD AI Principles (2019, updated 2024) | Accountability and oversight (Principle 1.5) | Independent ethics review, challenge, and the record step |
 | UNESCO Recommendation on the Ethics of AI (2021) | Paragraphs 35-36 (human oversight and determination); paragraph 26 (irreversibility) | Human oversight and the hold-pending-reconsideration step |
 | CAN/DGSI 101:2025 | Ethical impact assessment; diverse and inclusive reviewer representation | The Panel's ethical-review mandate and diverse composition |
 
