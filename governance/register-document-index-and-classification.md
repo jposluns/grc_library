@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.80\
+**Version:** 1.27.81\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -128,7 +128,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Procedure | Patch Management Procedure | [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md) | Chief Information Officer | Annual | NIST SP 800-40, ISO/IEC 27001 Annex A.8.8, CSA CCM TVM-08, CIS Controls v8 | template |
 | Privacy | Charter | Privacy Management Programme Charter | [`privacy/charter-privacy-management-programme.md`](../privacy/charter-privacy-management-programme.md) | Data Protection Officer | Annual | ISO/IEC 27701, GDPR, PIPEDA, Quebec Law 25 | template |
 | Privacy | Policy | Privacy and Data Governance Policy | [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md) | Data Protection Officer | 6 to 12 months | ISO/IEC 27701:2025, ISO 8000-8, GDPR, PIPEDA, PIPL, LGPD, EU Data Act (Regulation (EU) 2023/2854) | template |
-| Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Data Protection Officer | Annual | GDPR Art 35, ISO/IEC 27701 §7.4, PIPL Arts 38 to 40, AIDA §29 | template |
+| Privacy | Procedure | Privacy Impact and Cross-Border Transfer Procedure | [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Data Protection Officer | Annual | GDPR Art 35, ISO/IEC 27701 §7.4, PIPL Arts 38 to 40, Quebec Law 25 §3.3/§12.1 | template |
 | Privacy | Procedure | Data Subject Rights Management Procedure | [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md) | Data Protection Officer | Annual | GDPR Arts 15 to 22, PIPEDA, PIPL Arts 44 to 47, ISO/IEC 27701 §7.3 | template |
 | Privacy | Procedure | Data Protection and Privacy Breach Response Procedure | [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Data Protection Officer | Annual | GDPR Arts 33 to 34, PIPEDA, PIPL Art 57, LGPD, Quebec Law 25, breach assessment, notification | template |
 | Privacy | Template | Record of Processing Activities Template | [`privacy/template-record-of-processing-activities.md`](../privacy/template-record-of-processing-activities.md) | Data Protection Officer | Annual | GDPR Art 30, UK GDPR, LGPD Art 37, PIPEDA, PIPL Art 55, ISO/IEC 27701 §7.2.8 / §8.2.6 | template |
@@ -150,7 +150,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | EU Privacy Requirements | [`privacy/jurisdictions/annex-privacy-european-union.md`](../privacy/jurisdictions/annex-privacy-european-union.md) | Data Protection Officer | Annual | GDPR, EU AI Act | template |
 | Privacy | Annex | UK Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | Data Protection Officer | Annual | UK GDPR, DPA 2018 | template |
 | Privacy | Annex | Switzerland Privacy Requirements | [`privacy/jurisdictions/annex-privacy-switzerland.md`](../privacy/jurisdictions/annex-privacy-switzerland.md) | Data Protection Officer | Annual | nFADP/revDSG | template |
-| Privacy | Annex | Canada Privacy Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | Data Protection Officer | Annual | PIPEDA, CPPA (pending), Quebec Law 25, AIDA (pending) | template |
+| Privacy | Annex | Canada Privacy Requirements | [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) | Data Protection Officer | Annual | PIPEDA, Quebec Law 25 (CPPA/AIDA lapsed) | template |
 | Privacy | Annex | US Privacy Requirements | [`privacy/jurisdictions/annex-privacy-united-states.md`](../privacy/jurisdictions/annex-privacy-united-states.md) | Data Protection Officer | Annual | FTC Act, CCPA/CPRA, state laws, BIPA | template |
 | Privacy | Annex | Brazil Privacy Requirements | [`privacy/jurisdictions/annex-privacy-brazil.md`](../privacy/jurisdictions/annex-privacy-brazil.md) | Data Protection Officer | Annual | LGPD | template |
 | Privacy | Annex | Latin America Privacy Requirements | [`privacy/jurisdictions/annex-privacy-latin-america.md`](../privacy/jurisdictions/annex-privacy-latin-america.md) | Data Protection Officer | Annual | Law 1581, Law 25326, Law 19628, Law 29733 | template |

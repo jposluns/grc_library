@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #810: privacy-domain AIDA section-29 residual reconcile (closes TODO §1.10) (2026-07-11)
+
+Closed the privacy-domain residual of TODO §1.10: the lapsed AIDA section 29 was still mapped as a LIVE AI-impact / DPIA obligation in `privacy/template-dpia.md`, `privacy/procedure-privacy-impact-and-cross-border-transfer.md`, and `privacy/annex-privacy-jurisdiction-index.md`, plus stale AIDA/CPPA "(pending)" hedges in the compliance matrix and the document-index register. Reconciled to the in-force Canadian instruments (Quebec Law 25 CQLR P-39.1 sections 3.3/12.1, private sector; Treasury Board Directive on Automated Decision-Making section 6.1 Algorithmic Impact Assessment, federal institutions), with AIDA marked lapsed, verified against the held Quebec Law 25 and TBS Directive texts. The four neutral bare-listing AIDA cells were correctly left neutral. §1.10 fully closed.
+
 ### PR #808: nested-markdown-link detection gate, gate 68 (closes TODO 3.44) (2026-07-11)
 
 Added gate 68 ([`tools/lint-nested-markdown-links.py`](../tools/lint-nested-markdown-links.py)), a code-span-aware detector of the `[[text](url)](url)` nested-link malformation that recurred in #802 (gate-blind to the link-coverage and broken-link gates), with a regression fixture and the four-surface wiring; closes TODO 3.44 (part 1 cleanup landed in #807, part 2 gate here). Also tightened the #807 grep-fidelity overclaim surfaced by the #807 `/validate-pr` (F1).
