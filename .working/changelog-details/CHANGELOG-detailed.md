@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.312, PR #824
+
+Lands the held, reconciled **gate 69** (positional-backlog-token audit), the `/deep-assessment` r2 coverage obligation, closing [`TODO.md`](../../TODO.md) §3.4. Gate count 68 to 69. Library `2026.07.311` to `2026.07.312`.
+
+### Added
+
+- [`tools/lint-positional-backlog-tokens.py`](../../tools/lint-positional-backlog-tokens.py): gate 69, a corpus lint flagging renumber-fragile positional backlog references (a `TODO` / `backlog item` qualifier followed by a `§`- or `P`-prefixed or dotted section token) that should use a stable coded id or topic name. The mechanical, corpus-scoped form of the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) §N-orphan guard.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a five-case regression class for gate 69 (detect + clean variants).
+
+### Changed
+
+- Wired gate 69 across all four gate-parity surfaces: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.65`->`1.16.66`; the §6 inventory row, the §5 grouped list, and the §6 detailed-prose pair).
+- Reworded the three live positional-token carriers the gate found: two in the audit-programme spec and one in [`governance/specification-citation-verification.md`](../../governance/specification-citation-verification.md) (`1.2.14`->`1.2.15`; "TODO 1.5 currency sweep" to "reference-currency sweep").
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md): the growth-narrative gate count "sixty-eight" to "sixty-nine".
+- [`TODO.md`](../../TODO.md): removed §3.4 (positional-backlog-token lint), now satisfied by gate 69; rotated to [`.working/DONE.md`](../DONE.md).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the version bumps.
+- [`README.md`](../../README.md): library CalVer `2026.07.311`->`2026.07.312`, README Version `1.9.672`->`1.9.673`.
+
+### Verification
+
+- **Landing method:** the held branch `positional-token-gate-69` (merge-base #820, three PRs behind main) was NOT git-rebased (its version/CHANGELOG/generated surfaces would all conflict and be re-authored anyway); instead the substance files (the gate, its four-surface wiring, the fixture, the spec gate-69 rows, the carrier rewords, the SKILL count) were taken onto a fresh branch off current `main` via `git checkout <branch> -- <files>`, confirmed safe because 0 commits touched any of those files on `main` since #820, and the version/CHANGELOG/DONE bookkeeping was authored fresh for #824.
+- **Gate re-derivation:** gate 69 was run on the current `main` state and returned 0 residual carriers ("no renumber-fragile positional backlog-token references in corpus prose"), confirming the carrier set is stable since the branch's derivation and that #821-#823 introduced no new positional tokens.
+- Full suite green (69 of 69 gates) via the pre-push guard; gate 35 four-surface parity at 69, gate 39 count consistency at 69, gate 64 detailed-prose presence for gate 69, and the gate-69 regression fixture (gate 36) all pass. The change was independently checked by a refute-briefed skeptical verifier before push.
+- A note for the maintainer: gate 60 (guardrail cadence) now shows drift 1 (68 to 69), below its threshold of 3, because the r8 `/guardrails` pass of record (#823) reset the cadence at 68 gates the turn before this addition.
+
 ## 2026-07-11, Library Version 2026.07.311, PR #823
 
 Records the whole-project `/deep-assessment` run **r2** (maintainer-invoked at the sweep97 `/resume`, opened fresh-context), Phases 1-7 complete and HOLDING at Phase 8 for explicit maintainer sign-off. Finding set 0 error / 1 warning / 4 note. Bookkeeping only (the F1 corpus fix and the gate-69 merge are proposed and await sign-off, so no corpus document body changed). Library `2026.07.310` to `2026.07.311`.

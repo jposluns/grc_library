@@ -6658,5 +6658,63 @@ class NestedMarkdownLinkTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
+class PositionalBacklogTokenLinterTests(LinterTestCase):
+    """tools/lint-positional-backlog-tokens.py"""
+
+    def test_positional_todo_section_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "positional-todo-section.md",
+            "# X\n\nSee TODO §4.10 for the queued gate.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertLinterFails(result, "TODO §4.10")
+
+    def test_positional_backlog_item_p_prefixed_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "positional-backlog-item.md",
+            "# X\n\nThe backlog item P4.17 covers the co-bump.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertLinterFails(result, "backlog item P4.17")
+
+    def test_positional_bare_dotted_todo_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "positional-bare-dotted-todo.md",
+            "# X\n\nTODO 4.7 tracks the pack-condense work.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertLinterFails(result, "TODO 4.7")
+
+    def test_unqualified_section_reference_not_flagged(self) -> None:
+        # A document's own internal section cross-reference (no TODO / backlog
+        # qualifier) is the stable form the gate must NOT flag.
+        fixture = self.make_fixture(
+            "unqualified-section-ref.md",
+            "# X\n\nSee §4.2 of this document for the model.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"unqualified section reference must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_plain_backlog_word_not_flagged(self) -> None:
+        # The word "backlog" with no positional token after it is not a
+        # positional reference and must not be flagged.
+        fixture = self.make_fixture(
+            "plain-backlog-word.md",
+            "# X\n\nThe backlog is worked in priority order.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"plain 'backlog' mention must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

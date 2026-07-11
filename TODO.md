@@ -64,10 +64,6 @@ The durable MECHANICAL solution to the ISO/IEC-designation-accuracy class §3.1 
 
 Each `/retro` scans the [`.working/claude-md-considerations.md`](.working/claude-md-considerations.md) removal ledger's open RM entries and the periodic hallucination-metrics pass does a deeper scan; if an entry's "evidence the removal was wrong" signal appears, advise the maintainer to restore the cut text, and record the disposition in that entry's Status. Standing tracker; stays open by design.
 
-### 3.4 Positional-backlog-token lint (was 3.13, audit 2026-07-02, S)
-
-Optional: a lint flagging `TODO P?N.M` positional tokens in gate-scanned corpus prose (renumber-fragile), nudging references toward stable FR-ids / topic names. Same class as the CLAUDE.md §N-orphan guard.
-
 ### 3.6 Register-ageing advisory tool (GR-8 follow-on A, guardrail review 2026-07-02, L, S)
 
 A small advisory `tools/audit-*.py` (not a gate) reporting improvement-log Proposed-improvement cells still pending after N PRs, the register-side analogue of the brief-freshness tool. **Attempted + deferred 2026-07-08 (#698) with a design finding:** the core heuristic (non-empty Proposed-improvement cell + no disposition token = pending) OVER-FLAGS (cannot distinguish a genuine pending FORMAL candidate from an adopted-in-place habit note; ~78 July cells mostly false-positive). Needs either a formal-candidate classifier or a register-format change (a structured candidate marker the `/retro` skill appends). Not shipped (an over-flagging advisory erodes trust). Revisit once the classifier / register-format decision is made.

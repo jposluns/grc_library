@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #824: positional backlog-token audit gate 69 (closes TODO §3.4) (2026-07-11)
+
+Landed the HELD, reconciled gate 69 (the `worker-20260708-fable/positional-token-lint-313` delivery) as the `/deep-assessment` r2 coverage obligation: a new corpus lint ([`tools/lint-positional-backlog-tokens.py`](../tools/lint-positional-backlog-tokens.py)) flagging renumber-fragile positional backlog references (a `TODO` / `backlog item` qualifier followed by a `§`/`P`-prefixed or dotted section token) that should use a stable coded id or topic name, the mechanical form of the CLAUDE.md §N-orphan guard scoped to the corpus. Wired across all four gate-parity surfaces with a five-case regression class; the three live carriers (two in the audit-programme spec, one in the citation-verification spec) were reworded to green it. The held branch was landed onto post-#823 `main` by taking its substance files (gate, wiring, fixture, spec, carrier fixes, SKILL count) onto a fresh branch and re-authoring the version/CHANGELOG/DONE bookkeeping for #824; the gate was re-run on current `main` and confirmed 0 residual carriers (the set stable since the branch's derivation). Closes TODO §3.4.
+
 ### PR #820: small-cleanup batch, breadcrumb collisions + AIDA bare-listing annotation (closes TODO §3.37, §3.45) (2026-07-11)
 
 Closed two P3 tidies. **§3.37:** dropped the two colliding `(was X.Y)` renumber breadcrumbs (`(was 3.22)` on §3.19, `(was 3.24)` on §3.20) whose numbers had been reused by since-closed items, resolving the latent ambiguity. **§3.45:** annotated the four neutral AIDA bare-listing reference cells "(lapsed)" for corpus-wide uniformity (policy-exception risk-approval row; security AI-data-handling row; the doc-index register's AI-compliance-policy and AI-risk-methodology reference cells). Also opened §3.47 (TODO adoptability: strip internal working-provenance annotations) per the maintainer's direction, and fixed the #819 `/validate-pr` P1-intro contradiction.
