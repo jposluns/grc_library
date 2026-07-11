@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-11\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -140,7 +140,7 @@ Assign a risk tier using criteria such as:
 | High | Sensitive data, external users, regulated context, material business or individual impact, supplier dependency, or tool execution. |
 | Critical | Safety, rights, access, employment, financial, security, legal, regulatory, or critical service impact with limited tolerance for failure. |
 
-Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force 24 June 2025) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields an impact level, which this procedure aligns to its tier:
+Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force since 2019, with updated requirements phasing in on a 24 June 2025 to 24 June 2026 compliance transition) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields an impact level, which this procedure aligns to its tier:
 
 | Treasury Board AIA impact level | Character (severity, reversibility, duration) | This procedure's tier |
 | --- | --- | --- |
