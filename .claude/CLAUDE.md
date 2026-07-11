@@ -528,6 +528,30 @@ is external. Two mechanisms:
      refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
+   - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
+     the pack rule's current-week-model section is the authoritative description): the in-repo
+     [`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md)
+     is intended to hold only the CURRENT week's entries, with completed weeks swept to the
+     `grc_library_scratch` archive as weekly Monday-dated files by
+     [`tools/sweep-working-records-to-scratch.py`](../tools/sweep-working-records-to-scratch.py)
+     (data-safe: `--emit-archive <scratch>/archive` to write the archives, then `--prune
+     --verify-archived <scratch>/archive` which refuses to remove anything not already
+     archived, emit-verify-then-prune). Running the sweep is an advisory close-out follow-up,
+     NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
+     shape as the `/validate-pr` post-merge sweep and the `audit-brief-freshness.py` advisory
+     tool, and the sweep removes tree content only (this
+     repo's git history and the scratch archive both retain the full trail, and the `.working/
+     export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean
+     regardless). Gate 59's mirror-header-parity cutoff is the dynamic floor `max(CUTOFF_PR,
+     oldest in-repo mirror PR)`, so a swept (archive-only) entry is out of parity scope, not
+     flagged missing. The write path is unchanged (new entries still prepend to the in-repo
+     mirror). The initial completed-weeks sweep has already run, so the mirror holds the
+     recent (current-week) window rather than the full history (older weeks live in the
+     `grc_library_scratch` archive and in git history); the standing action is the per-PR
+     sweep of any newly-completed week at close-out. The compact root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** -
+     summary`, plain hyphen, no em/en dash) is a separate deferred root-reformat (TODO 3.16,
+     post-deep-assessment), NOT adopted yet, so root entries keep the `## ...` header-plus-lead
+     form until that pass.
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 

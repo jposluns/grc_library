@@ -10,7 +10,7 @@ The in-repo `CHANGELOG-detailed.md` keeps only the **current week's** entries; c
 
 - **Sweep tool:** [`tools/sweep-working-records-to-scratch.py`](../../tools/sweep-working-records-to-scratch.py) (not an audit gate; an orchestrator follow-up step). It is data-safe: `--emit-archive` writes the weekly archives to scratch, and `--prune` refuses to remove anything from this repo unless `--verify-archived` confirms every artefact already exists in the archive.
 - **Gate 59 (mirror header-parity):** its cutoff is now a dynamic floor, `max(CUTOFF_PR, oldest PR still in the in-repo mirror)`, so a swept (now scratch-only) entry is correctly out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
-- **Rollout:** the machinery (this tool + the dynamic gate) landed first; the initial sweep of completed weeks and the per-PR sweep-step wiring follow in subsequent PRs. Until the initial sweep runs, this file still holds the full history.
+- **Rollout:** the machinery (this tool + the dynamic gate) landed first (grc_library #708), the initial sweep of completed weeks ran next (the in-repo mirror was pruned to the recent/current-week window; older weeks moved to the `grc_library_scratch` archive, scratch #113 / TODO 3.16 PR 2), and the per-PR sweep-step wiring landed as an advisory close-out step (grc_library #813). The remaining step is the root reformat and compression (TODO 3.16 PR 3+, post-deep-assessment). The full audit trail remains in this repository's git history and in the scratch archive regardless.
 
 ## Files in this subdirectory
 
