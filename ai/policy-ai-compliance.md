@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -337,7 +337,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | ISO/IEC 42001:2023 | AI management system requirements; governance; risk management; audit | 3, 7.4, 8 |
 | NIST AI RMF 1.0: Govern function | AI governance structure; accountability; policy | 3 |
 | NIST AI RMF 1.0: Map/Measure/Manage | AI risk classification; control effectiveness; incident response | 4, 5, 10 |
-| OECD AI Principles 2023 | Responsible AI development; human oversight; transparency; accountability | 2, 5.3, 9 |
+| OECD AI Principles (2019 Recommendation as updated 2024) | Responsible AI development; human oversight; transparency; accountability | 2, 5.3, 9 |
 | UK AI Safety Institute guidance 2024 | Frontier model safety; evaluation criteria | 7.3 |
 | Canada: TBS Directive on Automated Decision-Making; ISED Voluntary Code (2023) | Federal automated-decision governance; algorithmic impact assessment; voluntary generative-AI commitments | 7.2 |
 | Colorado AI Act (SB24-205, re-enacted SB26-189) | High-risk AI developer and deployer duties; algorithmic-discrimination protection in consequential decisions | 7.5 |
