@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.79\
+**Version:** 1.27.80\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -189,6 +189,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Template | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | AI System Inventory Keeper | 6 to 12 months | Model documentation, evaluation, limitations | template |
 | AI | Template | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | AI System Inventory Keeper | 6 to 12 months | System context, integrations, controls | template |
 | AI | Guideline | Adversarial Evaluation Suite Development Guideline | [`ai/guideline-adversarial-evaluation-suite-development.md`](../ai/guideline-adversarial-evaluation-suite-development.md) | AI Security Maintainer | 6 to 12 months | Adversarial testing, misuse resistance, AI assurance | template |
+| AI | Guideline | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | AI Security Maintainer | 6 to 12 months | NIST AI 100-4, EU AI Act Article 50, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md) | AI Security Maintainer | 6 to 12 months | OWASP LLM Top 10, MITRE ATLAS, adversarial ML, red teaming | template |
 | AI | Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | AI Security Maintainer | 6 to 12 months | OWASP LLM Top 10, NIST AI RMF, ISO/IEC 42001, secure AI deployment | template |
 | AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, AIDA, ISO/IEC 42001, NIST AI RMF, UK AI Safety Institute | template |
