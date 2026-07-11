@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -260,7 +260,7 @@ AI-generated content, including text, images, audio, and video produced or subst
 - The content could reasonably be mistaken for human-created content.
 - The EU AI Act Art. 50 obligation applies, including for deep fakes and AI-generated media.
 
-The labelling mechanism must be technically implemented and documented in the relevant system card.
+The labelling mechanism must be technically implemented and documented in the relevant system card; see the [AI Synthetic-Content Provenance Guideline](guideline-ai-synthetic-content-provenance.md) for the technique selection (digital watermarking, metadata recording, detection) and the EU AI Act Article 50 implementation detail.
 
 ### 9.3 Explainability for individuals
 

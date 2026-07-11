@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.11\
+**Version:** 1.1.12\
 **Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,6 +42,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Template | Model Card Template | [`ai/template-model-card.md`](template-model-card.md) |
 | Template | System Card Template | [`ai/template-system-card.md`](template-system-card.md) |
 | Guideline | Adversarial Evaluation Suite Development Guideline | [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md) |
+| Guideline | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](guideline-ai-synthetic-content-provenance.md) |
 | Standard | AI and Agentic Development Security Standard | [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md) |
 | Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md) |
 | Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md) |

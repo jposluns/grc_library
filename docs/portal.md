@@ -364,6 +364,7 @@ Security architects need the dev-security standards, the AI security guides, the
 ### Guideline
 
 - [AI Coding Assistant Security Guideline](../dev-security/guideline-ai-coding-assistant-security.md) (maturity: Mature)
+- [AI Synthetic-Content Provenance Guideline](../ai/guideline-ai-synthetic-content-provenance.md) (maturity: Draft)
 - [Adversarial Evaluation Suite Development Guideline](../ai/guideline-adversarial-evaluation-suite-development.md) (maturity: Baseline)
 - [Ethical AI Use Guideline](../ai/guideline-ethical-ai-use.md) (maturity: Baseline)
 

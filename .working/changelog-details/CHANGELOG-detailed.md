@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.297, PR #809
+
+AI gaps-and-expansion workstream PR 10 (A6c), synthetic-content provenance: a new Guideline for the technical "how" of AI-generated-content transparency, anchored to the held NIST AI 100-4 and EU AI Act Article 50. Batches the #808 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.296` to `2026.07.297`.
+
+### Added
+
+- [`ai/guideline-ai-synthetic-content-provenance.md`](../../ai/guideline-ai-synthetic-content-provenance.md) (`0.0.1`): new Guideline. Sections: Purpose (implementation guidance beneath policy Section 9.2's what/when); Scope (AI-generated output; excludes synthetic-training-input labelling and model-supply-chain provenance, both cross-referenced); the digital content transparency techniques (provenance data tracking, watermarking overt/covert, metadata recording; the three detection categories) attributed to NIST AI 100-4 as an informative overview; technique-selection attributes and limitations (detectability, robustness/stripping, generator-specific detectors, the covert-watermark privacy risk); disclosure and labelling (indirect versus direct); standards and specifications (C2PA and others cited only as NIST AI 100-4 reports them, primary texts not held); testing and evaluation; regulatory anchoring (EU AI Act Article 50(2)/(4)/(5)/(7), Regulation (EU) 2024/1689, with the pending Digital Omnibus deferred to the EU annex); Framework alignment; Limitations (techniques immature, honest-backstop framing).
+
+### Changed
+
+- [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) (`1.0.9`->`1.0.10`): Section 9.2 gains a cross-reference to the new guideline for the technically-implemented labelling mechanism.
+- [`ai/README.md`](../../ai/README.md) (`1.1.11`->`1.1.12`) and [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.79`->`1.27.80`): guideline listing rows added.
+- [`.working/pending-decisions.md`](../pending-decisions.md): the A5 (PR 9) deferral recorded (playbook seed not held); the privacy-Canada "anticipated AIDA" pending entry marked resolved (in #805).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.579`->`1.2.580`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.519`->`1.0.520`): the batched #808 `/validate-pr` (clean) and `/retro` rows.
+
+### Verification
+
+- Every NIST AI 100-4 technique description and the EU AI Act Article 50 provisions were re-verified verbatim against the held sources (a research subagent extracted the locators; the orchestrator re-opened the key passages). NIST AI 100-4 is attributed as an informative overview ("describes / surveys"), never as a mandate, per the claim-fit discipline; the C2PA and other specifications are cited only as NIST AI 100-4 reports them (their primary texts are not held).
+- Currency: NIST AI 100-4 (November 2024 final) confirmed current upstream this turn; EU AI Act Article 50 is the in-force Regulation (EU) 2024/1689 text, with the not-adopted Digital Omnibus amendment deferred to the EU jurisdiction annex.
+- Substantive tier (a new citable document): one refute-briefed skeptical verifier pre-push. Guideline Version 0.0.1; all touched surfaces Version+Date co-bumped; taxonomy/portal/scorecard regenerated after the version bumps.
+
+### Discipline observation
+
+- PR 9 (A5) was deferred rather than built: its value-ladder and green-versus-brown-dollars taxonomies derive from the unheld Canada AI Alliance "Pilot to Production" playbook, and authoring a new citable framework's specific structure from a plan-summary of an unheld seed would risk accuracy and attribution. This is an accuracy-driven scoping decision (recorded in pending-decisions), not a degradation stop; the well-sourced A6c was built instead per the maintainer's "be most productive" direction.
+
 ## 2026-07-11, Library Version 2026.07.296, PR #808
 
 AI gaps-and-expansion workstream, nested-markdown-link detection gate 68 (TODO 3.44, part 2 of 2, closes it) plus the #807 `/validate-pr` Finding-1 fix. Batches the #807 `/validate-pr` and `/retro` rows. Library `2026.07.295` to `2026.07.296`.
