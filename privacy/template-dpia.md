@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-07-09\
+**Version:** 1.0.8\
+**Date:** 2026-07-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -22,7 +22,7 @@
 
 ## Purpose
 
-This template defines the structure of a Data Protection Impact Assessment (DPIA) sufficient to evidence the controller's obligations under GDPR Article 35 and the equivalent obligations under UK GDPR, LGPD Article 38, PIPL Article 55, the EU AI Act (where the processing is part of a high-risk AI system), and AIDA section 29 (Canada). The template provides three working checklists that operationalize the Article 35 framework:
+This template defines the structure of a Data Protection Impact Assessment (DPIA) sufficient to evidence the controller's obligations under GDPR Article 35 and the equivalent obligations under UK GDPR, LGPD Article 38, PIPL Article 55, the EU AI Act (where the processing is part of a high-risk AI system), and Quebec Law 25's privacy impact assessment obligation (Canada, CQLR c. P-39.1, section 3.3). The template provides three working checklists that operationalize the Article 35 framework:
 
 1. The Article 35(1) trigger checklist (when a DPIA is required).
 2. The EDPB WP248 nine-criteria framework (the indicators that, when two or more apply, signal high risk requiring a DPIA).
@@ -201,7 +201,7 @@ Measures must include, at minimum: technical measures (encryption at rest and in
 | ISO/IEC 29134:2017 | Privacy impact assessment methodology | Methodology guidance for PIA / DPIA |
 | ISO/IEC 27701:2025 | Privacy information management | DPIA as a privacy control |
 | NIST Privacy Framework | CT.PO-P5, CM.AW-P5 | Risk assessment and awareness |
-| AIDA (Canada, Bill C-27 Part 3) | AIDA section 29 | AI Impact Assessment (where applicable to the same processing operation) |
+| Quebec Law 25 (Canada, CQLR c. P-39.1) | Section 3.3 (privacy impact assessment); section 12.1 (automated decision-making notice) | Privacy impact assessment for information-system projects involving personal information, and transparency for decisions based exclusively on automated processing (the proposed AIDA, Bill C-27 Part 3, lapsed January 2025 and is not in force) |
 
 ---
 

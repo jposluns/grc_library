@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.298, PR #810
+
+Closes TODO §1.10 (the privacy-domain residual of the AI-workstream AIDA reconcile): a lapsed statute's section number was still presented as a live obligation. Reconciled to the in-force Canadian instruments, verified against held sources. Library `2026.07.297` to `2026.07.298`.
+
+### Changed
+
+- [`privacy/template-dpia.md`](../../privacy/template-dpia.md) (`1.0.7`->`1.0.8`): the Purpose scope sentence and the framework-alignment table row replace the live "AIDA section 29 (Canada)" mapping with Quebec Law 25 (CQLR c. P-39.1) section 3.3 (privacy impact assessment) and section 12.1 (automated-decision notice); AIDA noted as the lapsed proposed regime.
+- [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../../privacy/procedure-privacy-impact-and-cross-border-transfer.md) (`1.6.0`->`1.6.1`): the framework-alignment row "AI Impact Assessment Obligations (Canada) | AIDA section 29" becomes "AI and automated-decision impact obligations (Canada)" mapped to the Treasury Board Directive on Automated Decision-Making section 6.1 (Algorithmic Impact Assessment; federal institutions) and Quebec Law 25 sections 3.3 and 12.1 (private sector).
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (`1.0.12`->`1.0.13`): the Canada nav row and the Canada detail row drop the "CPPA (pending)/if enacted" and "AIDA (pending)" language (both lapsed with Bill C-27, January 2025); the AI-specific-obligation cell now names Quebec Law 25 section 12.1 automated-decision review and the federal TBS Directive Algorithmic Impact Assessment, with the AIDA high-impact regime marked lapsed.
+- [`governance/matrix-cross-framework-alignment.md`](../../governance/matrix-cross-framework-alignment.md) (`1.1.11`->`1.1.12`): the AI-model-governance row's "AIDA (pending, Canada)" becomes "Treasury Board Directive on Automated Decision-Making (Canada; AIDA lapsed)".
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.80`->`1.27.81`): the privacy-Canada annex key-reference cell's "AIDA (pending)" (co-located with "CPPA (pending)") normalized to "Quebec Law 25 (CPPA/AIDA lapsed)"; the impact-assessment procedure's key-reference cell "AIDA §29" updated to "Quebec Law 25 §3.3/§12.1" to match the procedure body (paired-surface fix).
+- [`TODO.md`](../../TODO.md): §1.10 removed (resolved) and rotated to [`.working/DONE.md`](../DONE.md); §3.45 added (the optional neutral-AIDA-bare-listing annotation the #810 skeptical verifier surfaced, explicitly optional).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the §1.10 replacement-mapping stricter-safe default recorded for confirm-or-redirect, with two upstream date-verification items surfaced.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.580`->`1.2.581`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.520`->`1.0.521`): the batched #809 `/validate-pr` (clean) and `/retro` rows.
+
+### Verification
+
+- Held-source grounding (research subagent + orchestrator re-read): the Treasury Board Directive on Automated Decision-Making (held; section 6.1 Algorithmic Impact Assessment obligation; scope section 5.1/8.1 = federal institutions, NOT private sector) and Quebec Law 25 (held official consolidation to 2025-12-11; section 3.3 PIA for "any person carrying on an enterprise", section 12.1 automated-decision notice). AIDA section 29's text is NOT held, so its content was not reconstructed.
+- Scope match confirmed: Quebec Law 25 binds private-sector organizations (the DPIA template's audience); the TBS Directive binds federal institutions only and is cited as a clearly-labelled analogue, avoiding a scope mismatch.
+- Corpus-wide bare-token `AIDA` grep after the edits: no surviving live-framing carrier; the four neutral bare-listing cells (in the governance exception-and-risk-acceptance policy, the security data-classification standard, and two reference-list cells of the governance document-index register) correctly left neutral; the paired procedure key-reference cell in the document-index register (line 131) caught and fixed.
+- All five bodies-changed docs Version+Date co-bumped (2026-07-11); taxonomy regenerated first, then portal/scorecard.
+- Substantive tier: one refute-briefed skeptical verifier pre-push.
+
+### Discipline observation
+
+- The corpus-wide `AIDA` grep surfaced one carrier the initial 5-carrier enumeration missed: the governance document-index register's line-131 cell (the impact-assessment procedure's key-reference) still said "AIDA section 29" after the procedure body was changed, a paired-surface incompleteness. Caught by the closing grep §1.10 itself mandated, fixed in-window before commit. Confirms the value of the bare-token corpus-wide grep over an enumerated input-set.
+
 ## 2026-07-11, Library Version 2026.07.297, PR #809
 
 AI gaps-and-expansion workstream PR 10 (A6c), synthetic-content provenance: a new Guideline for the technical "how" of AI-generated-content transparency, anchored to the held NIST AI 100-4 and EU AI Act Article 50. Batches the #808 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.296` to `2026.07.297`.
