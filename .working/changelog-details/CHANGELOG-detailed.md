@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.293, PR #805
+
+AI gaps-and-expansion workstream, privacy-annex reconciliation: aligns two privacy jurisdiction annexes with the AI jurisdiction annexes' accurate framing (the #800/#801 `/validate-pr` notes). Batches the #804 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.292` to `2026.07.293`.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-australia.md`](../../privacy/jurisdictions/annex-privacy-australia.md) (`1.0.3`->`1.0.4`): the Privacy and Other Legislation Amendment Act 2024 bullet corrected from "Automated decisions affecting individuals under the Privacy Act must be clearly disclosed when requested" (imprecise) to the accurate framing: an automated-decision transparency obligation (new Australian Privacy Principles 1.7 to 1.9, commencing 10 December 2026) requiring the entity's APP privacy policy to state the kinds of personal information used and the kinds of decisions made by computer programs significantly affecting individuals; a privacy-policy-content obligation, not an on-request disclosure; with a cross-reference to [`ai/jurisdictions/annex-ai-australia.md`](../../ai/jurisdictions/annex-ai-australia.md).
+- [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md) (`1.1.0`->`1.1.1`): the CPPA and AIDA framing reconciled from "anticipated" to "lapsed / proposed, not in force" at six locations (Purpose line 21, regulatory-authorities line 31, and the four section headers "Under CPPA/AIDA (anticipated)" and "CPPA/AIDA (anticipated)"), aligning with the annex's own already-correct lapsed descriptions (lines 28 and 29, unchanged) and the AI-Canada annex; zero "(anticipated)" residual confirmed. The section content (conditional "would" descriptions of the proposed frameworks) is accurate under the reframed headers and was not otherwise changed.
+- [`TODO.md`](../../TODO.md): item 3.16 updated with the maintainer's 2026-07-11 direction, the root changelog is still too complex for standard readers, so the simplification target is enhanced to plain-language, jargon-free entries, scheduled for the post-`/deep-assessment` cleanup phase (a large ~678-entry reformat best done on fresh context).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.575`->`1.2.576`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.515`->`1.0.516`): the batched #804 `/validate-pr` history row (clean) and `/retro` row.
+
+### Verification
+
+- The Australia ADM framing matches the held Privacy and Other Legislation Amendment Act 2024 (APP 1.7 to 1.9, Schedule 1 Part 15, commencing 10 December 2026) and the AI-Australia annex; the Canada lapsed framing matches the held `grc_library_ref` legislation register (Bill C-27 died on the 2025-01-06 prorogation) and the AI-Canada annex. Zero "(anticipated)" residual in the Canada annex confirmed by grep.
+- Substantive multi-document correction: one refute-briefed skeptical verifier pre-push. Both annexes' Version and Date co-bumped; taxonomy and scorecard regenerated.
+
 ## 2026-07-11, Library Version 2026.07.292, PR #804
 
 AI gaps-and-expansion workstream, OECD-AI-Principles citation-year harmonization: the five corpus carriers of the stale "2023" OECD revision year reconciled to the current form. Batches the #803 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.291` to `2026.07.292`.

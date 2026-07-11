@@ -2,8 +2,8 @@
 
 **Document Title:** Australia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-11\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -37,7 +37,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
  - **APP 5 (notification):** Transparency obligations at point of collection.
  - **APP 6 (use and disclosure):** Restricts secondary use of personal information; repurposing for AI training requires compatible purpose assessment.
  - **APP 11 (security):** Reasonable security measures must be implemented for personal information in AI systems.
-- **Privacy and Other Legislation Amendment Act 2024:** Automated decisions affecting individuals under the Privacy Act must be clearly disclosed when requested.
+- **Privacy and Other Legislation Amendment Act 2024:** introduces an automated-decision transparency obligation (new Australian Privacy Principles 1.7 to 1.9), commencing 10 December 2026. Where a computer program makes, or does a thing substantially and directly related to making, a decision that could reasonably be expected to significantly affect an individual's rights or interests using their personal information, the entity's APP privacy policy must state the kinds of personal information used and the kinds of such decisions. This is a privacy-policy-content obligation (the privacy policy must describe the automated decision-making), not an on-request or per-decision individual disclosure. See [`ai/jurisdictions/annex-ai-australia.md`](../../ai/jurisdictions/annex-ai-australia.md) for the AI-governance framing.
 - **Australian AI Ethics Framework (2019, updated):** A voluntary framework with 8 principles including human, social and environmental wellbeing; human-centred values; fairness; privacy protection and security; reliability and safety; transparency and explainability; contestability; and accountability. Widely referenced by organizations developing AI governance programmes.
 - **Mandatory data breach notification:** Eligible data breaches must be reported to the OAIC and affected individuals.
 
