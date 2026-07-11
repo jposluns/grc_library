@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.292, PR #804
+
+AI gaps-and-expansion workstream, OECD-AI-Principles citation-year harmonization: the five corpus carriers of the stale "2023" OECD revision year reconciled to the current form. Batches the #803 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.291` to `2026.07.292`.
+
+### Changed
+
+- Four documents moved from "OECD AI Principles (2023)" to "OECD AI Principles (2019, updated 2024)": [`ai/framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md) (`1.0.6`->`1.0.7`), [`ai/guideline-ethical-ai-use.md`](../../ai/guideline-ethical-ai-use.md) (`1.0.4`->`1.0.5`), [`ai/charter-ai-ethics-review-panel.md`](../../ai/charter-ai-ethics-review-panel.md) (`1.0.2`->`1.0.3`), [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md) (`1.2.6`->`1.2.7`).
+- [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) (`1.0.8`->`1.0.9`): section 12 alignment-table cell moved from "OECD AI Principles 2023" to "OECD AI Principles (2019 Recommendation as updated 2024)", matching the document's own section 1.1 grounding line and the canonical register's version string.
+- [`TODO.md`](../../TODO.md): the section 1.10 OECD-AI-Principles-year bullet rotated to the DONE ledger (corpus side done); the `grc_library_ref` catalogue "revised 2023" correction added as TODO 1.8(e) (the cross-repo ref-side half). The section 1.10 AIDA-framing and EO-14110 bullets remain open.
+- [`.working/DONE.md`](../DONE.md): PR #804 entry recording the OECD-year corpus harmonization.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.574`->`1.2.575`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.514`->`1.0.515`): the batched #803 `/validate-pr` history row (clean) and `/retro` row.
+
+### Verification
+
+- Corpus-wide bare-token contradiction grep (`OECD AI Principles \(2023\)` and `OECD AI Principles 2023`) across all corpus domain directories returned zero residual after the fix.
+- The harmonized form is source-verified: the canonical-citations register records "OECD AI Principles | 2019 Recommendation as updated 2024"; the corpus plurality form (guide-ai-board-oversight A3 and three governance docs) is "(2019, updated 2024)"; both are accurate and current. The 2024 revision was confirmed upstream in #798.
+- Substantive multi-document correction: one refute-briefed skeptical verifier pre-push. All five documents' Version and Date co-bumped; taxonomy and scorecard regenerated.
+
 ## 2026-07-11, Library Version 2026.07.291, PR #803
 
 AI gaps-and-expansion workstream PR 8 (incident response and cost): deepens two AI operational documents against held sources (NIST AI 600-1, NIST AI 100-2e2025, OWASP Top 10 for LLM Applications v2.0, ISO/IEC TR 27563:2023). Batches the #802 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.290` to `2026.07.291`.

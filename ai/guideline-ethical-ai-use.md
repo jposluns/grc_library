@@ -2,7 +2,7 @@
 
 **Document Title:** Ethical AI Use Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -137,7 +137,7 @@ These are absolute prohibitions. Requests to deploy AI for these purposes are es
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| OECD AI Principles (2023) | Human-centric, fair, transparent, accountable AI; Principle 1.1 inclusive growth, sustainable development and well-being | Core ethical principles including sustainability and inclusion |
+| OECD AI Principles (2019, updated 2024) | Human-centric, fair, transparent, accountable AI; Principle 1.1 inclusive growth, sustainable development and well-being | Core ethical principles including sustainability and inclusion |
 | UNESCO Recommendation on the Ethics of AI (2021) | Human dignity, human oversight, fairness, transparency, accountability | Global AI ethics baseline |
 | CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Responsible AI design and use |
 | EU AI Act (2024) | Articles 5, 9: Prohibited practices and risk management | AI red lines and high-risk governance |
