@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.21\
+**Version:** 1.5.22\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -214,7 +214,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-09 |
+| WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-11 |
 | BASC International Standard | v6 (2022) | 2022 | Business Alliance for Secure Commerce international security standard | v5 | https://www.wbasco.org/en/certification/basc-certification | 2026-06-30 |
 | CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
 

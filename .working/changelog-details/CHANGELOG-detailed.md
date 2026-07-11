@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.306, PR #818
+
+Ref-side corrections complete (closes TODO §1.8). The substantive corrections are cross-repo in `grc_library_ref` PRs #52 / #53 / #54; this grc_library PR closes the backlog item and syncs the one corpus cell. Library `2026.07.305` to `2026.07.306`.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §1.8 removed (closed) and rotated to [`.working/DONE.md`](../DONE.md). All five corrections done: (b/c/d/e) ref #52; (a) WCO SAFE 2021-to-2025 refresh via the maintainer's ingest ref #53 (2021 retired to `.superseded/` with a REGISTER row; the held 2025 extract + catalogue entry confirmed present, ref validation clean); (c-filename) the CAN/DGSI slug renamed to the corrected 2nd-edition form in ref #54.
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (`1.5.21`->`1.5.22`): the WCO SAFE Framework row's verified date bumped `2026-07-09`->`2026-07-11` to sync with the ref ledger's fresh upstream confirmation (the row already carried the 2025 edition from #751, so this is a freshness sync, not an edition change; it also clears the advisory [`tools/audit-register-currency.py`](../../tools/audit-register-currency.py) register-behind flag for WCO SAFE).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the stale reference-currency-residual range "P1 §1.5-§1.8 items" corrected (the #817 `/validate-pr` in-window LOW, a section-close stale-RANGE-pointer the bare-`§1.7` grep missed, the range-notation case the new TODO §3.46 reference-key-width clause targets, now its 2nd occurrence). A protected-tree factual-staleness one-liner.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.588`->`1.2.589`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.528`->`1.0.529`): the batched #817 `/validate-pr` and `/retro` rows.
+
+### Verification
+
+- WCO SAFE 2025 confirmed current upstream this turn (wcoomd.org, 2025 edition published September 2025); the ref ingest (#53) retired the 2021 to `.superseded/` and the ref validation is clean (529 items). OECD 3 May 2024 and NERC CIP-015-1 FERC approval (Federal Register 2025-07-02) were re-confirmed upstream during #52. The TBS exact version-effective date remained not-cleanly-confirmable (page bot-blocked), so its label states only the confirmable in-force + compliance-transition framing.
+- The corpus WCO SAFE citations were already at the 2025 edition (moved corpus-wide in #751), so no corpus citation change is needed beyond the register verified-date sync. All 68 grc_library audit gates pass; taxonomy/portal regenerated after the register version bump.
+- Bookkeeping + factual-staleness-one-liner tier; no standing verifier. The substantive ref-side changes each passed the ref validation gate and CI.
+
 ## 2026-07-11, Library Version 2026.07.305, PR #817
 
 Register-currency drift-check tool (closes TODO §1.7), the currency-ledger plan's advisory sync tool. Library `2026.07.304` to `2026.07.305`.
