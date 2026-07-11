@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #814: CHANGELOG per-PR sweep-step wiring (closes TODO §3.17) (2026-07-11)
+
+Closed TODO §3.17 (per-PR sweep-step wiring): satisfied by #813, which added the advisory detailed-mirror-sweep close-out bullet to `.claude/CLAUDE.md`. Also the in-window fix for the #813 `/validate-pr` finding: #813's deletion of deferred-protected-changes item 7 left §3.17's body pointing at the now-removed item; closing §3.17 (its deliverable done) resolves the dangling reference, and the §3.14 body's `§3.16/§3.17` sweep-model citation was repointed to §3.16.
+
 ### PR #812: completion-verification file-type-width axis (closes TODO §1.9) (2026-07-11)
 
 Closed TODO §1.9 (log-mining #688/#689): added a fourth axis, FILE-TYPE WIDTH, to the [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) completion / contradiction-grep guard (beside pattern width, scope width, and separator tolerance). A rename, cutover, token-migration, or completion grep must now run over ALL file types the token can inhabit (`.py` and docstrings, `.yml`, `.json`, `.sh`, and the gate-exempt `.claude/` and `.working/` trees), not `.md` alone, because the prior axes were implicitly `.md`-scoped. Cites the #746-to-#811 recycled-section-number stale-pointer as the class it guards. Protected CLAUDE.md edit; lint-language run pre-commit.
