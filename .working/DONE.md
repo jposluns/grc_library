@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #808: nested-markdown-link detection gate, gate 68 (closes TODO 3.44) (2026-07-11)
+
+Added gate 68 ([`tools/lint-nested-markdown-links.py`](../tools/lint-nested-markdown-links.py)), a code-span-aware detector of the `[[text](url)](url)` nested-link malformation that recurred in #802 (gate-blind to the link-coverage and broken-link gates), with a regression fixture and the four-surface wiring; closes TODO 3.44 (part 1 cleanup landed in #807, part 2 gate here). Also tightened the #807 grep-fidelity overclaim surfaced by the #807 `/validate-pr` (F1).
+
 ### PR #806: AI workstream, AIDA / EO-14110 obligation-carrier reconcile (advances TODO §1.10) (2026-07-11)
 
 Reconciled the AIDA live-framing obligation, alignment, and applicability carriers across eight non-privacy corpus documents, and both US EO-14110 carriers, to the lapsed / rescinded framing (citing the in-force Treasury Board Directive on Automated Decision-Making and the federal Voluntary Code of Conduct on Generative AI); the EO-14110 rescission (20 January 2025) was confirmed upstream against the Federal Register. TODO §1.10 is narrowed to the remaining privacy-domain AIDA section-29 obligation-mapping residual (routed to a privacy follow-up).

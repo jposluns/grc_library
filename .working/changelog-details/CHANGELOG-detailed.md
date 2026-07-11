@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.296, PR #808
+
+AI gaps-and-expansion workstream, nested-markdown-link detection gate 68 (TODO 3.44, part 2 of 2, closes it) plus the #807 `/validate-pr` Finding-1 fix. Batches the #807 `/validate-pr` and `/retro` rows. Library `2026.07.295` to `2026.07.296`.
+
+### Added
+
+- [`tools/lint-nested-markdown-links.py`](../../tools/lint-nested-markdown-links.py): gate 68, a nested-markdown-link malformation audit. Detects the nested-link shape (a link whose visible text is itself a link, the doubly-wrapped form), which renders as a broken literal open bracket plus a dangling inline-link fragment and is gate-blind to the link-coverage gate (the inner link is well-formed) and the broken-link gate (the inner link resolves). Code-span-aware: it masks each inline code span to a placeholder before applying the regex, so a backticked description of the pattern is not flagged (the #807 Finding-1 constraint) while a real malformation's live brackets survive. Fence-aware via the shared iterator; scans the default markdown population (the root changelog included; `.working` and `.claude` exempt). Build-time census: zero, so the gate is preventive.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a `NestedMarkdownLinkTests` regression class (detect a real nested link; skip a backticked code-span description; skip a plain link and a `[[wikilink]]`).
+
+### Changed
+
+- Four-surface wiring for gate 68: [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (`1.16.64`->`1.16.65`; the section 6 inventory row, the section 5 "Programme and index integrity" grouped list, and the per-gate detailed-prose paragraph).
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): the #807 detailed entry's verification prose (Finding 1) tightened from the overstated "grep returns zero `[[`" to an accurate statement that no malformed nested links remain (the only `[[` tokens are that entry's own code-span descriptions of the pattern).
+- [`TODO.md`](../../TODO.md) and [`.working/DONE.md`](../DONE.md): TODO 3.44 deleted and rotated to DONE (both parts complete).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.578`->`1.2.579`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.518`->`1.0.519`): the batched #807 `/validate-pr` (Finding 1 fixed here) and `/retro` rows.
+
+### Verification
+
+- The gate was unit-tested at build (detect a real nested link; skip a backticked description, a plain link, and a wiki-style double bracket) and run corpus-wide (419 files, zero findings, so it lands green and preventive). Gate 35 (audit-programme parity) confirms the four surfaces agree; gate 39 counts the section 6 rows (now 68); gate 64 confirms the per-gate detailed-prose is present; the regression suite (gate 36) exercises the new test class.
+- Substantive tier (a new gate): one refute-briefed skeptical verifier pre-push, plus guard-first (the gate is green on the post-#807 corpus). Pre-push guard green.
+
 ## 2026-07-11, Library Version 2026.07.295, PR #807
 
 AI gaps-and-expansion workstream, CHANGELOG nested-link cleanup plus the #806 `/validate-pr` Finding 1 consistency fix (TODO 3.44, part 1 of 2). Batches the #806 `/validate-pr` and `/retro` rows. Library `2026.07.294` to `2026.07.295`.
@@ -22,9 +43,9 @@ AI gaps-and-expansion workstream, CHANGELOG nested-link cleanup plus the #806 `/
 
 ### Verification
 
-- The two nested links were the exact `[[ ... ]( ... )]( ... )` shape the #802 pre-push verifier first caught and reverted in-scope; these are the two that survived in unrelated early-PR historical entries. Post-fix `grep -nF '[[' CHANGELOG.md` returns zero. The single-link target resolves (the referenced file exists); the link-coverage gate stays green.
+- The two nested links were the exact `[[ ... ]( ... )]( ... )` shape the #802 pre-push verifier first caught and reverted in-scope; these are the two that survived in unrelated early-PR historical entries. Post-fix there are no malformed nested links in the root changelog (the broken-link gate stays green and the single-link targets resolve); the only remaining `[[` tokens are this entry's own backtick-wrapped descriptions of the pattern, which are code spans, not links.
 - The section-5.4 tightening changes no load-bearing claim (AIDA still lapsed; the Directive still binding, the Code still voluntary); it is a one-word umbrella-precision fix.
-- Quick-fix / cleanup tier (two mechanical link reverts plus a one-word umbrella tightening): no standing skeptical verifier per the tier guidance; mechanically verified (zero `[[` residual by grep, link resolution, full 67-gate audit green). Pre-push guard green.
+- Quick-fix / cleanup tier (two mechanical link reverts plus a one-word umbrella tightening): no standing skeptical verifier per the tier guidance; mechanically verified (no malformed nested links remain, link resolution confirmed, full audit green). Pre-push guard green.
 
 ## 2026-07-11, Library Version 2026.07.294, PR #806
 

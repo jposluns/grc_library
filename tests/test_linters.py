@@ -6618,5 +6618,45 @@ class DoctypeParityTests(LinterTestCase):
             )
 
 
+class NestedMarkdownLinkTests(LinterTestCase):
+    """tools/lint-nested-markdown-links.py (gate 68).
+
+    A nested markdown link ``[[text](url)](url)`` (a link whose text is
+    itself a link) is gate-blind to the link-coverage and broken-link
+    gates (the inner link is well-formed and resolves); this gate detects
+    it. A code-span DESCRIPTION of the pattern must NOT be flagged (the
+    #807 /validate-pr Finding-1 lesson), nor a plain link or a
+    ``[[wikilink]]``.
+    """
+
+    SCRIPT = "tools/lint-nested-markdown-links.py"
+
+    def test_nested_link_flagged(self) -> None:
+        f = self.make_fixture(
+            "nested-link.md",
+            "# T\n\nSee [[`a/b.md`](a/b.md)](a/b.md) for details.\n",
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertLinterFails(result, "nested markdown link")
+
+    def test_code_span_description_not_flagged(self) -> None:
+        # The #807 F1 constraint: the literal token inside a backtick code
+        # span is a description of the pattern, not a malformation.
+        f = self.make_fixture(
+            "nested-desc.md",
+            "# T\n\nCorrupted into the `[[ ... ]( ... )]( ... )` form (safe).\n",
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_plain_link_and_wikilink_not_flagged(self) -> None:
+        f = self.make_fixture(
+            "nested-clean.md",
+            "# T\n\nA [text](url) link and a [[wikilink]] are both fine.\n",
+        )
+        result = run_linter(self.SCRIPT, f)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

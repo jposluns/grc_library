@@ -163,6 +163,7 @@ run_gate "Audit-spec detailed-prose presence audit"       python3 tools/lint-aud
 run_gate "Cross-file section-name audit"                   python3 tools/lint-cross-file-section-names.py
 run_gate "Unbalanced-fence audit"                         python3 tools/lint-unbalanced-fences.py
 run_gate "Document-Type enumeration parity audit"         python3 tools/lint-doctype-parity.py
+run_gate "Nested-markdown-link audit"                     python3 tools/lint-nested-markdown-links.py
 
 # ----------------------------------------------------------------------
 # Summary

@@ -489,3 +489,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-nested-markdown-links
+        name: Nested-markdown-link audit
+        entry: python3 tools/lint-nested-markdown-links.py
+        language: system
+        pass_filenames: false
+        always_run: true

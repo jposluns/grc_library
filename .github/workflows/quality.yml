@@ -227,6 +227,9 @@ jobs:
       - name: Document-Type enumeration parity audit
         run: python3 tools/lint-doctype-parity.py
 
+      - name: Nested-markdown-link audit
+        run: python3 tools/lint-nested-markdown-links.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
