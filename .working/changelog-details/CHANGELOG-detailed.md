@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.278, PR #790
+
+First PR of the `claude/resume-sweep96-validate` resumed session: the loop-break Sweep 96 `/validate` close-out (the compensating control for session-closing handoff PR #789) plus the WS 0.5 unheld-citation acquisition. No corpus document changed (working-state, backlog routing, and one in-window TODO note).
+
+### Changed
+- [`TODO.md`](../../TODO.md) §1.10 broadened from a single-carrier fix (only [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md):115) to a **corpus-wide AIDA-framing reconcile** enumerating all six live-framing carriers Sweep 96 found (adds [`ai/procedure-ai-evaluation.md`](../../ai/procedure-ai-evaluation.md):100, [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md):25 and :58, [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md):150, [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md):146), noting the #785/#787 reconcile was `ai/`-scoped only.
+- [`TODO.md`](../../TODO.md) §1.11 status updated: six of seven unheld citations acquired to `grc_library_ref` (its PR #41, merged `d31ff03`); IEEE 7000-2021 in progress by a maintainer worker agent; on landing, verify the §7.3 locator.
+- The session handoff [`../session-handoff.md`](../session-handoff.md) pruned per the resume discipline (keep current sweep95 + 1-prior sweep94; the sweep93 Next-actions and Asserted-expectations blocks deleted, their load-bearing items confirmed recorded in the deep-assessment register), the Resume-cursor advanced to Sweep 96, and the D7 version-snapshot tokens reconciled to `2026.07.278` / README `1.9.639`.
+- [`../session-state.md`](../session-state.md) concurrency lease ACQUIRED (`Active-session: claude/resume-sweep96-validate`, `Status: active`, fresh heartbeat).
+- [`../pending-decisions.md`](../pending-decisions.md) WS 0.5 entry marked resolved-in-progress.
+
+### Added
+- New [`TODO.md`](../../TODO.md) §1.10 bullet: **US Executive Order 14110 cited present-tense despite its rescission** ([`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md):25 and :119), untracked and unregistered, with an accepted-unverified caveat (the ~2025-01-20 rescission date to be Federal-Register-confirmed before remediation).
+- Sweep 96 iter 1 detail file [`../validate-sweeps/2026-07-10-sweep96-iter1.md`](../validate-sweeps/2026-07-10-sweep96-iter1.md) and the [`../validate-sweeps/history.md`](../validate-sweeps/history.md) row (its own Version `2.0.90` to `2.0.91`).
+- In `grc_library_ref` (cross-repo PR #41, merged): the G7 Hiroshima Code of Conduct (new `frameworks/G7/`), OWASP GenAI Red Teaming Guide v1.0 and OWASP MCP Top 10 (`frameworks/OWASP/`), PTES v1.0 (new `frameworks/PTES/`), and Model Cards / Datasheets (`publications/`, screen `pending`); catalogue + regenerated generators; `validation OK`, 502 items.
+
+### Fixed
+- [`TODO.md`](../../TODO.md):218 (open §3.43) closed-section provenance references reworded from `END §3.41` / `GVN §3.40` to stable PR references (`END` fixed #781, `GVN` fixed #782, `ISM` fixed #769); the in-window §N-orphan note A-2.
+
+### Verification
+- `tools/run_all_audits.sh` = 67/67 on the committed state; `tools/run-pr-time-checks.sh` (D1-D7) green; the pre-push guard chained green before push.
+- the `grc_library_ref` validation gate reported `validation OK` (502 catalogue items, watermark scan clean); its CI `validate` check was SUCCESS; PR #41 merged.
+- Sweep 96: three subagents (A recent-PR, B corpus-wide, C audit-programme), baseline 67/67 at `e13835a`/#789. Asserted-expectations cross-check: 3 of 4 corroborated; 1 soft contradiction (the AIDA over-claim) escalated + routed; 1 new finding (EO 14110) routed; 1 in-window note fixed; audit programme clean (gate-48 Check-5 four-surface complete, gate count 67 consistent).
+
+### Discipline observation
+- The Sweep 96 catch validates the loop-break compensating control. The #789 handoff asserted "zero present-tense-AIDA carriers corpus-wide" while its own §1.10 simultaneously tracked the `:115` carrier as remaining and listed §1.10 as not-asserted-clean, so the asserted-expectations wording over-generalized past what the session had actually verified. §1.10 itself carried a deferred "bare-token grep AIDA corpus-wide before closing" step; running that grep in Sweep 96 surfaced five more live carriers plus the untracked EO 14110. Lesson (reinforces the `evidence-grounded-completion` corpus-wide-scope guard): an "asserted clean corpus-wide" claim must be backed by the corpus-wide grep at write time, never by an input-set grep with the corpus-wide sweep deferred.
+
 ## 2026-07-10, Library Version 2026.07.277, PR #789
 
 **Session-closing handoff PR** for the `claude/resume-sweep95-validate` session (#780-#788). Working-state only; no corpus document body changed. Takes the standing handoff-PR exemption from its own trailing `/validate-pr` + `/retro` (loop-break).
