@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.311, PR #823
+
+Records the whole-project `/deep-assessment` run **r2** (maintainer-invoked at the sweep97 `/resume`, opened fresh-context), Phases 1-7 complete and HOLDING at Phase 8 for explicit maintainer sign-off. Finding set 0 error / 1 warning / 4 note. Bookkeeping only (the F1 corpus fix and the gate-69 merge are proposed and await sign-off, so no corpus document body changed). Library `2026.07.310` to `2026.07.311`.
+
+### Added
+
+- [`.working/deep-assessment/2026-07-11-r2.md`](../deep-assessment/2026-07-11-r2.md): the r2 per-run detail record (Phases 1-8), with the derived live inventory (68 gates / 14 commands / 21 skills / 13 governance rules / 9 advisory tools), the green-at `41a20db` (#822) baseline, per-instrument outcomes, the Phase-4 mutation/blind-spot results, the Phase-6 adoptability/pipeline/ledger review, and the Phase-7 finding register (F1-F5 + dedupes + refutations).
+
+### Changed
+
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the r2 row advanced to P1-P7 complete, P8 in-progress (holding for sign-off), Status `in-progress`, with the finding-summary and dedupe cells; plus the r2 prose paragraph.
+- [`TODO.md`](../../TODO.md): routed two r2 findings as clean P3 items per the §3.47 no-provenance convention, **§3.48** (ingest the DORA major-incident-reporting RTS 2025/302 and verify the 4h/72h/1-month windows; accepted-unverified tracker for `compliance/financial-services/annex-dora-implementation.md:78`, F5) and **§3.49** (reconcile the guardrail-review `[guardrails]`-tag skill prose vs the `(rN guardrails, ...)` backlog convention, F2).
+- [`.working/guardrail-reviews/history.md`](../guardrail-reviews/history.md) (`1.0.9`->`1.0.10`): added the **r8** row, the `/deep-assessment` r2 `/guardrails` pass of record, resetting the gate-60 cadence with the inventory token `inventory 68 gates / 13 rules / 21 skills / 14 commands`; machinery coherent (0 overlap/gap/coherence/dead-machinery), 1 Low routed (F2).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.593`->`1.2.594`): the batched #822 `/validate-pr` row (**CLEAN**, 0 findings across all six axes).
+- [`.working/improvement-log.md`](../improvement-log.md) (`1.0.532`->`1.0.533`): the batched #822 `/retro` row (records the recurring handoff-no-row miss as a watch-not-yet-codified pattern).
+- [`.working/session-state.md`](../session-state.md): lease heartbeat re-stamped, `Active-session` updated to `claude/deep-assessment-r2-open`, `Current-task` set to the in-progress r2 holding for sign-off.
+- [`README.md`](../../README.md): library CalVer `2026.07.310`->`2026.07.311`, README Version `1.9.671`->`1.9.672`.
+
+### Verification
+
+- Phase-2 mechanical baseline green at `41a20db` (#822): `run_all_audits.sh` 68/68, both generator `--check`s in sync, both sibling repos' validate gates clean; the `/validate` of record is Sweep 97 (loop-break control for #821 PASSED).
+- Phase-4 gate efficacy: blind-spot map 0 non-exempt files uncovered; mutation probe **11 detected / 0 missed / 5 clean-pass / 0 false-positive** on a disposable `--no-hardlinks` clone (marker-gated, never the working repo).
+- Every finding orchestrator-verified before routing: F1 re-read against the held ISO/IEC 42001 Clause 8.4 TOC/body (line 1150 + definition 3.24) and the seven carrier lines; the notes are self-grounded with `path:line` quotes.
+- **The run HOLDS for explicit maintainer sign-off** (Phase 8); it is presented tiered and does not self-close. F1 (7-carrier corpus fix), F3/F4, and the gate-69 coverage-obligation merge are proposed and NOT shipped in this PR.
+- Coverage honesty: the semantic instruments were priority-sampled to the AI slice + machinery; the non-AI matrix/claim/reference-breadth remainders and `/screen-publications` (17 `pending` publications) are the tracked re-entrant continuation, disclosed rather than silently capped.
+
 ## 2026-07-11, Library Version 2026.07.310, PR #822
 
 Session-resume close-out for the sweep97 resumed session (the maintainer-invoked whole-project `/deep-assessment` session, opened fresh-context per the deep-assessment discipline). Records the loop-break corpus-wide `/validate` **Sweep 97**, the compensating control for the #821 session-closing handoff PR (which skipped its trailing `/validate-pr` and `/retro`). Bookkeeping only (no corpus document body changed). Library `2026.07.309` to `2026.07.310`.

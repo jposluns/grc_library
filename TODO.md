@@ -180,6 +180,14 @@ The `/retro` for PR #784 surfaced the **4th invalid CSA control-code family this
 
 TODO items carry internal working-provenance that an adopter reading the backlog does not need and that clutters the file: date-stamped `maintainer-directed YYYY-MM-DD` tags, `Surfaced ... during #N` and `Mined ... (sweep N ...)` origin lines, PR-number and sweep-lineage annotations, and residual `(was X.Y)` renumber breadcrumbs. This provenance lives durably in git history, the DONE ledger, and the CHANGELOG; the forward-looking TODO should read as a clean, adoptable backlog of what remains. Sweep the open items to remove these annotations, keeping the actionable content, the stable id in each heading, and the `(severity, effort)` tag. Standing convention going forward: new TODO items omit date, PR, sweep, and maintainer-directed provenance.
 
+### 3.48 Ingest the DORA major-incident-reporting RTS and verify the reporting windows (S)
+
+The DORA major-incident reporting windows cited in [`compliance/financial-services/annex-dora-implementation.md`](compliance/financial-services/annex-dora-implementation.md) (initial notification "no later than 4 hours from classification as major"; intermediate report within 72 hours; final report within one month) are prescribed by the DORA regulatory technical standard (Commission Delegated Regulation (EU) 2025/302), which is NOT held in `grc_library_ref`. The base regulation (Regulation (EU) 2022/2554, Articles 19-20) lists the three report types and delegates the actual time limits to the RTS/ITS, stating no values. The corpus correctly attributes the windows to "RTS / ITS", so no phrasing fix is needed; this is an accepted-unverified tracker. Ingest RTS 2025/302 into `grc_library_ref` (cross-repo PR) and verify the three windows against the held RTS text, or confirm them upstream.
+
+### 3.49 Reconcile the guardrail-review routing-tag convention (S)
+
+The [`guardrail-review` skill](dev-security/claude-rules/skills/guardrail-review/SKILL.md) prescribes routing confirmed findings "tagged `[guardrails]`" (SKILL.md lines 50 and 71), but the backlog uses the `(rN guardrails, size, effort)` parenthetical form (0 literal `[guardrails]` bracket tags; 5 parentheticals). Traceability is preserved by the parenthetical, so this is low. Decide one of: reword the skill prose to describe the parenthetical convention actually in use, OR adopt the bracket tag across the backlog. Protected pack edit (the skill file).
+
 ---
 
 ## Priority 4 — Adopter experience
