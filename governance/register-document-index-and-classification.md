@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.74\
+**Version:** 1.27.75\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -174,6 +174,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Vietnam Privacy Requirements | [`privacy/jurisdictions/annex-privacy-vietnam.md`](../privacy/jurisdictions/annex-privacy-vietnam.md) | Data Protection Officer | Annual | Decree 13/2023 | template |
 | Privacy | Annex | Malaysia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-malaysia.md`](../privacy/jurisdictions/annex-privacy-malaysia.md) | Data Protection Officer | Annual | PDPA 2010 (amended 2024) | template |
 | AI | Framework | AI Governance and Risk Framework | [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, NIST AI RMF, EU AI Act, COBIT | template |
+| AI | Framework | AI Maturity Model Framework | [`ai/framework-ai-maturity-model.md`](../ai/framework-ai-maturity-model.md) | AI Governance Approver | 6 to 12 months | OWASP AIMA, CMU SEI, ISO/IEC 42001, NIST AI RMF | template |
 | AI | Standard | AI Security and Risk Standard | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) | AI Security Maintainer | 6 to 12 months | ISO/IEC 42001, OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF | template |
 | AI | Standard | AI Model Risk Standard | [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, NIST AI RMF, EU AI Act Annex IV, model risk governance | template |
 | AI | Standard | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Steward | 6 to 12 months | ISO/IEC 5259 series, ISO/IEC 8183, ISO/IEC 42005, EU AI Act Article 10 | template |
