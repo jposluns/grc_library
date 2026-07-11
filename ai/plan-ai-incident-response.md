@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-11\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -43,6 +43,12 @@ This plan applies to every AI system in the AI System Register, including founda
 | Hallucination causing harm | Customer complaint; downstream-system failure attributable to AI-generated content; legal or safety review |
 | Model degradation | Eval-suite regression beyond threshold; production-metric degradation; drift detection |
 | Supplier model incident | Vendor security advisory; vendor outage; vendor disclosure of training-data exposure |
+
+These operational trigger classes map to the NIST AI 100-2e2025 adversarial-ML attack taxonomy, which is the reference catalogue for classifying a novel incident: prompt injection (direct) to NISTAML.018 and prompt injection (indirect) to NISTAML.015; data poisoning to NISTAML.013; model inversion and membership inference to the Privacy Compromises class NISTAML.03 (Reconstruction NISTAML.032, Membership Inference NISTAML.033); retrieval leakage and agent compromise to the generative-AI Privacy Compromises subclasses (leaking information from user interactions NISTAML.036, compromising connected resources NISTAML.039). This table is the operational trigger list; the taxonomy is the classification reference.
+
+## AI incident reporting and disclosure channels
+
+Consistent with the NIST AI Generative AI Profile (NIST AI 600-1) action GV-2.1-001, the organization establishes roles, policies, and procedures for communicating AI incidents to affected AI actors and downstream stakeholders via community or official resources. Where an incident warrants external disclosure, the recognized public channels include the AI Incident Database, AVID, CVE, NVD, and the OECD AI incident monitor. External disclosure of a specific incident is a decision of the AI Governance Council in coordination with legal, not an operator default; the channels are named here so the Recover-phase disclosure step has a defined target.
 
 ---
 
@@ -189,7 +195,9 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 | --- | --- | --- |
 | OWASP LLM Top 10 (2025) | LLM01 to LLM10 | Threat taxonomy |
 | MITRE ATLAS | Tactics and techniques | Adversarial ML threat catalogue |
-| NIST AI RMF | MANAGE function | AI incident management |
+| NIST AI RMF Generative AI Profile (NIST AI 600-1) | GOVERN 1.5 (GV-1.5-002, after-action reviews of incident response and disclosure); GOVERN 2.1 (GV-2.1-001, communicating incidents to AI actors and downstream stakeholders); MANAGE 2.3 (MG-2.3-001, incident response and recovery plans across the value chain); MANAGE 4.3 (MG-4.3-001, after-action assessments; MG-4.3-003, reporting in compliance with legal and regulatory requirements) | AI incident management, deepened to the generative-AI-profile action IDs |
+| NIST AI 100-2e2025 | Adversarial ML attack taxonomy (NISTAML.01 to NISTAML.05) | Incident-class taxonomy anchor (the crosswalk under AI incident classes) |
+| ISO/IEC TR 27563:2023 | Security and privacy in AI use cases (informative best practices) | Supporting reference for privacy-implicated incident paths (STRIDE and LINDDUN framing; re-identification and inference risks); the normative privacy-breach path is the privacy breach-response procedure |
 | ISO/IEC 42001:2023 | §9, §10 | AI management system performance and improvement |
 | EU AI Act | Articles 15, 17, 26 | Security, quality management, deployer obligations |
 | ISO/IEC 27035-3 | Information security incident response | Underlying IR practice |
