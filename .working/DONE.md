@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #816: AI gaps-and-expansion workstream complete (closes TODO §2.2) (2026-07-11)
+
+Closed TODO §2.2 (the maintainer-directed AI gaps-and-expansion workstream, PRs 0-10): PR 0 shipped the five corpus-accuracy fixes (#784-#788); PR 1-10 shipped the content-authoring builds including the six new documents A1-A6 (A5 value-and-decision-governance authored as original governance constructs in #815, A6c synthetic-content provenance in #809), each with per-PR QA and a skeptical or high-assurance verifier. The whole-project `/deep-assessment` is a separate maintainer-invoked decision (not part of this item and not a TODO); it is decoupled from §2.2 at the maintainer's 2026-07-11 direction.
+
 ### PR #814: CHANGELOG per-PR sweep-step wiring (closes TODO §3.17) (2026-07-11)
 
 Closed TODO §3.17 (per-PR sweep-step wiring): satisfied by #813, which added the advisory detailed-mirror-sweep close-out bullet to `.claude/CLAUDE.md`. Also the in-window fix for the #813 `/validate-pr` finding: #813's deletion of deferred-protected-changes item 7 left §3.17's body pointing at the now-removed item; closing §3.17 (its deliverable done) resolves the dangling reference, and the §3.36 body's `§3.16/§3.17` sweep-model citation was repointed to §3.16.
