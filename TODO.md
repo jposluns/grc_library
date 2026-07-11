@@ -26,7 +26,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing. The routine `/validate`, `/validate-pr`, `/matrix-fit`, and `/claim-fit` cadences are the reactive half of this tier; the items below are the standing preventive half.
 
-The §1.5 reference version-currency register shipped in #505 and the full `needs-reconfirm` sweep ran in #751 (49 rows verified upstream 2026-07-09: 41 confirmed-stamped, 5 stale-corrected with corpus cascade, 1 data-defect). The 51-row egress deferral is discharged. The remaining residuals are split below (each its own resolution path).
+P1 currently has no open items: its correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
 
 ---
 
@@ -179,10 +179,6 @@ The `/retro` for PR #784 surfaced the **4th invalid CSA control-code family this
 ### 3.45 Optional corpus-wide neutral-AIDA-bare-listing "(lapsed)" annotation (#810 verifier, XS)
 
 The #810 privacy AIDA section-29 reconcile fixed every live-framing AIDA carrier and left the four neutral bare-listing reference cells neutral per the closing §1.10 convention: [`governance/policy-exception-and-risk-acceptance-management.md`](governance/policy-exception-and-risk-acceptance-management.md):144, [`security/standard-data-classification-and-handling.md`](security/standard-data-classification-and-handling.md):146, and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md):195 and :315. These merely list AIDA among reference frameworks (no obligation attributed), so they are accurate, but they lack a "(lapsed)" marker, which the #810 skeptical verifier flagged as a mild intra-file inconsistency in the doc-index register (its :153 Canada-privacy cell now reads "lapsed" while :195 and :315 list AIDA bare). Optional consistency-only sweep: annotate the four cells "(lapsed)" for corpus-wide uniformity. Low value, explicitly optional per §1.10's own wording; fold into a future bare-listing consistency pass, not its own PR.
-
-### 3.46 §N-orphan close-out guard: add a reference-key-width clause (`/retro` #813, protected CLAUDE.md edit, XS)
-
-The [`.claude/CLAUDE.md`](.claude/CLAUDE.md) `## Session migration and PR close-out checklist` §N-orphan cross-FILE cleanup line greps the whole repo for `§N` / `PN.M` references on a section-close, but the #813 `/validate-pr` caught a dangling reference in a DIFFERENT key form: closing a numbered TODO section is one shape, but deleting an `item N` entry in another file (deferred-protected-changes item 7) left a since-closed TODO item (the sweep-step-wiring item, closed in #814) pointing at the removed `item 7`, and a section-keyed grep does not cover an `item N` citation. Add a reference-key-width clause: a section/item close greps for references in EVERY key form the closed thing is cited by (`§N`, `PN.M`, `item N`, and any distinctive name/token it carried), not only the `§N` form. This is the reference-key companion to the file-type-width axis added in #812; both widen the completion/orphan grep beyond its reflexive default (`.md`-only for file type; `§N`-only for key form). Protected CLAUDE.md convention edit; fold into a future protected-prose touch. Surfaced by the #813 retrospective 2026-07-11.
 
 ---
 
