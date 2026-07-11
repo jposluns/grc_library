@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #811: unheld-citation acquisition complete (closes TODO §1.11) (2026-07-11)
+
+Closed TODO §1.11 (the WS 0.5 unheld-citation acquisition, routed to the maintainer source-drop queue in #788): all seven citations are now held in `grc_library_ref` (six ingested in ref PR #41; IEEE 7000-2021 ingested separately by a maintainer worker), and the one corroborative IEEE 7000-2021 §7.3 locator was verified against the held text during PR 1. Bookkeeping close with the §N-orphan cross-file cleanup: reworded the §2.2 historical reference and fixed a pre-existing stale `.claude/CLAUDE.md` example pointer (it still cited the recycled §1.11 number for the Brazil-citation tracker closed in #746).
+
 ### PR #810: privacy-domain AIDA section-29 residual reconcile (closes TODO §1.10) (2026-07-11)
 
 Closed the privacy-domain residual of TODO §1.10: the lapsed AIDA section 29 was still mapped as a LIVE AI-impact / DPIA obligation in `privacy/template-dpia.md`, `privacy/procedure-privacy-impact-and-cross-border-transfer.md`, and `privacy/annex-privacy-jurisdiction-index.md`, plus stale AIDA/CPPA "(pending)" hedges in the compliance matrix and the document-index register. Reconciled to the in-force Canadian instruments (Quebec Law 25 CQLR P-39.1 sections 3.3/12.1, private sector; Treasury Board Directive on Automated Decision-Making section 6.1 Algorithmic Impact Assessment, federal institutions), with AIDA marked lapsed, verified against the held Quebec Law 25 and TBS Directive texts. The four neutral bare-listing AIDA cells were correctly left neutral. §1.10 fully closed.
