@@ -4,6 +4,10 @@ All notable changes to this repository are recorded in this file as lead-paragra
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+## 2026-07-11, Library Version 2026.07.300, PR #812
+
+`.claude/` governance-guard addition for local project (closes TODO §1.9, log-mining #688/#689): adds a fourth axis, FILE-TYPE WIDTH, to the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) completion / contradiction-grep guard (beside pattern width, scope width, and separator tolerance), requiring a rename, cutover, token-migration, or completion grep to run over ALL file types the token can inhabit (`.py` and docstrings, `.yml`, `.json`, `.sh`, and the gate-exempt `.claude/` and `.working/` trees), not `.md` alone. Batches the #811 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.299` to `2026.07.300`.
+
 ## 2026-07-11, Library Version 2026.07.299, PR #811
 
 Working-state and `.claude/` bookkeeping for local project: closes TODO §1.11 (the WS 0.5 unheld-citation acquisition, all seven citations now held in `grc_library_ref` and the IEEE 7000-2021 §7.3 locator verified) and rotates it to DONE, with its §N-orphan cross-file cleanup, fixing a pre-existing stale [`.claude/CLAUDE.md`](.claude/CLAUDE.md) accepted-unverified-tracker example that still cited the recycled §1.11 number for the Brazil-citation tracker closed in #746. Batches the #810 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.298` to `2026.07.299`.

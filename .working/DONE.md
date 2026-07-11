@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #812: completion-verification file-type-width axis (closes TODO §1.9) (2026-07-11)
+
+Closed TODO §1.9 (log-mining #688/#689): added a fourth axis, FILE-TYPE WIDTH, to the [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) completion / contradiction-grep guard (beside pattern width, scope width, and separator tolerance). A rename, cutover, token-migration, or completion grep must now run over ALL file types the token can inhabit (`.py` and docstrings, `.yml`, `.json`, `.sh`, and the gate-exempt `.claude/` and `.working/` trees), not `.md` alone, because the prior axes were implicitly `.md`-scoped. Cites the #746-to-#811 recycled-section-number stale-pointer as the class it guards. Protected CLAUDE.md edit; lint-language run pre-commit.
+
 ### PR #811: unheld-citation acquisition complete (closes TODO §1.11) (2026-07-11)
 
 Closed TODO §1.11 (the WS 0.5 unheld-citation acquisition, routed to the maintainer source-drop queue in #788): all seven citations are now held in `grc_library_ref` (six ingested in ref PR #41; IEEE 7000-2021 ingested separately by a maintainer worker), and the one corroborative IEEE 7000-2021 §7.3 locator was verified against the held text during PR 1. Bookkeeping close with the §N-orphan cross-file cleanup: reworded the §2.2 historical reference and fixed a pre-existing stale `.claude/CLAUDE.md` example pointer (it still cited the recycled §1.11 number for the Brazil-citation tracker closed in #746).
