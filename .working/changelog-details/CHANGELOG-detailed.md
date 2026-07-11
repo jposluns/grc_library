@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.308, PR #820
+
+P3 small-cleanup batch (closes TODO §3.37 and §3.45). Library `2026.07.307` to `2026.07.308`.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §3.37 (dropped the colliding `(was 3.22)`/`(was 3.24)` breadcrumbs) and §3.45 removed and rotated to [`.working/DONE.md`](../DONE.md); new §3.47 opened (TODO adoptability, strip internal working-provenance annotations, per the maintainer's direction, with a going-forward convention that new items omit date/PR/sweep/maintainer-directed provenance); the P1 intro's first paragraph reworded so it no longer contradicts the "P1 has no open items" note (the #819 `/validate-pr` LOW finding).
+- [`governance/policy-exception-and-risk-acceptance-management.md`](../../governance/policy-exception-and-risk-acceptance-management.md) (`1.3.14`->`1.3.15`), [`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md) (`1.4.5`->`1.4.6`), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (`1.27.82`->`1.27.83`): the four neutral AIDA bare-listing reference cells annotated "(lapsed)" (§3.45), so no corpus AIDA reference is left un-marked; these merely list AIDA among reference frameworks (no obligation attributed), so the change is consistency-only.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.590`->`1.2.591`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.530`->`1.0.531`): the batched #819 `/validate-pr` (1 in-window LOW, fixed here) and `/retro` rows.
+
+### Verification
+
+- The §3.45 cells were re-located by content (the §3.45 item cited stale line numbers from before the register shifted); confirmed the register `:153` Canada-privacy cell was already "(CPPA/AIDA lapsed)" from #810, so only the four genuinely-bare cells were annotated. All three touched docs Version+Date co-bumped; taxonomy/portal regenerated; all 68 audit gates pass; the pre-push guard is green.
+- Bookkeeping / consistency-annotation tier; no standing verifier.
+
 ## 2026-07-11, Library Version 2026.07.307, PR #819
 
 Governance-guard codification + the #818 in-window fixes (closes TODO §3.46; no corpus document body changed). Library `2026.07.306` to `2026.07.307`.

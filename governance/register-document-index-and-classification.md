@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.82\
+**Version:** 1.27.83\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -193,7 +193,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Guideline | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | AI Security Maintainer | 6 to 12 months | NIST AI 100-4, EU AI Act Article 50, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md) | AI Security Maintainer | 6 to 12 months | OWASP LLM Top 10, MITRE ATLAS, adversarial ML, red teaming | template |
 | AI | Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | AI Security Maintainer | 6 to 12 months | OWASP LLM Top 10, NIST AI RMF, ISO/IEC 42001, secure AI deployment | template |
-| AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, AIDA, ISO/IEC 42001, NIST AI RMF, UK AI Safety Institute | template |
+| AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, AIDA (lapsed), ISO/IEC 42001, NIST AI RMF, UK AI Safety Institute | template |
 | AI | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) | Chief Information Security Officer | Annual | EU AI Act Regulation (EU) 2024/1689, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) | Chief Information Security Officer | Annual | Colorado SB 24-205, Colorado SB 26-189, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | New York City Automated Employment Decision Tool Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md) | Chief Information Security Officer | Annual | NYC Local Law 144, DCWP rule 6 RCNY 5-300 to 5-304, NIST AI RMF, ISO/IEC 42001 | template |
@@ -313,7 +313,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Risk | Template | Enterprise Risk Register Template | [`risk/template-enterprise-risk-register.md`](../risk/template-enterprise-risk-register.md) | Chief Risk Officer | Annual | ISO 31000:2018, ISO/IEC 27005:2022, NIST SP 800-30r1, COBIT APO12 | template |
 | Risk | Template | Risk Appetite Statement Template | [`risk/template-risk-appetite-statement.md`](../risk/template-risk-appetite-statement.md) | Chief Risk Officer | Annual | ISO 31000:2018, COSO ERM Framework, COBIT APO12 | template |
 | Risk | Standard | Third-Party and Supply Chain Risk Standard | [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md) | Chief Risk Officer | Annual | ISO/IEC 27001 Annex A.5.19 to 22, ISO 28000, NIST SP 800-53 SA-9/SR, NIST CSF 2.0 GV.SC | template |
-| Risk | Annex | AI-Specific Risk Methodology Annex | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Chief Risk Officer | Annual | ISO/IEC 42001 §6, EU AI Act, NIST AI RMF, ISO 31000, AIDA (Canada) | template |
+| Risk | Annex | AI-Specific Risk Methodology Annex | [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Chief Risk Officer | Annual | ISO/IEC 42001 §6, EU AI Act, NIST AI RMF, ISO 31000, AIDA (Canada; lapsed) | template |
 | Risk | Guideline | Quantitative Risk Analysis Guideline (FAIR-aligned) | [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md) | Chief Risk Officer | Annual | FAIR (Open Group Standard), ISO 31000, NIST SP 800-30r1 | template |
 | Risk | Register | Key Risk Indicator Catalogue | [`risk/register-key-risk-indicators.md`](../risk/register-key-risk-indicators.md) | Chief Risk Officer | Annual | ISO 31000:2018, COSO ERM, COBIT APO12, ISO/IEC 27001 §9.1 | template |
 | Risk | Template | Operational Risk Register Template | [`risk/template-operational-risk-register.md`](../risk/template-operational-risk-register.md) | Chief Risk Officer | Annual | ISO 31000:2018, ISO/IEC 27005:2022, COSO ERM 2017, Basel Committee Operational Risk Principles, ORX Reference Taxonomy, FAIR, COBIT 2019 EDM03, NIST CSF 2.0 | template |
