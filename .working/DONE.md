@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #820: small-cleanup batch, breadcrumb collisions + AIDA bare-listing annotation (closes TODO §3.37, §3.45) (2026-07-11)
+
+Closed two P3 tidies. **§3.37:** dropped the two colliding `(was X.Y)` renumber breadcrumbs (`(was 3.22)` on §3.19, `(was 3.24)` on §3.20) whose numbers had been reused by since-closed items, resolving the latent ambiguity. **§3.45:** annotated the four neutral AIDA bare-listing reference cells "(lapsed)" for corpus-wide uniformity (policy-exception risk-approval row; security AI-data-handling row; the doc-index register's AI-compliance-policy and AI-risk-methodology reference cells). Also opened §3.47 (TODO adoptability: strip internal working-provenance annotations) per the maintainer's direction, and fixed the #819 `/validate-pr` P1-intro contradiction.
+
 ### PR #819: §N-orphan reference-key-width clause codified (closes TODO §3.46) + #818 findings (2026-07-11)
 
 Codified the reference-key-width axis into the [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) §N-orphan close-out guard (a section/item close greps every key form the closed thing is cited by, `§N` / `PN.M` / `item N` / ranges `§A-§B`, not only bare `§N`), extinguishing the class that recurred three times this session (#814 §3.36-vs-item-7; #817 §1.5-§1.8 range; #818 CLAUDE.md §1.8 line). Also fixed the two #818 in-window `/validate-pr` findings: the stale CLAUDE.md §1.8-residual line (now "§1.5 through §1.8 all closed") and the stale TODO P1 intro (the §1.5 "residuals split below" prose the maintainer flagged, P1 now has no open items). Closes TODO §3.46.
