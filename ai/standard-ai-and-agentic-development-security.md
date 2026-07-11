@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.8\
-**Date:** 2026-07-10\
+**Version:** 1.8.9\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -250,6 +250,8 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 | Observability | Distributed tracing on every agent run |
 | SLOs | Latency and availability thresholds defined for all AI services |
 
+**Framework anchors.** These controls align with NIST SP 800-218A PW.4.4 (verify the integrity, provenance, and security of acquired AI components, and scan them for vulnerabilities and malicious content before use; DEVSEC-AI-04) and with ETSI EN 304 223 V2.1.1 Provision 5.2.2-3 (dedicated development and model-tuning environments backed by technical controls for separation and least privilege; Principle 6).
+
 ---
 
 ## 10. Agent security requirements
@@ -466,6 +468,8 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 The control is informed by the byte-level scanning patterns established by open-source tools modelscan (Apache-2.0), picklescan (MIT, the engine used by Hugging Face Hub-side scanning), and fickling (LGPL-3.0, pickle decompiler and symbolic tracer). Tool choice is at the organization's discretion; the deny-list categories above are the minimum coverage. The scanner must produce a machine-readable report retained alongside the model registry entry.
 
+**Framework anchors.** These controls align with NIST SP 800-218A: PS.2.1 (cryptographic hashes or digital signatures for model integrity; SUPPLY-SEC-05), PW.4.4 (verify and scan acquired AI models and datasets; SUPPLY-SEC-04 and SUPPLY-SEC-07), PS.3.2 (provenance data via a software bill of materials and Supply-chain Levels for Software Artifacts; SUPPLY-SEC-03), and PW.3.2 (track data provenance; SUPPLY-SEC-06); and with ETSI EN 304 223 V2.1.1 Provision 5.2.3-1 (secure software supply-chain processes; Principle 7) and Provision 5.2.4-1.2 (cryptographic hashes for released model components; Principle 8).
+
 ---
 
 ## 19. CI/CD pipeline controls
@@ -543,6 +547,8 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 **ADTEST-SEC-01:** The test suite must be updated quarterly with new techniques sourced from OWASP GenAI Security Project, MITRE ATLAS, GitHub Security Lab AI research, and internal incident-derived cases.
 
 **ADTEST-SEC-02:** Test cases must not be removed from the suite without CISO approval.
+
+**Framework anchors.** These requirements align with NIST SP 800-218A PW.8.1 (include AI models in code testing, among which red teaming and adversarial testing), PW.8.2 (retest AI models when they are retrained), and PW.3.3 (include adversarial samples in the training and testing data), and with ETSI EN 304 223 V2.1.1 Provision 5.2.5 (appropriate testing and evaluation as part of a security assessment process; Principle 9). The threat classes tested are the adversarial machine-learning taxonomy of NIST AI 100-2e2025.
 
 ---
 
@@ -760,7 +766,7 @@ This section governs autonomous and semi-autonomous production action. It does n
 | Prompt injection | LLM01 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 |
 | Supply chain | LLM03 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 |
 | Sensitive data disclosure | LLM02 | N/A | DSP-17, IAM-16 | MAP 1.6 |
-| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, IAM-18 | GOVERN 2.2 |
+| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 |
 | Unsafe code generation | LLM05 | N/A | AIS-10, AIS-05 | MAP 1.1 |
 | Excessive agency | LLM06 | N/A | IAM-18, IAM-05 | MANAGE 1.3 |
 | Overreliance | LLM09 Misinformation | N/A | GRC-15, GRC-13 | MANAGE 4.1 |

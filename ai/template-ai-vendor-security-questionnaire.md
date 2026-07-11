@@ -2,8 +2,8 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-11\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -48,6 +48,7 @@ It is not a substitute for the general supplier security questionnaire. Submit b
 | What is the deployment model | Public cloud (multi-tenant), public cloud (single-tenant), customer cloud (vendor-managed), on-premises, edge |
 | What is the geographical footprint of training, serving, and support | Country list with operational role |
 | Is the offering ISO/IEC 42001 certified or under audit | State and timeline |
+| If ISO/IEC 42001 certified, was the certificate issued by a body accredited under ISO/IEC 42006 (an accredited third-party assessment, not a self-declaration) | Certification body and accreditation status |
 | Does the offering hold sector-specific accreditations relevant to AI (e.g. healthcare AI, financial-services AI) | List |
 | What is the provider's published responsible-AI policy or framework | URL or document reference |
 
@@ -101,6 +102,7 @@ It is not a substitute for the general supplier security questionnaire. Submit b
 | What logging is available to the customer for security investigation | Log categories and retention |
 | Are model weights protected against extraction | Mitigations description |
 | How does the provider notify customers of model behaviour changes | Mechanism |
+| What synthetic-content provenance mechanism does the offering apply to AI-generated outputs (for example content provenance, digital watermarking, or metadata recording) | Mechanism and coverage |
 
 ---
 
@@ -198,6 +200,10 @@ This section applies where the provider offers agentic or tool-using capabilitie
 | ISO/IEC 27036 | Information security for supplier relationships | Supplier security baseline |
 | GDPR / UK GDPR | Article 28 | Processor obligations where personal data is involved |
 | DORA | Articles 28 to 44 | Where the provider is a critical ICT third party |
+| CSA AICM v1.1.0 | DSP-20, MDS-03, MDS-09, AIS-11 (AI-CAIQ v1.1.0 is the questionnaire form; the control identifiers are shared) | AI-specific control and questionnaire baseline |
+| ETSI EN 304 223 V2.1.1 | Provision 5.1.2-4 and 5.1.2-7 (Principle 2); Provision 5.2.3 (Principle 7) | Supplier and external-provider due diligence |
+| NIST SP 800-218A | Shared-responsibility model | Producer and acquirer responsibility split |
+| NIST AI 100-4 | Digital content transparency | Synthetic-content provenance techniques |
 
 ---
 
