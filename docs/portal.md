@@ -525,6 +525,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
 - [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md) (maturity: Baseline)
 - [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md) (maturity: Mature)
+- [New York City Automated Employment Decision Tool Regulatory Requirements](../ai/jurisdictions/annex-ai-us-new-york-city.md) (maturity: Draft)
 - [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
 - [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)

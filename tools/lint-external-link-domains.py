@@ -122,6 +122,7 @@ ALLOW_LIST = {
     "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
     "ilga.gov",  # Illinois General Assembly (BIPA)
     "leg.colorado.gov",  # Colorado General Assembly (Colorado AI Act / SB 24-205 / SB 26-189)
+    "nyc.gov",  # New York City (DCWP Automated Employment Decision Tools / Local Law 144)
     "cac.gov.cn",  # Cyberspace Administration of China (cross-border data provisions)
     "legislation.gov.au",  # Australian Federal Register of Legislation (Privacy Act)
     "pdp.gov.my",  # Malaysia Personal Data Protection Department (PDPA)
