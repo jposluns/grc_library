@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.302, PR #814
+
+Working-state bookkeeping (no corpus or protected file changed). Closes TODO §3.17 (per-PR sweep-step wiring), which #813 satisfied by adding the advisory detailed-mirror-sweep close-out bullet to [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md); rotated to [`.working/DONE.md`](../DONE.md). This is also the in-window fix for the #813 `/validate-pr` finding: #813 deleted deferred-protected-changes item 7, but TODO §3.17's body still pointed at it, so closing §3.17 (deliverable done) removes the dangling reference. The [`TODO.md`](../../TODO.md) §3.14 body's `§3.16/§3.17` sweep-model citation was repointed to §3.16, and a new TODO §3.46 tracks the `/retro` lesson (extend the §N-orphan close-out guard with a reference-key-width clause so an `item N` reference is grepped, not only `§N`). Batches the #813 `/validate-pr` and `/retro` rows ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.584`->`1.2.585`, [`.working/improvement-log.md`](../improvement-log.md) `1.0.524`->`1.0.525`). Library `2026.07.301` to `2026.07.302`.
+
 ## 2026-07-11, Library Version 2026.07.301, PR #813
 
 Changelog-restructure descriptive prose (deferred protected-file backlog item 7). Documents the shipped current-week model for the detailed CHANGELOG mirror on the protected surfaces the machinery-only PRs (#708 machinery, #113/PR 2 initial sweep) left undocumented, and wires an advisory per-PR sweep close-out step. No corpus document body changed. Library `2026.07.300` to `2026.07.301`.
