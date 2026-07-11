@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Register Template\
 **Document Type:** Template\
-**Version:** 1.1.2\
+**Version:** 1.1.3\
 **Date:** 2026-07-11\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,6 +46,7 @@ Do not populate this public template with real systems, company names, personal 
 | Data Quality Validation Status | Not started, in progress, validated, validated with conditions, failed, or waived, per the AI Data Quality and Readiness Validation Standard readiness sign-off. | Conditional |
 | Retrieval Sources | Document stores, vector stores, databases, applications, memory sources, or knowledge bases accessed by the system. | Conditional |
 | Tool Access | APIs, plugins, code execution, workflow actions, transaction actions, or external system actions. | Conditional |
+| Constituent Models and Dependencies | Models the system depends on (with their Model Registry identifiers), plus datasets, retrieval sources, third-party components, and operational services it integrates, with provenance for externally sourced components. Supports value-chain and component-integration tracking. | Yes |
 | Reversibility Classification | For action-capable agents: per production-impacting action class, Reversible, Compensable, or Irreversible, per the agentic development security standard. | Conditional |
 | Recovery Test Status | For action-capable agents: not required, planned, passed, or failed, for the reversal or compensating mechanism of each Reversible or Compensable action class. | Conditional |
 | Production Action Authority | For action-capable agents: withheld, supervised, or granted, with a reference to the production-authority evidence record. | Conditional |

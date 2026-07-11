@@ -2,8 +2,8 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -67,10 +67,11 @@ An AI evaluation is required when:
 - Test on a held-out evaluation dataset representative of the deployment population.
 - Evaluate performance consistency across input subgroups.
 - Document performance degradation conditions and edge cases.
+- Apply the AI quality-evaluation methods of ISO/IEC TS 25058:2024 §6.2 (metamorphic testing, benchmarking, scenario and simulated-environment testing, field trials, and a back-testing phase on a held-out dataset); a residual error rate is expected and may trade off against robustness and performance efficiency (ISO/IEC 25059:2023 §5.4).
 
 ### 2.2 Fairness and bias
 
-- Evaluate demographic parity and equalized odds across relevant protected groups.
+- Evaluate fairness with one or more ISO/IEC TR 24027:2021 Clause 7 metrics selected for the context: demographic parity (§7.5), equalized odds (§7.3), equality of opportunity (§7.4), or predictive equality (§7.6), across relevant protected groups.
 - Quantify bias magnitude; compare against acceptable threshold.
 - Validate effectiveness of bias mitigation techniques applied during training.
 - Document residual bias with risk acceptance rationale.
@@ -78,12 +79,13 @@ An AI evaluation is required when:
 ### 2.3 Explainability
 
 - Validate that explanations are generated for a representative sample of outputs.
-- Assess explanation quality: are explanations meaningful to the intended audience?
+- Assess explanation quality: are explanations meaningful to the intended audience (NIST IR 8312 §2.2)?
+- Assess explanation accuracy (the explanation reflects the actual reason for the output, distinct from decision accuracy) and declare the model's knowledge limits (its operating conditions and the confidence threshold below which it should abstain or defer), per NIST IR 8312 §2.3 and §2.4.
 - For High-risk systems: confirm explanation methodology meets ISO/IEC 42001 and EU AI Act requirements.
 
 ### 2.4 Security
 
-- Adversarial robustness: test resistance to evasion, poisoning, and model extraction attacks.
+- Adversarial robustness: test resistance to the NIST AI 100-2e2025 attack classes (for predictive AI, evasion, poisoning, and privacy attacks including model extraction; for generative AI, supply-chain poisoning, direct prompting, and indirect prompt injection), evaluating the model's ability to maintain functional correctness under adversarial and invalid inputs (ISO/IEC 25059:2023 §5.5).
 - For generative AI: test for prompt injection, data leakage, and hallucination risks.
 - Validate output filtering and guardrails where applicable.
 - Confirm integration security: authentication, authorization, and API security controls.
@@ -151,6 +153,10 @@ Evaluation reports are retained in the compliance repository for the lifecycle o
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8: Operation | AI system evaluation and deployment |
 | ISO/IEC 42005:2025 | AI system impact assessment | Risk and bias evaluation |
+| ISO/IEC TS 25058:2024 | §5 evaluation methodology; §6.2 functional test methods | AI quality-evaluation methods (Section 2.1) |
+| ISO/IEC 25059:2023 | §5.4 functional correctness; §5.5 robustness | AI system quality model (Sections 2.1, 2.4) |
+| NIST IR 8312 | §2.2 to §2.4 explainability principles | Explanation accuracy and knowledge limits (Section 2.3) |
+| ISO/IEC TR 24027:2021 | Clause 7 fairness metrics | Fairness and bias evaluation (Section 2.2) |
 | EU AI Act (2024) | Article 9: Risk Management System | Evaluation obligations for high-risk AI |
 | NIST AI RMF (2023) | MAP and MEASURE functions | AI evaluation methodology |
 | OWASP LLM Top 10 | LLM-specific vulnerabilities | Generative AI security evaluation |

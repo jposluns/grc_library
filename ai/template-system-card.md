@@ -2,8 +2,8 @@
 
 **Document Title:** System Card Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-07-02\
+**Version:** 1.1.2\
+**Date:** 2026-07-11\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -56,6 +56,8 @@ Do not populate the public repository version with real system names, people nam
 | Upstream Dependencies | |
 | Downstream Dependencies | |
 | Supplier Dependencies | |
+| Cross-Jurisdiction Data Flow | Whether and how data moves between locations or jurisdictions across the system's components (ISO/IEC 12792 §8.5.5). |
+| Environmental Footprint | Estimated energy consumption and carbon and water footprint of the deployed system (ISO/IEC 12792 §7.3.2). |
 
 ### 3. Data lifecycle
 
@@ -105,6 +107,8 @@ Do not populate the public repository version with real system names, people nam
 | Resilience or Fallback Testing | |
 | Reversibility Classification | For action-capable agents: per production-impacting action class, Reversible, Compensable, or Irreversible. |
 | Reversal and Recovery Testing | For action-capable agents: result of testing the reversal or compensating mechanism for each Reversible or Compensable action class. |
+| User Controllability | Whether a human or another external agent can intervene in the system's functioning in a timely manner (ISO/IEC 25059 §5.2). |
+| Intervenability and Safe-State Transition | Mechanism to observe system state and transition from an unsafe to a safe state; a system-quality property distinct from the agentic reversibility classification above (ISO/IEC 25059 §5.7). |
 
 ### 6. Human oversight and decision impact
 

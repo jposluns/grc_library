@@ -2,8 +2,8 @@
 
 **Document Title:** Model Card Template\
 **Document Type:** Template\
-**Version:** 1.0.0\
-**Date:** 2026-05-27\
+**Version:** 1.0.1\
+**Date:** 2026-07-11\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md)\
@@ -53,6 +53,9 @@ Do not populate the public repository version with real model names, system name
 | Decision Impact | |
 | Human Oversight | |
 | Deployment Context | Internal, external service, cloud-hosted, embedded platform, API, local, hybrid. |
+| Compute Hardware | Type of compute hardware on which the model is built and run (ISO/IEC 12792 §9.4.7). |
+| Computational Cost | Compute cost of building and of operating the model, for example GPU-hours per input sample (ISO/IEC 12792 §9.4.8). |
+| Environmental Footprint | Estimated energy consumption and carbon and water footprint of training and operation (ISO/IEC 12792 §7.3.2). |
 
 ### 3. Data provenance and lineage
 
@@ -82,6 +85,9 @@ Do not populate the public repository version with real model names, system name
 | Sensitive Attribute or Proxy Review | |
 | Out-of-Distribution Results | |
 | Robustness Results | |
+| Model Build Procedure | How the model was built after algorithmic choices: loss function, optimization procedure, training-data iteration, and any fine-tuning (ISO/IEC 12792 §9.4.4). |
+| Hyperparameters and Selection | Key hyperparameters and the procedure used to select their values (ISO/IEC 12792 §9.4.5). |
+| Knowledge Limits | Conditions under which the model is designed to operate, and the confidence threshold below which it should abstain, defer, or flag that its output is unreliable (NIST IR 8312 §2.4). |
 
 ### 5. Interpretability and representation
 
@@ -91,6 +97,7 @@ Do not populate the public repository version with real model names, system name
 | Material Output Drivers | |
 | Representation Analysis | |
 | Bias or Disparity Indicators | |
+| Bias Source Categories | Which bias sources were assessed: human and cognitive, data and statistical, and engineering-decision (ISO/IEC TR 24027:2021). |
 | Review Limitations | |
 
 ### 6. Adversarial and security testing
