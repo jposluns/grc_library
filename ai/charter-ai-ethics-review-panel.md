@@ -2,8 +2,8 @@
 
 **Document Title:** AI Ethics Review Panel Charter\
 **Document Type:** Charter\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-11\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md)\
@@ -108,9 +108,9 @@ The independent challenge mechanism is the core control this charter establishes
 
 1. **Trigger.** The Panel may challenge an AIGC decision (for example, an approval of a high-risk AI deployment or a significant lifecycle change) when the Panel's documented ethical opinion conflicts with the decision. A challenge is raised in writing, with the Panel's reasoning and the ethical principles at issue.
 2. **Reconsideration.** On receiving a challenge, the AIGC formally reconsiders the decision and responds to the Panel in writing within a defined period (*[adopter-defined]*; a short, bounded period is recommended so a contested deployment does not proceed unreviewed). The AIGC's response records whether it upholds, modifies, or reverses the decision, and its reasoning.
-3. **Hold pending reconsideration.** A challenged decision that authorizes an irreversible or high-impact action does not proceed until the AIGC has responded to the challenge, unless an overriding safety or legal obligation requires otherwise (recorded with its justification).
+3. **Hold pending reconsideration.** A challenged decision that authorizes an irreversible or high-impact action does not proceed until the AIGC has responded to the challenge, unless an overriding safety or legal obligation requires otherwise (recorded with its justification). This reflects the UNESCO Recommendation on the Ethics of AI (paragraph 26): where an impact is irreversible, difficult to reverse, or may involve life and death, final human determination should apply.
 4. **Escalation.** If the Panel judges the AIGC's response to leave the ethical objection unresolved, the Panel escalates the challenge, with both positions documented, to the Board or the highest governance authority, which resolves it. The escalation route is independent of the AIGC's own reporting line.
-5. **Record.** Every challenge, the AIGC's response, any escalation, and the final resolution are recorded and retained, so the organization has an auditable trail of how contested ethical questions were decided.
+5. **Record.** Every challenge, the AIGC's response, any escalation, and the final resolution are recorded and retained, so the organization has an auditable trail of how contested ethical questions were decided (consistent with OECD Principle 1.5 accountability, which calls for traceability of the datasets, processes, and decisions across the AI system life cycle).
 
 The mechanism is a challenge-and-escalation control, not a veto: the Panel cannot unilaterally block a deployment, and the AIGC retains approval authority, but the AIGC cannot dispose of an ethical challenge without a documented reconsideration, and an unresolved challenge reaches the Board rather than ending at the body that made the contested decision.
 
@@ -148,7 +148,9 @@ The Panel reports to the **Chief Risk Officer** and, for escalated unresolved ch
 | ISO/IEC 42001:2023 | §5: Leadership and Governance | Independent governance of AI ethics within the AI management system |
 | EU AI Act (2024) | Chapter III: High-Risk AI Systems | Independent ethical review and human oversight of high-risk AI |
 | NIST AI RMF (2023) | GOVERN function | Independent oversight and accountability structure |
-| OECD AI Principles (2023) | Accountability and oversight | Independent ethics review and challenge |
+| OECD AI Principles (2023) | Accountability and oversight (Principle 1.5) | Independent ethics review, challenge, and the record step |
+| UNESCO Recommendation on the Ethics of AI (2021) | Paragraphs 35-36 (human oversight and determination); paragraph 26 (irreversibility) | Human oversight and the hold-pending-reconsideration step |
+| CAN/DGSI 101:2025 | Ethical impact assessment; diverse and inclusive reviewer representation | The Panel's ethical-review mandate and diverse composition |
 
 ---
 

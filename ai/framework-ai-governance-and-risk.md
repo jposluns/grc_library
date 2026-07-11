@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance and Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)\
@@ -53,6 +53,7 @@ It applies to:
 7. Maintain evidence for review, audit, assurance, and risk acceptance.
 8. Define monitoring, incident response, exception, and decommissioning requirements.
 9. Separate legal obligation, regulatory interpretation, industry practice, and architectural recommendation.
+10. Assess and govern the safety and the environmental impact of AI systems, including safe-state behaviour and human determination for irreversible or life-critical decisions, and the energy, carbon, and water footprint of training and operation.
 
 ---
 
@@ -100,6 +101,7 @@ AI systems should be classified using criteria including:
 - Sensitive attribute processing.
 - Business criticality.
 - Safety impact.
+- Environmental and sustainability impact (the energy, carbon, and water footprint of training and operation).
 - Financial impact.
 - Legal or regulatory impact.
 - Customer, employee, or public impact.
@@ -127,6 +129,8 @@ AI systems should be classified using criteria including:
 | Documentation | Model purpose, limitations, data sources, test results, intended use, prohibited use, and monitoring are documented. |
 | Monitoring | Usage, drift, failures, incidents, abuse, anomalous outputs, and control exceptions are monitored. |
 | Incident Response | AI-related incidents are classified, escalated, contained, investigated, and recorded. |
+| Safety | AI systems that can affect human life, health, physical safety, property, or the environment are assessed for safety risk; safe-state behaviour and, for irreversible or life-critical decisions, human determination are defined. |
+| Environmental and Sustainability | The environmental footprint of training and operating AI systems (energy consumption, carbon footprint, and water footprint) is assessed and weighed alongside the system's benefits. |
 | Decommissioning | AI systems are retired with data, access, integrations, logs, and supplier commitments addressed. |
 
 ---
@@ -164,6 +168,19 @@ AI governance assurance should include:
 - Deletion and retention verification.
 - Control owner attestation where appropriate.
 - Audit procedure review per [`ai/procedure-ai-audit.md`](procedure-ai-audit.md).
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 42001:2023 | Annex A control groupings (A.2 Policies to A.10 Third-party and customer relationships) | The control domains |
+| ISO/IEC 23894:2023 | Annex A risk-management objectives (including A.5 Environmental impact and A.10 Safety); Annex B risk sources | Governance objectives, the safety and environmental dimensions, and risk classification |
+| ISO/IEC 5338:2023 | Clause 6 life-cycle processes (agreement, organizational project-enabling, technical management, and technical processes) | The AI lifecycle model |
+| ISO/IEC 8183:2023 | Clause 6 data life-cycle stages | Data as the primary risk surface |
+| NIST AI RMF (2023) | GOVERN, MAP, MEASURE, and MANAGE functions; the Safe trustworthiness characteristic | Governance structure and AI risk management |
+| EU AI Act (2024) | Risk-based classification of AI systems | Risk classification |
 
 ---
 
