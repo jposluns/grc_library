@@ -28,6 +28,20 @@ The detailed overnight backlog queue (the delivery list, per-delivery handling a
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
+### PR 7 NYC LL144 annex: NYC Admin Code source-drop + OECD-year corpus harmonization (2026-07-11 overnight; routed)
+
+Two items surfaced building the NYC LL144 annex, both routed (not blocking):
+
+- **Source-drop queue (maintainer to acquire):** NYC Administrative Code sections 20-870 to 20-872 (the Local Law 144 statutory mandate and the civil-penalty schedule). The library holds only the DCWP final rule (6 RCNY 5-300 to 5-304); the statutory text and penalty AMOUNTS are not held. Upstream secondary sources report the penalties as $500 first violation / $1,500 per day continuing (NY State Comptroller Dec-2025 audit; employment-law firm summaries), but the annex does NOT state a figure (primary Admin Code text not held); it cites section 20-872 by number. Acquire the Admin Code sections to state the penalty schedule from the primary source.
+
+- **Corpus-wide OECD-AI-Principles citation-year harmonization (out-of-window, routed):** the #798 `/validate-pr` found "OECD AI Principles (2023)" in 5 corpus docs (framework-ai-model-documentation-and-transparency, guideline-ethical-ai-use, charter-ai-governance-council, charter-ai-ethics-review-panel, policy-ai-compliance) contradicting the canonical register's "(2019, updated 2024)". Resolved upstream: OECD/LEGAL/0449 was adopted 2019 and revised BOTH 8 Nov 2023 AND 3 May 2024 (2024 is current); the register form is correct, "(2023)" is imprecise, and the grc_library_ref catalogue's bare "revised 2023" is stale (it drove the 6b verifier to clear the same form). A3's occurrence is fixed in this PR. Route: a focused corpus-wide pass to harmonize the 5 docs to "(2019, updated 2024)" and correct the ref catalogue's "revised 2023" to note the 2024 revision. Not fixed piecemeal (corpus-wide harmonization is its own pass).
+
+
+### PR 1 (#791) TBS Directive date imprecision, surfaced during PR 7 currency verification (2026-07-11 overnight; fix rides PR 7a Canada annex)
+
+`ai/procedure-ai-system-impact-assessment.md` (PR 1 / #791) characterizes the Canada Treasury Board Directive on Automated Decision-Making as "in force 24 June 2025". Upstream verification this turn (Canada.ca amendments page): the Directive has been in force since 2019; 2025-06-24 is a COMPLIANCE-TRANSITION date from the 3rd-review amendments (existing systems procured before 2025-06-24 have until 2026-06-24 to comply), not the Directive's in-force date. FIX: correct the impact-assessment line to state the Directive is in force (since 2019, latest amendments from the October-2024 3rd review, with a 2025-06-24 / 2026-06-24 compliance transition), folded into the PR 7a Canada-annex PR (which frames the same fact correctly in the new annex). Minor accuracy imprecision, not a false in-force claim about a lapsed instrument; no urgency, but corrected for government-reliance precision.
+
+
 ### PR 6 (governance/ethics/maturity) new-document + expansion defaults (2026-07-11 overnight run; stricter-safe, PROCEEDED, for confirm-or-redirect)
 
 The overnight run reached PR 6, which creates two new documents (A4 maturity model, A3 board oversight) and expands five governance/ethics documents. The following authorial-shaping defaults were applied (each reversible, on-branch, evidence-backed, more-conservative); confirm or redirect at resume:

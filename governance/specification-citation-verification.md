@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.12\
-**Date:** 2026-07-10\
+**Version:** 1.2.13\
+**Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -205,7 +205,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
 | China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
 | Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
-| US States | `ilga.gov`, `leg.colorado.gov` | US state legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly). |
+| US States and localities | `ilga.gov`, `leg.colorado.gov`, `nyc.gov` | US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov). |
 | Malaysia | `pdp.gov.my` | Malaysia PDPA (Personal Data Protection Department). |
 | LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
 | UK AISI | `ukgovernmentbeis.github.io` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages). |
@@ -218,6 +218,8 @@ The allow-list itself is subject to the same verification discipline as register
 A standard or regulation cited in the library that is not covered by an allow-list entry triggers a methodology update. The new publisher domain is added to §7.1 in a new revision of this specification, with the date and rationale.
 
 **2026-07-09 (register v1.5.17, TODO 1.5 currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
+
+**2026-07-11 (register v1.5.20, AI-workstream PR 7 NYC LL144 annex):** added `nyc.gov` (New York City) to the US States and localities entry, for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
 
 ---
 

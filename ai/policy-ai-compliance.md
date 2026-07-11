@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.7\
-**Date:** 2026-07-10\
+**Version:** 1.0.8\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -215,7 +215,7 @@ ISO/IEC 42001:2023 specifies requirements for an AI management system (AIMS). Th
 The United States has no comprehensive federal AI statute; specific AI uses are governed by state and municipal laws that apply where the organization operates in, or makes covered decisions affecting individuals in, the relevant jurisdiction:
 
 - **Colorado Artificial Intelligence Act** (Senate Bill 24-205, C.R.S. 6-1-1701 et seq.), the first US-state AI law of its kind, imposing a duty of reasonable care on developers and deployers of high-risk AI systems to protect consumers from algorithmic discrimination in consequential decisions. Colorado has repealed and re-enacted this part, with substantial amendments, as the Automated Decision-Making Technology in Consequential Decisions act (Senate Bill 26-189). The effective-date sequence and litigation status are version-sensitive; the organization tracks them via [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) and applies the requirements in force for each covered decision.
-- **New York City Local Law 144 (2021)** on automated employment decision tools requires that an automated employment decision tool (AEDT) used to screen candidates or employees for a role in New York City undergo an independent bias audit within one year of use, that a summary of the audit results be published, and that affected candidates receive notice; an AEDT may not be used if its most recent bias audit is more than one year old (New York City Department of Consumer and Worker Protection rule, 6 RCNY 5-300 to 5-304).
+- **New York City Local Law 144 (2021)** on automated employment decision tools requires that an automated employment decision tool (AEDT) used to screen candidates or employees for a role in New York City undergo an independent bias audit within one year of use, that a summary of the audit results be published, and that affected candidates receive notice; an AEDT may not be used if its most recent bias audit is more than one year old (New York City Department of Consumer and Worker Protection rule, 6 RCNY 5-300 to 5-304). The effective and enforcement dates are version-sensitive; the organization tracks them via [`ai/jurisdictions/annex-ai-us-new-york-city.md`](jurisdictions/annex-ai-us-new-york-city.md).
 
 Where the organization deploys AI in hiring, lending, housing, insurance, or other consequential decisions affecting United States residents, it assesses applicability against these and successor state laws and applies the classification and oversight controls in Sections 4 and 5.
 

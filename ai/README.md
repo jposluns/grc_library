@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,6 +54,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](policy-ai-compliance.md) |
 | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md) |
 | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) |
+| Annex | New York City Automated Employment Decision Tool Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-new-york-city.md`](jurisdictions/annex-ai-us-new-york-city.md) |
 | Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) |
 | Procedure | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) |
 | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) |
