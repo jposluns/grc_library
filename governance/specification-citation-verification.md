@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.13\
+**Version:** 1.2.14\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -190,7 +190,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | US Federal | `federalregister.gov`, `ecfr.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170). |
 | EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu` | EU regulations, directives, ENISA. |
 | UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk` | UK regulation and ICO/NCSC. |
-| Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca` | Canadian federal regulation and OPC. |
+| Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025). |
 | Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial regulation (Law 25). |
 | WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
 | ICAO | `icao.int` | International civil aviation. |
@@ -201,7 +201,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | Brazil | `gov.br`, `planalto.gov.br` | Brazilian federal regulation (LGPD). |
 | Singapore | `pdpc.gov.sg` | Singapore PDPA. |
 | India | `pib.gov.in` | India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau). |
-| Australia | `oaic.gov.au`, `legislation.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act). |
+| Australia | `oaic.gov.au`, `legislation.gov.au`, `industry.gov.au`, `ai.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act); Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard); National AI Centre (Guidance for AI Adoption, via ai.gov.au). |
 | Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
 | China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
 | Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
@@ -220,6 +220,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-07-09 (register v1.5.17, TODO 1.5 currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
 
 **2026-07-11 (register v1.5.20, AI-workstream PR 7 NYC LL144 annex):** added `nyc.gov` (New York City) to the US States and localities entry, for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
+
+**2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
 
 ---
 
