@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,7 +68,7 @@ Record unresolved risks, compensating controls, acceptance rationale, treatment 
 
 ### Step 10: Approve, defer, reject, or retire
 
-The accountable approval role must decide whether the model may proceed, proceed with conditions, remain in pilot, require remediation, be rejected, or be retired.
+The accountable approval role must decide whether the model may proceed, proceed with conditions, remain in pilot, require remediation, be rejected, or be retired. At this step the accountable role also confirms or adjusts the provisional inherent model-risk rating assigned at Step 1, recording the final rating and its rationale as part of the approval.
 
 ---
 

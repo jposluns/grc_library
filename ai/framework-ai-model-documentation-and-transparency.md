@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
-**Date:** 2026-07-10\
+**Version:** 1.0.6\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -100,11 +100,15 @@ All AI systems must maintain a Training Data Record covering:
 
 ## 4. Transparency disclosures
 
+The organization's transparency disclosures follow the transparency taxonomy of ISO/IEC 12792:2025, which structures disclosures across four levels, context (§7), system (§8), model (§9), and dataset (§10), and three transparency objectives, right to know, proper usage, and traceability (§6.2). Each objective is realized through a stakeholder pair, a content-providing role and a content-receiving role (§6.1; the pairs are enumerated in §6.3). The disclosures below map the organization's governance roles to those objectives and stakeholder pairs. The ISO/IEC 12792 role names (AI provider, AI deployer, AI subject, relevant authorities, AI auditor) are the external taxonomy the organization's roles align to, not a renaming of the organization's own roles.
+
 ### 4.1 Internal transparency
 
 All stakeholders with governance responsibility for an AI system must have access to the current Model Card and AI Impact Assessment.
 
 The AI System Inventory published by the GRC Programme Manager provides a summary view of all deployed AI systems and their risk tiers.
+
+This realizes the traceability and proper-usage objectives (ISO/IEC 12792:2025 §6.2) among the internal provider and governance roles (the AI-producer-to-AI-provider stakeholder pairing in §6.3).
 
 ### 4.2 Affected individual transparency
 
@@ -115,9 +119,13 @@ Where an AI system makes or materially influences decisions affecting individual
 - Provide a mechanism for individuals to request human review of AI-influenced decisions (GDPR Article 22 right).
 - Document the explanation provided and retain for audit purposes.
 
+This realizes the right-to-know objective (ISO/IEC 12792:2025 §6.2) for the affected individual, who is the AI subject in the AI-deployer-to-AI-subject stakeholder pair (§6.3).
+
 ### 4.3 Regulatory transparency
 
 For High-risk AI systems under the EU AI Act, technical documentation per Annex IV must be maintained and available to competent authorities on request.
+
+This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the AI-provider-to-relevant-authorities and AI-provider-to-AI-auditor stakeholder pairs (§6.3).
 
 ---
 
@@ -140,7 +148,7 @@ For High-risk AI systems under the EU AI Act, technical documentation per Annex 
 | ISO/IEC 42001:2023 | §8.4: AI System Documentation | AI documentation requirements |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
-| ISO/IEC 12792:2025 | Transparency taxonomy of AI systems | AI transparency taxonomy |
+| ISO/IEC 12792:2025 | §6.2 transparency objectives; §6.1 and §6.3 stakeholder pairs; §7 to §10 taxonomy levels | AI transparency taxonomy structuring Section 4 |
 | NIST IR 8312 | Four Principles of Explainable Artificial Intelligence | Explainability principles |
 | OECD AI Principles (2023) | Transparency and Explainability | AI transparency obligations |
 | GDPR (2018) | Article 22: Automated Decision-Making | Transparency and human review rights |

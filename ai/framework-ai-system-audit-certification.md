@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-07-10\
+**Version:** 1.0.8\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -22,7 +22,7 @@
 
 This framework defines the audit and certification approach for AI systems within the organization. It establishes the audit programme structure, evidence requirements, audit frequency by risk tier, the certification pathway to ISO/IEC 42001:2023, post-market monitoring obligations, conformity assessment requirements for EU AI Act high-risk systems, and the integration of audit findings into the corrective and preventive action (CAPA) process.
 
-The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Chapter IX (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 AI audit requirements, and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
+The framework draws on ISO/IEC 42001:2023 §9.2 to 9.3 (internal audit and management review), EU AI Act Chapter IX (post-market monitoring and serious incident reporting), NIST AI RMF Measure and Manage functions, ISO/IEC 42006:2025 (requirements for bodies providing third-party audit and certification of an AI management system), and the Cloud Security Alliance AI Controls Matrix (CSA AICM v1.1).
 
 ### 1.2 Scope
 
@@ -161,6 +161,17 @@ The auditor reviews all AI Incident Register entries for the system covering the
 | **Stage 6: Annual Surveillance** | Annual surveillance audits | Certification body conducts annual surveillance to confirm ongoing conformity; findings are reported and remediated |
 | **Stage 7: Recertification** | Three-year recertification audit | Full recertification audit every three years; scope may be broadened to include new AI systems or capabilities added since initial certification |
 
+### 6.1 Certification body requirements (ISO/IEC 42006:2025)
+
+Stages 3 to 7 are performed by an external certification body, whose competence and conduct are governed by ISO/IEC 42006:2025, which adds requirements to ISO/IEC 17021-1:2015 for bodies auditing and certifying an AI management system against ISO/IEC 42001:2023. When selecting and engaging a certification body, the organization confirms:
+
+- **Impartiality and no consulting (ISO/IEC 42006:2025 §5.2.2).** The body must not have provided the organization consulting on AI, information security, data protection, or risk management, and must not have carried out the organization's internal audits; the internal-audit restriction cannot be circumvented by renaming the activity.
+- **Auditor competence and qualification (§7.1.3, §7.2.2).** The audit team collectively must be competent across artificial intelligence, the audited activity, management systems, and auditing principles; individual auditors must meet the standard's education, workplace-experience, training, and prior-audit thresholds.
+- **Audit time (Annex A, normative).** The body sets audit duration per the Annex A calculation (scaled by the number of persons in the AI life cycle and the AIMS role, and adjusted for regulatory frameworks, the number and risk of the AI systems, third-party agreements, and the Statement of Applicability control count); the total audit time cannot be reduced by reallocating it within the audit team. Surveillance is approximately one third, and recertification at least two thirds, of the initial audit time.
+- **Two-stage initial audit (§9.3.2).** Stage 3 (documentation review) and Stage 4 (implementation audit) above correspond to the standard's stage 1 and stage 2; the body reviews the stage 1 report before proceeding to stage 2, and stage 2 confirms that the AIMS is effectively implemented and that the organization adheres to its own policies, objectives, and procedures.
+
+An ISO/IEC 42001 AIMS certificate issued under ISO/IEC 42006 is a management-system certification. It is distinct from, and does not substitute for, the EU AI Act per-system conformity assessment in Section 7, and the AIMS certificate does not authorize product, process, or service conformity labelling.
+
 ---
 
 ## 7. High-risk AI act conformity assessment
@@ -257,7 +268,7 @@ CAPAs are tracked in the organization's CAPA management system and reviewed at e
 |---|---|---|
 | ISO/IEC 42001:2023 §9.2 | Internal audit programme; audit criteria, scope, frequency, and methods | 3, 5 |
 | ISO/IEC 42001:2023 §9.3 | Management review of the AIMS; inputs including audit results, incidents, performance data | 2.1, 8 |
-| ISO/IEC 42006:2025 | AI audit requirements; auditor competence; audit evidence; audit reporting | 4, 5, 9 |
+| ISO/IEC 42006:2025 | Requirements for bodies certifying an AIMS: impartiality and no consulting, auditor competence and qualification, audit time, two-stage certification audit | 6.1 |
 | EU AI Act Chapter IX | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
 | NIST AI RMF: Measure function | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
 | NIST AI RMF: Manage function | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
