@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.8\
-**Date:** 2026-07-02\
+**Version:** 0.0.9\
+**Date:** 2026-07-11\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -257,6 +257,9 @@ Retrieval-augmented generation and other context-injection patterns:
 | MITRE ATLAS | Tactics relating to tool abuse and credential access | Adversarial ML threat catalogue |
 | NIST SP 800-53 Rev. 5 | AC family | Access control baseline |
 | ISO/IEC 27001:2022 | A.5.15 to A.5.18, A.8.2 | Access control and privileged access |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.2-6 (Principle 2); Provision 5.2.2-1 and 5.2.2-3 (Principle 6) | Least-privilege permissions on other systems; access-control-framework evaluation and least-privilege environment separation |
+| CSA AICM v1.1.0 | AIS-11 Agents Security Boundaries | Agent security-boundary enforcement |
+| CSA AICM v1.1.0 | AIS-13 AI Sandboxing | Isolated tool and plugin execution; lateral-movement limitation |
 
 ---
 

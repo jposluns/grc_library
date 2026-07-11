@@ -2,8 +2,8 @@
 
 **Document Title:** AI Adversarial Test Reference\
 **Document Type:** Guide\
-**Version:** 1.3.2\
-**Date:** 2026-07-10\
+**Version:** 1.3.3\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](guideline-adversarial-evaluation-suite-development.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md)\
@@ -156,6 +156,8 @@ Red team reports must document: attack narrative; tools used; steps to reproduce
 
 - **OWASP GenAI Security Project** (genai.owasp.org): OWASP LLM Top 10 updates and new attack patterns
 - **MITRE ATLAS** (atlas.mitre.org): New adversarial ML techniques
+- **NIST AI 100-2e2025** (adversarial machine-learning taxonomy): new attack and mitigation classes for predictive and generative AI
+- **ETSI EN 304 223 V2.1.1** (Provision 5.2.5, Principle 9): baseline testing-and-evaluation requirements for AI models and systems
 - **GitHub Security Lab AI research** publications
 - **Internal incident-derived cases**: any confirmed AI security event generates at least 1 new test case
 
@@ -187,6 +189,7 @@ Relevant directories:
 | OWASP GenAI Security Project | Ongoing AI security guidance and test case updates |
 | MITRE ATLAS | Adversarial machine learning threat catalogue |
 | NIST AI 100-2e2025 | Adversarial ML attack taxonomy and terminology |
+| ETSI EN 304 223 V2.1.1 | Baseline cyber-security testing and evaluation requirements for AI (Provision 5.2.5) |
 | NVIDIA Garak | Open-source LLM vulnerability scanner |
 | PyRIT | Open-source AI red team automation framework |
 | promptfoo | Open-source prompt testing and evaluation |
