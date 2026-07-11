@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.305, PR #817
+
+Register-currency drift-check tool (closes TODO §1.7), the currency-ledger plan's advisory sync tool. Library `2026.07.304` to `2026.07.305`.
+
+### Added
+
+- [`tools/audit-register-currency.py`](../../tools/audit-register-currency.py): advisory cross-repo drift report between the `grc_library_ref` currency ledger and [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md). Five advisory checks (register-behind, version-disagreement, upstream-URL-mismatch, ledger-held-stale, unmatched-rows); exact-then-shortest-prefix designation matching (the register Standard-ID stem is matched as a word-boundary prefix of a ledger title, and among several prefix matches the shortest base-standard title wins so a verbose draft or overlay does not capture the match); edition-token version comparison (a year or a revision number, so a bare year versus a year-with-parenthetical does not false-flag); a stdlib-only line parser for the generated two-space-indent catalogue (no third-party YAML); a `--ledger` option (env `GRC_REF_PATH` fallback, then the sibling `grc_library_ref` checkout), a `--register` option, a `--strict` mode (exit 2 on the two substantive checks, never CI-wired), and a `--self-test`. Advisory pattern per [`tools/audit-brief-freshness.py`](../../tools/audit-brief-freshness.py): named `audit-*` (not gate-discovered), not wired into the runner, the CI workflow, or pre-commit, exits 0 by default, and skips with exit 0 when the reference checkout is absent.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §1.7 removed and rotated to [`.working/DONE.md`](../DONE.md).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.587`->`1.2.588`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.527`->`1.0.528`): the batched #816 `/validate-pr` (clean) and `/retro` rows.
+
+### Verification
+
+- `--self-test` passes (7 inline unittests: normalization, the ledger and register parsers, the five-check report, the edition-token comparison including the same-year no-flag case, and the shortest-prefix matcher). A live run against the held ledger matched 43 register rows (92 unmatched-informational, expected for cited-but-not-held sources) and surfaced 4 register-behind rows, 1 version-disagreement (WCO SAFE, 2021 held versus 2025 register), and 1 held-stale (WCO SAFE), all plausible and useful. All 68 audit gates still pass (the advisory tool is not gate-wired).
+- Substantive tier (a new tool with parsing and matching logic): one refute-briefed skeptical verifier pre-push. It caught a matcher defect fixed in-window: the flagship "OWASP Top 10" mis-matched the "Proactive Controls" sibling because a mid-string edition year ("OWASP Top 10:2025 (Web Application Security Risks)") escaped the end-anchored year-strip, yielding a spurious version-disagreement. Fixed by stripping a trailing parenthetical before the edition year in `normalize_designation` (with a new self-test fixture), which restored the exact flagship match and removed the false finding; the corrected tally is stated above.
+
+### Note
+
+- The spec's optional register-seeding step (refresh the register rows the tool flags as behind, from the ledger) is NOT done in this PR; it is a separate register-data change that overlaps TODO §1.8 (WCO SAFE ref-side) and benefits from the tool now existing to target it. Wiring the tool into the `/resume` step-3 advisory cadence (alongside [`tools/audit-brief-freshness.py`](../../tools/audit-brief-freshness.py) and [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py)) is a small follow-up protected [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) edit.
+
 ## 2026-07-11, Library Version 2026.07.304, PR #816
 
 Working-state bookkeeping (no corpus/protected file changed). Closes TODO §2.2 (the maintainer-directed AI gaps-and-expansion workstream, PRs 0-10): PR 0 shipped the five corpus-accuracy fixes (#784-#788), and PR 1-10 shipped the content-authoring builds including the six new documents A1-A6 (A5 in #815, A6c in #809), each with per-PR QA and a skeptical or high-assurance verifier. Rotated to [`.working/DONE.md`](../DONE.md). At the maintainer's 2026-07-11 direction, the whole-project `/deep-assessment` is **decoupled** from §2.2: it is a maintainer-invoked decision (governed by the `/deep-assessment` cadence in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) and its register), not a TODO item, so §2.2 closes fully rather than staying open for it. Batches the #815 `/validate-pr` (clean; 1 INFO on the resolved-entry retention convention) and `/retro` rows ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.586`->`1.2.587`, [`.working/improvement-log.md`](../improvement-log.md) `1.0.526`->`1.0.527`). Library `2026.07.303` to `2026.07.304`.
