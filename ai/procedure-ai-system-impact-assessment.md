@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Impact Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-09\
+**Version:** 1.0.4\
+**Date:** 2026-07-11\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](procedure-integrated-ai-and-privacy-assessment.md)\
@@ -138,6 +138,17 @@ Assign a risk tier using criteria such as:
 | High | Sensitive data, external users, regulated context, material business or individual impact, supplier dependency, or tool execution. |
 | Critical | Safety, rights, access, employment, financial, security, legal, regulatory, or critical service impact with limited tolerance for failure. |
 
+Score the impact operationally along the axes of the Canada Treasury Board Algorithmic Impact Assessment (AIA), whose Directive on Automated Decision-Making (in force 24 June 2025) grades an automated decision into four impact levels. Assess, for each of five impact areas, the impact on: the rights and freedoms of individuals; their equality, dignity, privacy, and autonomy; their health and well-being; their economic interests; and the ongoing sustainability of an environmental ecosystem. Assess the reversibility of the impacts (reversible, likely reversible, difficult to reverse, irreversible) and their duration (brief, lasting months, lasting years, perpetual). The composite yields an impact level, which this procedure aligns to its tier:
+
+| TBS AIA impact level | Character (severity, reversibility, duration) | This procedure's tier |
+| --- | --- | --- |
+| Level I | Little to no, easily reversible, brief impacts | Low |
+| Level II | Moderate, likely reversible, short-term impacts | Moderate |
+| Level III | High, difficult to reverse, potentially ongoing impacts | High |
+| Level IV | Very high, irreversible, perpetual impacts | Critical |
+
+Where the tier and the impact level differ, the higher of the two governs. ISO/IEC 42005:2025 §5.7 informs this tiering approach: it directs an organization to define its own impact thresholds and impact scales for sensitive and restricted uses (it does not prescribe a fixed set of tiers). The four-level model and its area, reversibility, and duration axes are the TBS AIA's.
+
 ### Step 8: Define required controls
 
 Define required controls for:
@@ -170,7 +181,21 @@ Approval must record residual risk, required conditions, control owner, review d
 
 ### Step 10: Maintain evidence
 
-Retain the assessment, approvals, test results, control evidence, supplier evidence, monitoring records, incident records, and decommissioning records according to defined retention rules.
+Retain the assessment, approvals, test results, control evidence, supplier evidence, monitoring records, incident records, and decommissioning records according to defined retention rules. Monitor and review the assessment on the review cadence in the metadata block and when the system's functionality, scope, or risk materially changes, consistent with ISO/IEC 42005:2025 §5.12.
+
+---
+
+## Harms and benefits analysis
+
+Assess both the harmful and the beneficial impacts of the AI system, not only its threats. This both-directions analysis complements Step 4 (threats and control exposure) and feeds the Step 7 impact scoring and the Step 8 control requirements. It follows the harms-and-benefits taxonomy of ISO/IEC 42005:2025 Annex C (informative), which groups reasonably foreseeable impacts under five objectives; for each, consider the potential harms and the potential benefits to every relevant interested party (individuals, groups, and society):
+
+- **Accountability**: oversight of significant adverse impacts; fitness for purpose; data governance; human oversight and control.
+- **Transparency and explainability**: explainability of the AI system; communication to relevant interested parties; disclosure that a person is interacting with an AI system.
+- **Fairness**: consistency of the quality of service across groups; allocation of opportunity; minimization of stereotyping and demeaning representation.
+- **Reliability**: handling of failures and remediations; monitoring, feedback, and evaluation.
+- **Security and privacy**: privacy protection and compliance with legal obligations and policies; system security and compliance with legal obligations and policies.
+
+Record the material harms and benefits identified under each objective and carry them into the Step 7 impact scoring and the Step 8 control requirements.
 
 ---
 
@@ -179,6 +204,20 @@ Retain the assessment, approvals, test results, control evidence, supplier evide
 - **AI Governance Lead** coordinates and performs the assessment steps (Steps 1 to 10), drawing on the system owner and relevant subject-matter contributors for the evidence each step depends on.
 - **System owner** supplies the AI system register entry, the data-lifecycle assessment, and the control and supplier evidence the steps rely on, and owns the resulting control requirements and residual-risk items.
 - **Approving authority** makes the Step 9 decision (approve, approve with conditions, pilot, defer, reject, or retire). For high-impact systems or unresolved high residual risk, the decision escalates to the **AI Governance Council**.
+
+---
+
+## Framework alignment
+
+| Framework | Reference | Relevance |
+| --- | --- | --- |
+| ISO/IEC 42005:2025 | §6.3: AI system information | System registration and use-case definition (Steps 1 to 2) |
+| ISO/IEC 42005:2025 | §6.4: Data information and quality | Data-lifecycle assessment (Step 3) |
+| ISO/IEC 42005:2025 | §5.7: Thresholds and impact scales | Risk-tiering approach (Step 7) |
+| ISO/IEC 42005:2025 | Annex C: Harms and benefits taxonomy | Harms and benefits analysis |
+| ISO/IEC 42005:2025 | §5.11 approval; §5.12 monitoring and review | Approval (Step 9); evidence retention and periodic review (Step 10) |
+| Canada Treasury Board Directive on Automated Decision-Making | Algorithmic Impact Assessment impact levels (Appendix B and C) | Operational impact scoring (Step 7) |
+| EU AI Act (2024) | Article 27: fundamental rights impact assessment | Fundamental-rights routing (Step 5) |
 
 ---
 

@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-07-10\
+**Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -162,7 +162,7 @@ _169 documents._
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
 | [ai/charter-ai-ethics-review-panel.md](../ai/charter-ai-ethics-review-panel.md) | AI Ethics Review Panel Charter | Charter | 1.0.1 | 2026-07-02 |
-| [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.6 | 2026-07-10 |
+| [ai/checklist-ai-algorithmic-compliance.md](../ai/checklist-ai-algorithmic-compliance.md) | AI Algorithmic Compliance Checklist | Checklist | 1.0.7 | 2026-07-11 |
 | [ai/framework-ai-model-documentation-and-transparency.md](../ai/framework-ai-model-documentation-and-transparency.md) | AI Model Documentation and Transparency Framework | Framework | 1.0.5 | 2026-07-10 |
 | [ai/framework-ai-model-risk.md](../ai/framework-ai-model-risk.md) | AI Model Risk Framework | Framework | 1.0.1 | 2026-07-02 |
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.7 | 2026-07-10 |
@@ -174,7 +174,7 @@ _169 documents._
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.6 | 2026-07-02 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.3 | 2026-07-10 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.3 | 2026-07-02 |
-| [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.3 | 2026-07-09 |
+| [ai/procedure-ai-system-impact-assessment.md](../ai/procedure-ai-system-impact-assessment.md) | AI System Impact Assessment Procedure | Procedure | 1.0.4 | 2026-07-11 |
 | [ai/register-ai-risk.md](../ai/register-ai-risk.md) | AI Risk Register | Register | 1.0.5 | 2026-07-02 |
 | [ai/register-mcp-server.md](../ai/register-mcp-server.md) | Model Context Protocol Server Register | Register | 1.0.3 | 2026-07-02 |
 | [ai/standard-ai-testing-validation-and-documentation.md](../ai/standard-ai-testing-validation-and-documentation.md) | AI Testing, Validation and Documentation Standard | Standard | 1.0.3 | 2026-07-02 |
@@ -342,7 +342,7 @@ _28 documents._
 | [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.1 | 2026-07-09 |
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.1 | 2026-07-09 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.4 | 2026-07-05 |
-| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.0.1 | 2026-07-09 |
+| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.0 | 2026-07-11 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.7 | 2026-07-10 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.5 | 2026-07-02 |
 | [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.8 | 2026-07-02 |
