@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.307, PR #819
+
+Governance-guard codification + the #818 in-window fixes (closes TODO §3.46; no corpus document body changed). Library `2026.07.306` to `2026.07.307`.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): (1) the `## Session migration and PR close-out checklist` §N-orphan cross-FILE cleanup bullet gains a **reference-key-width axis** (grep every key form the closed thing is cited by, `§N` / `PN.M` / `item N` / ranges `§A-§B`, the reference-key companion to the completion-grep guard's file-type-width axis), with the three same-session occurrences as evidence; (2) the reference-version-currency line that still called §1.8 an open source-gated residual corrected to "the P1 reference-currency residuals (§1.5 through §1.8) are all now closed" (the #818 `/validate-pr` F1, MEDIUM).
+- [`TODO.md`](../../TODO.md): the stale Priority-1 intro paragraph (the §1.5 register / `needs-reconfirm` / "residuals split below" prose) replaced with an accurate "P1 currently has no open items" note (the #818 `/validate-pr` F2, LOW, and the maintainer's §1.5 removal); TODO §3.46 removed and rotated to [`.working/DONE.md`](../DONE.md) (codified above).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.589`->`1.2.590`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.529`->`1.0.530`): the batched #818 `/validate-pr` (2 in-window findings, both fixed here) and `/retro` (the 3rd-occurrence pattern that auto-graduated to this codification) rows.
+
+### Verification
+
+- [`tools/lint-language.py`](../../tools/lint-language.py) clean on the edited project-instruction-file regions (added lines dash-free, no British spelling). §1.5 confirmed done (register shipped #505, sweep #751) before removing its intro mention; all P1 §1.x items (§1.5 through §1.11) confirmed closed. All 68 audit gates pass; the pre-push guard is green.
+- Third-occurrence-to-codification: the reference-key-width class recurred in #814, #817, and #818 (each surfaced by a `/validate-pr` and fixed in-window), meeting the auto-graduation threshold, so the guard clause is codified rather than left as a checklist reminder.
+
 ## 2026-07-11, Library Version 2026.07.306, PR #818
 
 Ref-side corrections complete (closes TODO §1.8). The substantive corrections are cross-repo in `grc_library_ref` PRs #52 / #53 / #54; this grc_library PR closes the backlog item and syncs the one corpus cell. Library `2026.07.305` to `2026.07.306`.

@@ -417,7 +417,17 @@ is external. Two mechanisms:
      section-close can leave a stale forward pointer in a gate-exempt file, and the
      intra-doc-ref gate does not scan the gate-exempt trees at all, so such a pointer is
      invisible to every gate and is caught only by this whole-repo grep, not by CI
-     (Sweep 78 B-1).
+     (Sweep 78 B-1). **Reference-KEY-WIDTH axis (the §3.46 codification):** the grep
+     must cover every KEY FORM the closed thing is cited by, not only the bare `§N`.
+     Beyond `§N` / `PN.M` / bare tokens, this includes RANGE notation (`§A-§B`, `§A to
+     §B`: a `§1.5-§1.8` residual range stays stale when only its last member closes) and
+     the differently-keyed `item N` form a staging or deferred-backlog file uses (e.g. a
+     `deferred-protected-changes.md` "item 7" that a TODO §-section points at). A
+     bare-`§N` grep misses both, so run the close-out grep over the whole key-form family,
+     the reference-key companion to the completion-grep guard's file-type-width axis. This
+     class recurred three times in one session (the #814 `§3.36`-vs-`item 7` misname; the
+     #817 `§1.5-§1.8` range left stale when #818 closed §1.8; and the #818 CLAUDE.md `§1.8`
+     line), each a bare-`§N` grep missing a non-bare key form.
    - **Gate-39 count-phrasing** (the P7 trap): when prose in a gate-39-SCANNED surface (a
      tool docstring, a `governance/` spec, `TODO.md`, `README.md`, or any other corpus
      `.md`) cites a gate by its number, phrase it as `gates N and M` (the digits AFTER
@@ -851,7 +861,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 
 `grc_library_ref` writes go via PR (the local git proxy 403s direct pushes, per
 [`third-party-issues.md`](../.working/third-party-issues.md)), so the `grc_library_ref` half of any
-update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the remaining reference-currency residual is the P1 §1.8 item (the source-gated WCO SAFE 2025 edition refresh; §1.5 to §1.7 are closed).
+update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the P1 reference-currency residuals (§1.5 through §1.8) are all now closed.
 
 ## Attended-autonomous operating mode
 

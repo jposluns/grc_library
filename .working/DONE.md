@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #819: §N-orphan reference-key-width clause codified (closes TODO §3.46) + #818 findings (2026-07-11)
+
+Codified the reference-key-width axis into the [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) §N-orphan close-out guard (a section/item close greps every key form the closed thing is cited by, `§N` / `PN.M` / `item N` / ranges `§A-§B`, not only bare `§N`), extinguishing the class that recurred three times this session (#814 §3.36-vs-item-7; #817 §1.5-§1.8 range; #818 CLAUDE.md §1.8 line). Also fixed the two #818 in-window `/validate-pr` findings: the stale CLAUDE.md §1.8-residual line (now "§1.5 through §1.8 all closed") and the stale TODO P1 intro (the §1.5 "residuals split below" prose the maintainer flagged, P1 now has no open items). Closes TODO §3.46.
+
 ### PR #818: ref-side corrections complete (closes TODO §1.8) (2026-07-11)
 
 Closed TODO §1.8 (ref-side corrections). Confirmable corrections landed in `grc_library_ref` PR #52 (b NERC CIP-015-2 not-yet-in-force annotation + version_sensitive; c CAN/DGSI 101:2025 title; d TBS Directive in-force framing; e OECD revised 3 May 2024); (a) WCO SAFE 2021 to 2025 edition refresh applied via the maintainer's ingest (ref #53, 2021 retired to .superseded/); and the (c) filename slug rename applied in ref #54. Corpus side: the register WCO SAFE row was already at the 2025 edition (#751); its verified date is bumped to 2026-07-11 to sync with the ref ledger's fresh upstream confirmation. Also carries the #817 /validate-pr CLAUDE.md stale-range fix.
