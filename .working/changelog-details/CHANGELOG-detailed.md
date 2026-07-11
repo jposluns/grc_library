@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.291, PR #803
+
+AI gaps-and-expansion workstream PR 8 (incident response and cost): deepens two AI operational documents against held sources (NIST AI 600-1, NIST AI 100-2e2025, OWASP Top 10 for LLM Applications v2.0, ISO/IEC TR 27563:2023). Batches the #802 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.290` to `2026.07.291`.
+
+### Changed
+
+- [`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md) (`1.0.6`->`1.0.7`): added a NIST AI 100-2e2025 taxonomy crosswalk under the incident-classes table (classes mapped to NISTAML.01 to NISTAML.05, with the specific subclass IDs for prompt injection, data poisoning, and the privacy-compromise family); added an "AI incident reporting and disclosure channels" section anchored to NIST AI 600-1 GV-2.1-001 (the AI Incident Database, AVID, CVE, NVD, OECD AI incident monitor; external disclosure framed as an AI Governance Council decision, not an operator default); deepened the framework-alignment table by replacing the generic NIST AI RMF row with a NIST AI 600-1 (Generative AI Profile) row citing GV-1.5-002, GV-2.1-001, MG-2.3-001, MG-4.3-001, and MG-4.3-003, and adding a NIST AI 100-2e2025 row and an ISO/IEC TR 27563:2023 row (informative supporting material for privacy-implicated paths, not a normative incident source).
+- [`ai/standard-ai-inference-cost-governance.md`](../../ai/standard-ai-inference-cost-governance.md) (`0.0.5`->`0.0.6`): added an OWASP Top 10 for LLM Applications v2.0 LLM10:2025 (Unbounded Consumption, including Denial of Wallet) anchor in section 7 (framing cost runaway as the security-side rationale for the section 5 ceilings, rate limits, and kill switch) and a section-13 alignment row; added a NIST AI 600-1 section 2.5 (Environmental Impacts) anchor in section 6 (grounding the smaller-model preference) and a section-13 alignment row.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.573`->`1.2.574`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.513`->`1.0.514`): the batched #802 `/validate-pr` history row (clean) and `/retro` row.
+- [`TODO.md`](../../TODO.md): added item 3.44 (CHANGELOG nested-link malformation: historical cleanup of the two pre-existing project-instruction-file nested links plus a candidate detection gate), from the #802 retrospective.
+- [`.working/pending-decisions.md`](../pending-decisions.md): a 2026-07-11 daytime-round resolved block recording the maintainer's mode-switch answers (continue the workstream; correct issues then wind down and run `/deep-assessment` in a fresh session; protected-file backlog authorized after PR 10; the A4 5-tier ladder and A3=Guide/A4=Framework defaults confirmed; address more issues before wind-down absent degradation; confirm with the maintainer at the wind-down point).
+
+### Verification
+
+- Every NIST AI 600-1 action ID (GV-1.5-002, GV-2.1-001, MG-2.3-001, MG-4.3-001, MG-4.3-003), the NIST AI 100-2e2025 NISTAML taxonomy IDs, the OWASP LLM10:2025 text (Unbounded Consumption / Denial of Wallet), and the NIST AI 600-1 section 2.5 text were re-verified verbatim against the held `grc_library_ref` sources at apply time (a research subagent extracted them; the orchestrator re-opened each locator). The held source's wording "OECD AI incident monitor" (lower case) was used, not the prompt's variant.
+- Currency: the load-bearing new anchors (NIST AI 600-1, NIST AI 100-2e2025, OWASP LLM Top 10 v2.0) were confirmed current upstream earlier this session; ISO/IEC TR 27563:2023 is cited as informative supporting material only.
+- Substantive-tier change: one refute-briefed skeptical verifier pre-push. Pre-push guard green (67/67 corpus gates + PR-time delta gates). Both documents' Version and Date co-bumped; taxonomy and scorecard regenerated.
+
 ## 2026-07-11, Library Version 2026.07.290, PR #802
 
 AI gaps-and-expansion workstream, canonical-register enrollment for the AI jurisdiction annexes: addresses the #800 `/validate-pr` finding (Canada annex's currency-sensitive AI instruments absent from the canonical-citations register) and extends the enrollment to the Australia annex's instruments. Batches the #801 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.289` to `2026.07.290`.

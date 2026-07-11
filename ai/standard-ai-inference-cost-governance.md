@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.5\
-**Date:** 2026-07-02\
+**Version:** 0.0.6\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -106,7 +106,7 @@ When selecting a model for a use case, the model registry entry documents the ra
 | Sustainability | Documented energy or emissions footprint where available |
 | Restricted-data fit | The model's contractual and architectural fit for the data classification involved |
 
-The standard prefers the smallest, fastest, cheapest model that meets the requirements. Use of frontier-class models for routine tasks requires documented justification.
+The standard prefers the smallest, fastest, cheapest model that meets the requirements. Use of frontier-class models for routine tasks requires documented justification. This preference is grounded in the sustainability rationale of the NIST AI Generative AI Profile (NIST AI 600-1) section 2.5 (Environmental Impacts): training, maintaining, and running inference on generative-AI systems are resource-intensive, with energy and carbon footprints that vary by task and model, and creating smaller versions of trained models through distillation or compression can reduce environmental impacts at inference time. The cost-efficiency and sustainability criteria therefore point the same way.
 
 ---
 
@@ -127,7 +127,7 @@ The standard prefers the smallest, fastest, cheapest model that meets the requir
 Cost anomalies are dual-routed:
 
 1. **Financial response.** Owner investigates; budget variance recorded; corrective action if persistent.
-2. **Security response.** AI Security Maintainer investigates whether the anomaly indicates abuse, agent misbehaviour, or compromise. Cost runaway is a documented signal in the AI incident response plan.
+2. **Security response.** AI Security Maintainer investigates whether the anomaly indicates abuse, agent misbehaviour, or compromise. Cost runaway is a documented signal in the AI incident response plan, and corresponds to the OWASP Top 10 for LLM Applications v2.0 risk LLM10:2025 Unbounded Consumption: its denial-of-wallet case, where a high volume of operations exploits the cost-per-use model of cloud-based AI services to impose an unsustainable financial burden, is the security rationale for the hard ceilings, rate limits, and kill switch in section 5.
 
 ---
 
@@ -206,6 +206,8 @@ For external providers:
 | ISO/IEC 42001:2023 | §8 operation; §9 performance evaluation | AI management system |
 | ISO/IEC 5055 | Automated source code quality measures | Where applicable |
 | NIST AI RMF | MEASURE, MANAGE | Risk and operational management |
+| NIST AI 600-1 (Generative AI Profile) | §2.5 Environmental Impacts | AI-specific basis for tracking inference and training energy and carbon footprint; supports the smaller-model preference |
+| OWASP Top 10 for LLM Applications v2.0 | LLM10:2025 Unbounded Consumption (including Denial of Wallet) | Cost runaway as a security vulnerability; the rationale for ceilings, rate limits, and the kill switch |
 | FinOps Foundation Framework | Principles and capabilities | Industry practice for cloud cost governance |
 | ISO/IEC 30134 series | Data centre energy efficiency | Sustainability cross-walk |
 | EU AI Act | Article 26 (deployer obligations including efficient use); Articles 53, 55 (GPAI obligations) | EU regulation |

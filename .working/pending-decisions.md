@@ -12,6 +12,19 @@ stalling.
 On `/resume`, the assistant reads this file first, surfaces the still-`pending` entries to
 the maintainer, resolves those tasks, and only then continues to the next queued items.
 
+## Resolved at the maintainer's 2026-07-11 daytime round (mode switch: overnight to daytime-unattended, maintainer attended and watching)
+
+The maintainer ended overnight mode and switched to daytime unattended (attended and watching). Batched answers plus two mid-turn directives, recorded for durability:
+
+1. **Session priority = continue the AI workstream** (register-enrollment PR, then PR 8 incident-response and cost, PR 9 A5 new framework, PR 10 synthetic-content provenance). Chosen over "clear the deferred protected-file backlog first" and "do the routed fixes first".
+2. **`/deep-assessment` = correct the issues identified this session first, then wind down and run `/deep-assessment` in a NEW (fresh) session.** Confirms the standing fresh-context discipline for the first deep-assessment. The deep-assessment does NOT run in this session.
+3. **Deferred protected-file backlog = authorized to apply after PR 10 of this session** (the maintainer is attended, so the protected-tree apply can be authorized live). Items: the GR-P pack-design track and the changelog-restructure prose (in [`deferred-protected-changes.md`](deferred-protected-changes.md)).
+4. **Overnight stricter-safe defaults CONFIRMED:** A4 maturity model reuses the corpus's existing 5-tier CMMI ladder (not a competing ladder); A3 = Guide, A4 = Framework document types; the canonical-register enrollment done as a dedicated PR (the #802 split). The corresponding Pending entries below (the A4 level-model, A4/A3 Document-Type defaults) are thereby resolved-confirmed.
+5. **Mid-turn directive (address more issues before wind-down):** absent session degradation, the maintainer wants MORE of the identified issues addressed before winding down for the deep assessment, not an early wind-down. Continue on the highest-priority authorized work with skeptical-verifier tiers sustaining quality; wind down only on a named degradation signal.
+6. **Mid-turn directive (confirm at the wind-down point):** when the session reaches the wind-down point (workstream and issue-corrections done, before the deep assessment), CONFIRM with the maintainer what to do next rather than auto-selecting the handoff. This overrides the wind-down framework's default-to-handoff for THIS session's end: the maintainer wants to be asked.
+
+Identified issues still to correct before wind-down (tracked): corpus-wide OECD-AI-Principles year harmonization (5 docs + ref catalogue); privacy-Canada / privacy-Australia annex reconciliation (the "disclosed when requested" / "anticipated AIDA" phrasings); the two pre-existing malformed nested links in historical CHANGELOG entries (TODO 3.44); the NYC Administrative Code source-drop (maintainer to acquire); and any further issues surfaced by the ongoing QA.
+
 ## Overnight-run authorizations (2026-07-09, maintainer-batched for a no-pause overnight backlog run)
 
 The maintainer batched these (2026-07-09) to enable an autonomous overnight BACKLOG-clearing run (the swap session). All four are RESOLVED; the overnight `/resume` executes them without re-asking.
