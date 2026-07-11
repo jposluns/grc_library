@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -37,6 +37,9 @@ It applies to internally developed models, externally supplied models, fine-tune
 1. Each model or model-enabled system must be recorded in an AI system or model inventory.
 2. Each model must have an assigned owner, data owner, control owner, and supplier owner where applicable.
 3. Each model must have an approved purpose, prohibited use conditions, risk tier, lifecycle status, and review date.
+4. Each model must carry an inherent model-risk rating derived from quantitative and qualitative criteria, assigned provisionally at registration and confirmed at model review or approval, and re-rated on trigger events or material change.
+5. An organization may define a negligible-risk rating category that exempts a model from the full lifecycle-governance requirements, provided the exemption is approved and tracked.
+6. Each non-negligible-risk model undergoes a model review independent of its developer, confirming conceptual soundness and performance before approval and on defined triggers (a new model, a material modification, a performance breach, a significant data change, or a scheduled periodic review). This inventory, rating, exemption, and independent-review approach is adopted sector-neutrally from OSFI Guideline E-23 (Model Risk Management).
 
 ### 3.2 Data provenance and lineage
 
@@ -60,7 +63,7 @@ It applies to internally developed models, externally supplied models, fine-tune
 
 ### 3.5 Robustness and adversarial testing
 
-Model testing must address, proportionate to risk and model class. The taxonomy below distinguishes LLM and generative-system threats from classical ML threats, federated-learning threats, and the defence categories that apply across them. Coverage depth follows model class and deployment context, not all threats apply to all models.
+Model testing must address, proportionate to risk and model class. The taxonomy below distinguishes LLM and generative-system threats from classical ML threats, federated-learning threats, and the defence categories that apply across them. Coverage depth follows model class and deployment context, not all threats apply to all models. The threat and defence categories in this section align with the adversarial-machine-learning taxonomy of NIST AI 100-2e2025, the LLM-application risks of the OWASP Top 10 for LLM Applications v2.0, and the adversarial-technique catalogue of MITRE ATLAS; the specific technique names below are illustrative, not an exhaustive or prescriptive list.
 
 #### 3.5.1 LLM and generative-system threats
 
@@ -128,6 +131,7 @@ Across all model classes, testing must address out-of-distribution behaviour, in
 1. Deployed models must have monitoring proportionate to risk.
 2. Monitoring should address performance, drift, misuse, leakage, prompt injection attempts, anomalous retrieval, unsafe tool activity, incidents, and control exceptions.
 3. Re-evaluation must occur at defined cadence and upon material change to model, data, supplier, deployment context, threat pattern, or legal or regulatory context.
+4. Deployments that apply automated continuous learning without human interaction must include an automated rollback process at defined performance thresholds, defaulting to a safe alternative model on a threshold breach (ISO/IEC 5338:2023 Section 6.4.14, continuous validation).
 
 ### 3.8 Incident and exception management
 
