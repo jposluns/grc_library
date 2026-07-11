@@ -503,8 +503,9 @@ is external. Two mechanisms:
    - **Accepted-unverified tracker** (the evidence-grounded-completion corollary): if this PR
      accepted anything as unverified or unvalidated (proceeded on it, annotated a claim as
      unverified-for-now, or relied on a value not confirmed current), a TODO item tracking its
-     verification is in the diff (or already exists and is cross-referenced). TODO 1.11 (the
-     Brazil citation primary-source verification) is the pattern.
+     verification is in the diff (or already exists and is cross-referenced). The FR-59 Mexico
+     and Brazil-citation accepted-unverified trackers (both since primary-verified and closed)
+     are the pattern.
    - **Per-touch reference-breadth check** (the `/reference-audit` per-touch obligation):
      if this PR changes a corpus document's body, the per-touch run
      (`python3 tools/audit-reference-breadth.py --docs <touched paths>`, judge on any
