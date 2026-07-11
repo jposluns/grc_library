@@ -2,8 +2,8 @@
 
 **Document Title:** Ethical AI Use Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.3\
-**Date:** 2026-07-10\
+**Version:** 1.0.4\
+**Date:** 2026-07-11\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md)\
@@ -40,6 +40,7 @@ The organization's approach to AI is grounded in the following principles, align
 | **Accountable** | Every AI system has a named owner who is responsible for its behaviour and outputs |
 | **Safe** | AI systems are tested before deployment; risks are identified and managed |
 | **Privacy-preserving** | AI systems process personal data only as necessary and within declared purposes |
+| **Sustainable and inclusive** | AI is directed toward beneficial outcomes for people and the environment, advancing inclusion and reducing inequality, and its environmental impact is weighed (OECD Principle 1.1: inclusive growth, sustainable development and well-being) |
 
 ---
 
@@ -128,7 +129,7 @@ The following uses of AI are prohibited regardless of the tool or context:
 5. **AI for disinformation** or the production of misleading content intended to deceive.
 6. **AI systems classified as Unacceptable risk** under the EU AI Act.
 
-These are absolute prohibitions. Requests to deploy AI for these purposes are escalated to the AIGC and Legal Counsel.
+These are absolute prohibitions. Requests to deploy AI for these purposes are escalated to the AIGC and Legal Counsel. The prohibitions on social scoring and mass surveillance, and the requirement for final human determination on decisions that are irreversible or involve life and death, align with the UNESCO Recommendation on the Ethics of AI (paragraph 26).
 
 ---
 
@@ -136,7 +137,7 @@ These are absolute prohibitions. Requests to deploy AI for these purposes are es
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| OECD AI Principles (2023) | Human-centric, fair, transparent, accountable AI | Core ethical principles |
+| OECD AI Principles (2023) | Human-centric, fair, transparent, accountable AI; Principle 1.1 inclusive growth, sustainable development and well-being | Core ethical principles including sustainability and inclusion |
 | UNESCO Recommendation on the Ethics of AI (2021) | Human dignity, human oversight, fairness, transparency, accountability | Global AI ethics baseline |
 | CAN/DGSI 101:2025 | Ethical design and use of artificial intelligence by small and medium organizations (2nd edition) | Responsible AI design and use |
 | EU AI Act (2024) | Articles 5, 9: Prohibited practices and risk management | AI red lines and high-risk governance |

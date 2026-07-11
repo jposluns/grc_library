@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-07-11\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -30,7 +30,7 @@ Each AI risk entry must contain the following fields:
 | --- | --- |
 | **Risk ID** | Unique identifier (format: AIR-YYYY-NNN) |
 | **AI System** | Name and version of the affected AI system |
-| **Risk Category** | Bias / Explainability / Security / Privacy / Performance / Compliance / Governance |
+| **Risk Category** | Bias / Explainability / Security / Privacy / Safety / Performance / Compliance / Governance / Environmental and Sustainability |
 | **Risk Description** | Clear statement of the risk event and its potential consequences |
 | **Threat Source** | Technical failure / Human error / External threat / Regulatory change |
 | **Affected Stakeholders** | Internal users / Customers / Regulators / Third parties |
@@ -57,9 +57,11 @@ Each AI risk entry must contain the following fields:
 | **Explainability** | AI decision-making cannot be sufficiently explained to affected individuals or regulators |
 | **Security** | AI system is vulnerable to adversarial attacks, model extraction, prompt injection, or data poisoning |
 | **Privacy** | AI system processes or exposes personal data beyond declared purpose or in violation of privacy laws |
+| **Safety** | AI system behaviour, especially an action-capable or autonomous system, endangers human life, health, physical safety, property, or the environment (ISO/IEC 23894 A.10; NIST AI RMF Safe characteristic) |
 | **Performance** | AI model accuracy degrades to the point of causing operational or compliance failures |
 | **Compliance** | AI system fails to meet applicable regulatory requirements (EU AI Act, GDPR, AIDA, etc.) |
 | **Governance** | AI system lacks adequate documentation, oversight, or lifecycle controls |
+| **Environmental and Sustainability** | The energy, carbon, and water footprint of training or operating the AI system imposes a material environmental cost that is not measured or weighed (ISO/IEC 23894 A.5) |
 
 ---
 
@@ -76,6 +78,8 @@ The following entries represent the baseline risk register template. Actual oper
 | AIR-2026-005 | All AI systems | Compliance | AI systems classified as High-risk under EU AI Act are not fully compliant with Annex IV documentation requirements | 3×4=12 | 3×3=9 | Medium | Open |
 | AIR-2026-006 | ML/prediction models | Performance | Model performance drift causes incorrect outputs over time without detection | 3×3=9 | 3×1=3 | Low | Open |
 | AIR-2026-007 | Third-party AI | Governance | Third-party AI embedded in procured software lacks transparency on training data or decision logic | 4×3=12 | 4×2=8 | Medium | Open |
+| AIR-2026-008 | Action-capable AI | Safety | An autonomous or action-capable AI system takes an irreversible action endangering safety, property, or the environment without adequate human determination | 4×4=16 | 4×2=8 | Medium | Open |
+| AIR-2026-009 | Foundation and large models | Environmental and Sustainability | Training and high-volume inference impose a material energy, carbon, and water footprint that is not measured or weighed | 2×3=6 | 2×2=4 | Low | Open |
 
 ---
 
@@ -102,7 +106,11 @@ The register is updated within 5 business days of any:
 | ISO/IEC 42001:2023 | §6.1: Actions to Address Risks | AI risk identification and treatment |
 | ISO/IEC 42001:2023 | §9: Performance Evaluation | AI risk monitoring |
 | EU AI Act (2024) | Article 9: Risk Management System | High-risk AI risk register obligations |
-| NIST AI RMF (2023) | MAP and MEASURE functions | AI risk mapping and measurement |
+| NIST AI RMF (2023) | MAP and MEASURE functions; trustworthiness characteristics (including Safe) | AI risk mapping, measurement, and risk-category coverage |
+| ISO/IEC 23894:2023 | Annex A risk-management objectives (11, including A.5 Environmental impact and A.10 Safety) | Risk-category coverage |
+| NIST IR 8312 | Four principles of explainable AI | Explainability category |
+| NIST SP 1270 | Systemic, statistical, and human bias | Bias category |
+| ISO/IEC TR 24027:2021 | Clause 7 fairness metrics; sources of unwanted bias | Bias category |
 | ISO 31000:2018 | Risk Management Guidelines | Enterprise risk register methodology |
 
 ---
