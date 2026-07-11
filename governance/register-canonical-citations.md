@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.20\
+**Version:** 1.5.21\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -142,6 +142,19 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Canada PIPEDA | 2000 (with 2015 DBSA amendments) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-06-30 |
 | Canada AIDA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; per June 2025 ministerial statement, AIDA will not return in its original form) | 2022 (proposed) | Artificial Intelligence and Data Act (never enacted) | n/a; no federal AI law enacted | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
 | Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An Act to modernize legislative provisions as regards the protection of personal information | - | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | verified 2026-07-09 |
+| Canada TBS Directive on Automated Decision-Making | In force since 1 April 2019 (compliance 1 April 2020); third-review amendments announced 8 October 2024, with automated decision systems developed or procured before 24 June 2025 given until 24 June 2026 to meet the updated requirements | 2019 | Federal public-sector automated decision-making (binding on federal institutions); the Algorithmic Impact Assessment tool | - | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592 | verified 2026-07-11 |
+| Canada OSFI Guideline E-23 | Final published 11 September 2025; effective 1 May 2027 (scope expanded to all models at all federally regulated financial institutions, expressly covering AI/ML models) | 2025-09-11 | Model risk management for federally regulated financial institutions (covers AI and machine-learning models) | Draft 2023-11-20 | https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/guideline-e-23-model-risk-management-2027 | verified 2026-07-11 |
+| Ontario EDSTA | Enhancing Digital Security and Trust Act, 2024 (Schedule of Bill 194, S.O. 2024, c. 24); Royal Assent 25 November 2024; the artificial-intelligence provisions come into force on a day to be named by proclamation of the Lieutenant Governor and depend on regulations to be prescribed; not yet proclaimed as of mid-2026 | 2024 | Ontario public-sector artificial-intelligence accountability | - | https://www.ola.org/en/legislative-business/bills/parliament-43/session-1/bill-194 | verified 2026-07-11 |
+| CAN/DGSI 101:2025 | 2nd edition, 2025 | 2025 | Ethical design and use of artificial intelligence by small and medium organizations (voluntary national standard, Digital Governance Standards Institute) | 1st edition | https://dgc-cgn.org/ | verified 2026-07-11 |
+
+## Asia-Pacific regulations and frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Australia National AI Plan 2025 | 2025 (launched 2 December 2025) | 2025-12 | National AI strategy (Department of Industry, Science and Resources); three goals; establishes an AI Safety Institute | - | https://www.industry.gov.au/publications/national-ai-plan | verified 2026-07-11 |
+| Australia AI Ethics Principles | 8 principles; published 7 November 2019, updated 2 December 2025 | 2019-11-07 | Voluntary AI ethics principles (Department of Industry, Science and Resources) | - | https://www.industry.gov.au/publications/australias-ai-ethics-principles | verified 2026-07-11 |
+| Australia Voluntary AI Safety Standard | 10 guardrails (National AI Centre, August 2024) | 2024-08 | Voluntary AI safety guardrails across the AI supply chain | - | https://www.industry.gov.au/publications/voluntary-ai-safety-standard | verified 2026-07-11 |
+| Australia Guidance for AI Adoption | 6 essential practices (National AI Centre); published 21 October 2025; condenses the Voluntary AI Safety Standard's 10 guardrails and the AI Ethics Principles | 2025-10-21 | Voluntary AI adoption guidance | - | https://www.ai.gov.au/staying-safe-and-responsible/essential-ai-practices/guidance-ai-adoption-implementation-guidance | verified 2026-07-11 |
 
 ## Other privacy regulations
 
@@ -155,7 +168,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.kmu.admin.ch/kmu/en/home/facts-and-trends/digitization/data-protection/new-federal-act-on-data-protection-nfadp.html | verified 2026-07-09 |
 | Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
 | Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |
-| Australia Privacy Act | 1988 (with 2024 amendments) | 1988 | Privacy Act | - | https://www.legislation.gov.au/C2004A03712/latest | 2026-06-30 |
+| Australia Privacy Act | 1988, as amended by the Privacy and Other Legislation Amendment Act 2024 (Cth) No. 128, 2024 (Royal Assent 10 December 2024); the automated-decision transparency obligation (Australian Privacy Principles 1.7 to 1.9, Schedule 1 Part 15) commences 10 December 2026 | 1988 | Privacy Act (including the automated-decision-making privacy-policy transparency obligation) | - | https://www.legislation.gov.au/C2004A03712/latest | verified 2026-07-11 |
 | India DPDPA | 2023 (Act enacted 2023-08-11); Digital Personal Data Protection Rules 2025 notified 13 November 2025 by MeitY with phased commencement (Data Protection Board provisions immediate; consent-manager registration after 12 months; remainder after 18 months) | 2023-08-11 | Digital Personal Data Protection Act 2023 plus the Digital Personal Data Protection Rules 2025 | - | https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/nov/doc20251117695301.pdf | verified 2026-07-09 |
 | Malaysia PDPA | 2010 (Act 709) as amended by Personal Data Protection (Amendment) Act 2024 (Act A1727); phased commencement: tranche 1 from 1 January 2025, tranche 2 from 1 April 2025, tranche 3 (including the mandatory DPO appointment and 72-hour breach notification) from 1 June 2025. DPO and breach-notification Guidelines issued 25 February 2025 | 2010 | Personal Data Protection Act (Malaysia) | - | https://www.pdp.gov.my/ppdpv1/en/akta/pdp-act-2010-en/ | 2026-06-30 |
 
