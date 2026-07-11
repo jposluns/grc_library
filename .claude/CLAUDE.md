@@ -464,6 +464,20 @@ is external. Two mechanisms:
      while the defect survives (first-commit zero-residual claims were refuted pre-push in
      both #603 and #606; in #606 specifically the adjacent-phrase-literal grep was
      pipe-defeated by table cells and missed four carriers the proximity form caught).
+     A fourth axis is FILE-TYPE WIDTH: a rename, cutover, token-migration, or completion
+     grep runs over ALL file types the token can inhabit (`.py` tool sources and their
+     docstrings, `.yml` workflow and config, `.json`, `.sh`, and the gate-exempt `.claude/`
+     and `.working/` trees), not `.md` alone, because the corpus's `.md`-centric grep reflex
+     leaves a renamed or retired token live in a tool docstring, a workflow step name, a
+     config key, or a CLAUDE.md pointer that no markdown-scoped grep sees (the pattern-width
+     and scope-width axes above are both implicitly `.md`-scoped; the #688/#689 log-mining
+     retros surfaced this as a distinct gap, and the #746-to-#811 recycled-section-number
+     stale CLAUDE.md pointer is the same class). Run the completion or contradiction grep
+     with NO `--include=*.md` filter (or explicitly add the non-`.md` types), and confirm
+     zero residual across every file type before the completion claim. This is the file-type
+     companion to the `## Session migration and PR close-out checklist` §N-orphan-cleanup
+     line, which already requires the whole-repo (not just sibling-`.md`) grep on a
+     section-close; the axis generalizes it to every rename or completion grep.
    - **Grep-claim fidelity** (the record-vs-output guard): any record or CHANGELOG clause
      that characterizes a grep result (zero residuals, N hits, one legitimate) is written
      FROM the pasted output of that grep at authoring time, never from memory of an
