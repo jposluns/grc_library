@@ -2,7 +2,7 @@
 
 **Document Title:** AI Board Oversight Guide\
 **Document Type:** Guide\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-07-11\
 **Owner:** Board Risk Committee\
 **Approving Authority:** Board of Directors\
@@ -64,7 +64,7 @@ The board defines what it receives on AI and how often. It should expect, on a r
 | ISO/IEC 38507:2022 | Clause 4.3 (accountability when introducing AI); Clause 6.2 to 6.7 (governance oversight areas) | Governing-body AI oversight, the primary anchor |
 | ISO/IEC 42001:2023 | Clause 5.1 and 5.2 (leadership, AI policy); Clause 9 (performance evaluation) | Top-management leadership and board-reporting inputs |
 | NIST AI RMF (2023) | GOVERN 1.1, 1.5, 1.6, 2.1, 2.2, 2.3, 3.2 | Governance, accountability, literacy, and oversight structure |
-| OECD AI Principles (2023) | Accountability | Board accountability for AI outcomes |
+| OECD AI Principles (2019, updated 2024) | Accountability | Board accountability for AI outcomes |
 
 ## 9. Limitations
 
