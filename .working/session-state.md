@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-11T01:25:01Z
+**Last-heartbeat-UTC:** 2026-07-11T01:35:53Z
 
-**Current-task:** `/resume` from released #789 handoff; loop-break Sweep 96 `/validate` over the #780..#788 window, then the AI workstream PR 1-10.
+**Current-task:** OVERNIGHT UNATTENDED (maintainer 2026-07-11). AI workstream: #791 (PR 1) + #792 (PR 2) merged; building PR 3 (OSFI E-23 model-risk cluster), then PR 4-10, then the closing /deep-assessment. Green CI = merge via gh --admin; full per-PR QA + verifiers; no idle-stop.
 
 **PRIOR (released):** RELEASED at the #789 session-closing handoff (2026-07-10 UTC, UNATTENDED DAYTIME then ATTENDED on the VM). The sweep95 session resumed cleanly from the released #779 lease and shipped 9 PRs (#780-#788): the loop-break **Sweep 95** `/validate` (#780, control for #779 PASSED); the signed-off **deep-assessment r1 residue** (#781 §3.41 control-code fit remap, #782 §3.40 gate-48 **Check 5** which caught a 3rd invalid CSA family `GVN-05`, #783 §3.13 mutation pair); and the **AI gaps-and-expansion workstream PR 0**, all 5 corpus-accuracy fixes (#784 WS 0.1 §36 AICM high-assurance; #785 WS 0.2 AIDA reconcile + US-state §7.5; #786 WS 0.3 ISO/PAS 8800 corpus-wide; #787 WS 0.4 EU AI Act Art 73 corpus-wide + FLOP + claim-fit; #788 WS 0.5 unheld-citation routing). Every substantive PR verifier-SHIP'd (high-assurance on #784) + post-merge `/validate-pr` clean; zero escaped defects. #789 (this handoff) batched #788's QA rows, refreshed the handoff (new sweep95 blocks; sweep93 marked prune-at-next-resume), wrote the session-metrics row, and RELEASED the lease. **Handoff maintainer-CHOSEN at the PR-0->PR-1 boundary (NOT degradation-triggered):** a fresh session for the large AI-workstream PR 1-10 content builds. NEXT `/resume` (STANDARD UNATTENDED, switching to OVERNIGHT later): run the loop-break `/validate` (Sweep 96) over #780..#788, then the AI workstream PR 1-10 (PR 1 scoped: mature `procedure-integrated-ai-and-privacy-assessment` on ISO/IEC 42005 Annex D), then the closing `/deep-assessment`. Green-at `e3b155c` (#788) = 67/67.
 

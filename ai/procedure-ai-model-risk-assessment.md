@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -32,7 +32,7 @@ This procedure applies to models and model-enabled systems developed, acquired, 
 
 ### Step 1: Prepare assessment
 
-Record model purpose, owner, risk tier, lifecycle stage, deployment context, data categories, supplier involvement, intended users, prohibited uses, and assessment trigger.
+Record model purpose, owner, risk tier, lifecycle stage, deployment context, data categories, supplier involvement, intended users, prohibited uses, and assessment trigger. Assign a provisional inherent model-risk rating at this step, to be confirmed at Step 10. The assessment trigger is one of: a new model, a material model modification, a performance breach, a significant data change, or a scheduled periodic review.
 
 ### Step 2: Validate data provenance and lineage
 
@@ -77,6 +77,7 @@ The accountable approval role must decide whether the model may proceed, proceed
 - **AI Governance Lead** coordinates and performs the assessment steps (Steps 1 to 10), drawing on the model owner and relevant subject-matter contributors for the evidence each step depends on.
 - **Model owner** supplies the model documentation, evaluation evidence, monitoring records, and supplier records the steps rely on, and owns the resulting treatment actions and residual-risk items.
 - **AI Governance Approver** makes the Step 10 decision (approve, proceed with conditions, pilot, remediate, reject, or retire). For high-tier models or unresolved high residual risk, the decision escalates to the **AI Governance Council**.
+- **Independence**: the assessment of conceptual soundness and performance is conducted independently of the model's development; the reviewer is not the model's developer, and internal reviewers or objective third parties may perform it (adopted sector-neutrally from OSFI Guideline E-23).
 
 ---
 
