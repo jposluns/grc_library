@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.304, PR #816
+
+Working-state bookkeeping (no corpus/protected file changed). Closes TODO §2.2 (the maintainer-directed AI gaps-and-expansion workstream, PRs 0-10): PR 0 shipped the five corpus-accuracy fixes (#784-#788), and PR 1-10 shipped the content-authoring builds including the six new documents A1-A6 (A5 in #815, A6c in #809), each with per-PR QA and a skeptical or high-assurance verifier. Rotated to [`.working/DONE.md`](../DONE.md). At the maintainer's 2026-07-11 direction, the whole-project `/deep-assessment` is **decoupled** from §2.2: it is a maintainer-invoked decision (governed by the `/deep-assessment` cadence in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) and its register), not a TODO item, so §2.2 closes fully rather than staying open for it. Batches the #815 `/validate-pr` (clean; 1 INFO on the resolved-entry retention convention) and `/retro` rows ([`.working/validate-pr/history.md`](../validate-pr/history.md) `1.2.586`->`1.2.587`, [`.working/improvement-log.md`](../improvement-log.md) `1.0.526`->`1.0.527`). Library `2026.07.303` to `2026.07.304`.
+
 ## 2026-07-11, Library Version 2026.07.303, PR #815
 
 AI gaps-and-expansion workstream PR 9 (A5), the value-and-decision-governance cluster; completes the workstream's content builds (PR 1 through 10). Library `2026.07.302` to `2026.07.303`.
