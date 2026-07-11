@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.14\
-**Date:** 2026-07-05\
+**Version:** 1.0.15\
+**Date:** 2026-07-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -22,7 +22,7 @@ This policy defines the governance framework for compliance assurance, internal 
 
 It consolidates previous compliance, audit, and CAPA policies into one unified governance instrument, ensuring consistent oversight of legal, regulatory, contractual, and ethical obligations; verification of control effectiveness; and continual improvement through audit findings and remediation cycles. 
 
-The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**, **Canada's AIDA**, and **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI.
+The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO 19011:2018** (Auditing Guidelines), **COBIT 2019 MEA01** (Managed Performance and Conformance Monitoring), **Cloud Security Alliance (CSA)** frameworks, **NIST SP 800-53 Rev. 5 CA** family, and regulatory expectations under the **EU AI Act**. (Canada's AIDA, proposed as Part 3 of Bill C-27, lapsed at the 2025-01-06 prorogation and is not in force; the current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions) and the federal Voluntary Code of Conduct on Generative AI (voluntary). U.S. Executive Order 14110 on Safe, Secure, and Trustworthy AI was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence".)
 
 
 
@@ -55,7 +55,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 3.5 AI and trade compliance oversight
 3.5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles. 
-3.5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act, AIDA, and OECD AI Principles. 
+3.5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act and the OECD AI Principles, and, for Canadian operations, the current Canadian AI instruments (the binding Treasury Board Directive on Automated Decision-Making and the voluntary federal Code of Conduct on Generative AI; AIDA lapsed and is not in force). 
 3.5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks, is maintained. 
 3.5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy. 
 3.5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
@@ -115,8 +115,8 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **NIST SP 800-53 Rev. 5 CA** family (Assessment and Authorization) 
 - **OECD AI Principles** (Accountability, Transparency, Human Oversight) 
 - **EU AI Act** Articles 9 to 16 (Risk, Quality, and Post-Market Monitoring) 
-- **Canada Artificial Intelligence and Data Act (AIDA)** 
-- **U.S. Executive Order 14110** on Safe, Secure, and Trustworthy AI 
+- **Canada AI governance:** the Treasury Board Directive on Automated Decision-Making and the federal Voluntary Code of Conduct on Generative AI (AIDA lapsed at the 2025-01-06 prorogation; not in force) 
+- **U.S. AI executive action:** Executive Order 14110 (Safe, Secure, and Trustworthy AI) was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence"; retained as historical context, not a current alignment target 
 - **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
 
@@ -129,7 +129,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 04 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 6 to 9 | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 CA-2, CA-5 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | Clause 10 Improvement | MEA01.05 Ensure the implementation of corrective actions | GRC 05, A&A 05 | NIST CA-7, IR-4 | CAPA regulations | WCO SAFE equivalence |
-| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act, AIDA | Not applicable |
+| AI audit and algorithmic monitoring | [Adopted in CMS] | [Guidance] | MEA01.03 Collect and process performance and conformance data | AIS 01 to 03 | NIST AI RMF Measure | EU AI Act; Treasury Board Directive (AIDA lapsed) | Not applicable |
 | Reporting and disclosure | Clause 9 Performance evaluation | Clause 6 Reporting | MEA01.04 Analyze and report performance | GRC 06 | NIST CSF Communicate | All jurisdictions | WCO SAFE equivalence |
 | Supplier and trade compliance auditing | Clauses 8 to 9 | Clauses 6 to 9 | APO10.05 Monitor vendor performance and compliance | STA 05 | NIST SP 800-161 Rev. 1 SCRM | Trade and customs laws | WCO SAFE equivalence |
 

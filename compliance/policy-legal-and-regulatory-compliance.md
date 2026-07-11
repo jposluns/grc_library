@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.14\
-**Date:** 2026-07-10\
+**Version:** 1.0.15\
+**Date:** 2026-07-11\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -61,7 +61,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 5.1 Legal, compliance, and regional teams must continuously monitor regulatory updates using verified industry sources, including the EU Official Journal, US Federal Register equivalents, and sector-programme notifications (for example, WCO circulars and BASC chapter communications where the organization participates).
 
-5.2 AI-related regulatory tracking must capture EU AI Act obligations, AIDA conformity updates, and supervisory guidance.
+5.2 AI-related regulatory tracking must capture EU AI Act obligations, the status of Canada's AI instruments (the current Treasury Board Directive on Automated Decision-Making (binding) and Voluntary Code of Conduct on Generative AI (voluntary), and any reintroduction of the lapsed AIDA), and supervisory guidance.
 
 5.3 Sector-programme regulation updates (for example, trade and customs updates under BASC where the organization participates) must be reflected within the relevant sector compliance matrix and communicated per the sector annex; see [`compliance/`](./).
 
@@ -147,7 +147,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | EU GDPR | Arts 33 to 34, Data protection | Breach notification, DPA reporting |
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | 24-hour incident notification |
 | EU AI Act (2024) | Art 73 | AI serious incident reporting |
-| Canada PIPEDA / AIDA | Privacy and AI compliance | Canadian regulatory obligations |
+| Canada PIPEDA; Treasury Board Directive on Automated Decision-Making / Voluntary Code of Conduct on Generative AI (AIDA lapsed) | Privacy and AI compliance | Canadian regulatory obligations |
 | NIST AI RMF 1.0 | Govern function | AI compliance governance |
 | ISO/IEC 42001:2023 | AI management system conformity | AI regulatory evidence management |
 

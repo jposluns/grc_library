@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #806: AI workstream, AIDA / EO-14110 obligation-carrier reconcile (advances TODO §1.10) (2026-07-11)
+
+Reconciled the AIDA live-framing obligation, alignment, and applicability carriers across eight non-privacy corpus documents, and both US EO-14110 carriers, to the lapsed / rescinded framing (citing the in-force Treasury Board Directive on Automated Decision-Making and the federal Voluntary Code of Conduct on Generative AI); the EO-14110 rescission (20 January 2025) was confirmed upstream against the Federal Register. TODO §1.10 is narrowed to the remaining privacy-domain AIDA section-29 obligation-mapping residual (routed to a privacy follow-up).
+
 ### PR #804: AI workstream, OECD-AI-Principles year harmonization (closes the TODO §1.10 OECD bullet, corpus side) (2026-07-11)
 
 Harmonized the five corpus carriers of the OECD AI Principles citation year off the stale "2023" form to the current "(2019, updated 2024)" form (four docs) and the "(2019 Recommendation as updated 2024)" form (policy-ai-compliance §12, matching its own §1.1), resolving the #798/#785/#786-flagged inconsistency; the 2023-vs-2024 currency was resolved upstream in #798 (OECD/LEGAL/0449 revised both 8 November 2023 and 3 May 2024, 2024 current). The `grc_library_ref` catalogue "revised 2023" correction is folded into TODO 1.8(e) as the cross-repo ref-side half.
