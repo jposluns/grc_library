@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.5\
-**Date:** 2026-07-09\
+**Version:** 1.1.6\
+**Date:** 2026-07-11\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -65,6 +65,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Standard | AI Access and Agent Permissions Standard | [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md) |
 | Register | Model Context Protocol Server Register | [`ai/register-mcp-server.md`](register-mcp-server.md) |
 | Procedure | Training Data Governance Procedure | [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md) |
+| Standard | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](standard-ai-data-quality-and-readiness-validation.md) |
 | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](standard-ai-inference-cost-governance.md) |
 | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](template-ai-red-team-report.md) |
 

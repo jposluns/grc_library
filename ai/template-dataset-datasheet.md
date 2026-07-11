@@ -2,8 +2,8 @@
 
 **Document Title:** Dataset Datasheet Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-07-11\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md)\
@@ -53,12 +53,14 @@ This template applies to all datasets that influence model behaviour: training, 
 | Imbalance assessment | Documented imbalance across subgroups |
 | Labels | Whether records are labelled; label taxonomy; label provenance |
 | Confidence in labels | Inter-annotator agreement or other quality metric |
+| Measured quality characteristics | The ISO/IEC 5259-2:2024 data-quality characteristics selected for this dataset, and why |
+| Quality measures, targets, and results | Per selected characteristic: the measure, its target value, and the measured result (ISO/IEC 5259-2:2024 Clause 8); whether the dataset meets its data-quality requirements, with an improvement plan where it does not |
 | Missing data | Categories of records with missing fields and the imputation approach if any |
 | Personal data | Whether the dataset contains personal data; if yes, identifiability tier per the pseudonymization standard |
 | Special-category data | Whether GDPR Article 9 categories or equivalents are present |
 | Children's data | Whether subjects below the age of digital consent are represented |
 | Confidential or restricted business data | Whether business-sensitive content is present |
-| Synthetic content | If synthetic, the generation method and the seed dataset; whether outputs are labelled as synthetic |
+| Real, synthetic, or semi-synthetic | Whether the data is real, synthetic, or semi-synthetic (ISO/IEC 42005:2025 Clause 6.4.2); if synthetic or semi-synthetic, the generation method and the seed dataset, and whether outputs are labelled as synthetic |
 
 ---
 
@@ -87,6 +89,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | --- | --- |
 | Cleaning steps | Deduplication, normalization, language filtering, quality filtering, toxicity filtering |
 | Labelling process | Crowdsourced, expert, model-assisted, automated; labeller training and demographics where relevant |
+| Labelling inspection | The inspection approach (sample, peer, or full), the sample proportion, and the pass criteria against the dataset's acceptance criteria (ISO/IEC 5259-4:2024 Clause 8.4); stricter inspection for outsourced or crowdsourced labelling |
 | Labeller compensation and conditions | Where applicable for crowdsourced labelling |
 | Filtering biases introduced | Specific filtering decisions that may bias downstream model behaviour |
 | Sensitive-content removal | Removal or marking of NSFW, CSAM, hate speech, PII; the technical method |
@@ -191,7 +194,9 @@ This template applies to all datasets that influence model behaviour: training, 
 | EU AI Act | Articles 10 to 12 | Data and data governance; record-keeping |
 | NIST AI RMF | MAP function | AI risk mapping |
 | GDPR / UK GDPR | Articles 5, 6, 9, 25, 30 | Data protection principles, lawful basis, special-category data, by design, ROPA linkage |
-| ISO/IEC 5259 series | Data quality for analytics and ML | Quality framework |
+| ISO/IEC 5259-2:2024 | Data quality measures | Measured-quality fields (Section 2) |
+| ISO/IEC 5259-4:2024 | Data quality process framework, Clause 8.4 | Labelling inspection (Section 4) |
+| ISO/IEC 42005:2025 | Clause 6.4.2: data information | Data-information fields |
 
 ---
 
