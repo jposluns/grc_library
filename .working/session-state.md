@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep97-validate
+**Active-session:** claude/deep-assessment-r2-open
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-11T22:28:52Z
+**Last-heartbeat-UTC:** 2026-07-11T23:37:45Z
 
-**Current-task:** loop-break `/validate` (Sweep 97) over #790..#821, then the maintainer-invoked whole-project `/deep-assessment` (fresh-context run), then the specific items the maintainer will give. The §4.8 Pack adoption-hygiene programme stays HOLD/maintainer-gated (consolidated scratch drop at `inbox/claude-pack-hygiene/`; no phase begins without explicit maintainer OK). See the PRIOR blocks below.
+**Current-task:** the maintainer-invoked whole-project `/deep-assessment` **r2** is IN-PROGRESS at Phase 8 (HOLDING for explicit maintainer sign-off; Phases 1-7 complete, near-clean: 0 error / 1 warning / 4 note). Sweep 97 ran clean and merged (#822, loop-break control for #821 PASSED). The r2 record + F2/F5 routing + gate-60 cadence-reset row ship in this record PR (#823); the F1 42001-clause-8.4 corpus fix, F3/F4 fix candidates, and the coverage-obligation gate-69 merge are PROPOSED and await sign-off. The §4.8 Pack adoption-hygiene programme stays HOLD/maintainer-gated; the pack-hygiene WORKER needs a maintainer ping to continue (surface after `/deep-assessment` signs off and whenever phase 1 GR-P2 merges). See the PRIOR blocks below.
 
 **PRIOR (released):** RELEASED at the #821 session-closing handoff (2026-07-11 UTC, UNATTENDED then ATTENDED on the VM). The sweep96 session resumed from the released #789 lease and shipped 31 PRs (#790-#820): the loop-break **Sweep 96** `/validate` (#790, control for #789 PASSED); the **AI gaps-and-expansion workstream PR 1-10** (#791-#809, the full A1-A6 content build including gate 68 nested-markdown-link); and the P1/P3 chain that closed **all P1 items** (§1.7-§1.11 via #810-#818) plus §2.2/§3.17/§3.46 and opened §3.47. Every substantive PR was verifier- or high-assurance-SHIP'd + post-merge `/validate-pr` clean; zero escaped defects. #821 (this handoff) batched #820's QA rows, applied the maintainer-directed **Pack adoption-hygiene programme** TODO consolidation (§4.8, HOLD) + the new **§1.1** discussion-vs-execution-mode-gate P1 item, refreshed the handoff, wrote the session-metrics row, and RELEASED the lease. It also preserved a complete reconciled **gate 69** on the HELD branch `origin/claude/positional-token-gate-69` (blocked only by the guardrail-review cadence gate 60; deferred with `/guardrails` to the `/deep-assessment` session, which rebases, re-numbers, runs `/guardrails`, and merges it). NEXT `/resume`: run the loop-break `/validate` (**Sweep 97**) over #790..#821, then the whole-project `/deep-assessment`. Green-at `68f1aa3` (#820) = 68/68. The **§4.8 programme is HOLD/maintainer-gated**: freeze on the scratch `gr-p2-rule-condense*` / `pack-design-gr345-batch` / `claude-pack-hygiene/` dirs (a consolidated drop is forthcoming and supersedes them); no phase begins until the maintainer's explicit OK.
 
