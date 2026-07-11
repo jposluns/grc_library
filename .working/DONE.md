@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #817: register-currency drift-check tool (closes TODO §1.7) (2026-07-11)
+
+Built [`tools/audit-register-currency.py`](../tools/audit-register-currency.py) per the `currency-ledger-sync` delivery spec: an advisory (not-gate) cross-repo tool reporting drift between the `grc_library_ref` currency ledger (`catalogue.yml`) and the corpus register `register-canonical-citations.md` across five checks (register-behind, version-disagreement, upstream-URL-mismatch, ledger-held-stale, unmatched-rows). Stdlib-only line parser (no PyYAML); exact-then-shortest-prefix designation matching; edition-token version comparison; `--ledger`/`--register`/`--strict`/`--self-test`; exits 0 by default (skip+0 if the ref checkout is absent). Its first live run flagged 4 register rows behind the ledger and the WCO SAFE 2021->2025 held-stale (which §1.8 addresses ref-side).
+
 ### PR #816: AI gaps-and-expansion workstream complete (closes TODO §2.2) (2026-07-11)
 
 Closed TODO §2.2 (the maintainer-directed AI gaps-and-expansion workstream, PRs 0-10): PR 0 shipped the five corpus-accuracy fixes (#784-#788); PR 1-10 shipped the content-authoring builds including the six new documents A1-A6 (A5 value-and-decision-governance authored as original governance constructs in #815, A6c synthetic-content provenance in #809), each with per-PR QA and a skeptical or high-assurance verifier. The whole-project `/deep-assessment` is a separate maintainer-invoked decision (not part of this item and not a TODO); it is decoupled from §2.2 at the maintainer's 2026-07-11 direction.
