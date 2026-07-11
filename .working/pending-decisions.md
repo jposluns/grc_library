@@ -28,6 +28,11 @@ The detailed overnight backlog queue (the delivery list, per-delivery handling a
 
 ## Pending (open; surface at next attended boundary / `/resume`)
 
+### Privacy-Canada annex "anticipated AIDA" staleness (surfaced by the Canada AI annex verifier, 2026-07-11; routed)
+
+`privacy/jurisdictions/annex-privacy-canada.md` has an internal inconsistency: its body (line 29) says AIDA "lapsed ... would require reintroduction", but its Purpose (line 21) and section headings (lines 50, 109, "Under AIDA (anticipated)") retain the stale pre-prorogation "anticipated ... Artificial Intelligence and Data Act" framing. The new Canada AI annex (`ai/jurisdictions/annex-ai-canada.md`) cross-references the privacy annex and tells adopters to read the two together, so a reader sees "lapsed, will not return" in the AI annex and "anticipated" in the privacy annex. Route: reconcile the privacy-Canada annex's Purpose and headings to the lapsed framing (a focused fix in the privacy domain; out-of-window for the AI-workstream PR 7). The Australia annex verifier separately flagged a parallel privacy-Australia ADM-phrasing imprecision (APP 1.7 is a privacy-policy-content duty, phrased as "disclosed when requested"); reconcile both privacy jurisdiction annexes in the same focused pass.
+
+
 ### PR 7 NYC LL144 annex: NYC Admin Code source-drop + OECD-year corpus harmonization (2026-07-11 overnight; routed)
 
 Two items surfaced building the NYC LL144 annex, both routed (not blocking):
