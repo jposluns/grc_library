@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.294, PR #806
+
+AI gaps-and-expansion workstream, AIDA and EO-14110 corpus-accuracy reconcile (advances TODO §1.10): stale live-framing of the lapsed AIDA and the rescinded EO-14110 corrected across eight non-privacy corpus documents. Batches the #805 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.293` to `2026.07.294`.
+
+### Changed
+
+- [`dev-security/standard-security-baseline-and-standards-reference.md`](../../dev-security/standard-security-baseline-and-standards-reference.md) (`1.1.10`->`1.1.11`): the §2.1 statute-table AIDA row and the §5.4 "AIDA requires ... near-term compliance target" paragraph reframed to the lapsed status + the in-force Treasury Board Directive and federal Voluntary Code of Conduct.
+- [`compliance/policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) (`1.0.14`->`1.0.15`): the intro joint AIDA+EO-14110 "regulatory expectations" line, the §3.5.2 "must demonstrate conformity to ... AIDA" clause, the two aligns-with bullets (AIDA + EO-14110), and the §6 matrix cell all reworded (AIDA lapsed; EO-14110 rescinded 20 January 2025 and superseded).
+- [`compliance/policy-legal-and-regulatory-compliance.md`](../../compliance/policy-legal-and-regulatory-compliance.md) (`1.0.14`->`1.0.15`): the §5.2 "must capture ... AIDA conformity updates" clause and the regulatory-obligations table row reframed to the in-force Canadian instruments (AIDA lapsed).
+- [`ai/procedure-ai-evaluation.md`](../../ai/procedure-ai-evaluation.md) (`1.0.7`->`1.0.8`): the §2.6 "applicable regulations: ... AIDA" verification item reframed.
+- [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md) (`1.0.4`->`1.0.5`): the risk-category cell ("AIDA compliance") and the regulatory-context table row ("AIDA (Canada)") reframed.
+- [`ai/register-ai-risk.md`](../../ai/register-ai-risk.md) (`1.0.6`->`1.0.7`), [`security/policy-information-security.md`](../../security/policy-information-security.md) (`1.3.15`->`1.3.16`), and [`compliance/register-compliance-obligations-template.md`](../../compliance/register-compliance-obligations-template.md) (`1.0.12`->`1.0.13`): the AIDA applicability/alignment mentions reframed (AIDA lapsed; the in-force Treasury Board Directive cited).
+- [`TODO.md`](../../TODO.md): §1.10 narrowed, the non-privacy obligation-carriers + EO-14110 done; the remaining privacy-domain AIDA section-29 obligation-mapping residual (template-dpia, procedure-privacy-impact-and-cross-border-transfer, annex-privacy-jurisdiction-index) plus the "(pending)" registry/matrix hedges routed to a privacy follow-up. [`.working/DONE.md`](../DONE.md): PR #806 entry.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.576`->`1.2.577`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.516`->`1.0.517`): the batched #805 `/validate-pr` (clean) and `/retro` rows.
+
+### Verification
+
+- Every reworded carrier verified verbatim against the live file (a research subagent scoped the corpus-wide carrier set; the orchestrator re-read each). The AIDA lapse framing mirrors the canonical citations register row and the AI-Canada annex; the EO-14110 rescission (20 January 2025, Federal Register 2025-01-28; successor "Removing Barriers to American Leadership in Artificial Intelligence", 23 January 2025) was confirmed upstream this turn, discharging the prior accepted-unverified caveat.
+- Corpus-wide bare-token `AIDA` / `14110` grep confirmed the only remaining live-framing is the privacy-domain section-29 residual (routed) and neutral registry cells (left); no obligation-carrier survives in the non-privacy corpus.
+- Substantive multi-document correction: one refute-briefed skeptical verifier pre-push. All eight documents' Version and Date co-bumped; taxonomy and scorecard regenerated.
+
 ## 2026-07-11, Library Version 2026.07.293, PR #805
 
 AI gaps-and-expansion workstream, privacy-annex reconciliation: aligns two privacy jurisdiction annexes with the AI jurisdiction annexes' accurate framing (the #800/#801 `/validate-pr` notes). Batches the #804 `/validate-pr` (clean) and `/retro` rows. Library `2026.07.292` to `2026.07.293`.
