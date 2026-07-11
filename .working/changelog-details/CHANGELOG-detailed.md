@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-11, Library Version 2026.07.309, PR #821
+
+Session-closing handoff for the sweep96 resumed session (#790-#820). Bookkeeping only (no corpus document body changed): a maintainer-directed TODO consolidation, a new P1 item, the batched #820 QA rows, and the session close-out (handoff refresh, metrics row, lease release). Library `2026.07.308` to `2026.07.309`.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): consolidated the pack adoption-hygiene work and GR-P2 into one HOLD programme item, **§4.8 "Pack adoption-hygiene programme (phases 1-4)"** (Phase 1 = GR-P2 condense; Phase 2 = tested sync-gate + skills + README payloads, incl. the former §4.9 GR-P5 derived-skill residual; Phase 3 = rules scrub + PROJECT-OVERLAY architecture, incl. pack-design GR-P3/GR-P4; Phase 4 = acceptance/close-out/routed-findings triage). Folded and deleted the former §4.9 (GR-P5 residual); re-pointed §4.1 (corpus-management shareable skill begins after Phase 1); left §4.2 (languages/-tree review) standalone with a related-to-§4.8 note. Every original backlog id (GR-P2, GR-P5a/b/c, GR-P3, GR-P4, pack-design) preserved in the §4.8 text. The item is marked **HOLD, maintainer-gated**: no phase begins and nothing is applied from the existing `grc_library_scratch` `gr-p2-rule-condense*` / `pack-design-gr345-batch` / `claude-pack-hygiene/` inbox drops until the maintainer's explicit OK (a consolidated scratch drop is forthcoming and supersedes them).
+- [`TODO.md`](../../TODO.md): recorded a new **Priority-1 §1.1** item, a discussion-vs-execution mode gate guarding against assistant overeagerness (treating planning discussion, or a conditional/sequenced GO, as immediate self-authorization to execute), maintainer-directed and record-only; the P1 intro updated from "no open items" to one open item. Applied the going-forward TODO-adoptability convention (no date/provenance tag on the new item, per §3.47).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.591`->`1.2.592`) and [`.working/improvement-log.md`](../improvement-log.md) (`1.0.531`->`1.0.532`): the batched #820 `/validate-pr` (CLEAN) and `/retro` rows.
+- [`.working/session-handoff.md`](../session-handoff.md): prepended this session's Next-actions, State-snapshot, and Asserted-expectations blocks (green-at `68f1aa3`/#820 = 68/68), documenting the HELD reconciled gate-69 branch `origin/claude/positional-token-gate-69` and the merge-time steps (rebase, re-number, run `/guardrails`, merge) deferred to the `/deep-assessment` session.
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.48`->`1.0.49`): the sweep96 session row (measured subagent tokens recorded as not-recovered across the session's compactions, per the measured-versus-not-instrumented discipline, not fabricated).
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Status: released`, `Active-session: none`, fresh heartbeat), with the sweep96 PRIOR-released block prepended.
+
+### Verification
+
+- The full audit suite is green on this session-close branch (68 of 68 gates; the branch is `main` + bookkeeping only, no gate 69, no corpus-body change), confirmed standalone via the pre-push guard; the D-checks pass.
+- Per the loop-break, this session-closing handoff PR takes NO trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 97) over #790..#821, cross-checked against the Asserted-expectations block.
+- The held gate-69 branch is intentionally NOT merged this session (it is red on gates 36/50/60 in its pre-rebase state, all resolving at its `/deep-assessment`-session merge); its work is preserved on `origin/claude/positional-token-gate-69`.
+
 ## 2026-07-11, Library Version 2026.07.308, PR #820
 
 P3 small-cleanup batch (closes TODO §3.37 and §3.45). Library `2026.07.307` to `2026.07.308`.
