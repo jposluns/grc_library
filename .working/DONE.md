@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #818: ref-side corrections complete (closes TODO §1.8) (2026-07-11)
+
+Closed TODO §1.8 (ref-side corrections). Confirmable corrections landed in `grc_library_ref` PR #52 (b NERC CIP-015-2 not-yet-in-force annotation + version_sensitive; c CAN/DGSI 101:2025 title; d TBS Directive in-force framing; e OECD revised 3 May 2024); (a) WCO SAFE 2021 to 2025 edition refresh applied via the maintainer's ingest (ref #53, 2021 retired to .superseded/); and the (c) filename slug rename applied in ref #54. Corpus side: the register WCO SAFE row was already at the 2025 edition (#751); its verified date is bumped to 2026-07-11 to sync with the ref ledger's fresh upstream confirmation. Also carries the #817 /validate-pr CLAUDE.md stale-range fix.
+
 ### PR #817: register-currency drift-check tool (closes TODO §1.7) (2026-07-11)
 
 Built [`tools/audit-register-currency.py`](../tools/audit-register-currency.py) per the `currency-ledger-sync` delivery spec: an advisory (not-gate) cross-repo tool reporting drift between the `grc_library_ref` currency ledger (`catalogue.yml`) and the corpus register `register-canonical-citations.md` across five checks (register-behind, version-disagreement, upstream-URL-mismatch, ledger-held-stale, unmatched-rows). Stdlib-only line parser (no PyYAML); exact-then-shortest-prefix designation matching; edition-token version comparison; `--ledger`/`--register`/`--strict`/`--self-test`; exits 0 by default (skip+0 if the ref checkout is absent). Its first live run flagged 4 register rows behind the ledger and the WCO SAFE 2021->2025 held-stale (which §1.8 addresses ref-side).
