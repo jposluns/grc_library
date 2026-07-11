@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 107, Baseline: 169, Draft: 30, Unknown: 0._
+_Summary as of last regeneration: Mature: 107, Baseline: 169, Draft: 31, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _107 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.19 | 2026-07-10 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.30 | 2026-07-10 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.0 | 2026-07-06 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.75 | 2026-07-11 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.76 | 2026-07-11 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.13 | 2026-07-10 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.4 | 2026-07-03 |
@@ -335,11 +335,12 @@ _169 documents._
 
 ## Draft
 
-_30 documents._
+_31 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
 | [ai/framework-ai-maturity-model.md](../ai/framework-ai-maturity-model.md) | AI Maturity Model Framework | Framework | 0.0.1 | 2026-07-11 |
+| [ai/guide-ai-board-oversight.md](../ai/guide-ai-board-oversight.md) | AI Board Oversight Guide | Guide | 0.0.1 | 2026-07-11 |
 | [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.1 | 2026-07-09 |
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.1 | 2026-07-09 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.5 | 2026-07-11 |

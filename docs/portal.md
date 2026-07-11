@@ -358,6 +358,7 @@ Security architects need the dev-security standards, the AI security guides, the
 ### Guide
 
 - [AI Adversarial Test Reference](../ai/guide-ai-adversarial-test-reference.md) (maturity: Mature)
+- [AI Board Oversight Guide](../ai/guide-ai-board-oversight.md) (maturity: Draft)
 - [AI Security Technical Implementation Guide](../ai/guide-ai-security-technical-implementation.md) (maturity: Mature)
 
 ### Guideline
