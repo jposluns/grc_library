@@ -1,7 +1,7 @@
 # High-Assurance Verification Register
 
-**Version:** 1.0.18\
-**Date:** 2026-07-08\
+**Version:** 1.0.19\
+**Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
 The durable, cross-session register for the **high-assurance verification** discipline (the
@@ -32,7 +32,7 @@ This file is maintainer working state, exempt from corpus audit gates.
 
 ## Active items
 
-Three AI-domain-delta jurisdiction annexes (TODO §2.5 Workstreams A.6 and B), registered `pending` at the 2026-07-12 session close (maintainer-directed): they are new, government-facing legal documents with precise regulatory-citation requirements (gate-blind fit, delicate authoring, high escaped-error cost), and the maintainer directed them done in a FRESH session with the full high-assurance harness (research fan-out, two independent adversarial verifiers with false-negative and false-positive lenses, invariant floor, deterministic apply + re-parse). The in-session-banked research and templates are reproducible from the held sources named below, so the fresh session re-runs the fan-out rather than depending on this session's memory.
+Three AI-domain-delta jurisdiction annexes (TODO §2.5 Workstreams A.6 and B), registered `pending` at the 2026-07-12 session close (maintainer-directed): they are new, government-facing legal documents with precise regulatory-citation requirements (gate-blind fit, delicate authoring, high escaped-error cost), they are **normal Priority-2 backlog items, no rush (maintainer-directed 2026-07-12)**, scheduled deliberately alongside the other P2 work (not a fresh-session-urgent track). The full high-assurance harness (research fan-out, two independent adversarial verifiers with false-negative and false-positive lenses, invariant floor, deterministic apply + re-parse) remains WARRANTED by their government-facing sensitivity WHEN they are built. The in-session-banked research and templates are reproducible from the held sources named below, so whichever session builds them re-runs the fan-out rather than depending on this session's memory.
 
 | Date | Item | Why sensitive (conditions) | Harness stages and outcome | Status | Follow-up |
 |---|---|---|---|---|---|

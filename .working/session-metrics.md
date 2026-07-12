@@ -1,6 +1,6 @@
 # Session Metrics
 
-**Version:** 1.0.51\
+**Version:** 1.0.52\
 **Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
