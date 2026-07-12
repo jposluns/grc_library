@@ -229,7 +229,7 @@ Across all five disciplines:
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
-| Audit trail of orchestrator corrections | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 |
+| Audit trail of orchestrator corrections | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 |
 | Verification before action | RV.1, RV.2 | GRC-05 | A.5.36 |
 | Change classification at PR boundaries | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
 | Idle-time productive use | PO.5 | n/a | n/a |

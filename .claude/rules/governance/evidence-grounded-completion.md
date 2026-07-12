@@ -202,4 +202,4 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 | Evidence-grounded assertions | RV.1, RV.2 | GRC-05, LOG-02 | A.5.36, A.8.15 | V1.1, V14.1 |
 | Distinguishing mechanical from semantic verification | RV.1 | GRC-05 | A.5.36 | V14.1 |
 | Documented exception handling | PO.5 | GRC-04 | A.5.4 | V1.1 |
-| Audit trail of verifications performed | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
+| Audit trail of verifications performed | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
