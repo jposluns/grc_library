@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-07-11\
+**Version:** 1.0.3\
+**Date:** 2026-07-12\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-risk-assessment.md`](procedure-ai-model-risk-assessment.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md)\
@@ -50,7 +50,7 @@ It applies across design, data preparation, development, training, validation, d
 
 ## Inherent and residual model risk
 
-The domains above characterize inherent model risk: the risk arising from a model's fundamental characteristics and its materiality to the organization, before controls. The risk that remains after controls, validation, and monitoring is the residual model risk. Rate each model's inherent risk from quantitative criteria (for example, the scale and growth of the affected population or process, and the potential operational, security, or financial impact) and qualitative criteria (business use, model complexity or level of autonomy, reliability of data inputs, impact on individuals, and regulatory exposure). An organization may define a negligible-risk rating category that exempts a model from the full lifecycle-governance requirements, provided the exemption is approved and tracked. This inherent-versus-residual distinction and the rating approach are adopted, sector-neutrally, from OSFI Guideline E-23 (Model Risk Management, 2025, effective 2027); the domains correspond to the risk sources catalogued in ISO/IEC 23894:2023 Annex B (among them complexity of environment, machine-learning risk sources such as continuous learning, system life-cycle issues, and technology readiness).
+The domains above characterize inherent model risk: the risk arising from a model's fundamental characteristics and its materiality to the organization, before controls. The risk that remains after controls, validation, and monitoring is the residual model risk. Rate each model's inherent risk from quantitative criteria (for example, the scale and growth of the affected population or process, and the potential operational, security, or financial impact) and qualitative criteria (business use, model complexity or level of autonomy, reliability of data inputs, impact on individuals, and regulatory exposure). An organization may define a negligible-risk rating category that exempts a model from the full lifecycle-governance requirements, provided the exemption is approved and tracked. This inherent-versus-residual distinction and the rating approach are adopted, sector-neutrally, from OSFI Guideline E-23 (Model Risk Management, 2025, effective 2027); the domains correspond to the risk sources catalogued in ISO/IEC 23894:2023 Annex B (among them complexity of environment, machine-learning risk sources such as continuous learning, system life-cycle issues, and technology readiness). Where a model qualifies as a general-purpose AI model with systemic risk under EU AI Act Article 51 (the classification article), the EU GPAI Code of Practice (Safety and Security Chapter, July 2025), the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, is the authoritative reference for the highest-inherent-risk treatment: its systemic-risk acceptance criteria and tiers (Commitment 4) and its systemic-risk identification and analysis structure (Commitments 2 and 3).
 
 ---
 
