@@ -87,8 +87,8 @@ The harness's *executable* form (a skill with a slash-command entry point that r
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Independent verification before a high-stakes change | RV.1, RV.2 | GRC-05, A&A-04 | A.5.36, A.8.34 | V1.1, V14.1 |
-| Adversarial review proportional to risk | PO.5, RV.1 | GRC-04, GRC-05 | A.5.4, A.8.34 | V1.1 |
+| Independent verification before a high-stakes change | RV.1, RV.2 | GRC-05, A&A-04 | A.5.35, A.5.36 | V1.1, V14.1 |
+| Adversarial review proportional to risk | PO.5, RV.1 | GRC-04, GRC-05 | A.5.4, A.5.35 | V1.1 |
 | Deterministic, repeatable apply (no ad-hoc hand edit) | PO.5, PW.4 | CCC-01 to 04 | A.8.32 | V14.2 |
 | Findings and verifications traceable to a record | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
 

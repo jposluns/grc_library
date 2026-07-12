@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.328, PR #840
+
+Matrix-fit follow-up, closing the semantic-fit item the #838 apex-only `A.8.34` fix deliberately left open.
+
+### Changed
+
+- Remapped `A.8.34` to `A.5.35` in three framework-alignment rows (both the pack tree and the byte-identical `.claude/` mirror, gate 37):
+  - [`dev-security/claude-rules/governance/high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md): "Independent verification before a high-stakes change" row (`A.5.36, A.8.34` to `A.5.35, A.5.36`) and "Adversarial review proportional to risk" row (`A.5.4, A.8.34` to `A.5.4, A.5.35`).
+  - [`dev-security/claude-rules/governance/trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md): "Independent re-examination after control failure" row (`A.5.36, A.8.34` to `A.5.35, A.5.36`).
+
+### Verification
+
+- Verified against the held ISO/IEC 27001:2022 Annex A (reference base): `A.5.35` = "Independent review of information security" (control text: the ISMS approach "shall be reviewed independently at planned intervals, or when significant changes occur"), the precise fit for these independent-review rows; `A.8.34` = "Protection of information systems during audit testing", a mis-fit (it concerns protecting systems from audit disruption, not the independent-review activity). This is the matrix-fit-class semantic judgment TODO §4.8 recorded; done against the held source, not from memory.
+- 0 residual `A.8.34` in the two rules across both trees; both-tree sync confirmed (gate 37); `lint-language` clean; all 69 gates pass; a refute-briefed skeptical verifier reviewed the change.
+
+Pack `1.59.11` to `1.59.12`; library `2026.07.327` to `2026.07.328`.
+
 ## 2026-07-12, Library Version 2026.07.327, PR #839
 
 Section 4.8 Phase 2, patch 0001 (the clean, self-contained part of the phase-2 stack), applied now as a Phase-3 prerequisite (the gate-37 marker support Phase 3's overlay copies need).
