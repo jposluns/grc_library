@@ -1147,6 +1147,21 @@ cost. This operationalizes the webhook-subscriptions discipline in
 `.claude/rules/governance/action-before-explanation-of-inaction.md` and the
 subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-completion.md`.
 
+**No-MCP (gh-CLI) sessions: one self-checking loop, NOT bare fallback timers.** When the
+session has no GitHub MCP (`mcp__github__*` absent from the tool list, so the PR mechanism
+is the `gh` CLI), there is no `subscribe_pr_activity` to pair a fallback timer with. A bare
+`sleep 60 && echo "check status"` timer then self-checks NOTHING: it fires, prompts a manual
+`gh pr checks` poll and a manual re-arm, and repeating that sprawls into several overlapping
+timers emitting low-signal "go check" notifications (the 2026-07-12 recurrence the maintainer
+flagged). Instead arm EXACTLY ONE `Bash` `run_in_background` until-loop that self-checks the
+check-run state and emits once on the terminal pass/fail, for example `until s=$(gh pr checks
+<N> --json name,bucket) && [ -n "$s" ] && ! echo "$s" | grep -q '"bucket":"pending"'; do sleep
+15; done; gh pr checks <N>`. Never run more than one CI-wait background task at a time; stop
+the loop with `TaskStop` once CI is confirmed settled. (The harness also blocks foreground
+`sleep N && <cmd>` chains, so any wait uses `run_in_background` or `Monitor`, never a foreground
+sleep.) The `## Background-task check SOP` below governs the check cadence for whichever
+primitive is in use.
+
 **Background-task check SOP (maintainer-directed 2026-07-02).** The same 60-second
 cadence governs EVERY background task (a subagent, a background command, an external
 wait), not only PR CI waits: check on every background task every 60 seconds until it
