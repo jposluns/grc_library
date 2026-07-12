@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # tail-safe.sh: the sanctioned display-truncation wrapper for verification
-# commands (TODO section 1.9(a); the RM-10 pipe-masking failure class).
+# commands (shipped PR #620; the RM-10 pipe-masking failure class).
 #
 # THE PROBLEM IT CLOSES. Piping a verification command into a truncating
 # filter (`guard | tail`, `run_all_audits.sh | head`) masks the command's

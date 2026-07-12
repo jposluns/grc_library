@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.316, PR #828
+
+The sweep98 `/resume` opening PR. The loop-break corpus-wide `/validate` (Sweep 98) over the #822..#827 deltas of the sweep97 session, plus two maintainer-directed backlog additions and the handoff prune. No corpus document body changed. Library `2026.07.315` to `2026.07.316`.
+
+### Verification
+
+- `tools/run_all_audits.sh` = **69/69, EXIT=0** at the baseline (`d3dd480`/#827, a descendant of the closing session's asserted green-at `711a108`/#826; no close-vs-start drift). Clone non-shallow.
+- Sweep 98 dispatched all three subagents (A recent-PR, B corpus-wide stale-reference, C audit-programme integrity). Pre-flight scanner: 418 files, 35 suppressed, 11 candidates, all false positives (collection-count-word class), dismissed by all three.
+- **4 findings, all note-level, all out-of-window; zero contradictions of #827's asserted expectations. Loop-break control for #827 PASSES.** Detail: [`.working/validate-sweeps/2026-07-12-sweep98-iter1.md`](../validate-sweeps/2026-07-12-sweep98-iter1.md).
+
+### Fixed
+
+- The closed-TODO-section provenance-breadcrumb class (§N-orphan in gate-exempt tool/hook docstrings, gate-blind, out-of-window). Reworded each to its stable build-PR reference: [`tools/audit-register-currency.py`](../../tools/audit-register-currency.py) "TODO section 1.7" to "shipped PR #817"; [`.claude/hooks/block-verification-pipes.py`](../../.claude/hooks/block-verification-pipes.py) "TODO section 1.9(a)" to "Shipped PR #620 (RM-10 hardening)". The orchestrator's file-type-width completion grep (over `.py`/`.sh`/`.yml`/`.md`, not `.md`-only) caught two more §1.9 carriers Subagent B missed: [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) "TODO section 1.9(b)" and [`tools/tail-safe.sh`](../../tools/tail-safe.sh) "TODO section 1.9(a)", both reworded to "shipped PR #620". A corpus-wide re-grep confirms zero residual closed-P1-section (§1.5-§1.11) docstring pointers. The `.claude/` hook edit is a docstring-only protected-tree change under this overnight run's standing local-instance protected-apply authorization.
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): prepended the Sweep 98 row; Version `2.0.92` to `2.0.93`.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the resume cursor to Sweep 98; **pruned** the sweep95 / #789 blocks (Next-actions PRIOR, State-snapshot, Asserted-expectations) per the current-plus-one-prior retention discipline, reconciling the sweep96 block's superseding-note reference to the pruned block; no un-recorded forward-looking item lost (the #789 routed residue §1.10/§1.11/§1.8/§3.43 is all closed or lives in [`TODO.md`](../../TODO.md)).
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease (`Active-session: claude/resume-sweep98-validate`, `Status: active`, fresh heartbeat).
+
+### Added
+
+- [`.working/validate-sweeps/2026-07-12-sweep98-iter1.md`](../validate-sweeps/2026-07-12-sweep98-iter1.md): the Sweep 98 per-iteration detail file.
+- [`TODO.md`](../../TODO.md) §2.4 (public presence at grclibrary.ai via Cloudflare Pages, auto-updating; Priority 2, maintainer-directed, attended-only; hard-dependency on the §4.8 pack-hygiene refactor; scratch design at `inbox/grclibrary-landing-page/`).
+- [`TODO.md`](../../TODO.md) §3.54 (`grc_library_ref` `doc_type` facet back-fill and surfacing; Priority 3, maintainer-directed, meticulous and explicitly not automated; ~20 clarifying questions plus written-plan iterations and sign-off before any catalogue edits).
+
 ## 2026-07-12, Library Version 2026.07.315, PR #827
 
 Session-closing handoff for the sweep97 resumed session (#822-#826). Bookkeeping only (no corpus document body changed). Records the maintainer's sign-off on the whole-project `/deep-assessment` r2 and releases the concurrency lease. Library `2026.07.314` to `2026.07.315`.
