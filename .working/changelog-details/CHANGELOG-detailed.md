@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.332, PR #844
+
+AI-domain delta, EU cluster part 2 (A.2). The EU GPAI Code of Practice, Safety and Security Chapter (July 2025), held in `grc_library_ref` under `frameworks/EU-AI-Office/`, folded across three AI documents. Research fan-out worker C + apply-time re-verification against the live docs and the held full-text.
+
+### Changed
+
+- [`ai/procedure-foundation-model-lifecycle.md`](../../ai/procedure-foundation-model-lifecycle.md) (0.0.6 to 0.0.7): added a framework-alignment row for the Code (Commitments 1 to 10) and a new `## Provider systemic-risk expectations (GPAI models with systemic risk)` section mapping the Code's Framework, Model Report, post-market-monitoring, serious-incident, and update-cadence commitments to the procedure's pre-engagement, contract, monitoring, and version-transition steps, plus the organization-as-provider edge case.
+- [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) (1.8.9 to 1.8.10): extended the section-18 Framework anchors with the Code's Commitment 6 and Appendix 4.2 to 4.4 controls for unreleased model weights (encryption with keys on a Trusted Platform Module (TPM) and decryption only to non-persistent memory; hardened, rate-limited interface access; insider-threat controls including model sandboxing and training-data tamper checks), anchored to SUPPLY-SEC-05, SUPPLY-SEC-06, and P-07.
+- [`ai/framework-ai-model-risk.md`](../../ai/framework-ai-model-risk.md) (1.0.2 to 1.0.3): appended one sentence to the inherent/residual paragraph noting the Code's systemic-risk acceptance criteria and tiers (Commitment 4) and identification/analysis structure (Commitments 2 and 3) as the authoritative reference for the highest-inherent-risk treatment of a GPAI model with systemic risk.
+
+### Verification
+
+- Source confirmed HELD in `grc_library_ref` (`dea69f0`): the Safety and Security Chapter full-text (1738 lines) read by worker C; upstream currency for the GPAI Code confirmed this turn (digital-strategy.ec.europa.eu, published 10 July 2025 final). Held title matches the catalogue; cited as the held/catalogue form, not the divergent cover-page word order.
+- Legal-status precision (worker C's correction, applied): the Code is the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, not guidance under Article 55; it binds only providers of GPAI models with systemic risk. All three folds carry that framing and the provider-expectation vs organization-as-provider distinction, so no fold implies the Code binds the adopting deployer's ordinary AI use.
+- Worker research re-verified at apply time against the three live target documents and the held full-text. A refute-briefed skeptical verifier reviewed the applied change (substantive, government-facing) and caught two citation defects, both fixed pre-push: (1) HIGH, the Appendix 4.2 control names a Trusted Platform Module (TPM), not a hardware security module (an orchestrator paraphrase error; worker C had quoted TPM correctly), corrected on all three carriers; (2) MEDIUM, the classification of a GPAI model as having systemic risk is EU AI Act Article 51, not Article 3(65) (which defines the term), verified upstream this turn (artificialintelligenceact.eu) and corroborated by the held EU AI Act full text in grc_library_ref, and corrected in both corpus folds. (The verifier's incidental "AI Act not held" remark was a false-negative inventory claim: the Act is held in the grc_library_ref reference base (EU legislation bucket); corrected in TODO section 2.5.) All 69 gates pass.
+- **Research provenance (in-session, not a scratch-inbox delivery):** in-session `Agent` research fan-out (worker C, the A.2 unit).
+
+Library `2026.07.331` to `2026.07.332`.
+
 ## 2026-07-12, Library Version 2026.07.331, PR #843
 
 AI-domain delta, EU cluster part 1 (A.4 + A.5 of the reworked ai-gaps-expansion-plan). Two EU AI Act Commission Guidelines (held in `grc_library_ref` per ref #66) folded into two corpus documents. Research fan-out worker + apply-time re-verification against the live docs and the held full-text.

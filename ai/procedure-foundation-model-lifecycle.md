@@ -2,7 +2,7 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.6\
+**Version:** 0.0.7\
 **Date:** 2026-07-12\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -144,6 +144,17 @@ If the version transition is involuntary (provider deprecates the prior version 
 
 ---
 
+## Provider systemic-risk expectations (GPAI models with systemic risk)
+
+Where a candidate foundation model is a general-purpose AI model with systemic risk under EU AI Act Article 51 (the classification article), the EU GPAI Code of Practice (Safety and Security Chapter, July 2025), the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, sets the authoritative expectations an adopter can require of and interrogate in the provider. The Code binds the provider, not the adopting deployer; the adopter uses it as a due-diligence lens:
+
+- **Pre-engagement (Step 2):** obtain the provider's published summarized Safety and Security Framework and Model Report (Code Measure 10.2, Commitment 7) and its independent-external-evaluation results, to supplement the organization's own safety and adversarial evaluations.
+- **Contract (Step 3):** require that a systemic-risk provider maintains its Framework and Model Report (Commitments 1 and 7) and its serious-incident reporting to the AI Office (Commitment 9), tied to the incident-notification clause.
+- **Monitoring (Step 5):** treat the provider's post-market monitoring (Measure 3.5) and serious-incident reporting (Commitment 9) as the provider-side analogue of the organization's supplier-incident monitoring, and cross-reference them.
+- **Version transition (Steps 6 to 7):** track the provider's Model Report update cadence (Measure 7.6, at least every six months for the most capable models) and its Framework-assessment triggers (Measure 1.3) as authoritative signals for the organization's version-transition impact analysis.
+
+If the organization's own fine-tune qualifies as a general-purpose AI model with systemic risk (per the Scope above), Commitments 1 to 10 bind the organization directly as a provider.
+
 ## Specific risk vectors and mitigations
 
 | Risk | Mitigation |
@@ -194,6 +205,7 @@ Beyond the supplier-facing risks above, a foundation model carries the generativ
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §8 operation; §7.5 documented information; §9 performance evaluation | AI management system |
 | EU AI Act | Articles 26 (deployer obligations), 50 (transparency), 53 (general-purpose AI obligations) | Foundation-model regulation |
+| EU GPAI Code of Practice (Safety and Security Chapter, July 2025) | Commitments 1 to 10 (systemic-risk Framework; risk identification, analysis, and acceptance; safety and security mitigations; Model Reports to the AI Office; serious-incident reporting) | Article 56 co-regulatory instrument for demonstrating Article 55 compliance; provider expectation for GPAI models with systemic risk |
 | NIST AI RMF | All four functions | AI risk management |
 | NIST AI 600-1 | Generative AI Profile: the generative-AI risk classes | Generative-AI risk taxonomy |
 | ISO/IEC 5338:2023 | §6.4.14 continuous validation | Automated rollback for continuous-learning deployments |
