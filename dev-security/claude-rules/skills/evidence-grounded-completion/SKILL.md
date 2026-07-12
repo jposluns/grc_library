@@ -67,7 +67,7 @@ If any of these is missing, the protocol is incomplete and the completion vocabu
 
 ## See Also
 
-- Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): framework alignment (NIST SSDF RV.1 / RV.2 / PO.5 / PS.1; CSA CCM GRC-04 / GRC-05 / LOG-02 / LOG-08; ISO 27001 Annex A.5.4 / A.5.36 / A.8.15; OWASP ASVS V1.1 / V14.1), exception-handling protocol for genuinely impractical re-reads, and the discussion of why an AI coding assistant is the dominant target of this discipline.
+- Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): framework alignment (NIST SSDF RV.1 / RV.2 / PO.5 / PS.1; CSA CCM GRC-04 / GRC-05 / LOG-02 / LOG-04 / LOG-10; ISO 27001 Annex A.5.4 / A.5.36 / A.8.15; OWASP ASVS V1.1 / V14.1), exception-handling protocol for genuinely impractical re-reads, and the discussion of why an AI coding assistant is the dominant target of this discipline.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): handles ambiguity before action. This skill handles verification after action.
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): handles gate failures. When a gate fails, fix the artefact and then run this skill to verify the fix actually closed the underlying issue.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): applies this skill's per-claim verification protocol at corpus scope. After any issue identified and corrected, the sweep confirms no sibling issue remains.

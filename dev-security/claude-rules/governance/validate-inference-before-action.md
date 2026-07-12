@@ -98,6 +98,6 @@ Any other "we can skip the validation because..." is the failure mode the rule e
 | --- | --- | --- | --- | --- |
 | Validated premise before action | RV.1, RV.2 | GRC-05, LOG-02 | A.5.36, A.8.15 | V1.1, V14.1 |
 | Cascade prevention discipline | PO.5 | GRC-04 | A.5.4 | V1.1 |
-| Audit trail of validations | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
+| Audit trail of validations | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every action driven by a premise must be traceable to a validation of the premise. The cost of an unvalidated premise compounds; the cost of one extra tool call does not.

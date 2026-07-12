@@ -91,7 +91,7 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
 | Quality prioritized over schedule and cost | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 | V1.1 |
-| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | GRC-05, A&A-04 | A.5.36, A.8.34 | V1.1, V14.2 |
+| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | GRC-05, A&A-04 | A.5.36, A.5.33 | V1.1, V14.2 |
 | Escalation of authority-bound tradeoffs | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Failing states surfaced, not concealed | RV.1, RV.2 | LOG-02, GRC-05 | A.8.15, A.5.36 | V14.1 |
 

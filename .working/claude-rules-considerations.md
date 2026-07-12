@@ -1,6 +1,6 @@
 # Claude-rules considerations (GR-P2 condense removal ledger)
 
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
@@ -373,6 +373,26 @@ Each discipline pays back its complexity many times over the course of a long se
 For AI coding assistants specifically: when you find yourself dispatching multiple workers in parallel, when you find yourself bundling changes, when you find yourself sitting idle during CI, when you find yourself pasting worker prose without re-reading the target file, pause and run the corresponding discipline. The disciplines exist because each failure mode was observed; the discipline keeps the failure mode from recurring.
 ```
 
+## RM-SL-1: session-lifecycle.md Why-this-rule-exists section
+
+**Rule:** [`session-lifecycle.md`](../dev-security/claude-rules/governance/session-lifecycle.md). **Status:** open.
+**Condensed in:** the GR-P2 phase-1 close-out (the 13th-rule follow-up; session-lifecycle was added after the 12-rule GR-P2 set was scoped, so it had no worker candidate and was condensed on the same two-layer split). Operative core retained in full (the six RESUME/WORK/CLOSE disciplines, the prohibited anti-patterns, the tool-specific guidance, the exception-handling protocol, and the framework-alignment table); 1816 -> 1621 words (measured). Only the why-section is moved here.
+
+**Why removed:** the why-section is motivating provenance (the failure modes each mechanism was earned against) that the operative six disciplines already enact; it restates the "name the mode, surface the decision, let evidence decide" axiom the rule body prescribes.
+**Expected gain:** about 195 fewer always-on words (11%); the operative disciplines read faster.
+**Risk:** an adopter loses the provenance narrative that motivates the wind-down and concurrency-lease mechanisms (mitigated: the operative sections state each mechanism's rule directly).
+**Evidence the removal was wrong:** an agent treating a lifecycle decision (wind-down, idle, proceed-past-lease) as forced rather than operator-owned after the condense.
+
+Removed verbatim (the why-section only; the framework table stays in the rule):
+
+```
+## Why this rule exists
+
+Every mechanism above was earned in one project's multi-week AI-assisted run: sessions that degraded without their operator noticing until a maintainer catch; a wind-down proposed roughly thirteen of fifteen times when continuing was right, fixed by evidence-gating the trigger; an unattended run that idled overnight on a question its standing priorities already answered; a handoff snapshot falsified by the very change that refreshed it; and an accidental double-resume prevented only by luck before the lease existed. The pack form exists because none of this is project-specific: any documentation corpus, codebase, or governed artefact set run through multi-session AI assistance meets the same failure modes, and the apparatus (a durable handoff, named modes, degradation paths, an evidence-gated wind-down, a green-merge close with a compensating control, a lease) is the same defence everywhere.
+
+For AI coding assistants specifically: the pull this rule countermands is narrating a lifecycle decision (winding down, idling, proceeding past a lease) as if it were forced, when it is actually a choice the operator owns. Name the mode, surface the decision with options, act on the answer, and let the evidence, not the feeling, decide when a session ends.
+```
+
 ## Pending rule entries (per-rule worklist for GR-P2 tranches 2+)
 
 Each remaining rule condenses on the same split. This worklist records the pre-analyzed
@@ -386,6 +406,7 @@ condensed.
 | `evidence-grounded-completion.md` | 4342 | the verification protocol steps, the un-observable/inventory/currency corollaries, anti-patterns, tool-specific guidance, framework table | why-section, the multi-surface worked example | done (-14%) |
 | `change-tracking.md` | 4422 | entry-content requirements, terse-entry convention, prohibited anti-patterns, CI-gate contract, PR-finalization protocol, overnight-work protocol, framework table | why-section, extended monorepo/generated-changelog rationale | done (-5%) |
 | `ai-assistant-workflow-disciplines.md` | 4236 | the five disciplines' rules, the skeptical-verifier tiers, the prohibited anti-patterns, framework table | why-section, the per-discipline origin narratives | done (-6%) |
+| `session-lifecycle.md` | 1816 | the six RESUME/WORK/CLOSE disciplines, prohibited anti-patterns, tool guidance, exception protocol, framework table | why-section | done (-11%) (13th-rule follow-up) |
 | `surface-counterproductive-instructions.md` | 2526 | the trigger classes, the stop-consider-confirm protocol, the charitable-interpretation corollary, calibration, anti-patterns, framework table | why-section | done (-12%) |
 | `action-before-explanation-of-inaction.md` | 2504 | the inaction-explanation definition, the reversibility gate, the safe/destructive protocols, anti-patterns, tool guidance, framework table | why-section | done (-11%) |
 | `clarify-before-acting.md` | 2212 | ambiguity classes, ask-vs-default gate, compute-first gate, how-to-ask, anti-patterns, tool guidance, framework table | why-section | done (-9%) |
