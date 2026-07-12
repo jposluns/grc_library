@@ -6,13 +6,29 @@ derives_from: ../../governance/evidence-grounded-completion.md
 
 # Validation Sweep
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Canonical full-audit command: `tools/run_all_audits.sh`; canonical gate inventory: `governance/specification-audit-programme.md` §6.
+- Sweep-history register: `.working/validate-sweeps/history.md` (one row per iteration).
+- Per-iteration detail directory: `.working/validate-sweeps/` (filenames `YYYY-MM-DD-sweepN-iterM.md`).
+- False-positive memory: the validation-sweep history README, `.working/validate-sweeps/README.md`, § Accept-list discipline (the human-readable surface), mirrored machine-readably by the scanner exemption file `tools/sweep-preflight-exemptions.json`.
+- Deterministic pre-flight scanner: `tools/sweep-preflight-scanner.py`, with shipped pattern ids PF-01 / PF-02 / PF-03 for stale collection counts (skills, governance rules, generic `N <collection>`) and PF-04 for stale version literals; its `CANONICAL_COLLECTIONS` constants and seed patterns target this corpus.
+- Document-staleness audit: gate 31 in the canonical inventory.
+- Listing-surface coverage gate: gate 47 (the document-index register and the domain READMEs); the candidate-set helper is `tools/suggest-listing-surfaces.py <doc>`.
+- Linter-exemption mechanism covering the detail directory: `DEFAULT_EXEMPT_DIRS` in `tools/lint_common.py`.
+- Detailed change-log mirror (the surface the chat-surfacing section contrasts with): `.working/changelog-details/CHANGELOG-detailed.md`.
+
+An adopting project maps each bullet to its own records; the procedure below refers to them generically.
+
 ## Overview
 
 After a single defect is found and fixed, a sibling defect may still be lurking elsewhere: same author, same session, same inferred mental model, same blind spot. The mechanical audit gates catch their own classes; this skill is the structured corpus-wide sweep that catches what the gates do not. It targets cross-file prose drift, mis-attributed citations, multi-surface incompleteness in places the gate-name parity audit does not police, inferred-as-verified state assertions, and the other failure-mode classes catalogued below.
 
 The sweep is fixed-point: if it finds anything, fix it, then re-run the sweep, until the sweep returns clean. The audit gates are the ground truth for mechanical claims; the parallel subagent fan-out is the ground truth for the semantic claims the gates cannot mechanize.
 
-The skill is project-agnostic in shape but invokes project-specific commands; the GRC Library's canonical full-audit command is [`tools/run_all_audits.sh`](../../../../tools/run_all_audits.sh) and the canonical gate inventory is [`governance/specification-audit-programme.md`](../../../../governance/specification-audit-programme.md) §6.
+The skill is project-agnostic in shape but invokes project-specific commands; the consuming project's canonical full-audit command and canonical gate inventory are named in the project wiring above.
 
 ## When to Use
 
@@ -20,7 +36,7 @@ The skill is project-agnostic in shape but invokes project-specific commands; th
 - When taking over from a previous session whose work has not been verified on the current state.
 - After landing a PR that touched any "parallel surface" set: the gate inventory, a version-history table, a framework-alignment table, mirror-synced files, generated artefacts.
 - Before declaring a multi-PR programme phase complete.
-- Periodically, informed by the document-staleness audit (gate 31 in the canonical inventory).
+- Periodically, informed by the document-staleness audit (the project wiring names the concrete gate).
 - Whenever a user surfaces an AI-introduced error and asks for assurance that no sibling error remains.
 - When the project's nightly scheduled mechanical sweep (the deterministic half of this discipline, scheduled via CI) reports a failure. The nightly catches time-dependent drift (citation freshness, document-date staleness, version-bump recency) when nobody has touched the corpus; pair the mechanical finding with the semantic triage step 4 fan-out runs.
 
@@ -30,7 +46,7 @@ The sweep runs in nine steps. Steps 1-3 establish the baseline and scope; steps 
 
 ### 1. Establish mechanical baseline
 
-Run the canonical full-audit command standalone. For the GRC Library: `tools/run_all_audits.sh`. Capture exit code and any failure output. The expected state is exit 0 on the current working tree.
+Run the canonical full-audit command standalone (named in the project wiring). Capture exit code and any failure output. The expected state is exit 0 on the current working tree.
 
 If the audit reports failures, the sweep cannot proceed semantically until the mechanical baseline is clean. Address the gate failures first, then return to this step.
 
@@ -61,15 +77,15 @@ The sweep targets failure modes the mechanical gates do not cover. Each class ha
 
 ### 3a. Run the deterministic pre-flight scanner (optional but recommended)
 
-Before subagent fan-out, run the pre-flight scanner: `python3 tools/sweep-preflight-scanner.py`. This is a deterministic regex-based pass that surfaces candidate findings for shapes the high-precision mechanical gates do not catch (stale skill counts, stale governance-rule counts, prose-form number drift). The scanner exits 0 always; its output is a list of candidates, not verified findings.
+Before subagent fan-out, run the project's deterministic pre-flight scanner (named in the project wiring). This is a deterministic regex-based pass that surfaces candidate findings for shapes the high-precision mechanical gates do not catch (stale skill counts, stale governance-rule counts, prose-form number drift). The scanner exits 0 always; its output is a list of candidates, not verified findings.
 
 Pass the scanner's output to each subagent as a "known suspect locations to verify or dismiss" list. This lowers each subagent's discovery burden and guarantees candidate shapes the gates miss get semantic triage. Many candidates will be false positives (legitimate historical references, comparative prose, references to other projects' counts); that is expected: the scanner is high-recall, the subagent triage is the precision layer.
 
-The scanner is project-specific (its `CANONICAL_COLLECTIONS` and seed patterns target this corpus); other projects adopting the validation-sweep pattern should swap in their own scanner with project-specific patterns.
+The scanner is project-specific (its canonical-collection constants and seed patterns target the consuming corpus); a project adopting the validation-sweep pattern swaps in its own scanner with project-specific patterns.
 
-The scanner's pattern set is extensible. Currently shipped patterns: **PF-01 / PF-02 / PF-03** for stale collection counts (skills, governance rules, generic `N <collection>`), and **PF-04** for stale version literals (`currently 1.22.0` and similar phrases where the captured version does not match any of the canonical library, README, pack, or spec versions). PF-04 was added after the Sweep 4 finding in `docs/adopter-guide.md:57` ("ships with its own version sequence (currently `1.22.0`)") to catch the same shape mechanically on future sweeps.
+The scanner's pattern set is extensible. The shipped patterns cover stale collection counts (a stale skill count, a stale governance-rule count, a generic `N <collection>` count) and stale version literals (a prose phrase asserting a current version that no longer matches any canonical version surface); the parent library's concrete pattern ids are listed in the project wiring. The stale-version-literal pattern was added after a sweep finding of exactly that shape, so future sweeps catch it mechanically.
 
-The scanner applies two layers of noise reduction so the same false positives do not re-surface on every sweep. **Layer 1, in-scanner heuristics**: skip matches preceded by section-like words (`Section N`, `Article N`, `Phase N`, `Chapter N`, `Step N`), hyphenated compounds (`under-14 rules`), legal bill prefixes (`AB 1394`, `SB 234`, `Bill 1394`), year-with-title-cased-legal-noun (`The 2025 Rules`), markdown version-history table rows (rows containing both a version-shape and a date-shape), lines containing historical-narrative keywords (`completed at`, `now ships`, `previously`, `past`, `originally`, `historically`, `earlier`, `before gate`, `false positive`, `in-window`, `out-of-window`), and lines matching sweep-history narrative regex patterns (`Sweep N`, `Subagent A/B/C`, `recurring-class`). **Layer 2, exemption file** at [`tools/sweep-preflight-exemptions.json`](../../../../tools/sweep-preflight-exemptions.json): per-entry `(path, pattern_id, line_hash)` records that suppress unique edge cases the heuristics miss. The `line_hash` is the 16-char prefix of SHA-256 of the stripped line content, so the exemption is stable under line-number drift but invalidates automatically if the line text changes (which forces a re-triage). The register's false-positive memory section is the human-readable source of truth; the exemption file is its machine-readable mirror.
+The scanner applies two layers of noise reduction so the same false positives do not re-surface on every sweep. **Layer 1, in-scanner heuristics**: skip matches preceded by section-like words (`Section N`, `Article N`, `Phase N`, `Chapter N`, `Step N`), hyphenated compounds (`under-14 rules`), legal bill prefixes (`AB 1394`, `SB 234`, `Bill 1394`), year-with-title-cased-legal-noun (`The 2025 Rules`), markdown version-history table rows (rows containing both a version-shape and a date-shape), lines containing historical-narrative keywords (`completed at`, `now ships`, `previously`, `past`, `originally`, `historically`, `earlier`, `before gate`, `false positive`, `in-window`, `out-of-window`), and lines matching sweep-history narrative regex patterns (`Sweep N`, `Subagent A/B/C`, `recurring-class`). **Layer 2, exemption file** (the scanner exemption file named in the project wiring): per-entry `(path, pattern_id, line_hash)` records that suppress unique edge cases the heuristics miss. The `line_hash` is the 16-char prefix of SHA-256 of the stripped line content, so the exemption is stable under line-number drift but invalidates automatically if the line text changes (which forces a re-triage). The register's false-positive memory section is the human-readable source of truth; the exemption file is its machine-readable mirror.
 
 ### 4. Fan out parallel subagent reviews
 
@@ -82,7 +98,7 @@ The only sanctioned exception is **maintainer-authorized scope reduction**: the 
 Launch subagents in parallel for the semantic sweep. Each receives a self-contained brief, reads target files in full (not excerpts), and reports findings by severity. The three baseline briefs:
 
 - **Subagent A : recent-PR deep review**. Read every file touched by the recent PRs in full; verify every CHANGELOG entry, commit message, and docstring claim against the actual diff; specifically flag mis-attributed citations and claims that contradict the file's actual contents.
-- **Subagent B : corpus-wide stale-reference sweep**. Grep the corpus for stale gate counts, library versions, pack versions, and dates; cross-check against the canonical sources (README, spec §6 inventory). Also check listing-surface coverage drift on the SEMANTIC surfaces that no gate enforces: the framework matrices and crosswalks, the glossary and key-terms registers, and per-document `Related Documents` fields. (The MECHANICAL listing surfaces, the document-index register and the domain READMEs, are enforced by gate 47, so a recently-added document missing from those is a gate failure, not a sweep finding; the sweep's value is the relevance-based surfaces where a new document plausibly belongs but inclusion is a judgment call. `tools/suggest-listing-surfaces.py <doc>` produces the candidate set.)
+- **Subagent B : corpus-wide stale-reference sweep**. Grep the corpus for stale gate counts, library versions, pack versions, and dates; cross-check against the canonical sources (the README, the canonical gate inventory). Also check listing-surface coverage drift on the SEMANTIC surfaces that no gate enforces: the framework matrices and crosswalks, the glossary and key-terms registers, and per-document `Related Documents` fields. (The MECHANICAL listing surfaces are enforced by the project's listing-surface coverage gate, so a recently-added document missing from those is a gate failure, not a sweep finding; the sweep's value is the relevance-based surfaces where a new document plausibly belongs but inclusion is a judgment call. The project wiring names the gate and the candidate-set helper that produces the candidate set.)
 - **Subagent C : audit-programme integrity check**. Independently re-verify that all parity surfaces agree (workflow, runner, pre-commit, spec inventory); verify mirror-sync between pack sources and local copies; verify any new linter's docstring matches its code; spot-check generated-artefact regeneration.
 
 Each subagent reports under 600 words, grouped by severity:
@@ -132,9 +148,9 @@ Apply the synthesis rubric: deterministic structure that makes the parent's tria
 
 **Rule 5.5, debate when divergence is large, not when adjacent.** Rule 5.3's "pick higher, record raw" handles the routine case of adjacent severity disagreement (e.g. one subagent says `should-fix-this-PR`, another says `track-as-follow-up`). When divergence is larger, route the finding to a single-round debate before the parent adjudicates. Trigger conditions: (a) two subagents report the same dedupe-key with severities more than one level apart (`must-fix-before-merge` vs `track-as-follow-up`); or (b) one subagent reports the finding as real (`R` evidence) and another flags the same dedupe-key as a false positive. Debate protocol: re-prompt each disagreeing subagent with the other's claim plus reasoning attached; ask each to either update its position with new justification or hold with a concrete rebuttal. One round only. The parent synthesizes the second-round positions; no third "judge" subagent. If both subagents hold after the round, persist disagreement: record both raw severities, the parent still picks the higher, and the synthesized row is flagged `debated: divergence-persisted` so reviewers see the finding was contested rather than silently adjudicated. Single round is empirically where most of the accuracy lift sits; round 3+ can degrade accuracy.
 
-**Rule 5.6, subagent dispatch must be declared in the history row.** Every iteration row in the project's validation-sweep history (in this project: [`.working/validate-sweeps/history.md`](../../../../.working/validate-sweeps/history.md); adopters relocate to a project-appropriate path) names which subagents were dispatched in the `Subagents` column (e.g. `A, B, C` for a full sweep; `A only` for a thin sweep, with the maintainer authorization reason in the Summary cell). If a subagent was skipped without explicit maintainer authorization in the same sweep cycle, the next iteration's row records the discipline failure in its Summary. The mechanism is the auditable trail: a subagent's silent absence in the history table cannot be reconstructed later, so the dispatch declaration is the only point at which the discipline can be enforced.
+**Rule 5.6, subagent dispatch must be declared in the history row.** Every iteration row in the project's validation-sweep history register (named in the project wiring) names which subagents were dispatched in the `Subagents` column (e.g. `A, B, C` for a full sweep; `A only` for a thin sweep, with the maintainer authorization reason in the Summary cell). If a subagent was skipped without explicit maintainer authorization in the same sweep cycle, the next iteration's row records the discipline failure in its Summary. The mechanism is the auditable trail: a subagent's silent absence in the history table cannot be reconstructed later, so the dispatch declaration is the only point at which the discipline can be enforced.
 
-Cross-reference each synthesized finding against the **false-positive memory** entries listed in the validation-sweep history README (in this project: [`.working/validate-sweeps/README.md`](../../../../.working/validate-sweeps/README.md), § Accept-list discipline; adopters relocate to a project-appropriate path). Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
+Cross-reference each synthesized finding against the **false-positive memory** entries listed in the validation-sweep history README (named in the project wiring). Findings the maintainer has previously triaged as not-a-real-finding are suppressed; they should not be re-surfaced.
 
 **Anti-rubric (what NOT to do).** Do not compute inter-rater kappa (N=3 subagents with no pre-shared codebook makes the statistic uninterpretable). Do not average severities. Do not require mandatory consensus across all three subagents: the subagents have non-overlapping specializations (recent-PR deep review vs corpus-wide stale-reference sweep vs audit-programme integrity), and a defect only one subagent could plausibly find must not be down-weighted by the others' silence.
 
@@ -156,7 +172,7 @@ Surface each finding to the operator with named action options (action now, defe
 - **Rule 6.2, expiry plus rationale.** Each accept-list entry carries a one-line rationale and an `expires: YYYY-MM-DD` date (default `accepted_on + 90 days`). On expiry, the entry is re-triaged, not auto-renewed. Mirrors ESLint's `--prune-suppressions` discipline and the basedmypy "untyped surface can only shrink" ratchet; without expiry the list normalizes borderline findings into permanent debt.
 - **Rule 6.3, net-negative invariant on close.** A sweep cannot close green if `|accept-list|` grew net of fixes. Adding two new acceptances while fixing one is a regression; the sweep must add to the accept-list OR fix, not both freely. This is the "hold-the-line" core; without it, Rules 6.1 and 6.2 still drift upward by accident.
 
-The pre-flight scanner's [`tools/sweep-preflight-exemptions.json`](../../../../tools/sweep-preflight-exemptions.json) and the register's `false-positive memory` section together form the accept-list. The exemption file is the machine-readable surface for the scanner's known false-positive shapes; the register's section is the human-readable surface for subagent-surfaced findings the operator has dismissed. Both are subject to Rules 6.1-6.3; future entries in either should carry the fingerprint, expiry, and rationale fields.
+The pre-flight scanner's exemption file and the register's `false-positive memory` section together form the accept-list. The exemption file is the machine-readable surface for the scanner's known false-positive shapes; the register's section is the human-readable surface for subagent-surfaced findings the operator has dismissed. Both are subject to Rules 6.1-6.3; future entries in either should carry the fingerprint, expiry, and rationale fields.
 
 ### 7. Apply fixes, re-baseline, repeat
 
@@ -172,7 +188,7 @@ The empty-delta is the principled stop; the hard ceiling is the sanity guard. Du
 
 ### 8. Append a row to the sweep history (every iteration)
 
-After the cycle terminates, append a row to the project's validation-sweep history (in this project: [`.working/validate-sweeps/history.md`](../../../../.working/validate-sweeps/history.md); adopters relocate to a project-appropriate path). The history file is a reverse-chronological table with one row per iteration:
+After the cycle terminates, append a row to the project's validation-sweep history register (named in the project wiring). The history file is a reverse-chronological table with one row per iteration:
 
 | Date | Sweep | Subagents | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|
@@ -191,7 +207,7 @@ New rows on top. Zero-finding iterations still get a row: the history is the aud
 
 ### 9. Write the per-iteration detail file (only when findings exist)
 
-When the iteration produced findings, write a per-iteration detail file to the project's working directory (in this project: `.working/validate-sweeps/`; adopters may relocate to a project-appropriate path). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Before committing either surface (the step-8 history row or this detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
+When the iteration produced findings, write a per-iteration detail file to the project's per-iteration detail directory (named in the project wiring). Filename `YYYY-MM-DD-sweepN-iterM.md` where `N` and `M` match the **Sweep** column in the history row. The file captures detail the history table summary intentionally omits, so a maintainer reading the file weeks later can reconstruct the iteration without the chat transcript. Before committing either surface (the step-8 history row or this detail file), verify each fixed-in-window claim against the actual diff (grep for the claim's target text); a claim whose edit is absent is downgraded to routed, never recorded as fixed (the record-asserts-unapplied-fix guard, shared with the guardrail-review and PR-scoped-sweep record steps).
 
 Six top-level H2 sections in this order:
 
@@ -204,24 +220,24 @@ Six top-level H2 sections in this order:
 
 **Zero-finding iterations leave no detail file.** The history row alone is the persistent trace. This keeps the subdirectory's file list aligned with the iterations that actually produced substantive content: a maintainer scanning the subdirectory sees only iterations they might want to read.
 
-The per-iteration record's directory should be in `tools/lint_common.py` `DEFAULT_EXEMPT_DIRS` (or the equivalent linter-exemption mechanism in adopter projects). Files there are frozen-state archives; the `path:line` references in subagent reports are kept verbatim even if the lines later shift.
+The per-iteration record's directory should be covered by the project's linter-exemption mechanism (the parent library's concrete mechanism is named in the project wiring). Files there are frozen-state archives; the `path:line` references in subagent reports are kept verbatim even if the lines later shift.
 
 **Zero-finding iterations write the record but do NOT create a register entry.** The convention "zero-finding sweeps leave no trace in the register" applies only to the register; the per-iteration record is the persistent trace for those iterations. Iterations with findings write to both the per-iteration record (detail) and the register (summary).
 
 ## Surfacing findings in chat
 
-**When findings exist, surface them prominently in the chat reply, not only in the per-iteration detail file.** The chat surface is for maintainer awareness and triage; the per-iteration record is the authoritative archive. A maintainer should not need to open `.working/validate-sweeps/<date>-sweep<N>-iter<M>.md` or scroll through `CHANGELOG-detailed.md` to see what the sweep found.
+**When findings exist, surface them prominently in the chat reply, not only in the per-iteration detail file.** The chat surface is for maintainer awareness and triage; the per-iteration record is the authoritative archive. A maintainer should not need to open the per-iteration detail file or scroll through the detailed change-log mirror to see what the sweep found.
 
 Chat-surface shape: a per-finding line (or short block) carrying the ruleId, the severity / level, the `path:line` location, a one-line evidence quote, a one-line impact, a one-line recommendation, and the in-window / out-of-window classification. Group by severity tier if multiple findings landed. Zero-finding iterations still need a one-line chat acknowledgement.
 
-The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in `.working/` files is not surfaced to the maintainer's attention.
+The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in working-state files is not surfaced to the maintainer's attention.
 
 ## Red Flags
 
 - Running the audit suite once and declaring the sweep complete without the post-fix re-run.
 - Skipping the semantic subagent fan-out because the mechanical gates passed.
 - Treating Low findings as automatically actionable (they document; they do not require action).
-- Looping more than three times without surfacing the pattern.
+- Looping past the termination conditions (an empty-delta close, the patience window, the hard iteration ceiling) without surfacing the recurring pattern.
 - Accepting a subagent report that infers rather than quotes (insist on quoted evidence).
 - Treating "no findings" from a subagent as proof when the subagent reports no commands run or no files read.
 
@@ -253,3 +269,4 @@ If any of these is missing, the sweep is incomplete and a clean-bill report is n
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): when the sweep surfaces a fix that requires authorial choice (which option, which scope), invoke clarify-before-acting before applying.
 - Related skill [`citation-quote-verification`](../citation-quote-verification/SKILL.md): when the sweep flags a finding on citation-bearing content, this skill is the targeted follow-up that verifies quote-to-source correspondence.
 - Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): when the sweep flags a substantively-revised governance document, this skill is the per-document follow-up that surfaces tacit-context gaps via a fresh-context subagent.
+- Related skill [`validate-inference`](../validate-inference/SKILL.md): the per-premise form of Rule 5.6's dispatch-declaration discipline, for a single inferred premise outside a sweep context.

@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.11\
-**Date:** 2026-07-09\
+**Version:** 1.3.12\
+**Date:** 2026-07-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -73,7 +73,7 @@ These modes describe a single organization adopting the library. A group, holdin
 
 **What you ignore.** Everything else in this repository. The pack does not require the GRC corpus to be present; the pack rules are written as project-agnostic disciplines that any Claude Code project benefits from.
 
-**Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: every governance rule in the pack was extracted from a real maintenance event recorded in this library's [`CHANGELOG.md`](../CHANGELOG.md), not invented in the abstract.
+**Why this is supported.** This mode emerged in practice: developers found the pack useful as a Claude Code baseline pack, usable on any project regardless of whether it has a GRC corpus, distilled from the disciplines this library required to maintain itself. The provenance is what makes the pack credible as a standalone artefact: the pack's own provenance register, [`dev-security/claude-rules/rule-provenance.md`](../dev-security/claude-rules/rule-provenance.md), summarizes each rule's origin (a real maintenance event where one exists, an honest up-front codification where that is the truth), and the detailed lineage lives in this library's records.
 
 **Next step.** Either copy [`dev-security/claude-rules/`](../dev-security/claude-rules/) directly into your project (under `dev-security/claude-rules/` or wherever you want it), or use the pack's setup generator to produce a tailored Claude Code configuration for your specific project. The pack's own [`README.md`](../dev-security/claude-rules/README.md) section "How to use" walks both options.
 

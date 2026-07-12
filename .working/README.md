@@ -42,6 +42,7 @@ Single-file artefacts that don't fit the activity-subdirectory shape because the
 | Validation sweeps | [`validate-sweeps/`](validate-sweeps/) | Records from `/validate` invocations (corpus-wide regression sweep). | PRs #115-#118 |
 | Library fitness reviews | [`fitness-reviews/`](fitness-reviews/) | Records from `/fitness` invocations (whole-corpus ten-persona library-quality review). | PR #120 |
 | Detailed changelog | [`changelog-details/`](changelog-details/) | Maintainer-grade detailed CHANGELOG mirror (full structured-section entries per PR; root CHANGELOG carries lead paragraphs only). | PR #125 |
+| Pack-hygiene scrub fragments | [`pack-hygiene-fragments/`](pack-hygiene-fragments/) | Verbatim removal archive for the pack-hygiene generalization of the distributable pack (skills, README, guidance); retained here as the archive, NOT appended to the removal ledger (the maintainer-choice option in that dir's README, to avoid bloating the ledger with the lineage fragments). | pack-hygiene staging (2026-07-11); applied #842 |
 
 **To add a new activity**: create the subdirectory with `README.md` (absorbing static convention info) and `history.md` (empty table). Per-run detail files land as runs produce findings. Append a row to the Activities table above; the `Origin` column carries the PR / skill / activity that introduced the activity. Top-level single-file artefacts (DONE-shaped ledgers, single-purpose registers) go in the Top-level files table immediately above instead.
 

@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-07-12\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -93,7 +93,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 
 **Files reviewed:**
 
-- [`README.md`](README.md)
+- the upstream repository's `README.md`
 - `CLAUDE.md` (root)
 - `security-rules/core-principles.md`
 - `security-rules/dangerous-flows.md`
@@ -136,7 +136,7 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 
 **Files reviewed (representative sample across categories):**
 
-- [`README.md`](README.md)
+- the upstream repository's `README.md`
 - `rules/_core/owasp-2025.md`
 - `rules/_core/ai-security.md`
 - `rules/_core/mcp-security.md`
@@ -195,7 +195,7 @@ The TikiTribe repository organizes 100+ rule sets across 12 language directories
 
 **Files reviewed (representative sample across categories):**
 
-- [`README.md`](README.md)
+- the upstream repository's `README.md`
 - `prompt.md` (Wiz's upstream generator prompt, used to produce the per-stack rule files; not itself a file the overlay would place in a consumer's project)
 - `python/flask/CLAUDE.md`
 - `python/django/CLAUDE.md`
