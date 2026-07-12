@@ -180,7 +180,7 @@
     {
       "gate": "lint-claude-rules-sync.py",
       "id": "overlay-marker-in-pack-source",
-      "description": "PROJECT-OVERLAY marker appended to a distributable pack rule source; the overlay-leak class the extended sync gate must fail on.",
+      "description": "PROJECT-OVERLAY marker appended to a distributable pack rule source. NOTE: a single-file append also creates body drift, so this variant exercises the marker-in-pack path without isolating the leak check from drift detection; the discriminating synced-overlay state (bodies match after strip) is covered by the regression test test_overlay_marker_in_pack_source_flagged, which asserts the leak finding text.",
       "expect": "detect",
       "action": {
         "type": "append_file",
@@ -213,7 +213,7 @@
     {
       "gate": "lint-claude-rules-sync.py",
       "id": "overlay-marker-whitespace-variant",
-      "description": "Marker line with leading whitespace in a pack source; width probe (the gate strips per-line whitespace before comparing, so an indented leak must still be caught).",
+      "description": "Marker line with leading whitespace in a pack source; width probe for the per-line whitespace-stripped marker match. Same single-file-append caveat as overlay-marker-in-pack-source: the isolating test for the leak check lives in the regression suite.",
       "expect": "detect",
       "action": {
         "type": "append_file",

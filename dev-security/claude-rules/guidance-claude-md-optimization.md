@@ -69,9 +69,9 @@ a kept paragraph is a few tokens, the cost of a dropped rule is a behaviour regr
 
 ## The removal ledger
 
-Every cut is recorded in a removal ledger (a working-state file; this project keeps it at
-`.working/claude-md-considerations.md`), so the condense is reversible and its bets are
-falsifiable. Each ledger entry records:
+Every cut is recorded in a removal ledger (a working-state file at a location the project
+designates, outside the always-loaded context), so the condense is reversible and its bets
+are falsifiable. Each ledger entry records:
 
 - **What was removed**, quoted verbatim (so the original can be restored byte-for-byte). A
   fenced code block preserves the text exactly and, in projects whose prose-hygiene gate
@@ -143,7 +143,7 @@ duplication" directive. The largest single cut replaced the full descriptions of
 governance rules with one-line purposes plus a pointer to the pack README (the rules are
 stated in full there, so the always-loaded file carried a duplicate). A version-bump
 operationalization that a newly-added pre-push guard had mechanized collapsed to a one-line
-pointer at the guard. Every cut was recorded in `.working/claude-md-considerations.md` with
+pointer at the guard. Every cut was recorded in the project's removal ledger with
 its verbatim original and falsification signal; the verification was an actionable-token
 survival grep plus a section-by-section walk, both finding zero dropped rules, plus a green
 run of the corpus audit. The condensed file kept all of its section headers and every

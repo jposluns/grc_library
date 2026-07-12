@@ -1,10 +1,20 @@
 ---
 name: change-tracking-write-entry
-description: Composes a CHANGELOG entry (substantive or terse form) for a PR. Use when about to commit, open a PR, or finalize a change. Every PR carries an entry, even if terse; there is no skip path. The entry's required parts (date-and-version header, structured Keep a Changelog sections for substantive entries, file references as markdown links, the "why" not just the "what", verification evidence, phase context) are walked step by step so an entry that would fail the link-coverage gate, the version-monotonicity audit, or the D1 delta gate is caught at the draft stage rather than at CI.
+description: Composes a CHANGELOG entry (substantive or terse form) for a PR. Use when about to commit, open a PR, or finalize a change. Every PR carries an entry, even if terse; there is no skip path. The entry's required parts (date-and-version header, structured Keep a Changelog sections for substantive entries, file references as markdown links, the "why" not just the "what", verification evidence, phase context) are walked step by step so an entry that would fail the link-coverage gate, the version-monotonicity audit, or the PR-time delta gate is caught at the draft stage rather than at CI.
 derives_from: ../../governance/change-tracking.md
 ---
 
 # Change Tracking: Write Entry
+
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Detailed mirror: `.working/changelog-details/CHANGELOG-detailed.md`, paired with the root `CHANGELOG.md` under the two-file split the canonical rule describes.
+- Terse-entry scope directories: the internal-tooling and assistant-guidance tree is `.claude/`, and the working-state ledgers live under `.working/`; changes confined to those trees are the canonical terse-entry candidates.
+- Delta gate: the PR-time CHANGELOG-delta check D1, alongside the link-coverage gate and the version-monotonicity audit.
+
+An adopting project maps each bullet to its own detailed-mirror location, ancillary-scope directories, and enforcing gates; the procedure below refers to them generically.
 
 ## Overview
 
@@ -16,7 +26,7 @@ The rule is the source of truth for normative content (what counts as user-visib
 
 - Before composing the commit message and PR description that close out any PR. Every PR carries an entry; the skill applies regardless of substantive scope.
 - Before pushing a PR that touches the project's document corpus, schema files, public-facing prose, or any artefact a downstream reader cites (substantive entry).
-- Before pushing a PR that touches only internal tooling, AI-assistant guidance (`.claude/`), working-state ledgers (`.working/`), or other ancillary surfaces (terse entry).
+- Before pushing a PR that touches only internal tooling, assistant-guidance trees, working-state ledgers, or other ancillary surfaces (terse entry; the parent library's concrete directories are named in the project wiring above).
 - When CI's delta gate, link-coverage gate, or version-monotonicity audit flags a missing or malformed entry. The fix is to write or correct the entry, not to weaken the gate.
 - When opening a multi-PR rollout where each PR will land its own entry with phase context that connects them.
 
@@ -26,7 +36,7 @@ The entry-writing workflow from the canonical rule, executed in order:
 
 1. **Classify the change shape**. Substantive entry, or terse entry? Every PR gets one of the two; there is no skip path.
    - **Substantive entry** when the change adds, removes, or alters a public artefact; could surprise a downstream consumer; ships behaviour change; carries a discipline lesson worth recording; or will be cited later in answering "when did this happen?" / "why does this work this way?". Use the full date-and-version header plus structured Keep a Changelog sections.
-   - **Terse entry** when the change is internal tooling invisible to adopters (changes under `.claude/`, working-state-only edits under `.working/`), a pure refactor with no behavioural change, or a typo fix in a non-citable string. Use the date-and-version header plus a single sentence describing what was accomplished.
+   - **Terse entry** when the change is internal tooling invisible to adopters (changes under the assistant-guidance tree, working-state-only edits under the working-state ledgers; the project wiring above names the parent library's directories), a pure refactor with no behavioural change, or a typo fix in a non-citable string. Use the date-and-version header plus a single sentence describing what was accomplished.
    - **When in doubt, write the substantive entry.** The cost of an unnecessarily detailed entry is small; the cost of a thin entry on a change that turns out to matter compounds.
 
 2. **Choose the date and version**. Use the project's existing convention (CalVer, SemVer, monotonic integer). The version must strictly increase over the prior entry; merge-conflict resolutions that drop a version bump are the failure mode the version-monotonicity audit catches. The date pins the entry to wall-clock time.
