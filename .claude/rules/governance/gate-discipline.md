@@ -112,6 +112,8 @@ python3 build-taxonomy.py --check
 
 ## Exception-handling protocol
 
+**Strict mode is the default: if the project has no exception register, there is no exception path; fix the artefact.**
+
 Some controls have a legitimate exception path. It is a separate, slower control, not a bypass:
 
 1. The requestor documents why fixing the artefact is impractical in this PR.
@@ -120,8 +122,6 @@ Some controls have a legitimate exception path. It is a separate, slower control
 4. The approved exception is recorded in the project's exception register with approver, date, scope, and deadline.
 5. The PR links the exception entry.
 6. Before the deadline the requestor remediates or requests renewal; unrenewed exceptions lapse and the next run blocks.
-
-If the project has no exception register, the exception is not available; fix the artefact.
 
 ---
 

@@ -75,13 +75,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Durable state records and auditable handoff | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
+| Durable state records and auditable handoff | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
 | Explicit authorization boundaries per mode | PO.5 | IAM-09, GRC-04 | A.5.15, A.5.18 | V1.1 |
 | Evidence-gated lifecycle decisions | RV.1, RV.2 | GRC-05 | A.5.36 | V14.1 |
 | Concurrency control on shared state | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 | V1.1 |
-
-## Why this rule exists
-
-Every mechanism above was earned in one project's multi-week AI-assisted run: sessions that degraded without their operator noticing until a maintainer catch; a wind-down proposed roughly thirteen of fifteen times when continuing was right, fixed by evidence-gating the trigger; an unattended run that idled overnight on a question its standing priorities already answered; a handoff snapshot falsified by the very change that refreshed it; and an accidental double-resume prevented only by luck before the lease existed. The pack form exists because none of this is project-specific: any documentation corpus, codebase, or governed artefact set run through multi-session AI assistance meets the same failure modes, and the apparatus (a durable handoff, named modes, degradation paths, an evidence-gated wind-down, a green-merge close with a compensating control, a lease) is the same defence everywhere.
-
-For AI coding assistants specifically: the pull this rule countermands is narrating a lifecycle decision (winding down, idling, proceeding past a lease) as if it were forced, when it is actually a choice the operator owns. Name the mode, surface the decision with options, act on the answer, and let the evidence, not the feeling, decide when a session ends.

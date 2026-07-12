@@ -159,7 +159,7 @@ Document repositories have a stronger discipline than code repositories because 
 When the project uses the two-file split (root file plus a detailed mirror at a project-specific location), a PR author writes both halves in the same commit. Authorship order within the commit is the author's choice; the gate only checks the diff.
 
 - **In the detailed mirror file**: write the full structured entry. Include the date-version-PR header, the lead paragraph, then the full `### Added / ### Changed / ### Removed / ### Fixed / ### Security / ### Verification` sections plus any discipline observations or design-rationale sections.
-- **In the root file**: write the lead paragraph only. Use the same date-version-PR header and the same lead-paragraph wording as the detailed entry. Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
+- **In the root file**: write the lead paragraph only. Use the same date-version-PR header; the root lead conveys the same summary as the detailed entry's lead, but the two need not be word-for-word identical (in practice the root lead is the scannable summary and the detailed mirror's lead may be terser or carry more context). Do NOT carry the structured sections into the root file; they belong only in the detailed mirror.
 - **Both files land in the same commit.** The PR-time delta gate enforces lock-step (modifying one without the other fails the gate). Terse entries are paired across both files the same as substantive entries; the discipline is "match the shape on both surfaces" rather than "always full detail in the mirror".
 
 Adopter forks may choose any of these shapes:
@@ -274,6 +274,8 @@ The gate passes immediately after this PR lands.
 
 ## Exception-handling protocol
 
+**Strict mode is the default: if the project has no exception register, there is no exception path; ship the entry, redacted if necessary.**
+
 The skip trailer is the everyday exception. For larger deviations (an embargoed security fix that cannot disclose the "why" yet, a vendor-issued patch that must ship before public attribution, a cross-team coordination that requires a CHANGELOG entry to land later), use the project's exception register:
 
 1. The requestor documents the technical reason the CHANGELOG entry cannot be complete in this PR.
@@ -283,8 +285,6 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 5. The PR carries a link to the exception entry in its skip trailer (`Changelog: deferred (exception: <link>)`).
 6. Before the deadline, the requestor either lands the full entry or requests renewal.
 
-If the project does not have an exception register, the exception is not available; ship the entry, redacted if necessary.
-
 ---
 
 ## Framework alignment
@@ -292,6 +292,6 @@ If the project does not have an exception register, the exception is not availab
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
 | Change recording | PO.5, RV.2 | CCC-01 to 03 | A.5.4, A.8.32 |
-| Audit trail integrity | PS.1, RV.1 | LOG-02, LOG-08 | A.8.15 |
+| Audit trail integrity | PS.1, RV.1 | LOG-02, LOG-04, LOG-10 | A.8.15 |
 | Version monotonicity | RV.1 | CCC-04 | A.8.27 |
 | Change classification (breaking vs non-breaking) | PO.5 | CCC-02 | A.8.32 |
