@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.321, PR #833
+
+Session-closing handoff for the sweep98 resumed OVERNIGHT session. Bookkeeping only (no corpus document body changed). Library `2026.07.320` to `2026.07.321`.
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): prepended the sweep98 Next-actions (CLOSING + NEXT SESSION), State-snapshot, and Asserted-expectations blocks; the Resume cursor already recorded Sweep 98 (from #828). Records the maintainer-chosen wind-down at the §4.8 boundary, the §4.8 stale-payload deferral, and the deferred ref bulk-ingest; Sweep 99 over #828..#833 is the next loop-break control.
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Status: released`, `Active-session: none`, heartbeat 2026-07-12T10:59:07Z); prepended the sweep98 PRIOR block.
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.50` to `1.0.51`): the sweep98 row (≈1,970,534 measured subagent tokens across 11 of 12 subagents; the one uncaptured figure excluded, not fabricated; ~9h wall-clock, mostly overnight background-poll idle; orchestrator main-loop `not instrumented`).
+- [`TODO.md`](../../TODO.md): added §3.55 (the deferred ~64-file ref `ingest/` bulk-ingest); annotated §4.8 with the stale-payload deferral (fresh-context + high-assurance, drift-recompute-first).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.602` to `1.2.603`): the #832 row (0 findings) and the #833 handoff-exempt row (`SKIPPED` + `handoff-PR exception` in the Findings cell).
+- [`.working/improvement-log.md`](../improvement-log.md) (`1.0.541` to `1.0.542`): the #832 `/retro` row (the D4 pack-README-Date co-bump lesson).
+
+### Verification
+
+- The #832 `/validate-pr` returned 0 findings (batched here). `tools/run_all_audits.sh` green; the pre-push guard green. Per the loop-break, this closing PR takes no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s Sweep 99 over #828..#833, cross-checked against this handoff's Asserted-expectations block.
+
+### Session summary (sweep98 OVERNIGHT)
+
+- Shipped 6 grc_library PRs (#828 Sweep-98 close-out + TODO §2.4/§3.54; #829 §3.48 DORA; #830 §3.51 reference-breadth; #831 §3.52 clause-8.4 remaps + #830-finding fix; #832 §3.53 SOP pack-distribution; this #833 handoff) and 2 reference-base PRs (#62 SCREENING 15-verdict apply; #64 ACQUISITION-QUEUE download pass). The bounded `/deep-assessment` r2 routed queue (§3.48, ref SCREENING, §3.51, §3.52, §3.53) is COMPLETE. **Deferred to a fresh session:** §4.8 phases 1-2 (stale payload) and the §3.55 ref bulk-ingest. Zero escaped defects; all ~6 process slips caught pre-push or by CI. Transport note: no GitHub MCP this session and GraphQL degraded mid-session, so merges used the REST merge endpoint and forward-commits (force-push was permission-denied).
+
 ## 2026-07-12, Library Version 2026.07.320, PR #832
 
 Missing-reference-document SOP distributed to the governance pack (closes TODO §3.53). Library `2026.07.319` to `2026.07.320`.
