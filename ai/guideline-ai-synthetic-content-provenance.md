@@ -2,8 +2,8 @@
 
 **Document Title:** AI Synthetic-Content Provenance Guideline\
 **Document Type:** Guideline\
-**Version:** 0.0.1\
-**Date:** 2026-07-11\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)\
@@ -86,7 +86,7 @@ The per-regime status, and any pending amendment to Article 50 (a proposed EU Di
 | NIST AI 100-4 (November 2024) | Provenance data tracking, detection, labels, testing (informative overview) | The technique taxonomy and tradeoffs |
 | EU AI Act (Regulation (EU) 2024/1689) | Article 50 | The binding output-transparency and deepfake-disclosure obligations |
 | NIST AI RMF (2023) | Govern, Map, Measure, Manage | Situates transparency within the AI lifecycle (NIST AI 100-4 applies its concepts to the AI RMF lifecycle) |
-| ISO/IEC 42001:2023 | Clause 8.4 | Operational control of AI transparency |
+| ISO/IEC 42001:2023 | Clause 8.1 | Operational control of AI transparency |
 
 ## Limitations
 
