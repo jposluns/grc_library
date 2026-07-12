@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.337, PR #849
+
+AI-domain delta, EU cluster part 4 (A.1). Previously blocked (truncated held source); unblocked this session by a cross-repo grc_library_ref acquisition.
+
+### Changed
+
+- [`ai/framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md) (1.0.8 to 1.0.9): added section 4.4 (General-purpose AI model transparency, EU AI Act Article 53) anchoring the GPAI Code Transparency Chapter (Article 56 co-regulatory instrument for Article 53(1)(a)-(b) compliance; voluntary, not conclusive evidence; regime framing cross-linked to the EU annex; Article 78 confidentiality noted) and a Model-Documentation-Form-to-model-card mapping table (Form groups General information -> card §1; Model properties -> §2; Data used -> §3; Compute and energy -> §2); added a framework-alignment row.
+
+### Verification
+
+- **A.1 blocker resolution (missing-reference-document SOP):** the held Transparency Chapter PDF extract truncates at the Model Documentation Form heading, so the Form's fields were not held. The separately-published official Form DOCX was downloaded from europa.eu (ec.europa.eu/newsroom/dae document 118118), its fields extracted, and it was ingested into grc_library_ref as a held companion source (ref PR #77, merged; catalogue companion entry + the Transparency entry's notes corrected). The fold and its citation now rest on held text.
+- The Form-to-card mapping cites the actual model-card template sections ([`ai/template-model-card.md`](../../ai/template-model-card.md) §1/§2/§3), not the framework's own §1 requirement list. A refute-briefed skeptical verifier reviewed the applied change. All 69 gates pass.
+- **Research provenance (in-session, not a scratch-inbox delivery):** in-session `Agent` research (the A.1 unit) + the orchestrator's europa.eu acquisition and ref ingest.
+
+Library `2026.07.336` to `2026.07.337`.
+
 ## 2026-07-12, Library Version 2026.07.336, PR #848
 
 `.claude/` + `.working/` change (adopter-invisible; terse). Maintainer-directed codification of the [`.working/next-prs.txt`](../next-prs.txt) refresh cadence.

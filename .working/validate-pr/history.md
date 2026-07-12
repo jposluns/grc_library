@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.617\
+**Version:** 1.2.618\
 **Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
@@ -11,6 +11,7 @@ See [`README.md`](README.md) for the activity convention and the SKILL specifica
 ## Sweep entries
 
 | Date | PR | Touched files | Findings | Hot-fix PR | Detail | Summary |
+| 2026-07-12 | 848 | (codify next-prs.txt cycling in every PR + refresh the stale queue; CLAUDE.md step 6) | 0 | none | none | Post-merge sweep on #848 (squash `6925b3b`). Baseline 69/69. Subagent A: ZERO in-window findings (bookkeeping-tier, .claude/ + .working/ + README). next-prs.txt reflects the live queue; CHANGELOG root+detailed both carry #848; #847 QA rows batched; build --check in sync. One out-of-window note (NOT #848): TODO §2.5 lacked LANDED markers for A.2/A.3 (landed #844/#847) while A.4/A.5 had them; fixed in #849. Batched into #849. |
 | 2026-07-12 | 847 | (AI delta EU cluster part 3: GPAI Copyright Chapter folded into training-data-governance + policy §6.2; batched #846 QA) | 0 | none | none | Post-merge sweep on #847 (squash `8950c72`). Baseline 69/69. Subagent A across all eight classes: ZERO findings. Citations verified against the held Copyright Chapter + AI Act: Art 53(1)(c) copyright-policy duty, Art 56 codes of practice (not 55), Directive 2001/29/EC Art 6(3), Art 4(3) of Directive (EU) 2019/790, robots.txt/RFC 9309; Measures 1.1-1.3 scope confinement correct (1.4/1.5 kept out); the categorical copyright caveat NOT weakened (all three source clauses faithfully reproduced). Both doc bumps propagated to taxonomy/scorecard; #846 QA rows batched. One non-finding: policy §12 gained no Code row (defensible, referenced inline in §6.2). Batched into #848. |
 | 2026-07-12 | 846 | (§4.8 Phase-4 close-out: acceptance sweep + routed-findings triage + programme close; TODO §4.8 to DONE; §4.1 unblocked; routed items §1.2/§3.56/§3.57/§4.9; batched #845 QA) | 0 | none | none | Post-merge sweep on #846 (squash `ed89fde`). Baseline 69/69. Subagent A across all eight classes: ZERO findings. Verified TODO §4.8 deleted (grep EXIT 1) AND in DONE; routed items + §4.1 unblock + §2.4 SATISFIED present; #845 QA rows batched; acceptance record's zero-out-of-pack-links + gate-37-EXIT-0 claims corroborated; build --check both in sync; version monotonic. Batched into #847. |
 | 2026-07-12 | 845 | (§4.8 Phase 3: 14 wirings scrubbed from 6 pack governance rules + 13 PROJECT-OVERLAY blocks + RM-SCRUB-1 + .claude/CLAUDE.md convention; pack 1.61.0 to 1.61.1; batched #844 QA) | 0 | none | none | Post-merge sweep on #845 (squash `9b34069`). Baseline 69/69. Subagent A across all eight classes + the completion claim: ZERO findings. Verified gate 37 sync EXIT 0 (17 copies in sync); RM-SCRUB-1 = 14 (consistent with CHANGELOG + pack README); all 17 overlay-cited paths + gate numbers exist; version consistency clean; the 1738->1737 #844 carry-in fix confirmed intentional/logged; the zero-out-of-pack-links claim holds (2 hits adjudicated non-violations). Batched into #846. |

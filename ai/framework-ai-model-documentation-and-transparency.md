@@ -2,7 +2,7 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-07-12\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -127,6 +127,22 @@ For High-risk AI systems under the EU AI Act, technical documentation per Annex 
 
 This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the AI-provider-to-relevant-authorities and AI-provider-to-AI-auditor stakeholder pairs (§6.3).
 
+### 4.4 General-purpose AI model transparency (EU AI Act Article 53)
+
+Where the organization is a provider of a general-purpose AI model placed on the EU market, the AI Act Article 53(1)(a) and (b) documentation obligations apply (technical documentation for the model, and information and documentation for downstream providers). The EU AI Office's *General-Purpose AI Code of Practice, Transparency Chapter* (July 2025) is the Article 56 co-regulatory instrument for demonstrating that compliance, and its **Model Documentation Form** (Measure 1.1) is the recognized means of compiling the documentation; adherence is voluntary soft law and not conclusive evidence of compliance, with the binding provision remaining Article 53 itself. The regime framing lives in [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md); information intended for the AI Office or national competent authorities is disclosed only on request and is subject to the Article 78 confidentiality and trade-secret protections.
+
+The Model Documentation Form's fields, consolidated below by model-card affinity (the Form's own section structure is regrouped here, not mirrored one-to-one), map onto this framework's model-card model, so a GPAI provider satisfies the Form by maintaining an extended model card:
+
+| Model Documentation Form fields | Model card section |
+| --- | --- |
+| General information (legal name of the provider; model name and unique identifier; model authenticity; release date; Union market release date; model dependencies) | [`ai/template-model-card.md`](template-model-card.md) §1 Model overview |
+| Model properties, distribution, and use (architecture; input and output modalities and sizes; total model size; distribution channels and licence; intended and prohibited uses; means and required hardware/software for integration) | §2 Functional description |
+| Training process (design specifications of the training process; decision rationale) | §4 Evaluation summary (model build procedure and hyperparameters) |
+| Data used (type and provenance of training, testing, and validation data; how data was obtained and selected; number of data points; curation methodologies) | §3 Data provenance and lineage; the Form's measures-to-detect-identifiable-biases field maps to §5 Interpretability and representation |
+| Computational resources and energy (training time; amount of computation and its measurement methodology; energy consumption) | §2 Functional description (compute and environmental-footprint fields) |
+
+A provider adds any Form field with no direct model-card counterpart (for example the AI Office / national-competent-authority / downstream-provider recipient flag each Form item carries) to the model card as an annex, so the single extended card serves both the Form and the corpus documentation model.
+
 ---
 
 ## 5. Documentation lifecycle
@@ -147,6 +163,7 @@ This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the 
 | --- | --- | --- |
 | ISO/IEC 42001:2023 | §7.5: Documented information | AI documentation requirements |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
+| EU GPAI Code of Practice, Transparency Chapter (July 2025) | Measure 1.1 (Model Documentation Form); AI Act Article 53(1)(a)-(b) | GPAI-provider model documentation (Article 56 co-regulatory instrument, voluntary) |
 | NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
 | ISO/IEC 12792:2025 | §6.2 transparency objectives; §6.1 and §6.3 stakeholder pairs; §7 to §10 taxonomy levels | AI transparency taxonomy structuring Section 4 |
 | NIST IR 8312 | Four Principles of Explainable Artificial Intelligence | Explainability principles |

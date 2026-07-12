@@ -1,7 +1,2 @@
-1. AI delta A.1 (GPAI Transparency Chapter; acquire the complete chapter into grc_library_ref first, then fold + Form-to-card mapping)
-2. AI delta A.6 (California CCPA/ADMT: new annex-ai-us-california + policy US-state row; high-assurance harness; VERIFY OAL dates)
-3. AI delta B.1 (South Korea AI Basic Act: new annex-ai-south-korea; high-assurance harness; VERIFY phased dates)
-4. AI delta B.2 (Singapore Model AI Governance: new annex-ai-singapore; high-assurance harness)
-5. AI delta C (currency: Canada TBS Directive refresh + IEEE 7000-2021 §7.3 claim-fit)
-
-# then: public website (§2.4, attended); §3.16 root-CHANGELOG reformat + plain-language; reference-breadth apply (§3.57, scratch #163)
+1) A.6 California annex (high-assurance; VERIFY OAL dates); 2) B.1 South Korea annex (high-assurance; VERIFY phased dates); 3) B.2 Singapore annex (high-assurance); 4) C currency (Canada TBS + IEEE 7000 §7.3 claim-fit); 5) public website §2.4 (attended) / packaging §4.9 precursor
+# then: §3.16 CHANGELOG reformat; reference-breadth apply (§3.57, scratch #163); §1.2 SP 800-154 wording; §3.56 pack-hygiene routed cleanups
