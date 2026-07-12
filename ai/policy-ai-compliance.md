@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.10\
-**Date:** 2026-07-11\
+**Version:** 1.0.11\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -168,7 +168,7 @@ Where a GPAI model is identified as presenting systemic risk under EU AI Act Cha
 
 ### 7.1 EU AI act
 
-The EU AI Act applies to AI systems placed on the market or put into service in the EU, and to outputs of AI systems used in the EU, regardless of where the deployer or provider is established. Where any AI system operated by the organization generates outputs used in, or affects individuals in, the EU, the obligations of the EU AI Act apply.
+The EU AI Act applies to AI systems placed on the market or put into service in the EU, and to outputs of AI systems used in the EU, regardless of where the deployer or provider is established. Where any AI system operated by the organization generates outputs used in, or affects individuals in, the EU, the obligations of the EU AI Act apply. For the threshold question of what qualifies as an AI system (Article 3(1)) and for the scope of the Article 5 prohibitions, the organization treats the Commission's interpretive guidelines, C(2025) 5053 final (definition of an artificial intelligence system) and C(2025) 5052 final (prohibited artificial intelligence practices), both dated 29 July 2025, as authoritative non-binding guidance; the binding text remains the AI Act and its annexes.
 
 Key compliance obligations:
 
