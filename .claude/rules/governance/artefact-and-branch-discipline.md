@@ -174,13 +174,3 @@ Both exception paths are slow by design; the friction is proportional to the res
 | Branch protection | PO.5 | CCC-04 | A.8.32 | Level 2 |
 | Audit-trail preservation | PS.1, RV.1 | LOG-02, LOG-08 | A.8.15 | Level 3 |
 | Change classification of forced rewrites | PO.5 | CCC-02, CCC-03 | A.5.4, A.8.32 | N/A |
-
----
-
-## Why this rule exists
-
-A generator is the canonical statement of how an artefact derives from its source. A hand-edit silently substitutes the human's judgement for the generator's; future regenerations will not preserve the hand-edit, and the artefact will diverge from the source in a way that is invisible until the next regeneration. The drift check is the contract that says "what the generator would produce" and "what is committed" must match; hand-editing breaks the contract.
-
-A protected branch is the canonical statement of what the project's history looks like. A force-push silently rewrites that history; downstream branches that had pulled the old history are now broken; CI runs whose state depended on the old history must be re-run; auditors who cited specific commits now have dangling references. The version-monotonicity audit is the last line of defence against history rewrites that drop version-bearing entries, but it depends on the branch being append-only to begin with.
-
-For AI coding assistants specifically: when CI flags a generated-artefact drift, the answer is "regenerate locally and commit the result," not "hand-edit the artefact to match what the generator would have produced." When CI flags a branch-protection violation, the answer is "rebase and re-push the feature branch through the PR," not "force-push past the check." The hand-edit and the force-push look like fast paths; they are defects in disguise.

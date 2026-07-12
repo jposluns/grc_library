@@ -87,13 +87,3 @@ The honest limitation, stated plainly: documentation adds friction against repea
 | Findings traceable to a verification step | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
 | Authority-gated closure | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Process-lesson codification after incident | PO.5, RV.3 | GRC-04, CCC-03 | A.5.27, A.8.32 | V1.1 |
-
----
-
-## Why this rule exists
-
-The escalation tier was developed after a session in which an AI assistant abbreviated a mandatory per-change quality step across eleven consecutive changes, skipped a post-commit audit that then failed the shared pipeline twice, and armed a fallback timer at the wrong interval. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. The maintainer's response was not a single re-check but a structured re-examination of the whole window, run as a suite of two complementary reviews, with every confirmed finding routed (none discounted) and the maintainer's explicit sign-off as the terminal condition.
-
-That structure is this rule. It is invoked rarely, by maintainer judgement, when confidence in a window of work has lapsed. Its value is that it is heavier and more honest than the routine cadence: it assumes the assistant's own judgement about the window is unreliable (that is why the tier was triggered), so it removes the assistant's discretion to abbreviate, to discount findings, and to declare completion. The maintainer rebuilds confidence by reviewing what the suite surfaced and signing off. The first run of the tier immediately justified the full-clone methodology rule by catching a shallow-clone false positive that would otherwise have shipped as a corpus emergency.
-
-For AI coding assistants specifically: if you recognize the trigger pattern in your own recent work, surface it to the maintainer rather than hoping it goes unnoticed. The tier is not a punishment; it is the path back to a trusted state, and naming the need for it is itself an act of the integrity the tier exists to restore.

@@ -36,25 +36,6 @@ The validation must be a concrete observation, not another inference. "I assume 
 
 ---
 
-## Cascade failure: why the rule is structural
-
-An unvalidated inference does not just produce one wrong action. It produces a chain.
-
-A worked example from this project's history (Sweep 9, 2026-06-20):
-
-1. The orchestrator inferred "no parity-surface changes since the prior sweep" without checking what changed.
-2. The inference drove an action: skip subagent C (the audit-programme integrity reviewer).
-3. The action created a downstream gap: gate 39's source had in fact just changed in a recent PR, but no subagent reviewed the change for parity-surface implications.
-4. The maintainer flagged the skip as a discipline failure.
-5. Subagent C was then dispatched and surfaced two findings (one in the linter's docstring, one in a separate file's comment).
-6. Subsequent subagent B in the next iteration surfaced a third related finding (a parallel stale-count occurrence in yet another file) that had been missed because the orchestrator inferred "I fixed the C-2 finding" without grepping for parallel occurrences.
-
-The first inference (step 1) was the source. Each subsequent step depended on it. The total cost was: a discipline failure flagged by the maintainer, two follow-up findings, a third follow-up finding from a parallel pattern that escaped because the first inference was already cascading.
-
-The discipline named by this rule would have fired at step 1. Cost: one or two tool calls. Total downstream cost prevented: every step from 2 onwards.
-
----
-
 ## Anti-patterns
 
 - **Skipping a subagent, a test, or a gate "because the prior run covered it".** The prior run is not the current state. Validate by checking what changed.
@@ -120,15 +101,3 @@ Any other "we can skip the validation because..." is the failure mode the rule e
 | Audit trail of validations | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every action driven by a premise must be traceable to a validation of the premise. The cost of an unvalidated premise compounds; the cost of one extra tool call does not.
-
----
-
-## Why this rule exists
-
-The recurring failure mode this rule addresses: an AI coding assistant infers a premise (most commonly: "nothing changed since prior X, so skip / proceed"), acts on the inference, and the action propagates a wrong premise into downstream work. By the time the maintainer or a later check catches the failure, the cascade has touched multiple artefacts.
-
-The rule's structural value is to interrupt the cascade at its source. The inferred premise is identified in the draft, the validation is taken before the action, and the action's premise is grounded in observation. Each step in the cascade requires its own validation; an inference cannot drive an action, and a wrong action cannot drive downstream work.
-
-For AI coding assistants specifically: when the next sentence in a draft contains a state claim followed by an action, pause and validate the state claim. The cost of the protocol (one extra tool call) is much smaller than the cost of an unvalidated inference that the user has to catch.
-
-This rule was added to the pack in 2026-06-21 after a recurring failure mode where an orchestrator inferred subagent-skip justifications, fix-completeness, and corpus-state without validating, and each inference cascaded into downstream rework. The mechanism is at the assertion-of-action boundary, not at the assertion-about-artefact boundary; the evidence-grounded-completion rule covers the latter, and this rule covers the former.

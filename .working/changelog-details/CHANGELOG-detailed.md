@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.323, PR #835
+
+§4.8 Phase 1, GR-P2 governance-rule condense tranche 2 (the first of the three remaining GR-P2 tranches; tranche 1 shipped in #726).
+
+### Changed
+
+- Condensed four governance rules on the two-layer split tranche 1 established (operative core plus framework-alignment table stay in the rule; the `## Why this rule exists` narrative, and for `validate-inference-before-action` also the `## Cascade failure: why the rule is structural` worked example, move verbatim to the removal ledger). Each rule was replaced in BOTH the pack tree and its byte-identical `.claude/rules/governance/` mirror in the same commit (gate 37 sync):
+  - [`dev-security/claude-rules/governance/validate-inference-before-action.md`](../../dev-security/claude-rules/governance/validate-inference-before-action.md) and its [`.claude/` mirror](../../.claude/rules/governance/validate-inference-before-action.md): 1760 to 1301 words (why-section + Cascade-failure example).
+  - [`dev-security/claude-rules/governance/artefact-and-branch-discipline.md`](../../dev-security/claude-rules/governance/artefact-and-branch-discipline.md) and its [`.claude/` mirror](../../.claude/rules/governance/artefact-and-branch-discipline.md): 1816 to 1590 (why-section).
+  - [`dev-security/claude-rules/governance/trust-recovery-escalation.md`](../../dev-security/claude-rules/governance/trust-recovery-escalation.md) and its [`.claude/` mirror](../../.claude/rules/governance/trust-recovery-escalation.md): 1876 to 1598 (why-section).
+  - [`dev-security/claude-rules/governance/action-before-explanation-of-inaction.md`](../../dev-security/claude-rules/governance/action-before-explanation-of-inaction.md) and its [`.claude/` mirror](../../.claude/rules/governance/action-before-explanation-of-inaction.md): 2504 to 2206 (why-section).
+- Appended the four `RM-` entries (RM-VIA-1, RM-ABD-1, RM-TRE-1, RM-ABE-1) to [`.working/claude-rules-considerations.md`](../claude-rules-considerations.md) after the tranche-1 `RM-GDP-1` entry, and marked the four rules' rows in that ledger's pending-worklist done (validate-inference -26%, artefact-and-branch -12%, trust-recovery -14%, action-before-explanation -11%).
+- Retained byte-for-byte in each rule: all operative definitions, procedures, prohibited/correct lists, anti-patterns, tool-specific guidance, exception protocols, AND the framework-alignment table. The cross-cutting folded fixes (the `LOG-02, LOG-08` audit-trail-row migration; the apex `A.8.34` swap) are NOT applied here; they are isolated to a later census-complete PR so the full 8-carrier / 3-carrier census lands in one place. These four rules' framework tables therefore still read `LOG-02, LOG-08` (validate-inference, artefact-and-branch, trust-recovery) and `A.8.34` (trust-recovery), by design, until that PR.
+
+### Verification
+
+- Apply-time drift recompute (`git log b981940..main -- <rule>` per rule) confirmed all four tranche-2 rules are drift-free; only [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) (#813) and [`evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md) (#832) drift, and both are tranche-4 rules deferred to a later PR.
+- Byte-level false-negative check: reconstructed each live rule minus the named removed sections and diffed against the candidate. Three matched identically; `validate-inference` differed only by a `---` separator placement around the removed `## Cascade failure` section (the candidate correctly keeps one separator before `## Anti-patterns`), no operative content. Heading-diff confirmed no operative heading dropped and no heading added.
+- Both-tree sync confirmed per rule (`diff` identical); [`lint-language.py`](../../tools/lint-language.py) clean on all four condensed rules; all 69 audit gates pass (gate 37 sync, gate 51 prose-hygiene included).
+- A refute-briefed skeptical verifier reviewed the change pre-push.
+- **Worker provenance:** [`inbox/claude-pack-hygiene/MANIFEST.md`](../../../grc_library_scratch/inbox/claude-pack-hygiene/MANIFEST.md) (the consolidated GR-P2 pack-hygiene drop; the tranche-2 candidates under `phase1-gr-p2/` are byte-identical moves from the original `gr-p2-rule-condense-tranche2` delivery, re-verified against current `main` at apply time; the orchestrator did the byte-level preservation check and authored all bookkeeping).
+
+Pack `1.59.7` to `1.59.8`; library `2026.07.322` to `2026.07.323`.
+
 ## 2026-07-12, Library Version 2026.07.322, PR #834
 
 The sweep99 `/resume` first PR: the loop-break Sweep 99 `/validate` close-out (compensating control for session-closing handoff PR #833) plus the one in-window fix it surfaced.

@@ -1,7 +1,7 @@
 # Claude-rules considerations (GR-P2 condense removal ledger)
 
-**Version:** 1.0.0\
-**Date:** 2026-07-08\
+**Version:** 1.0.1\
+**Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
 ## Purpose
@@ -63,6 +63,123 @@ For AI coding assistants specifically: when a gate fails, do not propose suppres
 
 ---
 
+## RM-VIA-1: validate-inference-before-action.md, Cascade-failure worked example + Why-this-rule-exists
+
+**Rule:** [`validate-inference-before-action.md`](../dev-security/claude-rules/governance/validate-inference-before-action.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 2 (this delivery). Operative core retained in full; 1760 -> 1301 words. Moved to this ledger: the "Cascade failure" worked example and the "Why this rule exists" narrative.
+
+**Why removed:** the cascade-failure section is an extended worked example (the Sweep-9 six-step narrative) and the why-section restates the assertion-vs-action-boundary rationale the operative discipline steps already enact. Both are motivating rationale, not operative instruction. The operative core (inferred-premise definition, the four discipline steps, anti-patterns, tool-specific guidance, exception protocol, framework table) is retained in full.
+**Expected gain:** about 459 fewer always-on words (26%), the largest tranche-2 cut, because the worked example is long; the operative steps read faster.
+**Risk:** an agent loses the concrete Sweep-9 cascade illustration (mitigated: the anti-patterns list already names the skip-because-prior-run and validate-one-infer-the-rest shapes the example illustrated).
+**Evidence the removal was wrong:** an agent skipping a subagent, test, or gate on an inferred "nothing changed" premise after the condense, or a maintainer re-litigating why validation is unconditional.
+
+Removed verbatim:
+
+```
+## Cascade failure: why the rule is structural
+
+An unvalidated inference does not just produce one wrong action. It produces a chain.
+
+A worked example from this project's history (Sweep 9, 2026-06-20):
+
+1. The orchestrator inferred "no parity-surface changes since the prior sweep" without checking what changed.
+2. The inference drove an action: skip subagent C (the audit-programme integrity reviewer).
+3. The action created a downstream gap: gate 39's source had in fact just changed in a recent PR, but no subagent reviewed the change for parity-surface implications.
+4. The maintainer flagged the skip as a discipline failure.
+5. Subagent C was then dispatched and surfaced two findings (one in the linter's docstring, one in a separate file's comment).
+6. Subsequent subagent B in the next iteration surfaced a third related finding (a parallel stale-count occurrence in yet another file) that had been missed because the orchestrator inferred "I fixed the C-2 finding" without grepping for parallel occurrences.
+
+The first inference (step 1) was the source. Each subsequent step depended on it. The total cost was: a discipline failure flagged by the maintainer, two follow-up findings, a third follow-up finding from a parallel pattern that escaped because the first inference was already cascading.
+
+The discipline named by this rule would have fired at step 1. Cost: one or two tool calls. Total downstream cost prevented: every step from 2 onwards.
+
+---
+
+## Why this rule exists
+
+The recurring failure mode this rule addresses: an AI coding assistant infers a premise (most commonly: "nothing changed since prior X, so skip / proceed"), acts on the inference, and the action propagates a wrong premise into downstream work. By the time the maintainer or a later check catches the failure, the cascade has touched multiple artefacts.
+
+The rule's structural value is to interrupt the cascade at its source. The inferred premise is identified in the draft, the validation is taken before the action, and the action's premise is grounded in observation. Each step in the cascade requires its own validation; an inference cannot drive an action, and a wrong action cannot drive downstream work.
+
+For AI coding assistants specifically: when the next sentence in a draft contains a state claim followed by an action, pause and validate the state claim. The cost of the protocol (one extra tool call) is much smaller than the cost of an unvalidated inference that the user has to catch.
+
+This rule was added to the pack in 2026-06-21 after a recurring failure mode where an orchestrator inferred subagent-skip justifications, fix-completeness, and corpus-state without validating, and each inference cascaded into downstream rework. The mechanism is at the assertion-of-action boundary, not at the assertion-about-artefact boundary; the evidence-grounded-completion rule covers the latter, and this rule covers the former.
+```
+
+---
+
+## RM-ABD-1: artefact-and-branch-discipline.md, Why-this-rule-exists
+
+**Rule:** [`artefact-and-branch-discipline.md`](../dev-security/claude-rules/governance/artefact-and-branch-discipline.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 2 (this delivery). Operative core retained in full; 1816 -> 1590 words. Moved to this ledger: the "Why this rule exists" narrative.
+
+**Why removed:** the why-section restates the generator-is-canonical and branch-is-canonical rationale the operative workflows and prohibited-anti-patterns already enforce. The operative core (generated-artefact and protected-branch definitions and workflows, prohibited anti-patterns, the version-monotonicity contract, the tool-specific guidance, both exception protocols, framework table) is retained in full.
+**Expected gain:** about 226 fewer always-on words (12%).
+**Risk:** an adopter loses the hand-edit-and-force-push-look-like-progress framing (mitigated: the prohibited-anti-patterns list already forbids both paths explicitly).
+**Evidence the removal was wrong:** an agent hand-editing a generated artefact or force-pushing a protected branch to "save a round-trip" after the condense.
+
+Removed verbatim:
+
+```
+## Why this rule exists
+
+A generator is the canonical statement of how an artefact derives from its source. A hand-edit silently substitutes the human's judgement for the generator's; future regenerations will not preserve the hand-edit, and the artefact will diverge from the source in a way that is invisible until the next regeneration. The drift check is the contract that says "what the generator would produce" and "what is committed" must match; hand-editing breaks the contract.
+
+A protected branch is the canonical statement of what the project's history looks like. A force-push silently rewrites that history; downstream branches that had pulled the old history are now broken; CI runs whose state depended on the old history must be re-run; auditors who cited specific commits now have dangling references. The version-monotonicity audit is the last line of defence against history rewrites that drop version-bearing entries, but it depends on the branch being append-only to begin with.
+
+For AI coding assistants specifically: when CI flags a generated-artefact drift, the answer is "regenerate locally and commit the result," not "hand-edit the artefact to match what the generator would have produced." When CI flags a branch-protection violation, the answer is "rebase and re-push the feature branch through the PR," not "force-push past the check." The hand-edit and the force-push look like fast paths; they are defects in disguise.
+```
+
+---
+
+## RM-TRE-1: trust-recovery-escalation.md, Why-this-rule-exists
+
+**Rule:** [`trust-recovery-escalation.md`](../dev-security/claude-rules/governance/trust-recovery-escalation.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 2 (this delivery). Operative core retained in full; 1876 -> 1598 words. Moved to this ledger: the "Why this rule exists" narrative.
+
+**Why removed:** the why-section recounts the originating incident (the eleven-PR abbreviation window) and the tier's value proposition, which the operative trigger, suite, findings-routing, and sign-off sections already encode. The operative core (the trigger, the two-skill suite, the severity-tiered findings-routing, the sign-off discipline, the after-sign-off codification, prohibited anti-patterns, framework table) is retained in full.
+**Expected gain:** about 278 fewer always-on words (14%).
+**Risk:** the originating-incident context is no longer inline (mitigated: it is preserved verbatim here, and the operative trigger list names the same failure shapes).
+**Evidence the removal was wrong:** a maintainer or agent unsure when the tier fires, or self-authorizing its completion, after the condense.
+
+Removed verbatim:
+
+```
+## Why this rule exists
+
+The escalation tier was developed after a session in which an AI assistant abbreviated a mandatory per-change quality step across eleven consecutive changes, skipped a post-commit audit that then failed the shared pipeline twice, and armed a fallback timer at the wrong interval. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. The maintainer's response was not a single re-check but a structured re-examination of the whole window, run as a suite of two complementary reviews, with every confirmed finding routed (none discounted) and the maintainer's explicit sign-off as the terminal condition.
+
+That structure is this rule. It is invoked rarely, by maintainer judgement, when confidence in a window of work has lapsed. Its value is that it is heavier and more honest than the routine cadence: it assumes the assistant's own judgement about the window is unreliable (that is why the tier was triggered), so it removes the assistant's discretion to abbreviate, to discount findings, and to declare completion. The maintainer rebuilds confidence by reviewing what the suite surfaced and signing off. The first run of the tier immediately justified the full-clone methodology rule by catching a shallow-clone false positive that would otherwise have shipped as a corpus emergency.
+
+For AI coding assistants specifically: if you recognize the trigger pattern in your own recent work, surface it to the maintainer rather than hoping it goes unnoticed. The tier is not a punishment; it is the path back to a trusted state, and naming the need for it is itself an act of the integrity the tier exists to restore.
+```
+
+---
+
+## RM-ABE-1: action-before-explanation-of-inaction.md, Why-this-rule-exists
+
+**Rule:** [`action-before-explanation-of-inaction.md`](../dev-security/claude-rules/governance/action-before-explanation-of-inaction.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 2 (this delivery). Operative core retained in full; 2504 -> 2206 words. Moved to this ledger: the "Why this rule exists" narrative.
+
+**Why removed:** the why-section restates the inference-vs-evidence failure mode and the rule's structural reversal, which the operative reversibility gate, the safe-action and destructive-action protocols, and the execution-vs-decision-doubt section already enact. The operative core (the inaction-explanation definition, the reversibility gate, both action protocols, the execution-vs-decision-doubt distinction, anti-patterns, tool-specific guidance, exception protocol, framework table) is retained in full.
+**Expected gain:** about 298 fewer always-on words (11%).
+**Risk:** an agent loses the narrative of why a guessed inaction-reason erodes trust (mitigated: the operative safe-action protocol already forbids the unverified inaction explanation directly).
+**Evidence the removal was wrong:** an agent drafting an unverified "X is blocked because Y" inaction explanation without attempting the safe action, after the condense.
+
+Removed verbatim:
+
+```
+## Why this rule exists
+
+The classic failure mode this rule addresses: an AI coding assistant encounters a state it has not interrogated this turn (a CI status, a PR's mergeability, a branch's protection rules, a permission boundary), drafts an inaction explanation grounded in inference rather than evidence, and the user trusts the explanation because it sounds like a system fact. The user then either waits unnecessarily (the action would have proceeded), takes the wrong corrective action (the explanation pointed at the wrong cause), or loses some trust in the assistant when the inaction explanation turns out to be wrong. Each outcome is worse than the cheap, reversible action that would have produced a real result.
+
+The rule's structure reverses the failure mode. The trigger is the specific surface (inaction-explanation vocabulary attached to an external action) where the inference-vs-evidence question is decided in writing, in a way the actor can catch in their own draft. The fail-safe is the reversibility gate, which keeps "default to the action" from collapsing into "default to recklessness" against destructive actions. The destructive-set protocol prevents the same inference failure from migrating into a scary-sounding rationale for waiting. The execution-doubt-vs-decision-doubt clause keeps the rule from being misread as a lean-away-from-asking on authorial choices, where asking is the right move.
+
+For AI coding assistants specifically: when the next sentence in your draft is about to explain why an external action cannot proceed, pause and run the reversibility gate. If the action is safe, attempt it and rewrite the sentence around the real result. If the action is destructive, name it and ask. The cost of the protocol (one tool call or one explicit "I have not attempted X") is much smaller than the cost of an unverified inaction explanation that the user relies on.
+```
+
+---
+
 ## Pending rule entries (per-rule worklist for GR-P2 tranches 2+)
 
 Each remaining rule condenses on the same split. This worklist records the pre-analyzed
@@ -77,10 +194,10 @@ condensed.
 | `change-tracking.md` | 4422 | entry-content requirements, terse-entry convention, prohibited anti-patterns, CI-gate contract, PR-finalization protocol, overnight-work protocol, framework table | why-section, extended monorepo/generated-changelog rationale | high (~-35%) |
 | `ai-assistant-workflow-disciplines.md` | 4236 | the five disciplines' rules, the skeptical-verifier tiers, the prohibited anti-patterns, framework table | why-section, the per-discipline origin narratives | high (~-35%) |
 | `surface-counterproductive-instructions.md` | 2526 | the trigger classes, the stop-consider-confirm protocol, the charitable-interpretation corollary, calibration, anti-patterns, framework table | why-section, relationship-to-pack prose | medium |
-| `action-before-explanation-of-inaction.md` | 2504 | the inaction-explanation definition, the reversibility gate, the safe/destructive protocols, anti-patterns, tool guidance, framework table | why-section | medium |
+| `action-before-explanation-of-inaction.md` | 2504 | the inaction-explanation definition, the reversibility gate, the safe/destructive protocols, anti-patterns, tool guidance, framework table | why-section | done (-11%) |
 | `clarify-before-acting.md` | 2212 | ambiguity classes, ask-vs-default gate, compute-first gate, how-to-ask, anti-patterns, tool guidance, framework table | why-section | medium |
 | `project-integrity.md` | 2231 | the AIQT tier + machinery, priority enforcement, integrity non-negotiables, escalation, self-reminder cadence, framework table, AND the relationship-to-pack section (operative cross-wiring) | why-section | low-medium |
 | `high-assurance-verification.md` | 2414 | the trigger conditions, the five-stage harness, persistence/register, anti-patterns, framework table | why-section, relationship-to-pack prose | medium |
-| `trust-recovery-escalation.md` | 1876 | the trigger, the two-skill suite, findings-routing, sign-off discipline, anti-patterns, framework table | why-section | medium |
-| `artefact-and-branch-discipline.md` | 1816 | generated-artefact + protected-branch definitions and workflows, prohibited anti-patterns, version-monotonicity contract, exception protocols, framework table | why-section | medium |
-| `validate-inference-before-action.md` | 1760 | the inferred-premise definition, the discipline steps, anti-patterns, tool guidance, exception protocol, framework table | why-section, the cascade-failure worked example | medium |
+| `trust-recovery-escalation.md` | 1876 | the trigger, the two-skill suite, findings-routing, sign-off discipline, anti-patterns, framework table | why-section | done (-14%) |
+| `artefact-and-branch-discipline.md` | 1816 | generated-artefact + protected-branch definitions and workflows, prohibited anti-patterns, version-monotonicity contract, exception protocols, framework table | why-section | done (-12%) |
+| `validate-inference-before-action.md` | 1760 | the inferred-premise definition, the discipline steps, anti-patterns, tool guidance, exception protocol, framework table | why-section, the cascade-failure worked example | done (-26%) |
