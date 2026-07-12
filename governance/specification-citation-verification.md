@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.14\
+**Version:** 1.2.15\
 **Date:** 2026-07-11\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,7 +217,7 @@ The allow-list itself is subject to the same verification discipline as register
 
 A standard or regulation cited in the library that is not covered by an allow-list entry triggers a methodology update. The new publisher domain is added to §7.1 in a new revision of this specification, with the date and rationale.
 
-**2026-07-09 (register v1.5.17, TODO 1.5 currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
+**2026-07-09 (register v1.5.17, reference-currency sweep):** added `ecfr.gov` (US Electronic Code of Federal Regulations) to the US Federal entry, for the CMMC 32 CFR 170 / 48 CFR DFARS acquisition rule; and `pib.gov.in` (India Press Information Bureau) as a new India entry, for the DPDP Rules 2025 notification.
 
 **2026-07-11 (register v1.5.20, AI-workstream PR 7 NYC LL144 annex):** added `nyc.gov` (New York City) to the US States and localities entry, for the Local Law 144 / DCWP Automated Employment Decision Tools rule.
 

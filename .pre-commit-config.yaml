@@ -495,3 +495,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-positional-backlog-tokens
+        name: Positional backlog-token audit
+        entry: python3 tools/lint-positional-backlog-tokens.py
+        language: system
+        pass_filenames: false
+        always_run: true
