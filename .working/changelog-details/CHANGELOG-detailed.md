@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.331, PR #843
+
+AI-domain delta, EU cluster part 1 (A.4 + A.5 of the reworked ai-gaps-expansion-plan). Two EU AI Act Commission Guidelines (held in `grc_library_ref` per ref #66) folded into two corpus documents. Research fan-out worker + apply-time re-verification against the live docs and the held full-text.
+
+### Changed
+
+- [`ai/jurisdictions/annex-ai-european-union.md`](../../ai/jurisdictions/annex-ai-european-union.md) (0.0.2 to 0.0.3): added, in Scope and extraterritorial reach, the Article 3(1) seven-element AI-system-definition scope gate citing the *Commission Guidelines on the definition of an artificial intelligence system*, C(2025) 5053 final (29 July 2025); deepened the Article 5 prohibited-practices bullet from a partial four-item prose list to the complete Article 5(1)(a)-(h) eight-category enumeration citing the *Commission Guidelines on prohibited artificial intelligence practices*, C(2025) 5052 final (29 July 2025). Both framed as non-binding soft law; binding provision anchored to the AI Act.
+- [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) (1.0.10 to 1.0.11): appended an interpretive-guidelines reference to section 7.1 (EU AI Act), citing C(2025) 5053 and C(2025) 5052 as authoritative non-binding guidance with the binding text remaining the AI Act.
+
+### Verification
+
+- Sources confirmed HELD in `grc_library_ref` (post-pull `dea69f0`): both Commission Guidelines full-texts under `frameworks/EU-Commission/`. Upstream currency confirmed this turn (digital-strategy.ec.europa.eu): the GPAI ecosystem and these interpretive guidelines are current; the held editions are the formally-adopted C(2025) 5052/5053 final versions (title-page date 29 July 2025, distinct from the earlier 4 February 2025 approved-draft form). Citation tracks the primary source's own title-page phrasing, not the catalogue-descriptive prefix.
+- Worker research re-verified at apply time: every quoted clause and insertion point re-read against the live documents; the seven-element test and the eight prohibited-practice categories transcribed from the held full-text (worker A), not from memory.
+- A refute-briefed skeptical verifier reviewed the applied change (substantive, government-facing corpus). All 69 gates pass.
+- **Research provenance (in-session, not a scratch-inbox delivery):** in-session `Agent` research fan-out (three disjoint units; this PR consumed unit A.4+A.5). The A.1 (GPAI Transparency) and A.2 (GPAI Safety-Security) units are banked for their own subsequent PRs; A.1 surfaced a blocking finding (the held Transparency Chapter PDF is truncated at 6 pages, so its Model Documentation Form fields are not held) that routes to the missing-reference-document SOP at the A.1 PR.
+
+Library `2026.07.330` to `2026.07.331`.
+
 ## 2026-07-12, Library Version 2026.07.330, PR #842
 
 Pack adoption-hygiene Phase 2, applied as one PR from the worker's combined bookkeeping-free patch (former 0002+0003 squashed, excluding the root changelog, its detailed mirror, and the root README, which the orchestrator authors). sha256 prefix `ea49e037`; `git apply --check` clean against `main` at `182fb80` (#841); applied tree byte-identical to the worker's tested state minus the three excluded files.

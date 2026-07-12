@@ -2,7 +2,7 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,6 +36,8 @@ The controlling text is the Regulation itself; where this annex states an obliga
 
 The AI Act applies, under Article 2, to providers placing AI systems or general-purpose AI models on the Union market or putting them into service in the Union regardless of where the provider is established, to deployers of AI systems established or located in the Union, and, materially for a non-EU adopter, to providers and deployers established outside the Union where the output produced by the AI system is used in the Union. An adopter without an EU establishment is therefore in scope whenever the output of its AI system is used in the Union; the corpus states this extraterritorial reach at [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) section 7.
 
+The AI Act's obligations attach only to systems that meet the Article 3(1) definition of an *AI system*, so that definition is the first scope gate an adopter applies. Article 3(1) turns on seven elements: a machine-based system; designed to operate with varying levels of autonomy; that may exhibit adaptiveness after deployment; that, for explicit or implicit objectives, infers from the input it receives how to generate outputs such as predictions, content, recommendations, or decisions that can influence physical or virtual environments. The Commission's interpretive guidance on applying that test is the *Commission Guidelines on the definition of an artificial intelligence system*, C(2025) 5053 final (29 July 2025), non-binding soft law that assists the reading of Article 3(1); the binding provision remains the AI Act itself, and an authoritative interpretation can come only from the Court of Justice of the European Union.
+
 ## Operator roles
 
 The AI Act assigns obligations by operator role (Article 3 definitions). An adopter first determines which role or roles it holds for a given AI system, because the obligation set follows the role:
@@ -52,7 +54,7 @@ Article 3(8) collects these as "operator". A single adopter can hold more than o
 
 The AI Act classifies AI systems into risk tiers, and the obligation set follows the tier. The corpus carries the classification table (prohibited, high-risk, general-purpose AI with systemic risk, general-purpose AI standard, and the residual limited-risk and minimal-risk cases) at [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) section 4.1; this annex references it rather than restating it. The tier structure in the enacted text:
 
-- **Prohibited practices** (Article 5): the unacceptable-risk set, including social scoring, subliminal manipulation causing harm, exploitation of vulnerabilities, and certain biometric-categorization and real-time remote-biometric-identification uses.
+- **Prohibited practices** (Article 5): the unacceptable-risk set. Article 5(1) prohibits eight practices: (a) harmful subliminal, manipulative, or deceptive techniques; (b) exploitation of vulnerabilities due to age, disability, or a specific social or economic situation; (c) social scoring leading to unjustified or disproportionate detrimental treatment; (d) individual criminal-offence risk assessment based solely on profiling or personality traits; (e) untargeted scraping of facial images from the internet or CCTV footage to build facial-recognition databases; (f) emotion inference in the workplace or education institutions, except for medical or safety reasons; (g) biometric categorization to infer sensitive characteristics; and (h) real-time remote biometric identification in publicly accessible spaces for law enforcement, subject to the narrow Article 5(1)(h)(i) to (iii) exceptions and the Article 5(2) to (7) authorization conditions. The Commission's interpretive guidance is the *Commission Guidelines on prohibited artificial intelligence practices*, C(2025) 5052 final (29 July 2025), non-binding soft law that reads Article 5 rather than creating new binding law.
 - **High-risk** (Article 6 and Annex III): AI systems used as safety components of regulated products (Article 6(1)), and AI systems in the eight Annex III areas: biometrics, critical infrastructure, education and vocational training, employment and workers' management, access to essential private and public services, law enforcement, migration/asylum/border control, and administration of justice and democratic processes.
 - **General-purpose AI models** (Article 51): a GPAI model is classified as carrying systemic risk when it has high-impact capabilities; Article 51(2) sets a presumption of high-impact capability when the cumulative training compute exceeds 10^25 floating-point operations.
 - **Limited-risk and minimal-risk**: the residual tiers, subject to the Article 50 transparency obligations (for example, disclosure of AI interaction, and marking of AI-generated or manipulated content) where applicable.
