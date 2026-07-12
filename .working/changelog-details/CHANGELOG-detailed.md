@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.333, PR #845
+
+Pack adoption-hygiene phase 3 (the D1 zero-history scrub + the D2 marked-overlay architecture), applied from the pack-hygiene worker's combined bookkeeping-free patch (former phase-3 payload; it excludes the root changelog, its detailed mirror, and the root README, which the orchestrator authors). sha256 `118546df...`; `git apply --check` clean against `main` at `2f23483` (#844); the patch file set (6 pack governance rules, 13 project-local rule copies, the project CLAUDE.md, the pack README, and the removal ledger) is disjoint from the intervening AI-delta PRs #843/#844, so it applied cleanly despite being built at #842.
+
+### Changed
+
+- Six pack governance rules under [`dev-security/claude-rules/governance/`](../../dev-security/claude-rules/governance/) scrubbed of the fourteen residual project wirings the GR-P2 condense left behind: `ai-assistant-workflow-disciplines`, `change-tracking`, `evidence-grounded-completion`, `gate-discipline`, `high-assurance-verification`, and `trust-recovery-escalation`. The pack rules now carry zero out-of-pack relative links and zero "(in this project ...)" instantiations.
+- 13 [`.claude/rules/governance/`](../../.claude/rules/governance/) copies gain trailing PROJECT-OVERLAY blocks carrying the relocated wiring and lineage (the D2 marked-overlay architecture gate 37 validates); every asserted path and gate number was existence-verified by the worker and re-checked at apply.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PROJECT-OVERLAY convention statement added (distinct from the third-party external-overlay note), applied under the maintainer's phase-3 authorization for protected `.claude/` edits.
+- [`.working/claude-rules-considerations.md`](../claude-rules-considerations.md) (1.0.4 to 1.0.5): RM-SCRUB-1 appended with the fourteen verbatim pack-side originals.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (1.61.0 to 1.61.1): history row (the orchestrator replaced the staging Library/date placeholders with the real `2026.07.333` / `2026-07-12`).
+
+### Verification
+
+- All 69 gates pass on the applied state (gate 37 claude-rules-sync validates the 13 overlays and the pack/`.claude` sync; gates 35/39/41 parity green). The worker verified the full suite on its tested state and `git apply --check` clean in a fresh clone; the orchestrator re-verified the sha256, applied against post-#844 `main`, and re-ran the suite.
+- Wiring count MEASURED from RM-SCRUB-1 ("six rules, fourteen passages"): fourteen, not the "twelve" the stale bookkeeping drafts carried; the pack README row and this entry both use fourteen.
+- A refute-briefed skeptical verifier reviewed the applied change (protected-surface pack machinery).
+- **Worker provenance:** [`inbox/claude-pack-hygiene/phase3-rules/phase3-combined.patch`](../../../grc_library_scratch/inbox/claude-pack-hygiene/phase3-rules/phase3-combined.patch) (the combined bookkeeping-free re-delivery; the worker verified `git apply --check` clean in a fresh clone and a refute-briefed verifier's findings were fixed pre-delivery; the orchestrator re-verified the hash, applied, authored the excluded bookkeeping, and re-ran the full suite + a verifier).
+
+Pack `1.61.0` to `1.61.1`; library `2026.07.332` to `2026.07.333`.
+
 ## 2026-07-12, Library Version 2026.07.332, PR #844
 
 AI-domain delta, EU cluster part 2 (A.2). The EU GPAI Code of Practice, Safety and Security Chapter (July 2025), held in `grc_library_ref` under `frameworks/EU-AI-Office/`, folded across three AI documents. Research fan-out worker C + apply-time re-verification against the live docs and the held full-text.
@@ -18,7 +39,7 @@ AI-domain delta, EU cluster part 2 (A.2). The EU GPAI Code of Practice, Safety a
 
 ### Verification
 
-- Source confirmed HELD in `grc_library_ref` (`dea69f0`): the Safety and Security Chapter full-text (1738 lines) read by worker C; upstream currency for the GPAI Code confirmed this turn (digital-strategy.ec.europa.eu, published 10 July 2025 final). Held title matches the catalogue; cited as the held/catalogue form, not the divergent cover-page word order.
+- Source confirmed HELD in `grc_library_ref` (`dea69f0`): the Safety and Security Chapter full-text (1737 lines) read by worker C; upstream currency for the GPAI Code confirmed this turn (digital-strategy.ec.europa.eu, published 10 July 2025 final). Held title matches the catalogue; cited as the held/catalogue form, not the divergent cover-page word order.
 - Legal-status precision (worker C's correction, applied): the Code is the Article 56 co-regulatory instrument for demonstrating Article 55 compliance, not guidance under Article 55; it binds only providers of GPAI models with systemic risk. All three folds carry that framing and the provider-expectation vs organization-as-provider distinction, so no fold implies the Code binds the adopting deployer's ordinary AI use.
 - Worker research re-verified at apply time against the three live target documents and the held full-text. A refute-briefed skeptical verifier reviewed the applied change (substantive, government-facing) and caught two citation defects, both fixed pre-push: (1) HIGH, the Appendix 4.2 control names a Trusted Platform Module (TPM), not a hardware security module (an orchestrator paraphrase error; worker C had quoted TPM correctly), corrected on all three carriers; (2) MEDIUM, the classification of a GPAI model as having systemic risk is EU AI Act Article 51, not Article 3(65) (which defines the term), verified upstream this turn (artificialintelligenceact.eu) and corroborated by the held EU AI Act full text in grc_library_ref, and corrected in both corpus folds. (The verifier's incidental "AI Act not held" remark was a false-negative inventory claim: the Act is held in the grc_library_ref reference base (EU legislation bucket); corrected in TODO section 2.5.) All 69 gates pass.
 - **Research provenance (in-session, not a scratch-inbox delivery):** in-session `Agent` research fan-out (worker C, the A.2 unit).

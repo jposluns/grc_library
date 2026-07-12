@@ -112,3 +112,10 @@ This rule also brings into the primary pack a discipline the third-party overlay
 | Decisions traceable to a confirmation step | PS.1, RV.2 | LOG-02, GRC-04 | A.8.15, A.5.4 | V14.1 |
 
 The rule expresses the same audit-trail-integrity principle the rest of the pack expresses, on the instruction-intake boundary: a counterproductive instruction acted on without a surfaced confirmation is a decision no one consciously made, and its cost is discovered downstream by the requestor who did not foresee it.
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Project instantiation: the CLAUDE.md communication conventions (proactive
+  assessment as a standing default; "suggest"/"advise" invite assessment).

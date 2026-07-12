@@ -139,3 +139,10 @@ The narrowest legitimate exception is the case where the action is in the safe s
 | Subscription-over-polling for event-shaped waits | RV.2 | LOG-02 | A.8.15 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every assertion the user is asked to rely on must be traceable to a verifiable artefact (a tool result, a quoted response, a named missing attempt). The cost of an unverifiable assertion compounds: each one the user accepts erodes the discipline that catches the next.
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Project instantiation: the CLAUDE.md `PR activity subscription discipline`
+  (subscribe plus a 60-second fallback timer; the background-task check SOP).

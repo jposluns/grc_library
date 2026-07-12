@@ -170,7 +170,7 @@ When prose references a tool name, an API name, a CLI flag, a library, a class, 
 The discipline:
 
 - **Backticked code spans are the default rendering for identifiers.** A reference to `TaskStop`, `boto3.client`, `--no-verify`, or `pre-commit run --all-files` renders as a backticked span. The reader can search for the identifier; the prose does not have to claim a canonical URL.
-- **Links are reserved for verified destinations.** A repository-internal path written as a markdown link to a real file is verified by the broken-link audit (the gate's number is project-specific; in the GRC Library it is gate 3). An external URL is verified by the maintainer at the moment they paste it; if no verified URL is available, render the reference without a link.
+- **Links are reserved for verified destinations.** A repository-internal path written as a markdown link to a real file is verified by the broken-link audit (the gate's number is project-specific). An external URL is verified by the maintainer at the moment they paste it; if no verified URL is available, render the reference without a link.
 - **Domain plausibility is not verification.** A plausibly-pathed URL on a real documentation domain may resolve, may 404, or may have never existed. The domain being on the project's allow-list (typical entries: `docs.python.org`, `claude.com`, `github.com`) means the gate that checks domains will pass; it does not mean the path is correct. Domain-allow-list gates catch off-domain hallucinations; they do not catch plausible-path hallucinations.
 - **Auto-pilot is the trigger to slow down.** The failure mode is reflexive: "I just wrote a tool name, file paths get links in this project, therefore this tool name should get a link." File paths are verified by the build, the lint, and the test suite. Tool names are not. The reflex extends the linking convention past the boundary of verifiability.
 - **If a link would genuinely help the reader and the URL is not at hand**, write the prose without the link and either add a TODO marker for follow-up verification or omit the link entirely. The reader can still find the referenced thing via the backticked identifier; they cannot recover from being misled by a confidently-wrong URL.
@@ -203,3 +203,11 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 | Distinguishing mechanical from semantic verification | RV.1 | GRC-05 | A.5.36 | V14.1 |
 | Documented exception handling | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Audit trail of verifications performed | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- The broken-link audit the no-decorative-links section names is gate 3
+  (repository-internal link audit, `tools/lint-links.py`); the domain allow-list
+  gate is `tools/lint-external-link-domains.py`.

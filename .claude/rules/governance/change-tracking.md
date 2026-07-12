@@ -18,17 +18,17 @@ This rule applies equally to human developers and to AI coding assistants. An AI
 A project's CHANGELOG may be a single file, OR may be split into two files for audience-separation:
 
 - **Root `CHANGELOG.md`** carries only the **lead-paragraph summary** of each entry. This is the adopter-facing, public-facing, scan-friendly surface. Adopters and downstream consumers read this.
-- **Detailed mirror** (project-specific location; in this project: `.working/changelog-details/CHANGELOG-detailed.md`) carries the **full structured-section entry**: Added / Changed / Removed / Fixed / Security / Verification / discipline observations. This is the maintainer-grade audit trail. Reviewers and auditors read this.
+- **Detailed mirror** (a project-specific location) carries the **full structured-section entry**: Added / Changed / Removed / Fixed / Security / Verification / discipline observations. This is the maintainer-grade audit trail. Reviewers and auditors read this.
 
 The detailed mirror's location is project-specific; the project chooses where to put it. A working-directory location (exempt from corpus audit gates) is the recommended default. Single-file projects keep all detail in root `CHANGELOG.md`; they are the trivial case of the rule (root file holds everything).
 
 ### Current-week model for the detailed mirror (optional)
 
-A long-lived project accumulates detailed entries indefinitely, and the detailed mirror eventually grows past the point where it is browser-openable or quick to scan. The optional current-week model keeps the in-repo mirror small: it holds only the **current week's** detailed entries, and completed weeks are swept out to a wipeable archive the project designates (in this project, the exchange repository, as weekly Monday-dated files). No record is lost: the full audit trail is preserved both in the swept archive and in this repository's own git history (the sweep removes tree content, not history).
+A long-lived project accumulates detailed entries indefinitely, and the detailed mirror eventually grows past the point where it is browser-openable or quick to scan. The optional current-week model keeps the in-repo mirror small: it holds only the **current week's** detailed entries, and completed weeks are swept out to a wipeable archive the project designates. No record is lost: the full audit trail is preserved both in the swept archive and in this repository's own git history (the sweep removes tree content, not history).
 
 The model has three project-provided parts:
 
-- **A data-safe sweep tool** (not an audit gate; an orchestrator close-out step; in this project `tools/sweep-working-records-to-scratch.py`). It emits the weekly archive files, then refuses to prune anything from the repository unless a verify step confirms every artefact already exists in the archive (emit, verify, then prune).
+- **A data-safe sweep tool** (not an audit gate; an orchestrator close-out step). It emits the weekly archive files, then refuses to prune anything from the repository unless a verify step confirms every artefact already exists in the archive (emit, verify, then prune).
 - **A dynamic-cutoff parity gate.** The mirror-header-parity gate's cutoff is a dynamic floor, `max(CUTOFF_PR, oldest PR still present in the in-repo mirror)`, so a swept (now archive-only) entry is out of parity scope rather than flagged missing, while a genuine in-window drift still fails.
 - **A release-export exclusion.** The working-state tree carries a `git archive` `export-ignore` attribute, so a release tarball is fork-clean however much detail has accumulated. This affects `git archive` only; a `git clone` still includes the tree and full history, and adopters may simply delete the working-state tree after cloning.
 
@@ -145,7 +145,7 @@ Tools that generate a CHANGELOG from commit messages (release-please, semantic-r
 - The generation step is run locally before commit, not in CI alone. CI runs the generator in `--check` mode and fails on drift. (This mirrors the generator-output discipline in the gate-discipline rule.)
 - Generated entries are reviewable in the PR diff, the same as hand-written entries. A generator that hides the entry behind "trust the tool" is not acceptable.
 
-### Document corpora (this project's case)
+### Document corpora (the parent library's case)
 
 Document repositories have a stronger discipline than code repositories because every document is a citable artefact. The conventions are:
 
@@ -206,14 +206,14 @@ Terse DONE-entry shape:
 Worked example:
 
 ```
-### PR #172: FR-4+5+6+7+8: README polish bundle (2026-06-21)
+### PR #N: five README polish findings closed (YYYY-MM-DD)
 
 Five medium README polish findings closed in one PR: acronym expansion, doc count pointer, CalVer placement, audience-signal panel, version-line demote.
 ```
 
 That's it. No links, no version bumps, no rationale, no list of touched files. Those belong in CHANGELOG.
 
-DONE is typically maintainer-only working state, so it lives wherever the project keeps such state. A working-directory location is the recommended default; under this project's convention, `.working/DONE.md`. The exact location is project-specific.
+DONE is typically maintainer-only working state, so it lives wherever the project keeps such state. A working-directory location is the recommended default; the exact location is project-specific.
 
 When a PR closes a TODO item:
 
@@ -242,7 +242,7 @@ Before listing the upcoming PRs, the assistant first checks whether any new item
 
 ### Overnight-work protocol
 
-When the maintainer authorizes an autonomous overnight session (the assistant ships work while the maintainer is asleep or otherwise unavailable), the assistant records the session's state in a designated overnight file (project-specific location; in this project: `.working/overnight-pr.md`). The file's `Status` field encodes the session's lifecycle:
+When the maintainer authorizes an autonomous overnight session (the assistant ships work while the maintainer is asleep or otherwise unavailable), the assistant records the session's state in a designated overnight file (a project-specific location). The file's `Status` field encodes the session's lifecycle:
 
 - `stub`: no overnight session is in flight. This is the default state. The file contains only the protocol description, the `Status: stub` line, and (after a routed run) the single latest-run closure note recording where that run's content went.
 - `in-flight`: an overnight session is active. The assistant has filled the file with session content (authorization scope, design decisions made, files being authored / modified, build progress, open ambiguities). Each overnight PR ships with `Status: in-flight`.
@@ -295,3 +295,16 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 | Audit trail integrity | PS.1, RV.1 | LOG-02, LOG-04, LOG-10 | A.8.15 |
 | Version monotonicity | RV.1 | CCC-04 | A.8.27 |
 | Change classification (breaking vs non-breaking) | PO.5 | CCC-02 | A.8.32 |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Detailed mirror: `.working/changelog-details/CHANGELOG-detailed.md` (current-week
+  model; completed weeks sweep to the `grc_library_scratch` archive as weekly
+  Monday-dated files).
+- Sweep tool: `tools/sweep-working-records-to-scratch.py` (emit, verify, then prune).
+- Closed-work ledger: `.working/DONE.md`; backlog: `TODO.md`; overnight file:
+  `.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
+- The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"
+  (2026-06-21), five medium README findings closed in one PR.
