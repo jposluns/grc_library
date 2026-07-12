@@ -64,10 +64,6 @@ The durable MECHANICAL solution to the ISO/IEC-designation-accuracy class §3.1 
 
 Each `/retro` scans the [`.working/claude-md-considerations.md`](.working/claude-md-considerations.md) removal ledger's open RM entries and the periodic hallucination-metrics pass does a deeper scan; if an entry's "evidence the removal was wrong" signal appears, advise the maintainer to restore the cut text, and record the disposition in that entry's Status. Standing tracker; stays open by design.
 
-### 3.4 Positional-backlog-token lint (was 3.13, audit 2026-07-02, S)
-
-Optional: a lint flagging `TODO P?N.M` positional tokens in gate-scanned corpus prose (renumber-fragile), nudging references toward stable FR-ids / topic names. Same class as the CLAUDE.md §N-orphan guard.
-
 ### 3.6 Register-ageing advisory tool (GR-8 follow-on A, guardrail review 2026-07-02, L, S)
 
 A small advisory `tools/audit-*.py` (not a gate) reporting improvement-log Proposed-improvement cells still pending after N PRs, the register-side analogue of the brief-freshness tool. **Attempted + deferred 2026-07-08 (#698) with a design finding:** the core heuristic (non-empty Proposed-improvement cell + no disposition token = pending) OVER-FLAGS (cannot distinguish a genuine pending FORMAL candidate from an adopted-in-place habit note; ~78 July cells mostly false-positive). Needs either a formal-candidate classifier or a register-format change (a structured candidate marker the `/retro` skill appends). Not shipped (an over-flagging advisory erodes trust). Revisit once the classifier / register-format decision is made.
@@ -183,6 +179,10 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 ### 3.48 Ingest the DORA major-incident-reporting RTS and verify the reporting windows (S)
 
 The DORA major-incident reporting windows cited in [`compliance/financial-services/annex-dora-implementation.md`](compliance/financial-services/annex-dora-implementation.md) (initial notification "no later than 4 hours from classification as major"; intermediate report within 72 hours; final report within one month) are prescribed by the DORA regulatory technical standard (Commission Delegated Regulation (EU) 2025/302), which is NOT held in `grc_library_ref`. The base regulation (Regulation (EU) 2022/2554, Articles 19-20) lists the three report types and delegates the actual time limits to the RTS/ITS, stating no values. The corpus correctly attributes the windows to "RTS / ITS", so no phrasing fix is needed; this is an accepted-unverified tracker. Ingest RTS 2025/302 into `grc_library_ref` (cross-repo PR) and verify the three windows against the held RTS text, or confirm them upstream.
+
+### 3.50 Widen gate 69 to the "TODO item N.M" phrasing (S)
+
+Gate 69 ([`tools/lint-positional-backlog-tokens.py`](tools/lint-positional-backlog-tokens.py)) matches "backlog item(s)" followed by a `§`/`P`-prefixed or dotted token, but its `TODO` arm requires the section token immediately after `TODO`, so the phrasing "TODO item 3.4" (qualifier + "item" + dotted token) is not matched. No live carrier exists today (corpus grep returns 0), so this is a latent gap, not a current defect. Widen the regex to also match the `TODO item N.M` form, with a false-positive analysis first (the "item" alternation must not over-match ordinary prose such as "TODO item list"), or document the omission as intentional.
 
 ### 3.49 Reconcile the guardrail-review routing-tag convention (S)
 
