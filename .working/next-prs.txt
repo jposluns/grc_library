@@ -1,5 +1,7 @@
-1. AIQT PR 2 (corpus AIQT principle document, claim-fit-verified mappings; review gate d first)
-2. AIQT scratch one-liner (scratch CLAUDE.md AIQT rewrite)
-3. first FULL /reference-audit run (adoption pass: initial history row + doc-state)
-4. first /deep-assessment run (maintainer-invoked; whole-project pass)
-5. changelog PR 3 (root-CHANGELOG compact reformat, deferred wide change) + per-PR sweep-step wiring
+1. AI delta A.1 (GPAI Transparency Chapter; acquire the complete chapter into grc_library_ref first, then fold + Form-to-card mapping)
+2. AI delta A.6 (California CCPA/ADMT: new annex-ai-us-california + policy US-state row; high-assurance harness; VERIFY OAL dates)
+3. AI delta B.1 (South Korea AI Basic Act: new annex-ai-south-korea; high-assurance harness; VERIFY phased dates)
+4. AI delta B.2 (Singapore Model AI Governance: new annex-ai-singapore; high-assurance harness)
+5. AI delta C (currency: Canada TBS Directive refresh + IEEE 7000-2021 §7.3 claim-fit)
+
+# then: public website (§2.4, attended); §3.16 root-CHANGELOG reformat + plain-language; reference-breadth apply (§3.57, scratch #163)
