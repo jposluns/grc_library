@@ -1147,20 +1147,30 @@ cost. This operationalizes the webhook-subscriptions discipline in
 `.claude/rules/governance/action-before-explanation-of-inaction.md` and the
 subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-completion.md`.
 
-**No-MCP (gh-CLI) sessions: one self-checking loop, NOT bare fallback timers.** When the
-session has no GitHub MCP (`mcp__github__*` absent from the tool list, so the PR mechanism
-is the `gh` CLI), there is no `subscribe_pr_activity` to pair a fallback timer with. A bare
-`sleep 60 && echo "check status"` timer then self-checks NOTHING: it fires, prompts a manual
-`gh pr checks` poll and a manual re-arm, and repeating that sprawls into several overlapping
-timers emitting low-signal "go check" notifications (the 2026-07-12 recurrence the maintainer
-flagged). Instead arm EXACTLY ONE `Bash` `run_in_background` until-loop that self-checks the
-check-run state and emits once on the terminal pass/fail, for example `until s=$(gh pr checks
-<N> --json name,bucket) && [ -n "$s" ] && ! echo "$s" | grep -q '"bucket":"pending"'; do sleep
-15; done; gh pr checks <N>`. Never run more than one CI-wait background task at a time; stop
-the loop with `TaskStop` once CI is confirmed settled. (The harness also blocks foreground
-`sleep N && <cmd>` chains, so any wait uses `run_in_background` or `Monitor`, never a foreground
-sleep.) The `## Background-task check SOP` below governs the check cadence for whichever
-primitive is in use.
+**No-MCP (gh-CLI) sessions: use `gh pr checks --watch`, bounded and fail-loud, and DO NOT idle
+on it.** When the session has no GitHub MCP (`mcp__github__*` absent from the tool list, so the
+PR mechanism is the `gh` CLI), there is no `subscribe_pr_activity`. Two failure modes are
+FORBIDDEN, both observed 2026-07-12: (a) bare `sleep 60 && echo "check status"` fallback timers,
+which pair with a subscription that does not exist and self-check nothing, so they sprawl into
+overlapping low-signal waits; and (b) a hand-rolled `until`/`sleep` loop keyed on an unverified
+check command, which spins SILENTLY FOREVER if the command errors. (The concrete incident: a
+loop used `gh pr checks <N> --json name,bucket`, but `--json` is UNSUPPORTED by `gh pr checks`
+in this gh version, so `s=""` every iteration, the `until` condition could never become true,
+and the loop ran 30-plus minutes producing nothing while the orchestrator idled on a completion
+notification that could never fire.) Instead use the purpose-built, self-bounding primitive
+`gh pr checks <N> --watch --interval 30`, run via `Bash` `run_in_background`, wrapped in a hard
+`timeout` and made fail-loud so it can NEVER be silent:
+`timeout 1200 gh pr checks <N> --watch --interval 30; echo "watch exited rc=$?"; gh pr checks <N>`.
+`--watch` exits when the checks finish (rc 0 = all pass, non-zero = failure); the `timeout` caps
+the wait at a hard ceiling; the trailing `echo` plus `gh pr checks <N>` print the terminal state
+on EVERY exit path (pass, fail, or timeout), so silence is impossible. Run exactly one such task;
+stop it with `TaskStop` once settled. **Do NOT idle-block on the notification:** per the
+**Background-task check SOP** below, check on the 60-second cadence and ACTIVELY PROBE (`gh pr checks
+<N>`, unpiped) once past the check's typical duration (about 1-2 minutes here), because a stuck
+or silently-exited wait is indistinguishable from "still running". Never hand-roll a CI-wait
+loop on a check command whose flags you have not verified in THIS environment, and never leave a
+wait unbounded or silent. (The harness also blocks foreground `sleep N && <cmd>` chains, so the
+wait always runs via `run_in_background` or `Monitor`, never a foreground sleep.)
 
 **Background-task check SOP (maintainer-directed 2026-07-02).** The same 60-second
 cadence governs EVERY background task (a subagent, a background command, an external
