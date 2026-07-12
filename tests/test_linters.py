@@ -4111,6 +4111,134 @@ class ClaudeRulesSyncTests(LinterTestCase):
             shutil.rmtree(root, ignore_errors=True)
 
 
+    def test_overlay_carrying_local_copy_passes(self) -> None:
+        # A local copy whose body matches the source and which carries a
+        # trailing PROJECT-OVERLAY block must pass: the overlay is a
+        # sanctioned local-only addition, stripped before comparison.
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body=(
+                "<!-- Source: x -->\n\n# Title\n\nIdentical body.\n\n"
+                + mod.OVERLAY_MARKER
+                + "\n\n## Project overlay\n\nLocal wiring and lineage.\n"
+            ),
+            source_body="# Title\n\nIdentical body.\n",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+            self.assertEqual(
+                rc, 0, "overlay-carrying in-sync copy should pass"
+            )
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_overlay_marker_in_pack_source_flagged(self) -> None:
+        # The marker in a PACK source is an overlay leak into the
+        # distributable: fail, regardless of body agreement.
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body="# Title\n\nIdentical body.\n",
+            source_body=(
+                "# Title\n\nIdentical body.\n\n"
+                + mod.OVERLAY_MARKER
+                + "\n\nLeaked overlay.\n"
+            ),
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            import contextlib, io
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.main(["--root", str(root)])
+            out = buf.getvalue()
+            self.assertEqual(
+                rc, 1, "overlay marker in a pack source must fail"
+            )
+            # Discriminating: the pack-source guard is diagnostic-only (rc
+            # alone is also produced by the generic body-drift check), so
+            # assert the specific overlay-leak finding, not just rc.
+            self.assertIn(
+                "overlay leak", out,
+                "the pack-source marker must be reported as an overlay leak, "
+                "not merely as generic body drift",
+            )
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_duplicate_overlay_marker_flagged(self) -> None:
+        # More than one marker line in a local copy: fail (one trailing
+        # block only).
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body=(
+                "# Title\n\nIdentical body.\n\n"
+                + mod.OVERLAY_MARKER
+                + "\n\nOverlay one.\n\n"
+                + mod.OVERLAY_MARKER
+                + "\n\nOverlay two.\n"
+            ),
+            source_body="# Title\n\nIdentical body.\n",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            rc = mod.main(["--root", str(root)])
+            self.assertEqual(
+                rc, 1, "duplicate overlay markers in a local copy must fail"
+            )
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_drift_above_overlay_still_flagged(self) -> None:
+        # The overlay strip must not mask genuine body drift above the
+        # marker: a drifted body plus a valid overlay block still fails.
+        import shutil
+
+        mod = self._load_module()
+        root, fake_map = self._make_synthetic(
+            local_body=(
+                "# Title\n\nDRIFTED body.\n\n"
+                + mod.OVERLAY_MARKER
+                + "\n\n## Project overlay\n\nLocal wiring.\n"
+            ),
+            source_body="# Title\n\nOriginal body.\n",
+        )
+        saved = mod.MIRROR_MAP
+        try:
+            mod.MIRROR_MAP = fake_map
+            import contextlib, io
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = mod.main(["--root", str(root)])
+            out = buf.getvalue()
+            self.assertEqual(
+                rc, 1, "drift above the overlay marker must still fail"
+            )
+            # Discriminating: assert the above-marker drift is reported as
+            # body drift (an over-cutting overlay strip that swallowed the
+            # real body would suppress this finding).
+            self.assertIn(
+                "body drift", out,
+                "above-marker drift must be reported as body drift, proving "
+                "the overlay strip did not swallow the compared body",
+            )
+        finally:
+            mod.MIRROR_MAP = saved
+            shutil.rmtree(root, ignore_errors=True)
+
+
 class TodoStalenessTests(LinterTestCase):
     """tools/lint-todo-staleness.py"""
 
