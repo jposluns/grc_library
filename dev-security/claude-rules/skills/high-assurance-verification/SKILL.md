@@ -6,6 +6,16 @@ derives_from: ../../governance/high-assurance-verification.md
 
 # High-Assurance Verification (the sensitive-change harness)
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Persistent register: `.working/high-assurance/register.md` in the consuming project's working state, one row per sensitive item (the item, which trigger conditions make it sensitive, the stages run and their outcomes, the status). Open rows (`pending` / `in-progress` / `deferred`) are surfaced at session resume by the `/resume` command alongside the other standing registers, so an item survives a session boundary.
+- Motivating case: adding a control-framework column to the compliance matrix, where each cell carries a control code whose fit no existence gate can check.
+- Cadenced companion on matrix changes: the `/matrix-fit` semantic-fit audit (this harness at apply time, the cadence as the closing check).
+
+An adopting project maps each bullet to its own register location, resume-surfacing mechanism, and companion cadences; the procedure below refers to them generically.
+
 ## Overview
 
 Most changes are adequately protected by the routine layers: the research-assistant discipline (workers research, the orchestrator re-reads and authors), the mechanical gates, and the per-change and periodic sweeps. A small subset is not. When a change carries a correctness property no gate can check, is large or delicate enough that a hand-edit is itself a defect risk, and would be costly to get wrong because the artefact is cited or relied on downstream, the routine layers leave a real gap: a wrong value passes every gate, reads as plausible, and ships.
@@ -18,16 +28,16 @@ The harness is not for every change. Invoking it everywhere is its own failure: 
 
 ## When to Use
 
-- **Before applying a sensitive change**, one that meets all three trigger conditions (gate-blind correctness, delicate scale, high escaped-error cost). The motivating case: adding a control-framework column to the compliance matrix, where each cell carries a control code whose fit no existence gate can check.
+- **Before applying a sensitive change**, one that meets all three trigger conditions (gate-blind correctness, delicate scale, high escaped-error cost). The canonical shape: a bulk mapping of control codes whose fit no existence gate can check (the parent library's motivating case is named in the project wiring above).
 - **When the maintainer directs absolute-integrity rechecking** of a change, regardless of the three conditions (maintainer discretion overrides the default trigger).
-- **When resuming a sensitive item left open** in the persistent register ([`.working/high-assurance/register.md`](../../../../.working/high-assurance/register.md)) with status `pending` or `in-progress`, surfaced at `/resume`.
+- **When resuming a sensitive item left open** in the persistent register named in the project wiring, with status `pending` or `in-progress`, surfaced at session resume.
 - **NOT for routine changes.** When only one or two of the three conditions hold, the routine layers (research-assistant discipline, the gates, the per-PR and corpus sweeps) are the right tool and this harness is over-engineering.
 
 ## Process
 
 ### 1. Confirm the trigger and open the register row
 
-Confirm the change meets all three trigger conditions: (1) **gate-blind correctness** (a wrong value is a correctness defect no mechanical gate catches, typically a fit or semantic property); (2) **delicate scale** (a wide reshape, a bulk mapping, a many-cell edit where a transposition or off-by-one is easy and not gate-caught); (3) **high escaped-error cost** (the artefact is citable, cross-linked, or relied on downstream). If only one or two hold, stop and use the routine layers. When uncertain, prefer the harness (a false escalation costs tokens; a false de-escalation ships a defect) and record the judgement so the threshold stays calibrated. The maintainer may direct the harness regardless of the conditions. Open a row in the persistent register ([`.working/high-assurance/register.md`](../../../../.working/high-assurance/register.md)) recording the item, which of the three conditions make it sensitive, and status `in-progress`, so the item survives a session boundary. Apply **guard-first sequencing**: if a mechanical gate for the value class will exist, land the gate before the data so the data is validated as it lands.
+Confirm the change meets all three trigger conditions: (1) **gate-blind correctness** (a wrong value is a correctness defect no mechanical gate catches, typically a fit or semantic property); (2) **delicate scale** (a wide reshape, a bulk mapping, a many-cell edit where a transposition or off-by-one is easy and not gate-caught); (3) **high escaped-error cost** (the artefact is citable, cross-linked, or relied on downstream). If only one or two hold, stop and use the routine layers. When uncertain, prefer the harness (a false escalation costs tokens; a false de-escalation ships a defect) and record the judgement so the threshold stays calibrated. The maintainer may direct the harness regardless of the conditions. Open a row in the persistent register named in the project wiring recording the item, which of the three conditions make it sensitive, and status `in-progress`, so the item survives a session boundary. Apply **guard-first sequencing**: if a mechanical gate for the value class will exist, land the gate before the data so the data is validated as it lands.
 
 ### 2. Research fan-out
 
@@ -51,7 +61,7 @@ Do **not** hand-edit the sensitive artefact. Drive the apply with a dry-run-vali
 
 ### 7. Close the register row and surface
 
-Record the harness outcomes in the register row (the workers, the verifier findings, the invariant checks, the apply script and its re-parse result) and set the status to `verified`. Surface the findings (the verifier misses and over-assignments, the invariant results, the re-parse result) in chat. A `verified` row is retained for the audit trail; do not silently drop a `pending` or `in-progress` row. If the item cannot complete this session (a closing re-check or a license-gated dependency remains), leave the row `pending` / `in-progress` (or `deferred` with the blocker named) so the next `/resume` re-surfaces it.
+Record the harness outcomes in the register row (the workers, the verifier findings, the invariant checks, the apply script and its re-parse result) and set the status to `verified`. Surface the findings (the verifier misses and over-assignments, the invariant results, the re-parse result) in chat. A `verified` row is retained for the audit trail; do not silently drop a `pending` or `in-progress` row. If the item cannot complete this session (a closing re-check or a license-gated dependency remains), leave the row `pending` / `in-progress` (or `deferred` with the blocker named) so the next session resume re-surfaces it.
 
 ## Red Flags
 
@@ -93,4 +103,4 @@ The harness is complete when:
 - [`governance/ai-assistant-workflow-disciplines.md`](../../governance/ai-assistant-workflow-disciplines.md): the routine research-assistant flow this harness sits above.
 - [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the apply and verification boundaries (the re-parse and quote-the-source requirements are this rule applied).
 - [`matrix-fit`](../matrix-fit/SKILL.md): the cadenced semantic-fit audit; a sensitive matrix change often pairs the harness (apply) with `/matrix-fit` (the cadenced closing check).
-- The persistent register: [`.working/high-assurance/register.md`](../../../../.working/high-assurance/register.md), surfaced at `/resume`.
+- The persistent register named in the project wiring above, surfaced at session resume.

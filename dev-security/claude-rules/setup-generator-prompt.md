@@ -196,7 +196,7 @@ After presenting the GRC Library pack proposal above, present a **single unified
 > | **addyosmani** (`github.com/addyosmani/agent-skills`) | 24 engineering-workflow skills (Define → Plan → Build → Verify → Review → Ship) in Claude Code Skills `SKILL.md` format; `security-and-hardening` skill (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model), `code-review-and-quality`, `ci-cd-and-automation`, and 21 more. Scope is engineering workflow, not GRC governance. | **MIT** | Use freely; keep addyosmani's attribution notice when you redistribute. |
 > | **Wiz** (`github.com/wiz-sec-public/secure-rules-files`) | Baseline rules organized by language and framework | **CC-BY-NC-ND-4.0** | NonCommercial only. No modifications redistributed. NOT compatible with the GRC library's CC BY-SA 4.0; you would consume Wiz rules standalone in your project, not as part of a CC BY-SA 4.0 derivative you redistribute. |
 >
-> TikiTribe, Kariedo, and Wiz were EXT-01-vetted by the library maintainer on 2026-05-31; addyosmani was EXT-01-vetted on 2026-06-19. No concerns surfaced on any source.
+> TikiTribe, Kariedo, and Wiz were EXT-01-vetted by the library maintainer on 2026-05-31; addyosmani was EXT-01-vetted on 2026-06-19. No blocking concerns surfaced; the vetting log records the adjudicated scaffolding flags on the Wiz generator prompt and a significant Wiz licence caveat (CC-BY-NC-ND) that consumers weigh at the offer step.
 >
 > **Default action: accept all four sources** and place them under `.claude/rules/external/<source-name>/`. By accepting, you confirm you have noted each licence and will comply with its terms in your own use.
 >

@@ -6,6 +6,16 @@ derives_from: ../../governance/trust-recovery-escalation.md
 
 # Deep QA Review (trust-recovery forensic pass)
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Per-run record: `.working/full-qa/YYYY-MM-DD-iterN.md`, plus a history row; the record directory carries a README codifying the step-0 full-clone rule.
+- History-aware gates the full-clone methodology protects: gates 31 (document-date-staleness) and 40 (version-bump-recency), both of which reason over `git log --follow` history and emit false positives on a shallow clone.
+- Audit runner (the mechanical baseline): `tools/run_all_audits.sh`, which must exit 0 on the full clone.
+
+An adopting project maps each bullet to its own per-run record location, history-aware gates, and audit runner; the procedure below refers to them generically.
+
 ## Overview
 
 The per-PR validation sweep (`/validate-pr`) catches what a single merge introduced; the corpus-wide sweep (`/validate`) catches drift across a sweep interval; the fitness review (`/fitness`) catches what fresh human-persona readers would notice. None of these is built for the case where the *process itself* has failed: an AI coding assistant that abbreviated mandatory QA across many PRs, skipped a post-commit audit, armed a wrong-cadence timer, or acted on an inferred premise it never validated. When that happens, the maintainer's trust in the recent run is the thing that needs rebuilding, and a heavier, white-box re-examination is the response.
@@ -26,7 +36,7 @@ The two skills run as a suite (the trust-recovery escalation tier): `/full-qa` f
 
 ### 0. Verify a full (non-shallow) clone BEFORE any git-history-aware step
 
-**Binding methodology rule.** This pass reasons over git history (subagents diff PR windows, run `git log --follow`, and run the audit suite whose gates 31 and 40 are git-history-aware). On a shallow clone, `git log --follow` mis-attributes a file's last-commit date to the shallow boundary commit, which makes the document-date-staleness gate (31) and version-bump-recency gate (40) emit false positives for every file whose real history predates the boundary.
+**Binding methodology rule.** This pass reasons over git history (subagents diff PR windows, run `git log --follow`, and run the audit suite, whose history-aware gates are named in the project wiring). On a shallow clone, `git log --follow` mis-attributes a file's last-commit date to the shallow boundary commit, which makes the history-aware gates emit false positives for every file whose real history predates the boundary.
 
 Before anything else:
 
@@ -36,13 +46,13 @@ git rev-parse --is-shallow-repository    # must print false
 git fetch --unshallow                    # restore full history
 ```
 
-Then confirm the mechanical baseline (`tools/run_all_audits.sh` exit 0) on the full clone. A subagent that reports a mass git-history-gate failure (e.g. "gate 31 fails on N documents") on a shallow clone is reporting an environment artifact, not a corpus defect; the orchestrator MUST validate clone depth before routing any such finding. This rule exists because iteration 1 (2026-06-22) caught exactly this: a subagent reported gate 31 failing on 153 documents; the container was a depth-50 shallow clone; after `git fetch --unshallow` the audit exited 0 and the failure did not reproduce. A less strict pass would have shipped a 153-document false emergency.
+Then confirm the mechanical baseline (the audit runner named in the project wiring, exit 0) on the full clone. A subagent that reports a mass git-history-gate failure (e.g. "a history-aware gate fails on N documents") on a shallow clone is reporting an environment artefact, not a corpus defect; the orchestrator MUST validate clone depth before routing any such finding. This rule exists because the pass's first run in the parent library caught exactly this: a subagent reported a history-aware gate failing on well over one hundred documents; the container was a shallow clone; after `git fetch --unshallow` the audit exited 0 and the failure did not reproduce. A less strict pass would have shipped a mass false emergency.
 
 ### 1. Establish the window and the mechanical baseline
 
 - **Window**: the PR range the maintainer names (or the full span of the run whose discipline is in question), expressed as a commit range. Enumerate it (`git log <base>^..<head> --oneline`); for squash-merge projects each subject carries its `(#N)`.
 - **Referenced files**: every file cited from the window PRs' CHANGELOG-detailed entries is in scope alongside the diffs.
-- **Baseline**: `tools/run_all_audits.sh` exit 0 on the full clone (step 0). If a gate fails for a real reason, fix it first; if it fails as a shallow-clone artifact, unshallow and re-run.
+- **Baseline**: the audit runner exits 0 on the full clone (step 0). If a gate fails for a real reason, fix it first; if it fails as a shallow-clone artefact, unshallow and re-run.
 
 ### 2. Dispatch six subagents
 
@@ -65,7 +75,7 @@ All six are dispatched on every full run. Each receives a self-contained brief c
 
 ### 3. Synthesize and verify at apply-time
 
-The orchestrator dedupes by `(file, section, claim_type)`, tags `R|I|K`, adjudicates severity (pick higher; no averaging), and, critically, **re-reads each cited source location before routing any finding**. Worker false positives (the shallow-clone gate-31 artifact is the canonical example) and over-classifications are caught here, not shipped. Apply-time corrections are logged to the project's worker-hallucination tracking artefact.
+The orchestrator dedupes by `(file, section, claim_type)`, tags `R|I|K`, adjudicates severity (pick higher; no averaging), and, critically, **re-reads each cited source location before routing any finding**. Worker false positives (the shallow-clone history-gate artefact is the canonical example) and over-classifications are caught here, not shipped. Apply-time corrections are logged to the project's worker-hallucination tracking artefact.
 
 ### 4. Route every confirmed finding to the backlog, tiered by severity
 
@@ -73,7 +83,7 @@ In trust-recovery mode, **every confirmed finding routes to the backlog (none si
 
 ### 5. Record
 
-Write a per-run record (project-specific location; in this project `.working/full-qa/YYYY-MM-DD-iterN.md`) with one section per subagent (A-F), an orchestrator-synthesis-and-verification section, a findings-routed section, and a trust-recovery-framing section naming the prior run's discipline failures and the elevated rules applied. Append a history row. The record directory carries a README codifying the step-0 full-clone rule.
+Write a per-run record (the per-run record location named in the project wiring) with one section per subagent (A-F), an orchestrator-synthesis-and-verification section, a findings-routed section, and a trust-recovery-framing section naming the prior run's discipline failures and the elevated rules applied. Append a history row. The record directory carries a README codifying the step-0 full-clone rule.
 
 ### 6. Termination is maintainer sign-off, not empty-delta
 
@@ -97,7 +107,7 @@ The pass is complete on a given run when: clone depth was verified full before a
 | Rationalization | Reality |
 |---|---|
 | "CI is green, so the corpus is fine." | CI on a shallow clone can be green while a subagent on the same clone reports a git-history-gate failure, or vice versa. Verify clone depth; trust the full-clone audit. |
-| "This subagent's finding is obviously real; route it." | The shallow-clone gate-31 artifact looked like 153 real failures. Re-read the source before routing every finding, especially the alarming ones. |
+| "This subagent's finding is obviously real; route it." | The parent library's shallow-clone history-gate artefact looked like well over one hundred real failures. Re-read the source before routing every finding, especially the alarming ones. |
 | "The finding is trivial; I'll skip routing it." | Trust-recovery mode routes everything (tiered by severity, none dropped) for maintainer triage. The orchestrator filters hallucinations and tiers findings by severity, but never drops a finding; tiering to the next-priority tier is routing it, not skipping it. |
 | "Six subagents is overkill; A and F overlap." | The overlap is deliberate (A reads an artefact as state; F audits it as a discipline record). Different lenses on the same surface is coverage, not waste. |
 | "Empty findings, so we're done." | Sign-off terminates the pass. An empty set still needs the maintainer to acknowledge confidence restored. |
@@ -113,4 +123,4 @@ The pass is complete on a given run when: clone depth was verified full before a
 
 ## Why this skill exists
 
-The trust-recovery suite was created after a session whose AI assistant abbreviated `/validate-pr` across eleven consecutive PRs, skipped a post-commit audit that then failed CI twice, and armed a 60-minute timer where the project mandates 60 seconds. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. `deep-qa-review` is the process-layer response: a heavier, white-box re-examination tuned to the classes of failure an AI assistant produces, run as a suite with the persona-based fitness review. Its first run immediately justified the step-0 rule by catching a shallow-clone false positive that would otherwise have shipped as a 153-document emergency. The skill is necessary but not sufficient: the durable backstop is the mechanical QA-cadence gate, queued separately. Documentation adds friction against repeated failure; it does not guarantee compliance. The maintainer's sign-off, not the assistant's say-so, ends the pass.
+The trust-recovery suite was created after a session whose AI assistant abbreviated `/validate-pr` across eleven consecutive PRs, skipped a post-commit audit that then failed CI twice, and armed a 60-minute timer where the project mandates 60 seconds. The mechanical layer had not yet grown a gate to catch the abbreviation; the maintainer's manual catch was the only backstop. `deep-qa-review` is the process-layer response: a heavier, white-box re-examination tuned to the classes of failure an AI assistant produces, run as a suite with the persona-based fitness review. Its first run immediately justified the step-0 rule by catching a shallow-clone false positive that would otherwise have shipped as a mass false emergency spanning well over one hundred documents. The skill is necessary but not sufficient: the durable backstop is the mechanical QA-cadence gate, queued separately. Documentation adds friction against repeated failure; it does not guarantee compliance. The maintainer's sign-off, not the assistant's say-so, ends the pass.

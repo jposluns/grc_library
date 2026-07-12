@@ -6,6 +6,18 @@ derives_from: ../../governance/evidence-grounded-completion.md
 
 # Validation Sweep, PR-Scoped
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Per-PR record path pattern: `.working/validate-pr/YYYY-MM-DD-PR-<N>.md` (one dated record per merged PR, written when findings exist).
+- PR-scoped history register: `.working/validate-pr/history.md` (one row per merged PR, including zero-finding runs and handoff-PR exemption rows; the exemption marker the parity gate recognizes in a row's Findings cell is `SKIPPED` together with `handoff`, or the phrase `handoff-PR exception`, never a bare `n/a`).
+- Sibling corpus-wide register it mirrors: `.working/validate-sweeps/history.md` (the `validation-sweep` skill's register; the PR-scoped register follows its row shape).
+- Bookkeeping-parity gate: gate 50, `tools/lint-bookkeeping-parity.py`, the mechanical QA-cadence gate that reads the history rows and fails when an in-window merged PR lacks its `/validate-pr` plus `/retro` rows (with the handoff-PR exemption built in).
+- Mechanical baseline and pre-flight: the full audit-gate runner `tools/run_all_audits.sh`; the deterministic pre-flight scanner `tools/sweep-preflight-scanner.py` with its exemption file `tools/sweep-preflight-exemptions.json`; the detailed change-log mirror `.working/changelog-details/CHANGELOG-detailed.md` (the surface the chat-surfacing section contrasts with).
+
+An adopting project maps each bullet to its own record paths, registers, gate, runner, and scanner; the procedure below refers to them generically.
+
 ## Overview
 
 PR-scoped validation runs after every merged PR to catch issues the merge introduced before they compound across subsequent PRs. Two sibling skills together cover the validation surface:
@@ -22,9 +34,9 @@ The two are complementary, not redundant. The corpus-wide form catches drift the
 
 **No orchestrator-side skip discretion AND no abbreviation discretion.** The mandatory invocation has no carve-outs for "meta PRs", "housekeeping PRs", "sweep close-outs", "the PR that introduces this skill", or any other class. The orchestrator does NOT have discretion to skip a `/validate-pr` invocation based on a judgement that the PR is "too small to need it", "circular", or "already validated by another mechanism". Equally, the orchestrator does NOT have discretion to substitute an abbreviated check, a spot-check, a memory-only review, an orchestrator-self-check, a "quick scan", or any other informal substitute for the formal Subagent A dispatch the skill encodes. "Abbreviated /validate-pr" is not a sanctioned shape; the only sanctioned shapes are the full formal run and a maintainer-authorized explicit exception recorded in the history-row Summary cell with rationale. Throughput pressure (a long batch of PRs, a tight session window, an apparent need to make progress) does NOT authorize abbreviation; the per-PR validation IS the pace, and "the next PR will catch it" is the failure mode this rule prevents. Every successful merge triggers a formal `/validate-pr`. If the run returns zero findings, the history-row records that zero-findings state, which is itself the proof-of-discipline. Skipping or abbreviating a quality-assurance step is a policy deviation the orchestrator cannot authorize unilaterally; only the project maintainer can grant a documented exception, recorded explicitly in the history-row Summary cell with the rationale.
 
-**The one standing exception: the session-closing handoff PR.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR) so the next session rebuilds state from that branch rather than from an unmerged feature branch. That PR alone skips its own trailing `/validate-pr` (and the paired `/retro`). The reason is loop-termination, not convenience: running `/validate-pr` on the handoff PR would produce a history row (and possibly fixes) that recursion-avoidance batches into a *new* PR, whose own merge would trigger another `/validate-pr`, and so on, with no terminating "next substantive PR" at a session boundary. The compensating control is stronger than the skipped per-PR sweep: the next session's resume routine runs a full corpus-wide `/validate` as its first task, which re-examines the whole corpus rather than only the handoff PR's diff. This is a maintainer-authorized standing rule (not the unilateral skip the paragraph above forbids); it is recorded inline in the history-row Summary cell with this rationale, satisfying the no-skip discipline's documented-exception requirement. A mechanical QA-cadence gate that enforces per-PR records must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
+**The one standing exception: the session-closing handoff PR.** A session ends by landing its working-state on the protected branch as a green, merged PR (the session-closing handoff PR) so the next session rebuilds state from that branch rather than from an unmerged feature branch. That PR alone skips its own trailing `/validate-pr` (and the paired `/retro`). The reason is loop-termination, not convenience: running `/validate-pr` on the handoff PR would produce a history row (and possibly fixes) that recursion-avoidance batches into a *new* PR, whose own merge would trigger another `/validate-pr`, and so on, with no terminating "next substantive PR" at a session boundary. The compensating control is stronger than the skipped per-PR sweep: the next session's resume routine runs a full corpus-wide `/validate` as its first task, which re-examines the whole corpus rather than only the handoff PR's diff. This is a maintainer-authorized standing rule (not the unilateral skip the paragraph above forbids); it is recorded in the history row's Findings cell with the recognized marker and its rationale. A mechanical QA-cadence gate that enforces per-PR records must build in this handoff-PR exemption so it does not fail on the legitimately-absent row.
 
-`/validate-pr` does NOT run before merge (CI is the pre-merge gate). It runs AFTER merge to catch post-merge state issues , exactly the class of issue that cannot be caught by CI on the feature branch alone.
+`/validate-pr` does NOT run before merge (CI is the pre-merge gate). It runs AFTER merge to catch post-merge state issues, exactly the class of issue that cannot be caught by CI on the feature branch alone.
 
 ## Process
 
@@ -41,7 +53,7 @@ Capture the merge state:
 
 ### 2. Establish mechanical baseline (post-merge state)
 
-Run `tools/run_all_audits.sh` standalone against the post-merge state. CI ran this on the feature branch; this confirms the post-merge state on main is also clean. Mechanical failures here are rare (they would have failed CI), but post-merge state can differ from feature-branch state due to merge-base drift.
+Run the project's full audit-gate runner (named in the project wiring above) standalone against the post-merge state. CI ran this on the feature branch; this confirms the post-merge state on main is also clean. Mechanical failures here are rare (they would have failed CI), but post-merge state can differ from feature-branch state due to merge-base drift.
 
 If any gate fails, fix the underlying defect first (open a hot-fix PR), then return to step 1 against the corrected state.
 
@@ -52,7 +64,7 @@ Subagent A receives:
 - The PR diff (full text).
 - The list of touched files.
 - The full state of each touched file post-merge.
-- A pre-flight scanner output filtered to the touched files (run `python3 tools/sweep-preflight-scanner.py` and filter the output to the touched file set; if no scanner output relevant to touched files, proceed unhinted).
+- A pre-flight scanner output filtered to the touched files (run the project's deterministic pre-flight scanner and filter the output to the touched file set; if no scanner output relevant to touched files, proceed unhinted).
 
 Subagent A looks for the same eight failure-mode classes from the corpus-wide `validation-sweep` SKILL, scoped to the touched files:
 
@@ -97,8 +109,8 @@ Triage findings:
 
 Record:
 
-- A per-PR validation record at `.working/validate-pr/<YYYY-MM-DD>-PR-<N>.md` with the findings and triage. Six top-level H2 sections: Trigger and state snapshot, Subagent A return, Cross-reference check, Orchestrator triage, Resulting hot-fix PR (if any), Notes.
-- An entry in `.working/validate-pr/history.md` (similar to validate-sweeps/history.md but PR-scoped, one row per merged PR).
+- A per-PR validation record at the project's dated per-PR record path (the parent library's pattern is named in the project wiring above) with the findings and triage. Six top-level H2 sections: Trigger and state snapshot, Subagent A return, Cross-reference check, Orchestrator triage, Resulting hot-fix PR (if any), Notes.
+- An entry in the PR-scoped history register (the PR-scoped mirror of the corpus-wide sweep's register; both are named in the project wiring above; one row per merged PR).
 
 Zero-finding PR-scoped sweeps still get a history row (one line); only the per-PR record file is conditional on findings.
 
@@ -108,7 +120,7 @@ The `/retro` skill (post-merge retrospective) consumes `/validate-pr`'s findings
 
 ## Pre-flight scanner
 
-Run `python3 tools/sweep-preflight-scanner.py` and filter the output to the touched-files set. Hand the filtered output to Subagent A as a known-candidate list. The scanner applies in-scanner heuristics and an exemption file at `tools/sweep-preflight-exemptions.json`.
+Run the project's deterministic pre-flight scanner (named in the project wiring above) and filter the output to the touched-files set. Hand the filtered output to Subagent A as a known-candidate list. The scanner applies in-scanner heuristics and a project-maintained exemption file.
 
 If no scanner output is relevant to the touched files, the subagent proceeds unhinted.
 
@@ -118,11 +130,11 @@ Same SARIF-lite block format as `validation-sweep`. Reuse the failure-mode catal
 
 ## Surfacing findings in chat
 
-**When findings exist, surface them prominently in the chat reply, not only in the per-PR record file.** The chat surface is for maintainer awareness and triage; the per-PR record file is the authoritative archive. A maintainer should not need to open `.working/validate-pr/<date>-PR-<N>.md` or scroll through `CHANGELOG-detailed.md` to see what the sweep found.
+**When findings exist, surface them prominently in the chat reply, not only in the per-PR record file.** The chat surface is for maintainer awareness and triage; the per-PR record file is the authoritative archive. A maintainer should not need to open the dated per-PR record file or scroll through the detailed change-log mirror to see what the sweep found.
 
 Chat-surface shape: a per-finding line (or short block) carrying the ruleId, the severity / level, the `path:line` location, a one-line evidence quote, a one-line impact, a one-line recommendation, and the in-window / out-of-window classification. Group by severity tier if multiple findings landed. Zero-finding sweeps still need a one-line chat acknowledgement that the sweep ran clean.
 
-The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in `.working/` files is not surfaced to the maintainer's attention.
+The chat surface is non-negotiable when the sweep produces findings: a finding that lives only in working-state record files is not surfaced to the maintainer's attention.
 
 ## Termination
 
@@ -136,7 +148,7 @@ The no-skip-discretion discipline says every merge gets a `/validate-pr` invocat
 
 **Resolution**: `/validate-pr` outputs are **batched into the next PR, whatever its substantive purpose**. Two sub-cases:
 
-1. **Zero-finding invocations**: the history row alone is deferred. Append it to `.working/validate-pr/history.md` as part of the next PR's diff, alongside the next PR's other changes. The /validate-pr invocation itself still runs immediately after the merge it follows; only the row commit waits.
+1. **Zero-finding invocations**: the history row alone is deferred. Append it to the PR-scoped history register as part of the next PR's diff, alongside the next PR's other changes. The /validate-pr invocation itself still runs immediately after the merge it follows; only the row commit waits.
 
 2. **Findings-producing invocations**: the fix(es) for the surfaced findings are bundled into the next PR. Do NOT open a dedicated hot-fix PR for /validate-pr findings; the next PR (whatever its purpose) absorbs the fixes alongside its own work. This keeps the PR-per-finding cascade from compounding. The findings still get a history row immediately (same as zero-finding); the row records "fixed in PR #N+M" once the next PR ships the fix.
 
@@ -146,11 +158,11 @@ The batching's audit trail is intact: the history row records the originating PR
 
 ## Red Flags
 
-- `/validate-pr` skipped because "no findings expected" , every merge generates new state worth checking; the per-PR record is the proof-of-check.
+- `/validate-pr` skipped because "no findings expected", every merge generates new state worth checking; the per-PR record is the proof-of-check.
 - Findings surfaced but not triaged.
-- Per-PR record file omitted because "no findings" , the history row substitutes; both record absence-of-finding so future readers know the check ran.
+- Per-PR record file omitted because "no findings", the history row substitutes; both record absence-of-finding so future readers know the check ran.
 - Hot-fix PR opened without its own `/validate-pr` run after merging.
-- Cross-reference check skipped because "Subagent A already covered it" , Subagent A reviews the touched files; the cross-reference check reviews the FILES THAT CITE the touched files. Different scope; both required.
+- Cross-reference check skipped because "Subagent A already covered it", Subagent A reviews the touched files; the cross-reference check reviews the FILES THAT CITE the touched files. Different scope; both required.
 
 ## Verification
 
@@ -179,7 +191,7 @@ The PR-scoped sweep is complete when:
 - Related skill [`pr-retrospective`](../pr-retrospective/SKILL.md) (slash command `/retro`): consumes `/validate-pr` findings as input for the post-merge retrospective and improvement-log register.
 - Canonical rule [`evidence-grounded-completion`](../../governance/evidence-grounded-completion.md): the assertion-side discipline this skill operationalizes.
 - Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the workflow disciplines this skill supports; PR-scoped validation is the "every merge" discipline that complements the "every 10 merges" full sweep.
-- Pre-flight scanner [`tools/sweep-preflight-scanner.py`](../../../../tools/sweep-preflight-scanner.py): the deterministic pre-flight check shared with the corpus-wide skill.
+- Pre-flight scanner: the deterministic pre-flight check shared with the corpus-wide skill (the parent library's concrete scanner is named in the project wiring above).
 
 ## Why this skill exists
 

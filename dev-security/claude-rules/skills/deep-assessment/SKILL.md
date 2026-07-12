@@ -6,6 +6,33 @@ derives_from: ../../governance/trust-recovery-escalation.md
 
 # Deep Assessment (whole-project peace-of-mind review)
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Phase-state register: `.working/deep-assessment/register.md` (durable, non-dated,
+  in-repo; carries run and phase state across session boundaries).
+- Per-run record pattern: `.working/deep-assessment/YYYY-MM-DD-rN.md` (the dated-file
+  convention the fitness-review records use).
+- Gate-efficacy tools (phase 4's deterministic halves): `tools/audit-gate-blindspots.py`
+  and `tools/audit-gate-mutation.py` with its variant library
+  `tools/gate-mutation-variants.json`.
+- Phase-3 advisory aids: `tools/verify-reference-modules.py`,
+  `tools/audit-brief-freshness.py`, `tools/residual-scan.py`, and `tools/tension-scan.py`
+  (the last two run over the QA ledgers).
+- Sibling-repo set: the corpus repo (`grc_library`), the reference base
+  (`grc_library_ref`, the held source texts and indexes phase 5 judges against), and the
+  worker exchange (`grc_library_scratch`, the delivery pipeline phase 6 reviews); each
+  sibling carries its own validation gate (`tools/validate.py`).
+- Phase-1 inventory sources: the audit runner `tools/run_all_audits.sh`, the PR-time
+  delta runner `tools/run-pr-time-checks.sh`, the `.claude/commands/` directory plus the
+  pack skills directory, the advisory tools under `tools/`, and the audit-programme
+  specification's gate inventory section.
+
+An adopting project maps each bullet to its own register, record convention,
+gate-efficacy probes, advisory aids, sibling repositories, and inventory sources; the
+procedure below refers to them generically.
+
 ## Overview
 
 The routine cadence examines changes (per-PR sweeps), recent drift (corpus sweeps), and
@@ -30,8 +57,8 @@ work).
 Two design rules keep a rarely-run procedure from rotting. First, the skill is
 COUNT-FREE and INVENTORY-DERIVING: no step names a gate count, skill count, or file
 list; step 1 re-derives the live instrument inventory from the repo at run time
-(`tools/run_all_audits.sh`, `.claude/commands/`, the audit-programme specification's
-gate inventory). The live inventory of quality machinery IS the scope by construction:
+(from the runner scripts, command directory, and specification gate inventory named in
+the project wiring). The live inventory of quality machinery IS the scope by construction:
 every gate, skill, command, advisory tool, and check the repo holds is in scope, and any
 quality-check process or instrument added in future is included automatically, with no
 edit to this skill. The obligation runs the other way too: adding a quality-check
@@ -41,10 +68,10 @@ set, and a new advisory tool joins the phase-3 aids. The phase-3 instrument set 
 therefore a named enumeration this obligation keeps synced with the live inventory,
 not an auto-derived list: "inventory-deriving" describes the SCOPE re-derivation of
 step 1 (nothing falls out of scope silently), while a newly-shipped instrument is
-added to the phase-3 invocations by this duty, as `/screen-publications` (from the
-#722 publications-screening cadence) is here. Second, phase state lives in a
-durable register (`.working/deep-assessment/register.md`), so the pass survives session
-boundaries and a bare re-invocation resumes rather than restarts.
+added to the phase-3 invocations by this duty, as `/screen-publications` was when its
+cadence shipped. Second, phase state lives in a durable register (the phase-state
+register named in the project wiring), so the pass survives session boundaries and a
+bare re-invocation resumes rather than restarts.
 
 ## When to Use
 
@@ -61,27 +88,26 @@ boundaries and a bare re-invocation resumes rather than restarts.
 
 ### 1. Establish run state, environment integrity, and the live inventory
 
-Read `.working/deep-assessment/register.md`. If a run is `in-progress`, resume at its
-next incomplete phase; otherwise open a new run row and a per-run record file
-(`.working/deep-assessment/<YYYY-MM-DD-rN>.md`, the dated-file convention the
-fitness-review records use; the non-dated `register.md` stays in-repo by design).
-Environment preconditions, each verified
+Read the phase-state register named in the project wiring. If a run is `in-progress`,
+resume at its next incomplete phase; otherwise open a new run row and a per-run record
+file (the dated per-run record pattern named in the project wiring; the non-dated
+register stays in-repo by design). Environment preconditions, each verified
 mechanically, never assumed: a full clone (`git rev-parse --is-shallow-repository` must
-print `false`; unshallow first otherwise, per the full-clone methodology rule), all
-three repos present (`grc_library`, `grc_library_ref`, `grc_library_scratch`), and the
-session-concurrency interlock satisfied. Derive the live instrument inventory from the
-repo, not from this skill's text: the gate list from `tools/run_all_audits.sh`, the
-PR-time checks from `tools/run-pr-time-checks.sh`, the skill and command set from
-`.claude/commands/` and the pack skills directory, the advisory tools from `tools/`,
-and the specification's gate inventory section. Record the inventory and the HEAD SHA
-in the run record.
+print `false`; unshallow first otherwise, per the full-clone methodology rule), the
+corpus repo, the reference base, and the worker exchange (as named in the project
+wiring) all present, and the session-concurrency interlock satisfied. Derive the live
+instrument inventory from the repo, not from this skill's text: the gate list from the
+audit runner, the PR-time checks from the delta runner, the skill and command set from
+the command directory and the pack skills directory, the advisory tools from the tools
+directory, and the specification's gate inventory section (each named in the project
+wiring). Record the inventory and the HEAD SHA in the run record.
 
 ### 2. Confirm the mechanical baseline
 
-Run, standalone and unpiped: `tools/run_all_audits.sh`, `tools/run-pr-time-checks.sh`,
-the linter regression suite, both generator `--check` invocations, and each sibling
-repo's `tools/validate.py`. All must exit 0 before any semantic phase; a failure here
-is itself a finding and is fixed or routed before proceeding. Record the green-at-SHA
+Run, standalone and unpiped: the audit runner and the PR-time delta runner (named in
+the project wiring), the linter regression suite, every generator `--check` invocation,
+and each sibling repo's own validation gate. All must exit 0 before any semantic phase;
+a failure here is itself a finding and is fixed or routed before proceeding. Record the green-at-SHA
 baseline in the register and cross-check it against the session handoff's asserted
 expectations.
 
@@ -91,8 +117,8 @@ Invoke, in their full sanctioned shapes with their own records and history rows:
 sweep pre-flight scanner then a corpus-wide `/validate`; `/full-qa` over the whole
 corpus; `/fitness`; `/matrix-fit` over the whole matrix; `/claim-fit` over Tier A with
 a Tier-B sample; `/reference-audit` in FULL mode over the whole corpus and the in-scope reference base; `/screen-publications` over the reference base's `pending` publications rows; and `/guardrails`. Run the advisory aids whose outputs feed later
-phases (`verify-reference-modules.py`, `audit-brief-freshness.py`, `residual-scan.py`
-and `tension-scan.py` over the ledgers). Each instrument's findings enter this run's
+phases (the phase-3 advisory aids named in the project wiring, including the ledger
+scanners). Each instrument's findings enter this run's
 routing (step 7) in addition to the instrument's own record; no abbreviation of any
 invoked instrument is sanctioned. Where the harness supports per-dispatch model
 selection, run the orchestration and finding-adjudication work on the strongest available
@@ -103,12 +129,13 @@ model, so set the session model deliberately at phase boundaries.
 ### 4. Audit the audit programme itself
 
 The phase the routine cadence never runs. Four sub-passes, each recorded: (a)
-**blind-spot map**: run `tools/audit-gate-blindspots.py` to compute, from every
+**blind-spot map**: run the blind-spot mapping tool named in the project wiring to
+compute, from every
 linter's own exemption configuration, which repo surfaces are scanned by which gates
 and which are scanned by none; every fully-unscanned surface gets a manual review
 noted in the run record. (b) **mutation probe**: in a DISPOSABLE copy of the repo
-outside the working tree, seed defect variants per gate class with
-`tools/audit-gate-mutation.py` and confirm each gate detects its class at pattern
+outside the working tree, seed defect variants per gate class with the mutation-probe
+tool named in the project wiring and confirm each gate detects its class at pattern
 widths beyond the regression fixtures (position, separator, encoding, and phrasing
 variants); undetected variants are findings against the gate. The working repos are
 never mutated. (c) **dead-gate and coverage analysis**: from full history, which gates
@@ -133,8 +160,7 @@ each accepted-unverified item gets a durable tracker.
 
 Three sub-passes: (a) **fresh-adopter simulation**: from a bare clone with no project
 context, follow the README, portal, and scorecard to select and tailor one document;
-score discoverability, tailoring friction, toolchain portability (the stdlib-only
-claim, Python version envelope), and the documented adopter options. (b) **pipeline
+score discoverability, tailoring friction, toolchain portability (the project's stated toolchain claims; for the parent library, its stdlib-only tooling and Python version envelope), and the documented adopter options. (b) **pipeline
 integrity**: review the CI workflow's hardening (permissions scoping, action pinning)
 against the project's own pack and overlay rules, verify branch protection is enforced
 via the platform API rather than assumed, run a full-history secret and PII scan, and
@@ -187,7 +213,8 @@ next `/resume` surfaces it like the other standing registers.
 A run is complete on a given invocation when:
 
 - The register shows every phase `complete` (or `deferred` with a maintainer-visible
-  reason), each with a dated record file in `.working/deep-assessment/`.
+  reason), each with a dated record file at the per-run record location named in the
+  project wiring.
 - The environment preconditions were mechanically verified and the green-at-SHA
   baseline recorded before any semantic phase ran.
 - Every phase-3 instrument has its own formal record and history row in addition to
@@ -226,8 +253,6 @@ A run is complete on a given invocation when:
   [`publication-screening`](../publication-screening/SKILL.md),
   [`guardrail-review`](../guardrail-review/SKILL.md). This skill composes them by
   invocation and deliberately does not restate their procedures, so they cannot drift.
-- The advisory tools [`tools/audit-gate-blindspots.py`](../../../../tools/audit-gate-blindspots.py)
-  and [`tools/audit-gate-mutation.py`](../../../../tools/audit-gate-mutation.py) with its
-  variant library [`tools/gate-mutation-variants.json`](../../../../tools/gate-mutation-variants.json)
-  (phase 4's deterministic halves; not gates; always exit 0 on completion of their
-  report, 2 only on a safety refusal or internal error).
+- The gate-efficacy tools named in the project wiring (phase 4's deterministic halves;
+  not gates; always exit 0 on completion of their report, 2 only on a safety refusal or
+  internal error).

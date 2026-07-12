@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.330, PR #842
+
+Pack adoption-hygiene Phase 2, applied as one PR from the worker's combined bookkeeping-free patch (former 0002+0003 squashed, excluding the root changelog, its detailed mirror, and the root README, which the orchestrator authors). sha256 prefix `ea49e037`; `git apply --check` clean against `main` at `182fb80` (#841); applied tree byte-identical to the worker's tested state minus the three excluded files.
+
+### Added
+
+- [`dev-security/claude-rules/rule-provenance.md`](../../dev-security/claude-rules/rule-provenance.md): a per-rule provenance register (13 rule entries plus skill-origin notes), the adopter-facing record of the maintenance events the rules were distilled from (rewritten to record-supported form after the delivery's assessment refuted six entries' incident framing; the Purpose states the honest incident-earned-vs-up-front-codification taxonomy and each entry marks which it is).
+- [`dev-security/claude-rules/skills/validate-inference/SKILL.md`](../../dev-security/claude-rules/skills/validate-inference/SKILL.md) and [`dev-security/claude-rules/skills/surface-instruction-concern/SKILL.md`](../../dev-security/claude-rules/skills/surface-instruction-concern/SKILL.md): the two derived skills closing the coverage gap (wrapping `validate-inference-before-action` and `surface-counterproductive-instructions`). Portable; unpaired (no slash-command siblings; pairing is a protected-surface decision deferred).
+- [`.working/pack-hygiene-fragments/`](../pack-hygiene-fragments/): the removed skill-lineage passages (one `skill-` file per skill) plus the two README archives, RETAINED here as the archive (the maintainer-choice option in that dir's README; NOT appended to the removal ledger, to avoid bloating it with 14 lineage fragments).
+
+### Changed
+
+- 14 SKILL.md files under [`dev-security/claude-rules/skills/`](../../dev-security/claude-rules/skills/): a `## Project wiring` section inserted after each H1 carrying the parent library's concrete paths/tools/registers/gate numbers; bodies genericized (no PR numbers, sweep/backlog ids, narrative dates, `.working/` paths, project gate numbers, or repo names outside the wiring section); step structure, verdict vocabularies, and pack-internal cross-references unchanged.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): positioning retargeted at the provenance register (the per-rule-CHANGELOG-citation claim retired); the provenance register added to the tree; the version-history summary cells thinned of parent-project attribution (original archived in [`readme-version-history-original.md`](../pack-hygiene-fragments/readme-version-history-original.md)); pack `1.59.12` to `1.61.0` with the two staged history rows merged into one at this single-PR apply.
+- [`dev-security/claude-rules/guidance-claude-md-optimization.md`](../../dev-security/claude-rules/guidance-claude-md-optimization.md): its two concrete working-records paths generalized; the worked example retained.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): the gate-37 detailed narrative extended for the PROJECT-OVERLAY strip and its two failure modes (closes the §6 narrative #839 deferred to this delivery); Version and Date bumped.
+- [`docs/adopter-guide.md`](../../docs/adopter-guide.md): the retired per-rule-CHANGELOG-citation claim retargeted at the provenance register; Version and Date bumped.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/portal.md`](../../docs/portal.md) / [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) for the version bumps.
+
+### Verification
+
+- Skill count 21 to 23; gate 39 / gate 41 skill-count consistency re-confirmed post-apply; all 69 gates pass. `/guardrails` run per the Phase-2 obligation (the +2 skills tipped the gate-60 cadence to threshold); its history row recorded, resetting the cadence.
+- The stale-scratch-checkout apply failure of the earlier attempt was root-caused (an out-of-date scratch checkout served the pre-#158 patch set); re-synced scratch to `main` `5346560` (#161), confirmed the combined patch's sha256, and applied cleanly. A refute-briefed skeptical verifier reviewed the applied change against 8 refutation targets (version consistency, the merged history row, CHANGELOG link/dash hygiene, skill-body leaks, the two new skills' well-formedness, count claims, the #841 QA rows, guardrail-record fidelity): 7 survived; it caught one Medium bookkeeping contradiction (the working-space activities-index row for the fragments dir carried the staging-time default "appended to the removal ledger" against the shipped "NOT appended, retained as the archive" decision), fixed in-window before push.
+- **Worker provenance:** [`inbox/claude-pack-hygiene/phase2-payloads/phase2-combined-bookkeeping-free.patch`](../../../grc_library_scratch/inbox/claude-pack-hygiene/phase2-payloads/phase2-combined-bookkeeping-free.patch) (the combined, bookkeeping-free re-delivery; the worker verified `git apply --check` clean in a fresh clone; the orchestrator re-verified the hash, applied, authored the excluded bookkeeping, and ran `/guardrails`).
+
+Pack `1.59.12` to `1.61.0`; library `2026.07.329` to `2026.07.330`.
+
 ## 2026-07-12, Library Version 2026.07.329, PR #841
 
 Public-facing polish: one adopter-facing clarity edit plus TODO housekeeping for two already-resolved items.

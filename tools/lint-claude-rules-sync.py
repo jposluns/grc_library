@@ -30,9 +30,9 @@ Three intentional, by-design differences are stripped before comparison
      The overlay carries this project's wiring and lineage (the
      project-specific content the distributable pack deliberately does
      not carry); it is local-only and never synced. Two failure modes
-     guard the mechanism: the marker appearing anywhere in a PACK
+     guard the mechanism: the marker appearing anywhere in a MAPPED pack
      source fails the audit (the overlay must never leak into the
-     distributable), and the marker appearing more than once in a
+     distributable; only sources in the mirror map are scanned), and the marker appearing more than once in a
      local copy fails it (one trailing block only).
 
 After stripping those, the remaining body must be identical (trailing

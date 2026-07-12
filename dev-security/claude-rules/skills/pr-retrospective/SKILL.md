@@ -6,13 +6,26 @@ derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 
 # PR Retrospective
 
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Improvement-log register: `.working/improvement-log.md` (the append-only per-PR retrospective register this skill writes; one row per merged PR).
+- Worker-hallucination metrics register: `.working/hallucination-metrics.md` (the apply-time worker-correction log consumed as retrospective input).
+- Worker-brief template: `.working/worker-brief-template.md` (the worker-side guard-rail carrier that pattern findings may extend).
+- Sibling per-PR validation-sweep history register: `.working/validate-pr/history.md` (whose reverse-chronological row convention the improvement-log register mirrors).
+
+- The parent register's concrete table header keeps its original columns (`Date | PR | FR closed | ...`); the generic output format below names that column `Backlog item closed`, and the parent's paired slash-command stub carries the concrete form.
+
+An adopting project maps each bullet to its own records; the procedure below refers to them generically.
+
 ## Overview
 
 After each successful merge and `/validate-pr` cycle, conduct a brief retrospective on the PR's process. The retrospective is **light-touch** (one entry per PR, 3-5 sentences) rather than a deep analysis; the value emerges over time as patterns surface across many entries.
 
-The output is the **improvement-log register** at `.working/improvement-log.md` (this project's path; adopters relocate to a project-appropriate location). The register is append-only at the row level, ordered by PR number; the step-6 disposition scan appends tokens to earlier rows' Proposed-improvement cells without rewriting their original text. Each row carries the date, PR number, FR closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
+The output is the **improvement-log register** (the project wiring above names the parent library's location; adopters relocate to a project-appropriate location). The register is append-only at the row level, ordered by PR number; the step-6 disposition scan appends tokens to earlier rows' Proposed-improvement cells without rewriting their original text. Each row carries the date, PR number, backlog item closed (if any), what-went-well note, friction note, pattern-surfaced note (if any), and proposed improvement (if any).
 
-The skill is **the orchestrator-side process-improvement loop**. It pairs with the worker-side `worker-brief-template.md` (per [`governance/ai-assistant-workflow-disciplines.md`](../../governance/ai-assistant-workflow-disciplines.md) §1 hallucination-assessment update protocol) and the apply-time-catch tracking in [`hallucination-metrics.md`](../../../../.working/hallucination-metrics.md). Together the three close the per-PR learning loop:
+The skill is **the orchestrator-side process-improvement loop**. It pairs with the worker-side worker-brief template (per [`governance/ai-assistant-workflow-disciplines.md`](../../governance/ai-assistant-workflow-disciplines.md) §1 hallucination-assessment update protocol) and the apply-time-catch tracking in the worker-hallucination metrics register (both named in the project wiring above). Together the three close the per-PR learning loop:
 
 - Worker-brief template catches recurring worker-side failure modes before they reach the orchestrator.
 - Apply-time catches log orchestrator-side verifications of worker output.
@@ -32,9 +45,9 @@ The retrospective runs in six short steps.
 ### 1. Identify the PR and its inputs
 
 Capture:
-- PR number, merge commit SHA, FR(s) closed (if any).
+- PR number, merge commit SHA, backlog item(s) closed (if any).
 - The `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations).
-- Any apply-time worker corrections logged in [`hallucination-metrics.md`](../../../../.working/hallucination-metrics.md) during the PR.
+- Any apply-time worker corrections logged in the worker-hallucination metrics register during the PR.
 - Recently-shipped PRs in the same cluster (for pattern surfacing).
 
 ### 2. Identify what went well
@@ -52,7 +65,7 @@ If there is genuinely nothing notable, record "Routine; no notable highlight." T
 One short observation. Examples:
 - "Standards-currency gate flagged the template's illustrative `Rev. 4 → Rev. 5` example as superseded; reworded to generic framing."
 - "In-flight self-correction prose escaped into the CHANGELOG entry; caught by /validate-pr."
-- "FR-114 double-counted across the maintainer-decided and active-verified buckets."
+- "A backlog finding double-counted across two triage buckets."
 - "Linter gap: Python `ipaddress.is_private` doesn't include CGNAT on Python < 3.13; PR required explicit allowlist update."
 
 If there was genuinely no friction, record "No friction observed." That's also a fine entry.
@@ -60,17 +73,17 @@ If there was genuinely no friction, record "No friction observed." That's also a
 ### 4. Surface patterns (if any)
 
 If the friction in this PR matches a friction seen in a recent PR (≤ 5 PRs prior), record the pattern. Examples:
-- "Third consecutive findings-producing /validate-pr (#187 → 2; #188 → 2; #189 → 2). Pattern: meta-PRs that touch fitness-review and validation artefacts introduce subtle multi-surface drift."
-- "Recurring acronym-expansion gap in adopter-facing surfaces (PR #172 README; PR #179 README; PR #196 README). Pattern: each new README polish needs first-occurrence expansion checked against the existing convention."
+- "Third consecutive findings-producing /validate-pr (#N → 2; #N+1 → 2; #N+2 → 2). Pattern: meta-PRs that touch fitness-review and validation artefacts introduce subtle multi-surface drift."
+- "Recurring acronym-expansion gap in adopter-facing surfaces (PR #N README; PR #M README; PR #P README). Pattern: each new README polish needs first-occurrence expansion checked against the existing convention."
 
 Patterns drive proposed improvements (step 5). A single occurrence is observation; a second occurrence is signal; a third is pattern. When a pattern's recurrence count (across the improvement-log Pattern column) reaches three or more distinct PRs, it AUTO-GRADUATES to a gate-or-convention proposal in step 5: name the mechanical check that would extinguish it (a false-positive-free gate where one exists, else a convention line), because checklist prose demonstrably reduces but does not stop a thrice-recurring class.
 
 ### 5. Propose improvement (if any)
 
 If a pattern surfaced, name a concrete improvement. Examples:
-- "Add a regression-test fixture exercising CGNAT detection to `tools/lint-pii-in-content.py`."
+- "Add a regression-test fixture exercising CGNAT detection to the PII-in-content linter."
 - "Add an acronym-expansion-discipline note to the worker-brief template's DO list."
-- "Codify the no-skip-discretion discipline in the validation-sweep-pr-scoped SKILL." (this was the PR #187 retrospective outcome, retroactively.)
+- "Codify the no-skip-discretion discipline in the validation-sweep-pr-scoped SKILL." (an actual early retrospective outcome in the parent library, recorded retroactively.)
 - "Promote the 'genericize counts in prose where the directory is the canonical authority' principle into a pack-rule."
 
 The improvement is a **candidate** for a future PR, not work shipped in this entry. The register tracks the candidate; the next planning cycle picks it up if priority warrants.
@@ -87,15 +100,15 @@ Proposed improvements accumulate un-codified and their classes recur unless each
 
 ## Output format
 
-Append a row to [`.working/improvement-log.md`](../../../../.working/improvement-log.md):
+Append a row to the improvement-log register (named in the project wiring above):
 
 ```
-| Date | PR | FR closed | What went well | Friction | Pattern (if any) | Proposed improvement |
+| Date | PR | Backlog item closed | What went well | Friction | Pattern (if any) | Proposed improvement |
 |---|---|---|---|---|---|---|
-| YYYY-MM-DD | #N | FR-X (if any) | [1-2 sentences] | [1-2 sentences] | [1 sentence, blank if none] | [1 sentence, blank if none] |
+| YYYY-MM-DD | #N | item id (if any) | [1-2 sentences] | [1-2 sentences] | [1 sentence, blank if none] | [1 sentence, blank if none] |
 ```
 
-New rows on top (reverse-chronological, matching the validate-pr/history.md convention).
+New rows on top (reverse-chronological, matching the per-PR validation-sweep history register's convention).
 
 The register's preamble describes the column semantics and links to this SKILL.
 
@@ -131,7 +144,7 @@ The retrospective is complete when:
 
 - One entry appended to the improvement-log register for the just-merged PR.
 - Pattern and Proposed-improvement entries (if any) surfaced in chat.
-- Register entry includes the date, PR number, FR closed (if any), and the short observation cells; any disposition tokens from the step-6 scan are appended to the originating rows.
+- Register entry includes the date, PR number, backlog item closed (if any), and the short observation cells; any disposition tokens from the step-6 scan are appended to the originating rows.
 
 ## Common Rationalizations
 
@@ -146,6 +159,6 @@ The retrospective is complete when:
 
 - Sibling skill [`validation-sweep-pr-scoped`](../validation-sweep-pr-scoped/SKILL.md) (slash command `/validate-pr`): consumed-by `/retro` as input.
 - Sibling skill [`validation-sweep`](../validation-sweep/SKILL.md) (slash command `/validate`): the broader corpus-wide validation cycle.
-- Worker-brief template at `.working/worker-brief-template.md` (project-local): codifies worker-side guard rails that `/retro` patterns may surface as additions.
-- [`hallucination-metrics.md`](../../../../.working/hallucination-metrics.md) (project-local): tracks apply-time worker corrections that `/retro` may surface as pattern candidates.
+- Worker-brief template (project-local; named in the project wiring above): codifies worker-side guard rails that `/retro` patterns may surface as additions.
+- Worker-hallucination metrics register (project-local; named in the project wiring above): tracks apply-time worker corrections that `/retro` may surface as pattern candidates.
 - Canonical rule [`ai-assistant-workflow-disciplines`](../../governance/ai-assistant-workflow-disciplines.md): the five disciplines this skill operationalizes (specifically: the research-assistant discipline's hallucination-assessment update protocol).

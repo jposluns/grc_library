@@ -1,10 +1,38 @@
 ---
 name: reference-audit
-description: Cadenced reference-breadth audit between the corpus and the held reference base, in both directions. Catches the gate-blind SP 800-154 class, "held but unused": an authoritative source sits in the reference base while corpus documents that its content would materially improve never engage it, and, in the reverse direction, a corpus document is touched while newly ingested or updated reference material that bears on it goes unnoticed. Run it exhaustively (the FULL mode, a deep-assessment member and a standing cadence), per touched corpus document (the per-touch mode, delta-filtered against a per-document state file), and per reference ingest (the new-ingest mode). It dispatches a semantic judge over the recall-oriented worklist that `tools/audit-reference-breadth.py` produces, adjudicating each candidate pairing against the held source text and the corpus document, then routes confirmed improvements under the normal triage. It catches what the citation gates structurally cannot: breadth needs a judgement about what a document SHOULD engage, not a check of what it already cites.
+description: Cadenced reference-breadth audit between the corpus and the held reference base, in both directions. Catches the gate-blind "held but unused" class: an authoritative source sits in the reference base while corpus documents that its content would materially improve never engage it, and, in the reverse direction, a corpus document is touched while newly ingested or updated reference material that bears on it goes unnoticed. Run it exhaustively (the FULL mode, a deep-assessment member and a standing cadence), per touched corpus document (the per-touch mode, delta-filtered against a per-document state file), and per reference ingest (the new-ingest mode). It dispatches a semantic judge over the worklist the project's recall-oriented triage tool produces, adjudicating each candidate pairing against the held source text and the corpus document, then routes confirmed improvements under the normal triage. It catches what the citation gates structurally cannot: breadth needs a judgement about what a document SHOULD engage, not a check of what it already cites.
 derives_from: ../../governance/evidence-grounded-completion.md
 ---
 
 # Reference Audit (reference-breadth audit of corpus against the held reference base)
+
+## Project wiring (the parent library's instantiation; adopters substitute their own)
+
+Portable procedure, concrete names. In the parent GRC library this skill runs with:
+
+- Worklist tool (the recall-oriented triage half): `tools/audit-reference-breadth.py`
+  (advisory, always exits 0, explicitly not a gate; every mode passes `--ref-base
+  <path-to-the-reference-base-checkout>`; bare beyond that for FULL mode, `--docs <path>
+  [<path> ...]` for per-touch with `--update-state` for the state refresh, `--ref-since
+  <sha>` / `--ref-items <substring>` for new-ingest, `--include-publications` only under
+  an explicit screening decision), with its curated alias map
+  `tools/reference-breadth-aliases.json`.
+- Complementary acquisition-gap tool (the cited-but-not-held direction):
+  `tools/audit-reference-acquisition-gaps.py` (also advisory, never a gate, always
+  exits 0).
+- Per-document state file (the per-touch delta anchor):
+  `.working/reference-audit/doc-state.md`.
+- Run-record directory: `.working/reference-audit/` (dated per-run detail files plus the
+  non-dated `history.md`; completed records are swept to the worker-exchange scratch
+  archive under the parent's current-week retention model).
+- Reference base: the sibling private `grc_library_ref` repository, located via its
+  indexes (`INDEX.md`, `catalogue.yml`, `SECTION-INDEX.md`, `COVERAGE-MAP.md`).
+- Trust-tier assignments: the standards, frameworks, legislation, and programs buckets
+  are authoritative; the templates bucket is template-tier; the books bucket is
+  recommendation-tier; the publications bucket is excluded pending screening.
+
+An adopting project maps each bullet to its own tools and reference stores; the
+procedure below refers to them generically.
 
 ## Overview
 
@@ -19,37 +47,37 @@ last assessed. Both directions are gate-blind by construction, because a gate ca
 inspect citations that exist; breadth is a judgement about citations and content that
 do not exist yet.
 
-The class is not hypothetical. The motivating incident (maintainer-directed 2026-07-07):
-NIST SP 800-154's guidance was relevant to held corpus content while the corpus did not
-engage it, and nothing in the audit programme could have said so. The reference base is
+The class is not hypothetical. The motivating incident in the parent library: an
+authoritative source's guidance bore on corpus content the project already
+maintained, while no corpus document engaged it, and nothing in the audit programme
+could have said so. The reference base is
 a curated, licensed asset; a held source no document uses is shelf inventory, and a
 corpus document that ignores a held source it should engage is thinner than the project
 can afford it to be.
 
 `reference-audit` is the semantic-judge half of a two-part instrument whose
-recall-oriented triage half is the advisory tool `tools/audit-reference-breadth.py`
+recall-oriented triage half is the advisory worklist tool named in the project wiring
 (explicitly NOT a gate; always exits 0; CI cannot host the check because the ground
-truth lives in the sibling private reference repo). The tool classifies every in-scope
-reference item by corpus usage (WELL-CITED / THIN / UNCITED / NO-KEY) and produces, per
-corpus document, a topic-ranked candidate list of held items the document does not
-cite. The skill judges: for each worklisted pairing, it reads the held source's text
-and the corpus document and decides whether an engagement would materially improve the
-document. The binding rule mirrors the matrix-fit and claim-fit lesson: judge against
-the held source TEXT and the document's own content, never a remembered meaning of
-either.
+truth lives in the separate reference base, outside the corpus repository). The tool
+classifies every in-scope reference item by corpus usage (WELL-CITED / THIN / UNCITED /
+NO-KEY) and produces, per corpus document, a topic-ranked candidate list of held items
+the document does not cite. The skill judges: for each worklisted pairing, it reads the
+held source's text and the corpus document and decides whether an engagement would
+materially improve the document. The binding rule mirrors the matrix-fit and claim-fit
+lesson: judge against the held source TEXT and the document's own content, never a
+remembered meaning of either.
 
-Trust tiers are load-bearing (maintainer decisions, 2026-07-08). The standards,
-frameworks, legislation, and programs buckets are AUTHORITATIVE: a confirmed finding
-supports a citation-grade improvement. The templates bucket is TEMPLATE-tier: a
-confirmed finding supports a template-content improvement (the corpus template or
-policy adopting structure or coverage from the held template), never a normative
-citation. The books bucket is RECOMMENDATION-tier only, never authoritative: a
-book-sourced suggestion must be corroborated against a trusted source before anything
-normative rests on it, and a book is engaged by topic rather than cited by identifier.
-The publications bucket is EXCLUDED by default (screen-first tier; the
-`publication-screening` process (`/screen-publications`) now exists, so its inclusion
-awaits the screening wave that flips `pending` register rows to `screened` plus the
-maintainer's inclusion decision).
+Trust tiers are load-bearing maintainer decisions. The standards, frameworks,
+legislation, and programs buckets are AUTHORITATIVE: a confirmed finding supports a
+citation-grade improvement. The templates bucket is TEMPLATE-tier: a confirmed finding
+supports a template-content improvement (the corpus template or policy adopting
+structure or coverage from the held template), never a normative citation. The books
+bucket is RECOMMENDATION-tier only, never authoritative: a book-sourced suggestion must
+be corroborated against a trusted source before anything normative rests on it, and a
+book is engaged by topic rather than cited by identifier. The publications bucket is
+EXCLUDED by default (screen-first tier: an item becomes a candidate only after the
+`publication-screening` process (`/screen-publications`) flips its screening-register
+row to `screened`, plus the maintainer's inclusion decision).
 
 The verdict vocabulary is four-valued, because the right action differs by verdict:
 
@@ -78,15 +106,15 @@ what already exists.
   and ad-hoc when the maintainer wants the exhaustive both-directions picture. Every
   in-scope reference item is classified and every corpus document gets a candidate
   list.
-- **Per-touch mode on every substantive corpus-document PR**: when a PR touches a
-  corpus document's body, run the tool in `--docs` mode for the touched documents. The
-  per-document state file makes the steady-state cost near zero: with no reference-base
-  change since the document's last audit, the candidate set is empty and no judge is
-  dispatched. The judge fires only on a non-empty candidate set.
+- **Per-touch mode on every substantive corpus-document change**: when a change touches
+  a corpus document's body, run the triage tool in its per-touch form for the touched
+  documents. The per-document state file makes the steady-state cost near zero: with no
+  reference-base change since the document's last audit, the candidate set is empty and
+  no judge is dispatched. The judge fires only on a non-empty candidate set.
 - **New-ingest mode after reference-base changes**: when the reference base ingests or
-  updates items, run `--ref-since <sha>` (or `--ref-items <substring>`) to list the
-  corpus documents each changed item topically matches and does not cite, and judge
-  those pairings.
+  updates items, run the triage tool in its new-ingest form (scoped to the reference
+  delta) to list the corpus documents each changed item topically matches and does not
+  cite, and judge those pairings.
 - **NOT as a replacement for the citation gates or the sibling semantic audits.** The
   existence, currency, and fit layers still run on their own cadences; this skill is
   the breadth layer beside them. A confirmed `adopt-citation` finding lands as a
@@ -97,28 +125,28 @@ what already exists.
 ### 1. Establish scope, mode, and the reference baseline
 
 Name the mode for this run (FULL, per-touch with the touched document list, or
-new-ingest with the reference delta) and confirm `tools/run_all_audits.sh` exits 0
-first; a breadth pass proposes additions to a corpus that already passes its gates.
-Confirm the reference base is available and locate it via its indexes
-(`grc_library_ref/INDEX.md`, `grc_library_ref/catalogue.yml`,
-`grc_library_ref/SECTION-INDEX.md`, `grc_library_ref/COVERAGE-MAP.md`); the per-source
-currency rule applies to any source a finding will rest on (confirm the held source is
-current upstream this turn before recommending engagement with it; a superseded held
-text is grounds to route a version-update item, never to recommend silently).
+new-ingest with the reference delta) and confirm that the project's full audit suite
+exits 0 first; a breadth pass proposes additions to a corpus that already passes its
+gates. Confirm that the reference base named in the project wiring is available and
+locate held items via its indexes; the per-source currency rule applies to any source a
+finding will rest on (confirm that the held source is current upstream this turn before
+recommending engagement with it; a superseded held text is grounds to route a
+version-update item, never to recommend silently).
 
 ### 2. Run the advisory triage tool to generate the worklist
 
-Run `python3 tools/audit-reference-breadth.py --ref-base
-<path-to-grc_library_ref-checkout>` in the mode's form: bare for FULL; `--docs <path>
-[<path> ...]` for per-touch; `--ref-since <sha>` or `--ref-items <substring>` for
-new-ingest. The tool always exits 0; its output is a recall-oriented worklist (per-item
-usage classification plus topic-ranked candidate pairings), never a defect list: the
-lexical matcher deliberately over-collects, and a listed pairing is a candidate to
-judge, not a finding. NO-KEY rows on non-book items are alias-curation work for
-`tools/reference-breadth-aliases.json` (fix the alias in the same run); NO-KEY on books
-is expected. In per-touch mode, an empty candidate set for every touched document ends
-the run at this step with a one-line note in the PR's QA trail; no judge is dispatched
-on an empty set.
+Run the triage tool named in the project wiring, pointed at the reference base, in the
+mode's form: the bare whole-corpus form for FULL; the per-touch form scoped to the
+touched documents; the new-ingest form scoped to the reference delta (the parent
+library's concrete invocation flags are listed in the project wiring). The tool always
+exits 0; its output is a recall-oriented worklist (per-item usage classification plus
+topic-ranked candidate pairings), never a defect list: the lexical matcher deliberately
+over-collects, and a listed pairing is a candidate to judge, not a finding. NO-KEY rows
+on non-book items are alias-curation work for the curated alias map named in the
+project wiring (fix the alias in the same run); NO-KEY on books is expected. In
+per-touch mode, an empty candidate set for every touched document ends the run at this
+step with a one-line note in the change's QA trail; no judge is dispatched on an empty
+set.
 
 ### 3. Dispatch the reference-breadth judge over the worklist
 
@@ -167,25 +195,25 @@ dedupe against an existing backlog item are cross-referenced, not duplicated.
 ### 6. Update the per-document state
 
 In per-touch mode, after the touched documents' candidate sets are adjudicated (or
-found empty), run the tool again with `--docs <touched paths> --update-state` so the
-state file (`.working/reference-audit/doc-state.md`) records the reference-base HEAD
-each document was audited against, and commit the state refresh with the PR's QA batch.
-In FULL mode, refresh the state for every corpus document the run adjudicated. The
-state file is the delta anchor that keeps the per-touch cadence near-free at steady
-state; a document with no state row is treated as never audited and gets the full
-candidate set on its next touch.
+found empty), run the triage tool again in its state-refresh form for the touched
+documents so the per-document state file named in the project wiring records the
+reference-base HEAD each document was audited against, and commit the state refresh
+with the change's QA batch. In FULL mode, refresh the state for every corpus document
+the run adjudicated. The state file is the delta anchor that keeps the per-touch
+cadence near-free at steady state; a document with no state row is treated as never
+audited and gets the full candidate set on its next touch.
 
 ### 7. Record and surface
 
 Surface confirmed findings inline in chat (per-finding: document path, the held item
 and its tier, the verdict, the concrete improvement, and the action taken or option
-surfaced). Write the run to `.working/reference-audit/` as a dated per-run record file
-(`YYYY-MM-DD-<scope>.md`, swept to the scratch archive under the current-week model)
-and append a row to the non-dated `history.md`; a zero-finding or empty-candidate run
-still gets a history row (the proof-of-discipline), with no detail file. The pass
-terminates when the worklist is adjudicated, confirmed findings are applied or routed,
-the state is updated for the run's scope, and the run is recorded; it is a single
-advisory pass, not a fix-to-fixed-point loop.
+surfaced). Write the run to the run-record directory named in the project wiring as a
+dated per-run record file (`YYYY-MM-DD-<scope>.md`) and append a row to the non-dated
+`history.md`; a zero-finding or empty-candidate run still gets a history row (the
+proof-of-discipline), with no detail file. The pass terminates when the worklist is
+adjudicated, confirmed findings are applied or routed, the state is updated for the
+run's scope, and the run is recorded; it is a single advisory pass, not a
+fix-to-fixed-point loop.
 
 ## Red Flags
 
@@ -203,9 +231,9 @@ advisory pass, not a fix-to-fixed-point loop.
 - Routing a judge verdict without the orchestrator's own re-read of the evidence.
   Apply-time verification is the false-positive filter; a judge can miss that the
   document already engages the source under different phrasing.
-- Skipping the `--update-state` refresh after a per-touch adjudication. A stale state
-  row re-inflates the next touch's candidate set and erodes the near-free steady state
-  the delta design exists to provide.
+- Skipping the state-refresh step after a per-touch adjudication. A stale state row
+  re-inflates the next touch's candidate set and erodes the near-free steady state the
+  delta design exists to provide.
 - Recommending engagement with a held source without confirming it is current upstream
   this turn. A superseded held text routes a version-update item first (the
   reference-version-currency SOP), and the breadth finding waits on the current text.
@@ -217,8 +245,8 @@ advisory pass, not a fix-to-fixed-point loop.
 
 The pass is complete on a given run when:
 
-- The mode and scope were named and the mechanical baseline was clean
-  (`tools/run_all_audits.sh` exit 0) before the semantic read.
+- The mode and scope were named and the mechanical baseline was clean (the project's
+  full audit suite exited 0) before the semantic read.
 - The triage tool was run in the mode's form and its worklist (plus anything the
   maintainer flagged) was the judge's input; non-book NO-KEY rows were resolved by
   alias curation or explicitly deferred.
@@ -231,7 +259,7 @@ The pass is complete on a given run when:
   written) or routed to TODO with named options where substantive or authorial; tier
   ceilings were respected end to end.
 - The per-document state was refreshed for the run's scope and committed with the
-  run's PR batch.
+  run's change batch.
 - The run was recorded (history row always; dated detail file when findings exist) and
   findings were surfaced inline in chat.
 
@@ -267,19 +295,18 @@ The pass is complete on a given run when:
   publications tier; a publication is a candidate here only once its screening register
   row is `screened` (recommendation tier, never authoritative), and `pending` /
   `quarantined` items are never candidates.
-- The advisory tool [`tools/audit-reference-breadth.py`](../../../../tools/audit-reference-breadth.py):
-  the recall-oriented triage step that feeds this skill's worklist (not a gate; always
-  exits 0; `--docs` for per-touch with `--update-state` for the delta anchor,
-  `--ref-since` / `--ref-items` for new-ingest, `--include-publications` only under an
-  explicit screening decision), with its curated alias map
-  [`tools/reference-breadth-aliases.json`](../../../../tools/reference-breadth-aliases.json).
-- The advisory tool [`tools/audit-reference-acquisition-gaps.py`](../../../../tools/audit-reference-acquisition-gaps.py):
-  the complementary cited-but-not-held direction to this skill's breadth judgement. Where
-  this skill and `audit-reference-breadth.py` ask whether the corpus USES what the base
-  holds, the acquisition tool asks whether the corpus CITES a source the base does NOT
-  hold (an acquisition candidate for the ref-base acquisition queue and the maintainer
-  source-drop list), diffing the corpus canonical-citations register against the ref
+- The advisory worklist tool named in the project wiring: the recall-oriented triage
+  step that feeds this skill's worklist (not a gate; always exits 0; a per-touch form
+  with a state-refresh flag for the delta anchor, new-ingest forms for reference deltas,
+  and publications included only under an explicit screening decision), with its curated
+  alias map, also named in the project wiring.
+- The complementary acquisition-gap advisory tool named in the project wiring: the
+  cited-but-not-held direction to this skill's breadth judgement. Where this skill and
+  the worklist tool ask whether the corpus USES what the base holds, the acquisition
+  tool asks whether the corpus CITES a source the base does NOT hold (an acquisition
+  candidate for the reference-base acquisition queue and the maintainer source-drop
+  list), diffing the corpus canonical-citations register against the reference
   catalogue. Also advisory, never a gate; always exits 0.
-- The reference base: the `grc_library_ref` repo located via its indexes, with the
+- The reference base named in the project wiring, located via its indexes, with the
   per-source currency confirmation, the superseded-archival workflow, and the
-  trust-bucket rules the `grc_library_ref` repo's own conventions define.
+  trust-bucket rules the reference base's own conventions define.

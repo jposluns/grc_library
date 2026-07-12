@@ -76,3 +76,4 @@ If the structured-question primitive is in use, the same five properties apply t
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): when a gate failure exposes an ambiguity in how to respond, use this skill before picking a response.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the corpus-wide sweep surfaces an out-of-window finding, use this skill to triage the ambiguous "action / defer / dismiss" choice with named alternatives rather than auto-deferring.
 - Related skill [`fresh-reader-validation`](../fresh-reader-validation/SKILL.md): when the fresh reader surfaces an ambiguity the document chose not to resolve, use this skill to surface the choice before completing the document.
+- Related skill [`surface-instruction-concern`](../surface-instruction-concern/SKILL.md): the harm-side counterpart, for the instruction that is clear but counterproductive to execute as given.
