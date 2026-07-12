@@ -228,10 +228,6 @@ Enable forkers to assemble their **own** reference knowledge base instead of dep
 
 When an adopter's customized fork pulls upstream `grc_library` updates, nothing today helps THEIR AI assistant assess each upstream change against the fork's local customizations and present an accept/adapt/skip decision matrix. Design a fork-side instrument: likely a shareable skill (diff upstream release-to-release, classify each change by carrier class, map against the fork's recorded local divergences, produce the per-change report), plus upstream-side enablers where cheap (machine-readable change-class tags or per-entry applicability hints). Shape and upstream-vs-fork-side split are maintainer-scoped at design time.
 
-### 4.7 RESUME.md maintainer-internal label (deep-assessment r1 R13, XS)
-
-[`RESUME.md`](RESUME.md) sits at the adopter-visible repository root but is purely maintainer-internal (it points into `.claude/` and `.working/`, trees the adopter corpus excludes) and carries no "not an adopter document" signal. Add a one-line "(maintainer-internal; adopters can ignore)" note, or list it in the README maintenance-file table with that framing. Low priority; design choice.
-
 ### 4.8 Pack adoption-hygiene programme (phases 1-4) (GR-P2 + GR-P5 + pack-design GR-P3/GR-P4, phases 1-2 OVERNIGHT-AUTHORIZED, phase 3 worker-gated, M, XL) (consolidates the former GR-P5 residual item)
 
 **DEFERRED to a fresh session (maintainer 2026-07-12, at the sweep98 wind-down, via AskUserQuestion).** At apply time the phase-1 GR-P2 condense payload was found **STALE vs current `main`**: the condensed rule candidates predate this session's §3.53 corollary to `evidence-grounded-completion.md` (#832) and #813's change-tracking current-week-model subsection (verified grep=0 in the `evidence-grounded-completion.md` and `change-tracking.md` candidates), so a naive apply would REVERT shipped content. Correct application needs a FRESH per-rule drift recompute against current `main` (`git log b981940..main -- <rule>`) and reconciliation to preserve every intervening change, gate-blind and adopter-facing work (a dropped rule section is not caught by the pack gates) that warrants a fresh-context session plus the high-assurance harness. **Next session: recompute drift per-rule, reconcile each candidate to preserve this session's changes, then apply phases 1-2** through the normal serial-apply + per-PR QA + skeptical-verifier pipeline.
@@ -288,7 +284,7 @@ Existing privacy domain covers 26 country annexes. Known gaps or stale entries: 
 
 ### 5.9 AI jurisdiction overlays (was 5.8)
 
-The `ai/jurisdictions/` subdirectory and its first two annexes (EU AI Act #743, Colorado #749) shipped under the former FR-62. Remaining candidates, source-gated pending maintainer drops: Canada AIDA; UK AI policy framework; NYC bias audit law; China generative AI rules; Korea AI framework. **Also here (deep-assessment r1 R1, S):** the privacy jurisdiction-index Colorado summary-lag at [`privacy/annex-privacy-jurisdiction-index.md:104`](privacy/annex-privacy-jurisdiction-index.md) (the US-row cell headlines the superseded 2026-06-30 effective date; the operative forward regime the full annexes carry is SB 26-189, consequential decisions on/after 2027-01-01). Refresh the cell to name the SB 26-189 / 2027 regime, or accept as an intentional one-line summary.
+The `ai/jurisdictions/` subdirectory and its first two annexes (EU AI Act #743, Colorado #749) shipped under the former FR-62. Remaining candidates, source-gated pending maintainer drops: Canada AIDA; UK AI policy framework; NYC bias audit law; China generative AI rules; Korea AI framework.
 
 ---
 
@@ -306,7 +302,7 @@ The phase-level PQC roadmap exists but not detailed implementation content. Pend
 
 ### 6.3 Cross-framework matrix expansion (L) (was 6.4)
 
-Expand [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) to additional sectoral and regional frameworks as the P5 content grows. **Also here (deep-assessment r1 R3, S):** SOC 2 Type II is named as a target attestation corpus-wide (templates, glossary, assurance map) but no matrix maps SOC 2 Trust Services Criteria to library documents and [`governance/register-coverage-gaps.md`](governance/register-coverage-gaps.md) §3 does not disclose SOC 2 as an undetailed framework (it discloses PCI DSS, SWIFT CSP, etc.). Add a SOC 2 (TSC) row to §3 with a Status/Planned-target; optionally add SOC 2 CC-series to the reverse crosswalk.
+Expand [`governance/matrix-cross-framework-alignment.md`](governance/matrix-cross-framework-alignment.md) to additional sectoral and regional frameworks as the P5 content grows.
 
 ### 6.4 CMMI capability levels alongside maturity levels (L) (was 6.5)
 

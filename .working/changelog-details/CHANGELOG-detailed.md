@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.329, PR #841
+
+Public-facing polish: one adopter-facing clarity edit plus TODO housekeeping for two already-resolved items.
+
+### Changed
+
+- [`RESUME.md`](../../RESUME.md): added a one-line italic maintainer-internal note directly under the title ("Maintainer-internal. Adopters consuming the corpus can ignore or delete this file: it points into `.claude/` and `.working/`, trees the corpus does not depend on."). The README maintenance-file table already labelled it "Internal; adopters may delete" (line 167), so the file is now signalled on both surfaces. Closes TODO §4.7.
+- [`TODO.md`](../../TODO.md): removed the §5.9-R1 and §6.3-R3 deep-assessment-r1 sub-bullets, verified already-resolved in the corpus (the privacy jurisdiction-index US cell already names the Colorado SB 26-189 / 2027 ADMT regime; [`register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) §3 already carries the SOC 2 (TSC) disclosure row). Parent §5.9 (AI jurisdiction overlays) and §6.3 (cross-framework matrix expansion) remain open. TODO §4.7 rotated to DONE.
+
+### Verification
+
+- Confirmed both R1/R3 fixes present in the live corpus before removing the sub-bullets (read the privacy index US row and the coverage-gaps §3 SOC 2 row). All 69 gates pass. No corpus document body changed (RESUME.md and TODO.md are not versioned corpus documents), so no per-document or pack version bump.
+
+Library `2026.07.328` to `2026.07.329`.
+
 ## 2026-07-12, Library Version 2026.07.328, PR #840
 
 Matrix-fit follow-up, closing the semantic-fit item the #838 apex-only `A.8.34` fix deliberately left open.
