@@ -44,7 +44,7 @@
 
 set -u
 
-# RM-10 pipe self-defence (TODO section 1.9(b), maintainer-approved
+# RM-10 pipe self-defence (shipped PR #620, maintainer-approved
 # 2026-07-03): refuse to run with stdout PIPED into another command, the
 # shape that masks this guard's exit code (`guard | tail && push` pushes
 # past a failing guard). Detection is `[ -p /dev/stdout ]`, not the

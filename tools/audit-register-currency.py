@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Advisory cross-repo currency-drift report for the canonical-citations register
-(TODO section 1.7; delivery spec: grc_library_scratch
+(shipped PR #817; delivery spec: grc_library_scratch
 ``inbox/worker-20260709-fable/currency-ledger-sync/sync-tool-spec.md``).
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID, not an audit gate.
