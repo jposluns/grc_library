@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.324, PR #836
+
+§4.8 Phase 1, GR-P2 governance-rule condense tranche 3 (the second of the three remaining GR-P2 tranches).
+
+### Changed
+
+- Condensed four governance rules, moving ONLY the `## Why this rule exists` narrative to the removal ledger and KEEPING each rule's `## Relationship to the rest of the pack` section (operative cross-wiring) where present. Each rule replaced in BOTH the pack tree and its byte-identical `.claude/rules/governance/` mirror in the same commit (gate 37 sync):
+  - [`dev-security/claude-rules/governance/clarify-before-acting.md`](../../dev-security/claude-rules/governance/clarify-before-acting.md) and its [`.claude/` mirror](../../.claude/rules/governance/clarify-before-acting.md): 2212 to 2022 words.
+  - [`dev-security/claude-rules/governance/surface-counterproductive-instructions.md`](../../dev-security/claude-rules/governance/surface-counterproductive-instructions.md) and its [`.claude/` mirror](../../.claude/rules/governance/surface-counterproductive-instructions.md): 2526 to 2229 (relationship-to-pack section kept).
+  - [`dev-security/claude-rules/governance/project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md) and its [`.claude/` mirror](../../.claude/rules/governance/project-integrity.md): 2231 to 1864 (relationship-to-pack section kept, the operative cross-wiring to the other rules).
+  - [`dev-security/claude-rules/governance/high-assurance-verification.md`](../../dev-security/claude-rules/governance/high-assurance-verification.md) and its [`.claude/` mirror](../../.claude/rules/governance/high-assurance-verification.md): 2414 to 2107 (relationship-to-pack section kept).
+- Appended the four `RM-` entries (RM-CBA-1, RM-SCI-1, RM-PI-1, RM-HAV-1) to [`.working/claude-rules-considerations.md`](../claude-rules-considerations.md) after the tranche-2 entries, and marked the four pending-worklist rows done (clarify-before-acting -9%, surface-counterproductive -12%, project-integrity -16%, high-assurance -13%). Nine of the twelve GR-P2 rules are now condensed; only the three tranche-4 rules remain.
+- Fixed an in-window defect #835's `/validate-pr` caught: the pack version-history row for `1.59.8` carried the base library version `2026.07.322` in its Library column, but the column convention is the RESULTING library version (the prior `1.59.7` row shows `2026.07.320`, #832's resulting value). Corrected to `2026.07.323` (the value #835 resulted in). No gate checks the Library-column value (D6 checks the pack Version and Date co-bump and row presence only), so it survived CI; the post-merge `/validate-pr` caught it.
+- Retained byte-for-byte in each rule: all operative content, the relationship-to-pack sections, and the framework-alignment tables. The cross-cutting folded fixes (the `LOG-02, LOG-08` audit-trail-row migration; the apex `A.8.34` swap) are NOT applied here; they stay isolated to a later census-complete PR, so `project-integrity` and `high-assurance-verification` still carry `A.8.34` and `high-assurance` still carries `LOG-02, LOG-08`, by design.
+
+### Verification
+
+- Byte-level false-negative check: reconstructed each live rule minus the `## Why this rule exists` section and diffed against the candidate; all four matched IDENTICALLY (no operative content, no relationship section, no framework row dropped or reworded). Heading-diff confirmed no heading added.
+- Both-tree sync confirmed per rule; [`lint-language.py`](../../tools/lint-language.py) clean on all four; all 69 audit gates pass.
+- A refute-briefed skeptical verifier reviewed the change pre-push.
+- **Worker provenance:** [`inbox/claude-pack-hygiene/MANIFEST.md`](../../../grc_library_scratch/inbox/claude-pack-hygiene/MANIFEST.md) (the consolidated GR-P2 pack-hygiene drop; the tranche-3 candidates under `phase1-gr-p2/` are byte-identical moves from the original `gr-p2-rule-condense-tranche3` delivery, re-verified against current `main` at apply time; the orchestrator did the byte-level preservation check and authored all bookkeeping).
+
+Pack `1.59.8` to `1.59.9`; library `2026.07.323` to `2026.07.324`.
+
 ## 2026-07-12, Library Version 2026.07.323, PR #835
 
 §4.8 Phase 1, GR-P2 governance-rule condense tranche 2 (the first of the three remaining GR-P2 tranches; tranche 1 shipped in #726).

@@ -134,16 +134,3 @@ The clarification discipline has natural exceptions:
 | Scope-bounded authorization | PO.5 | IAM-09 | A.5.15, A.5.18 |
 | Investigation before destructive action | RV.1, RV.2 | TVM-01 | A.5.27, A.8.16 |
 | Change-management for scope expansion | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
-
----
-
-## Why this rule exists
-
-The two failure modes a clarify-before-acting discipline prevents are:
-
-1. **Silent authorial decisions**. The assistant picks for the user; the user discovers the pick after the fact; the user pays the unwind cost. Over time, the user learns to over-specify requests, which is friction in the other direction.
-2. **Wrong-scope work**. The assistant interprets the request more broadly (or more narrowly) than the user intended, ships the wrong-scope work, and the mismatch surfaces in review or in production. The cost of the mismatch is borne by the user.
-
-The discipline shifts both costs back to the moment of choice. A one-sentence clarification at the start of the work is the lowest-friction intervention available. The cost is one round-trip; the benefit is correctly-scoped, correctly-aimed work.
-
-For AI coding assistants specifically: the pressure to "make progress" can manifest as silent picking. Resist this. The user's confidence in the assistant grows when the assistant asks sharp, specific questions and shrinks when the assistant ships work the user did not authorize. A clarification is not a failure to act; it is the action that the situation calls for.
