@@ -139,13 +139,3 @@ The narrowest legitimate exception is the case where the action is in the safe s
 | Subscription-over-polling for event-shaped waits | RV.2 | LOG-02 | A.8.15 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every assertion the user is asked to rely on must be traceable to a verifiable artefact (a tool result, a quoted response, a named missing attempt). The cost of an unverifiable assertion compounds: each one the user accepts erodes the discipline that catches the next.
-
----
-
-## Why this rule exists
-
-The classic failure mode this rule addresses: an AI coding assistant encounters a state it has not interrogated this turn (a CI status, a PR's mergeability, a branch's protection rules, a permission boundary), drafts an inaction explanation grounded in inference rather than evidence, and the user trusts the explanation because it sounds like a system fact. The user then either waits unnecessarily (the action would have proceeded), takes the wrong corrective action (the explanation pointed at the wrong cause), or loses some trust in the assistant when the inaction explanation turns out to be wrong. Each outcome is worse than the cheap, reversible action that would have produced a real result.
-
-The rule's structure reverses the failure mode. The trigger is the specific surface (inaction-explanation vocabulary attached to an external action) where the inference-vs-evidence question is decided in writing, in a way the actor can catch in their own draft. The fail-safe is the reversibility gate, which keeps "default to the action" from collapsing into "default to recklessness" against destructive actions. The destructive-set protocol prevents the same inference failure from migrating into a scary-sounding rationale for waiting. The execution-doubt-vs-decision-doubt clause keeps the rule from being misread as a lean-away-from-asking on authorial choices, where asking is the right move.
-
-For AI coding assistants specifically: when the next sentence in your draft is about to explain why an external action cannot proceed, pause and run the reversibility gate. If the action is safe, attempt it and rewrite the sentence around the real result. If the action is destructive, name it and ask. The cost of the protocol (one tool call or one explicit "I have not attempted X") is much smaller than the cost of an unverified inaction explanation that the user relies on.
