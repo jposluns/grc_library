@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-07-10\
+**Version:** 1.0.7\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -20,7 +20,7 @@
 
 This standard defines how the organization conducts threat modelling: the structured analysis that identifies what an attacker could do to a system, where, and how, before that system is built or substantially changed. Threat modelling complements the Penetration Testing Standard (which validates controls in practice) and the Vulnerability Management Procedure (which addresses present, known weaknesses) by surfacing the design-level attack surface that those activities cannot reach.
 
-The standard implements the STRIDE methodology applied per trust boundary, supplemented by abuse cases written alongside the use cases that drive functional requirements. It does not replace specialized methodologies for specific contexts (LINDDUN for privacy threats, PASTA for attack-simulation flow, OCTAVE for organizational risk); it provides the baseline approach the organization applies to every in-scope system unless a specialized methodology is justified.
+The standard implements the STRIDE methodology applied per trust boundary, supplemented by abuse cases written alongside the use cases that drive functional requirements. It does not replace specialized methodologies for specific contexts (LINDDUN for privacy threats, PASTA for attack-simulation flow, OCTAVE for organizational risk); it provides the baseline approach the organization applies to every in-scope system unless a specialized methodology is justified. Where enumerating a boundary's credible threats benefits from a catalogue of known attack patterns, **MITRE CAPEC** (Common Attack Pattern Enumeration and Classification) is a supplementary input: its attack-pattern catalogue populates the per-boundary threat list, in the same way the OWASP Top 10 does for web-stack findings (section 5.1). CAPEC enumerates attack patterns; it does not define the trust boundaries, which STRIDE-per-boundary analysis still sets.
 
 ---
 
