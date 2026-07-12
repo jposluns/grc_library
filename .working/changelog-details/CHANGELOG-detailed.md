@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.322, PR #834
+
+The sweep99 `/resume` first PR: the loop-break Sweep 99 `/validate` close-out (compensating control for session-closing handoff PR #833) plus the one in-window fix it surfaced.
+
+### Changed
+
+- [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../../compliance/financial-services/annex-financial-services-sector-requirements.md) (`1.0.8` to `1.0.9`, Date to 2026-07-12): the DORA ICT Incident Classification and Reporting cell (Arts 17 to 23) previously stated the major-incident reporting windows as "within 4 hours (initial), 72 hours (intermediate), 1 month (final)", giving only the 4-hours-from-classification bound of the initial notification. Sweep 99 subagents A and B independently found this is the parallel carrier the §3.48 fix (#829) did not scan when it corrected the dedicated DORA annex to both bounds. The cell now reads "an initial notification within 4 hours of classification as major and no later than 24 hours from awareness, an intermediate report within 72 hours of the initial notification, and a final report no later than one month after the intermediate report (windows per the RTS in Delegated Reg (EU) 2025/301)", consistent with the verified statement in [`compliance/financial-services/annex-dora-implementation.md`](../../compliance/financial-services/annex-dora-implementation.md). The logistics-sector annex "24 hours (initial)" carrier is NIS 2 Article 23 (a different regime) and is correctly unchanged.
+- Regenerated the derived artefacts from the version bump: [`taxonomy.yml`](../../taxonomy.yml), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (portal unchanged).
+- Pruned [`.working/session-handoff.md`](../../.working/session-handoff.md) per the keep-current-plus-one-prior discipline: removed the sweep96 Next-actions, State-snapshot, and Asserted-expectations stacks and the resolved gate-69 held-branch note (gate 69 landed on `main` in #824; TODO §3.4 closed). Advanced the Resume-cursor to Sweep 99.
+
+### Verification
+
+- Mechanical baseline: `tools/run_all_audits.sh` = 69/69 pass at HEAD `60ea553`/#833, a descendant of the closing session's asserted green-at `7cb5752`/#832 (no close-vs-start drift); clone non-shallow.
+- Sweep 99 three-subagent dispatch A/B/C. A: 1 warning; B: 1 warning (same finding, independent convergence); C: 0. Pre-flight 11 candidates all the collection-count-word false-positive class, dismissed. Asserted-expectations cross-check: all #833 claims corroborated, 0 contradicted. Detail: [`.working/validate-sweeps/2026-07-12-sweep99-iter1.md`](../../.working/validate-sweeps/2026-07-12-sweep99-iter1.md); history row added ([`.working/validate-sweeps/history.md`](../../.working/validate-sweeps/history.md) `2.0.93` to `2.0.94`).
+- The fix was orchestrator apply-time-verified against both DORA carriers and the held RTS-2025/301 text before it landed; a refute-briefed skeptical verifier ran pre-push on the fix.
+
+### Discipline observation
+
+The finding is the multi-surface-incompleteness class the project's own close-out checklist warns about: #829 corrected one DORA carrier and did not run a corpus-wide grep for parallel carriers of the same reporting-window statement. The Sweep 99 subagents' bare-token proximity grep on the DORA reporting window (`4 hours`/`24 hours` near an incident-reporting context) is the width that would have caught it in #829's own PR; it is recorded here so the §3.48-class fix's grep width is remembered.
+
+Library `2026.07.321` to `2026.07.322`.
+
 ## 2026-07-12, Library Version 2026.07.321, PR #833
 
 Session-closing handoff for the sweep98 resumed OVERNIGHT session. Bookkeeping only (no corpus document body changed). Library `2026.07.320` to `2026.07.321`.
