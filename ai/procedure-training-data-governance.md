@@ -2,7 +2,7 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.9\
+**Version:** 0.0.10\
 **Date:** 2026-07-12\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
@@ -58,7 +58,7 @@ Before the dataset is used for training:
 | Redaction or removal | Apply the technique appropriate to the use case (removal, redaction, pseudonymization, anonymization per the pseudonymization standard) |
 | CSAM and prohibited content filtering | Run prohibited-category classifiers; remove with audit trail |
 | Hate, violence, and high-toxicity filtering | Apply per the responsible-use policy; thresholds documented |
-| Copyrighted content review | Where the corpus may contain copyrighted material, document the use rationale and any opt-out mechanism the upstream source provides |
+| Copyrighted content review | Where the corpus is web-crawled or may contain copyright-protected material: confirm lawful access (no circumvention of paywalls or technical protection measures per Directive 2001/29/EC Article 6(3)); identify and honour machine-readable rights reservations and text-and-data-mining opt-outs expressed under Article 4(3) of Directive (EU) 2019/790, including the Robot Exclusion Protocol (robots.txt, IETF RFC 9309); and document the use rationale and any opt-out mechanism the upstream source provides. Where the organization is a general-purpose AI provider placing a model on the EU market, this is part of the copyright policy required by EU AI Act Article 53(1)(c), for which the EU GPAI Code of Practice (Copyright Chapter, July 2025) is the Article 56 co-regulatory instrument. |
 | De-identification verification | For corpora claimed anonymized, the re-identification risk assessment per the pseudonymization standard |
 | Output of step | A cleaned dataset; the datasheet annex documenting all transformations |
 
@@ -205,6 +205,7 @@ Where a retrieval index materially shapes model output:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | EU AI Act | Articles 10 (data and data governance), 11 (technical documentation) | Training data obligations |
+| EU GPAI Code of Practice (Copyright Chapter, July 2025) | Commitment 1 / Measures 1.1 to 1.3 (copyright policy; lawful-access crawling; identify and comply with text-and-data-mining rights reservations under Article 4(3) of Directive (EU) 2019/790) | Article 56 co-regulatory instrument for demonstrating AI Act Article 53(1)(c) compliance; applies where the organization is a GPAI provider |
 | ISO/IEC 42001:2023 | §7.5 documented information | AI management system |
 | GDPR / UK GDPR | Articles 5, 6, 9, 17, 22, 25, 30, 35 | Lawful basis, subject rights, by design, ROPA, DPIA |
 | LGPD | Articles 7, 9, 18 | Brazilian lawful basis and rights |

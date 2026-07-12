@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.335, PR #847
+
+AI-domain delta, EU cluster part 3 (A.3). The EU GPAI Code of Practice, Copyright Chapter (July 2025), held in `grc_library_ref` under `frameworks/EU-AI-Office/`, folded into two documents. Research fan-out worker + apply-time re-verification.
+
+### Changed
+
+- [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md) (0.0.9 to 0.0.10): enriched the Step 2 copyrighted-content-review row with the Code's Measures 1.1 to 1.3 (lawful-access crawling per Directive 2001/29/EC Article 6(3); machine-readable TDM rights-reservation compliance under Article 4(3) of Directive (EU) 2019/790, including robots.txt / IETF RFC 9309); added a framework-alignment row for the Code as the Article 56 instrument for AI Act Article 53(1)(c) compliance in the GPAI-provider case.
+- [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md) (1.0.11 to 1.0.12): added a provider-case paragraph to section 6.2 (Copyright compliance) on the Article 53(1)(c) copyright-policy duty and the Code as the demonstration route, with the adherence-not-conclusive-evidence caveat.
+
+### Verification
+
+- Source held in `grc_library_ref` (Copyright Chapter full-text); the chapter's own legal-text header anchors Commitment 1 to AI Act Article 53(1)(c). Mapped to Article 53(1)(c) NOT Article 55 (worker caveat; the EU AI Act full text is held, corroborating). Scope confined to Measures 1.1 to 1.3 and the GPAI-provider case; Measures 1.4/1.5 kept out of the training-data procedure per the worker's overreach flag. "Adherence not conclusive evidence" phrasing used; the Code is not framed to adopters as "voluntary" (the chapter uses "voluntary" only for rightsholder engagement, not for adherence).
+- Research re-verified at apply against the two live target documents and the held full-text. A refute-briefed skeptical verifier reviewed the applied change. All 69 gates pass.
+- **Research provenance (in-session, not a scratch-inbox delivery):** in-session `Agent` research fan-out (the A.3 unit).
+
+Library `2026.07.334` to `2026.07.335`.
+
 ## 2026-07-12, Library Version 2026.07.334, PR #846
 
 §4.8 pack adoption-hygiene programme, Phase 4 (acceptance sweep + routed-findings triage + close-out). Orchestrator close-out PR; the pack machinery was scrubbed and merged in Phase 3 (#845).
