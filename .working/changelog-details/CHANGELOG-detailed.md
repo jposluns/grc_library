@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.343, PR #855
+
+CHANGELOG plain-language rework, stage 3a (TODO 3.16, applied from the `changelog-root-reformat-build` scratch delivery). The mechanical, format-independent half: reformats the root CHANGELOG headers to the compact form and teaches the affected gate parsers to read it. Bodies untouched; stage 3b (the plain-language rewrite) follows in batches after a maintainer-confirmed sample.
+
+### Added
+
+- [`tools/reformat-root-changelog.py`](../../tools/reformat-root-changelog.py) (mode 755): the deterministic transform converting each root header `## YYYY-MM-DD, Library Version X.Y.Z, PR #N` to `**YYYY-MM-DD | X.Y.Z | PR #N**` (PR-less early headers lose the PR cell; the initial-release header is special-cased with its licence note preserved). Bodies are byte-identical. Verification is built in and gating (`--write` refuses on any failure): lossless ordered (date, version, PR) triples, byte-identical bodies, idempotence, no dash introduced. Re-run against current `main`: 838 headers (804 with PR, 34 without), all checks green.
+- Compact-form regression fixtures (gate 36) for the three patched parsers.
+
+### Changed
+
+- Reformatted all 838 historical root [`CHANGELOG.md`](../../CHANGELOG.md) headers to the compact form (bodies unchanged).
+- Three gate parsers now accept BOTH the long and compact header forms (they land before the reformat, so mixed authoring is safe): [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) (`CHANGELOG_HEADER` alternation + two-group PR extraction), [`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py) (`COMPACT_HEADER_RE` + the compact branch in `pr_headers`), [`tools/lint-version-date-consistency.py`](../../tools/lint-version-date-consistency.py) (`COMPACT_HEADING_RE` + earliest-of-both `first_match`).
+- The audit-programme spec §6 detailed-prose for those three gates: header-shape phrasing updated to note both forms.
+- Library CalVer `2026.07.342` to `2026.07.343`; README Version `1.9.703` to `1.9.704`.
+
+### Verification
+
+- The `--write` transform's built-in gating verification passed (838 headers, lossless/ordered/byte-identical/idempotent/no-dash). The three parser patches were re-verified against the CURRENT parser code (unchanged since the delivery's #713 read basis; anchors matched) rather than blindly `git apply`-ed. Full audit expected 69/69; a skeptical verifier runs pre-push on the parser logic. The detailed mirror keeps long-form headers (the reformat targets root only); gate 59 parity holds because both parsers extract the PR set regardless of form.
+
+### Notes
+
+- Stage 3b (the plain-language rewrite of ~838 entries to jargon-free one-to-two-sentence summaries, maintainer-confirmed format "compact + plain, flat") follows: a ~10-entry sample for the maintainer's OK, then batched (~50/PR) waves.
+- Delivery-token drift observed (captured in the `/retro`): the `changelog-root-reformat-build` delivery carries the stale backlog token `3.19`, which renumbered to `3.16`; the reconciliation tool substring-matches `3.16` to the unrelated `etsi-sai-crosswalk-316` delivery. No collision (this delivery is unambiguously the changelog reformat); the token needs reconciling when TODO 3.16 closes after stage 3b.
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into the next PR.
+
 ## 2026-07-12, Library Version 2026.07.342, PR #854
 
 Corrects the CI-wait guidance #853 shipped + #853 post-merge QA (`.claude/` + `.working/` only; no corpus body).

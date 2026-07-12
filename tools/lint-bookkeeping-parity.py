@@ -151,9 +151,12 @@ SUBSUMPTION_FINDINGS = re.compile(
 # A markdown table data row: leading pipe, an ISO date cell, then the rest.
 TABLE_ROW = re.compile(r"^\|\s*\d{4}-\d{2}-\d{2}\s*\|")
 
-# CHANGELOG entry header: `## YYYY-MM-DD, Library Version X.Y.Z, PR #N`.
+# CHANGELOG entry header: `## YYYY-MM-DD, Library Version X.Y.Z, PR #N`,
+# plus the compact form the TODO 3.16 root-reformat introduced
+# (``**date | version | PR #N**``, optional ``- summary`` tail).
 CHANGELOG_HEADER = re.compile(
-    r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PR\s+#(\d+)",
+    r"^##\s+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+PR\s+#(\d+)"
+    r"|^\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| PR #(\d+)\*\*",
     re.MULTILINE,
 )
 
@@ -215,7 +218,7 @@ def cells(line: str) -> list[str]:
 
 def parse_changelog_prs(text: str) -> set[int]:
     """The set of PR numbers that have a CHANGELOG entry header."""
-    return {int(m) for m in CHANGELOG_HEADER.findall(text)}
+    return {int(a or b) for a, b in CHANGELOG_HEADER.findall(text)}
 
 
 def parse_validate_pr_status(text: str) -> dict[int, str]:
