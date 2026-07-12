@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.313 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.674 (semantic per-document version for this file)
+**Library Version:** 2026.07.314 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.675 (semantic per-document version for this file)
 
 ---
 
@@ -155,6 +155,16 @@ Repository infrastructure directories (not used for governance artefacts):
                 main and on every pull request.
 /taxonomy.yml   Auto-generated machine-readable registry of every active artefact's canonical
                 metadata. Regenerated from document metadata by tools/build-taxonomy.py.
+/tests          Linter-regression fixtures for the audit toolchain, exercised by the
+                regression gate (see tools/run-linter-regression.py).
+/.project-governance  The project's OWN governance artefacts (the citation-verification
+                cluster), separated from the reusable corpus so an adopter does not consume
+                them as their own governance (see .project-governance/README.md).
+/.working       Maintainer working state (session handoff, QA-history registers, detailed
+                CHANGELOG mirror, improvement log): audit-trail and process records, exempt
+                from the corpus audit gates. Adopters may delete it (see .working/README.md).
+/TODO.md        Forward-looking maintainer backlog. Not a governance artefact; adopters may delete.
+/RESUME.md      Maintainer session-resume pointer. Internal; adopters may delete.
 ```
 
 Documents use lowercase filenames, single hyphen separators, and a document type prefix.

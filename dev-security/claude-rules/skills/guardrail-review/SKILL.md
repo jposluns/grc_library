@@ -47,7 +47,7 @@ Dedupe findings by `(surface, item, lens)`; adjudicate severity (pick the higher
 
 ### 4. Route findings to the backlog, severity-tiered
 
-Route every confirmed finding to the project backlog, tagged `[guardrails]`, tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next), none dropped. Structural findings frequently *propose a machinery change* (merge two overlapping rules, add a gate to close an enforcement gap, retire a decorative check, reconcile a drifted description). These are proposals for maintainer triage, not changes the skill applies autonomously: changing the machinery is a design decision the maintainer owns. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
+Route every confirmed finding to the project backlog, tagged with the run-keyed parenthetical the backlog uses (a `(rN guardrails, size, effort)` marker naming the originating run, for example `(r8 guardrails, M, S)`), tiered by severity (High[critical]/High to the top-priority tier, Medium/Low to the next), none dropped. Structural findings frequently *propose a machinery change* (merge two overlapping rules, add a gate to close an enforcement gap, retire a decorative check, reconcile a drifted description). These are proposals for maintainer triage, not changes the skill applies autonomously: changing the machinery is a design decision the maintainer owns. Findings that dedupe against an existing backlog item are cross-referenced, not duplicated.
 
 ### 5. Record
 
@@ -68,7 +68,7 @@ Surface the confirmed findings inline in chat (per-finding: lens, severity, `pat
 
 ## Verification
 
-The review is complete on a given run when: the mechanical baseline was confirmed green (the parity gates in particular); the machinery inventory was enumerated across rules, skills, and gates; all three lenses (overlap, gap, drift) were applied with evidence-quoted findings; the orchestrator re-read each cited source and confirmed or refuted it; every confirmed finding was routed to its severity-appropriate backlog tier tagged `[guardrails]`, none dropped, with proposed machinery changes flagged as maintainer-decision proposals; and the per-run record and history row were written and the findings surfaced in chat.
+The review is complete on a given run when: the mechanical baseline was confirmed green (the parity gates in particular); the machinery inventory was enumerated across rules, skills, and gates; all three lenses (overlap, gap, drift) were applied with evidence-quoted findings; the orchestrator re-read each cited source and confirmed or refuted it; every confirmed finding was routed to its severity-appropriate backlog tier tagged with the `(rN guardrails, size, effort)` parenthetical, none dropped, with proposed machinery changes flagged as maintainer-decision proposals; and the per-run record and history row were written and the findings surfaced in chat.
 
 ## Common Rationalizations
 

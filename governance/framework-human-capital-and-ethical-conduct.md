@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-07-10\
+**Version:** 1.0.7\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md)\
@@ -38,7 +38,7 @@ All personnel must perform duties honestly and transparently. Bribery, corruptio
 
 ### 2. Anti-bribery and corruption controls
 
-The organization operates an anti-bribery management system compliant with ISO 37001:2025. Key controls include:
+The organization's anti-bribery management system is designed to align with ISO 37001:2025. Key controls include:
 
 - All gifts, hospitality, and donations must be recorded and pre-approved above defined thresholds.
 - Facilitation payments are prohibited in all circumstances.

@@ -863,6 +863,38 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 [`third-party-issues.md`](../.working/third-party-issues.md)), so the `grc_library_ref` half of any
 update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the P1 reference-currency residuals (§1.5 through §1.8) are all now closed.
 
+## Missing-reference-document SOP (maintainer-directed 2026-07-12)
+
+When a task needs a reference document that `grc_library_ref` does not hold and that is
+load-bearing for the work (a standard, regulation, RTS/ITS, framework, or dataset that a
+citation or an attributed normative value depends on), do NOT proceed on the gap and do NOT
+merely route it as a `source-not-held` finding. The standing procedure is:
+
+1. **PAUSE** the current task at the point the missing reference is needed.
+2. **Attempt to download it** from its authoritative / primary source and **ingest it into
+   `grc_library_ref`** via the ingest workflow (drop in `ingest/`, dedupe, identify, route to
+   the right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the
+   indexes, run the ref gate; the full workflow is in the
+   [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6 and
+   `grc_library_ref` `CONTRIBUTING.md`). Then continue the task against the now-held source.
+   (The `grc_library_ref` write is a cross-repo PR per the git-proxy constraint above.)
+3. **If the download fails** (egress-blocked per the DD-10 known issue, licensed or paywalled,
+   or otherwise unavailable), surface it to the maintainer with named options:
+   - **(a)** the maintainer downloads or provides the document (the usual resolution when it is
+     licensed or egress-blocked);
+   - **(b)** **defer the current task** until the document is ingested (the DEFAULT in unattended
+     mode via the roughly-2-minute graceful-degradation timer: record the deferral in
+     [`pending-decisions.md`](../.working/pending-decisions.md) as deferred-blocked, route around
+     to the next independent item, and hold anything that depends on it);
+   - **(c)** something else, for example reword the artefact so it does not depend on the missing
+     reference, or cite the source corroboratively-only with an accepted-unverified tracker.
+
+This generalizes the `## Reference-version currency` pause-and-ask clause (which covers the
+version-update case) to ANY missing load-bearing reference: routing a `source-not-held` finding
+without first attempting the download is the shortcut this SOP forecloses. The project-agnostic
+pack distribution of this SOP (into the `evidence-grounded-completion` rule's external-source
+corollary) is queued in [`TODO.md`](../TODO.md).
+
 ## Attended-autonomous operating mode
 
 Between fully-attended and overnight mode there is a third, default-for-active-sessions

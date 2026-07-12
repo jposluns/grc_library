@@ -30,6 +30,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #826: reconcile the guardrail-review routing-tag convention (closes TODO §3.49) (2026-07-12)
+
+Deep-assessment r2 finding F2: reworded the [`guardrail-review` skill](../dev-security/claude-rules/skills/guardrail-review/SKILL.md) (the routing and verification sections) from the prescribed `[guardrails]` bracket tag to the `(rN guardrails, size, effort)` parenthetical convention the backlog actually uses (0 bracket tags vs 5 parentheticals). Traceability preserved; matches practice. Closes TODO §3.49.
+
 ### PR #824: positional backlog-token audit gate 69 (closes TODO §3.4) (2026-07-11)
 
 Landed the HELD, reconciled gate 69 (the `worker-20260708-fable/positional-token-lint-313` delivery) as the `/deep-assessment` r2 coverage obligation: a new corpus lint ([`tools/lint-positional-backlog-tokens.py`](../tools/lint-positional-backlog-tokens.py)) flagging renumber-fragile positional backlog references (a `TODO` / `backlog item` qualifier followed by a `§`/`P`-prefixed or dotted section token) that should use a stable coded id or topic name, the mechanical form of the CLAUDE.md §N-orphan guard scoped to the corpus. Wired across all four gate-parity surfaces with a five-case regression class; the three live carriers (two in the audit-programme spec, one in the citation-verification spec) were reworded to green it. The held branch was landed onto post-#823 `main` by taking its substance files (gate, wiring, fixture, spec, carrier fixes, SKILL count) onto a fresh branch and re-authoring the version/CHANGELOG/DONE bookkeeping for #824; the gate was re-run on current `main` and confirmed 0 residual carriers (the set stable since the branch's derivation). Closes TODO §3.4.

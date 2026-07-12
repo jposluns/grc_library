@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.314, PR #826
+
+Deep-assessment r2 follow-ups and codifications (maintainer-directed full-program continuation). Library `2026.07.313` to `2026.07.314`.
+
+### Changed
+
+- **F2 (closes [`TODO.md`](../../TODO.md) §3.49):** reworded [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) (routing and verification sections) from the prescribed `[guardrails]` bracket tag to the `(rN guardrails, size, effort)` parenthetical the backlog actually uses (0 bracket tags vs 5 parentheticals). Rotated §3.49 to [`.working/DONE.md`](../DONE.md).
+- **F3:** extended the [`README.md`](../../README.md) repository-structure map (it claims to orient readers "as a whole" yet had omitted several tracked root items): added `/tests` plus the four tracked root items (`.project-governance/`, `.working/`, [`TODO.md`](../../TODO.md), [`RESUME.md`](../../RESUME.md)); the working-state entries are marked adopter-deletable. (Standard root files, the licence, the contributing guide, and similar, remain unlisted, so the map is extended, not exhaustive.)
+- **F4:** hedged the one unhedged conformance phrase in [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) `1.0.6`->`1.0.7` ("operates an anti-bribery management system compliant with ISO 37001:2025" to "designed to align with ISO 37001:2025"), matching the corpus's otherwise-hedged voice.
+- **Missing-reference-document SOP** codified in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (maintainer-directed 2026-07-12): pause, attempt download and ingest to `grc_library_ref`, else surface with named options (maintainer fetches / defer via the roughly-2-minute timer in unattended mode / reword). Generalizes the Reference-version-currency pause-and-ask clause to any missing load-bearing reference. `lint-language` run on the new SKILL and CLAUDE.md prose before commit (dash/-ise clean in the added text).
+- **[`TODO.md`](../../TODO.md) routing:** §3.48 updated with the now-held DORA RTS designations (2024/1772 classification, **2025/301 Article 5** windows, 2025/302 ITS) and a verify-against-held-Art-5 step (checking the 24h element the single "4 hours" phrasing may under-state); §3.51 (F6 ISO/IEC 30111 + F7 MITRE CAPEC + F8 NIST IR 8374 reference-breadth additions); §3.52 (F9 annex transparency->42001 §8.4 + F10 27001-column §8.4 citation-fit); §3.53 (distribute the missing-reference SOP to the pack).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); README library CalVer `2026.07.313`->`2026.07.314`, README Version `1.9.674`->`1.9.675`.
+- Recorded the **completed extended coverage** in [`.working/deep-assessment/2026-07-11-r2.md`](../deep-assessment/2026-07-11-r2.md) and the register (non-AI `/matrix-fit` 0, non-AI `/claim-fit` 0-new, FULL `/reference-audit` 3-additive F6/F7/F8, `/screen-publications` 15-`screened`); batched the #825 `/validate-pr` (clean, 1 cosmetic note) and `/retro` rows.
+
+### Verification
+
+- **Full r2 finding set now dispositioned:** F1/F2/F3/F4 FIXED; F5 (DORA, source now held, verify-and-cite queued §3.48); F6/F7/F8/F9/F10 routed; 15 publications `screened` (ref SCREENING.md PR to follow). 0 error-tier findings in the whole run; every warning-tier finding fixed or routed. The run continues to HOLD at Phase 8 for maintainer sign-off (the extended coverage is now complete, so the sign-off set is final pending the ref SCREENING.md apply).
+- The F4/governance version bump was regenerated into the artefacts (the #825 `/validate-pr` flagged the un-regenerated intermediate state; regen confirmed in sync before push).
+- Pre-push guard green (69/69 + all D-checks). A refute-briefed skeptical verifier reviewed the batch before push.
+
 ## 2026-07-12, Library Version 2026.07.313, PR #825
 
 Fixes `/deep-assessment` r2 finding **F1** (the one warning), complete across all carriers: ISO/IEC 42001:2023 Clause 8.4 (held title "AI system impact assessment") was mislabeled documentation / transparency / data-controls. Library `2026.07.312` to `2026.07.313`.
