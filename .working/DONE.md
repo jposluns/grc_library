@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §4.8: Pack adoption-hygiene programme, phases 1-4 (2026-07-12)
+
+The four-phase programme that made the `dev-security/claude-rules/` pack project-agnostic for public distribution: Phase 1 condensed all 13 governance rules (operative-core / on-demand-rationale split, #835-#840); Phase 2 generalized the 14 project-wired skills, added 2 derived skills + the rule-provenance register (#842); Phase 3 scrubbed the 14 residual project wirings from 6 governance rules and added the 13 PROJECT-OVERLAY blocks (#845); Phase 4 ran the acceptance sweep (PASS), triaged the routed findings to §1.2/§3.56/§3.57/§4.9, and closed the programme (#846). The pack now carries zero out-of-pack relative links and zero project instantiations in its governance rules; gate 37 enforces the pack/`.claude` overlay sync. Unblocks §4.1 (corpus-management shareable skill).
+
 ### TODO §4.7 (deep-assessment r1 R13): RESUME.md maintainer-internal label (2026-07-12)
 
 Added an in-file "maintainer-internal; adopters can ignore or delete" note to the top of `RESUME.md` (the README maintenance-file table already carried the same framing at line 167), so the adopter-visible root file now signals it is not an adopter document on both surfaces.
