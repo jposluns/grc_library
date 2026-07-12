@@ -203,27 +203,3 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 | Distinguishing mechanical from semantic verification | RV.1 | GRC-05 | A.5.36 | V14.1 |
 | Documented exception handling | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Audit trail of verifications performed | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
-
----
-
-## Worked example: the multi-surface gate-name parity case
-
-A common shape of this rule's failure mode in governed codebases: a session adds a new audit gate to a programme that declares its gates across several parallel surfaces (CI workflow, local runner, pre-commit config, audit-programme specification). The session wires the gate into all but one of the surfaces, touching exactly the files it needed to touch for the implementation work, and prepares the changeset for the next operator with a summary claim of the form "all N audit gates pass on this state". The omitted surface is the one that did not appear on the session's working set, so the session's mental model of "did I do the wiring?" centred on the surfaces it did touch, and the missing one slipped past.
-
-A gate-name parity audit, itself one of the N gates, would have caught the omission. The session's summary, though, was composed from inference ("I added the gate; the audit was passing earlier; it should still pass") rather than from running the audit on the final state. When the work was picked up next, the full audit run reported the parity gate failing with the correct diagnostic, and a one-block fix closed the loop. The total recovery cost was one extra audit-and-fix loop; the avoidable cost was the operator's reasonable trust in a summary that did not match the working tree.
-
-The mechanical defence existed and worked. The discipline failure was the rule's *Relying on prior runs* anti-pattern: "it passed last time, and the only change is small" does not substitute for running the gates on the current state. The protocol applies even when the session is not in doubt; a claim that the audit suite passes on the current state requires running the audit on the current state, not on a state from earlier in the session.
-
-The wider lesson for any work that touches several parallel surfaces (gate-name parity, generator-output drift checks, mirror-sync between a source-of-truth and its copies, polyglot lockfiles, cross-package version registers): the verification protocol must explicitly include "run the parity check on the final state, after every other change has been made". A session that did the wiring without the final-state check has completed the implementation tasks but not the verification task; the verification task is part of the work, not a coda to it.
-
----
-
-## Why this rule exists
-
-The classic failure mode this rule addresses: an AI coding assistant runs a passing audit, infers that the work is done, writes "all gates pass; ready to ship", and is wrong because the audit covered some claims and not others. A reviewer reads the summary, trusts the assistant, and the unsupported claim lands.
-
-The discipline reverses the flow. The summary is composed *after* the verification, *from* the evidence, not from inference. The vocabulary of completion ("done", "fixed", "ready") becomes a flag that the assistant must satisfy the protocol before emitting; the protocol is mechanical (enumerate, re-read, quote, contradiction-search) so it can be checked without subjective judgement.
-
-The cost of the protocol (a few extra tool calls and a more careful summary) is small. The cost of an unsupported completion claim that lands and gets relied on (a defect that ships, a reviewer's trust eroded, a user who later has to catch what the assistant should have caught) is much larger. The asymmetry justifies the discipline.
-
-For AI coding assistants specifically: if a user catches an inconsistency that this rule's protocol would have caught, the right response is not "good catch" (which implies you understood and have it under control). The right response is "you caught what I should have caught; rerunning the verification protocol now", followed by actually rerunning the protocol.

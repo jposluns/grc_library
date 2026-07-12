@@ -235,19 +235,3 @@ Across all five disciplines:
 | Idle-time productive use | PO.5 | n/a | n/a |
 
 The disciplines implement the same audit-trail-integrity principle the broader pack expresses: every claim a downstream reader is asked to rely on must be traceable to a verification step, and the discipline of producing those verification steps must be regular enough that the audit trail is dense rather than sparse.
-
----
-
-## Why this rule exists
-
-The five disciplines were developed during a multi-week corpus-remediation session in which an AI assistant drove 30+ PRs to close a fitness-review backlog. The session surfaced each failure mode in turn:
-
-- **Research-assistant discipline** emerged after a worker confabulated a non-existent file path; the discipline was named so future workers would be treated as research, not as final prose.
-- **Pipeline PR construction** emerged after early sessions were bottlenecked on serial research-then-apply; parallel research was added to keep the apply-queue non-empty.
-- **Apply-time worker correction** emerged after several worker drafts referenced stale version numbers or wrong PR cross-references; documenting the catches turned them into a tracking signal.
-- **Always split when in doubt** emerged after a maintainer noted that bundled PRs were harder to review than single-purpose ones; "split" became the default.
-- **Background work during CI waits** emerged after a maintainer asked whether idle waits were necessary; they weren't, and read-only prep was identified as the safe productive use.
-
-Each discipline pays back its complexity many times over the course of a long session. The cost of memorizing them is small; the cost of relearning them by repeated failure is large.
-
-For AI coding assistants specifically: when you find yourself dispatching multiple workers in parallel, when you find yourself bundling changes, when you find yourself sitting idle during CI, when you find yourself pasting worker prose without re-reading the target file, pause and run the corresponding discipline. The disciplines exist because each failure mode was observed; the discipline keeps the failure mode from recurring.

@@ -295,15 +295,3 @@ If the project does not have an exception register, the exception is not availab
 | Audit trail integrity | PS.1, RV.1 | LOG-02, LOG-08 | A.8.15 |
 | Version monotonicity | RV.1 | CCC-04 | A.8.27 |
 | Change classification (breaking vs non-breaking) | PO.5 | CCC-02 | A.8.32 |
-
----
-
-## Why this rule exists
-
-A CHANGELOG is the cheapest form of long-term institutional memory a project has. Code review answers "is this change correct now"; the CHANGELOG answers "what changed and why" months or years later, after the original reviewer has rotated off the project and the original PR thread is buried.
-
-The cost of an entry (one short section) is paid once, by the person closest to the change. The cost of *not* having an entry compounds: each future reader who hits the artefact and asks "when did this happen?" pays the price of reading the diff, reconstructing the rationale, and risking a wrong inference. Multiplied across years and contributors, the total cost dwarfs the per-entry cost by orders of magnitude.
-
-The opt-out path exists because some changes are genuinely invisible to consumers and an entry would be noise. It is a documented trailer, mechanically inspectable, reviewer-approved; it is not silence. Silence is exactly what the audit trail is supposed to prevent.
-
-For AI coding assistants specifically: when shipping a change, the entry is part of the change, not a separate concern to be added later. Treat a PR without an entry the same way you would treat a PR without a test: incomplete by construction.
