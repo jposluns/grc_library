@@ -93,13 +93,3 @@ The harness's *executable* form (a skill with a slash-command entry point that r
 | Findings and verifications traceable to a record | PS.1, RV.2 | LOG-02, LOG-08 | A.8.15, A.5.36 | V14.1 |
 
 The rule expresses the same audit-trail-integrity principle as the rest of the pack, applied at the highest-stakes boundary: a sensitive change's correctness must be traceable to an independent verification and a deterministic apply, not to the orchestrator's confidence that it got the edit right.
-
----
-
-## Why this rule exists
-
-The harness was developed after a maintainer-directed sensitive change: adding an AI-specific control-framework column to a compliance matrix, a wide single-artefact reshape where each cell carries a control code whose *fit* (is this the right control for this row's document?) no existence gate can check. The maintainer directed that integrity be made absolute through independent rechecking rather than trusted to a single pass. The layered harness that resulted caught real defects a single pass missed: the fast first-pass research, uneven in depth, inferred many "not applicable" verdicts from document titles without opening the documents; an independent false-negative verifier, re-reading those negatives, found nine genuine misses (each a document with a dedicated section the title did not advertise), and a false-positive verifier tightened three over-assignments. The mechanical floor (every code confirmed in the canonical set, the existence gate, and a deterministic re-parse of the rendered cells against the verified map) made the apply itself correct independent of the long hand-edit it replaced.
-
-The lesson generalized: when a change is gate-blind on correctness, delicate at scale, and costly to get wrong, the routine layers are not enough, and the right response is not "be more careful" (an un-instrumented intention) but a structured harness whose independent adversarial stages and deterministic apply *produce* the assurance. The persistent register and the resume surfacing make it a recurring discipline rather than a one-session effort, so a sensitive item recognized in one session is verified to completion across whatever sessions the work spans.
-
-For AI coding assistants specifically: when you recognize the three conditions in a change in front of you, do not reach for the routine flow and a careful hand-edit. Escalate to the harness, record the item in the persistent register, and let the independent verification and the deterministic apply carry the correctness, not your confidence.

@@ -112,13 +112,3 @@ This rule also brings into the primary pack a discipline the third-party overlay
 | Decisions traceable to a confirmation step | PS.1, RV.2 | LOG-02, GRC-04 | A.8.15, A.5.4 | V14.1 |
 
 The rule expresses the same audit-trail-integrity principle the rest of the pack expresses, on the instruction-intake boundary: a counterproductive instruction acted on without a surfaced confirmation is a decision no one consciously made, and its cost is discovered downstream by the requestor who did not foresee it.
-
----
-
-## Why this rule exists
-
-The motivating incident: a maintainer said "after the current piece of work is done, we will wind down". By the time the instruction arrived, the assistant had already started and committed the next piece. Read literally and silently, "wind down" was taken to override the committed work, and the assistant reverted it. The maintainer had meant one of two sensible things ("wind down after the next piece, since it is already underway", or "stop and ask me what to do with the in-flight work"), and neither was "destroy the committed work". The literal-and-destructive reading was the one path the maintainer did not intend, and it was taken without a word of confirmation.
-
-Two disciplines already in the pack would each have caught it: `clarify-before-acting` (the instruction admitted more than one reading) and the confirm-before-destructive-action discipline (reverting committed work is destructive). What was missing was a rule that names the general case directly, so the assistant recognizes it at the moment of intake rather than reconstructing it from two adjacent rules under time pressure. That general case is: an instruction can be clear and still be the wrong thing to do, and the assistant's job is to notice that, surface it once with the cost and the options, and let the requestor make the call with full information.
-
-For AI coding assistants specifically: the pull toward fast, compliant execution is strong, and it is precisely the pull this rule countermands. When executing the instruction in front of you would cost the requestor something they did not foresee, the right move is not to execute quickly and the right move is not to refuse; it is to stop, name the cost in one sentence, offer the better path, and act on the answer.
