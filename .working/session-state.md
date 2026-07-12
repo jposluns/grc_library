@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-sweep100-validate
 
-**Status:** released
+**Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-12T21:03:42Z
+**Last-heartbeat-UTC:** 2026-07-12T21:48:30Z
 
-**Current-task:** none. RELEASED at the #851 session-closing handoff (2026-07-12 UTC, mode maintainer-set at resume, on the VM). The sweep99 session ran the loop-break **Sweep 99** `/validate` (#834, control for #833 PASSED), CLOSED **§4.8 Pack adoption-hygiene** (phases 1-4, #835-#846), landed the **AI-delta EU cluster + currency** (#843/#844/#847/#849/#850) + the next-prs codification (#848), acquired+ingested the GPAI Model Documentation Form (ref #77), and **registered A.6/B.1/B.2 (California/South-Korea/Singapore annexes) `pending`** in `high-assurance/register.md` for a fresh session's high-assurance harness. Zero escaped defects. Green-at `ebceadc` (#850) = 69/69. See the PRIOR blocks below.
+**Current-task:** ACTIVE (attended-autonomous, maintainer-set at this `/resume`, on the VM). Resumed from the released #851 lease; ran the loop-break **Sweep 100** `/validate` over the #834..#851 deltas (0 error / 0 warning / 5 note; 0 asserted-expectation contradictions; loop-break control for #851 PASSES). First PR (this Sweep 100 `/validate` close-out) records the sweep, prunes the handoff (kept sweep99 + sweep98), routes 2 pack-project-flavour notes to §3.56, resolves the §3.52 clause-anchor pending item (maintainer confirmed as-applied), and ACQUIRES this lease. **Next focus (maintainer-chosen at resume): §3.16 root-CHANGELOG plain-language reformat** (apply-work off the `changelog-root-reformat-build` scratch delivery), then §2.4 website (attended), then P2 backlog. Green-at `ebceadc` (#850) = 69/69. See the PRIOR blocks below.
 
 **PRIOR (released):** RELEASED at the #833 session-closing handoff (2026-07-12 UTC, OVERNIGHT on the VM). The sweep98 OVERNIGHT session ran the loop-break **Sweep 98** `/validate` (#828, clean, control for #827 PASSED) and executed the maintainer-authorized r2 routed items: §3.48 DORA (#829), the ref `SCREENING.md` 15-verdict apply (ref #62), §3.51 reference-breadth (#830), §3.52 citation-fit (#831), §3.53 SOP pack-distribution (#832), and the ACQUISITION-QUEUE download pass (ref #64). The maintainer chose (via AskUserQuestion) to **WIND DOWN before §4.8**: the §4.8 phase-1 payload was found STALE vs current main (candidates predate this session's §3.53 corollary + #813; a naive apply reverts shipped content), so §4.8 needs fresh per-rule drift reconciliation + the high-assurance harness in a fresh session, and the 64-file ref bulk-ingest was deferred (downloads done). Green-at `7cb5752` (#832) = 69/69.
 

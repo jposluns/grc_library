@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.340, PR #852
+
+Sweep 100 `/validate` close-out (first PR of the resumed session; `.working/` + version-surface + CHANGELOG only, no corpus body). The loop-break corpus-wide validation sweep, the compensating control for session-closing handoff PR #851 (which skipped its trailing `/validate-pr` + `/retro`), over the #834..#851 delta window. Mechanical baseline 69/69 at `6fd59c7`/#851 (a descendant of the closing session's asserted green-at `ebceadc`/#850; no close-vs-start drift); clone non-shallow. Full three-subagent A/B/C dispatch; 0 error / 0 warning / 5 note; 0 asserted-expectation contradictions; loop-break control for #851 PASSES.
+
+### Verification
+
+- **Sweep result:** A (recent-PR deep review) 1 note; B (corpus-wide stale-reference) 3 note; C (audit-programme integrity) 0. Pre-flight 421 files, 33 suppressed, 11 candidates all the collection-count-word false-positive class, dismissed by all three subagents.
+- **A held-verified against the reference base:** every in-window EU AI Act article citation verbatim against the held EU AI Act full text (Regulation (EU) 2024/1689) (Articles 3/5/51/53/55/56/78, Directive 2019/790 Article 4(3)); the GPAI Safety-Security / Copyright / Transparency chapter content (incl. the TPM-not-HSM Appendix 4.2 detail); the Commission Guidelines C(2025) 5052 / 5053 identifiers; the DORA #834 sector-annex reporting-window as an exact match to held RTS Delegated Regulation (EU) 2025/301 Article 6 (coherent with the dedicated DORA annex); the #840 ISO/IEC 27001 A.5.35 remap; and the IEEE 7000 clause-7.3 sweep.
+- **B refuted corpus-wide:** skills-count drift (23 confirmed digit + word-form), overlay leak (gate 37 EXIT 0, 13/0), AIDA present-tense framing, OECD "(2019, updated 2024)", EU AI Act Article 51 classification, and closed/renumbered section orphans.
+- **C confirmed clean:** `run_all_audits.sh` 69/69 EXIT 0 (independent re-run); four-surface gate parity at 69 (gate 35); cross-file count consistency (gate 39: gates 69, rules 13, skills 23); gate-37 SOP mirror 13/0 overlay; section-5 grouped-list + section-6 detailed-prose (gate 64); rules 13 / commands 14 / Document-types 18 (gate 67); gate-60 cadence clean; gate-36 regression green.
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): prepended the Sweep 100 iter-1 row; own Version `2.0.94` to `2.0.95`.
+- [`.working/validate-sweeps/2026-07-12-sweep100-iter1.md`](../validate-sweeps/2026-07-12-sweep100-iter1.md): new per-iteration detail file (six H2 sections, verbatim subagent returns + orchestrator synthesis).
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the resume sweep cursor to Sweep 100 iter 1; pruned the sweep97 (oldest) Next-actions / State-snapshot / Asserted-expectations blocks per the keep-current-plus-one-prior discipline (sweep99 + sweep98 retained; the pruned narrative is durably recorded in the CHANGELOG, DONE, and this mirror).
+- [`TODO.md`](../../TODO.md): section 3.56 gains bullet (e) routing the two out-of-window pack-project-flavour notes (change-tracking.md example paths; project-integrity.md "consuming GRC library" naming).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the section-3.52 citation-fit clause-anchor item marked RESOLVED (maintainer confirmed the applied best-fits, 42001 Annex A.8 and 27001 section 7.5, via AskUserQuestion at this resume).
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease (Active-session, Status active, fresh heartbeat, Current-task).
+- [`.working/next-prs.txt`](../next-prs.txt): cycled forward (Sweep 100 done; next focus section 3.16 CHANGELOG reformat).
+- Library CalVer `2026.07.339` to `2026.07.340`; README Version `1.9.700` to `1.9.701`.
+
+### Notes and dispositions
+
+- **A note (in-window, [`ai/jurisdictions/annex-ai-european-union.md`](../../ai/jurisdictions/annex-ai-european-union.md)):** adjudicated by-design, no fix. The Article 56 Codes-of-Practice compliance framing is carried in the operational docs the statute-level annex routes to; optional one-line cross-reference enhancement offered to the maintainer, recommendation leave-as-is.
+- **B notes (out-of-window):** SP 800-154 "held source" wording already tracked (TODO section 1.2); the two pack-project-flavour notes routed to TODO section 3.56.
+- **A ETSI flag:** refuted; `ETSI EN 304 223 V2.1.1` is the correct designation per the reference catalogue (confirmed 2026-07-04; `TS 104 223` is the superseded predecessor).
+
+This PR is a normal (non-handoff) close-out, so it receives its own post-merge `/validate-pr` + `/retro`, which batch into the next PR per recursion-avoidance.
+
 ## 2026-07-12, Library Version 2026.07.339, PR #851
 
 Session-closing handoff for the sweep99 session (#834-#850). Terse (`.working/` + version-surface + CHANGELOG only; no corpus body).
