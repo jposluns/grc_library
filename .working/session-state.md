@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep99-validate
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
-**Last-heartbeat-UTC:** 2026-07-12T11:35:48Z
+**Last-heartbeat-UTC:** 2026-07-12T21:03:42Z
 
-**Current-task:** sweep99 `/resume` (2026-07-12, mode maintainer-set at resume, on the VM). Resumed from the released #833 lease. Running the loop-break **Sweep 99** `/validate` over the **#828..#833** delta window (the compensating control for the #833 session-closing handoff PR), then holding for the maintainer's decision on the next task (the maintainer flagged the Opus 4.8 update from a research agent as the likely next task; do NOT start it until the maintainer confirms). Green-at `60ea553` (#833) = 69/69 at acquire (a descendant of the closing session's asserted green-at `7cb5752`/#832; no close-vs-start drift). See the PRIOR blocks below.
+**Current-task:** none. RELEASED at the #851 session-closing handoff (2026-07-12 UTC, mode maintainer-set at resume, on the VM). The sweep99 session ran the loop-break **Sweep 99** `/validate` (#834, control for #833 PASSED), CLOSED **§4.8 Pack adoption-hygiene** (phases 1-4, #835-#846), landed the **AI-delta EU cluster + currency** (#843/#844/#847/#849/#850) + the next-prs codification (#848), acquired+ingested the GPAI Model Documentation Form (ref #77), and **registered A.6/B.1/B.2 (California/South-Korea/Singapore annexes) `pending`** in `high-assurance/register.md` for a fresh session's high-assurance harness. Zero escaped defects. Green-at `ebceadc` (#850) = 69/69. See the PRIOR blocks below.
 
 **PRIOR (released):** RELEASED at the #833 session-closing handoff (2026-07-12 UTC, OVERNIGHT on the VM). The sweep98 OVERNIGHT session ran the loop-break **Sweep 98** `/validate` (#828, clean, control for #827 PASSED) and executed the maintainer-authorized r2 routed items: §3.48 DORA (#829), the ref `SCREENING.md` 15-verdict apply (ref #62), §3.51 reference-breadth (#830), §3.52 citation-fit (#831), §3.53 SOP pack-distribution (#832), and the ACQUISITION-QUEUE download pass (ref #64). The maintainer chose (via AskUserQuestion) to **WIND DOWN before §4.8**: the §4.8 phase-1 payload was found STALE vs current main (candidates predate this session's §3.53 corollary + #813; a naive apply reverts shipped content), so §4.8 needs fresh per-rule drift reconciliation + the high-assurance harness in a fresh session, and the 64-file ref bulk-ingest was deferred (downloads done). Green-at `7cb5752` (#832) = 69/69.
 

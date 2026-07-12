@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.339, PR #851
+
+Session-closing handoff for the sweep99 session (#834-#850). Terse (`.working/` + version-surface + CHANGELOG only; no corpus body).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): prepended the sweep99 Next-actions, State-snapshot, and Asserted-expectations blocks (pruning to current+1-prior is the next `/resume`'s job, per the refresh/prune discipline).
+- [`.working/high-assurance/register.md`](../high-assurance/register.md): registered A.6 California, B.1 South Korea, B.2 Singapore annexes as `pending` Active items (why-sensitive, held sources + templates, A.6's verified dates, and the per-annex caveats), for a fresh session's high-assurance harness.
+- [`.working/session-state.md`](../session-state.md): RELEASED the lease (Active-session none, Status released).
+- [`.working/session-metrics.md`](../session-metrics.md): sweep99 row (measured-honest; token tally not armed at resume, so not asserted rather than fabricated).
+- [`TODO.md`](../../TODO.md) §2.5: Workstream C LANDED markers (C.1 reconfirmed / C.3 landed #850), the #850 `/validate-pr` F1 fix.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #850 row (1 low, fixed) + the #851 handoff-exemption row (`SKIPPED (handoff-PR exception)`). [`.working/improvement-log.md`](../improvement-log.md): #850 `/retro` row.
+
+### Verification
+
+- Loop-break: this handoff PR skips its own `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 100, #834..#851), cross-checked against the Asserted-expectations block. Green-at `ebceadc` (#850) = 69/69; #851 is working-state + version + CHANGELOG only. All 69 gates pass.
+
 ## 2026-07-12, Library Version 2026.07.338, PR #850
 
 AI-domain delta, Workstream C (currency and residuals). Two reconfirmation checks; one minimal corpus precision fix.
