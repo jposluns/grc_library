@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-11\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -88,10 +88,10 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 | Requirement | Canada instrument | NIST AI RMF | ISO/IEC 42001 |
 | --- | --- | --- | --- |
 | Public-sector automated-decision governance and impact assessment | Treasury Board Directive on Automated Decision-Making; the Algorithmic Impact Assessment | Govern, Map, Measure | Clause 8 |
-| Generative-AI governance (federal institutions) | TBS Guide on the Use of Generative AI (FASTER) | Govern | Clause 8.4 |
+| Generative-AI governance (federal institutions) | TBS Guide on the Use of Generative AI (FASTER) | Govern | Annex A.8 |
 | Responsible generative-AI development (industry) | ISED Voluntary Code of Conduct | Govern, Manage | Clause 8 |
 | Financial-services model risk management | OSFI Guideline E-23 | Manage | Clause 8.3 |
-| Provincial public-sector AI accountability | Ontario EDSTA, 2024 (not yet in force) | Govern | Clause 8.4 |
+| Provincial public-sector AI accountability | Ontario EDSTA, 2024 (not yet in force) | Govern | Annex A.8 |
 | Ethical design and use of artificial intelligence | CAN/DGSI 101:2025 | Govern, Map, Measure, Manage | Clause 8 |
 
 ---

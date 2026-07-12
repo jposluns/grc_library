@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.11.15\
-**Date:** 2026-07-10\
+**Version:** 1.11.16\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -390,9 +390,9 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | TVM-07, AIS-05, TVM-04 | MDS-06 | A.8.29, A.8.8, §9.1 | ID.RA, ID.IM, DE.CM | N/A | N/A | N/A | N/A | N/A |
 | AI | AI System Register Template | [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | DSP-03, GRC-02, GRC-07 | GRC-10, MDS-03 | A.5.9, §6.1.2, A.5.19 | ID.AM, ID.RA, GV.OC | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Vendor Security Questionnaire Template | [`ai/template-ai-vendor-security-questionnaire.md`](../ai/template-ai-vendor-security-questionnaire.md) | STA-01, STA-10, STA-09 | MDS-12, DSP-20 | A.5.19, A.5.20, A.5.21 | GV.SC, ID.RA, GV.OC | N/A | N/A | N/A | N/A | N/A |
-| AI | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | DSP-03, DSP-06, DSP-13 | DSP-20, DSP-24 | A.5.9, A.8.10, §8.4 | ID.AM, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
-| AI | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | DSP-03, GRC-02, AIS-05 | MDS-03, MDS-04, GRC-13 | §8.4, A.5.9, §9.1 | ID.IM, GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
-| AI | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | DSP-03, GRC-02, IAM-15 | MDS-03, GRC-13, GRC-15 | §8.4, A.5.15, §9.1 | ID.IM, GV.OC, PR.AA | N/A | N/A | N/A | N/A | N/A |
+| AI | Dataset Datasheet Template | [`ai/template-dataset-datasheet.md`](../ai/template-dataset-datasheet.md) | DSP-03, DSP-06, DSP-13 | DSP-20, DSP-24 | A.5.9, A.8.10, §7.5 | ID.AM, PR.DS, GV.OC | N/A | N/A | N/A | N/A | N/A |
+| AI | Model Card Template | [`ai/template-model-card.md`](../ai/template-model-card.md) | DSP-03, GRC-02, AIS-05 | MDS-03, MDS-04, GRC-13 | §7.5, A.5.9, §9.1 | ID.IM, GV.OC, ID.RA | N/A | N/A | N/A | N/A | N/A |
+| AI | System Card Template | [`ai/template-system-card.md`](../ai/template-system-card.md) | DSP-03, GRC-02, IAM-15 | MDS-03, GRC-13, GRC-15 | §7.5, A.5.15, §9.1 | ID.IM, GV.OC, PR.AA | N/A | N/A | N/A | N/A | N/A |
 
 ---
 

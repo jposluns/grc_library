@@ -2,8 +2,8 @@
 
 **Document Title:** New York City Automated Employment Decision Tool Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-11\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -65,8 +65,8 @@ The DCWP enforces Local Law 144. A violation of the bias-audit, published-result
 | --- | --- | --- | --- |
 | Independent bias audit within one year | 6 RCNY 5-301 | Measure, Manage | Clause 8.3 |
 | Bias-audit data requirements | 6 RCNY 5-302 | Measure | Clause 8.3 |
-| Published summary of audit results | 6 RCNY 5-303 | Govern | Clause 8.4 |
-| Candidate and employee notice | 6 RCNY 5-304 | Govern | Clause 8.4 |
+| Published summary of audit results | 6 RCNY 5-303 | Govern | Annex A.8 |
+| Candidate and employee notice | 6 RCNY 5-304 | Govern | Annex A.8 |
 | Enforcement and penalties | Administrative Code section 20-872 | Govern | Clause 9 |
 
 ---

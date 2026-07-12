@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.319, PR #831
+
+Deep-assessment r2 §3.52 citation-fit best-fit remaps (closes TODO §3.52; for maintainer confirm-or-redirect) plus the #830 `/validate-pr` finding fix. Library `2026.07.318` to `2026.07.319`.
+
+### Changed
+
+- Five AI jurisdiction annexes (EU, Australia, Canada, NYC, Colorado; each `0.0.1` to `0.0.2`): the "transparency / notice to affected persons" rows (7 cells total) remapped from ISO/IEC 42001 Clause 8.4 (held title "AI system impact assessment", the wrong control) to 42001 **Annex A.8** ("Information for interested parties of AI systems"), the correct control family for informing affected/interested parties. The one legitimate impact-assessment row (Canada annex, "Clause 8") was left untouched.
+- [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md) (`1.11.15` to `1.11.16`): the Dataset Datasheet, Model Card, and System Card rows' ISO/IEC 27001 column remapped from the non-existent §8.4 (27001:2022 clause 8 has only 8.1/8.2/8.3) to **§7.5** ("Documented information"). The ~30 legitimate BASC-v6-column §8.4 entries are untouched (count dropped exactly 3, 38 to 35).
+
+### Fixed
+
+- [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) (`1.3.5` to `1.3.6`): the #830 `/validate-pr` in-window warning. The ISO/IEC 30111:2019 note added in #830 overstated the procedure's scope, attributing "receipt ... and coordinated disclosure of reported vulnerabilities" to a scan-driven internal vuln-management procedure that has no report-intake or disclosure phase. Reworded to frame ISO/IEC 30111 as the standard for handling REPORTED vulnerabilities (receipt through remediation to coordinated disclosure) that this procedure PARTIALLY aligns to (triage/remediation/lifecycle, sections 1 to 5), with receipt and disclosure explicitly out of the procedure's scope.
+
+### Verification
+
+- Both §3.52 remaps verified verbatim against the held standards in `grc_library_ref` (42001 Clause 8.4 = impact assessment; Annex A.8 = Information for interested parties; 27001 clause 8 has no 8.4; §7.5 = Documented information) by a refute-briefed skeptical verifier (SHIP), including scope-integrity checks (only the 3 AI-template matrix rows changed; BASC §8.4 untouched; only transparency annex rows changed; the legitimate CA impact-assessment row untouched).
+- The #830-finding fix confirms the corrected note does not overstate: the procedure's discovery is by scanning (section 1), it has no receipt/disclosure section, so 30111's receipt and disclosure phases are framed as out of scope.
+- `tools/run_all_audits.sh` green; pre-push guard green.
+
+### Discipline observation
+
+- The `/validate-pr` #830 (1 finding) and `/retro` #830 rows are batched into this PR. The `/retro` #830 recorded the layered-QA lesson: a reference-breadth citation can be SOURCE-accurate (which the pre-push verifier confirmed) yet overstate what the CONSUMING document implements (which the post-merge `/validate-pr` caught); the proposed improvement is to brief the pre-push verifier to also check citation-versus-consuming-document-scope, not only citation-versus-source.
+- §3.52 is a "best-fit for maintainer confirm" change: the remaps are applied as reversible best-fits and surfaced in [`pending-decisions.md`](../pending-decisions.md) for confirm-or-redirect (the exact 42001 sub-control, A.8 family versus A.8.5, is the maintainer's call).
+
 ## 2026-07-12, Library Version 2026.07.318, PR #830
 
 Reference-breadth additions from the `/deep-assessment` r2 reference-audit (closes TODO §3.51). Three held-but-unused authoritative sources cited as supplementary/optional references. Library `2026.07.317` to `2026.07.318`.

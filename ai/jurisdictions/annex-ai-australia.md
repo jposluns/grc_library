@@ -2,8 +2,8 @@
 
 **Document Title:** Australia AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-11\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-canada.md`](annex-ai-canada.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-australia.md`](../../privacy/jurisdictions/annex-privacy-australia.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -76,7 +76,7 @@ Australia's broader Privacy Act reform (the statutory tort for serious invasions
 | Voluntary ethical principles | AI Ethics Principles (8, voluntary) | Govern, Map | Clause 5 |
 | Voluntary AI safety guardrails | Voluntary AI Safety Standard (10 guardrails) | Govern, Map, Measure, Manage | Clause 8 |
 | Current simplified adoption guidance | Guidance for AI Adoption (6 essential practices) | Govern, Map, Measure, Manage | Clause 8 |
-| Automated-decision transparency (binding) | Privacy Act 1988 APP 1.7 to 1.9 (in force 10 December 2026) | Govern | Clause 8.4 |
+| Automated-decision transparency (binding) | Privacy Act 1988 APP 1.7 to 1.9 (in force 10 December 2026) | Govern | Annex A.8 |
 
 ---
 
