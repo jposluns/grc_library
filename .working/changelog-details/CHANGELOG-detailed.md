@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.318, PR #830
+
+Reference-breadth additions from the `/deep-assessment` r2 reference-audit (closes TODO §3.51). Three held-but-unused authoritative sources cited as supplementary/optional references. Library `2026.07.317` to `2026.07.318`.
+
+### Added
+
+- [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) (`1.3.4` to `1.3.5`): a process-standard note after the framework-alignment table citing ISO/IEC 30111:2019 (Vulnerability handling processes) as the dedicated end-to-end handling-process standard the procedure implements, complementing the per-control-area framework mappings.
+- [`security/standard-threat-modelling.md`](../../security/standard-threat-modelling.md) (`1.0.6` to `1.0.7`): MITRE CAPEC (Common Attack Pattern Enumeration and Classification) named in section 1 as a supplementary attack-pattern-catalogue input that populates the per-boundary threat list (parallel to the OWASP Top 10's role for web findings), without defining the trust boundaries STRIDE still sets.
+- [`resilience/procedure-backup-and-recovery.md`](../../resilience/procedure-backup-and-recovery.md) (`1.0.1` to `1.0.2`): NIST IR 8374 Rev. 1 (Ransomware Risk Management: a CSF 2.0 Community Profile) named in the Protection-requirements section as an optional control-prioritization overlay mapping anti-ransomware safeguards to CSF 2.0 outcomes; framed as a prioritization aid, not a baseline requirement.
+
+### Verification
+
+- Per-touch reference-breadth discipline: each source read at attach-time. All three confirmed held in `grc_library_ref` (ISO/IEC 30111:2019; MITRE CAPEC v3.9; NIST IR 8374 Rev. 1) and current version confirmed upstream this turn (ISO/IEC 30111:2019 current edition per iso.org; CAPEC List Version 3.9 per capec.mitre.org; NIST IR 8374 Rev.1 final per csrc.nist.gov, not withdrawn). ISO/IEC 29147 (the audit's secondary suggestion) is NOT held, so it was not cited; only the held 30111 was.
+- A refute-briefed skeptical verifier checked each characterization against the held catalogue/extracts before push.
+- All three Version + Date fields co-bumped to 2026-07-12; taxonomy + maturity-scorecard regenerated; `tools/run_all_audits.sh` green; pre-push guard green.
+
+### Discipline observation
+
+- The `/validate-pr` #829 (0 findings) and `/retro` #829 rows are batched into this PR (recursion-avoidance). The `/retro` #829 recorded two process lessons (fetch a sibling repo's `origin/main` before asserting its holdings; the GraphQL-degraded to REST-merge fallback), both from caught, no-shipped-impact slips.
+
 ## 2026-07-12, Library Version 2026.07.317, PR #829
 
 DORA reporting-window verification and citation (deep-assessment r2 F5; closes TODO §3.48). Library `2026.07.316` to `2026.07.317`.

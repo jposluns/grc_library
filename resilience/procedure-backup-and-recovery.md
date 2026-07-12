@@ -2,8 +2,8 @@
 
 **Document Title:** Backup and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-12\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -75,6 +75,8 @@ Recovery time objectives and recovery point objectives must be documented for cr
 ### 3. Protection requirements
 
 Backups must be protected against unauthorized access, alteration, deletion, ransomware, corruption, and inappropriate retention. Protection should include encryption, access control, separation of duties, immutability or deletion resistance where appropriate, monitoring, and restoration access review.
+
+For organizations facing elevated ransomware risk, **NIST IR 8374 Rev. 1** (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile) is an optional supplementary control-prioritization overlay: it maps anti-ransomware safeguards to CSF 2.0 outcomes and can be used to prioritize the backup-protection controls in this section. It is a prioritization aid, not a baseline requirement of this procedure.
 
 ### 4. Recovery testing
 
