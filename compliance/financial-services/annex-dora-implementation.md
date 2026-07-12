@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-07-09\
+**Version:** 0.0.7\
+**Date:** 2026-07-12\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -75,7 +75,7 @@ DORA requires classification, management, and reporting of major ICT-related inc
 | Major cyber threat voluntary reporting | Supported by [`operations/procedure-threat-intelligence-and-siem-operations.md`](../../operations/procedure-threat-intelligence-and-siem-operations.md) |
 | Information about clients and counterparts | [`resilience/plan-crisis-communication.md`](../../resilience/plan-crisis-communication.md) |
 
-DORA-mandated reporting windows (subject to RTS / ITS): initial notification "no later than 4 hours from classification as major"; intermediate report within 72 hours; final report within one month. Adopting entities encode these in their per-incident severity playbooks.
+DORA-mandated reporting windows (the reporting obligation is Article 19; the content and time limits are set by the RTS in Commission Delegated Regulation (EU) 2025/301 and the standard forms by the ITS in Commission Implementing Regulation (EU) 2025/302, both adopted under Article 20): the initial notification is due as early as possible and in any case within 4 hours of the incident's classification as major AND no later than 24 hours from the moment the entity became aware of the incident; the intermediate report at the latest within 72 hours of the initial notification; and the final report no later than one month after the intermediate report. Classification as a major incident applies the criteria and materiality thresholds in the RTS in Commission Delegated Regulation (EU) 2024/1772 (under Article 18). Adopting entities encode these in their per-incident severity playbooks.
 
 ---
 
@@ -144,7 +144,7 @@ Voluntary; DORA encourages financial entities to share cyber threat information 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | DORA | Regulation (EU) 2022/2554 | Primary regulation |
-| DORA RTS and ITS | Multiple; published by ESAs | Implementing detail |
+| DORA RTS and ITS | Multiple, adopted by the Commission on ESA drafts; the incident-reporting set is Delegated Reg (EU) 2024/1772 (classification and materiality thresholds), Delegated Reg (EU) 2025/301 (report content and time limits), and Implementing Reg (EU) 2025/302 (report forms and templates) | Implementing detail |
 | TIBER-EU | ECB framework | Threat-led penetration testing |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 | Predecessor framework, partially superseded by DORA but retained where in force |
 | EIOPA Guidelines on ICT security and governance | EIOPA-BoS-20-600 | Insurance sector |

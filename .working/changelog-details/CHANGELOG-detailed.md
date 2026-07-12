@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.317, PR #829
+
+DORA reporting-window verification and citation (deep-assessment r2 F5; closes TODO §3.48). Library `2026.07.316` to `2026.07.317`.
+
+### Changed
+
+- [`compliance/financial-services/annex-dora-implementation.md`](../../compliance/financial-services/annex-dora-implementation.md) (`0.0.6` to `0.0.7`, Date to 2026-07-12): the pillar-2 reporting-windows sentence now states the initial-notification window with BOTH statutory bounds (within 4 hours of classification as a major incident AND no later than 24 hours from the moment the entity became aware of the incident), where it previously gave only the 4-hours-from-classification bound; the intermediate report is anchored to "at the latest within 72 hours of the initial notification" and the final report to "no later than one month after the intermediate report". Precise citations added: Delegated Reg (EU) 2024/1772 (classification and materiality thresholds), 2025/301 (report content and time limits), Implementing Reg (EU) 2025/302 (report forms), plus DORA Articles 18/19/20. The framework-reference table's "DORA RTS and ITS" row now names the incident-reporting instrument set.
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the per-document Version bump.
+
+### Verification
+
+- Every window, the three DORA article numbers (18 classification / 19 reporting / 20 RTS-ITS mandate), and the instrument-to-function mapping were verified VERBATIM against the held reference texts in `grc_library_ref` (the held Delegated Reg (EU) 2025/301 incident-reporting extract for the windows, and the held base DORA Regulation (EU) 2022/2554 extract for the article headings). A refute-briefed skeptical verifier re-checked the change against those held texts before push.
+- The three instruments were ALREADY held in `grc_library_ref` (the full DORA second-level suite). A redundant ref-ingest branch (`claude/ingest-dora-rts-its`, ref PR #60) was opened after an initial grep of a stale local ref checkout (5 commits behind `origin/main`) misread them as absent; on resetting to `origin/main` and finding them held, the branch and PR were closed with no reference-side change. Lesson logged to the improvement log: fetch the sibling repo's `origin/main` before asserting its holdings.
+- `tools/run_all_audits.sh` = 69/69 post-edit; the pre-push guard green.
+
+### Fixed
+
+- The DORA annex's under-stated initial-notification reporting window (the deep-assessment r2 F5 finding): a financial entity reading the prior text would see only the 4-hours-from-classification deadline and miss the 24-hours-from-awareness outer bound that the RTS also imposes.
+
+### Discipline observation
+
+- The `/validate-pr` #828 row and the `/retro` #828 row are batched into this PR (recursion-avoidance). The redundant-ingest episode is the maintainer's "check the ingest directory / the live reference state before downloading" directive validating itself: the miss was reading a stale LOCAL checkout, which the directive (and the reset to `origin/main`) caught before any duplicate landed on reference `main`.
+
 ## 2026-07-12, Library Version 2026.07.316, PR #828
 
 The sweep98 `/resume` opening PR. The loop-break corpus-wide `/validate` (Sweep 98) over the #822..#827 deltas of the sweep97 session, plus two maintainer-directed backlog additions and the handoff prune. No corpus document body changed. Library `2026.07.315` to `2026.07.316`.
