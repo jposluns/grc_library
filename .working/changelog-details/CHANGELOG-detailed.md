@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.334, PR #846
+
+§4.8 pack adoption-hygiene programme, Phase 4 (acceptance sweep + routed-findings triage + close-out). Orchestrator close-out PR; the pack machinery was scrubbed and merged in Phase 3 (#845).
+
+### Added
+
+- [`.working/pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md`](../pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md): the Phase-4 acceptance-sweep result (PASS), the routed-findings triage (none dropped), and the programme close-out.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §4.8 (the four-phase programme) rotated out to the DONE ledger; §4.1 (corpus-management shareable skill) unblocked (its distillation source, the condensed rules, is now merged); routed-findings items added, §1.2 (SP 800-154 held-source wording accuracy), §3.56 (Phase-4 routed cleanups + mechanization candidates), §3.57 (reference-breadth new-ingest apply of scratch PR #163), and §4.9 (pack public-distribution packaging model, feeding §2.4).
+- [`.working/DONE.md`](../DONE.md): §4.8 completion entry.
+
+### Verification
+
+- Acceptance sweep run inline and confirmed: zero out-of-pack relative links in the six scrubbed governance rules (`grep '](../../'` = 0); the two residual pattern hits adjudicated non-violations (a hypothetical PR-number example; `.claude/`/`.working/` as category names), matching the Phase-3 verifier's INFO classification; RM-SCRUB-1 = 14 (verifier-confirmed 1:1); `core/`/`ai/`/`languages/`/`pipeline/` untouched by the scrub; 69/69 gates green; gate 37 sync EXIT 0.
+- #845 post-merge `/validate-pr` returned 0 findings (citations, counts, sync, versions all verified). All routed findings recorded in TODO, none dropped; the maintainer-decision items (packaging model, SP 800-154 wording, the two defensible-judgement flags) surfaced in chat.
+
+Library `2026.07.333` to `2026.07.334`.
+
 ## 2026-07-12, Library Version 2026.07.333, PR #845
 
 Pack adoption-hygiene phase 3 (the D1 zero-history scrub + the D2 marked-overlay architecture), applied from the pack-hygiene worker's combined bookkeeping-free patch (former phase-3 payload; it excludes the root changelog, its detailed mirror, and the root README, which the orchestrator authors). sha256 `118546df...`; `git apply --check` clean against `main` at `2f23483` (#844); the patch file set (6 pack governance rules, 13 project-local rule copies, the project CLAUDE.md, the pack README, and the removal ledger) is disjoint from the intervening AI-delta PRs #843/#844, so it applied cleanly despite being built at #842.
