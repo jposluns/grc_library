@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -152,6 +152,8 @@ This documentation is recorded in the model card ([`ai/template-model-card.md`](
 ### 6.2 Copyright compliance
 
 Where the organization fine-tunes a GPAI model using proprietary, licensed, or third-party data, the Legal team must confirm that the use of that data for training is lawful and that any applicable text and data mining exemptions or licenses are documented.
+
+Where the organization is itself a provider placing a general-purpose AI model on the EU market, it must put in place a policy to comply with Union copyright law under EU AI Act Article 53(1)(c), including identifying and complying with machine-readable rights reservations (text-and-data-mining opt-outs) expressed under Article 4(3) of Directive (EU) 2019/790. The organization may demonstrate this compliance by adhering to the EU GPAI Code of Practice (Copyright Chapter, July 2025), the Article 56 co-regulatory instrument for that purpose; adherence to the Code is not by itself conclusive evidence of AI Act compliance, and does not constitute compliance with Union copyright law (whose interpretation and enforcement rest with the Member State courts and, ultimately, the Court of Justice of the European Union).
 
 ### 6.3 Systemic risk assessment
 
