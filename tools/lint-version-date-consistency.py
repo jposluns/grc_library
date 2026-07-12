@@ -72,6 +72,14 @@ CHANGELOG_HEADING_RE = re.compile(
     re.MULTILINE,
 )
 
+# The compact heading (TODO 3.16 root-reformat), same six capture groups,
+# optional PR clause and optional stage-3b summary tail.
+COMPACT_HEADING_RE = re.compile(
+    r"^\*\*(\d{4})-(\d{2})-(\d{2}) \| (\d+)\.(\d+)\.(\d+)"
+    r"(?: \| PR #\d+)?\*\*(?: - .*)?$",
+    re.MULTILINE,
+)
+
 # README field: **Library Version:** YYYY.MM.patch
 README_VERSION_RE = re.compile(
     r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)"
@@ -114,7 +122,9 @@ def main() -> int:
         return 1
 
     # Find the FIRST (most recent) Library-Version heading in the CHANGELOG.
-    first_match = CHANGELOG_HEADING_RE.search(changelog_text)
+    candidates = [m for m in (CHANGELOG_HEADING_RE.search(changelog_text),
+                              COMPACT_HEADING_RE.search(changelog_text)) if m]
+    first_match = min(candidates, key=lambda m: m.start()) if candidates else None
     if not first_match:
         print(
             f"OK: no Library Version section heading found in "
