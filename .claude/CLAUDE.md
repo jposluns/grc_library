@@ -892,8 +892,10 @@ merely route it as a `source-not-held` finding. The standing procedure is:
 This generalizes the `## Reference-version currency` pause-and-ask clause (which covers the
 version-update case) to ANY missing load-bearing reference: routing a `source-not-held` finding
 without first attempting the download is the shortcut this SOP forecloses. The project-agnostic
-pack distribution of this SOP (into the `evidence-grounded-completion` rule's external-source
-corollary) is queued in [`TODO.md`](../TODO.md).
+pack distribution of this SOP shipped in the pack's
+[`evidence-grounded-completion`](rules/governance/evidence-grounded-completion.md) rule
+(the missing-load-bearing-reference corollary in its `## Un-observable state, inventory, and
+external-version currency` section; TODO §3.53, 2026-07-12).
 
 ## Attended-autonomous operating mode
 

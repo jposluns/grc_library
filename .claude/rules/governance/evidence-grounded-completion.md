@@ -53,6 +53,8 @@ Three assertion classes need a sharper rule than "read before characterizing", b
 
 These are corollaries of the same principle as the rest of the rule (a claim requires an observation, not an inference); they are called out because the failure mode is subtler when the observation requires reading a manifest or an upstream source rather than a single named file, and because an un-observable internal state tempts a confident assertion precisely because nothing can contradict it in the moment.
 
+**A missing load-bearing reference is acquired, or the work pauses, never worked around.** The external-version-currency discipline above covers a reference the collection HOLDS at a stale version; the same principle governs a reference the collection does NOT hold at all and that is load-bearing for the task (a standard, regulation, framework, or dataset a citation or an attributed value depends on). Do not proceed on the gap and do not merely record it as a "source-not-held" note: (1) PAUSE at the point the missing reference is needed; (2) attempt to acquire it from its authoritative or primary source and add it to the collection via the ingest path, then continue against the now-held source; (3) if acquisition fails (egress-blocked, licensed, paywalled, or otherwise unavailable), surface it to the responsible authority with named options (they provide it; the task defers and routes around to the next independent item; or the artefact is reworded so it does not depend on the missing reference, or cites it corroboratively-only with a tracked verification item). Routing a "source-not-held" finding WITHOUT first attempting the acquisition is the shortcut this forecloses.
+
 ---
 
 ## The verification protocol

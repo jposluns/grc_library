@@ -184,10 +184,6 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 
 Gate 69 ([`tools/lint-positional-backlog-tokens.py`](tools/lint-positional-backlog-tokens.py)) matches "backlog item(s)" followed by a `§`/`P`-prefixed or dotted token, but its `TODO` arm requires the section token immediately after `TODO`, so the phrasing "TODO item 3.4" (qualifier + "item" + dotted token) is not matched. No live carrier exists today (corpus grep returns 0), so this is a latent gap, not a current defect. Widen the regex to also match the `TODO item N.M` form, with a false-positive analysis first (the "item" alternation must not over-match ordinary prose such as "TODO item list"), or document the omission as intentional.
 
-### 3.53 Distribute the missing-reference-document SOP to the pack (S)
-
-The missing-reference-document SOP codified in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (pause, attempt download+ingest to the reference base, else surface with named options) is project-specific; distribute its project-agnostic form into the [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) rule's external-source corollary (the pack-distributable governance form), so adopters inherit it.
-
 ### 3.54 Back-fill and surface the `doc_type` facet in grc_library_ref (maintainer-directed 2026-07-12, L, XL; meticulous, maintainer-collaborative, explicitly NOT automated)
 
 Reference-base (`grc_library_ref`) follow-up. **Context (done, merged):** a `doc_type` facet was added to `grc_library_ref` (ref PR #57): an OPTIONAL, controlled document-type field in `catalogue.yml`, with a controlled vocabulary in `doc-types.md` (values: standard, guideline, framework, code-of-practice, report, regulation, program, template, questionnaire, book) enforced by `grc_library_ref/tools/validate.py`. It is ORTHOGONAL to the trust bucket an item sits in. It is currently populated on exactly ONE item (the ESA Joint Guidelines JC/GL/2024/34 in `frameworks/`, `doc_type: guideline`); the other 541 of 542 catalogued items are untagged.

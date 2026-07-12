@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.320, PR #832
+
+Missing-reference-document SOP distributed to the governance pack (closes TODO §3.53). Library `2026.07.319` to `2026.07.320`.
+
+### Added
+
+- [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md) and its byte-identical local mirror [`.claude/rules/governance/evidence-grounded-completion.md`](../../.claude/rules/governance/evidence-grounded-completion.md): a project-agnostic missing-load-bearing-reference corollary appended to the "Un-observable state, inventory, and external-version currency" section. It states that a load-bearing reference the collection does not hold is acquired from its authoritative/primary source and ingested, or the work pauses and surfaces named options to the responsible authority, never worked around by routing a "source-not-held" finding without first attempting acquisition. Generalizes the held-but-superseded version-currency bullet directly above it (the not-held-at-all case).
+
+### Changed
+
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): pack Version `1.59.6` to `1.59.7` with a version-history row (patch; no new rule or skill).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the "## Missing-reference-document SOP" section's pack-distribution pointer updated from "queued in TODO.md" to "shipped in the pack's evidence-grounded-completion rule (TODO §3.53)".
+
+### Verification
+
+- `lint-language` clean on the edited pack prose (new-pack-prose pre-flight); the source and `.claude/` mirror are byte-identical (gate 37 sync confirmed by `diff`).
+- The corollary is a faithful project-agnostic distillation of the consuming project's [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) "## Missing-reference-document SOP" (pause, attempt download+ingest, else surface with named options), stripped of project-specific file paths and framed as a general governance discipline.
+- A refute-briefed skeptical verifier reviewed the pack prose before push; `tools/run_all_audits.sh` green; pre-push guard green.
+
+### Discipline observation
+
+- The `/validate-pr` #831 (0 findings) and `/retro` #831 rows are batched into this PR (recursion-avoidance).
+- This completes four of the six deep-assessment r2 routed items closed this session (§3.48 DORA, the reference-base SCREENING apply, §3.51 reference-breadth, §3.52 citation-fit, and this §3.53 SOP distribution); the remaining routed work is the §4.8 pack adoption-hygiene programme (phases 1-2, protected pack).
+
 ## 2026-07-12, Library Version 2026.07.319, PR #831
 
 Deep-assessment r2 §3.52 citation-fit best-fit remaps (closes TODO §3.52; for maintainer confirm-or-redirect) plus the #830 `/validate-pr` finding fix. Library `2026.07.318` to `2026.07.319`.
