@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.7\
-**Date:** 2026-07-11\
+**Version:** 1.0.8\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -105,7 +105,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 
 ## Section d: operational controls
 
-*Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021 §7.3; Canada Treasury Board Algorithmic Impact Assessment*
+*Synthesized from: EU AI Act Art. 14, 26; NIST AI RMF Manage function; IEEE 7000-2021; Canada Treasury Board Algorithmic Impact Assessment*
 
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
