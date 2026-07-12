@@ -2,8 +2,8 @@
 
 **Document Title:** Model Registry\
 **Document Type:** Register\
-**Version:** 0.0.6\
-**Date:** 2026-07-11\
+**Version:** 0.0.7\
+**Date:** 2026-07-12\
 **Owner:** AI System Inventory Keeper\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)\
@@ -144,7 +144,7 @@ For each model, the registry records two lineage chains:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 operation, §8.4 documentation | AI management system |
+| ISO/IEC 42001:2023 | §8 operation, §7.5 documented information | AI management system |
 | EU AI Act | Articles 9, 11, 12, 26, 50; Annex IV | High-risk AI documentation, deployer obligations, transparency |
 | NIST AI RMF | MAP, MEASURE, MANAGE | Risk-management functions |
 | ISO/IEC 42006:2025 | Requirements for AIMS audit and certification bodies | Audit baseline |

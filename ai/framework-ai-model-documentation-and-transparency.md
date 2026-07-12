@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-07-11\
+**Version:** 1.0.8\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -145,7 +145,7 @@ This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the 
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8.4: AI System Documentation | AI documentation requirements |
+| ISO/IEC 42001:2023 | §7.5: Documented information | AI documentation requirements |
 | EU AI Act (2024) | Annex IV: Technical Documentation | High-risk AI documentation |
 | NIST AI RMF (2023) | MAP and MANAGE functions | AI transparency and documentation |
 | ISO/IEC 12792:2025 | §6.2 transparency objectives; §6.1 and §6.3 stakeholder pairs; §7 to §10 taxonomy levels | AI transparency taxonomy structuring Section 4 |

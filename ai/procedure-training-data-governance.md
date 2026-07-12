@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.8\
-**Date:** 2026-07-11\
+**Version:** 0.0.9\
+**Date:** 2026-07-12\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -205,7 +205,7 @@ Where a retrieval index materially shapes model output:
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | EU AI Act | Articles 10 (data and data governance), 11 (technical documentation) | Training data obligations |
-| ISO/IEC 42001:2023 | §8.4 documentation | AI management system |
+| ISO/IEC 42001:2023 | §7.5 documented information | AI management system |
 | GDPR / UK GDPR | Articles 5, 6, 9, 17, 22, 25, 30, 35 | Lawful basis, subject rights, by design, ROPA, DPIA |
 | LGPD | Articles 7, 9, 18 | Brazilian lawful basis and rights |
 | PIPL | Articles 13, 14, 24, 44 to 50 | Chinese lawful basis and rights |

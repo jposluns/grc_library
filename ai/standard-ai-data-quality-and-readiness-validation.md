@@ -2,8 +2,8 @@
 
 **Document Title:** AI Data Quality and Readiness Validation Standard\
 **Document Type:** Standard\
-**Version:** 0.0.1\
-**Date:** 2026-07-11\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md)\
@@ -82,7 +82,7 @@ When a dataset is retired, decommission it per ISO/IEC 8183:2023 Clause 6.10 and
 | ISO/IEC 42005:2025 | Clause 6.4.3 (data-quality documentation and approved use) | Readiness sign-off and impact-assessment hook (Section 3.7) |
 | ISO 2859-1 | Acceptance-quality-limit sampling scheme (referenced by ISO/IEC 5259-4:2024) | Acceptance sampling for labelling inspection (Section 3.5) |
 | EU AI Act (2024) | Article 10: data and data governance | Training, validation, and testing data-quality obligations for high-risk AI |
-| ISO/IEC 42001:2023 | Clause 8.4 | Operational data controls in the AI management system |
+| ISO/IEC 42001:2023 | Clause 8.1 | Operational data controls in the AI management system |
 
 ## 6. Limitations
 
