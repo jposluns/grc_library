@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.338, PR #850
+
+AI-domain delta, Workstream C (currency and residuals). Two reconfirmation checks; one minimal corpus precision fix.
+
+### Changed
+
+- [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) (1.0.7 to 1.0.8): C.3, dropped the imprecise `§7.3` clause pointer from the Section d (operational controls) "Synthesized from" line, keeping `IEEE 7000-2021` as a broad synthesis input. IEEE 7000-2021 Clause 7 is the design-phase Concept-of-Operations-and-Context-Exploration process and its Sub-clause 7.3 (understand context of use; identify stakeholders) does not support Section d's operational human-oversight controls; the section is grounded by EU AI Act Art. 14/26, NIST AI RMF Manage, and the Canada AIA.
+
+### Verification
+
+- C.1 (Canada): the TBS Directive third-review transition dates reconfirmed current upstream this turn (tbs-sct.canada.ca: existing systems before 24 June 2025 have until 24 June 2026); the corpus ([`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md), [`ai/policy-ai-compliance.md`](../../ai/policy-ai-compliance.md)) already carried the correct dates, so no corpus change. Recorded as a currency reconfirmation, no defect.
+- C.3 (IEEE 7000): `/claim-fit` verdict `informed-not-prescribed`/imprecise-clause, judged by directly reading the held IEEE Std 7000-2021 Clause 7 title and Sub-clause 7.3 content + the checklist Section d. The single-token precision fix was verified against that direct source read (no separate verifier subagent, proportionate to a one-clause drop). Claim-fit history row added. All 69 gates pass.
+- C.2 (ref-side `last_checked` sweep) is a cross-repo `grc_library_ref` task, not in this corpus PR. C.4 (ISO/PAS 8800) no-action (resolved).
+
+Library `2026.07.337` to `2026.07.338`.
+
 ## 2026-07-12, Library Version 2026.07.337, PR #849
 
 AI-domain delta, EU cluster part 4 (A.1). Previously blocked (truncated held source); unblocked this session by a cross-repo grc_library_ref acquisition.
