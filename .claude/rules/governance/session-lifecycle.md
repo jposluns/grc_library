@@ -79,3 +79,13 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 | Explicit authorization boundaries per mode | PO.5 | IAM-09, GRC-04 | A.5.15, A.5.18 | V1.1 |
 | Evidence-gated lifecycle decisions | RV.1, RV.2 | GRC-05 | A.5.36 | V14.1 |
 | Concurrency control on shared state | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 | V1.1 |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Handoff record: `.working/session-handoff.md`; concurrency lease:
+  `.working/session-state.md` (gate 63 guards its shape); resume command: `/resume`.
+- Pending decisions: `.working/pending-decisions.md`; the timer default and the
+  operating modes are operationalized in the project CLAUDE.md attended-autonomous,
+  wind-down, and session-migration sections.

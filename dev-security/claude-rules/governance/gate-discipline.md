@@ -136,4 +136,4 @@ Some controls have a legitimate exception path. It is a separate, slower control
 
 ---
 
-*The why-this-rule-exists narrative is retained in the removal ledger [`.working/claude-rules-considerations.md`](../../../.working/claude-rules-considerations.md) (the GR-P2 two-layer condense): it is motivating rationale, not operative instruction. The framework-alignment table above is kept in the rule (the pack README names the rule as the source of truth for framework alignment; it is distributed traceability, not cut).*
+*The why-this-rule-exists narrative is retained in the parent library's removal ledger (the two-layer condense): it is motivating rationale, not operative instruction. The framework-alignment table above is kept in the rule (the pack README names the rule as the source of truth for framework alignment; it is distributed traceability, not cut).*

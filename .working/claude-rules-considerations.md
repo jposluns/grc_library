@@ -1,6 +1,6 @@
 # Claude-rules considerations (GR-P2 condense removal ledger)
 
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
@@ -415,3 +415,33 @@ condensed.
 | `trust-recovery-escalation.md` | 1876 | the trigger, the two-skill suite, findings-routing, sign-off discipline, anti-patterns, framework table | why-section | done (-14%) |
 | `artefact-and-branch-discipline.md` | 1816 | generated-artefact + protected-branch definitions and workflows, prohibited anti-patterns, version-monotonicity contract, exception protocols, framework table | why-section | done (-12%) |
 | `validate-inference-before-action.md` | 1760 | the inferred-premise definition, the discipline steps, anti-patterns, tool guidance, exception protocol, framework table | why-section, the cascade-failure worked example | done (-26%) |
+
+## RM-SCRUB-1: phase-3 zero-history scrub, six rules, fourteen passages (project wiring to overlays)
+
+**Rules:** [`trust-recovery-escalation.md`](../dev-security/claude-rules/governance/trust-recovery-escalation.md), [`ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md), [`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md), [`gate-discipline.md`](../dev-security/claude-rules/governance/gate-discipline.md), [`high-assurance-verification.md`](../dev-security/claude-rules/governance/high-assurance-verification.md), [`evidence-grounded-completion.md`](../dev-security/claude-rules/governance/evidence-grounded-completion.md). **Status:** open.
+**Removed in:** the pack adoption-hygiene programme phase 3 (the D1 zero-history scrub). Unlike the GR-P2 rows above, nothing here is rationale: these are the residual "(in this project: ...)" wirings and out-of-pack links the condense left behind. Each removed value now lives in the corresponding `.claude/rules/` copy's PROJECT-OVERLAY block (the D2 marked-overlay architecture), so the local session loses nothing.
+**Why removed:** the pack is adopted clean (D1); a project path, slash command, or gate number in a pack rule binds adopters to this project's layout.
+**Expected gain:** zero out-of-pack relative links in the governance rules; every "(in this project ...)" instantiation relocated to the overlay layer.
+**Risk:** a local session reading the PACK copy instead of its `.claude/rules/` copy loses the wiring pointer (mitigated: sessions load `.claude/rules/`, which carries the overlay).
+**Evidence the removal was wrong:** a local session failing to find a register or command because it read the pack copy.
+
+Removed or changed verbatim (pack-side originals; the overlay carries each value):
+
+```
+(in this project: `deep-qa-review`, slash command `/full-qa`)
+(in this project: `library-fitness-review`, slash command `/fitness`)
+(in this project: `.working/hallucination-metrics.md`)
+from the hallucination-metrics catch entry by template Version number
+(project-specific location; in this project: `.working/changelog-details/CHANGELOG-detailed.md`)
+(not an audit gate; an orchestrator close-out step; in this project `tools/sweep-working-records-to-scratch.py`)
+### Document corpora (this project's case)
+### PR #172: FR-4+5+6+7+8: README polish bundle (2026-06-21)
+A working-directory location is the recommended default; under this project's convention, `.working/DONE.md`. The exact location is project-specific.
+(project-specific location; in this project: `.working/overnight-pr.md`)
+(in this project, the exchange repository, as weekly Monday-dated files)
+*The why-this-rule-exists narrative is retained in the removal ledger [`.working/claude-rules-considerations.md`](../../../.working/claude-rules-considerations.md) (the GR-P2 two-layer condense): it is motivating rationale, not operative instruction.
+The mechanism is a persistent register at [`.working/high-assurance/register.md`](../../../.working/high-assurance/register.md) (relative to the corpus root; this rule ships in the pack, the register lives in the consuming project's working state).
+verified by the broken-link audit (the gate's number is project-specific; in the GRC Library it is gate 3)
+```
+
+---
