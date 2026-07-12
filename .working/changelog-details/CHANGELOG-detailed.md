@@ -6,9 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.341, PR #853
+
+CI-wait discipline fix + #852 post-merge QA (`.claude/` + `.working/` only; no corpus body). Two concerns, coherent: a maintainer-flagged process fix, and the recursion-avoidance batch of #852's `/validate-pr` findings + `/retro`.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added a "No-MCP (gh-CLI) sessions: one self-checking loop, NOT bare fallback timers" paragraph to the `## PR activity subscription discipline`. Root cause: the "60-second fallback timer" is designed to pair with `mcp__github__subscribe_pr_activity`; in a no-MCP session there is no subscription, so a bare `sleep 60 && echo` timer self-checks nothing and forces manual polling + re-arming, which sprawls into several overlapping CI-wait tasks (the 2026-07-12 recurrence). The fix: arm exactly one `run_in_background` until-loop that self-checks the check-run state and emits once on the terminal pass/fail; never more than one CI-wait task at a time; the harness also blocks foreground `sleep N && <cmd>` chains.
+- **#852 `/validate-pr` finding 1 (count):** the Sweep 100 headline "5 notes (A:1, B:3, C:0)" was self-inconsistent (the breakdown sums to 4; the fifth item is the refuted ETSI flag, not a note). Corrected to "4 notes (A:1, B:3, C:0), plus 1 refuted flag" across all five carriers: [`.working/validate-sweeps/2026-07-12-sweep100-iter1.md`](../validate-sweeps/2026-07-12-sweep100-iter1.md), [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (own Version `2.0.95` to `2.0.96` for this body edit), [`.working/session-handoff.md`](../session-handoff.md), and the #852 root + detailed CHANGELOG entries. Bare-token `5 notes?` contradiction grep confirmed zero real residual.
+- **#852 `/validate-pr` finding 2 (dangling pointer):** the keep-current-plus-one-prior prune left the retained sweep98 block's "supersedes the #827 (sweep97) block below" clause pointing at a now-deleted block; reworded to "(pruned at the Sweep 100 resume)". Added a prevention bullet to the handoff `## Refresh and pruning discipline` so future prunes neutralize the newly-oldest block's dangling "supersedes ... below" pointer.
+- [`.working/validate-pr/2026-07-12-PR-852.md`](../validate-pr/2026-07-12-PR-852.md) (new per-PR record) + the history row (own Version `1.2.620` to `1.2.621`); the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (own Version `1.0.559` to `1.0.560`).
+- Library CalVer `2026.07.340` to `2026.07.341`; README Version `1.9.701` to `1.9.702`.
+
+### Verification
+
+- The new CLAUDE.md prose is dash-clean (the 24 language-audit dash findings are all pre-existing rule-index and overlay lines, and that tree is gate-2-exempt). The changelog preflight is green on the added CHANGELOG lines. Full audit 69/69; the pre-push guard (audits plus PR-time checks) is green.
+
+### Notes
+
+Also updated a durable memory note (`ci-wait-no-mcp-single-until-loop`) outside the repo. This PR receives its own post-merge `/validate-pr` + `/retro`, which batch into the next PR per recursion-avoidance.
+
 ## 2026-07-12, Library Version 2026.07.340, PR #852
 
-Sweep 100 `/validate` close-out (first PR of the resumed session; `.working/` + version-surface + CHANGELOG only, no corpus body). The loop-break corpus-wide validation sweep, the compensating control for session-closing handoff PR #851 (which skipped its trailing `/validate-pr` + `/retro`), over the #834..#851 delta window. Mechanical baseline 69/69 at `6fd59c7`/#851 (a descendant of the closing session's asserted green-at `ebceadc`/#850; no close-vs-start drift); clone non-shallow. Full three-subagent A/B/C dispatch; 0 error / 0 warning / 5 note; 0 asserted-expectation contradictions; loop-break control for #851 PASSES.
+Sweep 100 `/validate` close-out (first PR of the resumed session; `.working/` + version-surface + CHANGELOG only, no corpus body). The loop-break corpus-wide validation sweep, the compensating control for session-closing handoff PR #851 (which skipped its trailing `/validate-pr` + `/retro`), over the #834..#851 delta window. Mechanical baseline 69/69 at `6fd59c7`/#851 (a descendant of the closing session's asserted green-at `ebceadc`/#850; no close-vs-start drift); clone non-shallow. Full three-subagent A/B/C dispatch; 0 error / 0 warning / 4 note (plus 1 refuted flag, the ETSI item); 0 asserted-expectation contradictions; loop-break control for #851 PASSES.
 
 ### Verification
 
