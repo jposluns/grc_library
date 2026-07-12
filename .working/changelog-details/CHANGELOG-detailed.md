@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.342, PR #854
+
+Corrects the CI-wait guidance #853 shipped + #853 post-merge QA (`.claude/` + `.working/` only; no corpus body).
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): rewrote the no-MCP CI-wait paragraph in `## PR activity subscription discipline`. #853 had codified a hand-rolled `gh pr checks <N> --json name,bucket` `until` loop copied from a tool-doc example, but `gh pr checks` does not support `--json` in this gh version ("unknown flag"), so the loop's condition could never become true and it would spin silently forever (the 2026-07-12 30-minute hang). The corrected guidance mandates the purpose-built self-bounding primitive `timeout 1200 gh pr checks <N> --watch --interval 30; echo "watch exited rc=$?"; gh pr checks <N>`, forbids hand-rolling a wait on unverified check-command flags or leaving a wait unbounded/silent, and requires active probing on the 60-second cadence rather than idling on the notification.
+- **#853 `/validate-pr` finding 1 (word-form count residual):** [`.working/validate-sweeps/2026-07-12-sweep100-iter1.md`](../validate-sweeps/2026-07-12-sweep100-iter1.md) line 47 read "all five findings are note-level" (the third count carrier in that file, which #853's digit-only `5 notes?` grep missed). Reworded to "all four notes are note-level; the ETSI item is a refuted flag, not a finding"; a word-form-tolerant proximity grep re-run confirmed zero residual.
+- **#853 `/validate-pr` finding 2 (`##` mislabel):** the CI-wait paragraph referenced "`## Background-task check SOP`", but that sibling is a bold-lead paragraph, not an H2; reworded to "**Background-task check SOP** below".
+- [`.working/validate-pr/2026-07-12-PR-853.md`](../validate-pr/2026-07-12-PR-853.md) (new per-PR record) + the history row (own Version `1.2.621` to `1.2.622`); the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (own Version `1.0.560` to `1.0.561`).
+- Library CalVer `2026.07.341` to `2026.07.342`; README Version `1.9.702` to `1.9.703`.
+
+### Verification
+
+- The `--watch` primitive and its flags were verified against `gh pr checks --help` in this environment before codifying (the counter-discipline to #853's miss). New CLAUDE.md prose dash-clean (gate-2-exempt tree). Changelog preflight green; full audit 69/69; pre-push guard green.
+
+### Notes
+
+Two recurring lessons in the #853 `/retro` row: (1) a command codified into standing discipline must be verified in THIS environment first (evidence-grounded-completion at the discipline-authoring boundary); (2) a "zero residual" completion grep after a count/term change must run at word-form-tolerant width, not digit-only (the pattern-width axis). This PR receives its own post-merge `/validate-pr` + `/retro`, batching into the next PR (the first scratch-delivery apply).
+
 ## 2026-07-12, Library Version 2026.07.341, PR #853
 
 CI-wait discipline fix + #852 post-merge QA (`.claude/` + `.working/` only; no corpus body). Two concerns, coherent: a maintainer-flagged process fix, and the recursion-avoidance batch of #852's `/validate-pr` findings + `/retro`.
