@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.53 (deep-assessment r2): missing-reference-document SOP distributed to the pack (2026-07-12)
+
+Distributed the project's missing-reference-document SOP into the pack `evidence-grounded-completion` rule (source + byte-identical `.claude/` mirror) as a project-agnostic missing-load-bearing-reference corollary in the external-version-currency section: acquire the reference from its primary source and ingest, else surface with named options, never route a "source-not-held" finding without first attempting acquisition. Generalizes the held-but-superseded version-currency discipline to the not-held case. Pack `1.59.6` to `1.59.7`; project `.claude/CLAUDE.md` "queued" pointer updated to "shipped"; `lint-language` clean.
+
 ### TODO §3.52 (deep-assessment r2 citation-fit): 42001/27001 clause-8.4 remaps (2026-07-12)
 
 Applied the two clause-8.4 citation-fit best-fits the r2 F1 verifier surfaced (surfaced for maintainer confirm-or-redirect in `pending-decisions.md`): the transparency/notice rows in the 5 AI jurisdiction annexes remapped from the wrong ISO/IEC 42001 Clause 8.4 (impact assessment) to 42001 Annex A.8 (Information for interested parties); the compliance matrix's dataset-datasheet / model-card / system-card rows remapped from a non-existent ISO/IEC 27001 §8.4 to §7.5 (Documented information). Both verified against the held standards; skeptical verifier SHIP. Also fixed the #830 `/validate-pr` finding (the ISO/IEC 30111 note's procedure-scope overstatement) in the same PR.
