@@ -219,6 +219,14 @@ drive end-to-end on the maintainer's behalf:
    published (the list comes from TODO, not from memory). This is the project-specific
    instantiation of the PR finalization protocol in
    [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
+   **The same next-five list is written to [`.working/next-prs.txt`](../.working/next-prs.txt)
+   as part of THIS PR's own diff (not a post-merge step), so merging the PR cycles the file,
+   and the console `next:` statusline that reads it, forward to the next work item.** Each PR
+   drops the item it just closed and reflects the current next-five (drawn from TODO); the
+   file is a committed, between-session-durable projection of the queue. A stale entry there
+   (an already-done item still shown as `next:`, the #847-era drift) is the signal that a PR
+   shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
+   otherwise unchanged.
 7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
    TODO in the same PR and an entry is added to [`.working/DONE.md`](../.working/DONE.md)
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a

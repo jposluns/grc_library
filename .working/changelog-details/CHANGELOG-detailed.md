@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.336, PR #848
+
+`.claude/` + `.working/` change (adopter-invisible; terse). Maintainer-directed codification of the [`.working/next-prs.txt`](../next-prs.txt) refresh cadence.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): PR-workflow step 6 now states that the next-five-PRs list is written to [`.working/next-prs.txt`](../next-prs.txt) as part of THIS PR's own diff (not a post-merge step), so the merge cycles the file, and the console `next:` statusline that reads it, to the next work item; each PR drops the item it closed and reflects the current next-five, so every PR touches the file even when the queue is otherwise unchanged.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed from a stale completed-queue snapshot (headed by the already-done "AIQT PR 2" / `/deep-assessment` items, the source of the persistent stale console `next:` line the maintainer flagged) to the current AI-delta queue (A.1, A.6, B.1, B.2, C).
+
+### Verification
+
+- Bookkeeping-tier change (`.claude/` + `.working/`, gate-exempt trees; no corpus body). All 69 gates pass; lint-language dash-check run on the added CLAUDE.md prose. Batches #847's /validate-pr + /retro.
+
 ## 2026-07-12, Library Version 2026.07.335, PR #847
 
 AI-domain delta, EU cluster part 3 (A.3). The EU GPAI Code of Practice, Copyright Chapter (July 2025), held in `grc_library_ref` under `frameworks/EU-AI-Office/`, folded into two documents. Research fan-out worker + apply-time re-verification.
