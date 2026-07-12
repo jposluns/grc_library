@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.48 (deep-assessment r2 F5): DORA reporting-window verification and citation (2026-07-12)
+
+Verified the DORA major-incident reporting windows against the already-held RTS Delegated Reg (EU) 2025/301, and corrected `compliance/financial-services/annex-dora-implementation.md` so the initial-notification window states BOTH bounds (within 4 hours of classification as major AND no later than 24 hours from becoming aware, the outer bound the prior "4 hours" phrasing omitted), with the intermediate (72h from the initial notification) and final (one month after the intermediate report) windows made precise and the RTS/ITS citations added (2024/1772 classification, 2025/301 content and time limits, 2025/302 forms; Articles 18/19/20). The sources were already held in `grc_library_ref`; no ingest was needed (a redundant ingest branch was opened and closed after a stale-local-checkout misread). Closes r2 F5.
+
 ## How items get here
 
 When a PR closes a TODO item, the maintainer (or the AI assistant under the corpus-management discipline) rotates the item from [`TODO.md`](../TODO.md) into this file as part of the PR's diff. The rotation is enforced by convention rather than by a gate, per the discipline section in [`dev-security/claude-rules/governance/change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md).
