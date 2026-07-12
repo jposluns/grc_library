@@ -2,8 +2,8 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.5\
-**Date:** 2026-07-11\
+**Version:** 0.0.6\
+**Date:** 2026-07-12\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md)\
@@ -192,7 +192,7 @@ Beyond the supplier-facing risks above, a foundation model carries the generativ
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8 operation; §8.4 documentation; §9 performance evaluation | AI management system |
+| ISO/IEC 42001:2023 | §8 operation; §7.5 documented information; §9 performance evaluation | AI management system |
 | EU AI Act | Articles 26 (deployer obligations), 50 (transparency), 53 (general-purpose AI obligations) | Foundation-model regulation |
 | NIST AI RMF | All four functions | AI risk management |
 | NIST AI 600-1 | Generative AI Profile: the generative-AI risk classes | Generative-AI risk taxonomy |

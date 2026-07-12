@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.6\
-**Date:** 2026-07-08\
+**Version:** 1.0.7\
+**Date:** 2026-07-12\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -72,7 +72,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 | Clause 5 Leadership and AI governance | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | Architectural recommendation |
 | Clause 6 Planning, AI risk and impact | [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Architectural recommendation |
 | Clause 8 Operation, AI lifecycle | [`ai/framework-ai-model-risk.md`](../ai/framework-ai-model-risk.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md`](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md) | Architectural recommendation |
-| Clause 8.4 Documentation and transparency | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`ai/template-model-card.md`](../ai/template-model-card.md), [`ai/template-system-card.md`](../ai/template-system-card.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | Architectural recommendation |
+| Clause 7.5 Documented information | [`ai/framework-ai-model-documentation-and-transparency.md`](../ai/framework-ai-model-documentation-and-transparency.md), [`ai/template-model-card.md`](../ai/template-model-card.md), [`ai/template-system-card.md`](../ai/template-system-card.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md) | Architectural recommendation |
 | Clause 9 Performance evaluation, audit, monitoring | [`ai/procedure-ai-audit.md`](../ai/procedure-ai-audit.md), [`ai/procedure-ai-evaluation.md`](../ai/procedure-ai-evaluation.md), [`ai/standard-ai-testing-validation-and-documentation.md`](../ai/standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | Architectural recommendation |
 | AI security controls | [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`ai/guideline-adversarial-evaluation-suite-development.md`](../ai/guideline-adversarial-evaluation-suite-development.md) | Architectural recommendation |
 

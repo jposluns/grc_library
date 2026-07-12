@@ -2,8 +2,8 @@
 
 **Document Title:** Dataset Datasheet Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-07-11\
+**Version:** 1.0.7\
+**Date:** 2026-07-12\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/standard-ai-data-quality-and-readiness-validation.md`](standard-ai-data-quality-and-readiness-validation.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md)\
@@ -190,7 +190,7 @@ This template applies to all datasets that influence model behaviour: training, 
 | --- | --- | --- |
 | Datasheets for Datasets | Gebru et al. 2018 / 2021 | Original pattern |
 | Data Cards | Pushkarna, Zaldivar, Kjartansson 2022 | Complementary pattern |
-| ISO/IEC 42001:2023 | §8.4 documentation | AI documentation |
+| ISO/IEC 42001:2023 | §7.5 documented information | AI documentation |
 | EU AI Act | Articles 10 to 12 | Data and data governance; record-keeping |
 | NIST AI RMF | MAP function | AI risk mapping |
 | GDPR / UK GDPR | Articles 5, 6, 9, 25, 30 | Data protection principles, lawful basis, special-category data, by design, ROPA linkage |

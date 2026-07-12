@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.313, PR #825
+
+Fixes `/deep-assessment` r2 finding **F1** (the one warning), complete across all carriers: ISO/IEC 42001:2023 Clause 8.4 (held title "AI system impact assessment") was mislabeled documentation / transparency / data-controls. Library `2026.07.312` to `2026.07.313`.
+
+### Changed
+
+- Re-pointed §8.4 to the correct held clause in **seven AI framework-alignment tables** (per-row judgment): documentation rows to **§7.5 "Documented information"** ([`ai/framework-ai-model-documentation-and-transparency.md`](../../ai/framework-ai-model-documentation-and-transparency.md) `1.0.7`->`1.0.8`, [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md) `0.0.8`->`0.0.9`, [`ai/register-model-registry.md`](../../ai/register-model-registry.md) `0.0.6`->`0.0.7` with §8 kept, [`ai/template-dataset-datasheet.md`](../../ai/template-dataset-datasheet.md) `1.0.6`->`1.0.7`, [`ai/procedure-foundation-model-lifecycle.md`](../../ai/procedure-foundation-model-lifecycle.md) `0.0.5`->`0.0.6` with §8/§9 kept); operational-control rows to **§8.1 "Operational planning and control"** ([`ai/guideline-ai-synthetic-content-provenance.md`](../../ai/guideline-ai-synthetic-content-provenance.md) `0.0.1`->`0.0.2`, [`ai/standard-ai-data-quality-and-readiness-validation.md`](../../ai/standard-ai-data-quality-and-readiness-validation.md) `0.0.1`->`0.0.2`). All Dates co-bumped to 2026-07-12.
+- **Two cross-file carriers a skeptical verifier caught** (the whole-repo-grep the first pass missed): [`governance/matrix-reverse-framework-control-crosswalk.md`](../../governance/matrix-reverse-framework-control-crosswalk.md) `1.0.6`->`1.0.7` (the §8.4 row carried a fabricated "Documentation and transparency" title; re-pointed to §7.5 "Documented information") and four Key-Frameworks entries in [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) `1.27.83`->`1.27.84` (the stale §8.4 mirror for four of the seven docs, re-pointed to §7.5).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); [`README.md`](../../README.md) library CalVer `2026.07.312`->`2026.07.313`, README Version `1.9.673`->`1.9.674`.
+- Batched the #824 QA rows: the #824 `/validate-pr` row (clean; its two flagged items were this session's own in-flight F1 work and a benign UTC-date split, not #824 defects) in [`.working/validate-pr/history.md`](../validate-pr/history.md) and the #824 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+
+### Verification
+
+- The [`ai/checklist-ai-algorithmic-compliance.md`](../../ai/checklist-ai-algorithmic-compliance.md) bare §8.4 uses (lines 54/74/91, impact-assessment / DPIA / measurement contexts where §8.4 is correct) were confirmed left unchanged (no over-correction). Whole-repo grep confirms 0 residual documentation-labeled 42001 §8.4 carriers.
+- **Skeptical verifier: SHIP after completion.** The first F1 pass fixed the 7 tables correctly (each re-point confirmed against the held clause titles) but MISSED the two cross-file carriers; the verifier's whole-repo grep caught them (the §N-orphan cross-FILE class), and they are now fixed. The verifier confirmed the per-row dispositions correct, the two →§8.1 and five →§7.5 targets matching the held titles, and no over-correction.
+- **Two related items routed** (not fixed here): the AI jurisdiction annexes (EU/AU/CA/CO/NYC) map a transparency-to-affected-persons obligation to 42001 §8.4, the same misconception, but 42001 has no clean transparency management-clause so the correct target is a maintainer/matrix-fit assessment; and the compliance matrix's ISO/IEC 27001:2022 column cites §8.4 (27001 clause 8 has no 8.4), a separate pre-existing citation-existence issue. Both route in the r2 notes/routing PR.
+
 ## 2026-07-11, Library Version 2026.07.312, PR #824
 
 Lands the held, reconciled **gate 69** (positional-backlog-token audit), the `/deep-assessment` r2 coverage obligation, closing [`TODO.md`](../../TODO.md) §3.4. Gate count 68 to 69. Library `2026.07.311` to `2026.07.312`.
