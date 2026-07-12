@@ -1,5 +1,7 @@
 # Resuming a session (manual entry point)
 
+*Maintainer-internal. Adopters consuming the corpus can ignore or delete this file: it points into [`.claude/`](.claude/) and [`.working/`](.working/), trees the corpus does not depend on.*
+
 This is the manual entry point for resuming a Claude Code session in an environment
 where the `/resume` slash command is not available (for example, a machine whose Claude
 Code does not discover this project's [`.claude/commands/`](.claude/commands/)). It

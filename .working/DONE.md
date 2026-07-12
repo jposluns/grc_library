@@ -11,6 +11,14 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §4.7 (deep-assessment r1 R13): RESUME.md maintainer-internal label (2026-07-12)
+
+Added an in-file "maintainer-internal; adopters can ignore or delete" note to the top of `RESUME.md` (the README maintenance-file table already carried the same framing at line 167), so the adopter-visible root file now signals it is not an adopter document on both surfaces.
+
+### TODO §5.9-R1 + §6.3-R3 (deep-assessment r1): stale sub-bullets closed as already-resolved (2026-07-12)
+
+Verified both were already fixed in the corpus and removed the stale TODO sub-bullets: the privacy jurisdiction-index US cell already names the SB 26-189 / 2027 Colorado regime (R1), and `register-coverage-gaps.md` §3 already carries the SOC 2 (TSC) disclosure row (R3). No corpus change; TODO housekeeping only.
+
 ### TODO §3.53 (deep-assessment r2): missing-reference-document SOP distributed to the pack (2026-07-12)
 
 Distributed the project's missing-reference-document SOP into the pack `evidence-grounded-completion` rule (source + byte-identical `.claude/` mirror) as a project-agnostic missing-load-bearing-reference corollary in the external-version-currency section: acquire the reference from its primary source and ingest, else surface with named options, never route a "source-not-held" finding without first attempting acquisition. Generalizes the held-but-superseded version-currency discipline to the not-held case. Pack `1.59.6` to `1.59.7`; project `.claude/CLAUDE.md` "queued" pointer updated to "shipped"; `lint-language` clean.
