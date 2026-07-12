@@ -1,2 +1,2 @@
-1) A.6 California annex (high-assurance; VERIFY OAL dates); 2) B.1 South Korea annex (high-assurance; VERIFY phased dates); 3) B.2 Singapore annex (high-assurance); 4) C currency (Canada TBS + IEEE 7000 §7.3 claim-fit); 5) public website §2.4 (attended) / packaging §4.9 precursor
-# then: §3.16 CHANGELOG reformat; reference-breadth apply (§3.57, scratch #163); §1.2 SP 800-154 wording; §3.56 pack-hygiene routed cleanups
+1) A.6 California annex (FRESH SESSION, high-assurance; dates VERIFIED: OAL 22 Sep 2025, effective 1 Jan 2026, ADMT 1 Jan 2027); 2) B.1 South Korea annex (fresh, high-assurance); 3) B.2 Singapore annex (fresh, high-assurance); 4) public website §2.4 (attended) / packaging §4.9; 5) §3.16 CHANGELOG reformat
+# fresh session first runs the /resume corpus-wide /validate (loop-break compensating control), then the high-assurance-register annexes. Also queued: reference-breadth apply (§3.57, scratch #163); §1.2 SP 800-154; §3.56 pack-hygiene cleanups
