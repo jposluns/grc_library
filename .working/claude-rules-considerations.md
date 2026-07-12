@@ -1,6 +1,6 @@
 # Claude-rules considerations (GR-P2 condense removal ledger)
 
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-12\
 **License:** CC BY-SA 4.0
 
@@ -281,6 +281,98 @@ For AI coding assistants specifically: when you recognize the three conditions i
 
 ---
 
+## RM-EGC-1: evidence-grounded-completion.md
+
+**Rule:** [`evidence-grounded-completion.md`](../dev-security/claude-rules/governance/evidence-grounded-completion.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 4 (this delivery, the final content tranche). Operative core retained in full; 4342 -> 3724 words. Moved to this ledger: the "Worked example: the multi-surface gate-name parity case" section and the "Why this rule exists" narrative.
+
+**Why removed:** the worked example is an extended illustration and the why-section restates the summary-composed-from-inference failure mode; both are motivating, not operative. The operative core (the completion-claim definition, the beyond-completion state-assertion discipline, the un-observable/inventory/currency corollaries, the six-step verification protocol, anti-patterns, all tool-specific guidance including pipe-masked-exit-codes / API-polling / no-decorative-links, exception protocol, framework table) is retained in full.
+**Expected gain:** about 618 fewer always-on words (14%), the largest single-rule cut in the whole GR-P2 pass, because the worked example is long.
+**Risk:** an agent loses the multi-surface gate-name-parity illustration (mitigated: the operative verification protocol step 5 and the "run the parity check on the final state" discipline encode the lesson).
+**Evidence the removal was wrong:** an agent declaring "all gates pass" from a prior run rather than the current state after the condense, or asserting an artefact property it did not read.
+
+Removed verbatim:
+
+```
+## Worked example: the multi-surface gate-name parity case
+
+A common shape of this rule's failure mode in governed codebases: a session adds a new audit gate to a programme that declares its gates across several parallel surfaces (CI workflow, local runner, pre-commit config, audit-programme specification). The session wires the gate into all but one of the surfaces, touching exactly the files it needed to touch for the implementation work, and prepares the changeset for the next operator with a summary claim of the form "all N audit gates pass on this state". The omitted surface is the one that did not appear on the session's working set, so the session's mental model of "did I do the wiring?" centred on the surfaces it did touch, and the missing one slipped past.
+
+A gate-name parity audit, itself one of the N gates, would have caught the omission. The session's summary, though, was composed from inference ("I added the gate; the audit was passing earlier; it should still pass") rather than from running the audit on the final state. When the work was picked up next, the full audit run reported the parity gate failing with the correct diagnostic, and a one-block fix closed the loop. The total recovery cost was one extra audit-and-fix loop; the avoidable cost was the operator's reasonable trust in a summary that did not match the working tree.
+
+The mechanical defence existed and worked. The discipline failure was the rule's *Relying on prior runs* anti-pattern: "it passed last time, and the only change is small" does not substitute for running the gates on the current state. The protocol applies even when the session is not in doubt; a claim that the audit suite passes on the current state requires running the audit on the current state, not on a state from earlier in the session.
+
+The wider lesson for any work that touches several parallel surfaces (gate-name parity, generator-output drift checks, mirror-sync between a source-of-truth and its copies, polyglot lockfiles, cross-package version registers): the verification protocol must explicitly include "run the parity check on the final state, after every other change has been made". A session that did the wiring without the final-state check has completed the implementation tasks but not the verification task; the verification task is part of the work, not a coda to it.
+
+---
+
+## Why this rule exists
+
+The classic failure mode this rule addresses: an AI coding assistant runs a passing audit, infers that the work is done, writes "all gates pass; ready to ship", and is wrong because the audit covered some claims and not others. A reviewer reads the summary, trusts the assistant, and the unsupported claim lands.
+
+The discipline reverses the flow. The summary is composed *after* the verification, *from* the evidence, not from inference. The vocabulary of completion ("done", "fixed", "ready") becomes a flag that the assistant must satisfy the protocol before emitting; the protocol is mechanical (enumerate, re-read, quote, contradiction-search) so it can be checked without subjective judgement.
+
+The cost of the protocol (a few extra tool calls and a more careful summary) is small. The cost of an unsupported completion claim that lands and gets relied on (a defect that ships, a reviewer's trust eroded, a user who later has to catch what the assistant should have caught) is much larger. The asymmetry justifies the discipline.
+
+For AI coding assistants specifically: if a user catches an inconsistency that this rule's protocol would have caught, the right response is not "good catch" (which implies you understood and have it under control). The right response is "you caught what I should have caught; rerunning the verification protocol now", followed by actually rerunning the protocol.
+```
+
+---
+
+## RM-CT-1: change-tracking.md
+
+**Rule:** [`change-tracking.md`](../dev-security/claude-rules/governance/change-tracking.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 4 (this delivery, the final content tranche). Operative core retained in full; 4425 -> 4216 words. Moved to this ledger: the "Why this rule exists" narrative only (all operative how-to KEPT: the monorepo-coordination and generated-CHANGELOG subsections, the PR-finalization protocol, the overnight-work protocol).
+
+**Why removed:** the why-section restates the CHANGELOG-is-institutional-memory cost argument the operative entry-content requirements and CI-gate contract already enforce. Only the why-section moved; the monorepo and generated-CHANGELOG subsections are operative how-to, not rationale, so they were KEPT (this is why the cut is a modest 4%: most of this rule is operative protocol).
+**Expected gain:** about 209 fewer always-on words (4%); the rule is mostly operative, so the proportional cut is small by design.
+**Risk:** an adopter loses the per-entry-cost-vs-compounding-cost framing (mitigated: the terse-entry convention and the no-skip-path rule encode it operatively).
+**Evidence the removal was wrong:** an agent shipping a change with no CHANGELOG entry, or a vague/batched entry, after the condense.
+
+Removed verbatim:
+
+```
+## Why this rule exists
+
+A CHANGELOG is the cheapest form of long-term institutional memory a project has. Code review answers "is this change correct now"; the CHANGELOG answers "what changed and why" months or years later, after the original reviewer has rotated off the project and the original PR thread is buried.
+
+The cost of an entry (one short section) is paid once, by the person closest to the change. The cost of *not* having an entry compounds: each future reader who hits the artefact and asks "when did this happen?" pays the price of reading the diff, reconstructing the rationale, and risking a wrong inference. Multiplied across years and contributors, the total cost dwarfs the per-entry cost by orders of magnitude.
+
+The opt-out path exists because some changes are genuinely invisible to consumers and an entry would be noise. It is a documented trailer, mechanically inspectable, reviewer-approved; it is not silence. Silence is exactly what the audit trail is supposed to prevent.
+
+For AI coding assistants specifically: when shipping a change, the entry is part of the change, not a separate concern to be added later. Treat a PR without an entry the same way you would treat a PR without a test: incomplete by construction.
+```
+
+---
+
+## RM-AWD-1: ai-assistant-workflow-disciplines.md
+
+**Rule:** [`ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md). **Status:** open.
+**Condensed in:** GR-P2 tranche 4 (this delivery, the final content tranche). Operative core retained in full; 4236 -> 3975 words. Moved to this ledger: the "Why this rule exists" narrative (which carried the per-discipline emergence narratives).
+
+**Why removed:** the why-section recounts how each of the five disciplines emerged during the originating remediation session; that is provenance, not operative instruction. The operative core (the five disciplines with their rules, the partitionable-work default, the apply-time correction, the skeptical-pre-push-verification tiers, the verifier-finding handling loop, the overruling-is-never-silent rule, the prohibited anti-patterns including the QA-abbreviation clause, framework table) is retained in full.
+**Expected gain:** about 261 fewer always-on words (6%).
+**Risk:** an agent loses the per-discipline origin stories (mitigated: each discipline's operative statement stands on its own; the provenance is preserved verbatim here).
+**Evidence the removal was wrong:** an agent pasting worker prose unverified, running parallel applies, or abbreviating mandatory QA after the condense.
+
+Removed verbatim:
+
+```
+## Why this rule exists
+
+The five disciplines were developed during a multi-week corpus-remediation session in which an AI assistant drove 30+ PRs to close a fitness-review backlog. The session surfaced each failure mode in turn:
+
+- **Research-assistant discipline** emerged after a worker confabulated a non-existent file path; the discipline was named so future workers would be treated as research, not as final prose.
+- **Pipeline PR construction** emerged after early sessions were bottlenecked on serial research-then-apply; parallel research was added to keep the apply-queue non-empty.
+- **Apply-time worker correction** emerged after several worker drafts referenced stale version numbers or wrong PR cross-references; documenting the catches turned them into a tracking signal.
+- **Always split when in doubt** emerged after a maintainer noted that bundled PRs were harder to review than single-purpose ones; "split" became the default.
+- **Background work during CI waits** emerged after a maintainer asked whether idle waits were necessary; they weren't, and read-only prep was identified as the safe productive use.
+
+Each discipline pays back its complexity many times over the course of a long session. The cost of memorizing them is small; the cost of relearning them by repeated failure is large.
+
+For AI coding assistants specifically: when you find yourself dispatching multiple workers in parallel, when you find yourself bundling changes, when you find yourself sitting idle during CI, when you find yourself pasting worker prose without re-reading the target file, pause and run the corresponding discipline. The disciplines exist because each failure mode was observed; the discipline keeps the failure mode from recurring.
+```
+
 ## Pending rule entries (per-rule worklist for GR-P2 tranches 2+)
 
 Each remaining rule condenses on the same split. This worklist records the pre-analyzed
@@ -291,14 +383,14 @@ condensed.
 | Rule | Words | Operative core (KEEP) | Move to ledger (rationale) | Est. reduction |
 | --- | --- | --- | --- | --- |
 | `gate-discipline.md` | 1559 | prohibited/correct responses, per-tool anti-patterns, exception protocol, framework table | why-section | done (-26%) |
-| `evidence-grounded-completion.md` | 4342 | the verification protocol steps, the un-observable/inventory/currency corollaries, anti-patterns, tool-specific guidance, framework table | why-section, the multi-surface worked example | high (~-40%) |
-| `change-tracking.md` | 4422 | entry-content requirements, terse-entry convention, prohibited anti-patterns, CI-gate contract, PR-finalization protocol, overnight-work protocol, framework table | why-section, extended monorepo/generated-changelog rationale | high (~-35%) |
-| `ai-assistant-workflow-disciplines.md` | 4236 | the five disciplines' rules, the skeptical-verifier tiers, the prohibited anti-patterns, framework table | why-section, the per-discipline origin narratives | high (~-35%) |
-| `surface-counterproductive-instructions.md` | 2526 | the trigger classes, the stop-consider-confirm protocol, the charitable-interpretation corollary, calibration, anti-patterns, framework table | why-section, relationship-to-pack prose | done (-12%) |
+| `evidence-grounded-completion.md` | 4342 | the verification protocol steps, the un-observable/inventory/currency corollaries, anti-patterns, tool-specific guidance, framework table | why-section, the multi-surface worked example | done (-14%) |
+| `change-tracking.md` | 4422 | entry-content requirements, terse-entry convention, prohibited anti-patterns, CI-gate contract, PR-finalization protocol, overnight-work protocol, framework table | why-section, extended monorepo/generated-changelog rationale | done (-5%) |
+| `ai-assistant-workflow-disciplines.md` | 4236 | the five disciplines' rules, the skeptical-verifier tiers, the prohibited anti-patterns, framework table | why-section, the per-discipline origin narratives | done (-6%) |
+| `surface-counterproductive-instructions.md` | 2526 | the trigger classes, the stop-consider-confirm protocol, the charitable-interpretation corollary, calibration, anti-patterns, framework table | why-section | done (-12%) |
 | `action-before-explanation-of-inaction.md` | 2504 | the inaction-explanation definition, the reversibility gate, the safe/destructive protocols, anti-patterns, tool guidance, framework table | why-section | done (-11%) |
 | `clarify-before-acting.md` | 2212 | ambiguity classes, ask-vs-default gate, compute-first gate, how-to-ask, anti-patterns, tool guidance, framework table | why-section | done (-9%) |
 | `project-integrity.md` | 2231 | the AIQT tier + machinery, priority enforcement, integrity non-negotiables, escalation, self-reminder cadence, framework table, AND the relationship-to-pack section (operative cross-wiring) | why-section | done (-16%) |
-| `high-assurance-verification.md` | 2414 | the trigger conditions, the five-stage harness, persistence/register, anti-patterns, framework table | why-section, relationship-to-pack prose | done (-13%) |
+| `high-assurance-verification.md` | 2414 | the trigger conditions, the five-stage harness, persistence/register, anti-patterns, framework table | why-section | done (-13%) |
 | `trust-recovery-escalation.md` | 1876 | the trigger, the two-skill suite, findings-routing, sign-off discipline, anti-patterns, framework table | why-section | done (-14%) |
 | `artefact-and-branch-discipline.md` | 1816 | generated-artefact + protected-branch definitions and workflows, prohibited anti-patterns, version-monotonicity contract, exception protocols, framework table | why-section | done (-12%) |
 | `validate-inference-before-action.md` | 1760 | the inferred-premise definition, the discipline steps, anti-patterns, tool guidance, exception protocol, framework table | why-section, the cascade-failure worked example | done (-26%) |

@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.325, PR #837
+
+§4.8 Phase 1, GR-P2 governance-rule condense tranche 4 (the final content tranche; completes the 12-rule GR-P2 condense set).
+
+### Changed
+
+- Condensed the last three (large) governance rules; each replaced in BOTH the pack tree and its byte-identical `.claude/rules/governance/` mirror in the same commit (gate 37 sync):
+  - [`dev-security/claude-rules/governance/evidence-grounded-completion.md`](../../dev-security/claude-rules/governance/evidence-grounded-completion.md) and its [`.claude/` mirror](../../.claude/rules/governance/evidence-grounded-completion.md): moved the `## Why this rule exists` narrative AND the `## Worked example: the multi-surface gate-name parity case` section to the ledger.
+  - [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) and its [`.claude/` mirror](../../.claude/rules/governance/change-tracking.md): moved the `## Why this rule exists` narrative; the monorepo / generated-CHANGELOG / PR-finalization / overnight protocols were KEPT (operative how-to).
+  - [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) and its [`.claude/` mirror](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): moved the `## Why this rule exists` narrative (the per-discipline origin narratives).
+- **Drift-safe apply method.** The two drifted rules were condensed by stripping the named sections from the CURRENT live rule, NOT by copying the pre-drift worker candidate. This preserves the intervening drift additions automatically: `change-tracking`'s `### Current-week model` subsection (#813) and `evidence-grounded-completion`'s missing-load-bearing-reference corollary (#832). A byte-level cross-check confirmed each stripped result equals the worker candidate PLUS exactly that drift addition and nothing else (change-tracking: +14 lines = the #813 section, 0 removed; evidence-grounded: +2 lines = the #832 paragraph, 0 removed); `ai-assistant-workflow` (drift-free) stripped-live equalled its candidate identically.
+- Appended the three `RM-` entries (RM-EGC-1, RM-CT-1, RM-AWD-1) to [`.working/claude-rules-considerations.md`](../claude-rules-considerations.md) and marked their worklist rows done. **All twelve GR-P2 rule rows are now done, completing the condense set.**
+- Fixed an in-window finding #836's `/validate-pr` caught: the ledger worklist's "Move to ledger" column wrongly listed "relationship-to-pack prose" for `surface-counterproductive-instructions` and `high-assurance-verification` (those relationship sections were KEPT in tranche 3, not moved); corrected to "why-section" to match the rules and their RM entries.
+- The 13th rule [`dev-security/claude-rules/governance/session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md) (added after GR-P2 was scoped, no candidate) is recorded in TODO §4.8 as a small follow-up condense, not silently skipped.
+- The cross-cutting folded fixes (the `LOG-02, LOG-08` audit-trail-row migration, the apex `A.8.34` swap, the change-tracking two-file-split lead-wording reconcile) remain isolated to the next census-complete PR; these three rules' framework tables still read `LOG-02, LOG-08` by design.
+
+### Verification
+
+- Byte-level cross-check (above) confirmed 0 operative lines dropped and the exact drift additions preserved. Both-tree sync confirmed per rule; [`lint-language.py`](../../tools/lint-language.py) clean on all three; all 69 audit gates pass.
+- A refute-briefed skeptical verifier reviewed the change pre-push.
+- **Worker provenance:** [`inbox/claude-pack-hygiene/MANIFEST.md`](../../../grc_library_scratch/inbox/claude-pack-hygiene/MANIFEST.md) (the consolidated GR-P2 pack-hygiene drop; the tranche-4 candidates informed the removed-section identification; the orchestrator applied by stripping from live to preserve drift, cross-checked against the candidates, and authored all bookkeeping).
+
+Pack `1.59.9` to `1.59.10`; library `2026.07.324` to `2026.07.325`.
+
 ## 2026-07-12, Library Version 2026.07.324, PR #836
 
 §4.8 Phase 1, GR-P2 governance-rule condense tranche 3 (the second of the three remaining GR-P2 tranches).
