@@ -2,8 +2,8 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-09\
+**Version:** 0.0.2\
+**Date:** 2026-07-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](../procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../procedure-integrated-ai-and-privacy-assessment.md), [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -120,4 +120,4 @@ An adopter maps its AI estate to these roles as the first step; the AI System Im
 | Provider conformity and documentation | Article 16, Article 49 | Govern, Measure | Clause 8 |
 | Deployer oversight and impact assessment | Article 26, Article 27 | Manage | Clause 8.3 |
 | General-purpose model transparency | Article 53, Article 55 | Measure | Clause 8 |
-| Transparency to affected persons | Article 50 | Govern | Clause 8.4 |
+| Transparency to affected persons | Article 50 | Govern | Annex A.8 |

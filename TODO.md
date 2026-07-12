@@ -184,10 +184,6 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 
 Gate 69 ([`tools/lint-positional-backlog-tokens.py`](tools/lint-positional-backlog-tokens.py)) matches "backlog item(s)" followed by a `§`/`P`-prefixed or dotted token, but its `TODO` arm requires the section token immediately after `TODO`, so the phrasing "TODO item 3.4" (qualifier + "item" + dotted token) is not matched. No live carrier exists today (corpus grep returns 0), so this is a latent gap, not a current defect. Widen the regex to also match the `TODO item N.M` form, with a false-positive analysis first (the "item" alternation must not over-match ordinary prose such as "TODO item list"), or document the omission as intentional.
 
-### 3.52 Deep-assessment r2 citation-fit follow-ups (42001/27001 clause 8.4) (S)
-
-Two clause-8.4 mapping issues the r2 F1 verifier surfaced beyond the fixed documentation carriers: (a) the AI jurisdiction annexes (EU/AU/CA/CO/NYC) map a "transparency to affected persons" obligation to ISO/IEC 42001 Clause 8.4 (held title "AI system impact assessment"), the same misconception, but 42001 has no clean transparency management-clause, so the correct target is a maintainer/`/matrix-fit` assessment (candidate: drop the 42001 cell, or point at an Annex A transparency control); (b) the compliance matrix's ISO/IEC 27001:2022 column cites clause 8.4 for the dataset-datasheet / model-card / system-card rows, but 27001:2022 clause 8 has no 8.4 (8.1 operational planning, 8.2 risk assessment, 8.3 risk treatment), a citation-existence issue the gates do not catch in that column.
-
 ### 3.53 Distribute the missing-reference-document SOP to the pack (S)
 
 The missing-reference-document SOP codified in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) (pause, attempt download+ingest to the reference base, else surface with named options) is project-specific; distribute its project-agnostic form into the [`evidence-grounded-completion`](dev-security/claude-rules/governance/evidence-grounded-completion.md) rule's external-source corollary (the pack-distributable governance form), so adopters inherit it.
