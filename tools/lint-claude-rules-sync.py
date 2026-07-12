@@ -13,7 +13,7 @@ are on the corpus linters' exemption list.
 This audit closes that gap. For each declared (local copy, pack source)
 pair it compares the two files' *bodies* and fails on any divergence.
 
-Two intentional, by-design differences are stripped before comparison
+Three intentional, by-design differences are stripped before comparison
 (they are local-only adaptations, not drift):
 
   1. A leading YAML frontmatter block (``---`` ... ``---``). The
@@ -25,11 +25,19 @@ Two intentional, by-design differences are stripped before comparison
   2. A leading HTML provenance comment (``<!-- Source: ... -->``) and
      surrounding blank lines. The local copies note where they were
      copied from; the pack source does not.
+  3. A trailing PROJECT-OVERLAY block in the local copy: everything
+     from the first line matching ``OVERLAY_MARKER`` to end-of-file.
+     The overlay carries this project's wiring and lineage (the
+     project-specific content the distributable pack deliberately does
+     not carry); it is local-only and never synced. Two failure modes
+     guard the mechanism: the marker appearing anywhere in a PACK
+     source fails the audit (the overlay must never leak into the
+     distributable), and the marker appearing more than once in a
+     local copy fails it (one trailing block only).
 
 After stripping those, the remaining body must be identical (trailing
-newline differences are normalized away). The governance local copies
-carry neither a frontmatter block nor a provenance comment, so for them
-the comparison is effectively whole-file.
+newline differences are normalized away). A governance local copy with
+no overlay block and no preamble is compared effectively whole-file.
 
 Completeness check: every markdown file under ``.claude/rules/`` other
 than the local-only ``external/`` overlay (third-party rule sets that
@@ -70,6 +78,11 @@ LOCAL_RULES_DIR_REL = ".claude/rules"
 # Local-only overlay: third-party rule sets with no pack source. These
 # are not mirrored and are excluded from the completeness check.
 LOCAL_ONLY_SUBDIR = "external"
+
+# Marker opening the trailing project-overlay block a LOCAL copy may
+# carry (project wiring and lineage; local-only, never synced). Exactly
+# this line, alone on its line. It must never appear in a pack source.
+OVERLAY_MARKER = "<!-- PROJECT-OVERLAY: not part of the distributable pack -->"
 
 # Mapping of project-local copy -> pack source of truth. Both paths are
 # relative to the repository root. Every markdown file under
@@ -132,6 +145,25 @@ def strip_preamble(text: str) -> str:
         else:
             break
     return "\n".join(lines[i:]).rstrip("\n")
+
+
+def split_overlay(text: str) -> tuple[str, int]:
+    """Return ``(text_without_overlay, marker_count)``.
+
+    The overlay is the trailing block from the first line equal to
+    ``OVERLAY_MARKER`` (ignoring surrounding whitespace) to end-of-file,
+    plus immediately preceding blank lines. ``marker_count`` is the
+    total number of marker lines seen, so the caller can fail a copy
+    carrying more than one.
+    """
+    lines = text.splitlines()
+    marker_count = sum(1 for ln in lines if ln.strip() == OVERLAY_MARKER)
+    if marker_count == 0:
+        return text, 0
+    cut = next(i for i, ln in enumerate(lines) if ln.strip() == OVERLAY_MARKER)
+    while cut > 0 and lines[cut - 1].strip() == "":
+        cut -= 1
+    return "\n".join(lines[:cut]), marker_count
 
 
 def find_local_rule_files(root: Path) -> list[Path]:
@@ -198,6 +230,22 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
+        if any(ln.strip() == OVERLAY_MARKER for ln in source_text.splitlines()):
+            findings.append(
+                f"overlay leak: pack source {source_rel} contains the "
+                f"PROJECT-OVERLAY marker. The overlay block is a "
+                f".claude/rules/ local-copy mechanism only; remove it "
+                f"from the distributable pack file."
+            )
+            continue
+        local_text, marker_count = split_overlay(local_text)
+        if marker_count > 1:
+            findings.append(
+                f"duplicate overlay marker: {local_rel} carries the "
+                f"PROJECT-OVERLAY marker {marker_count} times; a local "
+                f"copy may carry at most one trailing overlay block."
+            )
+            continue
         if strip_preamble(local_text) != strip_preamble(source_text):
             findings.append(
                 f"body drift: {local_rel} diverges from its pack source "

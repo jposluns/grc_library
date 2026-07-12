@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.327, PR #839
+
+Section 4.8 Phase 2, patch 0001 (the clean, self-contained part of the phase-2 stack), applied now as a Phase-3 prerequisite (the gate-37 marker support Phase 3's overlay copies need).
+
+### Changed
+
+- Extended the gate-37 Claude-rules local-copy sync audit [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) with **PROJECT-OVERLAY** support: a local `.claude/rules/` copy may carry a trailing block opened by `<!-- PROJECT-OVERLAY: not part of the distributable pack -->` (project-specific wiring and lineage the distributable pack omits), stripped before the body comparison. Two guards: the marker in a PACK source fails the audit (it must never leak into the distributable); the marker appearing more than once in a local copy fails it (one trailing block only). The module docstring was updated ("Three intentional, by-design differences") to self-document the new behaviour.
+- Added four regression fixtures in [`tests/test_linters.py`](../../tests/test_linters.py) (including the discriminating synced-overlay-leak test) and four mutation-probe variants in [`tools/gate-mutation-variants.json`](../../tools/gate-mutation-variants.json).
+
+### Deliberately deferred (rides the worker's re-delivered patch 0002)
+
+- The gate-37 §6 spec narrative for the PROJECT-OVERLAY behaviour, and the spec Version bump, are NOT added here. The phase-2 MASTER-PLAN places them in patch 0002 ("0002's §6 narrative describes this gate behaviour"), and the capability is dormant on the current corpus (no local copy carries the marker yet), so gate-37's current §6 narrative is not stale for the current corpus. The worker's re-delivered 0002 will carry the §6 narrative + spec bump.
+
+### Verification
+
+- Linter regression suite passes (the four new gate-37 fixtures included); gate 37 standalone OK (17 copies synced, all mapped); all 69 audit gates pass. Patch 0001 `git apply`-applied cleanly to post-Phase-1 `main` (disjoint from the Phase-1 changes). A refute-briefed skeptical verifier reviewed the change and could not refute the gate-37 logic (confirming the key no-masking property: the overlay strip cannot mask real drift, because the pack source is never overlay-stripped and the stripped local body can never itself contain the marker). It found one in-window low-severity test-quality issue, fixed here: two of the four new regression tests asserted only the return code, so they would have passed against a reverted overlay implementation (the pack-source guard is diagnostic-only, and above-marker drift fires regardless of the strip). Both were strengthened to assert the specific finding message (`overlay leak` for the pack-source-marker guard; `body drift` for the above-marker-drift case), so they now discriminate a reverted or over-cutting overlay implementation; the full linter-regression suite passes.
+- **Phase-2 patches 0002 and 0003 are NOT applied and are NOT this session's queue item.** They are stale versus post-Phase-1 `main` (tested at #833; `main` is now past #838) and conflict with the Phase-1 changes (README history rows, the 3 skill LOG recaps, CHANGELOG, taxonomy). The maintainer directed that the pack-hygiene worker rebase, re-test, and re-deliver them against post-Phase-1 `main` (carrying the Phase-1 LOG-04/LOG-10 fix into the generalized skills and preserving the Phase-1 README history rows), the same tested-patch discipline as its #833 rework. They are tracked in TODO §4.8 as "awaiting worker re-delivery".
+- **Worker provenance:** patch [`0001-STAGING-tranche-1a-sync-gate-overlay-extension-4-reg.patch`](../../../grc_library_scratch/inbox/claude-pack-hygiene/phase2-payloads/0001-STAGING-tranche-1a-sync-gate-overlay-extension-4-reg.patch) of the consolidated GR-P2 pack-hygiene phase-2 stack; applied via `git apply` (not `git am`), so the orchestrator authored the commit and bookkeeping.
+
+Library `2026.07.326` to `2026.07.327`.
+
 ## 2026-07-12, Library Version 2026.07.326, PR #838
 
 §4.8 Phase 1 close-out: the folded-in attribution fixes and the 13th-rule condense that complete GR-P2 phase 1.

@@ -176,6 +176,50 @@
         "path": "governance/zz-mutation-probe-ccm-clean.md",
         "text": "# Mutation probe fixture\n\n| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | COBIT 2019 |\n| --- | --- | --- | --- |\n| Media handling | A.8.10 | DSP-04, DCS-05 | DSS05.06 |"
       }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "overlay-marker-in-pack-source",
+      "description": "PROJECT-OVERLAY marker appended to a distributable pack rule source; the overlay-leak class the extended sync gate must fail on.",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "dev-security/claude-rules/core/secrets.md",
+        "text": "\n<!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nLeaked overlay content.\n"
+      }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "overlay-duplicate-marker-local",
+      "description": "A second PROJECT-OVERLAY marker appended to a local copy that gains one; probes the one-trailing-block rule (appending two blocks to the overlay-free secrets copy).",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": ".claude/rules/secrets.md",
+        "text": "\n<!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nOverlay one.\n\n<!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nOverlay two.\n"
+      }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "overlay-masked-body-drift",
+      "description": "Body drift introduced in a local copy ABOVE an appended overlay block; the strip must not mask drift (drift line then marker then overlay).",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": ".claude/rules/secrets.md",
+        "text": "\nDRIFTED extra body line the pack source does not carry.\n\n<!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nOverlay content.\n"
+      }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "overlay-marker-whitespace-variant",
+      "description": "Marker line with leading whitespace in a pack source; width probe (the gate strips per-line whitespace before comparing, so an indented leak must still be caught).",
+      "expect": "detect",
+      "action": {
+        "type": "append_file",
+        "path": "dev-security/claude-rules/core/secrets.md",
+        "text": "\n  <!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nIndented leaked overlay.\n"
+      }
     }
   ]
 }
