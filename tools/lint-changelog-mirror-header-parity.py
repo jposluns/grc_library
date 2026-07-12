@@ -105,6 +105,13 @@ CUTOFF_PR = 463
 # A per-PR entry header, e.g. "## 2026-07-01, Library Version 2026.07.8, PR #520".
 HEADER_RE = re.compile(r"^##\s+\d{4}-\d{2}-\d{2},.*\bPR #(\d+)\b")
 
+# The compact root-entry header (the TODO 3.16 root-reformat), with or
+# without the stage-3b ``- summary`` tail:
+# ``**2026-07-08 | 2026.07.201 | PR #713**`` or the same followed by
+# `` - <summary>``. Groups: (2,3,4) the version triple, (5) the PR.
+COMPACT_HEADER_RE = re.compile(
+    r"^\*\*(\d{4}-\d{2}-\d{2}) \| (\d+)\.(\d+)\.(\d+) \| PR #(\d+)\*\*(?: - .*)?$")
+
 # The Library Version inside a matched per-PR header. Captured as three
 # integer groups so ordering compares numerically (tuple compare), never
 # lexically.
@@ -131,15 +138,24 @@ def pr_headers(
     records: list[tuple[int, int, tuple[int, int, int] | None, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         m = HEADER_RE.match(line)
-        if not m:
+        if m:
+            n = int(m.group(1))
+            if n < cutoff:
+                continue
+            v = VERSION_RE.search(line)
+            version = tuple(int(g) for g in v.groups()) if v else None
+            version_text = ".".join(v.groups()) if v else ""
+            records.append((lineno, n, version, version_text))
             continue
-        n = int(m.group(1))
+        c = COMPACT_HEADER_RE.match(line)
+        if not c:
+            continue
+        n = int(c.group(5))
         if n < cutoff:
             continue
-        v = VERSION_RE.search(line)
-        version = tuple(int(g) for g in v.groups()) if v else None
-        version_text = ".".join(v.groups()) if v else ""
-        records.append((lineno, n, version, version_text))
+        version = tuple(int(c.group(i)) for i in (2, 3, 4))
+        records.append((lineno, n, version,
+                        f"{c.group(2)}.{c.group(3)}.{c.group(4)}"))
     return records
 
 

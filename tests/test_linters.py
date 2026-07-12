@@ -2466,6 +2466,24 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             )
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_compact_root_header_parses(self) -> None:
+        # The stage-3a compact root header form (TODO 3.16 changelog reformat)
+        # must parse to the same PR set as a long-form mirror header, so a
+        # reformatted root and a still-long mirror stay at parity.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "**2026-07-01 | 2026.07.9 | PR #521**\n\nlead.\n"
+                "**2026-06-30 | 2026.06.8 | PR #520**\n\nlead.\n",
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nfull.\n"
+                "## 2026-06-30, Library Version 2026.06.8, PR #520\n\nfull.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+
     def test_pre_cutoff_mismatch_not_flagged(self) -> None:
         # A header below the cutoff present on only one side is an accepted
         # historical exemption, not a violation.
@@ -3322,6 +3340,33 @@ class VersionDateConsistencyTests(LinterTestCase):
         readme_fixture = self.make_fixture(
             "fake-readme-matching-stale.md",
             "# Fake README\n\n**Library Version:** 2026.05.144\n",
+        )
+        result = run_linter(
+            "tools/lint-version-date-consistency.py",
+            "--changelog",
+            changelog_fixture,
+            "--readme",
+            readme_fixture,
+        )
+        self.assertLinterFails(result, "must match")
+
+    def test_compact_heading_month_mismatch_flagged(self) -> None:
+        # The stage-3a compact CHANGELOG heading (TODO 3.16 reformat) must be
+        # PARSED for the date-vs-version-month check. Non-vacuous by design:
+        # the compact heading carries a month mismatch (date 2026-07 vs version
+        # 2026.06), so the gate can only flag it if COMPACT_HEADING_RE parses.
+        # If the compact-form support were reverted, no heading would be found
+        # and the gate would pass (rc 0), failing this assertion.
+        changelog_fixture = self.make_fixture(
+            "fake-changelog-compact-mismatch.md",
+            (
+                "# Changelog\n\n"
+                "**2026-07-01 | 2026.06.0 | PR #521** - a compact entry.\n"
+            ),
+        )
+        readme_fixture = self.make_fixture(
+            "fake-readme-compact.md",
+            "# Fake README\n\n**Library Version:** 2026.06.0\n",
         )
         result = run_linter(
             "tools/lint-version-date-consistency.py",
@@ -5125,6 +5170,16 @@ class BookkeepingParityTests(LinterTestCase):
             f"validate-pr / improvement-log / TODO records should be in "
             f"parity.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_parse_changelog_prs_reads_compact_header(self) -> None:
+        # parse_changelog_prs must read the stage-3a compact header form
+        # (TODO 3.16 reformat) as well as the long form.
+        mod = self._load_module()
+        text = (
+            "## 2026-07-01, Library Version 2026.07.9, PR #521\n\nlong.\n"
+            "**2026-06-30 | 2026.06.8 | PR #520** - compact.\n"
+        )
+        self.assertEqual(mod.parse_changelog_prs(text), {520, 521})
 
     def test_missing_validate_pr_row_flagged(self) -> None:
         # PR #11 is in-window (inception 10, max 12) but has no validate-pr
