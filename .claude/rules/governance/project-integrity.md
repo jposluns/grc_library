@@ -96,3 +96,10 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 | Failing states surfaced, not concealed | RV.1, RV.2 | LOG-02, GRC-05 | A.8.15, A.5.36 | V14.1 |
 
 The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI Risk Management Framework's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); the consuming GRC library's corpus principle document carries that mapping in citable, source-verified form, and this rule deliberately does not restate it.
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- The project instantiation is the PRIMORDIAL RULE section at the top of the
+  project CLAUDE.md (the AIQT checkpoint line and cadence).

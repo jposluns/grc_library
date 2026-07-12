@@ -134,3 +134,10 @@ The clarification discipline has natural exceptions:
 | Scope-bounded authorization | PO.5 | IAM-09 | A.5.15, A.5.18 |
 | Investigation before destructive action | RV.1, RV.2 | TVM-01 | A.5.27, A.8.16 |
 | Change-management for scope expansion | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Project instantiation: the CLAUDE.md `Behavioral rule: clarify before acting`
+  section; the structured question primitive available here is `AskUserQuestion`.

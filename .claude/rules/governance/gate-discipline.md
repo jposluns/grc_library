@@ -136,4 +136,13 @@ Some controls have a legitimate exception path. It is a separate, slower control
 
 ---
 
-*The why-this-rule-exists narrative is retained in the removal ledger [`.working/claude-rules-considerations.md`](../../../.working/claude-rules-considerations.md) (the GR-P2 two-layer condense): it is motivating rationale, not operative instruction. The framework-alignment table above is kept in the rule (the pack README names the rule as the source of truth for framework alignment; it is distributed traceability, not cut).*
+*The why-this-rule-exists narrative is retained in the parent library's removal ledger (the two-layer condense): it is motivating rationale, not operative instruction. The framework-alignment table above is kept in the rule (the pack README names the rule as the source of truth for framework alignment; it is distributed traceability, not cut).*
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- The removal ledger the footer names: `.working/claude-rules-considerations.md`
+  (this rule's why-section moved there in the GR-P2 two-layer condense, PR #726).
+- This project offers NO exception register: a failing gate means fix the artefact
+  or descope the PR (the strict-mode stance in the project CLAUDE.md Boundaries).

@@ -1308,6 +1308,19 @@ The `dev-security/claude-rules/README.md` is the authoritative pack version hist
 future-work signalling; pack changes are tracked through the library's CHANGELOG and
 per-rule version metadata.
 
+**PROJECT-OVERLAY convention (the `.claude/rules/` copies).** A `.claude/rules/` rule
+copy may carry ONE trailing block starting with the marker line
+`<!-- PROJECT-OVERLAY: not part of the distributable pack -->`: THIS PROJECT'S
+operational content (concrete register paths, slash commands, gate numbers, relocated
+lineage). An overlay block lives ONLY in a `.claude/rules/` copy and NEVER in a
+`dev-security/claude-rules/` pack file; gate 37 strips the block before comparing the
+pair and mechanically fails if the marker appears in a mapped pack source (an overlay
+leak into the distributable). The pack is complete and fully usable without any
+overlay; a fork adopter may delete or replace overlay blocks freely. An assistant
+editing a rule edits the pack body (both trees, same commit) for portable discipline
+and the overlay (local copy only) for project wiring; the two are never mixed. This is
+distinct from the third-party external overlay described next.
+
 The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
 **supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani — all
 MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict

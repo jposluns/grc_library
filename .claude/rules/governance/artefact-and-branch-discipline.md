@@ -174,3 +174,13 @@ Both exception paths are slow by design; the friction is proportional to the res
 | Branch protection | PO.5 | CCC-04 | A.8.32 | Level 2 |
 | Audit-trail preservation | PS.1, RV.1 | LOG-02, LOG-04, LOG-10 | A.8.15 | Level 3 |
 | Change classification of forced rewrites | PO.5 | CCC-02, CCC-03 | A.5.4, A.8.32 | N/A |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Generated artefacts here: `taxonomy.yml`, `docs/portal.md`,
+  `docs/maturity-scorecard.md` (regenerate via `tools/build-taxonomy.py` and
+  `tools/build-portal.py`; gates 33 and 34 run the `--check` forms).
+- Protected-branch force-push procedure and `refs/preservation/` convention: the
+  project CLAUDE.md Boundaries section.

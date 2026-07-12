@@ -25,9 +25,9 @@ Any one of these, at a scale the maintainer judges material, is a trigger. The m
 
 The tier is a suite of two skills, not one. They differ in lens shape and are run in sequence:
 
-1. **The AI-failure-pattern forensic pass** (in this project: `deep-qa-review`, slash command `/full-qa`). A small number of deeply-contextualized subagents, each tuned to a class of failure that AI assistants are known to produce (stale references, mis-attributed citations, multi-surface incompleteness, inferred-as-verified assertions, generated-artefact drift, and discipline-compliance gaps), run over the maintainer-named window plus the artefacts that window references. It is run first: smaller, faster, and aimed at the seams where the assistant breaks.
+1. **The AI-failure-pattern forensic pass** (the pack's [`deep-qa-review`](../skills/deep-qa-review/SKILL.md) skill). A small number of deeply-contextualized subagents, each tuned to a class of failure that AI assistants are known to produce (stale references, mis-attributed citations, multi-surface incompleteness, inferred-as-verified assertions, generated-artefact drift, and discipline-compliance gaps), run over the maintainer-named window plus the artefacts that window references. It is run first: smaller, faster, and aimed at the seams where the assistant breaks.
 
-2. **The fresh-reader persona pass** (in this project: `library-fitness-review`, slash command `/fitness`). A larger set of persona subagents, each reviewing the whole corpus with the maintainer's mental model stripped from the brief, surfacing what fresh human readers of different kinds would notice. It is run second: broader, slower, and aimed at quality the AI-pattern lens does not target.
+2. **The fresh-reader persona pass** (the pack's [`library-fitness-review`](../skills/library-fitness-review/SKILL.md) skill). A larger set of persona subagents, each reviewing the whole corpus with the maintainer's mental model stripped from the brief, surfacing what fresh human readers of different kinds would notice. It is run second: broader, slower, and aimed at quality the AI-pattern lens does not target.
 
 The two are complementary, not redundant. The pen-testing analogy is exact: both are informed (white-box) reviews; they differ in lens shape. The forensic pass is one deeply-contextualized lens specialized for AI-failure-pattern classes; the persona pass is many narrow lenses each blind to the maintainer's expectations. Together they cover orthogonal failure-mode classes. Run the forensic pass first (it catches AI-pattern failures fast), then the persona pass (longer, broader coverage). Surface findings as each completes; do not wait for both to finish before routing.
 
@@ -87,3 +87,10 @@ The honest limitation, stated plainly: documentation adds friction against repea
 | Findings traceable to a verification step | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
 | Authority-gated closure | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Process-lesson codification after incident | PO.5, RV.3 | GRC-04, CCC-03 | A.5.27, A.8.32 | V1.1 |
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- Slash commands: the forensic pass is `/full-qa`, the persona pass is `/fitness`,
+  the suite wrapper is `/trust-recovery` (all under `.claude/commands/`).

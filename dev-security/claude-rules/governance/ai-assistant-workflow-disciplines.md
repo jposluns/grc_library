@@ -59,10 +59,10 @@ Projects that adopt this discipline maintain a project-local **worker-brief temp
 
 The update protocol when a new failure class is caught:
 
-1. **Log the catch** in the project's worker-hallucination tracking artefact (in this project: `.working/hallucination-metrics.md`). Include the root-cause analysis: why did the worker produce the wrong output, and which class of guard rail would have prevented it (worker-side instruction, orchestrator-side verification, or a new mechanical gate)?
+1. **Log the catch** in the project's worker-hallucination tracking artefact. Include the root-cause analysis: why did the worker produce the wrong output, and which class of guard rail would have prevented it (worker-side instruction, orchestrator-side verification, or a new mechanical gate)?
 2. **Determine the guard-rail class.** If the failure can be prevented by an instruction in the worker brief, the fix is a template update. If it requires the orchestrator to verify something at apply-time, the fix is an orchestrator-checklist update (typically in this rule's §3 Apply-time worker correction). If it requires a mechanical check, the fix is a new gate (queued as a follow-up PR).
 3. **Update the template inline** in the same PR (if the change is small) or queue as a follow-up PR (if substantive). Citing the source catch (PR number) inline preserves the lineage.
-4. **Reference the template update** from the hallucination-metrics catch entry by template Version number, closing the loop.
+4. **Reference the template update** from the tracking artefact's catch entry by template Version number, closing the loop.
 
 This makes the discipline self-improving: each new failure class observed becomes a permanent guard rail in the template, and the next worker dispatch benefits from the lesson without the orchestrator having to remember to add the instruction ad hoc.
 

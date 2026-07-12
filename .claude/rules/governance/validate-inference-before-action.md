@@ -101,3 +101,10 @@ Any other "we can skip the validation because..." is the failure mode the rule e
 | Audit trail of validations | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every action driven by a premise must be traceable to a validation of the premise. The cost of an unvalidated premise compounds; the cost of one extra tool call does not.
+
+<!-- PROJECT-OVERLAY: not part of the distributable pack -->
+
+## Project overlay (grc_library wiring and lineage; local copy only)
+
+- The register in which validation-sweep dispatch declarations are recorded
+  (the skill's Rule 5.6): `.working/validate-sweeps/history.md`.
