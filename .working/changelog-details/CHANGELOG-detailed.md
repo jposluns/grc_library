@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-12, Library Version 2026.07.315, PR #827
+
+Session-closing handoff for the sweep97 resumed session (#822-#826). Bookkeeping only (no corpus document body changed). Records the maintainer's sign-off on the whole-project `/deep-assessment` r2 and releases the concurrency lease. Library `2026.07.314` to `2026.07.315`.
+
+### Changed
+
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): the r2 row advanced to P8 complete, Status `signed-off`, with the maintainer's 2026-07-12 sign-off (authorizing the routed-item execution) recorded.
+- [`.working/session-handoff.md`](../session-handoff.md): prepended this session's Next-actions (CLOSING), State-snapshot, and Asserted-expectations blocks (5 PRs #822-#826 + scratch #153; r2 signed off; the routed tail queued for the OVERNIGHT resume; green-at `711a108`/#826 = 69/69).
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.49`->`1.0.50`): this session's row (~3h, 5 PRs, ~20 measured subagents, ~4.25M measured subagent tokens (captured-sum, not extrapolated); orchestrator not instrumented).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the batched #826 `/validate-pr` row and this #827 handoff-exemption row (`SKIPPED (handoff-PR exception)`).
+- [`.working/improvement-log.md`](../improvement-log.md): the batched #826 `/retro` row.
+- [`.working/session-state.md`](../session-state.md): lease RELEASED (`Status: released`, `Active-session: none`, fresh heartbeat), with this session's PRIOR-released block prepended.
+- [`README.md`](../../README.md): library CalVer `2026.07.314`->`2026.07.315`, README Version `1.9.675`->`1.9.676`.
+
+### Verification
+
+- Per the loop-break, this session-closing handoff PR takes NO trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (**Sweep 98**) over #822..#827, cross-checked against the Asserted-expectations block. The exemption is recorded in the validate-pr-history row's Findings cell (`SKIPPED (handoff-PR exception)`) so gate 50 classifies it correctly the moment a later PR demotes it.
+- The full audit suite is green (69/69) on this bookkeeping branch (main + working-state only, no corpus-body change), confirmed via the pre-push guard.
+- **NEXT-SESSION queue (OVERNIGHT):** Sweep 98, then the maintainer-authorized r2 routed items (§3.48 DORA verify against held 2025/301 Art 5; the ref publications-screening 15-verdict apply; §3.51 reference-breadth; §3.52 42001/27001 clause-8.4 citation-fit; §3.53 SOP pack distribution). The **§4.8 Pack adoption-hygiene programme is HOLD** and its worker awaits the maintainer's ping.
+
 ## 2026-07-12, Library Version 2026.07.314, PR #826
 
 Deep-assessment r2 follow-ups and codifications (maintainer-directed full-program continuation). Library `2026.07.313` to `2026.07.314`.
