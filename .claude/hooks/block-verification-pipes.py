@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse Bash hook: reject pipe-masked verification commands (RM-10).
 
-TODO section 1.9(a). Reads the PreToolUse JSON payload on stdin, inspects
+Shipped PR #620 (RM-10 hardening). Reads the PreToolUse JSON payload on stdin, inspects
 `tool_input.command`, and BLOCKS (exit 2, reason on stderr) any command that
 pipes a named verification command into a truncating filter, the RM-10
 failure shape whose pipeline exit code reports the FILTER, not the gate:

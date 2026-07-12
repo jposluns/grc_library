@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-sweep98-validate
 
-**Status:** released
+**Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-12T01:27:15Z
+**Last-heartbeat-UTC:** 2026-07-12T01:54:45Z
 
-**Current-task:** none (lease RELEASED at the #827 session-closing handoff, 2026-07-12). NEXT session runs **OVERNIGHT mode**: the loop-break `/validate` (**Sweep 98**) over #822..#827, then the maintainer-AUTHORIZED r2 routed-item execution (§3.48 DORA verify against held 2025/301 Art 5 + citations; the ref `SCREENING.md` 15-verdict apply; §3.51 reference-breadth; §3.52 42001/27001 clause-8.4 citation-fit; §3.53 SOP pack distribution). The whole-project `/deep-assessment` **r2 is SIGNED OFF** (2026-07-12). The **§4.8 Pack adoption-hygiene programme is OVERNIGHT-AUTHORIZED (maintainer 2026-07-12)**: apply phases 1-2 this overnight run from `inbox/claude-pack-hygiene/`; phase 3 is worker-built and gated on the maintainer's MORNING ping (remind the maintainer in the morning to have the worker continue phase 3). See the PRIOR blocks below.
+**Current-task:** OVERNIGHT resume (sweep98 session, 2026-07-12): ran the loop-break `/validate` (**Sweep 98**) over #822..#827 first, then the maintainer-AUTHORIZED r2 routed-item execution (§3.48 DORA verify + citations; the ref `SCREENING.md` 15-verdict apply; §3.51 reference-breadth; §3.52 42001/27001 clause-8.4 citation-fit; §3.53 SOP pack distribution), then the OVERNIGHT-AUTHORIZED **§4.8 Pack adoption-hygiene** phases 1-2 from `inbox/claude-pack-hygiene/`. MORNING: remind the maintainer to have the worker continue phase 3. The whole-project `/deep-assessment` **r2 is SIGNED OFF** (2026-07-12). See the PRIOR blocks below.
 
 **PRIOR (released):** RELEASED at the #827 session-closing handoff (2026-07-12 UTC, ATTENDED on the VM). The sweep97 session resumed from the released #821 lease and shipped 5 PRs (#822-#826) plus scratch #153: the loop-break **Sweep 97** `/validate` (#822, 0 findings, control for #821 PASSED); the scratch-exchange cleanup (scratch #153, 27 applied-delivery drops removed); and the maintainer-invoked whole-project **`/deep-assessment` r2** (fresh-context), which opened the r2 record + reset the gate-60 cadence (#823), landed the held **gate 69** (#824, closes §3.4), ran Phases 3-7 + the FULL extended coverage, fixed F1 (42001 §8.4 mislabel, #825) and F2/F3/F4 + codified the missing-reference-document SOP + routed F5-F10 (#826). **r2 SIGNED OFF by the maintainer 2026-07-12** (0 error / 3 warning / 7 note + 15 pubs, all dispositioned; F1-F4 fixed, F5-F10 routed, 15 pubs screened). Every substantive PR verifier- or SHIP-cleared + post-merge `/validate-pr`; zero escaped defects (all ~8 process slips caught pre-push). #827 (this handoff) batched #826's QA rows, recorded the sign-off, refreshed the handoff + session-metrics row, and RELEASED the lease. **WIND-DOWN maintainer-delegated to the assistant** on a rising-but-all-caught process-slip-density signal + maintainer fatigue, taken at the r2-sign-off milestone. NEXT `/resume` (OVERNIGHT): Sweep 98 over #822..#827, then the authorized r2 routed items. Green-at `711a108` (#826) = 69/69. **§4.8 HOLD; pack-hygiene worker idle awaiting the maintainer ping.**
 
