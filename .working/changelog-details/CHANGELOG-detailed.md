@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.368, PR #880
+
+TODO §3.57 `[V]` row applied: EDPB Opinion 28/2024 (data protection aspects of AI models) cited in the Privacy and Data Governance Policy §4.7, with currency re-confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #879 QA rows.
+
+### Changed
+
+- [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md) §4.7 (AI training data governance): a new bullet cites the EDPB Opinion 28/2024 on data protection aspects of AI models (adopted 17 December 2024) as the authoritative EU guidance on the two questions the section turns on, the legal basis for processing personal data to develop or deploy an AI model (including legitimate interest) and whether an AI model or its training data can be anonymous (the basis for the reidentification-risk assessment already in the section). This is an additive breadth citation: the opinion is already engaged elsewhere in the corpus (the legitimate-interest-assessment template), and §4.7's training-data lawful-basis and anonymization clauses are exactly what it addresses. Doc Version bumped 1.4.13 to 1.4.14, Date to 2026-07-13.
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): the existing EDPB Opinion 28/2024 row's Last-verified cell refreshed from 2026-06-30 to 2026-07-13 (bare-date form, matching the adjacent EDPB Guidelines rows; the row already existed from the 2026-06-30 register population; no new row and no other cell changed). Register Version bumped 1.5.31 to 1.5.32.
+
+### Verification
+
+- **Upstream currency re-confirmed this turn (the `[V]` obligation + the register's own load-bearing-row re-check cadence).** WebSearch against the EDPB site and legal-analysis sources confirmed Opinion 28/2024 was adopted 17 December 2024, remains the current EDPB guidance, and has NOT been superseded (a February 2025 CNIL recommendation set and a September 2025 CJEU pseudonymisation judgment exist but do not supersede the opinion). The register's "Original (no later revision)" version is therefore still correct; only the Last-verified date advanced.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the policy + register change (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#879).
+- Register per-document Version bumped 1.5.31 to 1.5.32; policy 1.4.13 to 1.4.14; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency and citation linters pass.
+- Batches PR #879's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+This row exercised the register's own version-currency cadence (a load-bearing `[V]` row older than one week is re-checked before reliance, and its Last-verified advanced in the same PR), not just the citation gates: the opinion was already registered, so the work was to confirm it is still current before leaning a new citation on it, then record that re-confirmation. Distinguishing "cite a held-and-registered source after a fresh currency check" from "add a new register row" kept the change minimal (one refreshed cell, not a duplicate row). The refute-verifier raised two non-blocking observations, both applied per the "err toward quality" directive: the refreshed cell was written bare (2026-07-13) to match the adjacent EDPB Guidelines rows, and the §4.7 closing sentence was softened from "made against that Opinion" to "made by reference to that Opinion" to avoid over-claiming the opinion's (non-binding, interpretive) legal force.
+
 ## 2026-07-13, Library Version 2026.07.367, PR #879
 
 TODO §3.57 `[V]` row applied: Canada Breach of Security Safeguards Regulations (SOR/2018-64) cited in the Canada privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #878 QA rows.
