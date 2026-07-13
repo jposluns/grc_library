@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.344, PR #856
+
+CHANGELOG plain-language rework, stage 3b batch 1 (TODO 3.16). The first of ~7 batches: the newest 120 root CHANGELOG entries (PR #855 down to #736) had their long maintainer-grade bodies collapsed into a single-line, jargon-free summary appended to the compact header (`**date | version | PR #N** - summary`), blank-line-separated per the change-tracking compact-format spec. The full bodies remain in this detailed mirror and in git history. Internal/bookkeeping entries collapse to one terse sentence; adopter-facing/substantive entries to a fuller two-sentence summary (the maintainer-confirmed "compact + plain, flat, more detail on substantive" format).
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): 120 entries (#855..#736) collapsed to plain-language one-line summaries; bodies removed (preserved here + git history). Older entries (#735 and down) keep their full bodies pending later batches.
+- Library CalVer `2026.07.343` to `2026.07.344`; README Version `1.9.704` to `1.9.705`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of already-verified content, not new claims), re-verified by the orchestrator (13 spot-checks) and a skeptical verifier (36-entry weighted sample). The verifier found the change mechanically sound (839 = 839 entries, contiguous #736..#855, every entry has a summary, no body left behind, no dashes, no jargon/path-span/token leakage) and 35/36 faithful; the one finding (a standard misattribution in the #831 summary, ISO/IEC 42001 vs 27001) was FIXED before apply. The apply used a deterministic, self-verifying script (refuses on any dropped/reordered entry, dash, or unlinked path-span). Batches #855's `/validate-pr` + `/retro` rows.
+
+### Notes
+
+- The deterministic apply helper lives in the session scratchpad (a one-time migration tool); the reviewable artefacts are the CHANGELOG diff and the drafted summaries. This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 2.
+
 ## 2026-07-12, Library Version 2026.07.343, PR #855
 
 CHANGELOG plain-language rework, stage 3a (TODO 3.16, applied from the `changelog-root-reformat-build` scratch delivery). The mechanical, format-independent half: reformats the root CHANGELOG headers to the compact form and teaches the affected gate parsers to read it. Bodies untouched; stage 3b (the plain-language rewrite) follows in batches after a maintainer-confirmed sample.
