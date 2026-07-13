@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.23\
+**Version:** 1.5.24\
 **Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -313,6 +313,7 @@ Soft-law guidance documents issued by supervisory authorities, regulators, or in
 | EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR) | Version 2.1 | 2021-07 | The controller, joint-controller, and processor concepts under the GDPR; Version 2.1 adopted 7 July 2021 after public consultation. Cited for controller / processor determination. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 | EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3) | Version 2.1 | 2019-11 | The establishment criterion and the targeting criterion for GDPR territorial scope (Article 3); Version 2.1 adopted 12 November 2019. Cited for extraterritorial applicability. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 | EDPB Guidelines 4/2019 (Article 25 data protection by design and by default) | Version 2.0 | 2020-10 | The Article 25 data-protection-by-design-and-by-default obligation: effective implementation of the data-protection principles, the design and default elements, and continual review of the chosen measures' effectiveness; Version 2.0 adopted 20 October 2020. Cited for the operational interpretation of Article 25. | Version 1.0 (initial 2019 adoption, for public consultation) | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
+| EDPB Guidelines 05/2020 (consent under Regulation 2016/679) | Version 1.1 | 2020-05 | The GDPR consent standard: conditionality (consent bundled with or conditioned on a service is not freely given), the unambiguous-indication requirement, and that pre-ticked boxes and scrolling do not constitute valid consent; Version 1.1 adopted 4 May 2020. Cited for the consent validity standard. | Version 1.0 (initial adoption 4 May 2020; superseded by the v1.1 formatting corrections of 13 May 2020) | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
 | EDPB Opinion 28/2024 (data protection aspects of AI models) | Original (no later revision) | 2024-12 | Whether an AI model trained on personal data can be anonymous, the legitimate-interest legal basis across AI development and deployment, and the consequences of unlawful processing in training; adopted 17 December 2024. Cited for AI-model data-protection analysis. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 
 ---

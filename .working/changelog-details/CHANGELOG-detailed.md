@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.355, PR #867
+
+Reference-breadth apply (TODO §3.57), bundle 2 of the EDPB privacy cluster: cite EDPB Guidelines 05/2020 in the consent-management framework.
+
+### Changed
+
+- [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md): cited **EDPB Guidelines 05/2020 on consent under Regulation 2016/679 (Version 1.1, adopted 4 May 2020)** in the `## Validity standard` section (the conditionality and unambiguous-indication elements) and the `## Cookie consent under ePrivacy` paragraph (scrolling and continued browsing failing the unambiguous-indication standard), and added a `## Framework alignment` table row. Confirmed not already cited. Version 1.0.7 to 1.0.8.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a register row for EDPB 05/2020 (Version 1.1, 2020-05), soft-law supervisory-guidance scope. Version 1.5.23 to 1.5.24.
+- [`TODO.md`](../../TODO.md) §3.59: codify the read-only-git rule for validation / verifier subagent briefs (the process fix for the #866 branch-collision, where a subagent's `git checkout` on the shared tree mis-branched a commit; now briefed read-only per dispatch, this item makes it durable).
+
+### Verification
+
+- The document's Validity-standard elements (freely given / no bundling / no pre-ticked boxes; unambiguous / inactivity-not-consent) and its cookie section (pre-ticked, scroll-to-consent, and consent walls not valid) map to EDPB 05/2020's conditionality (paragraphs 38 to 41), unambiguous-indication requirement (paragraph 86), and scrolling example (example 16), confirmed against the held source's revision record this turn.
+- Currency: held at v1.1; the ref catalogue `last_checked` is 2026-07-12 (the worklist `lc` flag); an adopted-final guideline, not re-verified upstream this turn (recorded as the register Last-verified date).
+- Confirmed the consent framework did not already cite EDPB 05/2020 (grep clean at apply). Derived artefacts regenerated after the two per-document Version bumps.
+- Skeptical pre-push verifier (substantive tier; refute-briefed, citation-accuracy-focused): core citation accuracy SUPPORTED on all axes, the three attributed EDPB 05/2020 elements each confirmed against the held source (conditionality / bundling-not-freely-given at held paras 25 to 38; unambiguous clear-affirmative-act with inactivity-and-pre-ticked-boxes-not-consent at held lines 802 to 803; scrolling and continued browsing not valid at held Example 16, line 855), version consistent (v1.1, adopted 4 May 2020, matching the catalogue), uncited before. ONE MEDIUM defect CAUGHT and FIXED before push: the register superseded-cell wrongly stated v1.0 was "for public consultation" (an incorrect pattern-match from the #866 4/2019 two-stage case), but the held version-history shows v1.0 was the 4 May 2020 adoption and v1.1 the 13 May 2020 formatting corrections; the cell was corrected to that, grounded in the verifier's quoted held version-history. The gate-36 audit FAIL the verifier observed was a concurrent-test-run race on the shared `tests/tmp` fixtures (re-run standalone clean), not a #867 defect.
+- Batches PR #866's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+Bundle 2 of the EDPB cluster, one document per PR (accuracy-critical citation work, verified against the held source). Bundles 3 (access, EDPB 01/2022) and 4 (breach, EDPB 9/2022) follow as their own PRs; the version-sensitive `[V]` jurisdiction rows remain routed to the maintainer's fresh-context / high-assurance category.
+
 ## 2026-07-13, Library Version 2026.07.354, PR #866
 
 Reference-breadth apply (TODO §3.57), bundle 1 of the EDPB privacy cluster: cite EDPB Guidelines 4/2019 in the privacy-by-design framework. The reference-breadth new-ingest worklist (scratch #163, delivered 2026-07-12) flagged that the privacy-by-design framework operationalizes GDPR Article 25 but did not cite the European Data Protection Board's authoritative Article 25 guideline, which is held in `grc_library_ref`.
