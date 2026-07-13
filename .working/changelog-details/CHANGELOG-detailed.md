@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.380, PR #892
+
+The `/deep-assessment` r3 Phase-3 `/screen-publications` (satisfied no-op) and whole-matrix `/matrix-fit` passes, plus PR #891's batched QA. No corpus-document body changed.
+
+### Changed
+
+- [`.working/matrix-fit/history.md`](../matrix-fit/history.md): the whole-matrix `/matrix-fit` r3 run row (0 mismatches across 84 worklisted rows); Version 1.0.9 to 1.0.10.
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): Phase 3 `/screen-publications` (no pending pubs) and `/matrix-fit` (0 mismatches) marked COMPLETE.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #891 row (0 findings); Version 1.2.658 to 1.2.659.
+- [`.working/improvement-log.md`](../improvement-log.md): #891 `/retro` row (the row-append join-error 3rd-occurrence pattern, self-caught); Version 1.0.597 to 1.0.598.
+- [`README.md`](../../README.md): library CalVer 2026.07.379 to 2026.07.380; README Version 1.9.740 to 1.9.741.
+
+### Verification
+
+- **`/screen-publications` (Phase-3):** the reference base's publications register has ZERO `pending` rows (all 25 data rows `screened`, from the r2 wave + prior), so the publications-screening coverage is satisfied with no ref-side change.
+- **`/matrix-fit` whole-matrix (Phase-3):** [`tools/audit-matrix-semantic-fit.py`](../../tools/audit-matrix-semantic-fit.py) produced an 84-row worklist (matrix + per-doc framework-alignment rows lacking a lexical anchor); 2 judge subagents (42+42), refute-briefed, judged every cited control's TITLE (verified against the in-repo reference modules) against its row's document subject: **0 mismatches**, all `fits` or defensible `loose-supporting`. Consistent with the r1/r2 near-zero matrix-mismatch baseline.
+- **#891 post-merge `/validate-pr`:** 0 defects, all six items PASS (batched here).
+- Pre-push guard green (all 69 gates + D1-D7). This PR gets its own post-merge `/validate-pr` + `/retro`.
+
+### Discipline observation
+
+Both Phase-3 semantic passes this PR came back clean (`/screen-publications` nothing-pending; `/matrix-fit` 0 mismatches), reinforcing that the corpus's citation and control-code fit is sound (the earlier drift and reference-base-fidelity findings were about DESCRIPTIONS of the machinery and a held-edition gap, not corpus content accuracy). The r3 finding set so far: the AICPA held-edition item (RB-6(e), routed) and the guardrail-review machinery proposals (§3.62, routed); the content-accuracy instruments (`/validate`, `/claim-fit`, `/matrix-fit`) are clean.
+
 ## 2026-07-13, Library Version 2026.07.379, PR #891
 
 The `/deep-assessment` r3 Phase-3 `/claim-fit` pass, the completion of the prior PR's drift fix (two more same-class carriers), and PR #890's batched QA. No corpus-document body changed (the two tool docstrings are not versioned documents).
