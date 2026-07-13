@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.370, PR #882
+
+TODO §3.57 `[V]` row applied (the last of the maintainer's named set): EDPB Guidelines 8/2022 (identifying the lead supervisory authority) cited in the EU privacy annex and added to the citation register, with upstream currency confirmed this turn against the primary-source PDF version-history table. Corpus-body change (substantive tier: one refute-briefed verifier pre-push, which caught and reverted a mid-apply version slip), plus the batched #881 QA rows.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md) (Applicable laws and regulatory authorities): the one-stop-shop / lead-supervisory-authority bullet now cites the EDPB Guidelines 8/2022 on identifying a controller or processor's lead supervisory authority (Version 2.1, adopted 28 March 2023 with a minor correction of 28 September 2023, a targeted update superseding the Article 29 Working Party guidelines WP244 rev.01) as setting out the main-establishment test, where it previously asserted the main-establishment rule with no source. Doc Version bumped 1.1.5 to 1.1.6, Date to 2026-07-13.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new row in the EDPB Guidelines cluster, `EDPB Guidelines 8/2022 (identifying the lead supervisory authority)` / `Version 2.1` / `2023-09` / topic the main-establishment test for the GDPR one-stop-shop; superseded-versions cell records Version 1.0 (10 October 2022), Version 2.0 (28 March 2023), and WP244 rev.01, mirroring the sibling 01/2022 row's treatment of a minor-correction version. Matches the cluster's convention (general EDPB guidelines URL, bare Last-verified date). Register Version bumped 1.5.33 to 1.5.34.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation), against the primary source.** WebSearch confirmed Guidelines 8/2022 is the EDPB guideline on identifying a controller or processor's lead supervisory authority and that it supersedes WP244 rev.01. On the version token there was a mid-apply slip: an incomplete WebSearch summary ("final version, Version 2") led to first writing Version 2.0, and the delivery candidate's "v2.1" was wrongly "corrected" to v2.0. The pre-push verifier flagged it, and a direct read of the primary-source PDF (cover page plus the page-2 version-history table) confirmed the current version is **2.1** (minor correction to footnote 12, 28 September 2023, over Version 2.0 of 28 March 2023, over Version 1.0 of 10 October 2022). The candidate was right; the register and annex were corrected to Version 2.1 before push.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the annex + register change (read-only-git), with special attention to the version (2.0 vs 2.1), plus a separate `/validate-pr` Subagent A on the prior PR (#881).
+- Register per-document Version bumped 1.5.33 to 1.5.34; EU annex 1.1.5 to 1.1.6; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency (now 146 standards) and citation linters pass.
+- Batches PR #881's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+All seven rows of the maintainer's named §3.57 `[V]` set are now applied (#876 to #882), each with upstream currency confirmed this turn per the VM directive rather than routed, and each refute-verified; the §3.57 backlog item itself stays open on two residuals (below), so there is no DONE rotation in this PR. The version episode here is the inverse of the earlier AICPA/SOR catches and the sharper lesson: a delivery candidate's version token is a hypothesis, but so is a WebSearch SUMMARY. The candidate's "v2.1" was correct; an incomplete WebSearch summary ("final version, Version 2") led to wrongly "correcting" it to v2.0, and only a direct read of the primary-source PDF version-history table (prompted by the pre-push verifier) settled it at v2.1. Lesson: for a specific version token, the authoritative source is the publisher's own version-history page or PDF, not a search-result summary that can elide a minor `.1` correction, and a candidate value should not be "corrected" downward without primary-source evidence at least as strong as the value being overwritten. TODO §3.57 stays open on two residuals (the Medium Brazil 4/2023 sanctions-dosimetry follow-up and the deferred matrix TSC-column mapping), so it is narrowed rather than closed this PR.
+
 ## 2026-07-13, Library Version 2026.07.369, PR #881
 
 TODO §3.57 `[V]` row applied: NIS2 Commission Implementing Regulation (EU) 2024/2690 named in the NIS2 implementation annex and added to the citation register, with upstream currency and legal basis confirmed this turn, a load-bearing entity-scope caveat, and a factual locator correction. Corpus-body change (substantive tier, escalated to TWO independent verifier lenses given the correction plus scope caveat), plus the batched #880 QA rows.

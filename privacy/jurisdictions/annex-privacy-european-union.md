@@ -2,8 +2,8 @@
 
 **Document Title:** European Union Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
-**Date:** 2026-07-09\
+**Version:** 1.1.6\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -26,7 +26,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **EU General Data Protection Regulation (GDPR)**: Regulation (EU) 2016/679, effective 2018-05-25. The primary EU data protection law governing the processing of personal data of individuals in the EU.
 - **EU AI Act**: Regulation (EU) 2024/1689, entered into force 2024-08-01, with phased application through 2027. The world's first comprehensive horizontal AI regulation, classifying AI systems by risk level (unacceptable, high, limited, minimal).
-- **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment.
+- **Regulatory authorities:** National supervisory authorities in each EU member state (e.g., CNIL in France, BfDI/LfDI in Germany, AEPD in Spain, DPC in Ireland). The European Data Protection Board (EDPB) provides binding decisions and guidelines. The one-stop-shop mechanism applies to organizations with cross-border processing; lead supervisory authority determined by location of main establishment. The EDPB Guidelines 8/2022 on identifying a controller or processor's lead supervisory authority (Version 2.1, adopted 28 March 2023 with a minor correction of 28 September 2023, a targeted update superseding the Article 29 Working Party guidelines WP244 rev.01) set out the main-establishment test for that determination.
 
 ---
 
