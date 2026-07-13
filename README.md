@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.386 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.747 (semantic per-document version for this file)
+**Library Version:** 2026.07.387 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.748 (semantic per-document version for this file)
 
 ---
 
@@ -76,7 +76,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 ## How to use
 
-1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every document with its type, domain, status, and related artefacts.
+1. **Start at the audience-keyed portal.** [`docs/portal.md`](docs/portal.md) is the primary navigation point: it groups the corpus by reader role (CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering) and lists the documents most likely to be useful to each audience. If you already know what you are looking for, the full machine-auditable document index is at [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md), which lists every document with its type, domain, status, and related artefacts.
 
 2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
@@ -214,7 +214,7 @@ Additional repository hygiene files:
 | [`docs/adopter-guide.md`](docs/adopter-guide.md) | How to fork, adapt, and operate the library inside an adopting organization. |
 | [`docs/worked-example.md`](docs/worked-example.md) | End-to-end walkthrough of converting a draft into a library-compliant artefact (ingestion). |
 | [`docs/worked-example-adoption.md`](docs/worked-example-adoption.md) | End-to-end walkthrough of one adopter forking the library and running a staged first-year programme (adoption). |
-| [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
+| [`docs/portal.md`](docs/portal.md) | Auto-generated audience-keyed navigation page (CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering). |
 | [`docs/maturity-scorecard.md`](docs/maturity-scorecard.md) | Auto-generated per-document maturity classification (Mature, Baseline, Draft). |
 | [`tools/README.md`](tools/README.md) | Repository quality tooling: metadata, language, link, structural, taxonomy, and portal generators. |
 
