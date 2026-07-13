@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.374, PR #886
+
+Session-closing handoff PR for the 2026-07-12/13 resumed session (`claude/resume-sweep100-validate` + follow-ups, #852-#885). Lands working-state on `main` as a green merge so the next `/resume` rebuilds from the shared branch. No corpus, pack, or taxonomy content.
+
+### Changed
+
+- [`.working/session-handoff.md`](session-handoff.md): prepended this session's new current set (Next-actions block, State snapshot, Asserted-expectations block) per the refresh discipline; the next-session queue leads with the loop-break Sweep 101 then the maintainer-asked `/deep-assessment` components. The prior (#851) blocks become the 1-prior set; the next `/resume` prunes to keep current + 1 prior.
+- [`.working/session-state.md`](session-state.md): concurrency lease RELEASED (`Status: released`, `Active-session: none`, fresh heartbeat); gate 63 passes.
+- [`.working/session-metrics.md`](session-metrics.md): added this session's row (34 PRs #852-#885 + this handoff; zero escaped defects; subagent-token total not asserted because the session spans multiple compactions, per the measured-not-fabricated discipline).
+- [`.working/next-prs.txt`](next-prs.txt): refreshed to the session-close state, leading the next `/resume` with Sweep 101 + the `/deep-assessment` components.
+- [`README.md`](../../README.md): library CalVer 2026.07.373 to 2026.07.374; README Version 1.9.734 to 1.9.735.
+
+### Verification
+
+- Batches PR #885's `/validate-pr` (clean, 0 findings) and `/retro` rows.
+- **This session-closing handoff PR takes NO trailing `/validate-pr` or `/retro`** (the loop-break exception): running them would spawn a records-then-merge loop with no terminating next PR at the session boundary. Recorded in [`validate-pr/history.md`](validate-pr/history.md) with the gate-50 marker (SKIPPED + handoff-PR exception). The compensating control is stronger: the next `/resume` runs a full corpus-wide `/validate` (Sweep 101) over the #852..#886 window and cross-checks the Asserted-expectations block.
+- Green-at `503fda1` (#885) = 69/69; this PR is working-state + version + CHANGELOG only, so `main` stays 69/69 at the descendant merge. Pre-push guard green.
+
+### Discipline observation
+
+The session wound down on an explicit maintainer signal (not an assistant-initiated wind-down), after the overnight-safe queue was fully drained and every remaining item was maintainer-gated (fresh-session `/deep-assessment`, the deferred sensitive matrix-column, attended-only builds). The heavy `/deep-assessment` parts were deliberately NOT run deep in this long unattended session: they are routed to a fresh-session formal run per the skill's fresh-context, sign-off-terminated design, which the maintainer's "on resume we can do the /deep-assessment components" confirms.
+
 ## 2026-07-13, Library Version 2026.07.373, PR #885
 
 Bookkeeping PR: records the scratch worker-exchange branch cleanup (the §3.58 follow-up) and batches PR #884's QA rows. No corpus, pack, or taxonomy content; the cleanup itself is on the `grc_library_scratch` repo (remote branch deletions, no content change), recorded here for the audit trail.

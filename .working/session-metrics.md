@@ -1,7 +1,7 @@
 # Session Metrics
 
-**Version:** 1.0.52\
-**Date:** 2026-07-12\
+**Version:** 1.0.53\
+**Date:** 2026-07-13\
 **License:** CC BY-SA 4.0
 
 A per-session ledger of the measurable cost of each working session: subagent
@@ -58,6 +58,7 @@ Row schema:
 ```
 | Session (UTC) | Wall-clock (elapsed) | PRs merged | Subagents | Subagent tokens (measured) | Orchestrator tokens | Notes |
 ```
+| 2026-07-12/13 (resume from handoff #851, sweep100; overnight then daytime-unattended on the VM; spans multiple context compactions) | not reliably captured (no session-start `date -u` armed; the span crosses several compactions) | 34 (#852-#885) + this session-closing handoff #886; plus scratch PR #164 + a 38-branch scratch cleanup | many (Sweep 100 A/B/C; a `/validate-pr` Subagent A on each merged PR #852-#885; a refute-briefed verifier on every substantive/citation PR, with TWO independent lenses on #881; plus the 3b-wave research/faithfulness subagents #855-#862) | **not tallied for the full session** (spans multiple compactions, so pre-compaction per-return figures are not retained; the post-compaction citation-wave segment #874-#885 alone ran ~21 QA/verifier subagents at roughly 160k-195k `subagent_tokens` each per the Agent results, order-of-a-few-million for that segment, but a precise session-total is not asserted rather than fabricated, the same gap class as the compacted-window rows) | not instrumented (not instrumentable from inside a session) | Very-high-volume session, ZERO escaped defects. Closed the 3b CHANGELOG plain-language wave (TODO 3.16 reformat scope), §3.58 delivery reconciliation, all 7 named §3.57 `[V]` citation rows + the Medium Brazil 4/2023 follow-up (each currency-confirmed upstream per the VM directive + refute-verified), the read-only-git codification (§3.59), and the read-only `/deep-assessment` parts + scratch-branch cleanup. Three self-caught slips fixed pre-escape (stale date #879, v2.0/v2.1 over-correction #882, branch-to-main commit #884). Wind-down maintainer-signalled explicitly; the heavy `/deep-assessment` components routed to a fresh session. Transport: gh-CLI + REST merge (no GitHub MCP); a disposable-clone setup for the gate-mutation probe was denied unattended. |
 | 2026-07-12 (resume from handoff #833, sweep99) | not captured (no session-start `date -u` armed at this resume) | 17 (#834-#850) + this session-closing handoff #851 | many (Sweep 99 A/B/C; per-PR `/validate-pr` Subagent A x #834/#842/#843/#844/#845/#846/#847/#848/#849/#850; PR-I research fan-out x3 + delta research workers x5; skeptical/high-assurance verifiers x ~7) | **not tallied this session** (per-return `subagent_tokens` are in the individual Agent results; a running tally was not armed at this resume, so a summed figure is not asserted rather than fabricated) | not instrumented | Exceptional-volume session: closed the four-phase §4.8 pack adoption-hygiene programme (pack now project-agnostic) AND the AI-domain-delta EU cluster + currency, plus a cross-repo `grc_library_ref` acquisition/ingest (ref #77). Every substantive PR skeptical-verifier- or high-assurance-SHIP'd + post-merge `/validate-pr`; zero escaped defects. Three operational slips (stale next-line, malformed commands x2, forgot-to-branch) all caught pre-repo; the malformed-command fix codified in memory. Wind-down evidence-triggered (recurring operational slip) with the 3 remaining government-facing annexes registered `pending` for a fresh high-assurance session. |
 
 A worked-example row (illustrative format only, not session data):
