@@ -570,9 +570,10 @@ is external. Two mechanisms:
      recent (current-week) window rather than the full history (older weeks live in the
      `grc_library_scratch` archive and in git history); the standing action is the per-PR
      sweep of any newly-completed week at close-out. The compact root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** -
-     summary`, plain hyphen, no em/en dash) is a separate deferred root-reformat (TODO 3.16,
-     post-deep-assessment), NOT adopted yet, so root entries keep the `## ...` header-plus-lead
-     form until that pass.
+     summary`, plain hyphen, no em/en dash) is ADOPTED as the standard go-forward root shape: the
+     3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root
+     entry uses this one-line form while the detailed mirror keeps the full structured sections.
+     TODO 3.16's only remaining residual is the deferred, maintainer-gated git-history collapse.
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
