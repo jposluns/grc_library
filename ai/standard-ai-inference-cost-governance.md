@@ -2,8 +2,8 @@
 
 **Document Title:** AI Inference Cost Governance Standard\
 **Document Type:** Standard\
-**Version:** 0.0.6\
-**Date:** 2026-07-11\
+**Version:** 0.0.7\
+**Date:** 2026-07-13\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md), [`governance/framework-sustainability-and-responsible-technology.md`](../governance/framework-sustainability-and-responsible-technology.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -210,7 +210,7 @@ For external providers:
 | OWASP Top 10 for LLM Applications v2.0 | LLM10:2025 Unbounded Consumption (including Denial of Wallet) | Cost runaway as a security vulnerability; the rationale for ceilings, rate limits, and the kill switch |
 | FinOps Foundation Framework | Principles and capabilities | Industry practice for cloud cost governance |
 | ISO/IEC 30134 series | Data centre energy efficiency | Sustainability cross-walk |
-| EU AI Act | Article 26 (deployer obligations including efficient use); Articles 53, 55 (GPAI obligations) | EU regulation |
+| EU AI Act | Article 26 (deployer obligations); Articles 53, 55 (GPAI provider obligations, including the Annex XI technical documentation) | EU regulation |
 | GHG Protocol | Scope 2 and Scope 3 emissions | Sustainability accounting |
 
 ---

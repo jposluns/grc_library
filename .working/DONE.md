@@ -70,6 +70,10 @@ The heading convention was harmonised with TODO's backlog format in PR #163 (202
 
 ## Closed items
 
+### PR #899: deep-assessment r3 clear-mechanical remediation batch (6 findings) (2026-07-13)
+
+Maintainer-signed-off r3 remediation: closed FR-207 (added the Board/CEO audience to the README x2, the build-portal.py docstring + emitted portal overview, and regenerated the portal), FR-209 (three quickstart->startup-roadmap composition carriers in the implementation roadmap), FR-213 (dropped the stale INAI reconciliation caveat in the Mexico annex), RB-FFIEC-CAT (marked the FFIEC CAT retired 31 Aug 2025 with its successors in the FS annex), DA-DORA-A12 (corrected the DORA Article-12 label to backup/restoration/recovery), and DA-AIACT-A26 (dropped the "efficient use" mis-attribution from EU AI Act Article 26). The DA-ASVS High + the FR-200/FR-201 Highs were routed to a fresh session per the maintainer's sign-off direction.
+
 ### PR #826: reconcile the guardrail-review routing-tag convention (closes TODO §3.49) (2026-07-12)
 
 Deep-assessment r2 finding F2: reworded the [`guardrail-review` skill](../dev-security/claude-rules/skills/guardrail-review/SKILL.md) (the routing and verification sections) from the prescribed `[guardrails]` bracket tag to the `(rN guardrails, size, effort)` parenthetical convention the backlog actually uses (0 bracket tags vs 5 parentheticals). Traceability preserved; matches practice. Closes TODO §3.49.

@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.9\
-**Date:** 2026-07-12\
+**Version:** 1.0.10\
+**Date:** 2026-07-13\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -72,7 +72,7 @@ This annex applies where an organization:
 | **GLBA**: Gramm-Leach-Bliley Act Safeguards Rule (16 CFR Part 314) | FTC; federal banking regulators | Financial institutions; those significantly engaged in financial activities |
 | **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter |
 | **FFIEC IT Examination Handbook** | FFIEC | US banks and credit unions |
-| **FFIEC Cybersecurity Assessment Tool (CAT)** | FFIEC | US depository institutions |
+| **FFIEC Cybersecurity Assessment Tool (CAT)** (retired 31 August 2025; the FFIEC suggests institutions may consider industry-developed resources such as the Cyber Risk Institute Cyber Profile and the CIS Critical Security Controls) | FFIEC | US depository institutions |
 | **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
 | **SOX**: Sarbanes-Oxley Act Section 302/404 | SEC; PCAOB | Publicly listed companies in the US |
 | **Bank Secrecy Act / AML obligations** | FinCEN | Banks; money services businesses; broker-dealers |

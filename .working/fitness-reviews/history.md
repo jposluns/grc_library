@@ -1,6 +1,6 @@
 # Library Fitness Review History
 
-**Version:** 1.3.5\
+**Version:** 1.3.6\
 **Date:** 2026-07-13\
 **License:** CC BY-SA 4.0
 
@@ -56,13 +56,13 @@ For the 2026-06-21 run, the full FR-1 through FR-111 backlog is enumerated in `2
 | FR-204 | 2026-07-13 r1 | Password reuse-10/length-14 (identity procedure) vs reuse-12/privileged-length-20 (auth standard) | medium | pending (r3 sign-off) | none |
 | FR-205 | 2026-07-13 r1 | MFA scoped all-accounts (auth standard) vs privileged-only (IAM + info-sec policies) | medium | pending (r3 sign-off) | none |
 | FR-206 | 2026-07-13 r1 | DSR statutory-clock gap: DSAR template + DSR procedure omit Brazil 15-day + Mexico 20-day ARCO the annexes document | medium | pending (r3 sign-off) | none |
-| FR-207 | 2026-07-13 r1 | Board/CEO portal audience under-advertised: generator + portal serve 10, README x2 + generator docstring enumerate 9 | medium | pending (r3 sign-off) | none |
+| FR-207 | 2026-07-13 r1 | Board/CEO portal audience under-advertised: generator + portal serve 10, README x2 + generator docstring enumerate 9 | medium | closed | [#899](https://github.com/jposluns/grc_library/pull/899) |
 | FR-208 | 2026-07-13 r1 | AI-IR plan invokes undefined "Joint Command" at P1 60-min trigger; no roles section, term never defined | medium | pending (r3 sign-off) | none |
-| FR-209 | 2026-07-13 r1 | Implementation-roadmap misdirects to "quickstart composition" (x3 carriers) vs authoritative startup-roadmap | medium | pending (r3 sign-off) | none |
+| FR-209 | 2026-07-13 r1 | Implementation-roadmap misdirects to "quickstart composition" (x3 carriers) vs authoritative startup-roadmap | medium | closed | [#899](https://github.com/jposluns/grc_library/pull/899) |
 | FR-210 | 2026-07-13 r1 | Internal-audit CAE fallback to GRC (Programme) Manager creates self-review threat; title drift | medium | pending (r3 sign-off) | none |
 | FR-211 | 2026-07-13 r1 | Review-schedule "source of truth" register shipped as neither adopter instance nor template | low | pending (r3 sign-off) | none |
 | FR-212 | 2026-07-13 r1 | Cloud entry-point divergence: adopter-guide per-platform baselines vs decision-tree config baseline | low | pending (r3 sign-off) | none |
-| FR-213 | 2026-07-13 r1 | Stale INAI reconciliation caveat in Mexico annex points at drift already eliminated | low | pending (r3 sign-off) | none |
+| FR-213 | 2026-07-13 r1 | Stale INAI reconciliation caveat in Mexico annex points at drift already eliminated | low | closed | [#899](https://github.com/jposluns/grc_library/pull/899) |
 | FR-214 | 2026-07-13 r1 | Uniform "Approving Authority: Governance Library Maintainer" reads as a meta-role to an executive | low | pending (r3 sign-off) | none |
 | FR-215 | 2026-07-13 r1 | Privileged-account MFA not required phishing-resistant (FIDO2/WebAuthn) | low | pending (r3 sign-off) | none |
 | FR-216 | 2026-07-13 r1 | Advisory guideline uses absolute "must transition" in a should-not-must doctype (emergency-response :37) | low | pending (r3 sign-off) | none |

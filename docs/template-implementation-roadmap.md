@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Implementation Roadmap Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-07-02\
+**Version:** 1.0.8\
+**Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/template-quickstart.md`](template-quickstart.md), [`docs/template-startup-roadmap.md`](template-startup-roadmap.md), [`docs/template-maturity-self-assessment.md`](template-maturity-self-assessment.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`README.md`](../README.md)\
@@ -74,7 +74,7 @@ Reach the core-baseline defensible posture. The organization can answer the most
 
 ### Activities (in sequence)
 
-1. **Days 1 to 14: copy and orient.** Clone the library or fork the relevant subset. Read [`docs/adopter-guide.md`](adopter-guide.md). Run the quickstart-template composition to identify the modules. Identify the named owners for the core baseline artefacts.
+1. **Days 1 to 14: copy and orient.** Clone the library or fork the relevant subset. Read [`docs/adopter-guide.md`](adopter-guide.md). Run the startup-roadmap composition to identify the modules. Identify the named owners for the core baseline artefacts.
 2. **Days 14 to 45: customize the core baseline.** Adapt the six core-baseline artefacts to the organization. Replace placeholders; update role names; verify the home-jurisdiction privacy annex; populate the risk register with real risks (not aspirational ones).
 3. **Days 45 to 60: customize high-priority Dimension A and B modules.** A1 if there is custom development. B1 if there is customer data. The most-likely modules at this stage map to incidents the organization actually faces.
 4. **Days 60 to 80: name owners and approving authorities.** Every adopted artefact carries an owner and an approving authority in its metadata block. Day 60 is when this becomes load-bearing; Phase 1 cannot close without it.
@@ -257,7 +257,7 @@ A complete roadmap document is short. Long roadmaps are a Phase 1 anti-signal; t
 
 When planning a roadmap, answer the following before committing to dates:
 
-1. Have we completed the quickstart composition first? The roadmap sequences modules; if the modules are not identified, the roadmap cannot be sequenced.
+1. Have we completed the startup-roadmap composition first? The roadmap sequences modules; if the modules are not identified, the roadmap cannot be sequenced.
 2. Have we matched the calendar pace to our GRC capacity tier? E1 organizations using the E3 pace will fail Phase 1.
 3. Have we adjusted the pace for composition complexity? Heavy regulatory exposure or many modules need more calendar time.
 4. Have we identified the named owners for the Phase 1 work? Phase 1 does not close without owners.
@@ -270,7 +270,7 @@ When planning a roadmap, answer the following before committing to dates:
 
 This template is updated when:
 
-- The quickstart template's module catalogue changes (the roadmap sequences the modules; if the catalogue changes, the roadmap may need adjustment).
+- The startup-roadmap's module catalogue changes (the roadmap sequences the modules; if the catalogue changes, the roadmap may need adjustment).
 - The maturity self-assessment template's tier definitions change (the roadmap references them).
 - Adopter feedback identifies a Phase pattern that consistently underestimates or overestimates calendar time.
 
