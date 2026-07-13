@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.375, PR #887
+
+First PR of the 2026-07-13 resumed session (`claude/resume-sweep101-validate`): the loop-break corpus-wide `/validate` (Sweep 101) close-out, the compensating control for session-closing handoff PR #886 (which skipped its trailing per-PR QA). No corpus, pack, or taxonomy content changed.
+
+### Added
+
+- [`.working/validate-sweeps/2026-07-13-sweep101-iter1.md`](../validate-sweeps/2026-07-13-sweep101-iter1.md): the Sweep 101 iteration-1 detail file (six H2 sections: trigger/state, the three verbatim subagent returns, orchestrator synthesis, resulting PR).
+- [`TODO.md`](../../TODO.md): RB-6 bullet (e), the AICPA TSP 100 held-edition mismatch routed from Sweep 101 (the register cites the upstream-verified 2022-revised-POF edition; the copy held in `grc_library_ref` is the earlier March-2020 edition). Reference-base fidelity item, flagged for the `/deep-assessment` `/reference-audit` + `/claim-fit` passes; low risk (register-only citation, real-world-accurate).
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): new Sweep 101 row on top (2 note, 0 error / 0 warning; loop-break control for #886 PASSES); file Version 2.0.96 to 2.0.97.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the Resume-cursor "Last validation sweep" line to Sweep 101; **pruned** per the keep-current-plus-one-prior discipline (deleted the #833/sweep98 Next-actions and State-snapshot blocks and the #828-#832 asserted-expectations block; retained the #886 and #851 sessions); reworded the #851 block's now-dangling "supersedes the #833 ... below" pointer to "(pruned at the Sweep 101 resume)"; reconciled the current-truth version tokens (library `2026.07.375`, README `1.9.736`) and green-at (`fbd0162`/#886 = 69/69) to this PR's state.
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED (`Active-session: claude/resume-sweep101-validate`, `Status: active`, fresh heartbeat `2026-07-13T19:06:32Z`); Current-task refreshed to the resumed-session state; gate 63 passes.
+- [`README.md`](../../README.md): library CalVer 2026.07.374 to 2026.07.375; README Version 1.9.735 to 1.9.736.
+
+### Verification
+
+- **Sweep 101 result: 0 error / 0 warning / 2 note.** Full three-subagent A/B/C dispatch over the #852..#886 window (base `6fd59c7`/#851, HEAD `fbd0162`/#886). Mechanical baseline 69/69 at HEAD (no close-vs-start drift; clone non-shallow). Pre-flight: 421 files, 33 suppressed, 11 candidates, all the collection-count-word false-positive class, dismissed. Asserted-expectations cross-check: all CORROBORATED, 0 contradicted; loop-break control for #886 PASSES; zero in-window escaped defects.
+- Subagent A held-verified every newly-cited §3.57 instrument's version/date/anchor against the held source text and confirmed the 3 self-caught slips (#879/#882/#884) left zero residual; B refuted the closed-§ (§3.58/§3.59), count-drift, instrument-version-drift, and cross-tree-codification classes corpus-wide; C confirmed four-surface parity at gate 69, gate-37 17/0 overlay (marker only in `.claude` copies), gate 60 clean, the compact-CHANGELOG-header parity-linter widening EXPANDED-not-weakened (fixtures + §6 narrative in lock-step), counts 69/13/23/14/18, spec 1.17.1, pack 1.61.5.
+- The one in-window note (AICPA held-edition mismatch, `register-canonical-citations.md:196`) was orchestrator-verified against the held file and ROUTED to TODO RB-6(e); the other note (a frozen-record count-attribution scoping imprecision in the handoff, endpoint 147 correct) is no-action.
+- This PR gets its own post-merge `/validate-pr` + `/retro` (batched into the next PR per recursion-avoidance); it is a normal close-out PR, not the session-closing handoff.
+- Pre-push guard (`run_all_audits.sh` 69/69 + `run-pr-time-checks.sh`) green.
+
+### Discipline observation
+
+The AICPA note is the reference-base-fidelity class: a citation can be real-world-accurate and upstream-verified while the reference base holds an earlier edition of the cited work. The right move was to route (attempt acquisition of the true edition per the missing-reference SOP, then reconcile the row's provenance) rather than either hot-fix the register (the citation is correct) or ignore it (a future verifier checking the register against the held source would see a mismatch). It is deliberately handed to the upcoming `/deep-assessment` `/reference-audit`/`/claim-fit` passes, which are the formal instrument for this exact class.
+
 ## 2026-07-13, Library Version 2026.07.374, PR #886
 
 Session-closing handoff PR for the 2026-07-12/13 resumed session (`claude/resume-sweep100-validate` + follow-ups, #852-#885). Lands working-state on `main` as a green merge so the next `/resume` rebuilds from the shared branch. No corpus, pack, or taxonomy content.
