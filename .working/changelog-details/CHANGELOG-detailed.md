@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.356, PR #868
+
+Reference-breadth apply (TODO §3.57), bundle 3 of the EDPB privacy cluster: cite EDPB Guidelines 01/2022 (right of access) in the data-subject-rights procedure.
+
+### Changed
+
+- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md): cited **EDPB Guidelines 01/2022 on data subject rights, Right of access (Version 2.1, 30 May 2024; adopted 28 March 2023)** at `### 6.3 Redaction of third-party data` (the Article 15(4) third-party-rights limit and the layered approach) and `### 7.2 Article 12(5) assessment checklist` (the manifestly-unfounded-or-excessive assessment and the controller's burden), and added it to the `## 11 Framework alignment` "Access and transparency" row. Confirmed not already cited. Version 1.6.7 to 1.6.8.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a register row for EDPB 01/2022 (Version 2.1, 2024-05), soft-law supervisory-guidance scope. Version 1.5.24 to 1.5.25.
+
+### Verification
+
+- Each attributed element was read against the held source this turn: scope of the right of access (held lines 112 to 113), "copy" as the main modality plus the layered approach (141, 148), the Article 15(4) third-party-rights limit (177), and Article 12(5) manifestly unfounded or excessive (185).
+- Version accuracy corrected against the held version-history (not the catalogue summary): v1.0 = 18 January 2022 (for public consultation), v2.0 = 28 March 2023 (adoption after consultation), v2.1 = 30 May 2024 (minor corrections). The catalogue's "v2.1 adopted 28 March 2023" conflates v2.0's adoption date; the register row and the citation use the held version-history's accurate framing. This is the bundle-2 lesson applied directly, verify the held version-history rather than trusting a catalogue summary or pattern-matching an adjacent guideline.
+- Currency: held at v2.1; ref-catalogue `last_checked` 2026-07-12; not re-verified upstream this turn (recorded as the register Last-verified date).
+- Confirmed the procedure did not already cite EDPB 01/2022 (grep clean at apply); artefacts regenerated after the two per-document Version bumps.
+- Skeptical pre-push verifier (substantive tier; citation-accuracy-focused, read-only git): core citation accuracy SUPPORTED (Art 15(4) at held line 177, "copy" modality 141, layered approach 146-151, Art 12(5) + controller's burden 185-193, all confirmed against the held source) and version accuracy CONFIRMED against the held version-history (v1.0 18 January 2022 public consultation, v2.0 28 March 2023 adoption, v2.1 30 May 2024 minor corrections; the catalogue "v2.1 adopted 28 March 2023" conflation correctly avoided). ONE MEDIUM caught and FIXED pre-push: the §6.3 inline prose wrongly COUPLED the guideline's "layered approach" (a comprehension modality for large data sets, held 146-151) to the Article 15(4) third-party reconciliation function, which the source assigns to partial redaction (held 182-184); reworded to attribute the limit to redaction-not-refusal and drop the mis-coupling (the register row and this entry's Changed bullet had already listed the two correctly as separate scope items). All bookkeeping clean; 69/69 standalone.
+- Batches PR #867's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+Bundle 3 of the EDPB cluster, one document per PR. The held-version-history read caught a catalogue-vs-document version discrepancy (v2.1 is the 30 May 2024 minor-corrections revision, not the 28 March 2023 adoption), the direct payoff of the bundle-2 superseded-cell lesson: on version-bearing citations, the held document's own version-history is authoritative over a catalogue summary. Bundle 4 (breach, EDPB 9/2022) follows as its own PR; the version-sensitive `[V]` jurisdiction rows remain routed to the maintainer.
+
 ## 2026-07-13, Library Version 2026.07.355, PR #867
 
 Reference-breadth apply (TODO §3.57), bundle 2 of the EDPB privacy cluster: cite EDPB Guidelines 05/2020 in the consent-management framework.

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.7\
-**Date:** 2026-07-09\
+**Version:** 1.6.8\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -147,7 +147,7 @@ The Data Protection Officer determines:
 
 ### 6.3 Redaction of third-party data
 
-Responses must not disclose the personal data of third parties without their consent or legal basis. Redaction must be applied to:
+Responses must not disclose the personal data of third parties without their consent or legal basis. This reflects **GDPR Article 15(4)** (the right to obtain a copy must not adversely affect the rights and freedoms of others); the EDPB's **Guidelines 01/2022 on the right of access** (Version 2.1, 30 May 2024; adopted 28 March 2023) are the authoritative interpretation of that limit, which is applied by redacting the parts that would adversely affect others rather than refusing the request outright. Redaction must be applied to:
 
 - Names, contact details, or identifying information of other individuals appearing in documents or records.
 - Data that, in combination with the disclosed data, would allow identification of another individual.
@@ -190,7 +190,7 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 
 GDPR Article 12(5) provides that DSR responses are **free of charge by default**. Two exceptions allow the controller to either charge a reasonable fee OR refuse the request: where the request is **manifestly unfounded** OR **manifestly excessive**. Article 12(5) imposes the **burden of proof on the controller**: the controller must demonstrate the manifestly-unfounded-or-excessive character of the request, not the data subject's good faith.
 
-This section structures that assessment as a checklist. Every invocation of Article 12(5) requires documented evidence against each applicable criterion before fee or refusal is communicated to the subject.
+This section structures that assessment as a checklist. Every invocation of Article 12(5) requires documented evidence against each applicable criterion before fee or refusal is communicated to the subject. The EDPB Guidelines 01/2022 on the right of access confirm this reading: Article 12(5) permits the controller to charge a reasonable fee or refuse only where the request is manifestly unfounded or excessive, and the controller bears the burden of demonstrating that character.
 
 #### 7.2.1 Default: free of charge
 
@@ -368,7 +368,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Control Area | Framework Reference |
 | --- | --- |
 | Data subject rights management | ISO/IEC 27701:2025 (PII principals' rights); CSA CCM v4.1 DSP-11 |
-| Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45 |
+| Access and transparency | GDPR Art. 15; UK GDPR Art. 15; PIPEDA Sch 1 Principle 9 (Individual Access); PIPL Art. 45; EDPB Guidelines 01/2022 on the right of access (v2.1) |
 | Correction and rectification | GDPR Art. 16; UK GDPR Art. 16; PIPEDA Sch 1 Principle 9 (amendment); PIPL Art. 46 |
 | Deletion and erasure | GDPR Art. 17; UK GDPR Art. 17 |
 | Data portability | GDPR Art. 20; UK GDPR Art. 20 |
