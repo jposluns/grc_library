@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.58: delivery-pipeline reconciliation and stale-seed disposition (2026-07-13)
+
+Reconciled the scratch-inbox delivery pipeline: closed under the maintainer's disposition rule (for scratch deliveries older than 5 days, keep ONLY pure-research seeds, discard the rest), executed in scratch PR #164, which removed the five consumed / stale-non-pure-research inbox drops (gr-10-history-gate-batching, changelog-root-reformat-build, atlas-crosswalk-317, ai-gaps-expansion-plan, the claude-pack-hygiene programme) and annotated the claims-ledger + COVERAGE dispositions, keeping the pure-research seeds available as input. The residual tooling weakness (the recycled-number token map that made this a describe-the-work exercise) is spun off as §3.61.
+
 ### TODO §3.59: read-only-git rule for validation/verifier subagents (2026-07-13)
 
 Codified the rule that a dispatched verifier or validation subagent sharing the orchestrator's working tree inspects git history read-only (`git show`/`git diff`/`git log`) and never moves the tree's branch or HEAD (`checkout`/`switch`/`reset`/`stash`), preventing the #866 shared-tree branch-collision (a subagent's checkout mis-branched a commit onto local main; caught fail-loud at PR-create, repaired). Project surfaces (the /validate-pr + /validate command stubs + a CLAUDE.md note) in #870; the pack-distribution half (the ai-assistant-workflow-disciplines rule, both trees, project-agnostic) in #871. The secondary concurrent-suite fixture-race observation was assessed and documented as a re-check-standalone artefact; the deeper per-process-tempdir tooling fix is spun off as §3.60.
