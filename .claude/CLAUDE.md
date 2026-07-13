@@ -763,10 +763,12 @@ joins the phase-3 aids).
 ## Reference-breadth cadence (`/reference-audit`)
 
 The corpus cites what it cites; nothing mechanical asks whether it engages the BEST of
-what the project holds. That class, "held but unused" (the SP 800-154 lesson: an
-authoritative held source relevant to corpus content that no document engages, and the
-reverse, a touched document that newly ingested reference material bears on), is
-gate-blind by construction. The durable instrument is a cadenced audit, the
+what the project holds. That class, "held but unused" (an authoritative source the
+reference base holds that no corpus document engages, and the reverse, a touched
+document that newly ingested reference material bears on), is gate-blind by
+construction. It was surfaced by the SP 800-154 lesson, where a source relevant to
+corpus content went unengaged and turned out to be unavailable (NIST SP 800-154 was
+never finalized, a relevant-but-unavailable source rather than a held one). The durable instrument is a cadenced audit, the
 [`reference-audit`](../dev-security/claude-rules/skills/reference-audit/SKILL.md) skill
 (slash command `/reference-audit`): it judges candidate document-to-source pairings
 against the held source TEXT and the live document, scoped by the recall-oriented

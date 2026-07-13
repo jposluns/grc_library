@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.2 (recycled number): SP 800-154 "held source" wording accuracy (2026-07-13)
+
+Corrected the reference-audit guidance's motivating example: NIST SP 800-154 (a never-finalized NIST draft, not held in `grc_library_ref`, verified this turn) was described as a "held source" and as a source that "sits in the reference base". Reframed it accurately as a relevant-but-unavailable source that surfaced the general "held but unused" class, across the four scanned carriers (parent CLAUDE.md reference-breadth-cadence section, the `/reference-audit` command stub, the pack README skill-tree line and the reference-audit version-history row); the class definition itself was already correct and unchanged. Distinct from #509's §1.2 (per-document ISO Annex A validity, gate 58), which reused the same number.
+
 ### TODO §4.8: Pack adoption-hygiene programme, phases 1-4 (2026-07-12)
 
 The four-phase programme that made the `dev-security/claude-rules/` pack project-agnostic for public distribution: Phase 1 condensed all 13 governance rules (operative-core / on-demand-rationale split, #835-#840); Phase 2 generalized the 14 project-wired skills, added 2 derived skills + the rule-provenance register (#842); Phase 3 scrubbed the 14 residual project wirings from 6 governance rules and added the 13 PROJECT-OVERLAY blocks (#845); Phase 4 ran the acceptance sweep (PASS), triaged the routed findings to §1.2/§3.56/§3.57/§4.9, and closed the programme (#846). The pack now carries zero out-of-pack relative links and zero project instantiations in its governance rules; gate 37 enforces the pack/`.claude` overlay sync. Unblocks §4.1 (corpus-management shareable skill).

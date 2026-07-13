@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.351, PR #863
+
+SP 800-154 "held source" wording accuracy (TODO §1.2, a recycled number; pack-hygiene Phase-4 routed, protected-file class). The `/reference-audit` guidance used NIST SP 800-154 as its motivating example and described it as a "held source" and as a source that "sits in the reference base". SP 800-154 was never finalized (a withdrawn NIST draft) and is not held in `grc_library_ref` (re-verified this turn: absent from the ref catalogue, indexes, and disk). Reframed as a relevant-but-unavailable source that *surfaced* the general "held but unused" class; the class definition itself (an authoritative held source no corpus document engages, and the reverse) was already accurate and is unchanged. The first post-3b protected-cleanup PR under the maintainer's 2026-07-13 overnight authorization.
+
+### Changed
+
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Reference-breadth cadence`: the class-definition parenthetical no longer calls SP 800-154 "an authoritative held source". The class is now defined generically (an authoritative source the reference base holds that no corpus document engages, and the reverse), and a following sentence frames the SP 800-154 lesson accurately as a relevant-but-unavailable source (never finalized).
+- [`.claude/commands/reference-audit.md`](../../.claude/commands/reference-audit.md): "the gate-blind SP 800-154 class, 'held but unused'" reworded to "the gate-blind 'held but unused' class the SP 800-154 lesson surfaced", so the class is no longer named after SP 800-154 and SP 800-154 is no longer implied to sit in the reference base.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): the skill-tree line ("(the SP 800-154 lesson)" to "(surfaced by the SP 800-154 lesson)") and the 1.57.0 version-history row (the "an authoritative held source" attribution corrected; SP 800-154 named as a relevant-but-unavailable source, never finalized). Pack metadata Version 1.61.1 to 1.61.2 (patch; no new rule or skill) with a new 1.61.2 version-history row.
+
+### Verification
+
+- SP 800-154 hold status re-verified this turn: absent from the `grc_library_ref` catalogue, its indexes, and the acquisition queue, and absent from disk (a name search returned nothing). Confirms the not-held premise the correction rests on.
+- Bare-token-width grep for "held source" across all scanned file types confirmed the remaining occurrences (the root changelog "deepened against held sources", the rule-provenance register and the claim-fit skill "against the held source", the deep-assessment skill "held source texts", and the reference-audit skill body) are all accurate uses (sources the base genuinely holds), not SP 800-154, and are left unchanged.
+- The distributable reference-audit skill body was confirmed already genericized (no "SP 800-154" mention; the class defined accurately), so no pack-skill body edit was needed.
+- Derived artefacts regenerated after the pack README Version bump (taxonomy first, then portal and scorecard).
+- Skeptical pre-push verifier (substantive tier; refute-briefed): NO substantive defect across all 7 axes (reframe accuracy, class-definition coherence, completeness at bare-token / all-file-type width, the not-held premise re-confirmed in `grc_library_ref`, version/bookkeeping integrity, dashes/paths, TODO/DONE rotation). The verifier independently confirmed SP 800-154 appears in the ref base only as citations inside other held NIST docs, never as its own held source, and that the distributable reference-audit skill body is already genericized (zero SP 800-154 mentions).
+- Batches PR #862's `/validate-pr` (clean, 0 findings) and `/retro` rows.
+
+### Discipline observation
+
+Semantic-fit correction on a protected pack surface: the inaccuracy was not the class (real and correctly defined) but its EXEMPLAR. SP 800-154 is a poor exemplar of "held but unused" because it was never held; the fix decoupled the exemplar from the class rather than editing the class. The recycled §1.2 number (old §1.2 = per-document ISO Annex A validity, gate 58, closed in #509) is cross-referenced in the DONE entry so the two are not conflated. Tiering judgement: substantive tier (one refute-briefed verifier), not the high-assurance harness, because the change is 4 hand-verifiable wording edits resting on a single checkable fact (SP 800-154 not held), failing the harness's "delicate scale" trigger.
+
 ## 2026-07-13, Library Version 2026.07.350, PR #862
 
 CHANGELOG plain-language rework, stage 3b batch 7, the FINAL batch (TODO 3.16). Completes the wave: every root CHANGELOG entry is now a compact one-line plain-language summary.
