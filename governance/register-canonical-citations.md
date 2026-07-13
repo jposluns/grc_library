@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.22\
-**Date:** 2026-07-11\
+**Version:** 1.5.23\
+**Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -312,6 +312,7 @@ Soft-law guidance documents issued by supervisory authorities, regulators, or in
 | WP248 rev.01 (Article 29 Working Party Guidelines on Data Protection Impact Assessment) | rev.01 | 2017-10 | Guidelines on DPIA and determining whether processing is 'likely to result in a high risk' for the purposes of Regulation 2016/679 (GDPR Article 35), as last revised and adopted 4 October 2017; endorsed by the EDPB. Cited for DPIA methodology and the high-risk criteria. | WP248 (4 April 2017 first adoption) | https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/index_en.htm | 2026-06-30 |
 | EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR) | Version 2.1 | 2021-07 | The controller, joint-controller, and processor concepts under the GDPR; Version 2.1 adopted 7 July 2021 after public consultation. Cited for controller / processor determination. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 | EDPB Guidelines 3/2018 (territorial scope of the GDPR, Article 3) | Version 2.1 | 2019-11 | The establishment criterion and the targeting criterion for GDPR territorial scope (Article 3); Version 2.1 adopted 12 November 2019. Cited for extraterritorial applicability. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
+| EDPB Guidelines 4/2019 (Article 25 data protection by design and by default) | Version 2.0 | 2020-10 | The Article 25 data-protection-by-design-and-by-default obligation: effective implementation of the data-protection principles, the design and default elements, and continual review of the chosen measures' effectiveness; Version 2.0 adopted 20 October 2020. Cited for the operational interpretation of Article 25. | Version 1.0 (initial 2019 adoption, for public consultation) | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-07-12 |
 | EDPB Opinion 28/2024 (data protection aspects of AI models) | Original (no later revision) | 2024-12 | Whether an AI model trained on personal data can be anonymous, the legitimate-interest legal basis across AI development and deployment, and the consequences of unlawful processing in training; adopted 17 December 2024. Cited for AI-model data-protection analysis. | - | https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_en | 2026-06-30 |
 
 ---
