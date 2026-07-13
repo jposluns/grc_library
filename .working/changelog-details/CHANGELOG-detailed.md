@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.362, PR #874
+
+§3.57 reference-breadth close-out for the overnight run (bookkeeping): record which citation rows are applied and route the remaining version-sensitive rows to the maintainer.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) §3.57 annotated: the `lc` (held, currency-confirmed) rows are APPLIED, the four High EDPB-privacy citations (#866-#869) plus the Medium EDPB 07/2022 (#873); the REMAINING rows are all version-sensitive `[V]` and are routed to the maintainer for upstream-currency confirmation. Notably AICPA TSP 100 (to the citation register) is a genuine internal inconsistency, the Trust Services Criteria are cited corpus-wide but absent from the register, held at the 2017 criteria with 2022 revised points of focus but `[V]`, so its register "current version" should be set only after the maintainer's upstream re-confirm.
+
+### Verification
+
+- Bookkeeping-tier (TODO annotation plus batched QA rows); no corpus, pack, or taxonomy content, so no per-document version bump, taxonomy regeneration, or standing verifier.
+- The overnight-safe §3.57 slice (five `lc` citations) is complete; the `[V]` rows are consistently routed with the other `[V]` §3.57 items (upstream currency needs egress / a fresh session, which the `[V]` flag demands and the overnight run cannot satisfy).
+- Batches PR #873's `/validate-pr` (clean) and `/retro` rows.
+
+### Discipline observation
+
+Honest saturation of the overnight-safe reference-breadth scope. Rather than auto-apply the `[V]` AICPA row on a catalogue-check-as-currency basis (inconsistent with routing the other `[V]` rows, and the `[V]` flag exists precisely because the Trust-Services-Criteria 2017-criteria-plus-2022-POF versioning needs upstream confirmation), the row is routed to the maintainer with its assessment. Integrity over Speed: a register "current version" is a currency ground-truth that must rest on a real upstream check, not a deferred assumption.
+
 ## 2026-07-13, Library Version 2026.07.361, PR #873
 
 Reference-breadth apply (TODO §3.57), a Medium held-verifiable citation: cite EDPB Guidelines 07/2022 (certification as a tool for transfers) in the transfer-impact-assessment template.
