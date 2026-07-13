@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.376, PR #888
+
+Opens run r3 of the whole-project `/deep-assessment` (maintainer-invoked at the 2026-07-13 resume, confirmed via `AskUserQuestion`). This PR records Phases 1-2 (run-state/inventory + mechanical baseline) and the Phase-3 `/validate` of record, opens the re-entrant register row, and batches PR #887's post-merge QA rows. No corpus, pack, or taxonomy content changed.
+
+### Added
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): the r3 per-run detail file (Phases 1-2 complete; Phase 3 in progress with Sweep 101 as the `/validate` of record; Phases 4-8 pending; holds for maintainer sign-off).
+- [`.working/validate-pr/2026-07-13-PR-887.md`](../validate-pr/2026-07-13-PR-887.md): the #887 post-merge `/validate-pr` record (0 error / 0 warning / 1 no-action frozen-record note; all six directed items PASS).
+
+### Changed
+
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): opened the r3 row (P1/P2 complete, P3 in-progress, P4-P8 pending, Status in-progress) with its per-run detail paragraph; live inventory recorded as 69 gates / 14 commands / 23 skills / 13 governance rules / 9 advisory tools (derived from the repo at `a5d2edd`, not remembered).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #887 row (1 no-action note; batched here); Version 1.2.654 to 1.2.655.
+- [`.working/improvement-log.md`](../improvement-log.md): #887 `/retro` row (two self-caught pre-merge block-edit clobbers, both gate-caught; first occurrence of that class, WATCH not a pattern); Version 1.0.593 to 1.0.594.
+- [`README.md`](../../README.md): library CalVer 2026.07.375 to 2026.07.376; README Version 1.9.736 to 1.9.737.
+
+### Verification
+
+- **Phase 1** (COMPLETE): non-shallow clone; all three repos present; lease held; live inventory derived from the repo (not remembered); HEAD `a5d2edd` (#887).
+- **Phase 2** (COMPLETE): `tools/run_all_audits.sh` = all 69 gates pass at `a5d2edd` (resume + #887 post-merge baseline); regression suite exit 0 in isolation; generator `--check`s (gates 33/34) within the 69; PR-time checks D1-D7 green via the pre-push guard; sibling `grc_library_ref` validation gate OK (613 items) and `grc_library_scratch` validation gate OK. Green-at `a5d2edd` = 69/69, all sibling + generator checks clean.
+- **Phase 3** (IN PROGRESS): the `/validate` of record is Sweep 101 (clean, 0 error / 0 warning / 2 note, loop-break control for #886 PASSED, asserted-expectations all corroborated). The heavy fan-out (`/full-qa`, `/fitness`, whole-matrix `/matrix-fit`, Tier-A+B `/claim-fit`, `/reference-audit` FULL, `/screen-publications`, `/guardrails`, advisory aids) is pending and runs re-entrantly.
+- This r3-opening PR gets its own post-merge `/validate-pr` + `/retro` (batched into the next PR). Pre-push guard green.
+
+### Discipline observation
+
+The r3-opening lands the batched #887 QA promptly (rather than letting it ride an indefinitely-later PR) AND establishes the re-entrant Phase-1/2 checkpoint on `main`, so the multi-session deep assessment can resume cleanly at Phase 3 via the register. The deep assessment is count-free and inventory-deriving by design: Phase 1 re-derives the live instrument set from the repo, so the assessment's scope is whatever quality machinery exists at run time (any instrument added since r2 is covered automatically).
+
 ## 2026-07-13, Library Version 2026.07.375, PR #887
 
 First PR of the 2026-07-13 resumed session (`claude/resume-sweep101-validate`): the loop-break corpus-wide `/validate` (Sweep 101) close-out, the compensating control for session-closing handoff PR #886 (which skipped its trailing per-PR QA). No corpus, pack, or taxonomy content changed.
