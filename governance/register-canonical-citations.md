@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.30\
+**Version:** 1.5.31\
 **Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -141,6 +141,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US CMMC | 2.0 (model); the 48 CFR / DFARS acquisition rule took effect 2025-11-10 (Phase 1 live) | 2024 (model); 2025-11-10 (acquisition rule) | Cybersecurity Maturity Model Certification | 1.0, 1.02 | https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170 | verified 2026-07-09 |
 | Canada CPPA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; no replacement bill introduced as of 2026-05) | 2022 (proposed) | Consumer Privacy Protection Act (never enacted) | n/a; PIPEDA remains in force | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
 | Canada PIPEDA | 2000 (with 2015 DBSA amendments) | 2000 | Personal Information Protection and Electronic Documents Act | - | https://laws-lois.justice.gc.ca/eng/acts/p-8.6/ | 2026-06-30 |
+| Canada Breach of Security Safeguards Regulations | SOR/2018-64 | 2018-11 | PIPEDA breach-of-security-safeguards regulations: prescribed content of OPC reports and individual notifications, and the 24-month breach-record retention obligation (in force 1 November 2018) | - | https://laws-lois.justice.gc.ca/eng/regulations/SOR-2018-64/index.html | verified 2026-07-13 |
 | Canada AIDA | Lapsed 2025-01-06 (Bill C-27 died on prorogation; per June 2025 ministerial statement, AIDA will not return in its original form) | 2022 (proposed) | Artificial Intelligence and Data Act (never enacted) | n/a; no federal AI law enacted | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | 2026-06-30 |
 | Quebec Law 25 | 2021 (phased in 2022-2024) | 2021 | An Act to modernize legislative provisions as regards the protection of personal information | - | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | verified 2026-07-09 |
 | Canada TBS Directive on Automated Decision-Making | In force since 1 April 2019 (compliance 1 April 2020); third-review amendments announced 8 October 2024, with automated decision systems developed or procured before 24 June 2025 given until 24 June 2026 to meet the updated requirements | 2019 | Federal public-sector automated decision-making (binding on federal institutions); the Algorithmic Impact Assessment tool | - | https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592 | verified 2026-07-11 |

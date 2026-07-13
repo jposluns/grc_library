@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-07-11\
+**Version:** 1.1.2\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -65,7 +65,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ## Operational requirements (PIPEDA)
 
-- **Breach of security safeguards (s. 10.1):** An organization must report to the OPC any breach of security safeguards involving personal information under its control where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual, and must notify affected individuals. Both the report and the notification are due as soon as feasible after the organization determines the breach has occurred; PIPEDA sets no fixed hour-count, and Quebec Law 25's CAI notification (above) is likewise a promptness standard rather than a fixed clock.
+- **Breach of security safeguards (s. 10.1):** An organization must report to the OPC any breach of security safeguards involving personal information under its control where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual, and must notify affected individuals. Both the report and the notification are due as soon as feasible after the organization determines the breach has occurred; PIPEDA sets no fixed hour-count, and Quebec Law 25's CAI notification (above) is likewise a promptness standard rather than a fixed clock. The Breach of Security Safeguards Regulations (SOR/2018-64), in force 1 November 2018, prescribe the content of the OPC report and the individual notification, and require the organization to maintain a record of every breach of security safeguards, whether or not it met the real-risk-of-significant-harm reporting threshold, for 24 months after the day the organization determines the breach occurred. (SOR/2018-64 was verified against the consolidated Justice Laws text on 2026-07-13: in force since its 2018-11-01 coming-into-force, with no subsequent amendment.)
 - **Access-request response clock (s. 8(3)):** An organization must respond to a written request for access to personal information not later than thirty days after receipt of the request. PIPEDA permits a time-limit extension in defined circumstances with notice to the requester; adopting organizations should treat thirty days as the default service level in their DSR procedure.
 
 ---

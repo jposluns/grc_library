@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.367, PR #879
+
+TODO §3.57 `[V]` row applied: Canada Breach of Security Safeguards Regulations (SOR/2018-64) cited in the Canada privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #878 QA rows.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md): the breach-of-security-safeguards bullet now cites the Breach of Security Safeguards Regulations (SOR/2018-64, in force 1 November 2018) for the regulation-level obligations the statute's s. 10.1 threshold does not spell out: the prescribed content of the OPC report and the individual notification, and the duty to keep a record of EVERY breach of security safeguards (whether or not it met the real-risk-of-significant-harm reporting threshold) for 24 months after the day the organization determines the breach occurred. Carries a verification note (verified against the consolidated Justice Laws text 2026-07-13, in force since 2018-11-01, no amendment). Doc Version bumped 1.1.1 to 1.1.2, Date to 2026-07-13.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new row after Canada PIPEDA, `Canada Breach of Security Safeguards Regulations` / `SOR/2018-64` / `2018-11` / topic the PIPEDA breach regulation (prescribed report and notification content plus the 24-month breach-record retention). Gives the standards-currency linter an anchor for the newly-named citation.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation).** WebSearch against the Justice Laws site (laws-lois.justice.gc.ca), the Canada Gazette, and CanLII confirmed SOR/2018-64 is the Breach of Security Safeguards Regulations under PIPEDA, in force 1 November 2018, with no substantive amendment; and that the 24-month record-retention duty applies to every breach of security safeguards, not only reportable ones. PIPEDA (and thus this regulation) remains in force after the CPPA/Bill C-27 lapse.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the annex + register change (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#878).
+- Register per-document Version bumped 1.5.30 to 1.5.31; Canada annex 1.1.1 to 1.1.2; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency (now 144 standards) and citation linters pass. `laws-lois.justice.gc.ca` is already on the external-link-domain allowlist (the PIPEDA row uses it).
+- Batches PR #878's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The citation distinguishes the regulation-level duty (24-month record of EVERY breach, prescribed content) from the Act-level s. 10.1 reporting threshold already in the bullet, so a reader does not read the 24-month record obligation as applying only to reportable breaches; the "whether or not it met the reporting threshold" clause is the load-bearing precision, confirmed against the regulation text this turn. The pre-push refute-verifier caught a stale "current to 2026-03-31" consolidation date in the draft verification note (drawn from a WebSearch snippet; a direct WebFetch of the live Justice Laws page showed "current to 2026-05-26"). Rather than substitute the newer date (which self-stales at the next site reconsolidation), the drift-prone "current to" claim was dropped entirely across all four carriers it had reached (the annex note, the TODO §3.57 annotation, and two CHANGELOG-detailed lines, caught by a whole-changeset bare-token grep), keeping only the durable legal facts (in force 2018-11-01, no subsequent amendment). Lesson: a Justice-Laws "current to" date is a site-consolidation marker that drifts independently of the regulation, so it does not belong in a citation's verification note; the register row's "verified 2026-07-13" already captures the verification date.
+
 ## 2026-07-13, Library Version 2026.07.366, PR #878
 
 TODO §3.57 `[V]` row applied: Brazil ANPD Resolution CD/ANPD No. 18/2024 (the encarregado/DPO regulation) cited in the Brazil privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #877 QA rows.
