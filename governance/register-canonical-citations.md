@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.28\
+**Version:** 1.5.29\
 **Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -118,6 +118,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | EU NIS 2 Directive | Directive 2022/2555 | 2022-12 | Cybersecurity of network and information systems | NIS Directive 2016/1148 | https://eur-lex.europa.eu/eli/dir/2022/2555/oj | 2026-06-30 |
 | EU DORA | Regulation 2022/2554 | 2022-12 | Digital Operational Resilience Act (financial-services) | - | https://eur-lex.europa.eu/eli/reg/2022/2554/oj | 2026-06-30 |
 | EU GDPR | Regulation 2016/679 | 2016-04 | General Data Protection Regulation | Directive 95/46/EC | https://eur-lex.europa.eu/eli/reg/2016/679/oj | 2026-06-30 |
+| EU Controller-Processor SCCs | Commission Implementing Decision (EU) 2021/915 | 2021-06 | Standard contractual clauses between controllers and processors under Article 28(7) GDPR and Article 29(7) Regulation (EU) 2018/1725; not a Chapter V transfer mechanism (the transfer SCCs are Decision (EU) 2021/914) | - | https://eur-lex.europa.eu/eli/dec_impl/2021/915/oj | verified 2026-07-13 |
 | EU Data Act | Regulation (EU) 2023/2854 | 2023-12 | Data Act (harmonized rules on fair access to and use of data; main provisions applicable from 12 September 2025) | - | https://eur-lex.europa.eu/eli/reg/2023/2854/oj | 2026-06-30 |
 | EU eIDAS | Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2) | 2024-04 (latest amendment) | Electronic identification and trust services | - | https://eur-lex.europa.eu/eli/reg/2014/910/oj | 2026-06-30 |
 | EU EECC | Directive 2018/1972 | 2018-12 | European Electronic Communications Code | - | https://eur-lex.europa.eu/eli/dir/2018/1972/oj | 2026-06-30 |

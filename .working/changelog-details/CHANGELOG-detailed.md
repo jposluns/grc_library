@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.365, PR #877
+
+TODO §3.57 `[V]` row applied: Commission Implementing Decision (EU) 2021/915 (the controller-processor standard contractual clauses) named in the Article 28 DPA template and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #876 QA rows.
+
+### Changed
+
+- [`privacy/template-dpa-article-28.md`](../../privacy/template-dpa-article-28.md): Section 11 (Form and signature) now names the Commission controller-processor SCC set as Commission Implementing Decision (EU) 2021/915 (adopted under Article 28(7)), where it previously said only "record the SCC set and version used"; a new framework-alignment row cites the same instrument. Both carry the accuracy guard that 2021/915 is distinct from the Chapter V transfer clauses in Commission Implementing Decision (EU) 2021/914 (the decision's own recitals state its clauses cannot be used as Chapter V transfer clauses, so this is the correct instrument for the Article 28 processing contract and must not be conflated with the transfer SCCs). Doc Version bumped 1.0.1 to 1.0.2, Date to 2026-07-13.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new EU-block row (after EU GDPR), `EU Controller-Processor SCCs` / current version `Commission Implementing Decision (EU) 2021/915` / `2021-06` / topic the Article 28(7) GDPR and Article 29(7) Regulation (EU) 2018/1725 controller-processor SCCs, with the same not-a-transfer-mechanism guard in the topic cell. This gives the standards-currency linter an anchor for the newly-named citation.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation).** WebSearch against EUR-Lex and legal-analysis sources confirmed 2021/915 was adopted 4 June 2021, published in the Official Journal 7 June 2021, entered into force 27 June 2021, and has not been amended since; and that 2021/915 is the controller-processor set (Article 28) while 2021/914 is the separate international-transfer set (Chapter V), not swapped.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the doc + register change (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#876).
+- Register per-document Version bumped 1.5.28 to 1.5.29; DPA template 1.0.1 to 1.0.2; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency (now 142 standards) and citation linters pass. `eur-lex.europa.eu` is already on the external-link-domain allowlist.
+- Batches PR #876's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The delivery candidate's explicit accuracy guard (2021/915 must NOT be routed to the cross-border-data-flow register, because its own recital bars its use as a Chapter V transfer instrument) was carried into both the doc text and the register topic cell, so a future reader cannot conflate the Article 28 processing SCCs with the Chapter V transfer SCCs. This is the value-attribution-precision lesson from the earlier EDPB bundles applied proactively: name the exact instrument and fence off the adjacent-but-wrong one in the same edit.
+
 ## 2026-07-13, Library Version 2026.07.364, PR #876
 
 TODO §3.57 `[V]` row applied: AICPA Trust Services Criteria (TSP Section 100) added to the canonical-citations register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #875 QA rows.
