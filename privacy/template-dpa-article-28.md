@@ -2,8 +2,8 @@
 
 **Document Title:** Data Processing Agreement Template (GDPR Article 28)\
 **Document Type:** Template\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-joint-controller-arrangement.md`](template-joint-controller-arrangement.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -141,7 +141,7 @@ Article 28(3) requires the contract to set out the subject-matter and duration o
 | --- | --- |
 | Written form | The agreement is in writing, including electronic form. |
 | Authorized signatures | Signed by authorized representatives of the controller and the processor; record the signatory, role, and date for each party. |
-| Standard contractual clauses | Where the parties rely on Commission or supervisory-authority standard contractual clauses to form the contract in whole or part (Article 28(6) to (8)), record the SCC set and version used. |
+| Standard contractual clauses | Where the parties rely on Commission or supervisory-authority standard contractual clauses to form the contract in whole or part (Article 28(6) to (8)), record the SCC set and version used. The Commission controller-processor set is Commission Implementing Decision (EU) 2021/915, adopted under Article 28(7); it is distinct from the Chapter V transfer clauses in Commission Implementing Decision (EU) 2021/914. |
 
 ---
 
@@ -160,6 +160,7 @@ A populated DPA is sensitive contractual data. Adopters do NOT publish the popul
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | GDPR | Article 28 (esp. 28(2), 28(3)(a) to (h), 28(4), 28(9)) | The controller-to-processor contract and its eight mandatory clauses. |
+| EU Commission SCCs | Commission Implementing Decision (EU) 2021/915 | The Commission-approved standard contractual clauses between controllers and processors under Article 28(7); the ready-made clause set adopters may use to satisfy the Article 28(3) contract. Not a Chapter V transfer mechanism (those are Decision (EU) 2021/914). |
 | UK GDPR | Article 28 | Equivalent processor-contract obligation. |
 | LGPD (Brazil) | Articles 39, 42 | Operator obligations and joint or several liability for processing on the controller's behalf. |
 | PIPL (China) | Article 21 | Entrusted-processing agreement obligations. |
