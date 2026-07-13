@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.382, PR #894
+
+The `/deep-assessment` r3 Phase-3 (and Phase-6 adoptability) `/fitness` fresh-reader persona pass, its finding set routed to the r3 finding set (HOLD for maintainer sign-off), the in-window fix of the status-lag warning PR #893's `/validate-pr` raised, and PR #893's batched QA.
+
+### Added
+
+- Fitness review report [`.working/fitness-reviews/2026-07-13-r1.md`](../fitness-reviews/2026-07-13-r1.md): ten personas (P1 to P10), whole corpus, maintainer mental model stripped. 20 findings routed FR-200 to FR-219 (2 High, 9 Medium, 9 Low) plus 4 FYI recorded, all Pass-1 orchestrator-verified at source, none fixed in-window (the value contradictions are authorial), HOLD for maintainer sign-off at r3 Phase 8. The 20 open-backlog rows added to [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md) with a history row.
+- PR #893 per-PR validation record [`.working/validate-pr/2026-07-13-PR-893.md`](../validate-pr/2026-07-13-PR-893.md) and its history row; PR #893 `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](2026-07-13-r3.md) `/fitness` marked COMPLETE with the routed finding summary; the Phase-3 PENDING enumeration reworded to drop `/full-qa` and `/fitness` (both now complete), leaving only `/reference-audit` plus the ledger aids (the fix of PR #893's `/validate-pr` status-lag warning).
+- README Library Version 2026.07.381 to 2026.07.382; README Version 1.9.742 to 1.9.743.
+
+### Verification
+
+- All 69 audit gates pass standalone (pre-push guard: `run_all_audits.sh` plus `run-pr-time-checks.sh` D1 to D7). No corpus document body changed; no generated-artefact regen needed (this PR is bookkeeping plus the fitness report).
+- Every routed finding re-read at its cited `path:line` in the live corpus before routing (verdict tags in the report). Load-bearing dedup: FR-202 (TLS 1.2 in [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md)) confirmed a fresh carrier of the closed FR-127 by `git blame` (the carrier is from the initial release 03ca390, predating the PR #193 FR-127 fix), so the FR-127 corpus-wide TLS reconciliation was carrier-incomplete.
+
+### Discipline observation
+
+The `/fitness` pass is a deep-assessment member (proactive, not a trust-recovery trigger). Its dominant finding class is gate-blind cross-document value drift: an operational or dedicated document restates an authoritative value that diverges (FR-201 to FR-205). The standardization recommendation (a single-source-of-truth convention for cross-document control values, and a bare-token corpus-wide grep at value-contradiction fix time) is recorded in the report for maintainer decision. r3 Phase 8 remains HELD; `/reference-audit` FULL is the last pending Phase-3 instrument.
+
 ## 2026-07-13, Library Version 2026.07.381, PR #893
 
 The `/deep-assessment` r3 Phase-3 `/full-qa` forensic pass (six subagents), its one in-window citation-date fix, and PR #892's batched QA.
