@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.381, PR #893
+
+The `/deep-assessment` r3 Phase-3 `/full-qa` forensic pass (six subagents), its one in-window citation-date fix, and PR #892's batched QA.
+
+### Changed
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) + [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md): the `/full-qa` Subagent-A finding fix. The EDPB Guidelines 05/2020 register row contradicted itself on the Version 1.1 date (current-version cell "adopted 4 May 2020" vs its own superseded cell + the held version-history table "13 May 2020"; 4 May 2020 is Version 1.0). Both surfaces reworded to the precise, version-history-grounded form ("adopted 4 May 2020 as Version 1.0; Version 1.1 formatting corrections 13 May 2020"). Register Version `1.5.35` to `1.5.36`; consent-management Version `1.0.8` to `1.0.9`; both Dates already 2026-07-13.
+- [`taxonomy.yml`](../../taxonomy.yml) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the two Version bumps.
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): Phase 3 `/full-qa` marked COMPLETE.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #892 row (0 findings); Version 1.2.659 to 1.2.660.
+- [`.working/improvement-log.md`](../improvement-log.md): #892 `/retro` row; Version 1.0.598 to 1.0.599.
+- [`README.md`](../../README.md): library CalVer 2026.07.380 to 2026.07.381; README Version 1.9.741 to 1.9.742.
+
+### Added
+
+- [`.working/full-qa/2026-07-13-iter1.md`](../full-qa/2026-07-13-iter1.md): the `/full-qa` per-run record (6 subagents A-F; 1 warning fixed in-window + notes).
+
+### Verification
+
+- **`/full-qa` (Phase-3, 6 subagents):** A (recent-PR deep review) surfaced 1 warning (the EDPB 05/2020 v1.1 date self-contradiction, in-window #867) FIXED here; B (stale-reference) 0 actionable across 5 classes; C (audit-programme) 0, four-surface parity 69 + counts + no-logic-weakened confirmed; D (citation forensic) 0 net-new (every §3.57 citation verbatim-corroborated against held sources; AICPA = known RB-6(e)); E (generated-artefact) 0, both generator `--check` exit 0; F (discipline) 0 R-findings, #887-#891 QA pairing complete, r3 Phase 8 held. C and F were re-dispatched after their first instances died on API connection errors (environment, not defect).
+- The one finding was orchestrator-verified against the held version-history table before fixing; the fix is source-grounded (v1.1 = 13 May 2020 formatting corrections; v1.0 = 4 May 2020 adoption).
+- Pre-push guard green (all 69 gates + D1-D7). This PR gets its own post-merge `/validate-pr` + `/retro`.
+
+### Discipline observation
+
+The `/full-qa` forensic pass earned its keep: five lenses confirmed the corpus and machinery sound, and the sixth (recent-PR deep review) caught a citation-precision date self-contradiction that all the per-PR sweeps and the earlier /claim-fit had waved through, because the held source's cover page and its version-history table disagree on the v1.1 date and the #867 apply copied the cover date. This is the exact gate-blind class the AI-failure-pattern forensic lens exists to catch, and it lands in this session's demonstrated-weakest dimension (citation-attribution), now clean after the fix.
+
 ## 2026-07-13, Library Version 2026.07.380, PR #892
 
 The `/deep-assessment` r3 Phase-3 `/screen-publications` (satisfied no-op) and whole-matrix `/matrix-fit` passes, plus PR #891's batched QA. No corpus-document body changed.
