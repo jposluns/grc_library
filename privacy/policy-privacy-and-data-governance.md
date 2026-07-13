@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.13\
-**Date:** 2026-07-10\
+**Version:** 1.4.14\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -110,6 +110,7 @@ This policy defines principles, governance structure, and control framework for 
 - Datasets must include provenance metadata detailing source, collection date, consent type, and processing purpose.
 - Disclosure of training dataset categories must be documented for transparency and compliance with the EU Data Act (Regulation (EU) 2023/2854).
 - Synthetic and anonymized data used for AI training must undergo reidentification risk assessments.
+- The EDPB Opinion 28/2024 on certain data protection aspects related to the processing of personal data in the context of AI models (adopted 17 December 2024) is the authoritative EU guidance on the two questions this section turns on: the legal basis for processing personal data to develop or deploy an AI model (including whether and how legitimate interest may be relied on) and whether an AI model, or its training data, can be considered anonymous (the basis for the reidentification-risk assessment above). Training-data lawful-basis and AI-model anonymity determinations are made by reference to that Opinion.
 
 ### 4.8 Data subject rights
 
