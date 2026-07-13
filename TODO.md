@@ -32,12 +32,6 @@ P1 currently holds one open item (§1.1, the discussion-vs-execution mode gate).
 
 Design a guardrail against a recurring assistant failure class: treating a conceptual or planning discussion as licence to begin execution ("I'll start building this now"), or treating a conditional / sequenced GO (deliver X, wait, then go) as immediate self-authorization and executing before the maintainer's explicit go. The guardrail is an explicit **discussion-mode vs execution-mode gate**: execution begins only on an express maintainer GO that names the work, and a conditional GO is not satisfied until its condition is maintainer-confirmed. Design scope: state the gate in the project [`.claude/CLAUDE.md`](.claude/CLAUDE.md) and the worker-brief / onboarding surfaces; draft a candidate pack rule or rule-amendment for it (adjacent to `clarify-before-acting` and `session-lifecycle`, but its own failure class); and assess whether a mechanical or hook-level backstop is feasible. This is a recurring failure mode (seen repeatedly in worker sessions), which is why it is P1. Record-only; do not begin the design until the item is picked.
 
----
-
-### 1.2 SP 800-154 "held source" wording accuracy (pack-hygiene Phase-4 routed, protected-file, S)
-
-The pack-hygiene scoped assessment flagged that the parent [`.claude/CLAUDE.md`](.claude/CLAUDE.md) and pack rows describe NIST SP 800-154 as a "held source" against a record that it was never held / never finalized (the `/reference-audit` motivating example; TODO 1.13 / #692 lineage). VERIFY SP 800-154's current hold status in `grc_library_ref` (the base grew 63 docs on 2026-07-12); if still not held, correct the "held source" wording to the accurate framing (a relevant-but-unavailable source) in the parent CLAUDE.md and the pack rows. Protected-file class (`.claude/` + pack); triage vs the July 2026 ref growth first. Detail: [`.working/pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md`](.working/pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md).
-
 ## Priority 2 — Fill significant gaps
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
