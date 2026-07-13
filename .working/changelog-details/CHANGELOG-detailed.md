@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.366, PR #878
+
+TODO §3.57 `[V]` row applied: Brazil ANPD Resolution CD/ANPD No. 18/2024 (the encarregado/DPO regulation) cited in the Brazil privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #877 QA rows.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md): the Data Protection Officer bullet now cites Resolution CD/ANPD No. 18/2024 (of 16 July 2024, the Regulation on the activities of the encarregado) as the ANPD rule operationalizing the appointment, definition, attributions, and performance of the encarregado under LGPD Article 41, where it previously cited only the LGPD articles. Carries a verification note (confirmed against the ANPD's official regulations publication 2026-07-13; enacted 16 July 2024, DOU 17 July 2024, in force, no amendment), matching the annex's established citation style for the other ANPD resolutions it names (15/2024, 2/2022, 19/2024). Doc Version bumped 1.1.4 to 1.1.5, Date to 2026-07-13.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new row after Resolution CD/ANPD No. 15/2024, `Resolution CD/ANPD No. 18/2024` / `2024` / `2024-07-17` (DOU) / topic the ANPD encarregado (DPO) regulation under LGPD Article 41. Mirrors the existing 15/2024 row's style; gives the standards-currency linter an anchor for the newly-named citation.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation).** WebSearch against the ANPD (gov.br) and Brazilian legal sources confirmed Resolução CD/ANPD nº 18, de 16 de julho de 2024, is the encarregado regulation, published in the Diário Oficial da União on 17 July 2024, in force since publication, with no amendment surfaced.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the annex + register change (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#877).
+- Register per-document Version bumped 1.5.29 to 1.5.30; Brazil annex 1.1.4 to 1.1.5; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency (now 143 standards) and citation linters pass. `gov.br` is already on the external-link-domain allowlist.
+- Batches PR #877's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The citation was tied precisely to LGPD Article 41 (the encarregado provision) rather than the annex bullet's broader "Articles 41 to 43" header, since the resolution regulates the encarregado function specifically; over-attributing it to the whole 41-to-43 range (which also covers agent liability) would have been a scope overstatement. A Medium follow-up candidate from the same delivery (Resolution CD/ANPD No. 4/2023, the sanctions-dosimetry rule, for the annex's enforcement section) was recorded in TODO §3.57 for a later Brazil-annex PR rather than bundled here, keeping this PR to the single named High row.
+
 ## 2026-07-13, Library Version 2026.07.365, PR #877
 
 TODO §3.57 `[V]` row applied: Commission Implementing Decision (EU) 2021/915 (the controller-processor standard contractual clauses) named in the Article 28 DPA template and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #876 QA rows.
