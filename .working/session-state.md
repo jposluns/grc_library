@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep100-validate
+**Active-session:** claude/changelog-3b-batch3
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-12T21:48:30Z
+**Last-heartbeat-UTC:** 2026-07-13T01:23:56Z
 
-**Current-task:** ACTIVE (attended-autonomous, maintainer-set at this `/resume`, on the VM). Resumed from the released #851 lease; ran the loop-break **Sweep 100** `/validate` over the #834..#851 deltas (0 error / 0 warning / 5 note; 0 asserted-expectation contradictions; loop-break control for #851 PASSES). First PR (this Sweep 100 `/validate` close-out) records the sweep, prunes the handoff (kept sweep99 + sweep98), routes 2 pack-project-flavour notes to §3.56, resolves the §3.52 clause-anchor pending item (maintainer confirmed as-applied), and ACQUIRES this lease. **Next focus (maintainer-chosen at resume): §3.16 root-CHANGELOG plain-language reformat** (apply-work off the `changelog-root-reformat-build` scratch delivery), then §2.4 website (attended), then P2 backlog. Green-at `ebceadc` (#850) = 69/69. See the PRIOR blocks below.
+**Current-task:** ACTIVE, **OVERNIGHT mode** (maintainer-set 2026-07-13 ~01:24 UTC before sleep, on the VM). This session (resumed from the released #851 lease) has shipped #852 (Sweep 100 close-out), #853/#854 (CI-wait timer-bug fix + prevention), #855 (CHANGELOG reformat stage 3a), #856/#857 (3b batches 1-2), and is finalizing #858 (3b batch 3 + the §4.5 adopter-reference-base-spec expansion). **In flight: the 3b CHANGELOG plain-language wave** (360/838 entries collapsed after batch 3; batches 4-7 remain, ~478 entries). Overnight scope + authorizations are recorded in [`pending-decisions.md`](pending-decisions.md) "Overnight-run authorizations (2026-07-13)": finish 3b, then high-assurance post-3b queue (issues, cleanups incl. protected edits, apply-ready deliveries, research drops), protected `.claude/`+pack edits apply on this local VM, the 3 AI-delta annexes deferred to attended, wind down ONLY on material quality risk (not caught-and-corrected slips). Green-at the latest merged batch PR; verify at resume. See the PRIOR blocks below.
 
 **PRIOR (released):** RELEASED at the #833 session-closing handoff (2026-07-12 UTC, OVERNIGHT on the VM). The sweep98 OVERNIGHT session ran the loop-break **Sweep 98** `/validate` (#828, clean, control for #827 PASSED) and executed the maintainer-authorized r2 routed items: §3.48 DORA (#829), the ref `SCREENING.md` 15-verdict apply (ref #62), §3.51 reference-breadth (#830), §3.52 citation-fit (#831), §3.53 SOP pack-distribution (#832), and the ACQUISITION-QUEUE download pass (ref #64). The maintainer chose (via AskUserQuestion) to **WIND DOWN before §4.8**: the §4.8 phase-1 payload was found STALE vs current main (candidates predate this session's §3.53 corollary + #813; a naive apply reverts shipped content), so §4.8 needs fresh per-rule drift reconciliation + the high-assurance harness in a fresh session, and the 64-file ref bulk-ingest was deferred (downloads done). Green-at `7cb5752` (#832) = 69/69.
 
