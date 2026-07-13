@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.384, PR #896
+
+The `/deep-assessment` r3 Phase 4 (dead-gate/coverage deep pass, COMPLETE) and Phase 5 (ground-truth citation sampling, COMPLETE), their routed findings, and PR #895's batched QA.
+
+### Added
+
+- TODO §3.64 [`TODO.md`](../../TODO.md) routing the Phase-4/5 findings (HOLD for r3 Phase-8 sign-off): DA-ASVS (High, high-assurance-class), DA-DORA-A12 (Medium), DA-AIACT-A26 (Low), DA-ISO20000 (Low, reference-acquisition), DA-gate25-scaffold (Low, re-scope machinery).
+- A DA-ASVS row in [`.working/high-assurance/register.md`](../high-assurance/register.md) (status `pending`, Version 1.0.19 to 1.0.20): the ASVS 4.0.3-to-5.0.0 chapter remap is a sensitive change (gate-blind, multi-document, adopter-consumed) warranting the full harness, with the verified 5.0.0 chapter map and the one unresolved Secrets-management chapter call recorded.
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](2026-07-13-r3.md): Phase 4 header SUBSTANTIALLY-COMPLETE to COMPLETE with the dead-gate result; Phase 5 header PENDING to COMPLETE with the 20-citation sample result and the three verified discrepancies.
+- README Library Version 2026.07.383 to 2026.07.384; README Version 1.9.744 to 1.9.745.
+
+### Verification
+
+- **Phase 4 (dead-gate/coverage):** a subagent classified all 69 gates against their linter logic, exempt/scope sets, regression fixtures, and (for narrow-scope gates) a live standalone run. Zero genuinely-dead gates: 57 ACTIVE, 12 PREVENTIVE-WORKING, none empty-scope or subsumed. One Low re-scope observation (gate 25's three dormant P1/P2/P3 scaffold sub-patterns inside an otherwise-active gate), orchestrator-verified against the linter docstring and a standalone run ("1 tracked term(s); scanned 423 files").
+- **Phase 5 (ground-truth sampling):** a fresh stratified 20-citation sample across 11 domains + 2 jurisdiction annexes, judged against held reference-base text; 16 FAITHFUL, 3 DISCREPANCY, 1 SOURCE-NOT-HELD, 0 CURRENCY-UNCONFIRMED. All three discrepancies orchestrator-verified at source before routing: DA-ASVS verified against the held OWASP ASVS 5.0.0 chapter list (which states "V1 Architecture chapter has been removed", confirming the 4.0.3-to-5.0.0 renumber); DA-DORA-A12 verified against the held DORA (the ICT business continuity policy is "referred to in Article 11", Article 12 is backup/restoration); DA-AIACT-A26 verified against the held AI Act (Article 26 is deployer obligations, no efficiency clause).
+- All 69 audit gates pass standalone (pre-push guard). No corpus document body changed (this PR is the deep-assessment record + routing + #895 QA).
+
+### Discipline observation
+
+Phase 5 is the pass that justifies the whole deep-assessment: on a corpus that passes all 69 gates and that three prior citation passes this session (Sweep 101, `/claim-fit`, `/full-qa`) found clean, a fresh stratified ground-truth sample still surfaced a systematic version-mismatch (DA-ASVS) that every gate is blind to. The finding is the demonstrated-weakest-dimension class (citation-attribution / version currency) and is correctly routed to the high-assurance harness rather than a mid-assessment quick edit, because the remap is delicate (one control area has no clean 5.0.0 chapter) and multi-document. r3 Phases 1 to 5 are now COMPLETE; Phase 6 (adoptability, pipeline integrity, ledgers) is next, then Phase 7 routing and Phase 8 sign-off (HELD).
+
 ## 2026-07-13, Library Version 2026.07.383, PR #895
 
 The `/deep-assessment` r3 Phase-3 final semantic instrument, `/reference-audit` FULL both-directions, its two routed findings, and PR #894's batched QA. Phase 3 of r3 is now COMPLETE.
