@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.363, PR #875
+
+Delivery-pipeline reconciliation (TODO §3.58) closed on the grc_library side under the maintainer's disposition rule, plus the batched #874 QA rows. Bookkeeping; no corpus, pack, or taxonomy content.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §3.58 (delivery-pipeline reconciliation) rotated out and into [`DONE.md`](DONE.md). The maintainer's disposition rule on waking, for scratch deliveries older than five days keep ONLY pure-research seeds and discard the rest, was executed in `grc_library_scratch` PR #164 (merged), which removed the five consumed / stale-non-pure-research inbox drops (`gr-10-history-gate-batching`, `changelog-root-reformat-build`, `atlas-crosswalk-317`, `ai-gaps-expansion-plan`, the `claude-pack-hygiene` programme) and annotated the claims-ledger and coverage dispositions, keeping the pure-research seeds as input. A new §3.61 was added for the residual tooling weakness the reconciliation surfaced (the recycled-number token map in the delivery-status tool), so it is tracked rather than dropped.
+- [`TODO.md`](../../TODO.md) §3.57 naming harmonized (a #874 `/validate-pr` finding): both short forms of the standard-contractual-clauses decision now read "Commission Implementing Decision (EU) 2021/915" (was mixed "Implementing Decision" / "Commission Decision").
+- [`.working/pending-decisions.md`](pending-decisions.md): the delivery-pipeline-reconciliation entry marked RESOLVED with the maintainer's rule and the scratch #164 execution; original entry retained for the audit trail.
+
+### Fixed
+
+- [`.working/session-state.md`](session-state.md): the Current-task PR-count for the overnight segment (a #874 `/validate-pr` finding) corrected to 13 (the range #862-#874 is 13 PRs; the superseded text said 17). The Current-task field was also refreshed to the attended focus and de-bloated (the stale overnight tail trimmed; per-PR detail lives in the PRIOR blocks and the audit trail).
+
+### Verification
+
+- Bookkeeping-tier; no corpus, pack, or taxonomy content, so no per-document version bump, taxonomy regeneration, or standing verifier. Gate 63 (session-state lease shape) passes standalone.
+- Batches PR #874's `/validate-pr` (two in-window gate-exempt findings, both fixed here, recorded at [`.working/validate-pr/2026-07-13-PR-874.md`](validate-pr/2026-07-13-PR-874.md)) and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The §3.58 reconciliation confirmed the value of the maintainer's describe-the-work-against-the-current-backlog rule over the delivery-status tool's token map: recycled section numbers made the token map unreliable, which is exactly why the disposition was age-plus-purity rather than a token lookup. The tool weakness is now a tracked item (§3.61) rather than an unrecorded gap. The two #874 `/validate-pr` findings were both in gate-exempt prose and both fixed in this next PR per recursion-avoidance, so nothing escaped; the count error was caught by an independent read of the very field it lived in.
+
 ## 2026-07-13, Library Version 2026.07.362, PR #874
 
 §3.57 reference-breadth close-out for the overnight run (bookkeeping): record which citation rows are applied and route the remaining version-sensitive rows to the maintainer.
