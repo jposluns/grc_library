@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.377, PR #889
+
+Advances the deep-assessment r3 Phase 4 (audit-programme audit) and batches PR #888's post-merge QA. No corpus, pack, or taxonomy content changed.
+
+### Added
+
+- [`.working/validate-pr/2026-07-13-PR-888.md`](../validate-pr/2026-07-13-PR-888.md): the #888 post-merge `/validate-pr` record (0 error / 0 warning / 1 note, all six directed items PASS; the note is the register row-ordering slip, fixed in this PR).
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): Phase 4 updated to SUBSTANTIALLY COMPLETE, recording the blind-spot map (CLEAN) and the gate-mutation probe result (15 detected / 0 missed / 5 clean-pass / 0 false-positive on a disposable clone), plus the Sweep-101-confirmed four-surface parity; the dead-gate/coverage deep pass remains a re-entrant PENDING sub-item.
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): r3 row P4 pending to in-progress; **corrected the table row-ordering** (the r3 row had been inserted between r1 and r2; moved to after r2 so the table reads r1/r2/r3, matching the register's chronological-ascending convention).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #888 row (1 note, fixed in-branch); Version 1.2.655 to 1.2.656.
+- [`.working/improvement-log.md`](../improvement-log.md): #888 `/retro` row (the register-ordering slip as the 2nd occurrence of the structural-bookkeeping-edit class, a SIGNAL per the #887 WATCH; caught post-merge by the sweep); Version 1.0.594 to 1.0.595.
+- [`README.md`](../../README.md): library CalVer 2026.07.376 to 2026.07.377; README Version 1.9.737 to 1.9.738.
+
+### Verification
+
+- **Phase 4 gate-efficacy (deep-assessment r3):** the blind-spot map probe returned CLEAN (0 non-exempt markdown outside all scope-derivable gates; `.claude/` 1 + `.working/` 113 known-by-design exempt). The gate-mutation probe on a `DISPOSABLE-COPY-OK`-marked clone: **15 detected / 0 missed / 5 clean-pass / 0 false-positive / 0 unjudgeable** (every synthetic defect caught by the intended gate; every clean control passed). Four-surface parity re-derived by Sweep 101 Subagent C (gate 35, 69 gates identical across all four surfaces).
+- #888's one post-merge finding (register row-ordering) was orchestrator-verified and FIXED in this PR (grep confirms row order r1/r2/r3).
+- This PR gets its own post-merge `/validate-pr` + `/retro` (batched into the next PR). Pre-push guard green.
+
+### Discipline observation
+
+The r3 register-ordering slip is the 2nd occurrence of the structural-bookkeeping-edit class (the #887 clobbers were the 1st) and is recorded as a SIGNAL, not yet a 3-PR pattern. Unlike the #887 clobbers (gate-caught pre-push), this one was caught POST-merge by #888's `/validate-pr` sweep, so it briefly reached `main` (zero functional impact, self-labelled rows). The reinforced technique note (confirm a bookkeeping file's ordering convention before inserting a row) is in the #888 retro row.
+
 ## 2026-07-13, Library Version 2026.07.376, PR #888
 
 Opens run r3 of the whole-project `/deep-assessment` (maintainer-invoked at the 2026-07-13 resume, confirmed via `AskUserQuestion`). This PR records Phases 1-2 (run-state/inventory + mechanical baseline) and the Phase-3 `/validate` of record, opens the re-entrant register row, and batches PR #887's post-merge QA rows. No corpus, pack, or taxonomy content changed.
