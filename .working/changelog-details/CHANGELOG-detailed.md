@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.372, PR #884
+
+Bookkeeping PR: batches PR #883's QA rows and records the read-only deep-assessment parts run per the maintainer's fallback directive. No corpus, pack, or taxonomy content.
+
+### Changed
+
+- [`.working/pending-decisions.md`](pending-decisions.md): added a `## Deep-assessment fallback` section recording the maintainer's 2026-07-13 directive ("if you run out of things to do, pick the most appropriate parts of a deep assessment ... we seek perfection"), the read-only parts run and their results, and the heavier parts routed to a maintainer-invoked fresh-session formal `/deep-assessment`.
+- [`TODO.md`](../../TODO.md) §3.57: deleted a stale trailing sentence (the #883 `/validate-pr` finding) that still described Brazil Resolution 4/2023 as a future "can ride a later Brazil-annex PR" candidate after the same paragraph had already marked it applied in #883, an internal contradiction. The paragraph now reads only the accurate "applied in #883 / one deferred matrix-TSC-column residual" text.
+
+### Verification (deep-assessment read-only parts run this turn)
+
+- **Gate blind-spot map** ([`tools/audit-gate-blindspots.py`](../../tools/audit-gate-blindspots.py)): CLEAN, zero non-exempt markdown files scanned by zero scope-derivable gates (`.claude/` and `.working/` are convention-exempt by design). No finding.
+- **Delivery-pipeline reconciliation** ([`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py)): 15 in the review set (11 PENDING + 4 UNMAPPED), all the pure-research seeds kept in the §3.58 disposition, mapping to open backlog items awaiting their scheduled builds (P6 new-domain, P4 adopter, FR-59, 3.15/3.16 crosswalks). Expected post-§3.58 state; no "backlog cleared" claim.
+- **Deferred to a fresh-session formal `/deep-assessment`** (routed in pending-decisions): the gate-mutation probe (its disposable-clone setup was denied unattended), `/claim-fit` + `/matrix-fit` semantic-fit sampling (confirmatory, the citation verifiers already checked each row pre-push), `/reference-audit` FULL mode, and the adoptability persona pass. These are the heavier parts the skill designs to run fresh + attended.
+- Bookkeeping-tier; no corpus/pack/taxonomy content, so no per-document version bump, taxonomy regeneration, or standing verifier.
+- Batches PR #883's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The maintainer's fallback directive was applied conservatively: only the READ-ONLY, low-risk deep-assessment probes were run unattended (a clean gate blind-spot map, the expected delivery-pipeline state), and every heavier part that either needs blocked setup, benefits from fresh context, or would only confirm what the pre-push verifiers already checked was routed to a maintainer-invoked formal `/deep-assessment` rather than started deep in a long unattended session. This respects the skill's fresh-session, sign-off-terminated design while still surfacing the read-only findings the directive sought.
+
 ## 2026-07-13, Library Version 2026.07.371, PR #883
 
 TODO §3.57 Medium follow-up applied: Brazil ANPD Resolution CD/ANPD No. 4/2023 (sanctions dosimetry) cited in the Brazil privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #882 QA rows.
