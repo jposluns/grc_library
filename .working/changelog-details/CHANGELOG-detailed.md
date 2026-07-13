@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.386, PR #898
+
+The `/deep-assessment` r3 Phase 7 (routing consolidation) and Phase 8 (presentation for maintainer sign-off), plus PR #897's batched QA. **Phases 1 to 7 of r3 are COMPLETE; the run is at Phase 8, HOLDING for explicit maintainer sign-off.**
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](2026-07-13-r3.md): Phase 7 header PENDING to COMPLETE with the full consolidated finding set (a sign-off-ready summary: fitness FR-200 to FR-219, reference-audit §3.63, guardrails §3.62, Phase-4/5 §3.64, the clean closures, and a recommended remediation ordering); Phase 8 restated as HOLD-for-sign-off (presented, not self-closed).
+- [`.working/deep-assessment/register.md`](register.md): r3 row P7 to complete (P1-P7 complete, P8 pending, HOLDS for sign-off); the narrative UPDATE clause reconciled to "through #898" (Phase 6 + 7 complete), fixing the paired-surface status lag PR #897's `/validate-pr` flagged.
+- README Library Version 2026.07.385 to 2026.07.386; README Version 1.9.746 to 1.9.747.
+
+### Verification
+
+- No corpus document body changed; no new subagents dispatched (Phase 7 consolidates already-verified, already-routed findings; Phase 8 presents). All 69 audit gates pass standalone (pre-push guard).
+- The consolidated finding set restates only findings already apply-time-verified and routed in prior r3 PRs (#888-#897); no new claim is introduced. The one in-window fix this PR (the register UPDATE-clause reconcile) was verified against the register row + the dated file (all three now agree: Phases 1-7 complete, Phase 8 holds).
+- PR #897's `/validate-pr` returned 1 in-window note (the register narrative-phase lag), fixed here; its other seven checks passed (F-1 SHA-pin byte-exact vs the main quality workflow, CHANGELOG parity, version chain, hallucination-metrics framing, #896 QA rows).
+
+### Discipline observation
+
+Phase 8 is the discipline's terminal gate: the run HOLDS for explicit maintainer sign-off and does NOT self-close, even though the remaining substantive findings are the deep-assessment's whole purpose. The consolidated set is presented in chat via a structured sign-off request; no r3 remediation (the DA-ASVS high-assurance remap, the FR-200..219 fixes) begins until the maintainer signs off and directs the ordering. The paired-surface status-lag caught by #897's `/validate-pr` (register row advanced without its narrative clause) is the recurring named class, logged in the #897 retro with the register-specific reconcile habit; the mechanical backstop (the per-PR `/validate-pr`) caught it, as designed. PR #898's own `/validate-pr` + `/retro` ride the first post-sign-off remediation PR (there is no next substantive PR until the maintainer breaks the hold, the same in-flight tail as any pause point).
+
 ## 2026-07-13, Library Version 2026.07.385, PR #897
 
 The `/deep-assessment` r3 Phase 6 (adoptability, pipeline integrity, QA-ledger meta-audit), COMPLETE; its one Low finding (F-1) fixed in-window; and PR #896's batched QA. Phases 1 to 6 of r3 are now COMPLETE.
