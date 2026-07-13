@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.0\
-**Date:** 2026-07-09\
+**Version:** 1.2.1\
+**Date:** 2026-07-13\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -49,7 +49,7 @@ This is a scoped lex-specialis displacement of the equivalent obligations, not a
 
 ## Article 21 cybersecurity risk-management measures
 
-Article 21 sets ten categories of cybersecurity risk-management measures. The library covers each as follows.
+Article 21 sets ten categories of cybersecurity risk-management measures. The library covers each as follows. For the specific digital-infrastructure and digital-service entity types within its scope (DNS providers and TLD name registries, cloud, data-centre and content-delivery-network providers, managed-service and managed-security-service providers, online marketplaces, online search engines, social-networking platforms, and trust-service providers), Commission Implementing Regulation (EU) 2024/2690 specifies the technical and methodological requirements of these Article 21(2) measures; it does not bind all NIS2 entities.
 
 | NIS 2 Article 21.2 sub-measure | Library artefact | Evidence class |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ NIS 2 mandates a tiered incident-notification regime to the competent authority 
 | Intermediate report | Upon request of the competent authority or CSIRT | Update on the situation |
 | Final report | Within one month of submitting the incident notification | Detailed description, type of threat or root cause, applied and ongoing mitigation, where applicable cross-border impact |
 
-Significance threshold (Article 23(3)): the incident has caused or is capable of causing severe operational disruption of the services or financial loss for the entity concerned; the incident has affected or is capable of affecting other natural or legal persons by causing considerable material or non-material damage.
+Significance threshold (Article 23(3)): the incident has caused or is capable of causing severe operational disruption of the services or financial loss for the entity concerned; the incident has affected or is capable of affecting other natural or legal persons by causing considerable material or non-material damage. For the entity types within its scope, Commission Implementing Regulation (EU) 2024/2690 (adopted under Article 23(11)) specifies the concrete significant-incident parameters, so for those entities the directive's general criterion above is not the only rule.
 
 Library coverage: [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) provides the lifecycle; [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md) provides the internal escalation. Adopting entities encode the NIS 2 windows in their severity playbooks and ensure that the early-warning and final-report templates are pre-prepared per national-CSIRT requirements.
 
@@ -120,7 +120,7 @@ Administrative fines (Article 34) are set at directive-level floors that each Me
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | NIS 2 Directive | (EU) 2022/2555 | Primary directive |
-| NIS 2 Implementing Acts | Multiple per Article 21(5) and 27 | Technical and methodological specifications |
+| NIS 2 Implementing Acts | Commission Implementing Regulation (EU) 2024/2690 (Article 21(5) and 23(11)) | Technical and methodological specifications for the Article 21(2) measures and the significant-incident parameters, binding the digital-infrastructure and digital-service entity types in its scope (not all NIS2 entities) |
 | ENISA guidelines | Multiple | Practical guidance |
 | EU Cyber Resilience Act | Where products are placed on the EU market | Complementary obligation |
 | EU Cybersecurity Act | (EU) 2019/881 | Certification framework |
