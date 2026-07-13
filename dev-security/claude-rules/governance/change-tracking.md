@@ -34,7 +34,7 @@ The model has three project-provided parts:
 
 The write path is unchanged under this model: new detailed entries still prepend to the in-repo mirror, and only completed weeks leave it, at the close-out sweep step. The rollout is staged: the machinery lands first, then an initial sweep of the already-completed weeks, then the per-PR sweep becomes a standing close-out action.
 
-A **compact root-entry format** pairs naturally with this model, a one-line `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary` per entry (a plain hyphen separator, no em-dash or en-dash, a blank line between entries), so the root file stays scannable as the entry count grows. Adopting that format is a distinct root-reformat step, applied when the project chooses to reformat the root file; until then the root keeps the lead-paragraph-per-entry form the sections below describe.
+A **compact root-entry format** pairs naturally with this model, a one-line `**YYYY-MM-DD | X.Y.Z | PR #N** - one-sentence summary` per entry (a plain hyphen separator, no em-dash or en-dash, a blank line between entries), so the root file stays scannable as the entry count grows. This one-line form is the recommended go-forward shape for the root file once entry volume makes the lead-paragraph-per-entry form unwieldy to scan; reformatting the existing back-catalogue to it is a distinct one-time step a project runs when it adopts the form.
 
 ## What a CHANGELOG entry must contain
 

@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.352, PR #864
+
+Change-tracking authoring-convention flip: the compact one-line root-entry format is now documented as the standard go-forward shape. The 3b plain-language wave (#855-#862) converted the whole root CHANGELOG back-catalogue to the compact `**date | version | PR** - summary` form; this PR reconciles the guidance to that reality (the prior text called the compact form "a distinct reformat step the project may choose ... NOT adopted yet").
+
+### Changed
+
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) and its project-side mirror copy (gate-37 parity): the compact one-line root-entry format is documented as the recommended go-forward shape for the root file once entry volume makes the lead-paragraph-per-entry form unwieldy, replacing the "distinct reformat step the project may choose; until then keep the lead-paragraph form" framing. The pack rule stays project-agnostic (a project MAY adopt it; the baseline lead-paragraph form remains valid), and reformatting an existing back-catalogue is still a distinct one-time step.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) detailed-mirror current-week-sweep close-out bullet: the compact format is now marked ADOPTED (the 3b wave converted the back-catalogue; every new root entry uses the one-line form), replacing "NOT adopted yet ... root entries keep the header-plus-lead form". TODO 3.16's only residual is the deferred maintainer-gated git-history collapse.
+- Pack metadata Version 1.61.2 to 1.61.3 (patch; no new rule or skill) with a new 1.61.3 version-history row.
+
+### Verification
+
+- Gate-37 parity preserved: the two change-tracking rule copies received the identical line-37 edit; the project copy's overlay block is untouched.
+- Line 20 (the two-file-split "lead-paragraph summary" description) deliberately left unchanged: the rule reads coherently as a lead-paragraph baseline plus the compact one-line recommended go-forward as volume grows, so no cascade of terminology edits was needed.
+- Derived artefacts regenerated after the pack README Version bump (taxonomy, then portal and scorecard).
+- Skeptical pre-push verifier (substantive tier; refute-briefed): NO content defect across all 8 axes. Gate-37 parity confirmed byte-identical on the edited line between the two rule copies; class-definition coherence preserved (the compact form is a conditional rendering of the same summary, not a new content class, so the summary-vs-sections split holds everywhere); pack project-agnosticism clean (no project attribution in the rule-body edit or the new 1.61.3 version-history row); the CLAUDE.md "ADOPTED" claim independently confirmed true (0 full-body per-entry headers remain in the root CHANGELOG); version/bookkeeping correct; no dashes or unlinked path-spans in added lines. The two procedural findings were resolved before push (this verdict replaced the placeholder; the staged work was then committed so the pre-push guard exercises the history-aware gates 40/31/45 and D2/D4/D6 against the real committed diff).
+- Batches PR #863's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+Convention-catches-up-to-reality edit: the compact format was already the live root shape after the 3b wave, but the change-tracking rule and the CLAUDE.md close-out bullet still described it as deferred and not-yet-adopted. This PR reconciles the documented convention to the shipped reality, the paired-surface-lag guard applied to a convention rather than a value.
+
 ## 2026-07-13, Library Version 2026.07.351, PR #863
 
 SP 800-154 "held source" wording accuracy (TODO §1.2, a recycled number; pack-hygiene Phase-4 routed, protected-file class). The `/reference-audit` guidance used NIST SP 800-154 as its motivating example and described it as a "held source" and as a source that "sits in the reference base". SP 800-154 was never finalized (a withdrawn NIST draft) and is not held in `grc_library_ref` (re-verified this turn: absent from the ref catalogue, indexes, and disk). Reframed as a relevant-but-unavailable source that *surfaced* the general "held but unused" class; the class definition itself (an authoritative held source no corpus document engages, and the reverse) was already accurate and is unchanged. The first post-3b protected-cleanup PR under the maintainer's 2026-07-13 overnight authorization.
