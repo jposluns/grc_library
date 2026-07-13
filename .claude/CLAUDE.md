@@ -195,7 +195,7 @@ drive end-to-end on the maintainer's behalf:
    `main`, caught fail-loud at PR-create and repaired). Brief every dispatched subagent
    accordingly; a transient `tests/tmp/*` regression-suite FAIL or a gate-50 flag for a
    not-yet-batched later PR's QA row is a concurrent-run artefact, not a defect. (The pack
-   half of this codification, into the workflow-disciplines rule, is TODO §3.59.)
+   half of this codification landed in the workflow-disciplines rule in #871.)
    Triage findings as in-window (hot-fix PR or include in next PR) or out-of-window
    (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
    session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
