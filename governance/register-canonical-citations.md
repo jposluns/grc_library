@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.34\
+**Version:** 1.5.35\
 **Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -167,6 +167,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Brazil LGPD | 2018 (in force 2020) | 2018 | Lei Geral de Proteção de Dados | - | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | verified 2026-07-09 |
 | Resolution CD/ANPD No. 15/2024 | 2024 | 2024-04-26 | ANPD Security Incident Communication Regulation (RCIS): 3-business-day breach notification to the ANPD and data subjects, staged communication, doubled deadlines for small-scale agents (the resolution is enacted "de 24 de abril de 2024"; this column records the later DOU publication date) | - | https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis | 2026-07-07 |
 | Resolution CD/ANPD No. 18/2024 | 2024 | 2024-07-17 | ANPD Regulation on the activities of the encarregado (Data Protection Officer): appointment, definition, attributions, and performance of the encarregado under LGPD Article 41 (enacted 16 July 2024; this column records the DOU publication date) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
+| Resolution CD/ANPD No. 4/2023 | 2023 | 2023-02-27 | ANPD Regulation on Dosimetry and Application of Sanctions: the parameters and criteria for calculating the base value of a fine sanction and applying the LGPD Article 52 administrative sanctions; amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (enacted 24 February 2023; DOU-published 27 February 2023, the date in the Publication column) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
 | China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | https://www.cac.gov.cn/ | verified 2026-07-09 |
 | China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
 | Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.kmu.admin.ch/kmu/en/home/facts-and-trends/digitization/data-protection/new-federal-act-on-data-protection-nfadp.html | verified 2026-07-09 |
