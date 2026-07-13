@@ -2,7 +2,7 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,7 +59,7 @@ Consent must satisfy each of the following elements. Failure of any element inva
 | Unambiguous | Captured through a clear affirmative action: ticked box, button press, biometric gesture, explicit utterance. Inactivity, silence, or continued browsing does not constitute consent. |
 | Withdrawable | The subject can withdraw consent at any time through a route as easy as the route used to give it. Withdrawal has no retrospective effect on processing before withdrawal. |
 
-These elements track the European Data Protection Board's **Guidelines 05/2020 on consent under Regulation 2016/679** (Version 1.1, adopted 4 May 2020), the authoritative supervisory interpretation of the GDPR consent standard: consent that is bundled with, or made a condition of, a service is not "freely given" (the conditionality requirement), and consent requires an unambiguous indication of wishes through a clear affirmative act, so inactivity, silence, or continued browsing does not qualify.
+These elements track the European Data Protection Board's **Guidelines 05/2020 on consent under Regulation 2016/679** (adopted 4 May 2020, with Version 1.1 formatting corrections on 13 May 2020), the authoritative supervisory interpretation of the GDPR consent standard: consent that is bundled with, or made a condition of, a service is not "freely given" (the conditionality requirement), and consent requires an unambiguous indication of wishes through a clear affirmative act, so inactivity, silence, or continued browsing does not qualify.
 
 ---
 
