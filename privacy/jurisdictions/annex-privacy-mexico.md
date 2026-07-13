@@ -2,8 +2,8 @@
 
 **Document Title:** Mexico Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-09\
+**Version:** 0.0.2\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -75,5 +75,5 @@ The fine amounts are stated in UMA rather than a fixed peso figure because the U
 
 - This annex is a consolidating per-regime view of the private-sector LFPDPPP, not a substitute for the enacted law, its regulations, or legal advice; the controlling text is the LFPDPPP (DOF 20 March 2025, as last reformed).
 - **Currency and authority.** The 2025 regime is recent and was itself reformed on 14 November 2025; the transfer of authority from the extinguished INAI to the Secretaría Anticorrupción y Buen Gobierno is part of a broader reform whose implementing regulations and institutional arrangements continue to settle. An adopter confirms the current authority, the last reform date, and any implementing regulation against the primary source before relying on a specific procedural detail.
-- **Corpus cross-references.** Other corpus documents that still name INAI as Mexico's data-protection authority reflect the pre-2025 regime and are reconciled separately; on any divergence for Mexico private-sector processing, this annex governs the per-regime framing.
+- **Corpus cross-references.** On any divergence for Mexico private-sector processing between this annex and another corpus document, this annex governs the per-regime framing. Any residual reference to the former INAI reflects the pre-2025 regime; the current 2025 regime governs.
 - Public-sector processing, the separate general transparency and public-data laws, and state-level rules are out of scope for this private-party annex.

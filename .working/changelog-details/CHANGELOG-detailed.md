@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.387, PR #899
+
+The maintainer-signed-off `/deep-assessment` r3 clear-mechanical remediation batch (six findings), the r3 sign-off record, and PR #898's batched QA. The maintainer signed off on the r3 finding set via `AskUserQuestion` ("Sign off; mechanical now, Highs fresh") and directed the clear-mechanical batch this session; the DA-ASVS High + the FR-200 / FR-201 Highs were routed to a fresh session.
+
+### Changed
+
+- [`README.md`](../../README.md) (two audience enumerations) + [`tools/build-portal.py`](../../tools/build-portal.py) (the module docstring + the emitted portal-overview string): added the Board / CEO audience (second, after CIO, matching the AUDIENCES order) so the enumerations match the portal the generator already produces (FR-207). Regenerated [`docs/portal.md`](../../docs/portal.md) accordingly.
+- [`docs/template-implementation-roadmap.md`](../../docs/template-implementation-roadmap.md) (lines 77, 260, 273): three "quickstart(-template) composition" carriers corrected to "startup-roadmap composition", matching the authoritative step 1 (the 24-module catalogue lives in the startup roadmap, not the quickstart) (FR-209). Version 1.0.7 to 1.0.8.
+- [`privacy/jurisdictions/annex-privacy-mexico.md`](../../privacy/jurisdictions/annex-privacy-mexico.md): dropped the stale "documents that still name INAI ... reconciled separately" clause (the only other INAI reference is already on the 2025 regime), keeping the forward-looking "this annex governs on divergence" rule (FR-213). Version 0.0.1 to 0.0.2.
+- [`compliance/financial-services/annex-financial-services-sector-requirements.md`](../../compliance/financial-services/annex-financial-services-sector-requirements.md) (line 75): the FFIEC Cybersecurity Assessment Tool row now marks it retired 31 August 2025 and notes the FFIEC suggests institutions may consider industry-developed resources such as the Cyber Risk Institute Cyber Profile and the CIS Critical Security Controls (verified against ffiec.gov this session; the FFIEC's language is the non-binding "may consider", not a directive) (RB-FFIEC-CAT). Version 1.0.9 to 1.0.10.
+- [`resilience/template-recovery-runbook.md`](../../resilience/template-recovery-runbook.md) (line 173): the DORA row label corrected from "Article 12 ICT business continuity policy" to "Article 12 backup, restoration, and recovery procedures" (Art 12's real subject; the business-continuity policy is Art 11) (DA-DORA-A12). Version 1.0.4 to 1.0.5.
+- [`ai/standard-ai-inference-cost-governance.md`](../../ai/standard-ai-inference-cost-governance.md) (line 213): the EU AI Act row Article-26 parenthetical corrected from "deployer obligations including efficient use" to "deployer obligations", and the GPAI reference to "Articles 53, 55 (GPAI provider obligations, including the Annex XI technical documentation)" (the verified home of the GPAI documentation duties) (DA-AIACT-A26). Version 0.0.6 to 0.0.7.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated (taxonomy first, then portal + scorecard) for the five per-document Version bumps and the FR-207 portal-overview prose change.
+- [`.working/deep-assessment/register.md`](register.md): r3 row Status to `signed-off`, P8 to complete, with the maintainer sign-off recorded. [`.working/fitness-reviews/history.md`](../fitness-reviews/history.md): FR-207/209/213 to `closed` (#899). [`TODO.md`](../../TODO.md) §3.63/§3.64: RB-FFIEC-CAT, DA-DORA-A12, DA-AIACT-A26 annotated RESOLVED #899. [`.working/DONE.md`](../DONE.md): PR #899 entry.
+- README Library Version 2026.07.386 to 2026.07.387; README Version 1.9.747 to 1.9.748.
+
+### Verification
+
+- **Each fix verified at source before applying** (apply-time discipline). The one precision claim considered for addition (an "energy-consumption" locator on the AI Act GPAI row) was NOT shipped because the exact wording could not be grep-confirmed in the held AI Act; the shipped reference is "Annex XI technical documentation", which IS verified in the held text (the GPAI providers' Annex XI technical-documentation duty under Article 53). The other five fixes are prose/label/enumeration corrections against already-verified findings.
+- All 69 audit gates pass standalone (pre-push guard). Both generator `--check`s exit 0 after the regeneration (taxonomy first, then portal + scorecard). Five per-document Version+Date co-bumps present (D2/D4). A pre-push skeptical verifier subagent reviewed the whole diff (refute-briefed).
+- Each finding's backlog row was updated to reflect the fix; the DA-ASVS High + FR-200/FR-201 Highs remain open and routed to a fresh session.
+
+### Discipline observation
+
+This is the post-sign-off remediation of the r3 assessment: the maintainer signed off and directed the ordering, and only the clear-mechanical subset was applied this session (the High / high-assurance / authorial-decision items were deferred to a fresh session per the sign-off). The one apply-time restraint worth noting: a tempting precision addition (the AI Act energy-consumption locator) was pared back to the grep-verifiable "Annex XI technical documentation" rather than shipped on the subagent's characterization, keeping the remediation itself to the evidence-grounded standard the assessment enforces. PR #899's own `/validate-pr` + `/retro` ride the next PR (the session-closing handoff).
+
 ## 2026-07-13, Library Version 2026.07.386, PR #898
 
 The `/deep-assessment` r3 Phase 7 (routing consolidation) and Phase 8 (presentation for maintainer sign-off), plus PR #897's batched QA. **Phases 1 to 7 of r3 are COMPLETE; the run is at Phase 8, HOLDING for explicit maintainer sign-off.**

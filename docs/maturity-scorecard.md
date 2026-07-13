@@ -188,7 +188,7 @@ _169 documents._
 | [architecture/standard-data-architecture.md](../architecture/standard-data-architecture.md) | Data Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-reference-architecture.md](../architecture/standard-reference-architecture.md) | Reference Architecture Standard | Standard | 1.0.3 | 2026-07-02 |
 | [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.4 | 2026-07-02 |
-| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.9 | 2026-07-12 |
+| [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.10 | 2026-07-13 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.6 | 2026-07-10 |
 | [compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | UK AEO IT Self-Assessment Procedure | Procedure | 1.0.2 | 2026-07-02 |
@@ -288,7 +288,7 @@ _169 documents._
 | [resilience/register-resilience-terms-and-definitions.md](../resilience/register-resilience-terms-and-definitions.md) | Resilience Terms and Definitions Register | Register | 1.0.1 | 2026-07-02 |
 | [resilience/standard-business-continuity-and-disaster-recovery.md](../resilience/standard-business-continuity-and-disaster-recovery.md) | Business Continuity and Disaster Recovery Standard | Standard | 1.0.2 | 2026-07-02 |
 | [resilience/template-lessons-learned.md](../resilience/template-lessons-learned.md) | Lessons Learned Template | Template | 1.0.5 | 2026-07-02 |
-| [resilience/template-recovery-runbook.md](../resilience/template-recovery-runbook.md) | Recovery Runbook Template | Template | 1.0.4 | 2026-07-02 |
+| [resilience/template-recovery-runbook.md](../resilience/template-recovery-runbook.md) | Recovery Runbook Template | Template | 1.0.5 | 2026-07-13 |
 | [resilience/template-tabletop-exercise.md](../resilience/template-tabletop-exercise.md) | Tabletop Exercise Template | Template | 1.0.6 | 2026-07-02 |
 | [risk/annex-ai-risk-methodology.md](../risk/annex-ai-risk-methodology.md) | AI-Specific Risk Methodology Annex | Annex | 1.0.5 | 2026-07-11 |
 | [risk/guideline-quantitative-risk-analysis.md](../risk/guideline-quantitative-risk-analysis.md) | Quantitative Risk Analysis Guideline | Guideline | 1.0.3 | 2026-07-10 |
@@ -354,7 +354,7 @@ _36 documents._
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.7 | 2026-07-12 |
 | [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.9 | 2026-07-11 |
 | [ai/standard-ai-data-quality-and-readiness-validation.md](../ai/standard-ai-data-quality-and-readiness-validation.md) | AI Data Quality and Readiness Validation Standard | Standard | 0.0.2 | 2026-07-12 |
-| [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.6 | 2026-07-11 |
+| [ai/standard-ai-inference-cost-governance.md](../ai/standard-ai-inference-cost-governance.md) | AI Inference Cost Governance Standard | Standard | 0.0.7 | 2026-07-13 |
 | [architecture/standard-api-design.md](../architecture/standard-api-design.md) | API Design Standard | Standard | 0.0.4 | 2026-07-02 |
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.4 | 2026-07-02 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.7 | 2026-07-10 |
@@ -373,7 +373,7 @@ _36 documents._
 | [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.3 | 2026-07-09 |
 | [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.5 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.1 | 2026-07-09 |
+| [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-07-13 |
 | [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.5 | 2026-07-10 |
 
 ---

@@ -3,7 +3,7 @@
 
 Outputs two derived files under docs/:
 
-- docs/portal.md: navigation page keyed by audience role (CIO, CISO, GRC,
+- docs/portal.md: navigation page keyed by audience role (CIO, Board / CEO, CISO, GRC,
   Security Architecture, Privacy, Compliance, Audit, Resilience,
   Engineering). For each role, lists the most relevant documents drawn
   from the taxonomy.
@@ -346,7 +346,7 @@ def build_portal(docs: list[dict]) -> str:
     out.append("")
     out.append("| If your question is | Read | What it gives you |")
     out.append("| --- | --- | --- |")
-    out.append("| \"Which documents are relevant to my role?\" | This portal (continue reading below) | Audience-keyed groupings: CIO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering. |")
+    out.append("| \"Which documents are relevant to my role?\" | This portal (continue reading below) | Audience-keyed groupings: CIO, Board / CEO, CISO, GRC, Security Architecture, Privacy, Compliance, Audit, Resilience, Engineering. |")
     out.append("| \"How do I fork the library, map roles, and decide what to change vs preserve?\" | [`docs/adopter-guide.md`](adopter-guide.md) | Adoption principles, the three adoption modes (fork / corpus-only / pack-only), what to change after copying, what not to change, the minimum quality bar. |")
     out.append("| \"What do I copy on Day 1?\" | [`docs/template-quickstart.md`](template-quickstart.md) | A 10-minute on-ramp: the six-artefact core baseline, role-name substitution discipline, and portal pointer. Defensible floor in one session. |")
     out.append("| \"And what do I add later?\" | [`docs/template-startup-roadmap.md`](template-startup-roadmap.md) | The long-form composition workbook: stacking modules across five dimensions (activity, data scope, audience, regulatory exposure, GRC capacity), 24 modules, three worked examples. |")
