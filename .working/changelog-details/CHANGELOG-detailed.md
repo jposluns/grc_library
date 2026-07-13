@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.350, PR #862
+
+CHANGELOG plain-language rework, stage 3b batch 7, the FINAL batch (TODO 3.16). Completes the wave: every root CHANGELOG entry is now a compact one-line plain-language summary.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the last 119 full-bodied root entries (PR #132 down to #38, plus the 34 earliest PR-less releases down to the initial public release) collapsed to jargon-free one-line summaries. With this batch the entire history is converted; no full-body entries remain. Full bodies preserved in this detailed mirror + git history.
+- Root [`CHANGELOG.md`](../../CHANGELOG.md) intro: removed the now-obsolete transitional clause ("many of the older entries still carry their original longer form"), since the conversion is complete.
+- Library CalVer `2026.07.349` to `2026.07.350`; README Version `1.9.710` to `1.9.711`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content), transposition-guarded, with the 34 PR-less early entries keyed by their unique date+version and the initial-release entry preserving the CC BY-SA 4.0 first-public-release fact. A skeptical faithfulness verifier checked the substantive entries and the PR-less/initial-release cluster against their live bodies and scanned all 119 for leakage. Verdict: NO defect, COMPLETE coverage (all 119 verified, not sampled, incl. every PR-less entry and the initial release); PR-less matching + transposition cleared row-by-row through the backfill cluster; initial release preserves "first public release" + CC BY-SA 4.0; jargon/dash/path/"gate" scan clean. One non-finding tightened before apply (#73's "collection-drift detector" reworded to "detector for new candidate collections" to match the tool's actual function). Applied via the deterministic self-verifying script. Batches #861's `/validate-pr` (0 findings) + `/retro`.
+
+### Notes
+
+- **The stage-3b plain-language wave (TODO 3.16) is complete** across seven batches (#856, #857, #858, #859, #860, #861, #862): every historical root CHANGELOG entry now carries a compact `date | version | PR` header plus a short plain-language summary a general reader can follow, with the full maintainer-grade detail retained in this mirror and in git history. TODO 3.16's reformat-and-compression scope is complete; the item is narrowed to its one deferred, maintainer-gated residual (a git-history collapse for true clone / fork cleanliness, a protected-branch rewrite left for an explicit maintainer decision), not rotated to DONE. This PR receives its own post-merge `/validate-pr` + `/retro`, batching into the next PR.
+
 ## 2026-07-13, Library Version 2026.07.349, PR #861
 
 CHANGELOG plain-language rework, stage 3b batch 6 (TODO 3.16). Batch 6 of ~7.
