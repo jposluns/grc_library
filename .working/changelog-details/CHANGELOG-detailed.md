@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.378, PR #890
+
+The `/deep-assessment` r3 Phase-3 `/guardrails` pass of record (guardrail-review r10), plus the in-window drift fix it surfaced, plus PR #889's batched QA. One corpus document (the audit-programme specification) changed; regenerated artefacts accordingly.
+
+### Changed
+
+- [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py) + [`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py) + [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): the drift-lens cluster fix. All three described the root CHANGELOG's per-entry header in the superseded `## YYYY-MM-DD, Library Version X, PR #N` form (and "lead-paragraph summaries"), while the gates' code already matches BOTH that legacy form and the compact `**date | version | PR #N**` form the TODO 3.16 reformat introduced. Reworded all three to name both forms, so a future maintainer cannot "correct" the code back to a `##`-only regex and reintroduce the orphaned-header defect gate 59 exists to catch. Spec Version `1.17.1` to `1.17.2`, Date to 2026-07-13.
+- [`taxonomy.yml`](../../taxonomy.yml) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the spec Version bump (taxonomy first, then the derived artefacts).
+- [`TODO.md`](../../TODO.md): new §3.62 routing the guardrail-review r10 machinery proposals (G1 branch-to-main hook, G3 register-ordering guard, G5 #376 expire-or-rescope, the gate-41 docstring symmetry nit) as maintainer-decision proposals; G2/G4 cross-referenced as already-tracked.
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): Phase 3 `/guardrails` marked COMPLETE.
+- [`.working/guardrail-reviews/history.md`](../guardrail-reviews/history.md): r10 row; Version 1.0.11 to 1.0.12.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #889 row (0 findings); Version 1.2.656 to 1.2.657.
+- [`.working/improvement-log.md`](../improvement-log.md): #889 `/retro` row; Version 1.0.595 to 1.0.596.
+- [`README.md`](../../README.md): library CalVer 2026.07.377 to 2026.07.378; README Version 1.9.738 to 1.9.739.
+
+### Added
+
+- [`.working/guardrail-reviews/2026-07-13-r10.md`](../guardrail-reviews/2026-07-13-r10.md): the guardrail-review r10 per-run record (overlap 0 genuine / gap 2 warnings + 3 notes / drift 3 warnings fixed in-window).
+
+### Verification
+
+- **Guardrail-review r10 (Phase-3 `/guardrails` of record):** three lens subagents over the live machinery (69 gates / 13 rules / 23 skills / 14 commands / 9 advisory tools). Overlap 0 genuine findings (every layered defence self-delineated). Gap 2 warnings + 3 notes routed. Drift 3 warnings, a single-root-cause compact-CHANGELOG descriptive-surface cluster, FIXED in-window and re-verified (root CHANGELOG has zero `## ...` headers; the gates' code matches both forms). Each finding orchestrator-re-verified at source before action.
+- **#889 post-merge `/validate-pr`:** 0 error / 0 warning / 0 findings, all six directed items PASS (batched here).
+- Pre-push guard green (all 69 gates + D1-D7); the spec Version bump's regenerated artefacts pass gates 33/34. This PR gets its own post-merge `/validate-pr` + `/retro`.
+
+### Discipline observation
+
+The drift cluster is the mirror image of a well-functioning reformat: the #855/#857 compact-CHANGELOG change correctly updated all the CODE and the primary prose, but three secondary DESCRIPTIVE surfaces (two tool docstrings + one spec narrative) lagged, below the parity gates' resolution (gates 35/39 check the §6 table identity and row count, not header-format prose). Fixing them in-window follows the deep-assessment clear-mechanical-in-window convention; the machinery-change proposals (a HEAD==main edit guard, a register-ordering check) are routed for maintainer decision, not applied autonomously, per the guardrail-review skill.
+
 ## 2026-07-13, Library Version 2026.07.377, PR #889
 
 Advances the deep-assessment r3 Phase 4 (audit-programme audit) and batches PR #888's post-merge QA. No corpus, pack, or taxonomy content changed.
