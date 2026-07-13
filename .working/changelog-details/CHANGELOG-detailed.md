@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.379, PR #891
+
+The `/deep-assessment` r3 Phase-3 `/claim-fit` pass, the completion of the prior PR's drift fix (two more same-class carriers), and PR #890's batched QA. No corpus-document body changed (the two tool docstrings are not versioned documents).
+
+### Changed
+
+- [`tools/lint-version-date-consistency.py`](../../tools/lint-version-date-consistency.py) (gate-29 docstring) + [`tools/check-changelog-on-pr.py`](../../tools/check-changelog-on-pr.py) (D1 docstring): the drift-cluster COMPLETION. #890 fixed the three surfaces the r10 drift lens named; #890's `/validate-pr` Subagent A caught that gate 29's docstring was a 4th same-class carrier (stated only the legacy `## ...` header while the code matches both forms), and the orchestrator's bare-token find-every-carrier grep of `tools/` surfaced a 5th (the changelog-check gate's docstring, "lead-paragraph summaries"). Both reworded to the current compact-entry description. The drift cluster is now complete across five surfaces.
+- [`.working/claim-fit/history.md`](../claim-fit/history.md): the `/claim-fit` r3 run row (net new findings 0); Version 1.0.8 to 1.0.9.
+- [`.working/deep-assessment/2026-07-13-r3.md`](../deep-assessment/2026-07-13-r3.md): Phase 3 `/claim-fit` marked COMPLETE.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #890 row (1 warning fixed in-branch); Version 1.2.657 to 1.2.658.
+- [`.working/improvement-log.md`](../improvement-log.md): #890 `/retro` row (the drift-completeness recurrence); Version 1.0.596 to 1.0.597.
+- [`README.md`](../../README.md): library CalVer 2026.07.378 to 2026.07.379; README Version 1.9.739 to 1.9.740.
+
+### Added
+
+- [`.working/validate-pr/2026-07-13-PR-890.md`](../validate-pr/2026-07-13-PR-890.md): the #890 post-merge `/validate-pr` record (1 warning fixed here + 5 confirming notes).
+
+### Verification
+
+- **`/claim-fit` r3 (Phase-3):** the `audit-claim-precision.py --tier A` worklist surfaced 8 corpus-wide Tier-A claims; the one introduced by this session's §3.57 batch (SOR/2018-64 24-month breach-record retention at `register-canonical-citations.md:145` + its Canada-annex carrier) is `prescribed`, confirmed verbatim against the held SOR/2018-64 s.6(1). The AICPA TSP 100 row is a `source-not-held` verdict (register cites the 2022-revised-POF edition; `grc_library_ref` holds the March-2020 edition), ALREADY-ROUTED to TODO RB-6(e). The other §3.57 citations are Tier-B soft-alignment already Sweep-101-verified. Net new findings: 0.
+- **Drift completion:** all five descriptive surfaces now name both header forms; re-verified (root CHANGELOG is 100% compact; each gate's code matches both).
+- **#890 `/validate-pr`:** 1 in-window warning (incomplete drift remediation) FIXED here + a 2nd same-class carrier found by the find-every-carrier grep, also fixed; 5 confirming notes.
+- Pre-push guard green (all 69 gates + D1-D7). This PR gets its own post-merge `/validate-pr` + `/retro`.
+
+### Discipline observation
+
+Two lessons this PR. (1) The drift fix inherited the r10 lens's NAMED-surface enumeration (three) instead of re-running a find-every-carrier grep, so it was two surfaces short; the fix is to treat a lens's named surfaces as a floor and re-grep at bare-token width (the standing completeness discipline, applied one level up). (2) The improvement-log row-append join error recurred (a ` | ` where a newline belonged), self-caught by the pipe-count check; this row-append class is now frequent enough this session to warrant the standing mitigation of always placing a literal newline before the preserved next-row-start when appending a table row via Edit.
+
 ## 2026-07-13, Library Version 2026.07.378, PR #890
 
 The `/deep-assessment` r3 Phase-3 `/guardrails` pass of record (guardrail-review r10), plus the in-window drift fix it surfaced, plus PR #889's batched QA. One corpus document (the audit-programme specification) changed; regenerated artefacts accordingly.
