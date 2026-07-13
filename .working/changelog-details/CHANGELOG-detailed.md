@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.358, PR #870
+
+Codify the read-only-git rule for validation and verifier subagents (TODO §3.59, project surfaces). Prevents the #866 shared-tree branch-collision from recurring.
+
+### Changed
+
+- [`.claude/commands/validate-pr.md`](../../.claude/commands/validate-pr.md) and [`.claude/commands/validate.md`](../../.claude/commands/validate.md): the Subagent-A / fan-out dispatch steps now carry a read-only-git constraint, dispatched subagents inspect version history read-only (`git show` / `git diff` / `git log`) and MUST NOT `git checkout` / `switch` / `reset` / `stash` on the shared working tree (the orchestrator may be on a concurrent feature branch), plus a note that a transient `tests/tmp` regression FAIL or a gate-50 not-yet-batched-later-PR flag is a concurrent-run artefact.
+- [`.claude/CLAUDE.md`](../CLAUDE.md): a standing read-only-git-subagent note at PR-workflow step 5a, referencing the #866 collision.
+- [`TODO.md`](../../TODO.md) §3.59 narrowed: the project surfaces are done here; the pack-distribution half (the `ai-assistant-workflow-disciplines` rule, both trees) remains.
+
+### Verification
+
+- The #866 collision (a /validate-pr subagent's `git checkout` switched the orchestrator's branch, mis-branching a commit onto local `main`; caught fail-loud at PR-create, repaired, remote `main` never polluted) is the motivating incident, recorded in the #866 /retro.
+- Project-surface-only change (`.claude/` command stubs + CLAUDE.md + TODO); no corpus-document body, no pack rule, no gate wiring, so no per-document version bump, taxonomy regeneration, or gate-37 parity concern.
+- Skeptical pre-push verifier (substantive tier): NO defect (refutation exhausted). The read-only-git rule is accurately stated on all three surfaces (no `checkout`/`switch`/`reset`/`stash`; use `git show`/`git diff`/`git log`), the #866 incident description is faithful to the improvement-log ledger, and the note forbids only branch/HEAD-moving commands (the stubs' legitimate read-only `git diff`/`git log` survive, no contradiction). Confirmed `.claude`-only scope (`git diff --name-only main` = the two command stubs, CLAUDE.md, the `.working` records, TODO, README, CHANGELOG; NO corpus doc, pack file, or generated taxonomy/portal change), §3.59 correctly narrowed (project surfaces done, pack half remaining, no false DONE rotation), bookkeeping clean, gate 44 (paired-skill step-parity) unaffected by the in-step prose, 69/69 standalone.
+- Batches PR #869's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+Lower-accuracy-risk process codification, a deliberate pivot from the citation-attribution work (which drew 2 MEDIUM + 2 LOW verifier catches across the four EDPB bundles, all corrected) to process cleanup after completing the EDPB `lc` cluster. The pack-distribution half is left as the narrowed §3.59 for a fresher moment, since it involves gate-37 parity plus a pack version bump across the both-trees rule.
+
 ## 2026-07-13, Library Version 2026.07.357, PR #869
 
 Reference-breadth apply (TODO §3.57), bundle 4 (the last held-verifiable EDPB `lc` High row): cite EDPB Guidelines 9/2022 in the breach-response procedure. Completes the EDPB privacy-guideline cluster (4/2019, 05/2020, 01/2022, 9/2022).

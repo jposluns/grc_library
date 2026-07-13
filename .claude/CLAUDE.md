@@ -186,6 +186,16 @@ drive end-to-end on the maintainer's behalf:
 5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep (dispatches
    Subagent A on the just-merged PR's diff plus a cross-reference check on files citing
    the touched files). Records to [`.working/validate-pr/`](../.working/validate-pr/).
+   **Read-only-git subagent rule (shared-tree safety):** any subagent this or `/validate`
+   dispatches, and any skeptical-verifier subagent, inspects version history READ-ONLY
+   (`git show <sha>:<path>`, `git diff`, `git log`) and MUST NOT `git checkout` / `switch`
+   / `reset` / `stash` on the shared working tree, because the orchestrator may be on a
+   concurrent feature branch (the #866 collision: a subagent's `git checkout` to judge the
+   merge commit switched the orchestrator's branch and mis-branched a commit onto local
+   `main`, caught fail-loud at PR-create and repaired). Brief every dispatched subagent
+   accordingly; a transient `tests/tmp/*` regression-suite FAIL or a gate-50 flag for a
+   not-yet-batched later PR's QA row is a concurrent-run artefact, not a defect. (The pack
+   half of this codification, into the workflow-disciplines rule, is TODO §3.59.)
    Triage findings as in-window (hot-fix PR or include in next PR) or out-of-window
    (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
    session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
