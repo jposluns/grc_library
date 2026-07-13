@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.354, PR #866
+
+Reference-breadth apply (TODO §3.57), bundle 1 of the EDPB privacy cluster: cite EDPB Guidelines 4/2019 in the privacy-by-design framework. The reference-breadth new-ingest worklist (scratch #163, delivered 2026-07-12) flagged that the privacy-by-design framework operationalizes GDPR Article 25 but did not cite the European Data Protection Board's authoritative Article 25 guideline, which is held in `grc_library_ref`.
+
+### Changed
+
+- [`privacy/framework-privacy-by-design.md`](../../privacy/framework-privacy-by-design.md): cited **EDPB Guidelines 4/2019 on Article 25 Data Protection by Design and by Default (Version 2.0, adopted 20 October 2020)** in the `## Legal basis: GDPR Article 25` section (as the authoritative supervisory interpretation, the effective-implementation duty, the design and default elements, and continual review of the measures' effectiveness) and added a row to the `## Framework alignment` table. Confirmed not already cited. Version 1.0.2 to 1.0.3.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a canonical-citations register row for EDPB Guidelines 4/2019 (Version 2.0, 2020-10), under the register's soft-law supervisory-guidance scope, grouped with the other EDPB guideline rows. Version 1.5.22 to 1.5.23.
+
+### Verification
+
+- The citation is grounded in the held EDPB 4/2019 full-text in `grc_library_ref`: the attributed elements ("effective implementation of the data-protection principles", the "design and default elements", and "regularly reviewing the effectiveness of the chosen measures and safeguards") were read against the held text this turn and match.
+- Source hold and currency: EDPB 4/2019 is held at the cited v2.0; the ref catalogue's `last_checked` confirmed the held adopted-final edition current on 2026-07-12 (the worklist `lc` flag). It was NOT re-verified upstream this turn (an adopted-final guideline, stable since 2020; currency rests on the 2026-07-12 ref-base confirmation, recorded as the register row's Last-verified date rather than a fabricated today's-date verification).
+- Confirmed the privacy-by-design framework did not already cite EDPB 4/2019 (grep clean at apply).
+- Derived artefacts regenerated after the two per-document Version bumps (taxonomy, then portal and scorecard).
+- Skeptical pre-push verifier (substantive tier; refute-briefed, citation-accuracy-focused): NO defect across all 8 axes. Citation accuracy SUPPORTED, the independent verifier re-read the held EDPB 4/2019 source and confirmed every attributed element appears verbatim or near-verbatim (held lines 103, 104, 108-109, 107-108): "effective implementation of the data protection principles", "Article 25 prescribes both design and default elements", "regularly reviewing the effectiveness of the chosen measures and safeguards", and "before processing, and also continually at the time of processing". Version consistent (v2.0 adopted 20 October 2020 across the inline cite, the table row, the register row, the held title page, and the catalogue `checked_edition`). Confirmed uncited before. Register row well-formed and honest (Last-verified 2026-07-12 mirrors the catalogue `last_checked`; the superseded v1.0 cell matches the held version history without fabricating a date). All 69 gates pass. The two process notes (commit-before-guard; fill this verdict slot) were handled before push.
+- Batches PR #865's `/validate-pr` (clean) and `/retro` rows.
+
+### Discipline observation
+
+Reference-breadth apply, first bundle, narrowed to ONE document (one EDPB citation plus its register anchor) rather than the whole four-document EDPB cluster the §3.57 plan bundles, for exhaustive per-citation verification on accuracy-critical citation work. The worklist is research (a hypothesis); the citation was authored only after re-reading the target section, confirming it was uncited, and verifying the attributed elements against the held source text. The remaining three EDPB `lc` rows (consent 05/2020, access 01/2022, breach 9/2022) and the version-sensitive `[V]` jurisdiction-annex rows follow as their own bundles; the `[V]` rows need upstream currency confirmation and are the maintainer's fresh-context / high-assurance category.
+
 ## 2026-07-13, Library Version 2026.07.353, PR #865
 
 Change-tracking two-file-split how-to harmonized to the compact go-forward format (the #864 follow-on), plus a recorded delivery-pipeline reconciliation.

@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy by Design Framework\
 **Document Type:** Framework\
-**Version:** 1.0.2\
-**Date:** 2026-07-10\
+**Version:** 1.0.3\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-legitimate-interest-assessment.md`](template-legitimate-interest-assessment.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`architecture/procedure-architecture-review.md`](../architecture/procedure-architecture-review.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -45,6 +45,8 @@ Article 25 has three operative parts, each of which this framework operationaliz
 - **Article 25(3), certification.** An approved certification mechanism under Article 42 may be used as **an element** to demonstrate compliance with Article 25(1) and (2). It is evidence, not conclusive proof.
 
 Recital 78 adds that controllers should adopt internal policies and measures that meet the by-design and by-default principles (for example minimizing processing, pseudonymizing as soon as possible, transparency, and enabling the data subject to monitor the processing), and **encourages** producers of products, services, and applications to take the right to data protection into account when developing and designing them.
+
+The European Data Protection Board's **Guidelines 4/2019 on Article 25 Data Protection by Design and by Default** (Version 2.0, adopted 20 October 2020) are the authoritative supervisory interpretation of this obligation. They frame the core duty as implementing measures that provide **effective implementation of the data-protection principles** and integrate the necessary safeguards, elaborate the **design and default elements** Article 25 prescribes, and make explicit that the controller implements those measures both before and continually during processing, **regularly reviewing the effectiveness** of the chosen measures and safeguards. The control points this framework defines are the operationalization of those elements.
 
 ---
 
@@ -148,6 +150,7 @@ This framework is operationalized through existing instruments rather than dupli
 | GDPR | Article 25(1), (2), (3); Recital 78 | Data protection by design and by default; the legal obligation this framework operationalizes |
 | GDPR | Article 42 | Certification as an element of demonstrating Article 25 compliance |
 | UK GDPR | Article 25 | Equivalent data-protection-by-design-and-default obligation for UK-scoped processing |
+| EDPB Guidelines 4/2019 (v2.0) | Guidelines 4/2019 on Article 25 Data Protection by Design and by Default | The European Data Protection Board's authoritative operational interpretation of the Article 25 obligation: effective implementation of the data-protection principles, the design and default elements, and continual review of the chosen measures' effectiveness |
 | Privacy by Design (Cavoukian) | The seven foundational principles | The conceptual model mapped to architecture and development-security workflows; informs, but is distinct from, the Article 25 legal duty |
 | ISO/IEC 27701:2025 | Privacy information management | The PIMS control environment within which by-design measures are implemented and reviewed |
 | ISO/IEC 29134:2017 | Privacy impact assessment guidance | Methodology supporting the Article 25(1) risk assessment carried out through the DPIA |
