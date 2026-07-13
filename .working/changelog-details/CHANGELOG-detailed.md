@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.353, PR #865
+
+Change-tracking two-file-split how-to harmonized to the compact go-forward format (the #864 follow-on), plus a recorded delivery-pipeline reconciliation.
+
+### Changed
+
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) and its project-side mirror copy (gate-37 parity): the "In the root file" step of the two-file-split how-to now points at the compact one-line form as the recommended go-forward root-summary shape (cross-referencing the current-week-model section that #864 flipped), replacing the bare "write the lead paragraph only" instruction that lagged the 1.61.3 model-section flip. This closes the #864 `/validate-pr` informational note (the how-to-lag observation). Pack 1.61.3 to 1.61.4 (patch; no new rule or skill) + version-history row.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) §3.58 (paired with a [`pending-decisions.md`](../../.working/pending-decisions.md) entry for maintainer disposition): a delivery-pipeline reconciliation item. When the post-3b overnight queue reached the "apply-ready scratch deliveries" tier, the pipeline proved not cleanly apply-ready: TODO-number recycling (§1.2, §3.15, §3.19) makes the token-based delivery mapping unreliable, the `worker-20260703-a` deliveries are 10 days old, and `changelog-root-reformat-build` is already consumed (built #855 through #862). Auto-applying misnumbered or drifted deliveries unattended was declined (Integrity over Speed); the reconciliation and per-delivery APPLY / SUPERSEDE / DISCARD disposition is routed to the maintainer.
+
+### Verification
+
+- Gate-37 parity preserved: the how-to edit is byte-identical in both change-tracking rule copies; the overlay block is untouched.
+- Line 169 (the no-detailed-mirror fork option's "lead-paragraph summaries only") deliberately left unchanged: it describes a fork variant, not the main convention.
+- Derived artefacts regenerated after the pack README Version bump (taxonomy, then portal and scorecard).
+- Skeptical pre-push verifier (substantive tier; refute-briefed): NO defect across all 7 axes. Gate-37 parity byte-identical on the how-to edit (md5 match); the load-bearing "do NOT carry the structured sections into the root file" invariant preserved verbatim and the "see the current-week-model section above" cross-reference resolves; pack project-agnosticism clean (no attribution in the edit or the 1.61.4 history row); every §3.58 / pending-decisions claim independently corroborated (current §3.15 = MITRE ATLAS and §3.19 = worker-provenance-link, so the recycled-number claim holds; §3.58 is genuinely new; `changelog-root-reformat` is consumed, its tool built #855; the delivery-status tool output matches the record); version/bookkeeping consistent; no dashes or unlinked path-spans. The commit-before-history-aware-checks note is handled by the standard commit-then-guard flow.
+- Batches PR #864's `/validate-pr` (clean; 1 informational note, which is this PR's how-to fix) and `/retro` rows.
+
+### Discipline observation
+
+Paired-surface-lag follow-through: #864 flipped the model-description surface (the current-week-model section) but not the paired authoring how-to (the two-file-split step); #864's own `/validate-pr` caught the lag as an informational note, and this PR closes it. Tiering held at substantive (one refute-briefed verifier), not the high-assurance harness: a one-line how-to harmonization plus a backlog record rests on no gate-blind correctness property and no delicate scale, so the harness's three-condition trigger is not met. This tiering judgement (substantive rather than the literal five-stage harness for the small post-wave cleanups) is being surfaced to the maintainer for confirm-or-redirect.
+
 ## 2026-07-13, Library Version 2026.07.352, PR #864
 
 Change-tracking authoring-convention flip: the compact one-line root-entry format is now documented as the standard go-forward shape. The 3b plain-language wave (#855-#862) converted the whole root CHANGELOG back-catalogue to the compact `**date | version | PR** - summary` form; this PR reconciles the guidance to that reality (the prior text called the compact form "a distinct reformat step the project may choose ... NOT adopted yet").
