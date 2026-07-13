@@ -5,9 +5,11 @@ This linter enforces two invariants about the library's CalVer
 (``YYYY.MM.patch``) version recorded in [README.md] and the dated
 section headings in [CHANGELOG.md]:
 
-  1. The most recent CHANGELOG section heading (matching the pattern
-     ``## YYYY-MM-DD, Library Version YYYY.MM.patch``) has a date whose
-     ``YYYY-MM`` equals the library version's ``YYYY.MM``.
+  1. The most recent CHANGELOG entry heading (matched in BOTH the compact
+     ``**YYYY-MM-DD | YYYY.MM.patch | PR #N**`` form the root-CHANGELOG
+     reformat introduced and the legacy ``## YYYY-MM-DD, Library Version
+     YYYY.MM.patch`` form) has a date whose ``YYYY-MM`` equals the library
+     version's ``YYYY.MM``.
 
   2. The current README.md ``**Library Version:**`` field equals the
      library version recorded in the most recent CHANGELOG heading.
