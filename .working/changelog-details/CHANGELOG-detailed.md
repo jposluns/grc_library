@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.371, PR #883
+
+TODO §3.57 Medium follow-up applied: Brazil ANPD Resolution CD/ANPD No. 4/2023 (sanctions dosimetry) cited in the Brazil privacy annex and added to the citation register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #882 QA rows.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md) (Enforcement and fines): a new bullet cites Resolution CD/ANPD No. 4/2023 (of 24 February 2023, the Regulation on Dosimetry and Application of Sanctions) as establishing the parameters and criteria the ANPD applies to calculate the base value of a fine and to apply the LGPD Article 52 sanctions, where the section previously listed only the Article 52 ceilings. Notes that 4/2023 amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021, with a verification note (verified 2026-07-13; DOU 27 February 2023; in force). Doc Version bumped 1.1.5 to 1.1.6, Date to 2026-07-13.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new row after Resolution CD/ANPD No. 18/2024, `Resolution CD/ANPD No. 4/2023` / `2023` / `2023-02-27` / topic the ANPD dosimetry-and-sanctions-application regulation (base-fine calculation and LGPD Article 52 sanctions; amends Resolution 1/2021). The Publication-date cell uses full-precision 2023-02-27 to match the sibling ANPD rows (a verifier observation applied). Register Version bumped 1.5.34 to 1.5.35.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation).** WebSearch against the ANPD (gov.br) and Brazilian legal sources confirmed Resolução CD/ANPD nº 4, de 24 February 2023, is the Regulamento de Dosimetria e Aplicação de Sanções, published in the Diário Oficial da União on 27 February 2023, establishing the parameters and criteria for calculating the base value of fines and applying the Article 52 sanctions, and that it amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (of 28 October 2021). In force.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the annex + register change (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#882).
+- Register per-document Version bumped 1.5.34 to 1.5.35; Brazil annex 1.1.5 to 1.1.6; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first), both `--check` clean. Standards-currency (now 147 standards) and citation linters pass.
+- Batches PR #882's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+This clears the last citation-apply residual of the §3.57 reference-breadth work (the Medium Brazil follow-up that surfaced in the delivery beyond the maintainer's named `[V]` set). The distinction the bullet draws, that the Article 52 percentages are statutory maximums while 4/2023 supplies the base-value calculation methodology, is the load-bearing precision: a reader should not read the ceilings as the fine-setting rule. §3.57 now has a single remaining residual, the deferred matrix TSC-column mapping (a single-file sensitive change for a `/matrix-fit` follow-up, not a citation apply), so the item is narrowed further but not closed.
+
 ## 2026-07-13, Library Version 2026.07.370, PR #882
 
 TODO §3.57 `[V]` row applied (the last of the maintainer's named set): EDPB Guidelines 8/2022 (identifying the lead supervisory authority) cited in the EU privacy annex and added to the citation register, with upstream currency confirmed this turn against the primary-source PDF version-history table. Corpus-body change (substantive tier: one refute-briefed verifier pre-push, which caught and reverted a mid-apply version slip), plus the batched #881 QA rows.
