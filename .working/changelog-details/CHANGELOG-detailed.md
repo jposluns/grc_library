@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.373, PR #885
+
+Bookkeeping PR: records the scratch worker-exchange branch cleanup (the §3.58 follow-up) and batches PR #884's QA rows. No corpus, pack, or taxonomy content; the cleanup itself is on the `grc_library_scratch` repo (remote branch deletions, no content change), recorded here for the audit trail.
+
+### Changed
+
+- `grc_library_scratch` remote branches: deleted 38 stale delivery / assessment branches, each VERIFIED to have a merged pull request (so its content is preserved on scratch `main` and in history). Method: pruned local remote-tracking refs, intersected the live remote-branch set with the merged-PR head-ref set (`gh pr list --state merged`), confirmed every deletion candidate was in the merged set (a definitive `grep -Fxvf` check, zero not-merged), and there were no open scratch PRs. Three branches were deliberately LEFT: `claude/repo-access-test-ymk53f` (an unmerged test branch, no merged PR) and the two `worker-20260703-a` branches (`corpus-skill-distillation`, `gr-gap-1-register-population`) whose research deliveries are still PENDING per [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py) (items 4.1 and 3.15, not yet consumed). This completes the scratch-branch cleanup the §3.58 delivery reconciliation left open (the maintainer's "clean up scratch as consumed" directive).
+
+### Verification
+
+- Each deleted branch confirmed merged (content on scratch `main`) before deletion; the two pending-research worker branches and the test branch were preserved. No open scratch PR existed, so no branch a PR depended on was removed.
+- Bookkeeping-tier; no corpus/pack/taxonomy content, so no per-document version bump, taxonomy regeneration, or standing verifier.
+- Batches PR #884's `/validate-pr` (clean, 0 findings) and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The cleanup was done verified-safe rather than bulk: branch deletion is destructive, so only branches with a confirmed merged PR (content demonstrably preserved on `main`) were deleted, and the pending-research and test branches were left for attended disposition rather than swept. The first batch push surfaced stale local remote-tracking refs (branches already deleted upstream), fixed by a `fetch --prune` before recomputing the live delete set, so no "ref does not exist" churn reached the final deletion.
+
 ## 2026-07-13, Library Version 2026.07.372, PR #884
 
 Bookkeeping PR: batches PR #883's QA rows and records the read-only deep-assessment parts run per the maintainer's fallback directive. No corpus, pack, or taxonomy content.
