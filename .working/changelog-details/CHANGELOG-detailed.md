@@ -1,10 +1,29 @@
 # Changelog (Detailed Mirror)
 
-All notable changes to this repository are recorded in this file with full structured-section detail. The adopter-facing root [`CHANGELOG.md`](../../CHANGELOG.md) carries only the lead-paragraph summary of each entry; this file is the maintainer-grade audit trail.
+All notable changes to this repository are recorded in this file with full structured-section detail. The adopter-facing root [`CHANGELOG.md`](../../CHANGELOG.md) carries only a compact one-line entry per change (a `date | version | PR` header plus a short, plain-language summary a general reader can follow); this file is the maintainer-grade audit trail carrying the full detail behind each of those summaries.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](../../specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](../../specification-master-project.md) section 4.5.
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
+
+## 2026-07-13, Library Version 2026.07.345, PR #857
+
+CHANGELOG plain-language rework, stage 3b batch 2 (TODO 3.16), plus the format-description intro updates the maintainer flagged. Batch 2 of ~7.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #735 down to #616) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. 240 of ~838 entries are now plain-language; #615 and older keep their full bodies pending later batches. Full bodies preserved here + in git history.
+- Root [`CHANGELOG.md`](../../CHANGELOG.md) intro and this detailed mirror's intro: rewritten to describe the new compact one-line plain-language format (a `date | version | PR` header plus a short summary a general reader can follow), replacing the old "lead-paragraph summaries" description, with a note that the historical long tail is being converted in batches (maintainer-flagged).
+- [`tools/lint-orphan-documents.py`](../../tools/lint-orphan-documents.py) (gate 26): added the root [`RESUME.md`](../../RESUME.md) manual entry point to the exempt set. The collapse removed the batch-2 CHANGELOG body that carried its only markdown-linked inbound reference, orphaning it; the file is a session-resume entry point reached by filename convention (like the other exempt root entry points), so relying on an incidental CHANGELOG link was fragile. Correct classification, not a gate weakening.
+- Library CalVer `2026.07.344` to `2026.07.345`; README Version `1.9.705` to `1.9.706`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content). A skeptical verifier body-compared all 32 substantive entries plus 17 internal, scanned all 120 for jargon/dash/path-span leakage (zero hits), and confirmed the high-stakes attributions (ISO/IEC 42001 vs 27001, PCI DSS 4.0.1, the Quebec 72-hour fabrication fix, Brazil resolution 19/2024, the never-finalized SP 800-154 to OWASP substitution, the MITRE ATLAS corpus-vs-pack split): NO DEFECT FOUND (no fix needed this batch). Applied via the deterministic, self-verifying migration script. Batches #856's `/validate-pr` (0 findings) + `/retro`.
+
+### Notes
+
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 3. The change-tracking pack rule's authoring-convention description (documenting compact as the go-forward root shape) remains a deferred follow-up; the parsers accept both forms so mixed authoring is safe meanwhile.
 
 ## 2026-07-13, Library Version 2026.07.344, PR #856
 
