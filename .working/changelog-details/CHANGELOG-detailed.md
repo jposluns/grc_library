@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.361, PR #873
+
+Reference-breadth apply (TODO §3.57), a Medium held-verifiable citation: cite EDPB Guidelines 07/2022 (certification as a tool for transfers) in the transfer-impact-assessment template.
+
+### Changed
+
+- [`privacy/template-transfer-impact-assessment.md`](../../privacy/template-transfer-impact-assessment.md): the §2 transfer-tool cell (which flagged the certification mechanism, Article 46(2)(f), as carrying a distinct effectiveness analysis but cited no guidance) now cites **EDPB Guidelines 07/2022 on certification as a tool for transfers (Version 2.0, adopted 14 February 2023)** as the authoritative guidance, and a `## Framework alignment` row was added. Additive precision on the certification case (the template already attributes its six-step methodology to EDPB Recommendations 01/2020). Confirmed not already cited. Version 1.0.2 to 1.0.3.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a register row for EDPB 07/2022 (Version 2.0, 2023-02), soft-law supervisory-guidance scope. Version 1.5.26 to 1.5.27.
+
+### Verification
+
+- Scope-level citation (the guideline's own titled subject is certification as a transfer tool, confirmed at held line 55, "certification as a new transfer mechanism"), self-grounded by reading the held source's subject and version-history directly rather than the worklist characterization.
+- Version fresh-read from the held version-history: v2.0 = 14 February 2023 (after public consultation), v1.0 = 14 June 2022 (for public consultation). The register superseded cell states the v1.0 date exactly as the held source records it.
+- Currency: held at v2.0; ref-catalogue `last_checked` 2026-07-12; not re-verified upstream this turn (recorded as the register Last-verified date).
+- Confirmed the template did not already cite EDPB 07/2022 (grep clean at apply); artefacts regenerated after the two per-document Version bumps.
+- Skeptical pre-push verifier (substantive tier; citation-accuracy-focused, read-only git): NO defect (refutation exhausted). Citation accuracy CONFIRMED against the held source, the guideline's subject is certification as a transfer mechanism under Articles 42(2) and 46(2)(f) (held lines 55 to 57), and the distinct-effectiveness-analysis / authoritative-guidance framing is grounded (held 70-71, 392-398, 575) and correctly scoped as soft-law existence-tier guidance, not a specific attributed value. Version accurate (v2.0 14 February 2023, v1.0 14 June 2022 for public consultation, register cell an exact match); uncited before; register 7-column well-formed with an honest Last-verified 2026-07-12; versions and artefacts consistent. The lone gate-36 FAIL was the concurrent-run artefact (the suite passes standalone, 373 tests OK). This scope-level, self-grounded citation landed clean with no finding, confirming the self-grounding discipline.
+- Batches PR #872's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+A Medium §3.57 citation beyond the four High EDPB `lc` bundles. Lower mis-attribution risk than the cluster (scope-level: the guideline is cited for its own titled subject, not for a specific attributed value), and self-grounded by a direct held-source read of the subject and version-history, applying the accumulated citation lessons (fresh-read the version-history; no phrasing pattern-match).
+
 ## 2026-07-13, Library Version 2026.07.360, PR #872
 
 Backlog reconciliation (bookkeeping): record the §3.60 scope assessment and narrow §3.56 to defer its stale cosmetics grab-bag.
