@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.7\
-**Date:** 2026-07-02\
+**Version:** 1.0.8\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -58,6 +58,8 @@ Consent must satisfy each of the following elements. Failure of any element inva
 | Informed | The subject has been given the controller identity, the purposes, the data categories, the third-party recipients, the international transfers, the retention, and the rights, before consent is captured. |
 | Unambiguous | Captured through a clear affirmative action: ticked box, button press, biometric gesture, explicit utterance. Inactivity, silence, or continued browsing does not constitute consent. |
 | Withdrawable | The subject can withdraw consent at any time through a route as easy as the route used to give it. Withdrawal has no retrospective effect on processing before withdrawal. |
+
+These elements track the European Data Protection Board's **Guidelines 05/2020 on consent under Regulation 2016/679** (Version 1.1, adopted 4 May 2020), the authoritative supervisory interpretation of the GDPR consent standard: consent that is bundled with, or made a condition of, a service is not "freely given" (the conditionality requirement), and consent requires an unambiguous indication of wishes through a clear affirmative act, so inactivity, silence, or continued browsing does not qualify.
 
 ---
 
@@ -129,7 +131,7 @@ Where a subject is below the age of digital consent in the applicable jurisdicti
 
 ## Cookie consent under ePrivacy
 
-For cookies and similar tracking technologies, consent is governed by the cookie and tracker register. Strictly necessary cookies do not require consent. All other categories require prior consent satisfying the validity standard above. Pre-ticked boxes, scroll-to-consent, and consent walls (where refusal degrades the core service disproportionately) are not valid.
+For cookies and similar tracking technologies, consent is governed by the cookie and tracker register. Strictly necessary cookies do not require consent. All other categories require prior consent satisfying the validity standard above. Pre-ticked boxes, scroll-to-consent, and consent walls (where refusal degrades the core service disproportionately) are not valid; EDPB Guidelines 05/2020 treat scrolling and continued browsing as failing the unambiguous-indication standard.
 
 ---
 
@@ -160,6 +162,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | --- | --- | --- |
 | GDPR | Articles 4(11), 6(1)(a), 7, 8, 9(2)(a) | Consent definition, conditions, child consent, special-category consent |
 | UK GDPR | Same articles | Equivalent provisions |
+| EDPB Guidelines 05/2020 (v1.1) | Guidelines 05/2020 on consent under Regulation 2016/679 | The regulator's authoritative interpretation of the GDPR consent standard: conditionality (consent bundled with or conditioned on a service is not freely given), the unambiguous-indication requirement, and that pre-ticked boxes and scrolling do not constitute valid consent |
 | ePrivacy Directive 2002/58/EC and national transpositions | Article 5(3) and member-state rules | Cookie and similar technologies consent |
 | LGPD | Articles 7(I), 8 | Consent as lawful basis |
 | PIPL | Articles 13, 14 | Consent definition and conditions |
