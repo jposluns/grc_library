@@ -2,12 +2,13 @@
 """CHANGELOG detailed-mirror per-PR header-parity audit (gate 59).
 
 The change-tracking discipline keeps two CHANGELOG surfaces in lock-step:
-the adopter-facing root ``CHANGELOG.md`` (lead-paragraph summaries) and
+the adopter-facing root ``CHANGELOG.md`` (compact one-line ``date | version | PR`` entries) and
 the maintainer-grade detailed mirror
 ``.working/changelog-details/CHANGELOG-detailed.md`` (full structured
 entries). Delta check D1 enforces, per commit, that a PR touches BOTH
 files; it does NOT check that the two carry the SAME set of per-PR
-``## YYYY-MM-DD, Library Version X, PR #N`` headers. That cross-commit
+entry headers (matched in BOTH the compact ``**date | version | PR #N**``
+form and the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form). That cross-commit
 integrity is gate-blind: a later PR's commit can overwrite an earlier
 PR's detailed-mirror header in place, orphaning the earlier bodies under
 the wrong header (the #388 defect, where #386/#387 were orphaned under
