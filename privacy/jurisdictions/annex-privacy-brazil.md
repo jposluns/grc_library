@@ -2,7 +2,7 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,6 +64,7 @@ ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2024) are 
 - **Simple fine (Article 52):** Up to 2% of the revenue of the private legal entity, group, or conglomerate in Brazil in its last fiscal year (excluding taxes), up to a maximum of BRL 50 million per violation.
 - **Daily fine:** To compel cessation of the violation, up to BRL 50 million in total.
 - Additional sanctions: warning; obligation to publish the incident; temporary blocking or deletion of data; partial or total suspension of the database; partial or total prohibition of data processing activities.
+- **Fine dosimetry (Resolution CD/ANPD No. 4/2023):** The Article 52 percentages and ceilings above are the statutory maximums, not the method for setting a given fine. Resolution CD/ANPD No. 4/2023 (of 24 February 2023, the Regulation on Dosimetry and Application of Sanctions) establishes the parameters and criteria the ANPD applies to calculate the base value of a fine sanction and to apply the Article 52 sanctions; it amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021. (Resolution CD/ANPD No. 4/2023 was verified against the ANPD's official publication on 2026-07-13: published in the Diário Oficial da União on 27 February 2023, amending Resolution No. 1/2021 of 28 October 2021; in force.)
 - ANPD began imposing administrative sanctions in 2023. Early enforcement has focused on breach notification and consent practices.
 
 ---
