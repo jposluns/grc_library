@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.364, PR #876
+
+TODO §3.57 `[V]` row applied: AICPA Trust Services Criteria (TSP Section 100) added to the canonical-citations register, with upstream currency confirmed this turn. Corpus-body change (substantive tier: one refute-briefed verifier pre-push), plus the batched #875 QA rows.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a new `## AICPA assurance criteria` block (placed after the ISACA-frameworks / COBIT block) with one row, `AICPA TSP Section 100` / current version `2017 Trust Services Criteria (with revised points of focus, 2022)` / topic the SOC 2 subject-matter criteria (Security, Availability, Processing Integrity, Confidentiality, Privacy). This closes a genuine internal inconsistency: the Trust Services Criteria are cited across the corpus (audit-planning, audit-evidence-package "SOC 2 CC6.1", regulator-interaction) and AICPA is an approved publisher-source in the citation-verification specification, but the register carried no AICPA / TSC row, so the standards-currency linter could not track a stale TSC reference. The row now gives it that anchor.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) §3.57: AICPA TSP 100 moved from routed-to-maintainer to APPLIED (#876). Per the maintainer's 2026-07-13 direction, the assistant now confirms the `[V]` rows' currency itself via WebSearch/WebFetch (the VM directive) rather than routing them; the annotation records this and lists the remaining `[V]` rows still to apply, each with its own currency confirmation.
+
+### Verification
+
+- **Upstream currency confirmed this turn (the `[V]` obligation).** WebSearch plus a WebFetch of the AICPA resource page confirmed the current form is the 2017 Trust Services Criteria with revised points of focus (2022), and that the 2022 update revised the points of focus, not the criteria themselves; corroborated by the Deloitte DART index of the same TSP Section 100 title. No AICPA TSC version newer than the 2017-criteria-with-2022-POF form exists as of this session.
+- Substantive-tier: one skeptical refute-briefed verifier subagent on the register row (read-only-git), plus a separate `/validate-pr` Subagent A on the prior PR (#875).
+- Register per-document Version bumped 1.5.27 to 1.5.28; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated in that order (taxonomy first), both `--check` clean. Standards-currency and citation linters pass with the new row. `aicpa-cima.com` is already on the external-link-domain allowlist.
+- Batches PR #875's `/validate-pr` and `/retro` rows.
+- The pre-push guard (full audit suite plus PR-time checks) is green.
+
+### Discipline observation
+
+The `[V]` flag did exactly its job: it gated the row on a real upstream check rather than a catalogue assumption, and the maintainer's VM directive (retrieve and verify yourself, do not defer a retrievable check) is what let the row be applied this session instead of routed. The publication-date cell records the year with the revised-points-of-focus annotation rather than a fabricated month, since the publisher page gives no exact month for the 2022 revision (accuracy over completeness). The superseded-versions cell is `-` rather than an unverified predecessor designation.
+
 ## 2026-07-13, Library Version 2026.07.363, PR #875
 
 Delivery-pipeline reconciliation (TODO §3.58) closed on the grc_library side under the maintainer's disposition rule, plus the batched #874 QA rows. Bookkeeping; no corpus, pack, or taxonomy content.
