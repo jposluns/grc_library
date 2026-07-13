@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.27\
+**Version:** 1.5.28\
 **Date:** 2026-07-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -185,6 +185,12 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | COBIT | 2019 | 2018-11 (with Design Guide and Implementation Guide updates 2019, 2020) | Control Objectives for Information and Related Technologies. Note: COBIT 2025 is not a published version; the hallucination is enforced by [`tools/lint-citations.py`](../tools/lint-citations.py). | COBIT 5, COBIT 4.1 | https://www.isaca.org/resources/cobit | 2026-06-30 |
+
+## AICPA assurance criteria
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| AICPA TSP Section 100 | 2017 Trust Services Criteria (with revised points of focus, 2022) | 2017 (revised points of focus 2022) | Trust Services Criteria for SOC 2 examinations (Security, Availability, Processing Integrity, Confidentiality, Privacy); the 2022 revision updated the points of focus, not the criteria themselves | - | https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022 | verified 2026-07-13 |
 
 ## Cybersecurity adversary frameworks
 
