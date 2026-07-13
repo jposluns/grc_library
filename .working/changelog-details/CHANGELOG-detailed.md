@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.385, PR #897
+
+The `/deep-assessment` r3 Phase 6 (adoptability, pipeline integrity, QA-ledger meta-audit), COMPLETE; its one Low finding (F-1) fixed in-window; and PR #896's batched QA. Phases 1 to 6 of r3 are now COMPLETE.
+
+### Security
+
+- [`.github/workflows/nightly-sweep.yml`](../../.github/workflows/nightly-sweep.yml): SHA-pinned `actions/checkout` (`34e114876b0b11c390a56381ad16ebd13914f8d5` # v4) and `actions/setup-python` (`a26af69be951a213d495a4c3e4e4022e16d87065` # v5), matching the main quality workflow, resolving Phase-6 finding F-1 (the workflow tag-pinned these two actions while the main workflow SHA-pins them, a self-inconsistency against the repo's own strict SHA-pin rule). Same versions, pinned by commit; behaviour-preserving, security-positive. Low severity (read-only token, no secrets, `permissions: {}`).
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](2026-07-13-r3.md): Phase 6 header PENDING to COMPLETE with the full result (pipeline integrity, QA-ledger meta-audit, adoptability). [`.working/deep-assessment/register.md`](register.md): r3 row P6 to complete (Phases 1-6 complete; Phase 7 next).
+- [`.working/hallucination-metrics.md`](../hallucination-metrics.md): refreshed the Current-state header + a #887-#896 session-window summary (the r3 Phase-6 meta-audit flagged it at its opportunistic-update threshold); worker-draft class unmoved, orchestrator-side zero shipped escapes this session.
+- README Library Version 2026.07.384 to 2026.07.385; README Version 1.9.745 to 1.9.746.
+
+### Verification
+
+- **Phase 6 (2 subagents + inline platform checks):** pipeline-integrity subagent found 1 Low (F-1, fixed here) + 0 critical: the main quality workflow hardening sound (SHA-pinned actions, `contents: read`, `pull_request` not `pull_request_target`, safe env-var handling of the one `github.event.*` use), full-history secret/PII scan CLEAN across 1123 commits (every hit a documented example / linter fixture / canonical placeholder / the maintainer's published-and-allowlisted contact), guard/hook chain fail-loud (RM-10 fail-closed, pipe-guard self-test 14 blocked / 17 allowed), `.gitattributes` export-ignore correct. Branch protection verified inline via `gh api`: the active "Main Protection" ruleset enforces pull-request (1 approval), the `Lint markdown corpus` required check, required signatures, and deletion protection. QA-ledger meta-audit subagent: the QA record is HONEST (every merged PR #880-#895 has a formal `/validate-pr` + `/retro` row, #886 handoff-exempt correctly marked in the Findings cell, zero sham markers in-window, zero uncaught shipped escape, registers consistent). Adoptability: the bare-clone on-ramp resolves end-to-end (0 dead links across README / portal-273 / quickstart-13 / decision-tree-89 / adopter-guide-40).
+- All 69 audit gates pass standalone (pre-push guard). The only corpus-visible change is the workflow SHA-pin (F-1); no corpus document body changed. The nightly-sweep workflow runs only on schedule/dispatch, so it is not exercised by this PR's CI.
+
+### Discipline observation
+
+Phase 6 completes r3's evidence-gathering: Phases 1 to 6 done, with the finding set consolidated for Phase 7 routing and Phase 8 sign-off. The QA-ledger meta-audit is the honest-backstop step (it audits whether the QA record itself is genuine, not just whether the corpus is clean) and returned HONEST, including the transparently-retained far-out-of-window Sweep-22 abbreviation incident as an integrity-positive. F-1 is the only Phase-6 fix and is clear-mechanical; every substantive r3 finding (DA-ASVS, the fitness contradictions, the reference-audit items) remains HELD for maintainer sign-off. Next: Phase 7 (consolidate and route the whole r3 finding set) and Phase 8 (present for sign-off; the only terminal state).
+
 ## 2026-07-13, Library Version 2026.07.384, PR #896
 
 The `/deep-assessment` r3 Phase 4 (dead-gate/coverage deep pass, COMPLETE) and Phase 5 (ground-truth citation sampling, COMPLETE), their routed findings, and PR #895's batched QA.
