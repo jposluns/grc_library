@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.28\
-**Date:** 2026-07-09\
+**Version:** 1.4.29\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -189,7 +189,7 @@ Where a processor or sub-processor is involved, the organization:
 - Coordinates to ensure that the processor preserves evidence and supports the impact assessment.
 - Confirms contractual notification obligations have been met and documents the confirmation.
 
-> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalizes that "without undue delay" for the organization's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion.
+> **Note: processor-to-controller timeline asymmetry under GDPR Article 33(2).** The 24-hour contractual supplier clock and the 72-hour regulatory clock in §6.2 anchor to **two different awareness events**. GDPR Article 33(2) requires the processor to notify the controller "without undue delay after becoming aware" of a personal data breach. The contractual 24-hour window operationalizes that "without undue delay" for the organization's processors. The 24-hour clock therefore starts when the **processor** becomes aware of the breach, **not** when the controller is notified, **not** when the controller becomes aware, and **not** at any later containment or assessment milestone. The controller's 72-hour Article 33(1) clock then starts when the controller becomes aware (typically on receipt of the processor's Article 33(2) notification), giving the controller up to 72 hours from that point to notify the supervisory authority. A processor that delays its Article 33(2) notification consumes part of the controller's 72-hour budget; the 24-hour contractual cap exists to prevent that erosion. The EDPB's **Guidelines 9/2022 on personal data breach notification** (Version 2.0, adopted 28 March 2023) are the authoritative interpretation: once the controller has become aware, a notifiable breach must be notified without undue delay and, where feasible, not later than 72 hours, and Article 33(2) requires a processor that becomes aware of a breach to notify the controller without undue delay.
 
 ---
 
@@ -345,7 +345,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Control Area | Framework Reference |
 | --- | --- |
 | Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 SEF-08 |
-| Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34 |
+| Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34; EDPB Guidelines 9/2022 on personal data breach notification |
 | Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations; Quebec Law 25 (CPPA pending reintroduction) |
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: India | DPDPA 2023; Digital Personal Data Protection Rules 2025; DPBI |

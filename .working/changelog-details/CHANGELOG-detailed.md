@@ -6,13 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.357, PR #869
+
+Reference-breadth apply (TODO §3.57), bundle 4 (the last held-verifiable EDPB `lc` High row): cite EDPB Guidelines 9/2022 in the breach-response procedure. Completes the EDPB privacy-guideline cluster (4/2019, 05/2020, 01/2022, 9/2022).
+
+### Changed
+
+- [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md): cited **EDPB Guidelines 9/2022 on personal data breach notification (Version 2.0, adopted 28 March 2023)** in the `### 6.3` Article 33(2) note (the "becoming aware" doctrine and 72-hour clock, and the processor-to-controller Article 33(2) obligation) and the `## 12` EU/UK framework-alignment row. Confirmed not already cited. Version 1.4.28 to 1.4.29.
+
+### Added
+
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md): a register row for EDPB 9/2022 (Version 2.0, 2023-03), soft-law supervisory-guidance scope. Version 1.5.25 to 1.5.26.
+
+### Verification
+
+- Both attributions were read against the held source this turn: the "becoming aware / without undue delay / not later than 72 hours" doctrine (held paragraph 35, line 467) and the Article 33(2) processor-becomes-aware obligation (held paragraph 44, line 550).
+- Version: v2.0 (28 March 2023, adopted after public consultation); v1.0 (10 October 2022) was an updated version of the Article 29 Working Party guidelines WP250 rev.01, issued for a targeted public consultation. The superseded cell states v1.0's date and WP250-rev.01 lineage exactly as the held version-history records them (verified against the held source at line 36, not a catalogue summary).
+- Currency: held at v2.0; ref-catalogue `last_checked` 2026-07-12; not re-verified upstream this turn (recorded as the register Last-verified date).
+- Confirmed the procedure did not already cite EDPB 9/2022 (the only prior "EDPB" mention is a body reference in the §6.2 table); artefacts regenerated after the two per-document Version bumps.
+- Skeptical pre-push verifier (substantive tier; citation-accuracy-focused, read-only git): citation content CLEAN, both attributions verbatim-supported in the held source (the "becoming aware / without undue delay / not later than 72 hours" doctrine at held paragraph 35, line 467; the Article 33(2) processor-becomes-aware obligation at held paragraph 44, line 550), with the 72-hour controller clock and the processor obligation kept correctly distinct (no mis-coupling this bundle). Version accurate; register row well-formed; uncited before; no dashes or path-spans. One LOW prose-imprecision it flagged, the Verification clause implied the held version-history lacked a v1.0 date, but it records 10 October 2022 (held line 36); corrected here, and the register superseded cell now states that verified date. The #868 QA rows it flagged as pending were added after it ran (both present; gate 50 clears).
+- Batches PR #868's `/validate-pr` and `/retro` rows.
+
+### Discipline observation
+
+Bundle 4 completes the held-verifiable EDPB `lc` cluster. The two lessons from bundles 2 and 3 (no register-phrasing pattern-match; verify each attribution's semantic-fit coupling against the held text) were applied at authoring: the "becoming aware" and Article 33(2) attributions were coupled exactly as the held source couples them (paragraphs 35 and 44), and the v1.0 superseded cell asserts no date the held version-history does not give. The §3.57 version-sensitive `[V]` jurisdiction rows and the stale / recycled scratch deliveries remain routed to the maintainer.
+
 ## 2026-07-13, Library Version 2026.07.356, PR #868
 
 Reference-breadth apply (TODO §3.57), bundle 3 of the EDPB privacy cluster: cite EDPB Guidelines 01/2022 (right of access) in the data-subject-rights procedure.
 
 ### Changed
 
-- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md): cited **EDPB Guidelines 01/2022 on data subject rights, Right of access (Version 2.1, 30 May 2024; adopted 28 March 2023)** at `### 6.3 Redaction of third-party data` (the Article 15(4) third-party-rights limit and the layered approach) and `### 7.2 Article 12(5) assessment checklist` (the manifestly-unfounded-or-excessive assessment and the controller's burden), and added it to the `## 11 Framework alignment` "Access and transparency" row. Confirmed not already cited. Version 1.6.7 to 1.6.8.
+- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md): cited **EDPB Guidelines 01/2022 on data subject rights, Right of access (Version 2.1, 30 May 2024; adopted 28 March 2023)** at `### 6.3 Redaction of third-party data` (the Article 15(4) third-party-rights limit, applied by redaction) and `### 7.2 Article 12(5) assessment checklist` (the manifestly-unfounded-or-excessive assessment and the controller's burden), and added it to the `## 11 Framework alignment` "Access and transparency" row. Confirmed not already cited. Version 1.6.7 to 1.6.8.
 
 ### Added
 
