@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.360, PR #872
+
+Backlog reconciliation (bookkeeping): record the §3.60 scope assessment and narrow §3.56 to defer its stale cosmetics grab-bag.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): §3.60 (per-run fixture tempdir) annotated with the 2026-07-13 assessment, the fix is entangled at roughly 14 test-fixture sites (content-embedded paths, path-based assertions, and the orphan-test's dependence on the fixture directory being outside the referenced corpus), so it is a dedicated multi-site refactor for a fresh session, not the small change first assumed; the #870/#871 awareness-mitigation is the interim control. §3.56(c) annotated: two flagged cosmetics are already resolved or mislocated, the rest need the Phase-4 acceptance detail plus target-file reading, so the (c) grab-bag is deferred to a single attended pass rather than overnight archaeology.
+
+### Verification
+
+- Bookkeeping-tier change (TODO annotations plus batched QA rows); no corpus, pack, or taxonomy content, so no per-document version bump, taxonomy regeneration, or standing verifier (the mechanical gates and the post-merge /validate-pr are the controls, per the tiered verification standard's quick-fix / bookkeeping tier).
+- Batches PR #871's `/validate-pr` (clean) and `/retro` rows.
+
+### Discipline observation
+
+An honest-assessment PR: rather than force the §3.60 refactor or the stale §3.56 cosmetics under overnight time pressure, both were assessed and their true scope and state recorded so a fresh attended session tackles them correctly. This applies the evidence-grounded-completion "state the scope, do not overclaim" discipline to backlog items whose overnight-doability turned out lower than their one-line estimate.
+
 ## 2026-07-13, Library Version 2026.07.359, PR #871
 
 Read-only-git subagent rule, pack-distribution half (TODO §3.59 remainder; completes and closes §3.59). The project surfaces landed in #870; this adds the project-agnostic discipline to the distributable pack rule so fork adopters inherit it.
