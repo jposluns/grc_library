@@ -6,13 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.347, PR #859
+
+CHANGELOG plain-language rework, stage 3b batch 4 (TODO 3.16). Batch 4 of ~7.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #495 down to #375, the abandoned #422 having no entry) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. Full bodies preserved in this detailed mirror + git history. (Per the measured-not-inferred count discipline, this entry states the exact batch count and range rather than a drift-prone cumulative running total.)
+- Corrected the #858 detailed-mirror entry's cumulative figure from the batch-arithmetic "360 of ~838" to the measured "363 of 842" (the count class the #858 `/validate-pr` flagged).
+- Library CalVer `2026.07.346` to `2026.07.347`; README Version `1.9.707` to `1.9.708`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content); the subagent's own scan confirmed no dashes, no "gate" word, no jargon/path-spans. A skeptical faithfulness verifier sampled the substantive entries (compliance-matrix domain fills, control-code/citation/date corrections, the FR-48 renumbering run, the Risk-Committee naming fixes) against their live bodies and scanned all 120 for leakage. Verdict: no faithfulness misrepresentation (65 PRs sampled, all faithful), 1 LOW hygiene finding (the #484 summary carried "decision gates", legitimate M&A terminology but the banned literal "gate" token), reworded to "decision points" before apply. Applied via the deterministic self-verifying script. Batches #858's `/validate-pr` (1 LOW note, fixed here) + `/retro`.
+
+### Notes
+
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 5.
+
 ## 2026-07-13, Library Version 2026.07.346, PR #858
 
 CHANGELOG plain-language rework, stage 3b batch 3 (TODO 3.16), plus a maintainer-directed backlog expansion. Batch 3 of ~7.
 
 ### Changed
 
-- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #615 down to #496) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. 360 of ~838 entries are now plain-language; #495 and older keep their full bodies pending later batches. Full bodies preserved in the detailed mirror + git history.
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #615 down to #496) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. 363 of 842 entries are now plain-language; #495 and older keep their full bodies pending later batches. Full bodies preserved in the detailed mirror + git history.
 - [`TODO.md`](../../TODO.md) §4.5: broadened, at maintainer direction, from "fork-facing guidance + scripts for building an own reference base" to an **adopter reference-base specification** that an adopter's AI assistant can follow to assemble its own base (adopters do not receive `grc_library_ref`). Now leads with the AI-buildable spec, an enumerated public-source list, a suggested paid-source list (budget-permitting), and, as the headline value, the corpus-to-sources relevance map (which standards, legislation, and frameworks bear on each corpus document, already curated and gate-kept, so a trusting adopter need not rediscover it).
 - Library CalVer `2026.07.345` to `2026.07.346`; README Version `1.9.706` to `1.9.707`.
 
