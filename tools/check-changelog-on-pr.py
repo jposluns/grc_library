@@ -8,7 +8,8 @@ at `.working/changelog-details/CHANGELOG-detailed.md`, unless any commit in the 
 range carries a `Changelog: <one-line-reason>` trailer in its message body.
 
 The dual-entry requirement was introduced in PR #125 (2026-06-21): the root
-CHANGELOG.md carries lead-paragraph summaries; the detailed mirror carries the full
+CHANGELOG.md carries compact one-line entries (a ``date | version | PR`` header plus a
+short summary); the detailed mirror carries the full
 structured-section entries (Added / Changed / Removed / Fixed / Security / Verification).
 Both must move in lock-step. A PR that modifies one without the other is a discipline
 failure caught by this gate.
