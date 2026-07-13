@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.349, PR #861
+
+CHANGELOG plain-language rework, stage 3b batch 6 (TODO 3.16). Batch 6 of ~7.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #254 down to #133, the non-existent #217 and #136 skipped) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. Full bodies preserved in this detailed mirror + git history. (Batch count and range stated exactly.)
+- Library CalVer `2026.07.348` to `2026.07.349`; README Version `1.9.709` to `1.9.710`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content), transposition-guarded (each summary written against its own header's body, the explicit guard after the batch-5 swap). A skeptical faithfulness verifier sampled the substantive entries and specifically re-checked the duplicate-version backfill cluster (#169-#175, the swap-risk spot) against their live bodies, and scanned all 120 for leakage. Verdict: NO misrepresentation (the #169-#175 duplicate-version cluster explicitly cleared as swap-free; ~50 entries sampled, all faithful on scope/counts/standard-and-GDPR-article attributions). One accepted LOW note: 8 summaries use the plain-English word "section" (a README section, a charter section), which is adopter-comprehensible and not the banned "§N / TODO section" internal-reference token, so no fix. Applied via the deterministic self-verifying script. Batches #860's `/validate-pr` (0 findings) + `/retro`.
+
+### Notes
+
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 7 (the final batch, which includes the earliest PR-less entries).
+
 ## 2026-07-13, Library Version 2026.07.348, PR #860
 
 CHANGELOG plain-language rework, stage 3b batch 5 (TODO 3.16). Batch 5 of ~7.
