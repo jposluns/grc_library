@@ -46,6 +46,13 @@ ALWAYS_EXEMPT = {
     # the ALWAYS_EXEMPT check, so those two entries were unreachable.
     "README.md", "NOTICE.md", "AUTHORS.md",
     "CHANGELOG.md", "TODO.md", "CONTRIBUTING.md", "SECURITY.md",
+    # RESUME.md is a manual session-resume entry point opened by filename
+    # convention (its own header: "manual entry point"), the same category as
+    # the other root entry points above. Its only markdown-linked referrer was
+    # a CHANGELOG entry body; the plain-language CHANGELOG rework (TODO 3.16)
+    # collapses bodies, so relying on that incidental link is fragile. It is
+    # reached by convention, not by inbound link, so it is exempt like its peers.
+    "RESUME.md",
 }
 
 # Reference patterns: markdown links to local files.
