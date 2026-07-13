@@ -208,6 +208,10 @@ An override made in an overnight or otherwise unattended run is surfaced to the 
 
 The override register and the resume-surfacing step are the project's operationalization; this rule states the discipline, the project wires the file and the resume hook.
 
+### Dispatched subagents inspect version control read-only (shared-tree safety)
+
+When the orchestrator dispatches a verifier or a validation subagent that SHARES the orchestrator's working tree, and the orchestrator may be working on a concurrent feature branch, the subagent MUST inspect version-control history READ-ONLY (`git show <ref>:<path>`, `git diff <a> <b>`, `git log`) and MUST NOT run any command that moves the working tree's branch or HEAD (`git checkout` / `switch` / `reset` / `stash`). A subagent that checks out a commit to "judge it at that revision" switches the shared tree off the orchestrator's branch, so the orchestrator's next commit lands on the wrong branch; judge any revision with `git show` / `git diff` against the ref instead. Where the harness gives each subagent its own worktree or clone, this constraint is moot, it binds only when the tree is shared. Relatedly, two mechanical-suite or test runs in the shared tree can collide on shared test fixtures, and a subagent's suite run can observe the orchestrator's not-yet-committed edits, so a transient fixture-race failure, or a completeness-gate flag for a sibling change the orchestrator has not yet committed, is a concurrency artefact to re-check standalone rather than a defect.
+
 ---
 
 ## Prohibited anti-patterns

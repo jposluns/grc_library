@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.59: read-only-git rule for validation/verifier subagents (2026-07-13)
+
+Codified the rule that a dispatched verifier or validation subagent sharing the orchestrator's working tree inspects git history read-only (`git show`/`git diff`/`git log`) and never moves the tree's branch or HEAD (`checkout`/`switch`/`reset`/`stash`), preventing the #866 shared-tree branch-collision (a subagent's checkout mis-branched a commit onto local main; caught fail-loud at PR-create, repaired). Project surfaces (the /validate-pr + /validate command stubs + a CLAUDE.md note) in #870; the pack-distribution half (the ai-assistant-workflow-disciplines rule, both trees, project-agnostic) in #871. The secondary concurrent-suite fixture-race observation was assessed and documented as a re-check-standalone artefact; the deeper per-process-tempdir tooling fix is spun off as §3.60.
+
 ### TODO §1.2 (recycled number): SP 800-154 "held source" wording accuracy (2026-07-13)
 
 Corrected the reference-audit guidance's motivating example: NIST SP 800-154 (a never-finalized NIST draft, not held in `grc_library_ref`, verified this turn) was described as a "held source" and as a source that "sits in the reference base". Reframed it accurately as a relevant-but-unavailable source that surfaced the general "held but unused" class, across the four scanned carriers (parent CLAUDE.md reference-breadth-cadence section, the `/reference-audit` command stub, the pack README skill-tree line and the reference-audit version-history row); the class definition itself was already correct and unchanged. Distinct from #509's §1.2 (per-document ISO Annex A validity, gate 58), which reused the same number.

@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.61.4\
+**Version:** 1.61.5\
 **Date:** 2026-07-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -490,6 +490,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.61.5 | 2026.07.359 | 2026-07-13 | Read-only-git subagent rule (patch; no new rule or skill): the skeptical pre-push verification section of [`governance/ai-assistant-workflow-disciplines.md`](governance/ai-assistant-workflow-disciplines.md) gains a "Dispatched subagents inspect version control read-only (shared-tree safety)" subsection: a dispatched verifier or validation subagent sharing the orchestrator's working tree must inspect history read-only (`git show` / `git diff` / `git log`) and never move the tree's branch or HEAD (`git checkout` / `switch` / `reset` / `stash`), and a transient shared-fixture or not-yet-committed-sibling flag is a concurrency artefact. Both trees. Pack `1.61.4` to `1.61.5` (patch; no new rule or skill). |
 | 1.61.4 | 2026.07.353 | 2026-07-13 | Change-tracking two-file-split how-to harmonized (patch; no new rule or skill): the "In the root file" authoring step in [`governance/change-tracking.md`](governance/change-tracking.md) now points at the compact one-line form as the recommended go-forward root-summary shape (following the 1.61.3 flip of the current-week-model section), replacing the bare "write the lead paragraph only" instruction that lagged it. Both trees. Pack `1.61.3` to `1.61.4` (patch; no new rule or skill). |
 | 1.61.3 | 2026.07.352 | 2026-07-13 | Change-tracking authoring-convention (patch; no new rule or skill): the compact one-line root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** - summary`) is documented in [`governance/change-tracking.md`](governance/change-tracking.md) as the recommended go-forward shape for the root CHANGELOG once entry volume makes the lead-paragraph-per-entry form unwieldy to scan, replacing the prior "a distinct reformat step the project may choose; until then keep the lead-paragraph form" framing. Reformatting an existing back-catalogue remains a distinct one-time step. Pack `1.61.2` to `1.61.3` (patch; no new rule or skill). |
 | 1.61.2 | 2026.07.351 | 2026-07-13 | SP 800-154 wording accuracy (patch; no new rule or skill): the reference-audit skill's motivating example, NIST SP 800-154, was described as a "held source" and as a source that "sits in the reference base", but it was never finalized and is not held in the reference base. This row and the skill-tree line are corrected to frame SP 800-154 accurately as a relevant-but-unavailable source that surfaced the general "held but unused" class; the class definition itself (an authoritative held source that no document engages) is unchanged and correct. The parent project's CLAUDE.md reference-breadth-cadence section and the `/reference-audit` command stub carry the same correction. Pack `1.61.1` to `1.61.2` (patch; no new rule or skill). |

@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.359, PR #871
+
+Read-only-git subagent rule, pack-distribution half (TODO §3.59 remainder; completes and closes §3.59). The project surfaces landed in #870; this adds the project-agnostic discipline to the distributable pack rule so fork adopters inherit it.
+
+### Changed
+
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) and its project-side mirror copy (gate-37 parity): a new "Dispatched subagents inspect version control read-only (shared-tree safety)" subsection in the skeptical pre-push verification section, a dispatched verifier or validation subagent sharing the orchestrator's working tree inspects history read-only and never moves the tree's branch or HEAD, plus the concurrency-artefact note (shared-fixture race; not-yet-committed-sibling flag). Project-agnostic (the #866 incident lineage stays in the project surfaces, not the pack body). Pack 1.61.4 to 1.61.5 (patch; no new rule or skill) with a version-history row.
+- [`.claude/CLAUDE.md`](../CLAUDE.md): the §3.59 forward-pointer added in #870 (which read "the pack half of this codification ... is TODO §3.59") reworded to note the pack half landed in #871, the §N-orphan cross-file cleanup for the section this PR closes.
+
+### Verification
+
+- Gate-37 parity: the subsection is byte-identical in both trees; the pack copy carries no project attribution (the #866 reference is deliberately omitted from the pack body, per the pack-hygiene zero-project-flavour convention).
+- Derived artefacts regenerated after the pack README Version bump.
+- Skeptical pre-push verifier (substantive tier; read-only git): gate-37 parity byte-identical (both trees), pack project-agnosticism clean (no #866 or project token in the pack subsection or the 1.61.5 history row), rule accurate and coherent. Caught TWO §N-orphan defects from this PR's own §3.59 closure, both FIXED pre-push: (1) [HIGH, gate-18-blocking] the new §3.60 item carried bare `§3.59` references that no longer resolve after the §3.59 heading was rotated to DONE, reworded to name the codification by description plus PR numbers; (2) [gate-blind] the CLAUDE.md forward-pointer added in #870 ("is TODO §3.59") was stale after the close, reworded to "landed in #871". A whole-repo grep confirmed zero residual `§3.59` in gated surfaces. All other axes clean; the gate-36/50 concurrency artefacts did not fire this run.
+- Batches PR #870's `/validate-pr` and `/retro` rows.
+- Closes TODO §3.59 (project surfaces in #870 plus this pack half); rotated to the DONE ledger. The secondary concurrent-suite fixture-race observation from §3.59 is spun off as the new TODO §3.60 (a per-process fixture-tempdir tooling fix, non-urgent), rather than falsely bundled into the close.
+
+### Discipline observation
+
+Completes §3.59, the read-only-git codification, across both the project surfaces (#870) and the distributable pack (#871). The rule's motivating incident (#866) is a project fact recorded in the project surfaces and the improvement-log; the pack body states the discipline project-agnostically.
+
 ## 2026-07-13, Library Version 2026.07.358, PR #870
 
 Codify the read-only-git rule for validation and verifier subagents (TODO §3.59, project surfaces). Prevents the #866 shared-tree branch-collision from recurring.
