@@ -2,8 +2,8 @@
 
 **Document Title:** Transfer Impact Assessment (TIA) Template\
 **Document Type:** Template\
-**Version:** 1.0.2\
-**Date:** 2026-07-03\
+**Version:** 1.0.3\
+**Date:** 2026-07-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/standard-pseudonymization-and-anonymization.md`](standard-pseudonymization-and-anonymization.md), [`privacy/jurisdictions/annex-privacy-european-union.md`](jurisdictions/annex-privacy-european-union.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md)\
@@ -67,7 +67,7 @@ Fill the right-hand cells of each table. A field left blank is an incomplete ass
 | Field | Required content |
 | --- | --- |
 | Is the destination covered by an Article 45 adequacy decision? | Yes / No. If yes, no TIA is required; record the decision and monitor its validity, and stop here. |
-| The Article 46 tool relied on | The specific appropriate-safeguards tool: Commission Standard Contractual Clauses (Article 46(2)(c)), binding corporate rules (Articles 46(2)(b) and 47), an approved code of conduct with binding and enforceable commitments (Article 46(2)(e)), an approved certification mechanism with binding and enforceable commitments (Article 46(2)(f)), or an authorization-required mechanism (ad hoc contractual clauses or administrative arrangements between public authorities, Article 46(3)). Name the specific instrument and module or set of clauses; note that a code of conduct or certification carries a different effectiveness analysis in Section 3 than Standard Contractual Clauses or binding corporate rules. |
+| The Article 46 tool relied on | The specific appropriate-safeguards tool: Commission Standard Contractual Clauses (Article 46(2)(c)), binding corporate rules (Articles 46(2)(b) and 47), an approved code of conduct with binding and enforceable commitments (Article 46(2)(e)), an approved certification mechanism with binding and enforceable commitments (Article 46(2)(f)), or an authorization-required mechanism (ad hoc contractual clauses or administrative arrangements between public authorities, Article 46(3)). Name the specific instrument and module or set of clauses; note that a code of conduct or certification carries a different effectiveness analysis in Section 3 than Standard Contractual Clauses or binding corporate rules; for the certification mechanism, the EDPB's **Guidelines 07/2022 on certification as a tool for transfers** (Version 2.0, adopted 14 February 2023) are the authoritative guidance on that analysis. |
 | Is an Article 49 derogation being relied on instead? | If so, this template does not apply; the derogation's own conditions govern, and a derogation is not a repeatable general transfer mechanism. |
 | Status of the tool | Executed / in negotiation; the date and the parties bound. |
 
@@ -141,6 +141,7 @@ Re-run this assessment:
 | GDPR | Article 48 | A third-country authority's order to transfer or disclose is recognizable or enforceable only on the basis of an international agreement; central to the Section 3 government-access assessment. |
 | GDPR | Article 49 | Derogations; outside this template's scope (Section 2). |
 | EDPB Recommendations 01/2020 | Measures that supplement transfer tools | The six-step methodology this template operationalizes (attributed; framed in this library's own operational prose, not reproduced verbatim). |
+| EDPB Guidelines 07/2022 | Certification as a tool for transfers | The authoritative guidance on the Article 46(2)(f) certification-mechanism transfer tool and its effectiveness analysis, distinct from the Standard-Contractual-Clauses and binding-corporate-rules analysis. |
 | UK GDPR | Articles 44 to 49 | The equivalent restricted-transfer regime for UK-scoped transfers (the UK uses its own transfer-risk-assessment approach; adapt the destination-law analysis accordingly). |
 | ISO/IEC 27701:2025 | Privacy information management | The PIMS control environment within which the transfer determination is recorded and reviewed. |
 
