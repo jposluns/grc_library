@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.383, PR #895
+
+The `/deep-assessment` r3 Phase-3 final semantic instrument, `/reference-audit` FULL both-directions, its two routed findings, and PR #894's batched QA. Phase 3 of r3 is now COMPLETE.
+
+### Added
+
+- Reference-breadth run record [`.working/reference-audit/2026-07-13-full.md`](../reference-audit/2026-07-13-full.md) (FULL both-directions, deep-assessment r3 Phase-3): 588 in-scope reference items / 405 corpus docs (210 well-cited, 111 thin, 161 uncited, 106 no-key); deliberate high-value authoritative-tier sample across four judges (AI-security, financial-services, assurance/SOC, threat-modeling+new-ingest), sample stated. History row added to [`.working/reference-audit/history.md`](../reference-audit/history.md) (first recorded `/reference-audit` run; Version 1.0.0 to 1.0.1).
+- TODO §3.63 [`TODO.md`](../../TODO.md) routing the two findings (HOLD for r3 Phase-8 sign-off): RB-ETSI-104128 (Low, held-but-unused) and RB-FFIEC-CAT (Medium, currency).
+
+### Changed
+
+- [`.working/deep-assessment/2026-07-13-r3.md`](2026-07-13-r3.md): `/reference-audit` marked COMPLETE with the routed-finding summary; Phase 3 header changed IN PROGRESS to COMPLETE (all eight semantic instruments run).
+- README Library Version 2026.07.382 to 2026.07.383; README Version 1.9.743 to 1.9.744.
+
+### Verification
+
+- All 69 audit gates pass standalone (pre-push guard). No corpus document body changed (this PR is the reference-audit record + routing + #894 QA); no generated-artefact regen needed.
+- **Findings apply-time-verified before routing.** ETSI TR 104 128 confirmed held in the grc_library_ref catalogue and the target [`ai/guide-ai-security-technical-implementation.md`](../../ai/guide-ai-security-technical-implementation.md) (lines 625 to 627) confirmed to cite NIST but no ETSI. FFIEC CAT currency confirmed against the PRIMARY source (ffiec.gov, this turn): the FFIEC sunset the CAT on 31 Aug 2025, successors CRI Cyber Profile + CIS CSC; the corpus `annex-financial-services-sector-requirements.md:75` presents it as current. ISO 5259-5 confirmed already tracked at the live TODO §3.42 (deduped, not duplicated). RB-6(e) confirmed no-corpus-value-at-risk (the SOC judge enumerated every corpus AICPA-TSC citation at the edition-stable criteria/CC-group level).
+
+### Discipline observation
+
+`/reference-audit` FULL is the last of the r3 Phase-3 semantic instruments; Phase 3 is COMPLETE. The pass confirms the corpus reference-breadth is strong (2 genuine findings on a 588-item base, one of them a currency slip rather than a breadth gap). The RB-6(e) resolution is a clean closure of a question three prior passes (Sweep 101, `/claim-fit`, `/full-qa`) left open by finding the held-edition mismatch but not testing whether any attributed value depended on it. r3 Phase 8 remains HELD; next are the Phase-4 dead-gate/coverage deep pass and Phases 5-6.
+
 ## 2026-07-13, Library Version 2026.07.382, PR #894
 
 The `/deep-assessment` r3 Phase-3 (and Phase-6 adoptability) `/fitness` fresh-reader persona pass, its finding set routed to the r3 finding set (HOLD for maintainer sign-off), the in-window fix of the status-lag warning PR #893's `/validate-pr` raised, and PR #893's batched QA.

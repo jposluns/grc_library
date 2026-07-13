@@ -1,7 +1,7 @@
 # Reference-Audit Reference-Breadth Audit History
 
-**Version:** 1.0.0\
-**Date:** 2026-07-08\
+**Version:** 1.0.1\
+**Date:** 2026-07-13\
 **License:** CC BY-SA 4.0
 
 Reverse-chronological table of every `/reference-audit` invocation against this library. New rows on top. Each row summarizes one reference-breadth audit run (FULL, per-touch, or new-ingest mode); detail for findings-producing runs lives in a per-run file `YYYY-MM-DD-<scope>.md` linked from the **Detail** column. A zero-finding or empty-candidate run gets a history row with `Detail` = `none`.
@@ -14,3 +14,4 @@ This file is maintainer working state, exempt from corpus audit gates.
 
 | Date | Mode and scope | Worklist | Judge | Findings | Resulting PR | Detail | Summary |
 |---|---|---|---|---|---|---|---|
+| 2026-07-13 | FULL both-directions (deep-assessment r3 Phase-3) | 588 ref items / 405 docs (210 well-cited, 111 thin, 161 uncited, 106 no-key); deliberate high-value authoritative-tier sample stated | 4 subagents (AI-security, financial-services, assurance/SOC, threat-modeling+new-ingest) | 2 routed (RB-ETSI-104128 Low breadth; RB-FFIEC-CAT Medium currency) + ISO 5259-5 deduped to TODO §3.42 + RB-6(e) confirmed no-value-at-risk | pending (r3 finding set; HOLD for Phase-8 sign-off) | [`2026-07-13-full.md`](2026-07-13-full.md) | First recorded `/reference-audit` FULL run. On a recall-oriented 588-item worklist, a deliberate high-value sample across four judges found the corpus reference-breadth strong: two genuine routable findings. (1) ETSI TR 104 128 (current 2025-05 implementation guidance for the EN 304 223 baseline the corpus anchors to by provision) is held but unengaged; route as a corroborative see-also in `ai/guide-ai-security-technical-implementation.md` (informative-tier, not a normative anchor). (2) `compliance/financial-services/annex-financial-services-sector-requirements.md:75` lists the FFIEC CAT as a current US regime, but the primary source (ffiec.gov, verified this turn) confirms the FFIEC sunset the CAT on 31 Aug 2025 (successors: CRI Cyber Profile, CIS CSC); a Medium currency finding, also SOURCE-NOT-HELD. ISO/IEC 5259-5:2025 is a genuine held-but-uncited governance-framework part but already tracked at TODO §3.42 (refined, not duplicated). RB-6(e) AICPA-TSC held-edition resolved NO-CORPUS-VALUE-AT-RISK: every corpus TSC citation is at the edition-stable criteria/CC-group level. Everything else correctly uncited or already engaged (ETSI GR SAI precursors superseded; AICPA SOC family examiner-facing; FFIEC booklets family-level in the FS annex; PASTA/MITRE/OWASP adequately anchored; NIST IR 8596 a preliminary-draft finalization-watch). Two worklist-tool miscounts noted (10 not 11 FFIEC booklets; CPS 230 2 not 3 cites), not corpus defects. |

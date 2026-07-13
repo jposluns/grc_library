@@ -236,6 +236,15 @@ The `/guardrails` pass of record for `/deep-assessment` r3 (run r10; overlap 0 g
 
 Detail: [`.working/guardrail-reviews/2026-07-13-r10.md`](.working/guardrail-reviews/2026-07-13-r10.md). These feed the r3 finding set; disposition is the maintainer's at r3 sign-off.
 
+### 3.63 Reference-breadth FULL routed findings (deep-assessment r3 Phase-3 `/reference-audit`; surfaced 2026-07-13, S) `[reference-audit]`
+
+The first recorded `/reference-audit` FULL both-directions run (deep-assessment r3 Phase-3; detail [`.working/reference-audit/2026-07-13-full.md`](.working/reference-audit/2026-07-13-full.md)) judged a deliberate high-value authoritative-tier sample of the 588-item worklist across four judges. The corpus reference-breadth is strong; two genuine findings routed (HOLD for r3 Phase-8 sign-off):
+
+- **RB-ETSI-104128 (Low, held-but-unused breadth):** ETSI TR 104 128 (Securing AI: implementation guidance for the baseline cyber security requirements for AI, V1.1.1 2025-05) is held but unengaged, while the corpus anchors to its paired normative baseline ETSI EN 304 223 by provision across the `ai/` domain. Add it as a corroborative see-also in [`ai/guide-ai-security-technical-implementation.md`](ai/guide-ai-security-technical-implementation.md) (whose Related-standards block cites NIST AI RMF + SP 800-218A but no ETSI), secondarily the [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md) alignment table. Informative-tier TR, so a see-also engagement, NOT a normative anchor (the normative claims stay on EN 304 223).
+- **RB-FFIEC-CAT (Medium, currency):** [`compliance/financial-services/annex-financial-services-sector-requirements.md`](compliance/financial-services/annex-financial-services-sector-requirements.md) line 75 lists the FFIEC Cybersecurity Assessment Tool (CAT) as a current US-depository-institution regime, but the primary source (ffiec.gov, verified 2026-07-13) confirms the FFIEC sunset the CAT on 31 Aug 2025 and will not update it, naming the CRI Cyber Profile and CIS Critical Security Controls as successors. A stale-citation currency finding (the corpus presents a retired tool as current); also SOURCE-NOT-HELD (the ref base never held CAT). Recommended clear-mechanical fix (stricter-safe): mark the row retired-2025 and point to the successors, or drop it. Verify the current FFIEC guidance landscape upstream at fix time.
+
+Not new items: ISO/IEC 5259-5:2025 (a genuine held-but-uncited governance-framework part, refined into §3.42, which already tracks it); RB-6(e) AICPA-TSC held-edition (confirmed NO-CORPUS-VALUE-AT-RISK by the SOC judge enumerating every corpus TSC citation at the edition-stable criteria/CC-group level, so the source-acquisition item stands as fidelity-tracking only). Two worklist-tool miscounts recorded (10 not 11 FFIEC booklets; CPS 230 2 not 3 cites), not corpus defects.
+
 ## Priority 4 — Adopter experience
 
 Capability and guidance for organizations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
