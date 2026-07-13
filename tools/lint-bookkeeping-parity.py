@@ -26,8 +26,9 @@ the post-commit ``run_all_audits.sh`` already runs it before any push.
 The four checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
-list from ``CHANGELOG.md`` ``## YYYY-MM-DD, Library Version X, PR #N``
-headers. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
+list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
+``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
+the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
 ``.working/validate-pr/history.md`` AND (for substantive PRs) a row in
 ``.working/improvement-log.md``, with these exemptions:
 
