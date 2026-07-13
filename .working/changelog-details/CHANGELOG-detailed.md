@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.346, PR #858
+
+CHANGELOG plain-language rework, stage 3b batch 3 (TODO 3.16), plus a maintainer-directed backlog expansion. Batch 3 of ~7.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #615 down to #496) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. 360 of ~838 entries are now plain-language; #495 and older keep their full bodies pending later batches. Full bodies preserved in the detailed mirror + git history.
+- [`TODO.md`](../../TODO.md) §4.5: broadened, at maintainer direction, from "fork-facing guidance + scripts for building an own reference base" to an **adopter reference-base specification** that an adopter's AI assistant can follow to assemble its own base (adopters do not receive `grc_library_ref`). Now leads with the AI-buildable spec, an enumerated public-source list, a suggested paid-source list (budget-permitting), and, as the headline value, the corpus-to-sources relevance map (which standards, legislation, and frameworks bear on each corpus document, already curated and gate-kept, so a trusting adopter need not rediscover it).
+- Library CalVer `2026.07.345` to `2026.07.346`; README Version `1.9.706` to `1.9.707`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content). A skeptical faithfulness verifier sampled the substantive entries (incl. the FR-48 section-renumbering run, retention reconciliations, citation/version corrections, the DPO role split) against their live bodies and scanned all 120 for jargon/dash/path-span leakage. Verdict: 4 LOW findings, no high or medium: three scope/attribution imprecisions (a "five risk documents" over-generalization, an understated domain list, a wrong "continuity" domain) and one jargon leak (the word "gate"); ALL FIXED in the source summaries before the apply. The §4.5 edit was checked clean against the TODO-scanning gates (positional-token, gate-count-phrasing, staleness). Applied via the deterministic self-verifying script. Batches #857's `/validate-pr` (1 LOW note, fixed here: the root CHANGELOG intro's "a few of the oldest" undercounted the un-converted tail, reworded to "many of the older entries"; the detailed-mirror wording was already accurate) + `/retro`.
+
+### Notes
+
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 4.
+
 ## 2026-07-13, Library Version 2026.07.345, PR #857
 
 CHANGELOG plain-language rework, stage 3b batch 2 (TODO 3.16), plus the format-description intro updates the maintainer flagged. Batch 2 of ~7.
