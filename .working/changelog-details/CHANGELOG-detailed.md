@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-13, Library Version 2026.07.348, PR #860
+
+CHANGELOG plain-language rework, stage 3b batch 5 (TODO 3.16). Batch 5 of ~7.
+
+### Changed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): the next 120 root entries (PR #374 down to #255) collapsed from full bodies to jargon-free one-line summaries appended to the compact header, blank-line-separated. Full bodies preserved in this detailed mirror + git history. (Batch count and range stated exactly, per the measured-not-inferred count discipline.)
+- Library CalVer `2026.07.347` to `2026.07.348`; README Version `1.9.708` to `1.9.709`.
+
+### Verification
+
+- Summaries drafted by a research subagent from the existing bodies (compression of verified content); subagent self-scan confirmed no dashes, no "gate" word, no jargon/path-spans. A skeptical faithfulness verifier sampled the substantive entries (the CPPA-to-PIPEDA scrub, CSA Cloud Controls Matrix reconciliations, TLS 1.3 migration, risk-vocabulary harmonizations, retention reconciliations, compliance-matrix domain expansions) against their live bodies and scanned all 120 for leakage. Verdict: 1 HIGH defect, fixed before apply, the #259 and #260 summaries were transposed (the substantive risk-scoring-scale realignment #260 had been mislabeled internal "no published document changed", and the internal overnight-run-init #259 carried #260's substantive text); swapped back to the correct pairing. No other defect (56 entries sampled, all other summaries faithful on scope/counts/attribution; 120-summary jargon/dash/path/"gate" scan clean). This is the catch the verify-before-apply gate exists for: a substantive corpus change would otherwise have shipped labelled "no published document changed". Applied via the deterministic self-verifying script. Batches #859's `/validate-pr` (0 findings) + `/retro`.
+
+### Notes
+
+- This PR receives its own post-merge `/validate-pr` + `/retro`, batching into batch 6.
+
 ## 2026-07-13, Library Version 2026.07.347, PR #859
 
 CHANGELOG plain-language rework, stage 3b batch 4 (TODO 3.16). Batch 4 of ~7.
