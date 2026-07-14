@@ -215,7 +215,7 @@ def read_domain_purpose(domain):
         leads = []
         for it in items:
             it = it.replace("**", "").replace("`", "")
-            first = re.split(r"(?<=\.)\s", it, 1)[0].rstrip(".")
+            first = re.split(r"(?<=\.)\s", it, maxsplit=1)[0].rstrip(".")
             leads.append(first)
         if leads:
             intro = intro.rstrip(":").rstrip() + ": " + "; ".join(leads) + "."
@@ -371,8 +371,8 @@ def render_domain_doc_rows(dp):
         rows.append(
             f'          <li class="doc-row">'
             f'<span class="doc-type">{_esc(d["type"])}</span>'
-            f'<span class="doc-title">{_esc(d["title"])}</span>'
-            f'<a class="doc-link" href="{_esc(url)}" target="_blank" rel="noopener">GitHub &rarr;</a>'
+            f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
+            f'{_esc(d["title"])}<span class="ext">&#8599;</span></a>'
             f"</li>"
         )
     return "\n".join(rows)

@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.411, PR #923
+
+Title-as-link across the public `grclibrary.ai` site plus a domain-page spacing fix (backlog section 2.4, the third maintainer-review PR), and the batched PR #922 post-merge QA (which folded in two in-window fixes). No corpus document changed and no generated artefact was touched.
+
+### Changed
+- **Landing-page feature-card titles are now links.** Each of the 15 feature-card keyword labels in [`.web/templates/landing.html`](../../.web/templates/landing.html) links (new tab) to the corpus page it asserts, per the maintainer-approved mapping: STRUCTURED and STYLE to [`specification-master-project.md`](../../specification-master-project.md); CROSS-LINKED to [`docs/portal.md`](../../docs/portal.md); PRACTICAL to [`docs/adopter-guide.md`](../../docs/adopter-guide.md); INTEGRITY to [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md); CITATIONS to [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md); ALIGNMENT to [`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md); GENERATED to [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); TESTED to [`tests/README.md`](../../tests/README.md); and the six governance-pack rule names to their identically-named rule files in the claude-rules governance pack.
+- **Domain-page document names are the links.** [`.web/build.py`](../../.web/build.py)'s per-domain document rows now render the document NAME as the link to its GitHub source (new tab, with a small external-jump arrow); the previous separate "GitHub" link is removed (one link per row, better for screen readers).
+- **Domain-page spacing tightened.** [`.web/templates/domain.html`](../../.web/templates/domain.html)'s page-scoped styles reduce the section and hero vertical padding and the inter-element margins, scoped to the domain pages only so the content-rich landing page is unchanged, so the document list is reachable without much scrolling, notably on an iPad (maintainer-flagged).
+
+### Fixed
+- **PR #922 post-merge review, both in-window.** The deploy runbook [`.working/cloudflare-pages-setup.md`](../../.working/cloudflare-pages-setup.md) Overview still described a two-page site with a two-file input allow-list; it now describes the 13-page site and the domain-README inputs (runbook 1.0.3 to 1.0.4). And [`.web/build.py`](../../.web/build.py)'s `read_domain_purpose` passed `re.split` maxsplit positionally (a Python 3.13-plus DeprecationWarning); it now uses the keyword form.
+
+### Verification
+- The generator's `--check` is rc=0 (13 pages render) and emits no DeprecationWarning under `-W always`. All 15 landing card labels render as links to the intended targets (all 16 target files confirmed to exist); every off-site link carries `target="_blank" rel="noopener"` and every internal anchor lacks it; the domain document rows carry no separate "GitHub" link. Full `tools/run_all_audits.sh` = 69/69; the external-link lint passes with `grclibrary.ai` allow-listed.
+- **PR #922 post-merge validation** (Subagent A, refute-briefed, read-only-git on `34496d0`): SHIP-WITH-NOTES, 0 error / 2 warning / 0 note (F1 runbook Overview, F2 the `re.split` deprecation), both FIXED here; record at [`2026-07-14-PR-922.md`](../validate-pr/2026-07-14-PR-922.md).
+
+### Notes
+- Card-title link tier: these 15 links are static references to pre-verified corpus files (all 16 targets confirmed present) plus one mechanical generator tweak, verified by render, full-file grep, and the suite rather than a separate skeptical-verifier subagent. STYLE was linked to the master spec per the maintainer, not left unlinked.
+- Follow-up queued and maintainer-approved: a sticky left navigation sidebar (the six section links plus a Domains heading and the 11 domain links) that collapses to a boxed Contents panel on narrow screens, to show the site's breadth up front (PR4; TODO section 2.4).
+
 ## 2026-07-14, Library Version 2026.07.410, PR #922
 
 Per-domain pages for the public `grclibrary.ai` site (backlog section 2.4, the second of the two maintainer-review PRs), plus a hero-paragraph width fix and the batched PR #921 QA. The generator now renders one page per corpus domain (13 pages in all: the landing page, the about page, and 11 domain pages); no corpus document changed and no generated artefact was touched. The site stays preview-until-publish on the maintainer's go.
