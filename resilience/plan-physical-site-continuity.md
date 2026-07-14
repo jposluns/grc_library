@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Site Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-it-disaster-recovery.md`](plan-it-disaster-recovery.md), [`resilience/guideline-emergency-response-and-protective-actions.md`](guideline-emergency-response-and-protective-actions.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md)\
@@ -195,7 +195,7 @@ When the site is again usable:
 | Local fire and building codes | Per jurisdiction | Life safety |
 | Local occupational health and safety law | Per jurisdiction | Employer obligations |
 | Insurance policy terms | Per policy | Notification windows |
-| DORA | Article 12 ICT business continuity policy | Where applicable |
+| DORA | Article 11 ICT business continuity policy | Where applicable |
 | NIS 2 | Article 21(2)(c) Business continuity | Where applicable |
 
 ---
