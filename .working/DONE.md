@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.64: deep-assessment r3 Phase-4/5 routed findings, cluster fully resolved (2026-07-14)
+
+The r3 dead-gate/ground-truth cluster (5 findings) is fully closed and rotated: DA-ASVS ASVS 4.0.3->5.0.0 chapter remap (#902, high-assurance harness; Class 2 generic-governance citations spun out to §3.66), DA-DORA-A12 article mislabel (#899+#900, corpus-wide), DA-AIACT-A26 AI Act over-attribution (#899), DA-ISO20000 citation verified against the now-held ISO/IEC 20000-1:2018 (#907), and DA-gate25-scaffold retired (#909). §3.66 (DA-ASVS Class 2) remains the one live continuation, re-pointed at its #902 origin.
+
 ### TODO §3.65: root CHANGELOG compact-form reformat + advisory length guard (2026-07-14)
 
 Reformatted root `CHANGELOG.md` entries #887-#901 from long multi-sentence paragraphs (109-262 words, the deep-assessment r3 session's drift) back to the adopted compact one-liner form (each compression verified against the detailed mirror), and shipped a light advisory guard `tools/audit-changelog-entry-length.py` (advisory, exit 0, WARN over 130 words; not gate-wired) so future root-entry drift is surfaced. Closed in #908.
