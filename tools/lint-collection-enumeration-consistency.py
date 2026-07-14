@@ -17,6 +17,12 @@ in the corpus can fall behind, causing drift. This audit detects that
 drift by parsing each enumeration location and comparing its set of
 items to the canonical directory listing.
 
+Companion note (gate 39 symmetry): ``tools/lint-gate-count-consistency.py``
+(gate 39) mirrors this gate's collection-source list so the two gates
+agree on what counts as a collection item (see its
+``# mirror gate 41's collection sources`` comment). An editor who changes
+the collection sources here should keep gate 39's mirrored list in step.
+
 Phase 1 (this iteration): two hard-coded collections (the pack's
 governance rules and its skills), each with one or more enumeration
 locations. The external overlay sources noted above are enumerated

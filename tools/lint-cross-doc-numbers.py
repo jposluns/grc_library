@@ -12,18 +12,18 @@ close to the number on the same line.
 
 Terms currently tracked (see TERM_PATTERNS for the live set):
 
-  - P1 acknowledgement time + unit
-  - P2 acknowledgement time + unit
-  - P3 acknowledgement time + unit
   - GDPR breach-notification window (in hours)
 
-The P1/P2/P3 acknowledgement patterns are deliberately narrow per the
-Phase 23.26 false-positive analysis. They match 0 documents on the
-current corpus and exist as scaffolding for a future expansion. Future
-Phase 23.35 explicitly does NOT broaden them to resolution / MTTR /
-convene / notification times because the empirical data confirms each
-SLA dimension legitimately carries different per-Pn values across the
-corpus.
+The dormant P1/P2/P3 acknowledgement scaffold patterns (added narrow per
+the Phase 23.26 false-positive analysis, matching 0 documents and kept
+as forward scaffolding) were RETIRED per the deep-assessment r3
+DA-gate25-scaffold finding: they matched no corpus content, so they
+added no protection while implying coverage the gate did not provide.
+The empirical rationale for NOT broadening SLA-dimension patterns to
+resolution / MTTR / convene / notification times still holds (each SLA
+dimension legitimately carries different per-Pn values across the
+corpus), so no replacement pattern is introduced; the gate stays active
+on the GDPR-breach-notification term below.
 
 The GDPR-breach-notification pattern was added in Phase 23.35 after
 empirical confirmation that 8+ documents reference the statutory
@@ -84,18 +84,6 @@ EXEMPT_FILES = {
 # Patterns capture both the time/duration value AND a unit, normalizing
 # minute/hour/day equivalences during comparison.
 TERM_PATTERNS: dict[str, re.Pattern[str]] = {
-    "P1-acknowledgement": re.compile(
-        r"\bP1[^.\n]{0,80}?acknowledg(?:e|ement)[^.\n]{0,40}?(\d+)\s*(minute|hour|day|business day)s?",
-        re.IGNORECASE,
-    ),
-    "P2-acknowledgement": re.compile(
-        r"\bP2[^.\n]{0,80}?acknowledg(?:e|ement)[^.\n]{0,40}?(\d+)\s*(minute|hour|day|business day)s?",
-        re.IGNORECASE,
-    ),
-    "P3-acknowledgement": re.compile(
-        r"\bP3[^.\n]{0,80}?acknowledg(?:e|ement)[^.\n]{0,40}?(\d+)\s*(minute|hour|day|business day)s?",
-        re.IGNORECASE,
-    ),
     # GDPR (and UK GDPR) breach notification: Article 33 sets a 72-hour
     # deadline. Captures the first N-hour fragment after "GDPR" on the
     # same line, requiring "breach", "notif", "report", or "notify" to
