@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep102-validate
+**Active-session:** claude/changelog-compact-reformat
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-14T00:50:27Z
+**Last-heartbeat-UTC:** 2026-07-14T08:58:24Z
 
-**Current-task:** ACTIVE, **unattended/overnight** (maintainer-set at the 2026-07-14 resume: maintainer up ~1h then asleep; no idle-stop, green CI = merge authority, stricter-safe defaults on no-answer, full per-PR `/validate-pr` + `/retro`, overnight ends only on an explicit signal). Resumed from #900; ran the mandatory loop-break **Sweep 102** `/validate` over #887..#900 (CLEAN: 0 error / 0 warning / 0 escalate-class; all three subagents A/B/C corroborated the asserted expectations; loop-break control for #900 PASSED). Now working the maintainer-directed **r3 High remediation** queue (DA-ASVS via the high-assurance harness [Secrets->V13 Configuration], FR-200 internal-audit board line, FR-201 vuln-SLA 14/30/90 SoT, then FR-202..205 value cluster, then the r3 mediums/lows + reference items + machinery, then P3 cleanup + coverage-refresh sync). All resume decisions banked in [`pending-decisions.md`](pending-decisions.md). Green-at `95a2772` (#900) = 69/69 (verified this resume).
+**Current-task:** ACTIVE, **unattended/overnight** (maintainer-set at the 2026-07-14 resume, re-confirmed "going back to sleep" ~08:58Z: no idle-stop, green CI = merge authority, stricter-safe defaults on no-answer, full per-PR `/validate-pr` + `/retro`, overnight ends only on an explicit signal). Loop-break **Sweep 102** ran CLEAN. The **r3 High + value + tail remediation is COMPLETE**: DA-ASVS #902 (high-assurance harness), FR-200 #903, FR-201 #904, FR-202..205 #905, FR tail #906, RB-ETSI primary + DA-ISO20000 resolved #907. Now on **#908** (CHANGELOG compact-form reformat #887-#901 + advisory length guard, closes §3.65; + batched #907 QA). Next: r3 machinery (low-precision retire/expire/nit, then new-gate BUILDs via high-assurance), ISO 20000 §3.67 review, P3 + coverage-refresh sync, session-closing handoff. Routed forks await maintainer (§3.66/3.69/3.70/3.71, FR-214/215/217/219). All resume decisions banked in [`pending-decisions.md`](pending-decisions.md). Green-at `fb8f5a1` (#907) = 69/69 (verified this session).
 
 **Worker-dispatches:** Sweep 102 dispatched three read-only `/validate` subagents (A recent-PR / B stale-reference / C audit-programme), all returned clean. No apply-stage workers this session. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition and schedule-gated; no seed is apply-ready or dispatched.
 

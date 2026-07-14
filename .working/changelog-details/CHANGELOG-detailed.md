@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.396, PR #908
+
+CHANGELOG-hygiene PR (closes TODO §3.65) plus the batched #907 post-merge QA.
+
+### Changed
+
+- **Root CHANGELOG compact-form reformat (TODO §3.65):** reformatted the root [`CHANGELOG.md`](../../CHANGELOG.md) entries for PRs #887-#901 from the long multi-sentence paragraphs they had drifted to (109-262 words, the deep-assessment r3 session's reversion) back to the adopted compact one-line form (`**date | version | PR #N** - one-sentence summary`). A research worker drafted the compressions from each entry's detailed-mirror content; the orchestrator verified each against the detailed mirror before applying and dropped one worker-added claim ("regenerating the derived artefacts" on #890) that the source entry did not support. Headers (date/version/PR tokens) are byte-unchanged, so gate 59 mirror-header-parity is unaffected; the detailed mirror is untouched (it already holds the full detail). Compact form preserves no less information: the full audit trail stays in the detailed mirror and git history.
+- **TODO §3.63 / §3.64 in-place resolution markers (batched #907 `/validate-pr` F1/F2):** the r3-routed-findings clusters mark bullets `RESOLVED #NNN` in place (not per-bullet DONE-rotation, which the whole cluster gets when its last bullet resolves). #907's `/validate-pr` found the DA-ISO20000 (§3.64) bullet still carried its now-false "could not be judged against ground truth" text and the RB-ETSI-104128 (§3.63) bullet's "add see-also" prose was stale after #907 shipped the primary see-also. Marked DA-ISO20000 `RESOLVED #907` with the false claim corrected, and rescoped RB-ETSI to its remaining secondary [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md) alignment-table target (folded into §3.67). Subagent A's literal delete+DONE recommendation was validated against and adjusted to the cluster's in-place convention (the orchestrator validates verifier recommendations, not auto-applies them).
+
+### Added
+
+- **Advisory length guard [`tools/audit-changelog-entry-length.py`](../../tools/audit-changelog-entry-length.py) (TODO §3.65):** a light `audit-*` advisory (exit 0 always; NOT wired into the audit runner, the CI workflow, or pre-commit, so the parity gates 35/36 do not adopt it) that WARNs on any root entry whose summary exceeds `--word-warn` words (default 130). The threshold clears the legitimate compact-but-multi-item ceiling (the current longest is #906 at 104 words) with margin, catching the 150-262-word drift while not false-positiving on legitimate batch entries. No existing gate covers this (gate 59 checks header parity only); making it a hard gate would be a decorative gate (the compact/long boundary is a judgement call). Inline `--self-test` (5 cases pass); live run clean (858 entries scanned, full recall confirmed).
+
+### Verification
+
+- Advisory tool self-test 5/5 pass; live run over the reformatted file reports 0 entries over threshold (longest #906 at 104 words). All 69 gates pass (pre-push guard). CHANGELOG root+detailed parity holds (headers unchanged by the reformat). Preflight-changelog clean (compact lines dash-free, path references linked).
+- Batched #907 QA: `/validate-pr` per-PR record [`2026-07-14-PR-907.md`](../validate-pr/2026-07-14-PR-907.md) + history row (2 in-window TODO findings fixed here; 2 out-of-window notes routed); `/retro` row (the stale-state-on-in-place-resolution observation, single occurrence = watch).
+
+### Discipline observation
+
+The reformat used the research-assistant discipline for a bulk editorial compression (worker drafts, orchestrator verifies each against the source and authors), catching one worker embellishment at apply-time (#890's unsupported artefact-regen claim). The §3.65 close-out exercised the §N-orphan cross-file grep: the only live-§ carrier outside the closing PR's own records was this new tool's own docstring, reworded to drop the live-§ pointer.
+
 ## 2026-07-14, Library Version 2026.07.395, PR #907
 
 Two reference-breadth items unblocked by the ISO/IEC 20000 family landing in `grc_library_ref` (#79), plus the completion of the FR-210 title canonicalization the #906 `/validate-pr` flagged.
