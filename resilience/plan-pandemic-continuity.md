@@ -2,8 +2,8 @@
 
 **Document Title:** Pandemic Continuity Plan\
 **Document Type:** Plan\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Executive Management\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/policy-business-continuity-and-disaster-recovery.md`](policy-business-continuity-and-disaster-recovery.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/standard-remote-working-security.md`](../security/standard-remote-working-security.md), [`security/policy-byod.md`](../security/policy-byod.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -177,7 +177,7 @@ Deactivation criteria are public-health-authority guidance plus internal indicat
 | US Department of Labor OSHA pandemic guidance | OSHA | Workforce health |
 | UK HSE pandemic guidance | HSE | Workforce health |
 | EU NIS 2 | Article 21(2)(c) Business continuity | EU essential entities |
-| DORA | Article 12 ICT business continuity policy | Financial sector |
+| DORA | Article 11 ICT business continuity policy | Financial sector |
 
 ---
 

@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.388, PR #900
+
+The session-closing handoff for the 2026-07-13 resumed session (`claude/resume-sweep101-validate` + the deep-assessment r3 branches, #887-#900), the corpus-wide completion of the DA-DORA-A12 fix that PR #899's `/validate-pr` found carrier-incomplete, and PR #899's batched QA. Per the loop-break, this session-closing handoff PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 102) over #887..#900.
+
+### Changed
+
+- [`resilience/plan-pandemic-continuity.md`](../../resilience/plan-pandemic-continuity.md) (line 180) + [`resilience/plan-physical-site-continuity.md`](../../resilience/plan-physical-site-continuity.md) (line 198): the "Article 12 ICT business continuity policy" DORA mislabel corrected to "Article 11 ICT business continuity policy" (Art 11 is the business-continuity-policy home and fits these continuity-plan crosswalk rows; Art 12 is backup/restoration/recovery). Completes DA-DORA-A12 corpus-wide (3 carriers; #899 fixed the recovery-runbook carrier to Art 12, this PR fixes the two continuity-plan carriers to Art 11), after #899's `/validate-pr` caught the fix as carrier-incomplete (the find-every-carrier scope-width miss). Corpus-wide grep: 0 residual mislabel. Versions: pandemic-continuity 1.0.6 to 1.0.7, physical-site-continuity 1.0.3 to 1.0.4; taxonomy/portal/scorecard regenerated.
+- [`.working/session-handoff.md`](../session-handoff.md): prepended this session's Next-actions, State-snapshot, and Asserted-expectations blocks (the r3 sign-off, the mechanical-batch remediation, the Highs routed to a fresh session, and the DORA corpus-wide completion); the Asserted-expectations block scopes the known-open r3 Highs as NOT-asserted-clean so the Sweep-102 cross-check does not misread them as misses.
+- [`.working/session-state.md`](../session-state.md): lease RELEASED (`Status: released`, `Active-session: none`). [`.working/session-metrics.md`](../session-metrics.md): this session's row (measured-where-clean, not-fabricated where a running tally was not armed). [`TODO.md`](../../TODO.md) §3.64: the DA-DORA-A12 note completed to the 3-carrier corpus-wide resolution.
+- README Library Version 2026.07.387 to 2026.07.388; README Version 1.9.748 to 1.9.749.
+
+### Verification
+
+- All 69 audit gates pass standalone (pre-push guard); both generator `--check`s in sync after the two continuity-plan Version bumps. The DA-DORA-A12 corpus-wide grep for "Article 12 ICT business continuity" returns 0 residual.
+- The two continuity-plan carriers were verified in context before relabeling (both are business-continuity crosswalk tables alongside "NIS 2 Article 21(2)(c) Business continuity", so Art 11 is the correct DORA reference, matching the recovery-runbook's Art-12 choice for the recovery context).
+- PR #899's `/validate-pr` returned 1 in-window warning (the DA-DORA-A12 carrier-incompleteness), fixed here; its other checks passed (the six fixes accurate, generators in sync, backlog reconciled, #898 QA present).
+
+### Discipline observation
+
+The DA-DORA-A12 carrier-incompleteness is the find-every-carrier / bare-token-width scope-width miss (a named close-out-checklist class): #899 fixed the one cited line and declared the finding resolved WITHOUT the corpus-wide bare-token grep the checklist requires; the per-PR `/validate-pr`'s corpus-wide grep caught it, and #900 completes it. Logged in the #899 retro as the reinforced habit (a mislabel/token correction is not "resolved" until a corpus-wide grep of the old form returns zero). This is the session-closing handoff: the deep-assessment r3 is SIGNED OFF, the clear-mechanical batch remediated, and the Highs (DA-ASVS high-assurance + FR-200/FR-201) handed to a fresh session; PR #900's own QA is intentionally absent per the loop-break, with Sweep 102 as the compensating control.
+
 ## 2026-07-13, Library Version 2026.07.387, PR #899
 
 The maintainer-signed-off `/deep-assessment` r3 clear-mechanical remediation batch (six findings), the r3 sign-off record, and PR #898's batched QA. The maintainer signed off on the r3 finding set via `AskUserQuestion` ("Sign off; mechanical now, Highs fresh") and directed the clear-mechanical batch this session; the DA-ASVS High + the FR-200 / FR-201 Highs were routed to a fresh session.
