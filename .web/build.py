@@ -339,6 +339,15 @@ def render_domain_rows(figures):
     return "\n".join(rows)
 
 
+def render_sidenav_domains(figures):
+    """The landing-page contents-sidebar domain links (one per domain, register
+    order), each to its on-site domain page."""
+    return "\n".join(
+        f'      <a href="/{_esc(domain)}/">{_esc(domain)}</a>'
+        for domain, _ in figures["domains"]
+    )
+
+
 def render_type_chips(figures):
     chips = []
     for type_name, count in figures["types"]:
@@ -409,6 +418,7 @@ def figure_values(figures):
         "ROOT_COUNT": str(figures["root_count"]),
         "DOMAIN_ROWS": render_domain_rows(figures),
         "TYPE_CHIPS": render_type_chips(figures),
+        "SIDENAV_DOMAINS": render_sidenav_domains(figures),
     }
 
 
