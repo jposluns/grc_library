@@ -7,6 +7,40 @@
 <title>GRC Library: an open, machine-auditable governance corpus</title>
 
 {{HEAD_STYLE}}
+<style>
+  /* Landing-page contents navigation. Default: a boxed in-flow panel shown up
+     front (phones / iPad-portrait). Wide screens (>= 1080px): a sticky left
+     sidebar beside the content, so the site's breadth stays visible while scrolling. */
+  .shell { max-width: 1280px; margin: 0 auto; }
+  .sidenav { padding-inline: var(--pad); }
+  .sidenav-inner {
+    border: 1px solid var(--line); border-left: 3px solid var(--brass);
+    border-radius: var(--radius); background: var(--surface);
+    padding: 1.1rem 1.2rem; margin-block: 1.6rem;
+    display: flex; flex-direction: column; gap: 0.1rem;
+  }
+  .sidenav-h {
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--brass); margin: 0.9rem 0 0.4rem;
+  }
+  .sidenav-h:first-child { margin-top: 0; }
+  .sidenav-inner a {
+    font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft);
+    padding: 0.3rem 0; text-decoration: none;
+  }
+  .sidenav-inner a:hover { color: var(--brass); }
+
+  @media (min-width: 1080px) {
+    .shell {
+      display: grid; grid-template-columns: 220px minmax(0, 1fr);
+      gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
+    }
+    .sidenav { padding-inline: 0; position: sticky; top: 1.25rem; }
+    .sidenav-inner { margin-block: 0; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
+    .shell > main { min-width: 0; }
+    .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
+  }
+</style>
 </head>
 
 <body>
@@ -40,6 +74,21 @@
     </div>
   </div>
 </header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#what">What it is</a>
+      <a href="#build">How it&rsquo;s built</a>
+      <a href="#pack">Governance pack</a>
+      <a href="#register">By domain</a>
+      <a href="#standards">Standards</a>
+      <a href="#adopt">Adopt</a>
+      <p class="sidenav-h">Domains</p>
+{{SIDENAV_DOMAINS}}
+    </div>
+  </nav>
 
 <main>
   <!-- ===== 01 What it is ===== -->
@@ -344,6 +393,7 @@
     </div>
   </section>
 </main>
+</div>
 
 {{FOOTER}}
 

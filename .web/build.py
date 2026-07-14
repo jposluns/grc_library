@@ -339,6 +339,15 @@ def render_domain_rows(figures):
     return "\n".join(rows)
 
 
+def render_sidenav_domains(figures):
+    """The landing-page contents-sidebar domain links (one per domain, register
+    order), each to its on-site domain page."""
+    return "\n".join(
+        f'      <a href="/{_esc(domain)}/">{_esc(domain)}</a>'
+        for domain, _ in figures["domains"]
+    )
+
+
 def render_type_chips(figures):
     chips = []
     for type_name, count in figures["types"]:
@@ -362,9 +371,10 @@ def load_partials():
 
 
 def render_domain_doc_rows(dp):
-    """One list row per document in the domain: type tag, title, and a GitHub
-    link to the document's source (the corpus lives on GitHub; the site does not
-    recreate rendered document content). Off-site links open in a new tab."""
+    """One list row per document in the domain: a type tag and the document
+    title rendered as the link to its source on GitHub, opening in a new tab
+    (the corpus lives on GitHub; the site does not recreate rendered document
+    content). There is no separate GitHub link, the title is the link."""
     rows = []
     for d in dp["docs"]:
         url = GITHUB_BLOB_BASE + d["path"]
@@ -409,6 +419,7 @@ def figure_values(figures):
         "ROOT_COUNT": str(figures["root_count"]),
         "DOMAIN_ROWS": render_domain_rows(figures),
         "TYPE_CHIPS": render_type_chips(figures),
+        "SIDENAV_DOMAINS": render_sidenav_domains(figures),
     }
 
 
