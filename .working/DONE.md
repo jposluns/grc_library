@@ -13,7 +13,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ### TODO §1.2: Root CHANGELOG #902+ compact plain-language reformat + readability guardrail (2026-07-14)
 
-Reformatted the root CHANGELOG entries for #902-#914 from long, dense, semicolon-chained run-on sentences (74-147 words) back to the compact plain-language two-sentence form a general reader can follow (each compression research-drafted, then verified against the detailed mirror; every `**date | version | PR #N**` header left byte-unchanged so gate-59 parity holds). Also strengthened the advisory guardrail `tools/audit-changelog-entry-length.py` with a longest-single-sentence signal (WARN when any one sentence exceeds 65 words), which catches the dense sub-130-word run-ons the prior word-count-only threshold missed. Closes the P1 recurrence of the exact drift #908 had just fixed for #887-#901.
+Reformatted the root CHANGELOG entries for #902-#914 from long, dense, semicolon-chained run-on sentences (67-140 words) back to the compact plain-language two-sentence form a general reader can follow (each compression research-drafted, then verified against the detailed mirror; every `**date | version | PR #N**` header left byte-unchanged so gate-59 parity holds). Also strengthened the advisory guardrail `tools/audit-changelog-entry-length.py` with a longest-single-sentence signal (WARN when any one sentence exceeds 65 words), which catches the dense sub-130-word run-ons the prior word-count-only threshold missed. Closes the P1 recurrence of the exact drift #908 had just fixed for #887-#901.
 
 ### TODO §3.72: ISO/IEC 20000-1 clause-attribution accuracy pass (2026-07-14)
 
