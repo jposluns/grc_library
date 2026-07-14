@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.12\
-**Date:** 2026-07-11\
+**Version:** 1.1.13\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -222,11 +222,11 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 | Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SP 800-218 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |
 | Security governance and principles | A.5 | GRC-01 to 06 | PW.1 to PW.4 | N/A | ISO 37301, COBIT |
-| Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V9 | PIPEDA, Law 25, GDPR |
-| Identity and access | A.5.15 to 5.18 | IAM-01 to 14 | N/A | V2, V4 | PIPEDA, BASC |
-| Network security | A.8.20 to 8.23 | I&S-03, I&S-08, I&S-09 | N/A | V9 | CTPAT |
-| Logging and monitoring | A.8.15 to 8.16 | LOG-01 to 13 | RV.1 to RV.2 | V7 | Quebec Law 25 |
-| Cryptography | A.8.24 to 8.25 | CEK-01 to 21 | N/A | V6 | FIPS 140-3 guidance |
+| Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |
+| Identity and access | A.5.15 to 5.18 | IAM-01 to 14 | N/A | V6, V8 | PIPEDA, BASC |
+| Network security | A.8.20 to 8.23 | I&S-03, I&S-08, I&S-09 | N/A | V12 | CTPAT |
+| Logging and monitoring | A.8.15 to 8.16 | LOG-01 to 13 | RV.1 to RV.2 | V16 | Quebec Law 25 |
+| Cryptography | A.8.24 to 8.25 | CEK-01 to 21 | N/A | V11 | FIPS 140-3 guidance |
 | Incident response | A.5.26 | SEF-01 to 06 | RS.1 to RS.2 | N/A | PIPEDA, Law 25 |
 | Supplier and third-party | A.5.19 to 5.22 | STA-01 to 09 | N/A | N/A | CTPAT, BASC, WCO SAFE |
 | EOL and vulnerability management | A.8.8 | TVM-01 to 10 | PW.4.4 | N/A | BASC |

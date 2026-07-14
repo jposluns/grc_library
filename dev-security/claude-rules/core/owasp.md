@@ -202,14 +202,14 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 
 | ASVS Area | Level 1 (Minimum) | Level 2 (Standard) | Level 3 (Advanced) |
 | --- | --- | --- | --- |
-| V2 Authentication | MFA, basic session management | Phishing-resistant MFA, credential management | Full authn assurance, hardware key |
-| V3 Session | Basic invalidation | Absolute timeout, rotation | Full session assurance |
-| V5 Validation | Input type checking | Schema validation, reject invalid | Full allowlist validation |
-| V6 Cryptography | Approved algorithms | Key management | HSM, formal key lifecycle |
-| V9 Communication | TLS required | TLS 1.2+, cert validation | TLS 1.3, cert pinning |
-| V13 API | Auth on all endpoints | Full schema validation | Rate limit, API versioning |
+| V6 Authentication | MFA, basic session management | Phishing-resistant MFA, credential management | Full authn assurance, hardware key |
+| V7 Session | Basic invalidation | Absolute timeout, rotation | Full session assurance |
+| V2 Validation | Input type checking | Schema validation, reject invalid | Full allowlist validation |
+| V11 Cryptography | Approved algorithms | Key management | HSM, formal key lifecycle |
+| V12 Communication | TLS required | TLS 1.2+, cert validation | TLS 1.3, cert pinning |
+| V4 API | Auth on all endpoints | Full schema validation | Rate limit, API versioning |
 
-Default target: ASVS Level 2 for all applications handling Confidential or Restricted data. The V9 level cells restate the ASVS progression verbatim; the pack's own transport-security floor is TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
+Default target: ASVS Level 2 for all applications handling Confidential or Restricted data. The V12 level cells restate the ASVS progression verbatim; the pack's own transport-security floor is TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
 
 ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verification-standard/`
 
