@@ -6,13 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.405, PR #917
+
+Session-closing handoff for the 2026-07-14 resumed session (`claude/resume-sweep103-validate` + the §1.2 and handoff branches; attended-autonomous on the VM). Housekeeping + working-state only; no corpus-document body changed.
+
+### Changed
+
+- **Batched #916's post-merge QA**: the `/validate-pr` record + history row (2 in-window note findings) and the `/retro` row, plus the two fixes: F1 the guard-tool docstring's stale "74-147" old-range figure corrected to "67-140" ([`tools/audit-changelog-entry-length.py`](../../tools/audit-changelog-entry-length.py), the correction not propagated when DONE/detailed were fixed), and F2 the detailed-mirror #916 entry's new-range "62-79" corrected to "62-80" (#912's D2 reword had pushed the max to 80).
+- **Recorded the §3.73 design-defer** in [`TODO.md`](../../TODO.md) §3.73: the ledger-table-row-integrity gate's naive column-count check is NOT FP-free (a prototype flags ~50 legitimate unescaped-prose-pipe rows across the `.working/` ledgers), and the escaped-defect signature needs a smarter detector (mid-row row-start pattern + per-ledger sequence-gap); build deferred to a fresh session, interim safe row-insert technique codified.
+- **Refreshed [`.working/session-handoff.md`](../session-handoff.md)**: prepended this session's Next-actions (CLOSING #915-#917 + NEXT-SESSION Sweep 104), State-snapshot (version snapshot reconciled to library `2026.07.405` / README `1.9.766`, green-at `7596f18`/#916 = 69/69), and Asserted-expectations blocks (scoped to what #915/#916 mechanically verified, with the deferred items listed as explicit NOT-asserted-clean soft spots). Per the discipline the handoff only PREPENDS; the next `/resume` prunes to keep-current-plus-one-prior.
+- **Added the [`.working/session-metrics.md`](../session-metrics.md) row** (~1h35m elapsed; 2 substantive PRs; 8 subagents; ~1.68M measured subagent tokens, a real sum since the active window had no compaction; orchestrator tokens `not instrumented`).
+- **Released the concurrency lease** [`.working/session-state.md`](../session-state.md) (`Status: released`, `Active-session: none`).
+- **Refreshed [`next-prs.txt`](../next-prs.txt)** to the next-session queue (Sweep 104 -> §3.73 build + low-risk cleanup -> protected machinery -> routed forks -> attended backlog).
+
+### Verification
+
+- All 69 gates pass; the pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green. Per the loop-break, this session-closing handoff PR takes NO trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 104) over the #915..#917 delta window, cross-checking this handoff's `## Asserted expectations` block.
+
+### Discipline observation
+
+The wind-down was maintainer-confirmed (twice, via `AskUserQuestion`) on a named mid-run degradation signal: the SAME table-row-insert operation clobbered an adjacent ledger row four times this session (F1@#915 escaped to main and was caught post-merge; the #915 detailed-mirror header and the #914 validate-pr row caught by #916's post-commit audit; the #916 validate-pr row caught by an explicit read-back), plus meta-prose measurement slips (D1/D2, F1/F2@#916). All were caught (net zero adopter escape), but the first-pass mechanical precision on that one operation was failing repeatedly, distinct from the caught-slip density that is not a wind-down trigger. Interim mitigation codified in the #916 retro: insert a ledger row by anchoring the `Edit` on the HEADER line and appending the new row after it, never matching-and-re-appending the next row's leading cells.
+
+
+
 ## 2026-07-14, Library Version 2026.07.404, PR #916
 
 P1 §1.2 (maintainer-flagged 2026-07-14): the root [`CHANGELOG.md`](../../CHANGELOG.md) entries for #902-#914 had reverted to long, dense, semicolon-chained run-on sentences (67-140 words) a general reader cannot follow, re-introducing the exact drift #908 had just fixed for #887-#901. This PR reformats them and strengthens the guardrail, and carries the batched #915 post-merge QA.
 
 ### Changed
 
-- **Reformatted the root CHANGELOG #902-#914 entries** to the compact plain-language form (two plain sentences each, 62-79 words, down from 67-140-word semicolon-chains). Each compression was research-drafted then verified by the orchestrator against the detailed-mirror entry (the research-assistant discipline, as #908 did for #887-#901). Every `**YYYY-MM-DD | X.Y.Z | PR #N**` header is byte-unchanged, so gate-59 mirror-header-parity holds; only the summary prose after `** - ` changed. The detailed-mirror entries are untouched (they remain the full audit trail).
+- **Reformatted the root CHANGELOG #902-#914 entries** to the compact plain-language form (two plain sentences each, 62-80 words, down from 67-140-word semicolon-chains). Each compression was research-drafted then verified by the orchestrator against the detailed-mirror entry (the research-assistant discipline, as #908 did for #887-#901). Every `**YYYY-MM-DD | X.Y.Z | PR #N**` header is byte-unchanged, so gate-59 mirror-header-parity holds; only the summary prose after `** - ` changed. The detailed-mirror entries are untouched (they remain the full audit trail).
 - **Strengthened the advisory guard** [`tools/audit-changelog-entry-length.py`](../../tools/audit-changelog-entry-length.py) (closes TODO §1.2): added a longest-single-sentence signal (`--sentence-warn`, default 65 words) alongside the existing total-word signal, because the #902-#914 drift entries were each a dense single sentence UNDER the 130-word total ceiling, i.e. the word-count-only check missed them. The sentence splitter is crude-by-design (splits on a period-then-space boundary) so it can only under-split (a false negative), never over-flag. Still advisory (exit 0, not gate-wired); self-test extended to 6 cases (adds a dense-run-on-under-the-word-ceiling case and a two-short-sentences-clean case). Live run against the reformatted CHANGELOG is clean (densest sentence now 60 words).
 - **Batched #915 post-merge QA** (the Sweep 103 `/validate` close-out; `/validate-pr` + `/retro` rows). The `/validate-pr` caught two in-window `.working/` bookkeeping issues, both gate-blind and both FIXED here:
   - **F1 (warning, table-row-join):** the Sweep 103 row I prepended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) merged onto one physical line with the retained Sweep 102 row (the new row lacked the trailing line break), so the Sweep 102 row lost its `| Date | Sweep |` identifier columns. Escaped to `main` because that ledger is not read by gate 50 and the post-edit self-check was skipped. Split back into two well-formed rows (Sweep 102 identifier restored).

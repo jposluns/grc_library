@@ -12,7 +12,7 @@ change-tracking governance rule's current-week / compact-root-form model). The
 recurring drift this tool guards against: root summaries creep back into long,
 dense, semicolon-chained run-on sentences that a general reader cannot follow
 (the #887-#901 reversion of 109-262 words, reformatted in the PR that shipped
-this tool; and the #902-#914 reversion of 74-147-word semicolon-chains,
+this tool; and the #902-#914 reversion of 67-140-word semicolon-chains,
 reformatted in the PR that strengthened it). No existing gate enforces
 one-line compactness or readability: gate 59 (mirror-header-parity) checks only
 that the root and mirror HEADERS match, not the summary. This tool produces
@@ -28,7 +28,7 @@ compact-form header it measures the summary portion (everything after
 
   2. DENSE RUN-ON: the longest single SENTENCE exceeds ``--sentence-warn``
      (default 65) words. This is the signal the word-count alone MISSED: the
-     #902-#914 drift was one 74-147-word semicolon-and-colon-chained sentence,
+     #902-#914 drift was one 67-140-word semicolon-and-colon-chained sentence,
      under the 130-word total ceiling yet unreadable, whereas a compact entry is
      two plain sentences of ~40 words each. Sentence length, not total length,
      is what separates "a reader can follow this" from "a run-on". Sentences are
