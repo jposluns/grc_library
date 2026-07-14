@@ -1,6 +1,6 @@
 # Cloudflare Pages setup runbook, grclibrary.ai public site (TODO section 2.4)
 
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-14\
 **License:** CC BY-SA 4.0
 
@@ -69,8 +69,10 @@ rate limits are vendor-set and change over time. Every such value below is marke
 4. **Build watch paths (avoid wasted builds).** Configure include/exclude path globs so only
    content-affecting changes trigger a build. **[confirm live]** the feature name, location,
    and any large-commit / large-file bypass thresholds (vendor-set).
-   - Include: the published content directories (the domain directories the page reports on)
-     plus `.web/` (the generator and template).
+   - Include: the published content directories. Each `<domain>/README.md` now feeds that
+     domain's on-site page (its `## Purpose` intro), so the eleven domain directories are
+     load-bearing for a rebuild, not only for the register counts. Plus `.web/` (the
+     generator and templates) and `taxonomy.yml` / `README.md`.
    - Exclude: `tools/`, `tests/`, `.working/`, `.claude/`, `.github/`.
 5. **First deploy.** Trigger the initial deployment; confirm the build log shows the
    generator's summary line (`web-generator OK: ... N documents ...`) and the deploy
