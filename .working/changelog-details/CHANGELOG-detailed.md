@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.391, PR #903
+
+FR-200 (deep-assessment r3 fitness High): reconciled [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md)'s reporting/independence structure to the corpus's canonical governance. The finding: the standard's section-2.3 independence named only the Enterprise Risk Committee (ERC) as the CAE's reporting/escalation line, with no functional line to the board or audit committee, contradicting the compliance policy (which already requires internal audit to "report directly to the Board Audit Committee", [`policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) section 4.3.1) and the assurance map ([`risk/register-assurance-map.md`](../../risk/register-assurance-map.md), which assumes a board/audit-committee).
+
+### Changed
+
+- Section 2.3(b) Structural independence: the CAE/GRC Manager now reports functionally to the Board Audit Committee (with the no-separate-committee consolidation fallback per the minimum-viable-governance guideline) and administratively to senior leadership, per policy section 4.3.1; the ERC escalation for operational risk matters is retained.
+- Section 2.1: added a functional-reporting bullet (Annual Audit Plan + significant findings to the Board Audit Committee), labelled distinct from the ERC operational-status line.
+- Section 4.1: the Annual Audit Plan is now reviewed by the ERC and approved by the Board Audit Committee (per policy section 4.2.1), completing the reconciliation.
+- Section 7.1: critical-finding escalation now routes to the ERC and the Board Audit Committee within 2 business days (per policy section 4.6.2).
+- Version 1.1.0 to 1.2.0, Date 2026-07-14; taxonomy/scorecard regenerated.
+
+### Verification
+
+- Substantive-tier skeptical verifier (refute-briefed): VERDICT SHIP on the core section-2.1/section-2.3 change (cited source policy section 4.3.1 matches verbatim, both cross-references resolve, the IIA functional/administrative split is correct and not swapped, no new contradiction). It flagged the section-4.1 plan-approval and section-7.1/6.8 escalation surfaces as pre-existing ERC-only (out of the minimal FR-200 scope). The orchestrator completed the section-4.1 + section-7.1 reconciliation IN-WINDOW (reconcile-to-canonical against the verifier-confirmed policy section 4.2.1/4.6.2) rather than ship the standard with a new internal inconsistency (the new section-2.3 Board-Audit-Committee functional line vs section-4.1 ERC-approves-the-plan), per the find-every-carrier discipline. Section-6.8 full-report distribution to the ERC is left as-is (adequately covered by section-2.1's significant-findings-to-Board-Audit-Committee summary line).
+- All 69 gates pass (pre-push guard). Batches PR #902's `/validate-pr` (0 findings; the DA-ASVS high-assurance harness held through merge) + `/retro` rows.
+
+### Discipline observation
+
+The verifier SHIP'd the minimal change but flagged the partial reconciliation; completing it in-window (rather than only routing a follow-up TODO) avoids the DA-DORA-A12 carrier-incomplete pattern (a finding fixed at the cited surface while sibling carriers keep the old value). The reconciliation targets the corpus's own canonical values (policy section 4.2.1/4.6.2), so it is reconcile-to-canonical, not a new authorial choice, which is why it was safe to complete unattended.
+
 ## 2026-07-14, Library Version 2026.07.390, PR #902
 
 The DA-ASVS remap (deep-assessment r3 Phase-5 High finding): corrected the OWASP ASVS cross-references across the dev-security domain and the rules pack from the superseded 4.0.3 chapter/sub-requirement numbering to the current 5.0.0 scheme. ASVS 5.0.0 (30 May 2025, current stable, reconfirmed upstream this session) fully reorganized the chapters, so every 4.0.3 chapter number pointed at the wrong 5.0.0 chapter. Applied under the high-assurance verification harness (registered in [`.working/high-assurance/register.md`](../high-assurance/register.md)).
