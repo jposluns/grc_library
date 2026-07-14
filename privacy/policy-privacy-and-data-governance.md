@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.14\
-**Date:** 2026-07-13\
+**Version:** 1.4.15\
+**Date:** 2026-07-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -115,7 +115,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 4.8 Data subject rights
 
 - Individuals must have the right to access, correct, delete, or port their personal data as required under GDPR, PIPL, and applicable Canadian law (PIPEDA Schedule 1 for access and correction; CPPA, which would have added disposal and portability rights, is pending reintroduction).
-- Requests must be processed within the applicable statutory timeframes (one month under the GDPR, extendable by two further months for complex or numerous requests; 45 days under the CCPA / CPRA; 30 days under PIPEDA).
+- Requests must be processed within the applicable statutory timeframes (one month under the GDPR, extendable by two further months for complex or numerous requests; 45 days under the CCPA / CPRA; 30 days under PIPEDA; 15 days for confirmation and access under Brazil's LGPD, Art. 19; 20 days for an ARCO determination under Mexico's LFPDPPP, Art. 31); where more than one regime applies, the strictest (shortest) applicable window governs.
 - Denials must be justified in writing and reviewed by the DPO.
 
 ### 4.9 Third-party and supplier governance
