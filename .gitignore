@@ -4,6 +4,11 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Rendered public-site output (.web/ generator); ephemeral build artefact, never
+# committed. Only the generator source and templates are tracked; Cloudflare Pages
+# rebuilds this from the live corpus on each deploy.
+.web/dist/
+
 # Editor artefacts
 .vscode/
 .idea/

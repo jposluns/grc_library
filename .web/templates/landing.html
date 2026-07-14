@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An open, organization-neutral GRC documentation corpus under CC BY-SA 4.0: version-controlled, cross-linked governance, risk, compliance, security, privacy, AI-governance, and resilience documents, held to a continuous automated gating system.">
+<title>GRC Library: an open, machine-auditable governance corpus</title>
+
+<style>
+  /* ============================================================
+     grclibrary.ai landing page
+     "The engineered specification": a typeset, register-style page
+     Self-contained: no external requests. Theme-aware via tokens.
+     ============================================================ */
+
+  :root {
+    /* Light theme (default) */
+    --paper: #e7eaf0;
+    --surface: #f6f8fb;
+    --surface-2: #eef1f6;
+    --ink: #15223a;
+    --ink-soft: #47556c;
+    --ink-faint: #6c7889;
+    --line: #c9d1db;
+    --line-strong: #aeb8c6;
+    --brass: #8a6410;
+    --brass-soft: #a37b1f;
+    --verified: #2c6647;
+
+    /* Masthead: deep-navy "document cover", stable across themes */
+    --mast-bg: #101d36;
+    --mast-bg-2: #0b1730;
+    --mast-ink: #eff3f9;
+    --mast-soft: #9fb1c9;
+    --mast-brass: #d9ab54;
+    --mast-line: #294066;
+
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --measure: 64ch;
+    --pad: clamp(1.25rem, 5vw, 4rem);
+    --radius: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0e1728;
+      --surface: #172438;
+      --surface-2: #131f31;
+      --ink: #e6ebf2;
+      --ink-soft: #9aa7ba;
+      --ink-faint: #71809a;
+      --line: #273750;
+      --line-strong: #35496a;
+      --brass: #d6a44c;
+      --brass-soft: #c9974a;
+      --verified: #57a37c;
+    }
+  }
+
+  /* Explicit theme overrides win over the media query in both directions */
+  :root[data-theme="light"] {
+    --paper: #e7eaf0; --surface: #f6f8fb; --surface-2: #eef1f6;
+    --ink: #15223a; --ink-soft: #47556c; --ink-faint: #6c7889;
+    --line: #c9d1db; --line-strong: #aeb8c6;
+    --brass: #8a6410; --brass-soft: #a37b1f; --verified: #2c6647;
+  }
+  :root[data-theme="dark"] {
+    --paper: #0e1728; --surface: #172438; --surface-2: #131f31;
+    --ink: #e6ebf2; --ink-soft: #9aa7ba; --ink-faint: #71809a;
+    --line: #273750; --line-strong: #35496a;
+    --brass: #d6a44c; --brass-soft: #c9974a; --verified: #57a37c;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: var(--pad); }
+
+  a { color: var(--brass); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  .mono { font-family: var(--font-mono); }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin: 0 0 1.1rem;
+  }
+
+  /* ---------- Masthead (the "cover") ---------- */
+  .mast {
+    background:
+      radial-gradient(120% 140% at 82% -10%, rgba(217,171,84,0.10), transparent 55%),
+      linear-gradient(160deg, var(--mast-bg) 0%, var(--mast-bg-2) 100%);
+    color: var(--mast-ink);
+    border-bottom: 1px solid var(--mast-line);
+  }
+
+  .doc-control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding-block: 1.1rem;
+    border-bottom: 1px solid var(--mast-line);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+  }
+  .doc-control .wordmark {
+    color: var(--mast-brass);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    font-size: 0.9rem;
+  }
+  .doc-control .meta {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1rem;
+    color: var(--mast-soft);
+  }
+  .doc-control .meta span { white-space: nowrap; }
+  .doc-control .meta b { color: var(--mast-ink); font-weight: 600; }
+
+  .theme-toggle {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mast-soft);
+    background: transparent;
+    border: 1px solid var(--mast-line);
+    border-radius: var(--radius);
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .theme-toggle:hover { color: var(--mast-ink); border-color: var(--mast-brass); }
+
+  .hero { padding-block: clamp(3rem, 8vw, 6rem); }
+  .hero h1 {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(2.15rem, 5.6vw, 4rem);
+    line-height: 1.06;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 1.4rem;
+    max-width: 18ch;
+  }
+  .hero h1 .accent { color: var(--mast-brass); }
+  .hero .dek {
+    font-size: clamp(1.05rem, 2vw, 1.28rem);
+    line-height: 1.6;
+    color: var(--mast-soft);
+    max-width: 60ch;
+    margin: 0 0 2.2rem;
+  }
+  .hero .dek b { color: var(--mast-ink); font-weight: 600; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem 1rem; }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.3rem;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s, border-color 0.2s;
+    display: inline-flex; align-items: center; gap: 0.55rem;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); }
+  .btn-primary { background: var(--mast-brass); color: #1a1206; font-weight: 700; }
+  .btn-primary:hover { background: #e6bb69; }
+  .btn-ghost { color: var(--mast-ink); border-color: var(--mast-line); }
+  .btn-ghost:hover { border-color: var(--mast-brass); }
+
+  /* ---------- Control band (headline figures) ---------- */
+  .control-band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    border-top: 1px solid var(--mast-line);
+  }
+  .stat {
+    padding: 1.6rem clamp(1rem, 3vw, 2rem);
+    border-right: 1px solid var(--mast-line);
+  }
+  .stat:last-child { border-right: none; }
+  .stat .num {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+    line-height: 1;
+    color: var(--mast-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .num .accent { color: var(--mast-brass); }
+  .stat .lbl {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mast-soft);
+    margin-top: 0.6rem;
+  }
+
+  /* ---------- Generic section scaffold ---------- */
+  section { padding-block: clamp(3rem, 7vw, 5.5rem); border-bottom: 1px solid var(--line); }
+  .sec-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 2rem; }
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--brass);
+    padding-top: 0.35rem;
+  }
+  .sec-head h2 {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(1.4rem, 3vw, 2.05rem);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .lede { font-size: 1.15rem; line-height: 1.6; color: var(--ink-soft); max-width: var(--measure); margin: 0 0 2.4rem; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Differentiator cards ---------- */
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .feat { background: var(--surface); padding: 1.6rem 1.5rem; }
+  .feat .k {
+    font-family: var(--font-mono);
+    font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 0.7rem;
+  }
+  .feat h3 { font-size: 1.08rem; margin: 0 0 0.5rem; line-height: 1.3; }
+  .feat p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.55; }
+
+  /* ---------- Domains register (semantic table) ---------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+  table.register { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 640px; }
+  table.register caption { text-align: left; padding: 0 0 0.9rem; color: var(--ink-faint); font-size: 0.9rem; }
+  table.register thead th {
+    font-family: var(--font-mono);
+    font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--ink-faint); text-align: left; font-weight: 600;
+    padding: 0.85rem 1rem; border-bottom: 1px solid var(--line-strong); background: var(--surface-2);
+  }
+  table.register thead th.right { text-align: right; }
+  table.register tbody td { padding: 0.95rem 1rem; border-bottom: 1px solid var(--line); vertical-align: middle; background: var(--surface); }
+  table.register tbody tr:last-child td { border-bottom: none; }
+  table.register tbody tr { transition: background 0.15s; }
+  table.register tbody tr:hover td { background: var(--surface-2); }
+  .rg-idx { font-family: var(--font-mono); color: var(--brass); font-size: 0.8rem; width: 3rem; }
+  .rg-name { font-family: var(--font-mono); font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+  .rg-scope { color: var(--ink-soft); font-size: 0.92rem; }
+  .rg-count { text-align: right; width: 8.5rem; }
+  .rg-count .bar-wrap { display: inline-flex; align-items: center; gap: 0.6rem; justify-content: flex-end; width: 100%; }
+  .rg-count .bar { height: 7px; background: var(--brass); border-radius: 4px; opacity: 0.55; }
+  .rg-count .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; min-width: 2.4ch; text-align: right; }
+  .register-note { color: var(--ink-faint); font-size: 0.86rem; margin: 0.9rem 0 0; }
+
+  /* ---------- Document types ---------- */
+  .types { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.5rem; }
+  .type-chip {
+    font-family: var(--font-mono); font-size: 0.82rem;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    padding: 0.4rem 0.7rem; background: var(--surface);
+    display: inline-flex; align-items: baseline; gap: 0.5rem;
+  }
+  .type-chip .tn { color: var(--brass); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .type-chip .tk { color: var(--ink-soft); }
+
+  /* ---------- Bibliography ---------- */
+  .biblio { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .biblio-col { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.4rem 1.4rem 0.6rem; }
+  .biblio-col h3 {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.11em; text-transform: uppercase;
+    color: var(--brass); margin: 0 0 1rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--line);
+  }
+  .biblio-col ul { list-style: none; margin: 0; padding: 0; }
+  .biblio-col li { padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+  .biblio-col li:last-child { border-bottom: none; }
+  .biblio-col .id { font-family: var(--font-mono); font-size: 0.86rem; font-weight: 700; color: var(--ink); display: block; }
+  .biblio-col .topic { font-size: 0.82rem; color: var(--ink-faint); }
+
+  /* ---------- Adopt / get started ---------- */
+  .adopt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
+  .adopt-card { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--brass); border-radius: var(--radius); padding: 1.5rem; }
+  .adopt-card h3 { font-family: var(--font-mono); font-size: 1rem; margin: 0 0 0.6rem; }
+  .adopt-card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  .licence-note { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--brass); border-radius: var(--radius); padding: clamp(1.4rem, 3.5vw, 2rem); margin-bottom: 2.4rem; max-width: 780px; }
+  .licence-note h3 { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); margin: 1.5rem 0 0.55rem; }
+  .licence-note h3:first-child { margin-top: 0; }
+  .licence-note p { margin: 0; color: var(--ink-soft); line-height: 1.6; max-width: 68ch; }
+  .licence-note .licence-fine { font-size: 0.82rem; color: var(--ink-faint); margin-top: 1.3rem; }
+  .verified-note {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.8rem; color: var(--verified);
+    margin-top: 1.5rem; letter-spacing: 0.03em;
+  }
+  .verified-note .tick { font-weight: 700; }
+
+  /* ---------- Footer ---------- */
+  footer { padding-block: 3rem; color: var(--ink-faint); font-size: 0.88rem; }
+  footer .foot-grid { display: flex; flex-wrap: wrap; gap: 1.5rem 2.5rem; justify-content: space-between; align-items: flex-start; }
+  footer .lic { max-width: 52ch; line-height: 1.6; }
+  footer .mono-lbl { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); display: block; margin-bottom: 0.5rem; }
+  footer a { color: var(--ink-soft); }
+  footer a:hover { color: var(--brass); }
+
+  /* ---------- About the maintainer ---------- */
+  .maintainer { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--brass); border-radius: var(--radius); padding: clamp(1.5rem, 4vw, 2.2rem); max-width: 720px; }
+  .m-meta { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 1.2rem; margin-bottom: 1.3rem; border-bottom: 1px solid var(--line); }
+  .m-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+  .m-name { font-family: var(--font-mono); font-weight: 700; font-size: clamp(1.3rem, 3vw, 1.65rem); color: var(--ink); }
+  .m-role { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); letter-spacing: 0.02em; }
+  .m-creds { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .m-creds span { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 0.25rem 0.55rem; }
+  .m-bio { color: var(--ink-soft); margin: 0 0 1rem; max-width: 62ch; line-height: 1.65; }
+  .m-bio.last { margin-bottom: 1.5rem; }
+  .m-links { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .m-links a { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.7rem 1.15rem; border-radius: var(--radius); border: 1px solid var(--line-strong); color: var(--ink); display: inline-flex; align-items: center; gap: 0.5rem; transition: border-color 0.2s, color 0.2s, transform 0.15s; }
+  .m-links a:hover { border-color: var(--brass); color: var(--brass); text-decoration: none; transform: translateY(-2px); }
+
+  /* ---------- Governance pack ---------- */
+  .feat .k.ruleid { text-transform: none; letter-spacing: 0.01em; font-size: 0.82rem; word-break: break-word; }
+  .pack-cta { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.8rem 1.3rem; border-radius: var(--radius); border: 1px solid var(--line-strong); color: var(--ink); transition: border-color 0.2s, color 0.2s, transform 0.15s; }
+  .pack-cta:hover { border-color: var(--brass); color: var(--brass); text-decoration: none; transform: translateY(-2px); }
+
+  /* ---------- Motion ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(14px); animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+    .reveal.d1 { animation-delay: 0.05s; }
+    .reveal.d2 { animation-delay: 0.14s; }
+    .reveal.d3 { animation-delay: 0.23s; }
+    .reveal.d4 { animation-delay: 0.32s; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .btn, .theme-toggle, table.register tbody tr { }
+  }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="doc-control">
+      <span class="wordmark mono">grclibrary.ai</span>
+      <span class="meta mono">
+        <span>DOC&nbsp;<b>GRC-LIB</b></span>
+        <span>LICENSE&nbsp;<b>CC&nbsp;BY-SA&nbsp;4.0</b></span>
+        <span>VERSION&nbsp;<b>{{CALVER}}</b></span>
+        <span>CLASSIFICATION&nbsp;<b>PUBLIC</b></span>
+      </span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch colour theme">Theme</button>
+    </div>
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Governance &middot; Risk &middot; Compliance</p>
+    <h1 class="reveal d2">Governance documentation, <span class="accent">engineered like&nbsp;software.</span></h1>
+    <p class="dek reveal d3">
+      An open, organization-neutral GRC corpus: <b>{{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} domains</b>,
+      every one version-controlled, cross-linked to primary sources, and held to a
+      <b>comprehensive, continuously-improving automated gating system</b> on every
+      change. Free to adopt, adapt, and cite under CC&nbsp;BY-SA&nbsp;4.0.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-primary" href="#register">Browse the domains</a>
+      <a class="btn btn-ghost" href="#build">How it&rsquo;s built</a>
+      <a class="btn btn-ghost" href="#adopt">Adopt it</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="control-band">
+      <div class="stat"><div class="num tnum">{{DOC_TOTAL}}</div><div class="lbl">Documents</div></div>
+      <div class="stat"><div class="num tnum">{{DOMAIN_COUNT}}</div><div class="lbl">Governance domains</div></div>
+      <div class="stat"><div class="num">Continuous</div><div class="lbl">Automated quality gating</div></div>
+      <div class="stat"><div class="num">CC&nbsp;BY-SA</div><div class="lbl">Open licence &middot; 4.0</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== 01 What it is ===== -->
+  <section id="what">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>A reference library you can cite, not just read.</h2></div>
+      <p class="lede">
+        The GRC Library is a complete, cross-referenced set of governance, risk, and
+        compliance documentation, charters, policies, procedures, standards, registers,
+        and templates, written to be <b>adopted and adapted</b> by any organization.
+        It is not advice or a product; it is a public corpus, released under
+        CC&nbsp;BY-SA&nbsp;4.0, that enterprises, Crown and public-sector bodies,
+        regulated institutions, security and compliance teams, auditors, and startups
+        can adopt from directly and tailor to their own context.
+      </p>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="k">Structured</div>
+          <h3>Every document is a controlled artefact</h3>
+          <p>Each one carries the same 13-field metadata block, version, owner, approving authority, classification, review cadence, and a fixed section model, so it reads and audits consistently.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Cross-linked</div>
+          <h3>Nothing stands alone</h3>
+          <p>Documents reference each other and map to external frameworks, so a control in one domain traces to its obligations, registers, and standards in the others.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Practical</div>
+          <h3>Built to be adopted</h3>
+          <p>Adopter guides, decision trees, quick-start and maturity-roadmap templates, and a worked example turn the corpus into a programme you can stand up, not a shelf reference.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 02 How it's built ===== -->
+  <section id="build">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Machine-auditable by construction.</h2></div>
+      <p class="lede">
+        What makes the library different is the toolchain behind it. The corpus is
+        governed by a stdlib-only Python audit programme: a <b>detailed,
+        continuously-expanding suite of automated quality gates</b> that run in CI on
+        every change and keep the documentation internally consistent, citable, and
+        free of drift.
+      </p>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="k">Integrity</div>
+          <h3>Nothing ships unchecked</h3>
+          <p>Broken-link checks, cross-reference integrity, version monotonicity, and secret- and PII-scanning gates block a change before it can merge.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Citations</div>
+          <h3>Verified, not asserted</h3>
+          <p>External-standard references are checked against a canonical citations register and flagged when a cited standard goes stale or names a superseded edition.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Alignment</div>
+          <h3>Mapped to the frameworks</h3>
+          <p>Controls and citations cross-walk to the recognized standards, ISO, NIST, CSA, and OWASP among them, and a gate checks that every control code an alignment table cites is a real identifier in the framework it names.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Generated</div>
+          <h3>Indexes derive from the source</h3>
+          <p>The taxonomy, the document portal, and the maturity scorecard are generated from each document&rsquo;s own metadata, never hand-maintained, so they cannot silently drift.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Style</div>
+          <h3>One consistent voice</h3>
+          <p>A prose linter enforces house style across the whole corpus, so hundreds of documents from many sittings read as one coherent body of work.</p>
+        </div>
+        <div class="feat">
+          <div class="k">Tested</div>
+          <h3>The gates are tested too</h3>
+          <p>Every gate ships with regression fixtures, worked examples of what should pass and what should fail, so the checks that guard the corpus are themselves held to a test suite.</p>
+        </div>
+      </div>
+      <span class="verified-note"><span class="tick">&#10003;</span> every change runs the full gate suite in CI &middot; enforced on every pull request</span>
+    </div>
+  </section>
+
+  <!-- ===== 03 The governance pack ===== -->
+  <section id="pack">
+    <div class="wrap">
+      <p class="eyebrow">For AI-assisted teams</p>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>The governance pack behind it, open for reuse.</h2></div>
+      <p class="lede">
+        This corpus is maintained largely by an AI assistant, working under a compact pack
+        of governance rules that keep it honest: evidence before assertion, no quality
+        gate weakened to force a pass, ambiguity surfaced before action, and integrity
+        ahead of speed. Those rules are library-original content, ship under the same
+        CC&nbsp;BY-SA&nbsp;4.0 licence as the corpus, and are written to be lifted straight
+        into any AI-assisted project, not only this one.
+      </p>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="k ruleid">project-integrity</div>
+          <h3>Quality outranks speed and cost</h3>
+          <p>A fixed, lexicographic priority the assistant cannot trade away: correctness first, then speed, then cost. Nothing ships worse to ship it faster or cheaper.</p>
+        </div>
+        <div class="feat">
+          <div class="k ruleid">gate-discipline</div>
+          <h3>A failing check is fixed, never silenced</h3>
+          <p>When a quality gate fails, the artefact that tripped it is fixed. Disabling, downgrading, or bypassing a check to force a pass is off the table.</p>
+        </div>
+        <div class="feat">
+          <div class="k ruleid">evidence-grounded-completion</div>
+          <h3>Nothing is called done without proof</h3>
+          <p>Every completion or state claim rests on a re-read and a check, not on assumption. What has not been verified is labelled unverified, not asserted as fact.</p>
+        </div>
+        <div class="feat">
+          <div class="k ruleid">clarify-before-acting</div>
+          <h3>Ambiguity is surfaced, not guessed</h3>
+          <p>When a request has more than one reasonable reading, the assistant asks with named options rather than silently picking, so work is not built on the wrong one.</p>
+        </div>
+        <div class="feat">
+          <div class="k ruleid">validate-inference-before-action</div>
+          <h3>Assumptions are checked before they drive work</h3>
+          <p>Before an action depends on a claim about the current state, that claim is confirmed with a concrete check, so one wrong premise cannot cascade into wrong work.</p>
+        </div>
+        <div class="feat">
+          <div class="k ruleid">high-assurance-verification</div>
+          <h3>High-stakes changes get independent review</h3>
+          <p>For a change no automated check can fully judge, independent adversarial verifiers and a deterministic, re-checked apply carry the correctness, not a single pass.</p>
+        </div>
+      </div>
+      <div style="margin-top:2rem;">
+        <a class="pack-cta" href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules" rel="noopener">Read the pack on GitHub &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 04 Domains register ===== -->
+  <section id="register">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>The corpus, by domain.</h2></div>
+      <div class="table-scroll">
+        <table class="register">
+          <caption>{{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} governance domains &middot; counts from the generated taxonomy</caption>
+          <thead>
+            <tr>
+              <th class="rg-idx-h">&sect;</th>
+              <th>Domain</th>
+              <th>Scope</th>
+              <th class="right">Documents</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{DOMAIN_ROWS}}
+          </tbody>
+        </table>
+      </div>
+      <p class="register-note">Domain counts total {{DOMAIN_DOC_TOTAL}}; a further {{ROOT_COUNT}} programme-level specification documents sit at the corpus root, for {{DOC_TOTAL}} in all.</p>
+
+      <div style="margin-top:2.6rem;">
+        <p class="eyebrow" style="color:var(--brass);">By document type</p>
+        <div class="types">
+          {{TYPE_CHIPS}}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 05 Standards referenced ===== -->
+  <section id="standards">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;05</span><h2>Standards &amp; frameworks it maps to.</h2></div>
+      <p class="lede">
+        The library maps its controls and citations to the recognized standards,
+        regulations, and frameworks below. Each is recorded, with its current edition,
+        in a canonical citations register that the toolchain checks for currency, so a
+        citation cannot silently name a superseded edition.
+      </p>
+      <div class="biblio">
+        <div class="biblio-col">
+          <h3>Information security &amp; management systems</h3>
+          <ul>
+            <li><span class="id">ISO/IEC 27001:2022</span><span class="topic">Information security management</span></li>
+            <li><span class="id">ISO/IEC 27002:2022</span><span class="topic">Information security controls</span></li>
+            <li><span class="id">ISO/IEC 27005:2022</span><span class="topic">Information security risk management</span></li>
+            <li><span class="id">ISO/IEC 27017:2015</span><span class="topic">Cloud service security controls</span></li>
+            <li><span class="id">ISO/IEC 27018:2025</span><span class="topic">PII protection in public clouds</span></li>
+            <li><span class="id">ISO/IEC 27701:2025</span><span class="topic">Privacy information management</span></li>
+            <li><span class="id">ISO 22301:2019</span><span class="topic">Business continuity management</span></li>
+            <li><span class="id">ISO 31000:2018</span><span class="topic">Risk management</span></li>
+            <li><span class="id">ISO/IEC 38500:2024</span><span class="topic">Governance of IT</span></li>
+            <li><span class="id">ISO 37301:2021</span><span class="topic">Compliance management</span></li>
+            <li><span class="id">ISO 28000:2022</span><span class="topic">Supply-chain security management</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3>AI governance &amp; assurance</h3>
+          <ul>
+            <li><span class="id">ISO/IEC 42001:2023</span><span class="topic">AI management systems</span></li>
+            <li><span class="id">ISO/IEC 42005:2025</span><span class="topic">AI system impact assessment</span></li>
+            <li><span class="id">ISO/IEC 23894:2023</span><span class="topic">AI risk management</span></li>
+            <li><span class="id">ISO/IEC 5259:2024</span><span class="topic">Data quality for AI / ML</span></li>
+            <li><span class="id">NIST AI RMF 1.0</span><span class="topic">AI Risk Management Framework</span></li>
+            <li><span class="id">NIST AI 600-1</span><span class="topic">Generative AI profile</span></li>
+            <li><span class="id">EU AI Act</span><span class="topic">Regulation (EU) 2024/1689</span></li>
+            <li><span class="id">OECD AI Principles</span><span class="topic">2019, updated 2024</span></li>
+            <li><span class="id">CSA AICM v1.1</span><span class="topic">AI Controls Matrix</span></li>
+            <li><span class="id">OWASP LLM Top 10 (2025)</span><span class="topic">LLM application risks</span></li>
+            <li><span class="id">MITRE ATLAS</span><span class="topic">Adversarial threats to AI</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3>NIST cybersecurity</h3>
+          <ul>
+            <li><span class="id">NIST CSF 2.0</span><span class="topic">Cybersecurity Framework</span></li>
+            <li><span class="id">NIST SP 800-53 Rev. 5</span><span class="topic">Security &amp; privacy controls</span></li>
+            <li><span class="id">NIST SP 800-63B Rev. 4</span><span class="topic">Digital identity / authentication</span></li>
+            <li><span class="id">NIST SP 800-61 Rev. 3</span><span class="topic">Incident response</span></li>
+            <li><span class="id">NIST SP 800-207</span><span class="topic">Zero Trust Architecture</span></li>
+            <li><span class="id">NIST SP 800-218</span><span class="topic">Secure software development (SSDF)</span></li>
+            <li><span class="id">NIST SP 800-161 Rev. 1</span><span class="topic">Supply-chain risk management</span></li>
+            <li><span class="id">NIST SP 800-82 Rev. 3</span><span class="topic">Operational technology (OT) security</span></li>
+            <li><span class="id">NIST SP 800-88 Rev. 2</span><span class="topic">Media sanitization</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3>Global data-protection law</h3>
+          <ul>
+            <li><span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span></li>
+            <li><span class="id">UK GDPR / DPA 2018</span><span class="topic">UK data protection</span></li>
+            <li><span class="id">US CCPA / CPRA</span><span class="topic">California consumer privacy</span></li>
+            <li><span class="id">Brazil LGPD</span><span class="topic">Lei Geral de Proteção de Dados</span></li>
+            <li><span class="id">Canada PIPEDA</span><span class="topic">Federal privacy law</span></li>
+            <li><span class="id">Australia Privacy Act 1988</span><span class="topic">as amended 2024</span></li>
+            <li><span class="id">Singapore PDPA</span><span class="topic">Personal Data Protection Act</span></li>
+            <li><span class="id">India DPDPA 2023</span><span class="topic">Digital Personal Data Protection Act</span></li>
+            <li><span class="id">China PIPL</span><span class="topic">Personal Information Protection Law</span></li>
+            <li><span class="id">Switzerland nFADP</span><span class="topic">revised Federal Act on Data Protection</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3>EU digital &amp; sector regulation</h3>
+          <ul>
+            <li><span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span></li>
+            <li><span class="id">EU DORA</span><span class="topic">Regulation (EU) 2022/2554</span></li>
+            <li><span class="id">EU Data Act</span><span class="topic">Regulation (EU) 2023/2854</span></li>
+            <li><span class="id">EU eIDAS 2</span><span class="topic">Regulation (EU) 2024/1183</span></li>
+            <li><span class="id">US HIPAA</span><span class="topic">Health information privacy &amp; security</span></li>
+            <li><span class="id">US SOX</span><span class="topic">Sarbanes-Oxley Act</span></li>
+            <li><span class="id">PCI DSS 4.0.1</span><span class="topic">Payment card data security</span></li>
+            <li><span class="id">Basel III</span><span class="topic">Banking regulation framework</span></li>
+          </ul>
+        </div>
+        <div class="biblio-col">
+          <h3>Security frameworks &amp; threat models</h3>
+          <ul>
+            <li><span class="id">OWASP Top 10 (2025)</span><span class="topic">Web application risks</span></li>
+            <li><span class="id">OWASP ASVS 5.0</span><span class="topic">App security verification</span></li>
+            <li><span class="id">OWASP SAMM 2.0</span><span class="topic">Software assurance maturity</span></li>
+            <li><span class="id">CSA CCM v4.1</span><span class="topic">Cloud Controls Matrix</span></li>
+            <li><span class="id">COBIT 2019</span><span class="topic">IT governance &amp; management</span></li>
+            <li><span class="id">MITRE ATT&amp;CK</span><span class="topic">Adversary tactics &amp; techniques</span></li>
+            <li><span class="id">STRIDE</span><span class="topic">Threat-modeling taxonomy</span></li>
+            <li><span class="id">LINDDUN v3.0</span><span class="topic">Privacy threat modeling</span></li>
+            <li><span class="id">IEC 62443</span><span class="topic">Industrial / OT security series</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 06 Adopt ===== -->
+  <section id="adopt">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;06</span><h2>Use it, adapt it, cite it.</h2></div>
+      <p class="lede">
+        Everything here is released under <b>Creative Commons Attribution-ShareAlike
+        4.0</b> (CC&nbsp;BY-SA&nbsp;4.0). Enterprises, Crown and public-sector bodies,
+        regulated institutions, and smaller teams alike can adopt any part of it, adapt
+        it to their own context, and put it to work internally and commercially. When
+        you redistribute the material or an adaptation of it, you attribute the GRC
+        Library as the source.
+      </p>
+      <div class="licence-note">
+        <h3>What ShareAlike means for you</h3>
+        <p>The ShareAlike term applies when you publicly redistribute an adapted version of the corpus itself: that redistributed adaptation carries the same CC&nbsp;BY-SA&nbsp;4.0 licence, so the shared commons stays open for everyone. It does not reach the internal, proprietary policies, systems, or content your organization derives from the corpus for its own use and does not publish. Those remain entirely yours.</p>
+        <h3>The intent</h3>
+        <p>ShareAlike exists here for one reason: so that broadly-useful improvements to this neutral, organization-agnostic corpus can flow back and benefit everyone who adopts it. If you develop general enhancements to the library itself, contributing them back is warmly encouraged. The organization-specific work you build on top, for your own operations, is yours to keep.</p>
+        <p class="licence-fine">A plain-language summary, not a substitute for the <a href="https://creativecommons.org/licenses/by-sa/4.0/">licence</a>, which governs.</p>
+      </div>
+
+      <div class="adopt-grid">
+        <div class="adopt-card">
+          <h3>Start from a template</h3>
+          <p>Pick the quick-start, implementation-roadmap, or maturity self-assessment template and tailor it to your context.</p>
+        </div>
+        <div class="adopt-card">
+          <h3>Map your obligations</h3>
+          <p>Follow the compliance matrices and framework alignments to trace a control to the standards and regulations it satisfies.</p>
+        </div>
+        <div class="adopt-card">
+          <h3>Adopt the whole programme</h3>
+          <p>Use the adopter guide and decision tree to stand up a coherent GRC programme across every governance domain.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 07 About the maintainer ===== -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;07</span><h2>About the maintainer.</h2></div>
+      <div class="maintainer">
+        <div class="m-meta">
+          <span class="m-label">Maintainer of record</span>
+          <span class="m-name">Jeff Posluns</span>
+          <span class="m-role">Chief Information Officer &middot; Enterprise technology, AI, and governance</span>
+          <div class="m-creds">
+            <span>CGEIT</span><span>CISSP</span>
+          </div>
+        </div>
+        <p class="m-bio">
+          Jeff Posluns is a Chief Information Officer and enterprise technology executive
+          with over thirty years of leadership, driving enterprise-scale transformations
+          across operating models, ERP, data, and platform modernization for global
+          organizations, with particular depth in enterprise AI. He builds AI capability
+          from governance councils and lifecycle controls through to production AI and ML
+          adoption across business workflows, aligning technology investment with business
+          strategy and operational performance.
+        </p>
+        <p class="m-bio">
+          His leadership rests on a deep foundation in cybersecurity, risk, and
+          governance, built over CIO, CISO, and consulting mandates in high-trust,
+          multi-jurisdiction regulatory environments. That foundation keeps his technology
+          decisions grounded in security-by-design, privacy, and operational resilience.
+          He holds the CGEIT and CISSP certifications, has served as a director of an
+          international non-profit, co-authored several books, and presented at industry
+          and academic conferences since the late 1990s.
+        </p>
+        <p class="m-bio last">
+          The GRC Library project is created and led by Jeff, and draws on the accumulated
+          experience of a community of governance and security practitioners built up over
+          more than two decades. The corpus is authored with substantial AI assistance and
+          curated, reviewed, and edited by the maintainer, expanding rapidly under an
+          AI-managed workflow he directs. He has led its transformation into an AI-managed
+          corpus, distilling the lessons from that work into governance practices for
+          AI-assisted teams.
+        </p>
+        <div class="m-links">
+          <a href="https://linkedin.com/in/jposluns" rel="me noopener">LinkedIn &rarr;</a>
+          <a href="https://github.com/jposluns/grc_library" rel="noopener">GitHub repository &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="lic">
+      <span class="mono-lbl">Licence &amp; attribution</span>
+      The Governance, Risk, and Compliance Documentation Library is released under
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC&nbsp;BY-SA&nbsp;4.0</a>.
+      It is organization-neutral reference documentation, not legal, security, or
+      compliance advice; adapt it to your own obligations before relying on it.
+    </div>
+    <div>
+      <span class="mono-lbl">Project</span>
+      <div class="mono" style="line-height:1.9;">
+        <a href="#what">About the library</a><br>
+        <a href="#pack">Governance pack</a><br>
+        <a href="#register">Browse domains</a><br>
+        <a href="#standards">Standards referenced</a><br>
+        <a href="#adopt">Adopt &amp; licence</a><br>
+        <a href="#about">Maintainer</a>
+      </div>
+    </div>
+    <div>
+      <span class="mono-lbl">Build</span>
+      <div class="mono" style="line-height:1.9; color:var(--ink-soft);">
+        {{DOC_TOTAL}} documents<br>
+        {{DOMAIN_COUNT}} governance domains<br>
+        continuously gated in CI
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    "use strict";
+    var root = document.documentElement;
+    var btn = document.getElementById("themeToggle");
+    var KEY = "grclib-theme";
+
+    // Restore an explicit prior choice; otherwise follow the OS preference.
+    try {
+      var saved = localStorage.getItem(KEY);
+      if (saved === "light" || saved === "dark") { root.setAttribute("data-theme", saved); }
+    } catch (e) { /* storage unavailable: fall back to prefers-color-scheme */ }
+
+    function currentTheme() {
+      var explicit = root.getAttribute("data-theme");
+      if (explicit) { return explicit; }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = currentTheme() === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
+      });
+    }
+  })();
+</script>
+</body>
+</html>
