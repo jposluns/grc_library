@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.397, PR #909
+
+Deep-assessment r3 machinery, the low-precision set (the maintainer-decided cleanups from the r3 guardrail/dead-gate findings), plus the batched #908 QA. Closes TODO §3.64 (its last open bullet resolves here; the cluster rotates to the DONE ledger). NO corpus-document body changed.
+
+### Changed
+
+- **Gate 25 dormant-scaffold retirement (DA-gate25-scaffold, TODO §3.64):** removed the three dormant P1/P2/P3-acknowledgement `TERM_PATTERNS` from [`tools/lint-cross-doc-numbers.py`](../../tools/lint-cross-doc-numbers.py). They were added narrow per the Phase 23.26 false-positive analysis and matched 0 corpus documents, so they added no protection while implying coverage the gate did not provide (the r3 dead-gate deep pass surfaced this). Reconciled the paired surfaces: the module docstring (dropped the P1/P2/P3 "terms tracked" list and the forward-scaffold rationale, keeping the empirical no-broaden note) and the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 design-principle example at the "Conservative scope over false positives" bullet, which had cited the scaffold as a live zero-tracking example. The gate stays ACTIVE on its GDPR-breach-notification term; the regression fixture exercises only that term, so it is unaffected. Maintainer decision (2026-07-14): RETIRE.
+- **Gate-41 docstring cross-reference symmetry (r3 guardrail overlap sub-note, TODO §3.62):** added a "Companion note (gate 39 symmetry)" to [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) pointing at gate 39 ([`tools/lint-gate-count-consistency.py`](../../tools/lint-gate-count-consistency.py)), which mirrors this gate's collection-source list. Gate 39's docstring already named gate 41; the reverse pointer was missing, so a future editor of gate 41 had no pointer to the shared collection-source logic. Documentation symmetry only.
+- **G5 #376 register candidate expiry (r3 guardrail G5, TODO §3.62):** stamped the disposition on the improvement-log #376 register row and the §3.62 G5 bullet: CODIFIED + EXPIRED as a standalone candidate. Its mechanizable half shipped as gate 50 **Check 4** (version-history parity, #444, the #372 surface); its residual free-prose half is held by the paired-surface-lag convention (the CLAUDE.md close-out checklist). Corrected the §3.62 bullet's imprecise "Check 1" characterization to Check 4 (Check 1 is the QA-cadence-parity §4.6 surface).
+
+### Removed
+
+- The three dormant P1/P2/P3-acknowledgement patterns from gate 25 (see Changed).
+
+### Verification
+
+- Gate 25 runs clean post-retirement (1 tracked term, GDPR-breach-notification; 423 files scanned). The [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 edit bumped that doc 1.17.2 to 1.17.3 (Date 2026-07-14) with [`taxonomy.yml`](../../taxonomy.yml) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (the version-bump-recency gate 40 + the gate-36 regression caught the initial missed bump pre-push; fixed by amend). The pre-push guard is green (69/69 + PR-time checks); the linter-regression suite passes (the gate-25 fixture is GDPR-only). A pre-push skeptical verifier reviewed the gate-logic change and the multi-surface reconciliation.
+- TODO §3.64 rotated to the DONE ledger (all 5 bullets resolved: DA-ASVS #902, DA-DORA-A12 #899/#900, DA-AIACT-A26 #899, DA-ISO20000 #907, DA-gate25-scaffold #909); §3.66 (the DA-ASVS Class 2 continuation) re-pointed from "§3.64" to "the r3 DA-ASVS remap #902"; §N-orphan grep confirms no live §3.64 reference remains in TODO (the `.working/` r3 audit-trail records retain their historical §3.64 references, as moment-in-time frozen state).
+- Batched #908 `/validate-pr` (0 findings) history row + `/retro` row.
+
+### Discipline observation
+
+The G5 disposition applied the measured-not-inferred guard: the register row and the §3.62 bullet both characterized the #376 mechanizable half as gate 50 "Check 1", but reading the gate 50 source confirmed it is Check 4 (Check 1 is the QA-cadence surface); the disposition corrected the characterization from the source rather than transcribing the stale note (which the pending-decisions bank had also carried as "Check 1"). The gate-25 retirement exercised the audit-gate-change-completeness checklist for a detection-logic change: code + module docstring + §6 spec surface reconciled, fixture confirmed unaffected.
+
 ## 2026-07-14, Library Version 2026.07.396, PR #908
 
 CHANGELOG-hygiene PR (closes TODO §3.65) plus the batched #907 post-merge QA.
