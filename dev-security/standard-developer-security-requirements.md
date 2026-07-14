@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -172,7 +172,7 @@ Wildcard CORS origins (`origins: "*"`) are prohibited in all production APIs and
 | Test Type | When | Pipeline Gate |
 | --- | --- | --- |
 | SAST | Every commit to protected branch | Fail on Critical or High |
-| SCA (dependency scan) | Every build | Fail on Critical CVE; High: remediate within 14 days |
+| SCA (dependency scan) | Every build | Fail on Critical CVE; remediate High and below per the [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 remediation SLAs |
 | Container image scan | Every image build | Fail on Critical CVE in image or layer |
 | DAST | Before production promotion; quarterly in production | OWASP Top 10 minimum |
 | Penetration test | Before first production deployment; annually thereafter | Third-party qualified tester |

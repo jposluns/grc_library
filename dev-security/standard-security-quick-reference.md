@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-07-04\
+**Version:** 1.1.9\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -157,6 +157,8 @@ Every CAB-reviewed change must include a tested rollback plan. Emergency changes
 ---
 
 ## 9. Patch and vulnerability SLA: quick reference
+
+This table restates, for quick lookup, the authoritative remediation SLAs owned by [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); on any discrepancy that procedure governs.
 
 | Severity | SLA |
 | --- | --- |
