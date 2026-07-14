@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.402, PR #914
+
+Session-closing handoff for the 2026-07-14 unattended/overnight r3-remediation session (resumed from #900; 13 merged PRs #901-#913; 0 adopter escapes). Housekeeping + working-state only; no corpus-document body changed.
+
+### Changed
+
+- Refreshed [`.working/session-handoff.md`](../session-handoff.md): prepended this session's Next-actions (CLOSING #901-#914 + NEXT-SESSION Sweep 103), State-snapshot (version snapshot reconciled to library `2026.07.402` / README `1.9.763` / pack `1.61.6` / spec `1.17.3` / gate 69, green-at `c7ee14f`/#913 = 69/69), and Asserted-expectations blocks (scoped to what this session mechanically verified, with the routed forks + protected machinery listed as explicit NOT-asserted-clean soft spots for Sweep 103). Per the discipline the handoff only PREPENDS; the next `/resume` prunes to keep-current-plus-one-prior.
+- Added the [`.working/session-metrics.md`](../session-metrics.md) row (measured post-compaction floor ~3.2M subagent tokens across ~18 dispatches; pre-compaction dispatches excluded rather than fabricated; orchestrator main-loop not instrumented).
+- Released the concurrency lease [`.working/session-state.md`](../session-state.md) (`Status: released`, `Active-session: none`).
+- Refreshed [`next-prs.txt`](../next-prs.txt) to the next-session queue (Sweep 103 -> protected machinery -> routed forks -> cleanup).
+
+### Verification
+
+- Batched #913's `/validate-pr` (0 findings) history row + `/retro` row. This #914 handoff records its OWN [`validate-pr/history.md`](../validate-pr/history.md) exemption row (`SKIPPED (handoff-PR exception)` in the Findings cell) IN ITS OWN DIFF, so gate 50 does not flag it when the next PR demotes #914 from highest-numbered (the recurring #445/#821/#900 handoff-no-row miss, avoided here). Per the loop-break, this closing PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide Sweep 103 over #901..#914, cross-checked against the Asserted-expectations block. Pre-push guard green; a skeptical verifier reviewed the handoff refresh (prune correctness, snapshot reconciliation, exemption row, lease release). Library `2026.07.402`; README `1.9.763`.
+
+### Discipline observation
+
+The wind-down was maintainer-chosen at a status check (surfaced via `AskUserQuestion` with the honest justification + named options), not taken unilaterally: this session's layered verification held (0 adopter escapes across 13 PRs) but the first-pass-catch rate escalated to a genuine correctness defect (#913's fork-safe crash, verifier-caught), a named precision-strain signal. The recommendation carried into the handoff: the remaining protected machinery (G1, handoff-D-check) and the authorial forks are better handled with fresh precision.
+
 ## 2026-07-14, Library Version 2026.07.401, PR #913
 
 Deep-assessment r3 machinery: the G3 register row-ordering guard (TODO §3.62 G3, maintainer-authorized at the 2026-07-14 resume, overriding the #888 low-value WATCH), plus the batched #912 QA.
