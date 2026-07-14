@@ -2,8 +2,8 @@
 
 **Document Title:** Service Level Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-03\
+**Version:** 1.0.5\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../resilience/standard-business-continuity-and-disaster-recovery.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -18,7 +18,7 @@
 
 ## 1. Purpose
 
-This standard defines the requirements for establishing, monitoring, reviewing, and managing Service Level Agreements (SLAs) and Operational Level Agreements (OLAs) across all IT services. It establishes how service targets are set, how breaches are detected and escalated, how SLA performance is reported, and how SLAs are maintained over the service lifecycle. It supports ISO/IEC 20000-1:2018 §8.3, ITIL 4 Service Level Management practice, and COBIT 2019 DSS02.
+This standard defines the requirements for establishing, monitoring, reviewing, and managing Service Level Agreements (SLAs) and Operational Level Agreements (OLAs) across all IT services. It establishes how service targets are set, how breaches are detected and escalated, how SLA performance is reported, and how SLAs are maintained over the service lifecycle. It supports ISO/IEC 20000-1:2018 §8.3.3, ITIL 4 Service Level Management practice, and COBIT 2019 DSS02.
 
 ---
 
@@ -207,7 +207,7 @@ Adopting organizations should retain:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 20000-1:2018 | §8.3 Service Level Management | SLA establishment, monitoring, and review |
+| ISO/IEC 20000-1:2018 | §8.3.3 Service level management | SLA establishment, monitoring, and review |
 | ITIL 4 | Service Level Management Practice | Service catalogue, SLA governance, continual improvement |
 | COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident resolution targets and SLA governance |
 | COBIT 2019 | APO09: Manage Service Agreements | Service agreement lifecycle |

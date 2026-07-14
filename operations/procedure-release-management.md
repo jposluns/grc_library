@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -211,7 +211,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ITIL 4 | Release management; deployment management | Service management |
-| ISO/IEC 20000-1 | Service management requirements | Service management standard |
+| ISO/IEC 20000-1 | §8.5.3 Release and deployment management | Release and deployment management |
 | ISO/IEC 27001:2022 | A.8.32 Change management | Information security |
 | NIST SP 800-218 | SSDF PO, PS, PW, RV practices | Secure software development |
 | OWASP SAMM | Verification, Operations | Software assurance maturity |
