@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.6\
-**Date:** 2026-07-05\
+**Version:** 1.1.7\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -137,7 +137,7 @@ Secret rotation must work without a code deployment. Hard-coded secrets that req
 - Browser-delivered web applications enforce a Content-Security-Policy that disallows inline script by default and adopts Trusted Types (`require-trusted-types-for 'script'`) where the runtime supports it, to contain DOM-based cross-site scripting.
 - Web responses set the transport and content-type hardening headers: Strict-Transport-Security with a long `max-age` and `preload`; `X-Content-Type-Options: nosniff`; and `frame-ancestors` (or `X-Frame-Options`) to prevent clickjacking.
 
-*CCM: AIS-02 / OWASP ASVS V5*
+*CCM: AIS-02 / OWASP ASVS V2, V1*
 
 ---
 
@@ -345,15 +345,15 @@ All of the following must be validated before any application onboards to a prod
 
 | Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | OWASP ASVS | OWASP Top 10 |
 | --- | --- | --- | --- | --- | --- |
-| Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V1 | N/A |
-| Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V2 | A01, A07 |
-| Secrets management | A.8.10 to 8.11 | CEK-10 to 21 | PW.8 | V3 | A02 |
-| Input validation | A.8.28 | AIS-02 | N/A | V5 | A03 |
-| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V6 | A02 |
-| Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V7 | A09 |
+| Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1 to PW.4 | V15 | N/A |
+| Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V6 | A01, A07 |
+| Secrets management | A.8.10 to 8.11 | CEK-10 to 21 | PW.8 | V13 | A02 |
+| Input validation | A.8.28 | AIS-02 | N/A | V2, V1 | A03 |
+| Cryptography | A.8.24 | CEK-01 to 21 | N/A | V11 | A02 |
+| Error handling and logging | A.8.16 | LOG-01 to 13 | N/A | V16 | A09 |
 | Security testing | A.8.29 | AIS-05, TVM-07 | VE.1 to VE.3 | All levels | All |
-| Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V3 | A06 |
-| API security | A.8.24 | AIS-08 | N/A | V3, V13 | A01, A02 |
+| Dependency management | A.8.8 | TVM-06, AIS-04 | PO.5 | V15 | A06 |
+| API security | A.8.24 | AIS-08 | N/A | V4 | A01, A02 |
 | AI/ML security | N/A | AICM TVM-12 | N/A | N/A | OWASP LLM Top 10 |
 
 ---
