@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-07-05\
+**Version:** 1.1.9\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -92,12 +92,7 @@ Do not isolate or reimage systems without direction from the incident commander.
 
 ## 5. Patch and vulnerability management
 
-| Severity | SLA |
-| --- | --- |
-| Critical (CVSS 9.0 to 10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
-| High (CVSS 7.0 to 8.9) | 14 days |
-| Medium (CVSS 4.0 to 6.9) | 30 days |
-| Low (CVSS 0.1 to 3.9) | 90 days or next maintenance window |
+Vulnerability-remediation SLAs by severity, including the Critical exploitation-status grading (actively exploited, publicly disclosed, otherwise), are governed by [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2, the single source of truth; that procedure governs on any discrepancy.
 
 Authenticated vulnerability scans must run at minimum weekly. Results must be reviewed within 48 hours. Critical findings trigger immediate alert. No EOL OS, middleware, or runtime versions are permitted in production. Upgrade plans must be initiated at minimum 6 months before any EOL date.
 
