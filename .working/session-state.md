@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-sweep102-validate
 
-**Status:** released
+**Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-13T23:45:29Z
+**Last-heartbeat-UTC:** 2026-07-14T00:50:27Z
 
-**Current-task:** ACTIVE, **attended-autonomous** (maintainer-set at the 2026-07-13 resume; green CI = merge authority, decisions surfaced by exception, full per-PR `/validate-pr` + `/retro`, stricter-is-safer). Running the maintainer-invoked formal **`/deep-assessment` r3** (continue-in-session, maintainer-chosen at the mid-run checkpoint). Phases 1-2 complete; Phase-3 semantic instruments `/validate` (Sweep 101), `/guardrails` (r10), `/claim-fit`, `/screen-publications`, `/matrix-fit`, `/full-qa`, and now `/fitness` all COMPLETE; Phase-4 gate-efficacy substantially complete. **SESSION CLOSED at #900** (the session-closing handoff PR); lease RELEASED. The 2026-07-13 resumed session (`claude/resume-sweep101-validate` + the deep-assessment r3 branches, #887-#900) ran the loop-break Sweep 101 then the formal `/deep-assessment` r3 end-to-end; the maintainer SIGNED OFF on the r3 finding set ("mechanical now, Highs fresh"), the clear-mechanical batch (6 findings) was remediated (#899), and the r3 Highs (DA-ASVS high-assurance + FR-200/FR-201) are maintainer-directed to a FRESH session. Next session: `/resume` runs the mandatory loop-break Sweep 102 over #887..#900, then the r3 High remediation. No live session holds the lease. Green-at `a5d2edd` (#887, r3 base) = 69/69; each PR verified post-merge.
+**Current-task:** ACTIVE, **unattended/overnight** (maintainer-set at the 2026-07-14 resume: maintainer up ~1h then asleep; no idle-stop, green CI = merge authority, stricter-safe defaults on no-answer, full per-PR `/validate-pr` + `/retro`, overnight ends only on an explicit signal). Resumed from #900; ran the mandatory loop-break **Sweep 102** `/validate` over #887..#900 (CLEAN: 0 error / 0 warning / 0 escalate-class; all three subagents A/B/C corroborated the asserted expectations; loop-break control for #900 PASSED). Now working the maintainer-directed **r3 High remediation** queue (DA-ASVS via the high-assurance harness [Secrets->V13 Configuration], FR-200 internal-audit board line, FR-201 vuln-SLA 14/30/90 SoT, then FR-202..205 value cluster, then the r3 mediums/lows + reference items + machinery, then P3 cleanup + coverage-refresh sync). All resume decisions banked in [`pending-decisions.md`](pending-decisions.md). Green-at `95a2772` (#900) = 69/69 (verified this resume).
 
-**Worker-dispatches:** none active this session. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition and schedule-gated (P4/P6 new-domain builds, FR-59, the 3.15/3.16 crosswalks); no seed is apply-ready or dispatched this session. The `/fitness` pass dispatched ten read-only persona subagents (P1 to P10) plus #893's `/validate-pr` Subagent A this branch; all returned.
+**Worker-dispatches:** Sweep 102 dispatched three read-only `/validate` subagents (A recent-PR / B stale-reference / C audit-programme), all returned clean. No apply-stage workers this session. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition and schedule-gated; no seed is apply-ready or dispatched.
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

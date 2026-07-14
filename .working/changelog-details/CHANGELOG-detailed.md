@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.389, PR #901
+
+The first PR of the 2026-07-14 resumed session (`claude/resume-sweep102-validate`, resumed from #900): the mandatory loop-break corpus-wide `/validate` (Sweep 102) over the #887..#900 deltas of the 2026-07-13 deep-assessment r3 session, the compensating control for session-closing handoff PR #900 (which skipped its trailing `/validate-pr` + `/retro`). Subagents clean (0 error / 0 warning / 0 escalate-class); the close-out mechanical re-baseline then caught one in-window bookkeeping omission (PR #900's handoff-exemption row was missing), fixed here. The loop-break control for #900 PASSES.
+
+### Fixed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the **PR #900 handoff-exemption row** (`SKIPPED (handoff-PR exception)` in the Findings cell). #900 (the prior session's session-closing handoff) omitted its own exemption row (the recurring handoff-no-row miss, same shape as #821->#822): while #900 was the highest-numbered merged PR gate 50 exempted it as in-flight, and the omission surfaced the moment this PR's CHANGELOG entry demoted it, failing gate 50 (bookkeeping-parity) and, downstream, the gate-36 `test_runs_clean_on_corpus_at_head` regression smoke test in this PR's pre-push guard. Adding the row resolves both. This is the loop-break compensating control working: the semantic subagents were clean, and the close-out mechanical re-baseline caught the prior handoff's bookkeeping omission.
+
+### Changed
+
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep 102 iter-1 row (subagents 0/0/0 + the 1 mechanical handoff-row finding fixed this PR; Version 2.0.97 to 2.0.98). Three subagents A/B/C dispatched; all clean.
+- [`.working/session-handoff.md`](../session-handoff.md): Resume cursor advanced to Sweep 102 (Sweep 101 demoted to prior); the #900 State-snapshot green-at annotated with the resume state; PRUNED per keep-current-plus-one-prior (the #851 session's Next-actions, State-snapshot, and Asserted-expectations blocks deleted; the #886 block's dangling supersede-pointer neutralized to "pruned at the Sweep 102 resume").
+- [`.working/session-state.md`](../session-state.md): lease ACQUIRED (`Active-session: claude/resume-sweep102-validate`, `Status: active`, fresh heartbeat).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the 2026-07-14 resume-round decisions banked (mode unattended/overnight; the r3 High remediation dispositions FR-200/201/202-205 and DA-ASVS Secrets->V13; the machinery decisions G1/G3/G5/gate-25; DA-ISO20000 deferred pending purchase; overnight scope).
+- [`.working/next-prs.txt`](../next-prs.txt): cycled forward (the completed handoff dropped; DA-ASVS now leads the queue).
+- README Library Version 2026.07.388 to 2026.07.389; README Version 1.9.749 to 1.9.750.
+
+### Verification
+
+- Sweep 102: mechanical baseline 69/69 at `95a2772`/#900 (verified this resume, non-shallow clone). Pre-flight scanner: 421 files, 11 candidates all the collection-count-word false-positive class, dismissed by all three subagents. Subagent A (recent-PR) verified all 9 #899/#900 corpus edits at source (the DORA Article 11/12 split corroborated against held DORA text, EU AI Act Article 26/53/55/Annex XI, EDPB 05/2020 date precision, FFIEC CAT retirement) with Version+Date co-bumps and generated artefacts in sync; Subagent B (stale-reference) confirmed the DA-DORA-A12 and DA-AIACT-A26 corpus residuals both 0 and no count drift (13/23/14 and gate 69 re-derived); Subagent C (audit-programme) confirmed four-surface parity at gate 69, gate-count consistency, the #890 dual-header drift-cluster complete across docstrings/spec/code, the #897 nightly-sweep full-SHA pin, and the regression suite 373 OK. Asserted-expectations cross-check: all CORROBORATED, 0 contradicted.
+- The r3 HIGH findings (DA-ASVS, FR-200/201, FR-202..205, remaining mediums/lows) are known-open per the #900 handoff and NOT asserted clean, so out-of-scope for this sweep as expected.
+- The first pre-push guard run flagged gate 50 (bookkeeping-parity) and, downstream, the gate-36 `test_runs_clean_on_corpus_at_head` smoke test, both from the missing #900 handoff-exemption row (the Fixed section above); after adding the row the re-run passes all 69 gates standalone. Both generator `--check`s in sync (no per-document body change this PR, working-state and version surfaces only). Subagent C's earlier standalone regression run reported 373 OK because it ran before #901's CHANGELOG entry demoted #900 from highest-numbered, so gate 50 still exempted #900 as in-flight at that time.
+
+### Discipline observation
+
+This is the loop-break compensating control for #900: the session-closing handoff PR skipped its own `/validate-pr` + `/retro`, and this corpus-wide `/validate` re-examines the whole delta window rather than only #900's diff, cross-checking against the handoff's asserted-expectations. The one scope note (Subagent A found the AICPA TSP 100 register row was added out-of-window at #876, not this delta) is a brief-scoping correction, not a corpus defect; the RB-6(e) AICPA held-edition item remains separately tracked from Sweep 101. Per recursion-avoidance this Sweep 102 close-out is the first PR of the resumed session and also acquires the lease and prunes the handoff.
+
 ## 2026-07-14, Library Version 2026.07.388, PR #900
 
 The session-closing handoff for the 2026-07-13 resumed session (`claude/resume-sweep101-validate` + the deep-assessment r3 branches, #887-#900), the corpus-wide completion of the DA-DORA-A12 fix that PR #899's `/validate-pr` found carrier-incomplete, and PR #899's batched QA. Per the loop-break, this session-closing handoff PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 102) over #887..#900.
