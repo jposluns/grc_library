@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.65: root CHANGELOG compact-form reformat + advisory length guard (2026-07-14)
+
+Reformatted root `CHANGELOG.md` entries #887-#901 from long multi-sentence paragraphs (109-262 words, the deep-assessment r3 session's drift) back to the adopted compact one-liner form (each compression verified against the detailed mirror), and shipped a light advisory guard `tools/audit-changelog-entry-length.py` (advisory, exit 0, WARN over 130 words; not gate-wired) so future root-entry drift is surfaced. Closed in #908.
+
 ### TODO §3.58: delivery-pipeline reconciliation and stale-seed disposition (2026-07-13)
 
 Reconciled the scratch-inbox delivery pipeline: closed under the maintainer's disposition rule (for scratch deliveries older than 5 days, keep ONLY pure-research seeds, discard the rest), executed in scratch PR #164, which removed the five consumed / stale-non-pure-research inbox drops (gr-10-history-gate-batching, changelog-root-reformat-build, atlas-crosswalk-317, ai-gaps-expansion-plan, the claude-pack-hygiene programme) and annotated the claims-ledger + COVERAGE dispositions, keeping the pure-research seeds available as input. The residual tooling weakness (the recycled-number token map that made this a describe-the-work exercise) is spun off as §3.61.
