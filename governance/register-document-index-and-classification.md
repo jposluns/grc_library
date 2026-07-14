@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.85\
+**Version:** 1.27.86\
 **Date:** 2026-07-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -120,7 +120,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Standard | Network Security and Segmentation | [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.20 to 21, NIST SP 800-41, CSA CCM I&S, BASC Section 6 | template |
 | Operations | Standard | Physical Security of IT Infrastructure | [`operations/standard-physical-security-of-it-infrastructure.md`](../operations/standard-physical-security-of-it-infrastructure.md) | Chief Information Officer | Annual | ISO/IEC 27001 Annex A.7, NIST SP 800-116, BASC physical security | template |
 | Operations | Standard | Certificate Authority Management | [`operations/standard-certificate-authority-management.md`](../operations/standard-certificate-authority-management.md) | Chief Information Security Officer | Annual | RFC 5280, CA/Browser Forum Baseline Requirements, NIST SP 800-57 | template |
-| Operations | Procedure | Change Management and Configuration Control | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | Chief Information Officer | Annual | ISO/IEC 20000, COBIT CCC, NIST SP 800-128 | template |
+| Operations | Procedure | Change Management and Configuration Control | [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md) | Chief Information Officer | Annual | ISO/IEC 20000-1, COBIT CCC, NIST SP 800-128 | template |
 | Operations | Procedure | Endpoint Management and Device Compliance | [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md) | Chief Information Officer | Annual | ISO/IEC 27001 Annex A.8.1/A.8.3, NIST SP 800-124, CSA CCM UEM | template |
 | Operations | Procedure | Media Handling and Transport | [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) | Chief Information Officer | Annual | ISO/IEC 27001 Annex A.8.10, NIST SP 800-88, CSA CCM DSP, DCS, BASC | template |
 | Operations | Procedure | Security Monitoring and Alert Management | [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md) | Chief Information Security Officer | Annual | ISO/IEC 27001 Annex A.8.15 to 16, NIST SP 800-53 SI, MITRE ATT&CK | template |

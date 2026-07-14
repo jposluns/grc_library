@@ -6,13 +6,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.400, PR #912
+
+FR-201 vulnerability-remediation-SLA single-source-of-truth completion (TODO §3.68, partial), plus the batched #911 QA. A #912 research worker ran a full-corpus carrier enumeration; the FR-201 (#904) "no other document still diverges" claim was over-stated (the §3.68 note's "9-doc scope" missed several carriers). SoT = [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 (Critical 24h/72h/7d graded by exploitation, High 14, Med 30, Low 90).
+
+### Changed (clear stricter-safe conversions to cite the SoT)
+
+- [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md) (1.1.8 -> 1.1.9): the full 4-row SLA table (a verbatim-equivalent restatement) replaced with a governing citation to the SoT (kept the surrounding scan-frequency/EOL prose).
+- [`operations/procedure-patch-management.md`](../../operations/procedure-patch-management.md) (1.0.5 -> 1.0.6): KEPT the operational classification table (its Trigger Condition and Authorization columns are load-bearing operational detail the SoT does not carry) and added a governing note re-anchoring the Deployment-Timeline column to the SoT section 2 (the doc already prose-cited the SoT at :21; the values were still restated in the table).
+- [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) (1.0.8 -> 1.0.9): section 4.5.3 "Critical, 7 days; High, 14 days" restatement -> citation of the SoT. This was a dev-security carrier FR-201 (#904) LEFT unconverted (FR-201's scope caught the SCA standard + dev-requirements but not this policy).
+- [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (1.0.5 -> 1.0.6): the #904 F-1 carrier ":103 Critical patches within 15 days or fewer" (LOOSER than the SoT's 7-day Critical worst case) -> citation of the SoT (stricter-safe; the doc's :101 already deferred to the standard in prose, so the looser value contradicted its own reference).
+- taxonomy/scorecard regenerated for the four bumps.
+
+### Routed (divergent values needing maintainer judgment; NOT guessed)
+
+Recorded in TODO §3.68 (kept open as partial) for maintainer decision, per the overnight defer-and-skip discipline (these are authorial, not mechanical conversions):
+- `security/standard-penetration-testing-and-red-team.md:88-96`: prose claims alignment with the vuln procedure but the values are LOOSER (High 30d vs 14, Med 60d vs 30); the alignment claim is inaccurate either way. Stricter-safe option (tighten to align) vs intentional-longer-window option (reword the claim) is the maintainer's call.
+- `supply-chain/standard-supplier-security-and-privacy-assurance.md:45,60`: third-party supplier-tier bars, intentionally a separate scale from the internal SLA; policy question only, do NOT auto-convert.
+- `operations/procedure-patch-management.md:117`: exception-deferral maximums disagree with the SoT section 6 exception table; reconcile which mapping is authoritative.
+- `compliance/logistics/register-basc-it-compliance-kpis.md:31,38`: KPI-embedded 7d/14d (consistent); low-priority optional drift-hardening.
+
+### Verification
+
+Research-worker full-corpus enumeration + orchestrator re-read of every converted carrier against the SoT section 2 values (confirmed each restatement was verbatim-equivalent before replacing it with a citation; confirmed the two looser carriers, software-evaluation :103 and policy 4.5.3, defer to the stricter SoT). The sanctioned model restatement ([`dev-security/standard-security-quick-reference.md`](../../dev-security/standard-security-quick-reference.md), which restates the table WITH a governing citation) was left as the intended pattern. Pre-push guard green; a skeptical verifier reviewed the conversions + the routing completeness.
+
+### Batched #911 QA
+
+Fixed the three #911 `/validate-pr` record-hygiene findings (all Low, in-window): F1 the detailed-CHANGELOG #911 "### Fixed" lead count "Six ... across five" -> "Eleven ... across seven documents"; F3 the doc-index register's change-mgmt row bare "ISO/IEC 20000" -> "ISO/IEC 20000-1" (register 1.27.85 -> 1.27.86, regenerated); F2 the stale "6 clause fixes" in next-prs.txt dropped in the rewrite. #911 `/validate-pr` history row + per-PR record + `/retro` row added. Library `2026.07.400`; README `1.9.761`.
+
+### Discipline observation
+
+The §3.68 note (written from the FR-201 verifier's pass) named 3 carriers; the #912 worker's full-corpus enumeration found ~8 actionable, so a prior "find-every-carrier" claim was itself carrier-incomplete. This is why §3.68 dispatched a fresh whole-corpus worker rather than trusting the note's named set, the same lesson as the #911 register carrier. The clear stricter-safe conversions were applied; the value-divergences that need authorial judgment (is a longer pentest window intentional? should supplier bars tighten?) were routed, not guessed, per the overnight defer-and-skip discipline.
+
 ## 2026-07-14, Library Version 2026.07.399, PR #911
 
 ISO/IEC 20000-1:2018 clause-attribution accuracy pass (TODO §3.72, routed from #910's reference-breadth research), plus the batched #910 QA. A full-cluster `/claim-fit` over all 9 operations docs citing 20000-1, judged against the held source TOC.
 
 ### Fixed
 
-Six ISO/IEC 20000-1 clause citations corrected across five operations documents (each Version+Date co-bumped; taxonomy + scorecard regenerated). All held clause titles verified verbatim against the held ISO/IEC 20000-1:2018 full-text in the `grc_library_ref` reference base this turn:
+Eleven ISO/IEC 20000-1 clause citations corrected across seven documents (six operations docs plus the governance doc-index register; each Version+Date co-bumped; taxonomy + scorecard regenerated). All held clause titles verified verbatim against the held ISO/IEC 20000-1:2018 full-text in the `grc_library_ref` reference base this turn:
 
 - [`operations/standard-capacity-and-performance-management.md`](../../operations/standard-capacity-and-performance-management.md) (1.0.4 -> 1.0.5): `§8.6 Service management` -> **§8.4.3 Capacity management**. Doubly wrong: §8.6's held title is "Resolution and fulfilment", and "Service management" is not a held clause title at any level (fabricated); capacity management is §8.4.3.
 - [`operations/standard-observability-and-telemetry.md`](../../operations/standard-observability-and-telemetry.md) (0.0.5 -> 0.0.6): `§8.6 Service management` -> **§9.1 Monitoring, measurement, analysis and evaluation** (the closest defensible home; observability/telemetry has no dedicated 20000-1 clause, and §8.6 is wrong).
