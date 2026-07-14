@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.67: ISO/IEC 20000 family review + corpus reference-breadth pass (2026-07-14)
+
+Reviewed the newly-held ISO/IEC 20000 family (12 held items) via a research-worker `/reference-audit` new-ingest pass. Finding: the corpus already engages the normative ISO/IEC 20000-1:2018 well (9 docs cite it); the other parts are informative guidance/vocabulary/cert-body standards that would be citation-stuffing to load as compliance rows. #910 added the one strongest, well-grounded addition, an informative ISO/IEC TS 20000-11:2021 (20000-1↔ITIL relationship) see-also row on `operations/framework-it-service-management.md` (whose thesis is exactly that bridge); candidates 20000-10 (vocabulary, no natural terms-section home) and TS 20000-15 (Agile/DevOps, lower fit) were assessed and not added per the anti-stuffing guard. The DA-ISO20000 20000-1 citation was already verified in #907. An incidental clause-mis-attribution finding (existing 20000-1 §-citations in the ITSM cluster) was routed to §3.72 as a full-cluster `/claim-fit` pass rather than fixed piecemeal.
+
 ### TODO §3.64: deep-assessment r3 Phase-4/5 routed findings, cluster fully resolved (2026-07-14)
 
 The r3 dead-gate/ground-truth cluster (5 findings) is fully closed and rotated: DA-ASVS ASVS 4.0.3->5.0.0 chapter remap (#902, high-assurance harness; Class 2 generic-governance citations spun out to §3.66), DA-DORA-A12 article mislabel (#899+#900, corpus-wide), DA-AIACT-A26 AI Act over-attribution (#899), DA-ISO20000 citation verified against the now-held ISO/IEC 20000-1:2018 (#907), and DA-gate25-scaffold retired (#909). §3.66 (DA-ASVS Class 2) remains the one live continuation, re-pointed at its #902 origin.

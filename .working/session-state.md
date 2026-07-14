@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/r3-machinery-lowprecision
+**Active-session:** claude/iso20000-reference-breadth
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-14T09:35:00Z
+**Last-heartbeat-UTC:** 2026-07-14T10:12:00Z
 
-**Current-task:** ACTIVE, **unattended/overnight** (maintainer-set at the 2026-07-14 resume, re-confirmed "going back to sleep" ~08:58Z: no idle-stop, green CI = merge authority, stricter-safe defaults on no-answer, full per-PR `/validate-pr` + `/retro`, overnight ends only on an explicit signal). Loop-break **Sweep 102** ran CLEAN. The **r3 High + value + tail remediation is COMPLETE**: DA-ASVS #902 (high-assurance harness), FR-200 #903, FR-201 #904, FR-202..205 #905, FR tail #906, RB-ETSI primary + DA-ISO20000 resolved #907. Now on **#908** (CHANGELOG compact-form reformat #887-#901 + advisory length guard, closes §3.65; + batched #907 QA). Next: r3 machinery (low-precision retire/expire/nit, then new-gate BUILDs via high-assurance), ISO 20000 §3.67 review, P3 + coverage-refresh sync, session-closing handoff. Routed forks await maintainer (§3.66/3.69/3.70/3.71, FR-214/215/217/219). All resume decisions banked in [`pending-decisions.md`](pending-decisions.md). Green-at `fb8f5a1` (#907) = 69/69 (verified this session).
+**Current-task:** ACTIVE, **unattended/overnight** (maintainer-set at the 2026-07-14 resume, re-confirmed "going back to sleep" ~08:58Z: no idle-stop, green CI = merge authority, stricter-safe defaults on no-answer, full per-PR `/validate-pr` + `/retro`, overnight ends only on an explicit signal). Loop-break **Sweep 102** ran CLEAN. The **r3 High + value + tail remediation is COMPLETE**: DA-ASVS #902 (high-assurance harness), FR-200 #903, FR-201 #904, FR-202..205 #905, FR tail #906, RB-ETSI primary + DA-ISO20000 resolved #907. Shipped since: #908 (CHANGELOG compact reformat + advisory guard, closes §3.65), #909 (r3 machinery low-precision: gate-25 retire + gate-41 nit + G5 expire, closes §3.64). Now on **#910** (ISO 20000 family reference-breadth review, closes §3.67: TS 20000-11 see-also added; clause-mis-attribution routed to §3.72; + batched #909 QA). Next: §3.72 ISO 20000-1 clause-accuracy /claim-fit pass (fix issues), then new-gate BUILDs (G3/D-check via high-assurance; G1 -> deferred-protected), P3 + coverage-refresh sync, session-closing handoff. Routed forks await maintainer (§3.66/3.69/3.70/3.71, FR-214/215/217/219). All resume decisions banked in [`pending-decisions.md`](pending-decisions.md). Green-at `fb8f5a1` (#907) = 69/69 (verified this session).
 
 **Worker-dispatches:** Sweep 102 dispatched three read-only `/validate` subagents (A recent-PR / B stale-reference / C audit-programme), all returned clean. No apply-stage workers this session. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition and schedule-gated; no seed is apply-ready or dispatched.
 

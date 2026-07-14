@@ -2,7 +2,7 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -90,6 +90,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 20000-1:2018 | Service management system requirements (Part 1) | ITSM framework compliance |
+| ISO/IEC TS 20000-11:2021 | Guidance on the relationship between ISO/IEC 20000-1 and service management frameworks: ITIL | Informative: bridges the Part-1 requirements and the ITIL 4 process model this framework adopts |
 | ITIL 4 | Foundation, Practices, and Guiding Principles | Service management process model |
 | COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident and request management |
 | COBIT 2019 | DSS03: Manage Problems | Problem management |
