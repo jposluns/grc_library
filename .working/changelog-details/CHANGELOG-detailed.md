@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.398, PR #910
+
+ISO/IEC 20000 family reference-breadth review (TODO §3.67, maintainer-added), plus the batched #909 QA. One informative corpus citation added; the review's honest bottom line is that the corpus already engages ISO/IEC 20000-1 well.
+
+### Added
+
+- **ISO/IEC TS 20000-11:2021 see-also** in [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md) (Framework-alignment table, between the 20000-1 and ITIL 4 rows; doc 1.0.5 -> 1.0.6, taxonomy + scorecard regenerated). The framework's Purpose states it bridges ISO/IEC 20000-1:2018 and ITIL 4, and TS 20000-11 is exactly "Guidance on the relationship between ISO/IEC 20000-1 and service management frameworks: ITIL" (title verified verbatim against the held source). Added as an INFORMATIVE row (its Relevance cell reads "Informative: bridges the Part-1 requirements and the ITIL 4 process model this framework adopts"), not a normative compliance row, per its guidance nature.
+
+### Changed
+
+- **Batched #909 `/validate-pr` F1 fix:** reworded [`.working/session-handoff.md`](../../.working/session-handoff.md):52 from a bare `§3.64` reference (dead after #909 rotated §3.64 to DONE) to "§3.64 (Phase-4/5, since fully resolved and rotated to DONE in #909)". The #909 orphan grep had wrongly treated the LIVING session-handoff.md as a frozen dated register.
+
+### Bookkeeping
+
+- **TODO §3.67 closed** (ISO 20000 review done) and rotated to the DONE ledger; the reference-audit run recorded in [`.working/reference-audit/history.md`](../../.working/reference-audit/history.md) + a detail file. The §3.63 RB-ETSI secondary see-also was decoupled from §3.67 back to §3.63 (its origin). **TODO §3.72 added** (route the incidental 20000-1 clause-mis-attribution finding to a full-cluster `/claim-fit` pass over the 9 docs citing 20000-1, rather than a piecemeal 2-of-9 fix).
+- Batched #909 `/validate-pr` history row + per-PR record + `/retro` row. Library `2026.07.398`; README `1.9.759`.
+
+### Verification
+
+- The ISO 20000 review used the research-assistant discipline: a worker ran the reference-audit new-ingest pass and produced a ranked candidate table; the orchestrator verified the one applied candidate (TS 20000-11 title + fit) against the held source and the live doc before authoring, and confirmed the assessed-not-added candidates (20000-10 has no natural terms-section home; TS 20000-15 lower fit) against the anti-stuffing guard. The clause-mis-attribution finding was NOT fixed here (routed to §3.72) precisely because the worker spot-checked only 3 of 9 docs and a piecemeal fix would repeat the carrier-incomplete trap. Pre-push guard green; a skeptical verifier reviewed the corpus addition + the §3.67 close.
+
+### Discipline observation
+
+The honest few-finding outcome is the reference-audit working correctly: a new authoritative family landed, and the disciplined result was one informative see-also plus a routed accuracy finding, not a table full of new "compliance" rows. Loading the guidance/vocabulary/TS parts as alignment rows would have been citation-stuffing (the GRC-library-not-implementation-guide guard the maintainer set).
+
 ## 2026-07-14, Library Version 2026.07.397, PR #909
 
 Deep-assessment r3 machinery, the low-precision set (the maintainer-decided cleanups from the r3 guardrail/dead-gate findings), plus the batched #908 QA. Closes TODO §3.64 (its last open bullet resolves here; the cluster rotates to the DONE ledger). NO corpus-document body changed.
