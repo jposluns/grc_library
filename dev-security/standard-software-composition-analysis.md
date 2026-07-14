@@ -2,8 +2,8 @@
 
 **Document Title:** Software Composition Analysis Standard\
 **Document Type:** Standard\
-**Version:** 1.1.5\
-**Date:** 2026-07-03\
+**Version:** 1.1.6\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/README.md`](README.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/register-compliance-controls-and-gap-register.md`](register-compliance-controls-and-gap-register.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -70,13 +70,15 @@ SCA tools must be integrated at multiple points in the software development life
 
 ### 4.2 Vulnerability remediation slas
 
-| CVSS Score | Severity | Maximum Age in Production | Escalation on Breach |
-|---|---|---|---|
-| 9.0 to 10.0 | Critical | 7 calendar days | CISO; executive leadership |
-| 7.0 to 8.9 | High | 30 calendar days | CISO |
-| 4.0 to 6.9 | Medium | 90 calendar days | Security Champion |
-| 0.1 to 3.9 | Low | 180 calendar days or at next release | Development team |
-| 0.0 | None / Informational | At next scheduled maintenance | Development team |
+Remediation timelines for SCA-detected third-party component vulnerabilities are governed by the severity-based schedule in [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (Severity classification and patch SLAs), the single source of truth for remediation SLAs across the library. This standard does not restate those timelines, to keep one authoritative source and prevent drift. The escalation path on SLA breach for SCA-detected component vulnerabilities is:
+
+| CVSS Score | Severity | Escalation on Breach |
+|---|---|---|
+| 9.0 to 10.0 | Critical | CISO; executive leadership |
+| 7.0 to 8.9 | High | CISO |
+| 4.0 to 6.9 | Medium | Security Champion |
+| 0.1 to 3.9 | Low | Development team |
+| 0.0 | None / Informational | At next scheduled maintenance |
 
 Where a fix is not available (no patched version exists), the following actions must be taken within the SLA for the severity:
 1. Document the vulnerability and remediation blocker in the risk register
@@ -227,8 +229,8 @@ A tool that passes the criteria is documented in the security architecture regis
 
 | Metric | Target | Reporting Frequency |
 |---|---|---|
-| Mean time to remediate Critical vulnerabilities | ≤ 7 days | Weekly |
-| Mean time to remediate High vulnerabilities | ≤ 30 days | Monthly |
+| Mean time to remediate Critical vulnerabilities | ≤ 5 days (aligned to the programme metric in [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md)) | Weekly |
+| Mean time to remediate High vulnerabilities | ≤ 12 days (aligned to the programme metric in [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md)) | Monthly |
 | Percentage of production builds with SBOM generated | 100% | Monthly |
 | Percentage of dependencies with pinned exact versions | ≥ 95% | Quarterly |
 | Licence compliance coverage (all dependencies reviewed) | 100% | Quarterly |

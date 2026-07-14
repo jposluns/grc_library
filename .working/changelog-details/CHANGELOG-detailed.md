@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.392, PR #904
+
+FR-201 (deep-assessment r3 fitness High): resolved the divergent vulnerability-remediation SLAs. The finding: normative docs set different remediation deadlines for the same CVSS bands (SCA standard High 30 / Medium 90 / Low 180 days; the vulnerability-management procedure High 14 / Medium 30 / Low 90; developer-security requirements High 14). Fix: designate [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 the SINGLE SOURCE OF TRUTH (Critical 24h/72h/7d by exploitation status, High 14, Medium 30, Low 90 days) and convert the divergent restatements to citations. (Note: the SoT band is High/Medium/Low = 14/30/90; the Critical tier is exploitation-graded, correcting the "Crit/High/Med" shorthand used when the decision was first framed.)
+
+### Changed
+
+- [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) section 4.2: removed the divergent SLA table (High 30 / Medium 90 / Low 180) and deferred remediation timelines to the vuln-management procedure section 2, retaining the SCA-specific severity-to-escalation table; the two mean-time-to-remediate KPIs aligned to the SoT's own programme metrics (Critical 5 days, High 12 days), replacing the earlier looser 7/30-day values.
+- [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md): the SCA-scan row cites the vuln-management procedure section 2 SLAs instead of restating "14 days".
+- [`dev-security/standard-security-quick-reference.md`](../../dev-security/standard-security-quick-reference.md) section 9: values kept for quick lookup (already matched the SoT), with an added citation designating the vuln-management procedure section 2 authoritative and governing on any discrepancy.
+- Versions: SCA 1.1.5 to 1.1.6, developer-security-requirements 1.1.7 to 1.1.8, quick-reference 1.1.8 to 1.1.9; taxonomy/scorecard regenerated.
+
+### Verification
+
+- Substantive-tier skeptical verifier (refute-briefed, with a corpus-wide find-every-carrier pass): VERDICT SHIP. The find-every-carrier pass confirmed NO remaining divergent vuln-remediation-SLA carrier corpus-wide (production-security-requirements + patch-management restate the table but MATCH the SoT; policy-secure-development, devops-security-requirements, and pack files all consistent; the different-semantic values [SBOM-provision 30d, pentest-finding remediation, exception-max-duration windows, EOL runtime windows, supplier contractual minimums] correctly untouched). Two in-window completions from the verifier's notes: the MTTR-metric alignment (SCA MTTR set to the SoT's OWN metrics 5/12, not the SLA deadlines 7/14, verified against the held source before applying) and the ops-doc single-source follow-up routed to TODO section 3.68.
+- All 69 gates pass. Batches PR #903's `/validate-pr` (0 in-window findings) + `/retro`.
+
+### Discipline observation
+
+The verifier's find-every-carrier pass is the FR-201 analogue of the DA-DORA-A12 lesson: the finding named 3 docs, but the real divergence was one (SCA); dev-requirements and quick-reference already matched the SoT, and two ops docs restate-but-match (drift risk, routed to section 3.68). The MTTR-metric note (my first fix tied SCA's mean-time metric to the SLA deadline rather than the SoT's own tighter metric) was caught by the verifier and corrected in-window: a single-source reconciliation must align a metric to the source's metric, not to the adjacent SLA. The SLA-value shorthand correction (High/Med/Low = 14/30/90, not Crit/High/Med) is recorded so the audit trail carries the accurate band.
+
 ## 2026-07-14, Library Version 2026.07.391, PR #903
 
 FR-200 (deep-assessment r3 fitness High): reconciled [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md)'s reporting/independence structure to the corpus's canonical governance. The finding: the standard's section-2.3 independence named only the Enterprise Risk Committee (ERC) as the CAE's reporting/escalation line, with no functional line to the board or audit committee, contradicting the compliance policy (which already requires internal audit to "report directly to the Board Audit Committee", [`policy-compliance-and-audit-management.md`](../../compliance/policy-compliance-and-audit-management.md) section 4.3.1) and the assurance map ([`risk/register-assurance-map.md`](../../risk/register-assurance-map.md), which assumes a board/audit-committee).
