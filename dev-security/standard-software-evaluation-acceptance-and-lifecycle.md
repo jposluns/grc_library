@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -100,7 +100,7 @@ All deployment activities must comply with the Change Management and Configurati
 
 Software patching and updates follow the Vulnerability and Patch Management Standard. Key requirements:
 
-- Critical patches must be applied within 15 days or fewer as determined by the CISO.
+- Critical patches must be applied within the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); that procedure governs on any discrepancy.
 - Major version changes require revalidation under the AIS process.
 - Patch status is tracked in the IT Asset Management System.
 

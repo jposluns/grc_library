@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.8\
-**Date:** 2026-07-05\
+**Version:** 1.0.9\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -104,7 +104,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 4.5.2 Only components with permissive and compatible licenses (e.g., MIT, Apache 2.0) may be used.
 
-4.5.3 Vulnerable components must be patched or replaced within defined SLAs: Critical, 7 days; High, 14 days.
+4.5.3 Vulnerable components must be patched or replaced within the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth).
 
 4.5.4 A Software Bill of Materials (SBOM) must be maintained for all applications per NIST Executive Order 14028 guidance.
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-07-05\
+**Version:** 1.0.6\
+**Date:** 2026-07-14\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -58,6 +58,8 @@ Every patch or update is classified on receipt to determine the required deploym
 | **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
 | **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Scheduled maintenance window |
 | **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change |
+
+The Deployment Timeline column operationalizes the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); that procedure governs on any discrepancy, and the Trigger Condition and Authorization columns add the operational detail this procedure owns.
 
 IT Operations reviews newly published CISA KEV entries daily. A KEV listing for a vulnerability affecting in-scope assets triggers immediate reclassification to Emergency regardless of previously assigned CVSS score.
 
