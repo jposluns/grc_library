@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.410, PR #922
+
+Per-domain pages for the public `grclibrary.ai` site (backlog section 2.4, the second of the two maintainer-review PRs), plus a hero-paragraph width fix and the batched PR #921 QA. The generator now renders one page per corpus domain (13 pages in all: the landing page, the about page, and 11 domain pages); no corpus document changed and no generated artefact was touched. The site stays preview-until-publish on the maintainer's go.
+
+### Added
+- **A page per governance domain** (11 pages), rendered by [`.web/build.py`](../../.web/build.py) from a new shared-layout template [`.web/templates/domain.html`](../../.web/templates/domain.html). Each page carries: the domain's Purpose intro extracted from its own domain README (a list-lead-in Purpose, the dev-security case, folds the following list items' lead-in sentences in so no dangling colon renders); the domain's full document list (title and type from [`taxonomy.yml`](../../taxonomy.yml), sorted by type then title), each document linking to its GitHub source in a new tab; and per-page SEO metadata (a page title, a meta description, and a canonical URL on the site domain). The 11 pages hold 310 documents in total, matching the register counts; the 2 root specification documents correctly have no domain page.
+
+### Changed
+- **Register-table domain links.** The landing page's section-04 register now links each domain name to its on-site domain page.
+- **Hero intro paragraph fills the column width.** `.hero .dek` in [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html) dropped its `max-width: 60ch` cap for `max-width: none`, so the first paragraph on every page (landing, about, and the 11 domain pages) fills to the same width as the section paragraphs and the card grid instead of wrapping short. Maintainer-flagged; the companion to PR #921's `.lede` fix.
+- **Generator help-text plurality sweep.** [`.web/build.py`](../../.web/build.py)'s module docstring and argparse description now describe the landing, about, and per-domain pages (was "landing + about pages" in several places; also "figure on the page" to "on the pages", "seeded the template" to "seeded the templates", "the two pages cannot drift" to "the pages cannot drift"). This closes PR #921's post-merge validation note (the full-file-grep completeness lesson) and reflects the now-larger page set.
+- **Content boundary widened, deliberately and minimally.** The generator's read allow-list now includes the eleven domain READMEs (public corpus content; only the Purpose paragraph is used); the docstring's CONTENT BOUNDARY section records the addition. It still never walks the repository and never reads `.working/`, `.claude/`, `tools/`, `tests/`, `.github/`, or the sibling repositories.
+- **Allow-listed the project's own site domain.** [`tools/lint-external-link-domains.py`](../../tools/lint-external-link-domains.py) gained the `grclibrary.ai` domain for the canonical URLs the domain pages emit (the project's own public site, not a citation publisher, so the citation-verification specification is unchanged; no gate weakened).
+
+### Fixed
+- **Attribute-context and href hardening** (PR2 skeptical-verifier low findings): the escaping helper now also escapes the double-quote so it is safe in an attribute context, and the document-link URL is escaped. Not exploitable today (taxonomy paths and curated scope strings are clean); a latent-gap close. The stale `parse_taxonomy` docstring (it now also returns the title) was corrected.
+
+### Verification
+- The generator's `--check` mode is rc=0 (corpus parses, 13 pages render); a full render wrote 13 pages. Per-domain document-row counts equal the taxonomy per-domain counts and sum to 310; every GitHub link on domain page X points into the X directory (no cross-page bleed; a document in a subdirectory, such as the privacy jurisdiction annexes, resolves correctly). There are 0 external links without a new-tab attribute and 0 internal anchors with one; 0 working-state, private-tree, email, or absolute-path leaks across the 11 domain pages. Full `tools/run_all_audits.sh` = 69/69.
+- **PR2 skeptical verifier** (refute-briefed, read-only-git): SHIP-WITH-NOTES, 0 critical / 0 high, 0 content-boundary leaks. One Medium (the dev-security dangling-colon intro) FIXED here by the list-lead-in fold; two Lows (attribute escaping; the stale docstring) FIXED here. Re-verified: the dev-security intro now renders as a complete sentence and the other 10 intros are unchanged.
+- **PR #921 post-merge validation** (Subagent A, refute-briefed, read-only-git on `389e8e9`): SHIP-WITH-NOTES, 0 error / 0 warning / 1 note (the docstring carriers), FIXED here; record at [`2026-07-14-PR-921.md`](../validate-pr/2026-07-14-PR-921.md).
+
+### Notes
+- Follow-up queued (maintainer-directed 2026-07-14): make the landing-page feature-card titles (STRUCTURED, CROSS-LINKED, PRACTICAL, INTEGRITY, CITATIONS, and the rest) link to the corpus page each asserts or accomplishes. The orchestrator will present the proposed card-to-link mapping for maintainer review before implementing it (tracked in TODO section 2.4).
+
 ## 2026-07-14, Library Version 2026.07.409, PR #921
 
 Maintainer-review polish of the public `grclibrary.ai` site (the two-page site shipped in #919-#920), plus the batched PR #920 post-merge QA. Three visible fixes (paragraph width, stat-cell overflow, new-tab external links), three housekeeping items (generator help text, runbook pointer, dead CSS), and no corpus-content or generated-artefact change. The site remains preview-until-publish on the maintainer's go; it is already live on Cloudflare Pages with the custom domain grclibrary.ai assigned.

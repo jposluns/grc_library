@@ -80,6 +80,10 @@ ALLOW_LIST = {
     # Adopted references mentioned in library content
     "keepachangelog.com", "semver.org", "spdx.org", "calver.org",
     "creativecommons.org",
+    # The project's own public site (grclibrary.ai on Cloudflare Pages; the
+    # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
+    # citation publisher, so the citation-verification spec (§7) is not updated.
+    "grclibrary.ai",
     # Library maintainer documentation
     "claude.ai",
     # Anthropic Claude Code official documentation domain
