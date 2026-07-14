@@ -210,6 +210,8 @@
     color: var(--mast-ink);
     font-variant-numeric: tabular-nums;
   }
+  /* Word-valued stats ("Continuous", "CC BY-SA") carry .num without .tnum; size them down so a long word does not overflow its cell. */
+  .stat .num:not(.tnum) { font-size: clamp(1.15rem, 2.4vw, 1.55rem); line-height: 1.15; }
   .stat .num .accent { color: var(--mast-brass); }
   .stat .lbl {
     font-family: var(--font-mono);
@@ -240,7 +242,7 @@
     text-wrap: balance;
     margin: 0;
   }
-  .lede { font-size: 1.15rem; line-height: 1.6; color: var(--ink-soft); max-width: var(--measure); margin: 0 0 2.4rem; }
+  .lede { font-size: 1.15rem; line-height: 1.6; color: var(--ink-soft); max-width: none; margin: 0 0 2.4rem; }
   .lede b { color: var(--ink); font-weight: 600; }
 
   /* ---------- Differentiator cards ---------- */
@@ -333,8 +335,6 @@
   .m-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
   .m-name { font-family: var(--font-mono); font-weight: 700; font-size: clamp(1.3rem, 3vw, 1.65rem); color: var(--ink); }
   .m-role { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); letter-spacing: 0.02em; }
-  .m-creds { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
-  .m-creds span { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 0.25rem 0.55rem; }
   .m-bio { color: var(--ink-soft); margin: 0 0 1rem; max-width: 62ch; line-height: 1.65; }
   .m-bio.last { margin-bottom: 1.5rem; }
   .m-links { display: flex; flex-wrap: wrap; gap: 0.8rem; }

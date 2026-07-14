@@ -1,6 +1,6 @@
 # Cloudflare Pages setup runbook, grclibrary.ai public site (TODO section 2.4)
 
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-14\
 **License:** CC BY-SA 4.0
 
@@ -110,7 +110,7 @@ not wait on any CDN. A strict CSP at the zone level is compatible with the page 
 - The production branch name (step 2).
 - The Cloudflare Pages project settings, confirmed against the current dashboard (steps 3-4,
   the **[confirm live]** items).
-- The About section bio prose and the CGEIT / CISSP credential strip in
-  [`.web/templates/landing.html`](../.web/templates/landing.html) section 07 (carried verbatim
-  from the maintainer's staged design; it and the LinkedIn / GitHub links are the only personal
-  detail on the page, and go public only on the maintainer's deploy go).
+- The About-page bio prose and the CGEIT / CISSP credentials in
+  [`.web/templates/about.html`](../.web/templates/about.html) (carried verbatim
+  from the maintainer's staged design; they and the LinkedIn / GitHub links are the only personal
+  detail on the site, and go public only on the maintainer's deploy go).
