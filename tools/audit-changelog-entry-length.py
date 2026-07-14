@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Advisory readability check for root ``CHANGELOG.md`` entry summaries
 (maintainer-flagged 2026-07-14; shipped by the CHANGELOG-compact-reformat PR,
-strengthened by the P1 §1.2 reformat PR).
+strengthened by PR #916, the root-CHANGELOG reformat).
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID, not an audit gate.
 The root ``CHANGELOG.md`` carries one COMPACT one-line summary per change
@@ -28,14 +28,17 @@ compact-form header it measures the summary portion (everything after
 
   2. DENSE RUN-ON: the longest single SENTENCE exceeds ``--sentence-warn``
      (default 65) words. This is the signal the word-count alone MISSED: the
-     #902-#914 drift was one 67-140-word semicolon-and-colon-chained sentence,
-     under the 130-word total ceiling yet unreadable, whereas a compact entry is
-     two plain sentences of ~40 words each. Sentence length, not total length,
+     #902-#914 drift packed each entry into dense, semicolon-and-colon-chained
+     sentences; several stayed under the 130-word total ceiling yet read as
+     run-ons because a single sentence ran past the 65-word sentence ceiling,
+     whereas a compact entry is two plain sentences of ~40 words each. Sentence
+     length, not total length,
      is what separates "a reader can follow this" from "a run-on". Sentences are
-     split on a period-then-space boundary (a crude splitter that never
-     OVER-flags: it can only under-split on ``e.g.``-style internal periods,
-     which shortens a measured sentence, so a false positive is not possible
-     from the splitter, only a false negative).
+     split on a sentence-terminator-then-space boundary (a period, question
+     mark, or exclamation mark, optionally closing a parenthesis/quote). Crude
+     by design, it never OVER-flags: it can only under-split on ``e.g.``-style
+     internal periods, which shortens a measured sentence, so a false positive
+     is not possible from the splitter, only a false negative.
 
 Both thresholds are advisory ceilings, not hard boundaries: the compact/dense
 boundary is a judgement call, so the tool flags clear drift for the
@@ -72,11 +75,12 @@ ENTRY_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [^|]+ \| PR #(\d+)\*\* - (.+)$
 DEFAULT_WORD_WARN = 130
 DEFAULT_SENTENCE_WARN = 65
 
-# A sentence boundary is a period (optionally closing a parenthesis/quote)
-# followed by whitespace. Crude by design: it can only UNDER-split (on an
-# internal "e.g." period), which shortens a measured sentence and so can only
-# cause a false NEGATIVE, never a false positive.
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.)\"'])\s+")
+# A sentence boundary is a period, question mark, or exclamation mark
+# (optionally closing a parenthesis/quote) followed by whitespace. Crude by
+# design: it can only UNDER-split (on an internal "e.g." period), which
+# shortens a measured sentence and so can only cause a false NEGATIVE, never a
+# false positive.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!)\"'])\s+")
 
 
 def sentence_word_counts(summary):

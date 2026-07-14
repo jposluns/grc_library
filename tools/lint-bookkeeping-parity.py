@@ -23,7 +23,7 @@ three other audit surfaces; it is deliberately NOT added to the pre-push
 history-aware runner (which is for delta and commit-graph gates), because
 the post-commit ``run_all_audits.sh`` already runs it before any push.
 
-The four checks:
+The five checks:
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
