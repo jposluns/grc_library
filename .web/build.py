@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static-site generator for the grclibrary.ai public landing page (TODO section 2.4).
 
-WHAT THIS IS. A stdlib-only generator that renders the public landing page from
+WHAT THIS IS. A stdlib-only generator that renders the public site (landing + about pages) from
 the LIVE corpus at build time. There is one source of truth (the corpus); the
 site is a projection of it. Every corpus figure on the page is recomputed here
 from ``taxonomy.yml`` (the canonical machine-readable taxonomy, kept in sync with
@@ -9,13 +9,16 @@ the corpus by the taxonomy-drift gate) and the library version from ``README.md`
 Nothing is hardcoded; the preview HTML that seeded the template carried a
 point-in-time snapshot that this generator overwrites.
 
-CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY three
-inputs, an explicit allow-list: ``taxonomy.yml``, ``README.md``, and the page
-template under ``.web/templates/``. It never walks the repository and never reads
-``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or the private
-sibling repositories. Its only output is the rendered landing page under
-``.web/dist/``. So the published surface is the landing page and nothing else; a
-repo file cannot leak onto the public site through this generator.
+CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY an
+explicit allow-list: ``taxonomy.yml``, ``README.md``, and the page templates
+and shared partials under ``.web/templates/``. It never walks the repository and
+never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
+the private sibling repositories. Its only output is the rendered site under
+``.web/dist/`` (``index.html`` and ``about/index.html``). So the published
+surface is those pages and nothing else; a repo file cannot leak onto the public
+site through this generator. The about page's content is static template prose
+(the maintainer bio and the acknowledged contributors), not corpus-derived, so
+it adds no new input to the allow-list.
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -46,10 +49,29 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = REPO_ROOT / ".web"
-TEMPLATE = WEB_DIR / "templates" / "landing.html"
+TEMPLATES_DIR = WEB_DIR / "templates"
+PARTIALS_DIR = TEMPLATES_DIR / "partials"
 TAXONOMY = REPO_ROOT / "taxonomy.yml"
 README = REPO_ROOT / "README.md"
 DEFAULT_OUT = WEB_DIR / "dist"
+
+# Shared chrome injected into every page from a single source, so the two pages
+# cannot drift. Placeholder name -> partial filename under PARTIALS_DIR. A
+# partial may itself carry figure placeholders (CALVER in the topbar,
+# DOC_TOTAL / DOMAIN_COUNT in the footer), resolved in render_page()'s 2nd pass.
+PARTIALS = {
+    "HEAD_STYLE": "head-style.html",
+    "TOPBAR": "topbar.html",
+    "FOOTER": "footer.html",
+    "SCRIPT": "script.html",
+}
+
+# The site's pages: (template filename under TEMPLATES_DIR, output path relative
+# to the out directory).
+PAGES = [
+    ("landing.html", "index.html"),
+    ("about.html", "about/index.html"),
+]
 
 # The eleven corpus domains, with the one-line scope description shown in the
 # section-04 register. Curated prose (a scope sentence is not derivable from
@@ -217,12 +239,21 @@ def render_type_chips(figures):
     return "\n".join(chips)
 
 
-def render(figures):
-    if not TEMPLATE.is_file():
-        raise BuildError(f"template not found at {TEMPLATE}")
-    template = TEMPLATE.read_text(encoding="utf-8")
+def load_partials():
+    """Read the shared-chrome partials once. Trailing newlines are stripped so a
+    partial drops cleanly onto its own placeholder line."""
+    partials = {}
+    for key, fname in PARTIALS.items():
+        p = PARTIALS_DIR / fname
+        if not p.is_file():
+            raise BuildError(f"partial not found at {p}")
+        partials[key] = p.read_text(encoding="utf-8").rstrip("\n")
+    return partials
 
-    values = {
+
+def figure_values(figures):
+    """The corpus-derived values interpolated into every page."""
+    return {
         "CALVER": figures["calver"],
         "DOC_TOTAL": str(figures["total"]),
         "DOMAIN_COUNT": str(figures["domain_count"]),
@@ -232,28 +263,66 @@ def render(figures):
         "TYPE_CHIPS": render_type_chips(figures),
     }
 
+
+def render_page(template_name, figures, partials):
+    """Render one page: inject the shared partials, then the corpus figures.
+
+    Two substitution passes, because the partials carry figure placeholders of
+    their own (CALVER in the topbar; DOC_TOTAL / DOMAIN_COUNT in the footer). The
+    first pass drops the partial text (with its ``{{CALVER}}`` etc. still literal)
+    into the page and resolves any figures written directly in the page body; the
+    second resolves the figures that arrived via a partial. Returns
+    ``(html, used_keys)``."""
+    template_path = TEMPLATES_DIR / template_name
+    if not template_path.is_file():
+        raise BuildError(f"template not found at {template_path}")
+    template = template_path.read_text(encoding="utf-8")
+
+    values = {**partials, **figure_values(figures)}
     used = set()
 
     def sub(match):
         key = match.group(1)
         if key not in values:
-            raise BuildError(f"template has an unknown placeholder {{{{{key}}}}}")
+            raise BuildError(
+                f"template {template_name} has an unknown placeholder {{{{{key}}}}}"
+            )
         used.add(key)
         return values[key]
 
-    rendered = _PLACEHOLDER_RE.sub(sub, template)
+    rendered = _PLACEHOLDER_RE.sub(sub, template)   # pass 1: partials + inline figures
+    rendered = _PLACEHOLDER_RE.sub(sub, rendered)   # pass 2: figures arriving via partials
 
-    unused = sorted(set(values) - used)
-    if unused:
-        raise BuildError(
-            "template is missing expected placeholder(s): "
-            f"{', '.join('{{' + k + '}}' for k in unused)}"
-        )
     # No placeholder tokens may survive rendering.
     leftover = _PLACEHOLDER_RE.findall(rendered)
     if leftover:
-        raise BuildError(f"unrendered placeholder(s) remain: {', '.join(sorted(set(leftover)))}")
-    return rendered
+        raise BuildError(
+            f"unrendered placeholder(s) remain in {template_name}: "
+            f"{', '.join(sorted(set(leftover)))}"
+        )
+    return rendered, used
+
+
+def render_site(figures):
+    """Render every page. Returns a list of ``(out_rel, html)``. Enforces that
+    every computed value is used by at least one page: a value used by no page is
+    a dead computation (or a dropped placeholder), which is a build error."""
+    partials = load_partials()
+    all_values = set(PARTIALS) | set(figure_values(figures))
+    pages = []
+    used_across = set()
+    for template_name, out_rel in PAGES:
+        html, used = render_page(template_name, figures, partials)
+        pages.append((out_rel, html))
+        used_across |= used
+
+    unused = sorted(all_values - used_across)
+    if unused:
+        raise BuildError(
+            "value(s) used by no page (dead computation or a dropped placeholder): "
+            f"{', '.join('{{' + k + '}}' for k in unused)}"
+        )
+    return pages
 
 
 def main(argv=None):
@@ -276,9 +345,9 @@ def main(argv=None):
 
     try:
         figures = compute_figures()
-        # Rendering is part of the health check: it proves the template still
-        # matches the generator's placeholder set.
-        html = render(figures)
+        # Rendering is part of the health check: it proves every page template
+        # still matches the generator's partial and placeholder set.
+        pages = render_site(figures)
     except BuildError as e:
         print(f"web-generator FAIL: {e}", file=sys.stderr)
         return 1
@@ -287,18 +356,25 @@ def main(argv=None):
         f"web-generator: {figures['total']} documents "
         f"({figures['domain_docs']} across {figures['domain_count']} domains "
         f"+ {figures['root_count']} root), {len(figures['types'])} document types, "
-        f"library {figures['calver']}."
+        f"library {figures['calver']}; {len(pages)} pages "
+        f"({', '.join(rel for rel, _ in pages)})."
     )
 
     if args.check:
-        print(f"web-generator --check OK: corpus parses and the template renders. {summary}")
+        print(f"web-generator --check OK: corpus parses and every page renders. {summary}")
         return 0
 
     out_dir = Path(args.out).resolve() if args.out else DEFAULT_OUT
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_file = out_dir / "index.html"
-    out_file.write_text(html, encoding="utf-8")
-    print(f"web-generator OK: wrote {out_file}. {summary}")
+    written = []
+    for out_rel, html in pages:
+        out_file = out_dir / out_rel
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        out_file.write_text(html, encoding="utf-8")
+        written.append(out_rel)
+    print(
+        f"web-generator OK: wrote {len(written)} page(s) to {out_dir} "
+        f"({', '.join(written)}). {summary}"
+    )
     return 0
 
 

@@ -1,6 +1,6 @@
 # Cloudflare Pages setup runbook, grclibrary.ai public site (TODO section 2.4)
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-07-14\
 **License:** CC BY-SA 4.0
 
@@ -27,16 +27,16 @@ rate limits are vendor-set and change over time. Every such value below is marke
 
 ## What is being deployed
 
-- A single static landing page at `grclibrary.ai`, rendered by [`.web/build.py`](../.web/build.py)
+- A two-page static site at `grclibrary.ai` (a landing page and an about/contributors page), rendered by [`.web/build.py`](../.web/build.py)
   from the LIVE corpus at build time (document counts, per-domain breakdown, document-type
   chips, and the library CalVer are recomputed from [`taxonomy.yml`](../taxonomy.yml) and
   [`README.md`](../README.md); nothing is hardcoded).
 - The rendered output is a build artefact under `.web/dist/` (git-ignored, never committed).
-  Only the generator and the template ([`.web/templates/landing.html`](../.web/templates/landing.html))
-  are tracked. Cloudflare rebuilds the page from the live corpus on each deploy; the edge
+  Only the generator, the page templates, and the shared partials (under
+  [`.web/templates/`](../.web/templates/)) are tracked. Cloudflare rebuilds the page from the live corpus on each deploy; the edge
   cache is the "cached copy, refreshed on change" behaviour.
 - **Content boundary:** the generator's only inputs are `taxonomy.yml`, `README.md`, and
-  the template, and its only output is the landing page. It never reads `.working/`,
+  the page templates, and its only outputs are the landing page and the about page. It never reads `.working/`,
   `.claude/`, `tools/`, `tests/`, `.github/`, or the private sibling repositories, so no
   internal or working-state content can reach the public site through it.
 
