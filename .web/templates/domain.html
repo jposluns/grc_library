@@ -8,7 +8,14 @@
 <title>{{DOMAIN_TITLE}}</title>
 {{HEAD_STYLE}}
 <style>
-  /* Domain page: document index (domain-only styles) */
+  /* Domain page (domain-only styles). These pages are short, so the shared
+     section rhythm leaves too much empty space before the document list (it
+     falls below the fold on an iPad). Tighten the section / hero padding and the
+     inter-element margins here, without touching the content-rich landing page. */
+  section { padding-block: clamp(1.4rem, 3vw, 2.2rem); }
+  .hero { padding-block: clamp(1.8rem, 4vw, 3rem); }
+  .sec-head { margin-bottom: 1.1rem; }
+  .lede { margin-bottom: 1.4rem; }
   .domain-h1 { text-transform: uppercase; letter-spacing: 0.02em; }
   .doc-index {
     list-style: none; margin: 0; padding: 0;
@@ -16,18 +23,19 @@
   }
   .doc-row {
     display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 1rem;
-    padding: 0.85rem 1.1rem; background: var(--surface); border-bottom: 1px solid var(--line);
+    padding: 0.7rem 1.1rem; background: var(--surface); border-bottom: 1px solid var(--line);
   }
   .doc-row:last-child { border-bottom: none; }
   .doc-type {
     font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--brass); min-width: 7.5rem;
   }
-  .doc-title { flex: 1 1 14rem; color: var(--ink); }
-  .doc-link {
-    font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); white-space: nowrap;
-  }
-  .doc-link:hover { color: var(--brass); text-decoration: none; }
+  /* The document name is the link (opens its source on GitHub in a new tab); a
+     small arrow marks the off-site jump. No separate "GitHub" link, one link per row. */
+  .doc-title { flex: 1 1 14rem; color: var(--ink); text-decoration: none; }
+  .doc-title:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
+  .doc-title .ext { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); margin-left: 0.4rem; }
+  .doc-title:hover .ext { color: var(--brass); }
 </style>
 </head>
 

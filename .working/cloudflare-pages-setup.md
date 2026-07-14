@@ -1,6 +1,6 @@
 # Cloudflare Pages setup runbook, grclibrary.ai public site (TODO section 2.4)
 
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-07-14\
 **License:** CC BY-SA 4.0
 
@@ -27,18 +27,22 @@ rate limits are vendor-set and change over time. Every such value below is marke
 
 ## What is being deployed
 
-- A two-page static site at `grclibrary.ai` (a landing page and an about/contributors page), rendered by [`.web/build.py`](../.web/build.py)
-  from the LIVE corpus at build time (document counts, per-domain breakdown, document-type
-  chips, and the library CalVer are recomputed from [`taxonomy.yml`](../taxonomy.yml) and
-  [`README.md`](../README.md); nothing is hardcoded).
+- A static site at `grclibrary.ai`, rendered by [`.web/build.py`](../.web/build.py) from the
+  LIVE corpus at build time: a landing page, an about/contributors page, and one page per
+  corpus domain (13 pages in all). Document counts, the per-domain breakdown, document-type
+  chips, each domain's document list, and the library CalVer are recomputed from
+  [`taxonomy.yml`](../taxonomy.yml), the root [`README.md`](../README.md), and each domain's
+  own `README.md` (its Purpose intro); nothing is hardcoded.
 - The rendered output is a build artefact under `.web/dist/` (git-ignored, never committed).
   Only the generator, the page templates, and the shared partials (under
-  [`.web/templates/`](../.web/templates/)) are tracked. Cloudflare rebuilds the page from the live corpus on each deploy; the edge
+  [`.web/templates/`](../.web/templates/)) are tracked. Cloudflare rebuilds the pages from the live corpus on each deploy; the edge
   cache is the "cached copy, refreshed on change" behaviour.
-- **Content boundary:** the generator's only inputs are `taxonomy.yml`, `README.md`, and
-  the page templates, and its only outputs are the landing page and the about page. It never reads `.working/`,
-  `.claude/`, `tools/`, `tests/`, `.github/`, or the private sibling repositories, so no
-  internal or working-state content can reach the public site through it.
+- **Content boundary:** the generator's only inputs are `taxonomy.yml`, the root `README.md`,
+  the eleven `<domain>/README.md` files (the Purpose intro only), and the page templates; its
+  only outputs are the landing page, the about page, and one `<domain>/index.html` per corpus
+  domain. It never reads `.working/`, `.claude/`, `tools/`, `tests/`, `.github/`, or the
+  private sibling repositories, so no internal or working-state content can reach the public
+  site through it.
 
 ## Prerequisites
 
