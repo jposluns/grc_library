@@ -10,15 +10,20 @@ Nothing is hardcoded; the preview HTML that seeded the template carried a
 point-in-time snapshot that this generator overwrites.
 
 CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY an
-explicit allow-list: ``taxonomy.yml``, ``README.md``, and the page templates
+explicit allow-list: ``taxonomy.yml``, ``README.md``, each corpus domain's own
+``<domain>/README.md`` (for the per-domain page intro), and the page templates
 and shared partials under ``.web/templates/``. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. Its only output is the rendered site under
-``.web/dist/`` (``index.html`` and ``about/index.html``). So the published
-surface is those pages and nothing else; a repo file cannot leak onto the public
-site through this generator. The about page's content is static template prose
-(the maintainer bio and the acknowledged contributors), not corpus-derived, so
-it adds no new input to the allow-list.
+``.web/dist/`` (``index.html``, ``about/index.html``, and one
+``<domain>/index.html`` per corpus domain). So the published surface is those
+pages and nothing else; a repo file cannot leak onto the public site through this
+generator. The about page's content is static template prose (the maintainer bio
+and the acknowledged contributors), not corpus-derived. Each domain page draws
+only its intro (the domain README's ``## Purpose`` paragraph, public corpus
+content) and its document list (title / type / path from ``taxonomy.yml``, each
+linking out to the document's GitHub blob), so the allow-list additions are the
+eleven domain READMEs and nothing else.
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -99,8 +104,16 @@ ROOT_DOMAIN = "root"
 _DOC_RE = re.compile(r'^- path:\s*"(.*)"\s*$')
 _DOMAIN_RE = re.compile(r'^  domain:\s*"(.*)"\s*$')
 _TYPE_RE = re.compile(r'^  type:\s*"(.*)"\s*$')
+_TITLE_RE = re.compile(r'^  title:\s*"(.*)"\s*$')
 _CALVER_RE = re.compile(r"^\*\*Library Version:\*\*\s+([0-9]{4}\.[0-9]{2}\.[0-9]+)", re.M)
 _PLACEHOLDER_RE = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
+_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+
+# Per-domain pages link each document out to its source on GitHub (the corpus
+# lives there; the site does not recreate rendered document content), and carry a
+# canonical URL for SEO. Both are the public repository / site, no secret.
+GITHUB_BLOB_BASE = "https://github.com/jposluns/grc_library/blob/main/"
+SITE_BASE = "https://grclibrary.ai"
 
 
 class BuildError(Exception):
@@ -126,7 +139,7 @@ def parse_taxonomy(text):
             continue
         m = _DOC_RE.match(line)
         if m:
-            cur = {"path": m.group(1), "domain": None, "type": None}
+            cur = {"path": m.group(1), "domain": None, "type": None, "title": None}
             docs.append(cur)
             continue
         if cur is not None:
@@ -137,7 +150,40 @@ def parse_taxonomy(text):
             mt = _TYPE_RE.match(line)
             if mt:
                 cur["type"] = mt.group(1)
+                continue
+            mtitle = _TITLE_RE.match(line)
+            if mtitle:
+                cur["title"] = mtitle.group(1)
     return docs
+
+
+def read_domain_purpose(domain):
+    """Return the first paragraph of the ``## Purpose`` section of
+    ``<domain>/README.md`` as plain text (markdown links flattened to their
+    text). Every corpus domain README follows the section model and carries a
+    Purpose section; a missing file or missing section is a coupling breakage the
+    generator-health check must surface."""
+    p = REPO_ROOT / domain / "README.md"
+    if not p.is_file():
+        raise BuildError(f"domain README not found at {p}")
+    out = []
+    in_purpose = False
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if not in_purpose:
+            if re.match(r"^##\s+Purpose\s*$", line):
+                in_purpose = True
+            continue
+        stripped = line.strip()
+        if stripped.startswith("## ") or stripped == "---":
+            break
+        if stripped == "":
+            if out:
+                break  # end of the first paragraph
+            continue
+        out.append(stripped)
+    if not out:
+        raise BuildError(f"{domain}/README.md has no '## Purpose' paragraph")
+    return _MD_LINK_RE.sub(r"\1", " ".join(out))
 
 
 def compute_figures():
@@ -191,6 +237,28 @@ def compute_figures():
     # Types sorted by count descending, then name ascending.
     types = sorted(by_type.items(), key=lambda kv: (-kv[1], kv[0]))
 
+    # Per-domain page data: the domain's document list (title / type / path from
+    # the taxonomy, sorted by type then title) plus its README Purpose intro.
+    domain_pages = []
+    for domain, count in domains:
+        ddocs = [d for d in docs if d["domain"] == domain]
+        untitled = [d["path"] for d in ddocs if not d["title"]]
+        if untitled:
+            raise BuildError(
+                f"{len(untitled)} taxonomy entr(y/ies) in domain '{domain}' "
+                f"missing a title (schema change?); first: {untitled[0]}"
+            )
+        ddocs = sorted(ddocs, key=lambda d: (d["type"], d["title"]))
+        domain_pages.append(
+            {
+                "domain": domain,
+                "scope": DOMAIN_SCOPE[domain],
+                "purpose": read_domain_purpose(domain),
+                "docs": ddocs,
+                "count": count,
+            }
+        )
+
     return {
         "total": total,
         "root_count": root_count,
@@ -200,6 +268,7 @@ def compute_figures():
         "domains": domains,
         "types": types,
         "calver": calver,
+        "domain_pages": domain_pages,
     }
 
 
@@ -220,7 +289,7 @@ def render_domain_rows(figures):
         scope = _esc(DOMAIN_SCOPE[domain])
         rows.append(
             f'            <tr><td class="rg-idx tnum">{idx:02d}</td>'
-            f'<td class="rg-name">{_esc(domain)}</td>'
+            f'<td class="rg-name"><a href="/{_esc(domain)}/">{_esc(domain)}</a></td>'
             f'<td class="rg-scope">{scope}</td>'
             f'<td class="rg-count"><span class="bar-wrap">'
             f'<span class="bar" style="width:{pct}%"></span>'
@@ -251,6 +320,44 @@ def load_partials():
     return partials
 
 
+def render_domain_doc_rows(dp):
+    """One list row per document in the domain: type tag, title, and a GitHub
+    link to the document's source (the corpus lives on GitHub; the site does not
+    recreate rendered document content). Off-site links open in a new tab."""
+    rows = []
+    for d in dp["docs"]:
+        url = GITHUB_BLOB_BASE + d["path"]
+        rows.append(
+            f'          <li class="doc-row">'
+            f'<span class="doc-type">{_esc(d["type"])}</span>'
+            f'<span class="doc-title">{_esc(d["title"])}</span>'
+            f'<a class="doc-link" href="{url}" target="_blank" rel="noopener">GitHub &rarr;</a>'
+            f"</li>"
+        )
+    return "\n".join(rows)
+
+
+def domain_page_values(dp):
+    """The per-page values for one domain page (merged on top of the shared
+    values in render_page). SEO/attribute values are built from controlled
+    strings (the domain name, the curated scope, the count), never from the
+    README prose, so no quote-escaping is needed in the attribute context."""
+    name = dp["domain"]
+    return {
+        "DOMAIN_NAME": _esc(name),
+        "DOMAIN_SCOPE_TEXT": _esc(dp["scope"]),
+        "DOMAIN_PURPOSE": _esc(dp["purpose"]),
+        "DOMAIN_DOC_COUNT": str(dp["count"]),
+        "DOMAIN_DOC_ROWS": render_domain_doc_rows(dp),
+        "DOMAIN_TITLE": f"{_esc(name)} domain: GRC Library",
+        "DOMAIN_SEO_DESC": _esc(
+            f"{dp['scope']}. {dp['count']} governance documents in the {name} "
+            "domain of the open, CC BY-SA 4.0 GRC Library."
+        ),
+        "DOMAIN_CANONICAL": f"{SITE_BASE}/{name}/",
+    }
+
+
 def figure_values(figures):
     """The corpus-derived values interpolated into every page."""
     return {
@@ -264,7 +371,7 @@ def figure_values(figures):
     }
 
 
-def render_page(template_name, figures, partials):
+def render_page(template_name, figures, partials, extra=None):
     """Render one page: inject the shared partials, then the corpus figures.
 
     Two substitution passes, because the partials carry figure placeholders of
@@ -279,6 +386,8 @@ def render_page(template_name, figures, partials):
     template = template_path.read_text(encoding="utf-8")
 
     values = {**partials, **figure_values(figures)}
+    if extra:
+        values.update(extra)
     used = set()
 
     def sub(match):
@@ -315,6 +424,16 @@ def render_site(figures):
         html, used = render_page(template_name, figures, partials)
         pages.append((out_rel, html))
         used_across |= used
+
+    # One page per corpus domain, from the shared domain template plus that
+    # domain's per-page values. The dead-value check below covers the global
+    # values (used by the fixed pages); each domain page's own leftover check in
+    # render_page guarantees its DOMAIN_* placeholders all resolved.
+    for dp in figures["domain_pages"]:
+        html, _ = render_page(
+            "domain.html", figures, partials, extra=domain_page_values(dp)
+        )
+        pages.append((f"{dp['domain']}/index.html", html))
 
     unused = sorted(all_values - used_across)
     if unused:

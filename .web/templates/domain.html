@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{DOMAIN_SEO_DESC}}">
+<link rel="canonical" href="{{DOMAIN_CANONICAL}}">
+<title>{{DOMAIN_TITLE}}</title>
+{{HEAD_STYLE}}
+<style>
+  /* Domain page: document index (domain-only styles) */
+  .domain-h1 { text-transform: uppercase; letter-spacing: 0.02em; }
+  .doc-index {
+    list-style: none; margin: 0; padding: 0;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  }
+  .doc-row {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 1rem;
+    padding: 0.85rem 1.1rem; background: var(--surface); border-bottom: 1px solid var(--line);
+  }
+  .doc-row:last-child { border-bottom: none; }
+  .doc-type {
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--brass); min-width: 7.5rem;
+  }
+  .doc-title { flex: 1 1 14rem; color: var(--ink); }
+  .doc-link {
+    font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); white-space: nowrap;
+  }
+  .doc-link:hover { color: var(--brass); text-decoration: none; }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Domain</p>
+    <h1 class="domain-h1 reveal d2">{{DOMAIN_NAME}}</h1>
+    <p class="dek reveal d3">{{DOMAIN_SCOPE_TEXT}}</p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="/#register">&larr; All domains</a>
+      <a class="btn btn-ghost" href="/">Home</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== 01 About this domain ===== -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>About this domain.</h2></div>
+      <p class="lede">{{DOMAIN_PURPOSE}}</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 Documents ===== -->
+  <section id="documents">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Documents.</h2></div>
+      <p class="lede">{{DOMAIN_DOC_COUNT}} documents in this domain. Each links to its source on GitHub, where the corpus is version-controlled and continuously gated.</p>
+      <ul class="doc-index">
+{{DOMAIN_DOC_ROWS}}
+      </ul>
+    </div>
+  </section>
+</main>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
