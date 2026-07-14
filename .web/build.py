@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public landing page (TODO section 2.4).
+"""Static-site generator for the grclibrary.ai public site: the landing and about pages (TODO section 2.4).
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (landing + about pages) from
 the LIVE corpus at build time. There is one source of truth (the corpus); the
@@ -26,7 +26,7 @@ gate count: the suite grows continuously and a hardcoded number would understate
 it and go stale. This generator therefore computes NO gate count.
 
 OUTPUT IS EPHEMERAL. The rendered ``.web/dist/`` tree is a build artefact, not
-committed (it is git-ignored). Only this generator and the template are committed.
+committed (it is git-ignored). Only this generator and the templates are committed.
 
 USAGE
   python3 .web/build.py            render the site into .web/dist/
@@ -327,7 +327,7 @@ def render_site(figures):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai landing page from the live corpus.",
+        description="Render the grclibrary.ai public site (landing and about pages) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
