@@ -2,8 +2,8 @@
 
 **Document Title:** Certificate Authority Management Standard\
 **Document Type:** Standard\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md)\
@@ -102,7 +102,7 @@ All SCEP certificate profiles deployed via the endpoint management platform must
 - Applicable Issuing CA
 - Subject Name Format appropriate to use case (e.g., `CN={{DeviceName}}` for device certificates; `CN={{UserName}}, E={{EmailAddress}}` for S/MIME)
 - Key Usage and EKU matching the Issuing CA's configured EKU
-- Key Size minimum 2048-bit RSA or P-256 ECDSA
+- Key Size minimum 4096-bit RSA or P-384 ECDSA, per the canonical cryptographic-algorithms mandate in [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) section 6 (Asymmetric encryption: RSA-4096, ECC P-384 or stronger)
 - Hash Algorithm SHA-256 or stronger
 - Renewal Threshold at 20% of certificate validity or 30 days, whichever is greater
 
