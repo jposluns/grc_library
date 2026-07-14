@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.393, PR #905
+
+FR-202/203/204 (deep-assessment r3 fitness, the value cluster): reconciled three divergent operational security values to their governing authorities. FR-205 (MFA scope) was deliberately NOT changed, routed as a genuine authorial fork.
+
+### Changed
+
+- **FR-202 (TLS):** [`operations/procedure-media-handling-and-transport.md`](../../operations/procedure-media-handling-and-transport.md) section 5.3 removed the "TLS 1.2 may be used where a documented technical constraint prevents 1.3" exception; now TLS 1.3 only, "TLS 1.0, 1.1, and 1.2 must not be used", citing the encryption policy section 4 (which mandates TLS 1.3-or-stronger for data in transit). This closed the last permissive TLS-1.2 carrier in the corpus. Version 1.3.7 to 1.3.8.
+- **FR-203 (CA key size):** [`operations/standard-certificate-authority-management.md`](../../operations/standard-certificate-authority-management.md) certificate key-size minimum raised from "2048-bit RSA or P-256 ECDSA" to "4096-bit RSA or P-384 ECDSA", per the encryption policy section 6 (Cryptographic algorithms: RSA-4096, ECC P-384 or stronger) and the cryptographic-key-lifecycle framework. Version 1.3.4 to 1.3.5. (The citation section was corrected in-window from section 4 to section 6, the actual home of the asymmetric-key mandate, on the skeptical verifier's catch.)
+- **FR-204 (password):** [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) aligned to the authoritative password standard: "Minimum 14 characters" to "14 for standard accounts; 20 for privileged accounts (per the authentication-and-password-management standard)"; "No reuse of the last 10 passwords" to "last 12 passwords". Version 1.0.2 to 1.0.3.
+- taxonomy/scorecard regenerated for the three bumps.
+
+### Routed (not changed this PR)
+
+- **FR-205 (MFA scope):** GENUINE FORK. `security/standard-authentication-and-password-management.md:60` mandates MFA "for all accounts" while the IAM and information-security policies scope it to "all privileged accounts and remote access". Not a clean stricter-safe default ("all accounts" literally includes non-interactive service accounts that use managed identity, not MFA). Routed to [`pending-decisions.md`](../pending-decisions.md) + TODO section 3.69 with three named options (recommended: harmonize to "all user/interactive accounts + all remote access, privileged phishing-resistant").
+- **FR-203 find-every-carrier follow-up:** the verifier's corpus-wide pass found two dev-security crypto GUIDANCE tables (`standard-security-quick-reference.md:182`, `standard-developer-security-requirements.md:149`) that approve EC P-256 (policy mandates P-384+); a policy-vs-dev-guidance-layer fork routed to TODO section 3.70 (maintainer decides tighten vs accept P-256), rather than silently fixed (avoiding both the FR-127 carrier-incomplete miss and an over-strict guess).
+
+### Verification
+
+- Substantive-tier skeptical verifier (refute-briefed, corpus-wide find-every-carrier per value): VERDICT SHIP after two in-window actions (both done): (1) the CA citation section-4-to-6 correction; (2) the P-256 carriers routed to section 3.70. Find-every-carrier CLEAN for TLS (media-handling was the last permissive carrier) and password (only the standard + the fixed procedure carry specific values); the DKIM 2048-bit key is different-semantic (correctly untouched). Governing values confirmed verbatim (encryption policy section 4 TLS-1.3, section 6 RSA-4096/P-384; auth standard 14/20 + last-12). FR-205 confirmed untouched. All 69 gates pass.
+- Batches PR #904's `/validate-pr` (0 in-window; 1 out-of-window F-1, a 15-day-Critical carrier in `standard-software-evaluation-acceptance-and-lifecycle.md:103` that #904's completion claim over-stated, routed to section 3.68) + `/retro` (the value-completion-claim over-statement pattern, 2nd occurrence, concept-wide find-every-carrier discipline reinforced).
+
+### Discipline observation
+
+The verifier's concept-wide find-every-carrier is the discipline reinforced by the #904 F-1 miss (a value-completion claim must rest on a concept-wide grep, not the known divergent values). Here it worked: it surfaced the two P-256 dev-guidance carriers and the CA citation-section error before push. Both routings (FR-205, the P-256 tables) are genuine forks surfaced for maintainer decision rather than guessed, per the GRC-not-solutioning and route-genuine-forks directives.
+
 ## 2026-07-14, Library Version 2026.07.392, PR #904
 
 FR-201 (deep-assessment r3 fitness High): resolved the divergent vulnerability-remediation SLAs. The finding: normative docs set different remediation deadlines for the same CVSS bands (SCA standard High 30 / Medium 90 / Low 180 days; the vulnerability-management procedure High 14 / Medium 30 / Low 90; developer-security requirements High 14). Fix: designate [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 the SINGLE SOURCE OF TRUTH (Critical 24h/72h/7d by exploitation status, High 14, Medium 30, Low 90 days) and convert the divergent restatements to citations. (Note: the SoT band is High/Medium/Low = 14/30/90; the Critical tier is exploitation-graded, correcting the "Crit/High/Med" shorthand used when the decision was first framed.)
