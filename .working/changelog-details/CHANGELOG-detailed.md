@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.401, PR #913
+
+Deep-assessment r3 machinery: the G3 register row-ordering guard (TODO §3.62 G3, maintainer-authorized at the 2026-07-14 resume, overriding the #888 low-value WATCH), plus the batched #912 QA.
+
+### Added
+
+- **Gate 50 Check 5, deep-assessment register row-order** ([`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py)): a new internal check of the bookkeeping-parity gate that flags a run-table row in [`.working/deep-assessment/register.md`](../../.working/deep-assessment/register.md) whose run number is not strictly greater than the previous run row's (the #888 mis-order class). Implemented as a fifth check WITHIN gate 50 rather than a standalone new gate, the same no-count-ripple precedent as Check 4 (#444): no gate-count change, no four-surface parity re-wiring, no §6 spec enumeration change (gate 50's spec presence is the generic "Bookkeeping-parity audit" inventory row + the §5 group summary, both of which already cover it). A standalone new gate was deliberately NOT chosen: the register is a low-churn 3-row ledger, so a new gate's permanent maintenance + gate-count ripple would be net-negative for the value. FP-free / precision-first (flags only a non-increasing run number); an empty or register-less input yields no findings (fork-safe). Closes the one-of-a-pair gap: the register's sibling structured-bookkeeping files were already gated (the detailed mirror by gate 59, the concurrency lease by gate 63) while the register was not.
+
+### Verification
+
+- Gate 50 runs clean on the current corpus with Check 5 active (the live register is correctly ascending). Four regression fixtures added to [`tests/test_linters.py`](../../tests/test_linters.py) `BookkeepingParityTests` (ascending-passes, mis-order-flags, duplicate-flags, empty-passes); all 27 gate-50 tests pass. The pre-push guard is green (69/69, incl. gate 36 which exercises the new fixtures, and gate 35 which confirms no four-surface parity change from the check addition). A skeptical verifier reviewed the check logic + the no-ripple claim and CAUGHT one real defect (fixed in-window): the initial register read used `read_text_safe(...) or ""`, but `read_text_safe` catches only decode errors (not `FileNotFoundError`) and the read sat outside main()'s FileNotFoundError guard, so a fork that keeps `.working/` but lacks the register would have crashed rather than yielding no findings (falsifying the fork-safe claim); the fix guards the read with an explicit `.is_file()` check, verified to yield no findings on a missing register.
+
+### Batched #912 QA
+
+The #912 `/validate-pr` (0 findings) history row + `/retro` row. Library `2026.07.401`; README `1.9.762`.
+
+### Discipline observation
+
+The maintainer authorized building G1/G3/handoff-D-check at the 2026-07-14 resume; G3 is the one overnight-buildable member (G1 is a `.claude/hooks/` PreToolUse hook and the handoff-D-check requires a [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) + pack-skill recursion-avoidance convention change, both protected-tree edits deferred to a daytime/authorized apply). Building G3 as a gate-50 check (not a standalone gate) is the implementation choice that honors "build G3" while avoiding the net-negative new-gate overhead the guardrail-review's value-flag warned of, resolved by the maintainer's explicit build authorization.
+
 ## 2026-07-14, Library Version 2026.07.400, PR #912
 
 FR-201 vulnerability-remediation-SLA single-source-of-truth completion (TODO §3.68, partial), plus the batched #911 QA. A #912 research worker ran a full-corpus carrier enumeration; the FR-201 (#904) "no other document still diverges" claim was over-stated (the §3.68 note's "9-doc scope" missed several carriers). SoT = [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 (Critical 24h/72h/7d graded by exploitation, High 14, Med 30, Low 90).
