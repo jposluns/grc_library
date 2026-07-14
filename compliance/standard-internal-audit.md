@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.1\
+**Version:** 1.2.2\
 **Date:** 2026-07-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -429,7 +429,7 @@ Low / Observation findings are tracked in the audit register and do not routinel
 
 ### 10.4 CAPA closure verification
 
-Audit findings are not closed in the audit register until the corresponding CAPA record (where one exists) has been verified as closed by the GRC Manager. The CAE/GRC Programme Manager may request evidence of closure and, for Critical and High findings, may require a follow-up audit to confirm sustained effectiveness.
+Audit findings are not closed in the audit register until the corresponding CAPA record (where one exists) has been verified as closed by the GRC Programme Manager. The CAE/GRC Programme Manager may request evidence of closure and, for Critical and High findings, may require a follow-up audit to confirm sustained effectiveness.
 
 ---
 

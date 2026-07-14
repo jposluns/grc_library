@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.395, PR #907
+
+Two reference-breadth items unblocked by the ISO/IEC 20000 family landing in `grc_library_ref` (#79), plus the completion of the FR-210 title canonicalization the #906 `/validate-pr` flagged.
+
+### Changed
+
+- **RB-ETSI-104128 (deep-assessment r3 section 3.63):** added **ETSI TR 104 128** (Securing AI (SAI): Implementation guidance for the baseline cyber security requirements for AI) as a corroborative see-also in [`ai/guide-ai-security-technical-implementation.md`](../../ai/guide-ai-security-technical-implementation.md)'s standards-references list. It is the paired IMPLEMENTATION guidance for the ETSI EN 304 223 baseline that the AI security standards already anchor to; added as an informative see-also, NOT a normative anchor. Title verified verbatim against the held ref catalogue. Version 1.3.3 to 1.3.4.
+- **DA-ISO20000 (deep-assessment r3 section 3.64) RESOLVED:** the ISO/IEC 20000-1:2018 citation in [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md) (framework-alignment table) is now verifiable against the now-held source (previously only ISO/IEC 20000-10 was held). Verified correct (20000-1:2018 = the service-management-system requirements standard, the right one for "ITSM framework compliance") and tightened the reference-cell descriptor "IT Service Management Systems" to the precise Part-1 title "Service management system requirements (Part 1)". Version 1.0.4 to 1.0.5.
+- **FR-210 completion:** fixed the one bare "GRC Manager" residual at [`compliance/standard-internal-audit.md`](../../compliance/standard-internal-audit.md):432 (section 10.4 CAPA closure) that #906's canonicalization missed and its `/validate-pr` caught (the whole-line count-grep hid it because the line also carries the fixed "CAE/GRC Programme Manager" form); token-level `grep -oE 'GRC Manager'` is now 0 in the doc. Version 1.2.1 to 1.2.2.
+- taxonomy/scorecard regenerated.
+
+### Verification
+
+- RB-ETSI + DA-ISO20000: both edits verbatim-verified against the held ref catalogue this turn (ETSI TR 104 128 title at catalogue:2488; ISO/IEC 20000-1:2018 Part-1 title at catalogue:2142), non-normative (see-also + title precision), so quick-fix-tier with the post-merge `/validate-pr` as the independent check.
+- FR-210 residual: token-level `grep -oE` confirms 0 bare "GRC Manager" remaining in the internal-audit standard; TODO section 3.71 (the corpus-wide title sweep) annotated that internal-audit is now fully canonicalized and out of that sweep's scope by completion.
+- All 69 gates pass. Batches PR #906's `/validate-pr` (1 in-window Low finding = the FR-210 residual, fixed here) + `/retro` (the carrier-completeness pattern's grep-form sub-lesson: count with token-level `grep -oE`, not whole-line `grep -vE`, for within-line renames).
+
+### Discipline observation
+
+The DA-ISO20000 resolution is the missing-reference SOP working end-to-end: the r3 finding could not be judged against ground truth when only ISO/IEC 20000-10 was held; the maintainer ingested the 20000-1 family; the resume resynced the ref; the citation was then verified and tightened against the held source. The FR-210 residual is the fourth carrier-completeness catch of the session and refined the discipline to a concrete grep-form rule (token-level count for co-occurring old/new forms); every instance was caught by the per-PR `/validate-pr`, none reached the adopter-facing corpus.
+
 ## 2026-07-14, Library Version 2026.07.394, PR #906
 
 r3 fresh-reader review (fitness) tail remediation: the remaining medium and low findings, in one batch. (FR-207/209/213 were done in #899; FR-214/215/217/219 are routed as design/enhancement forks.)
