@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.399, PR #911
+
+ISO/IEC 20000-1:2018 clause-attribution accuracy pass (TODO §3.72, routed from #910's reference-breadth research), plus the batched #910 QA. A full-cluster `/claim-fit` over all 9 operations docs citing 20000-1, judged against the held source TOC.
+
+### Fixed
+
+Six ISO/IEC 20000-1 clause citations corrected across five operations documents (each Version+Date co-bumped; taxonomy + scorecard regenerated). All held clause titles verified verbatim against the held ISO/IEC 20000-1:2018 full-text in the `grc_library_ref` reference base this turn:
+
+- [`operations/standard-capacity-and-performance-management.md`](../../operations/standard-capacity-and-performance-management.md) (1.0.4 -> 1.0.5): `§8.6 Service management` -> **§8.4.3 Capacity management**. Doubly wrong: §8.6's held title is "Resolution and fulfilment", and "Service management" is not a held clause title at any level (fabricated); capacity management is §8.4.3.
+- [`operations/standard-observability-and-telemetry.md`](../../operations/standard-observability-and-telemetry.md) (0.0.5 -> 0.0.6): `§8.6 Service management` -> **§9.1 Monitoring, measurement, analysis and evaluation** (the closest defensible home; observability/telemetry has no dedicated 20000-1 clause, and §8.6 is wrong).
+- [`operations/standard-service-level-management.md`](../../operations/standard-service-level-management.md) (1.0.4 -> 1.0.5): the alignment-table `§8.3 Service Level Management` and the prose `§8.3` -> **§8.3.3 Service level management** (§8.3 is "Relationship and agreement"; SLM is the §8.3.3 subclause).
+- [`operations/procedure-release-management.md`](../../operations/procedure-release-management.md) (1.0.2 -> 1.0.3): imprecise `Service management requirements` -> **§8.5.3 Release and deployment management**.
+- [`operations/standard-it-financial-management.md`](../../operations/standard-it-financial-management.md) (1.0.3 -> 1.0.4): imprecise `Service financial management` -> **§8.4.1 Budgeting and accounting for services**.
+- [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md) (1.3.2 -> 1.3.3): four Framework-alignment cells under a column headed bare "ISO/IEC 20000" (no `-1`), which the initial `grep 20000-1` file-discovery MISSED (caught by the pre-push skeptical verifier). Configuration management `§8.5` -> **§8.2.6 Configuration management** (wrong-clause: §8.5 is "Service design, build and transition"; config mgmt is §8.2.6); Change management / Emergency change / CAB governance `§8.5` -> **§8.5.1 Change management** (precise home); column header "ISO/IEC 20000" -> "ISO/IEC 20000-1".
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md):273 (1.27.84 -> 1.27.85): the doc-index register's Service Level Management Standard row cited `ISO/IEC 20000-1:2018 §8.3` (coarse, a paired-surface mirror of the SLM doc this pass tightened) -> **§8.3.3**. Caught by the re-verify (outside the 9-doc operations scope; a whole-corpus `ISO/IEC 20000-1 ... §` grep surfaced it). Its sibling row :274 (KPIs register -> §9.1 Monitoring, measurement, analysis and evaluation) is CORRECT and left unchanged.
+
+### Not changed (deliberate)
+
+- [`operations/standard-site-reliability-engineering.md`](../../operations/standard-site-reliability-engineering.md):218 cites 20000-1 at document level ("Service management requirements") with no §-number; SRE is not a named 20000-1 clause, so it is left as document-level rather than forcing a spurious clause (no wrong §number to fix).
+- [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md):92 and [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md):21 already cite 20000-1 correctly (document-level).
+
+### Bookkeeping
+
+Closed TODO §3.72 -> DONE; `/claim-fit` history row + detail file [`2026-07-14-iso20000-1-clause-accuracy.md`](../claim-fit/2026-07-14-iso20000-1-clause-accuracy.md). Batched #910 `/validate-pr` (0 findings) history row + `/retro`. Library `2026.07.399`; README `1.9.760`.
+
+### Verification
+
+Research-worker `/claim-fit` pass + orchestrator re-verification: the orchestrator independently re-read the held 20000-1:2018 clause-8 subclause titles this turn (not trusting the worker's TOC extraction) before authoring each correction. Pre-push guard green. The pre-push skeptical verifier CAUGHT two carriers the initial pass missed (the change-management doc's four §8.5 cells under a bare "ISO/IEC 20000" column, and the governance doc-index register's SLM §8.3 row outside the 9-doc operations scope); both fixed in-window. A whole-corpus `ISO/IEC 20000-1 ... §` grep and a bare "ISO/IEC 20000" §-grep now confirm every clause-carrying 20000-1 citation is consistent with the held TOC (0 residual). Total: 11 clause corrections across 7 docs.
+
+### Discipline observation
+
+The intent was find-every-carrier at ROUTING time (#910 declined to fix the 2 spot-caught mis-attributions piecemeal and routed the whole 9-doc cluster here), but the pass ITSELF then hit a narrower carrier-incompleteness: the file-discovery `grep 20000-1` did not match the change-management doc's bare "ISO/IEC 20000" (no `-1`) column header, so 1 of the 9 in-scope docs was silently skipped and its initial record wrongly said "cites no 20000-1 clause". The pre-push skeptical verifier caught it (a wrong-clause Configuration-management -> §8.5 among the missed cells), it was fixed in-window, and the records were corrected. ROOT-CAUSE LESSON (for the retro): a clause-accuracy pass's file-discovery grep must use the BARE standard token ("ISO/IEC 20000"), never the part-qualified form ("20000-1"), because a doc can cite the standard's clauses under a label that omits the part number; the part-qualified grep drops that carrier. This is the bare-token-width discipline applied to file DISCOVERY, not only to contradiction search. Every finding was caught in-window (0 adopter escapes); the recurrence is the authoring-side pattern-width the layered verification then corrected.
+
 ## 2026-07-14, Library Version 2026.07.398, PR #910
 
 ISO/IEC 20000 family reference-breadth review (TODO §3.67, maintainer-added), plus the batched #909 QA. One informative corpus citation added; the review's honest bottom line is that the corpus already engages ISO/IEC 20000-1 well.
