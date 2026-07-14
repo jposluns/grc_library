@@ -120,8 +120,8 @@ All API endpoints must validate:
 
 | Requirement | OWASP ASVS | OWASP Top 10 | CSA CCM | NIST SSDF |
 | --- | --- | --- | --- | --- |
-| Input validation | V5.1 to V5.3 | A03 | AIS-02 | PW.6 |
-| SQL injection | V5.3 | A03 | AIS-02 | PW.6 |
-| Command injection | V5.3 | A03 | AIS-02 | PW.6 |
-| Output encoding | V5.3 | A03 | AIS-02 | PW.6 |
-| File upload | V12.1 to V12.3 | A04 | AIS-02 | PW.6 |
+| Input validation | V1, V2.2 | A03 | AIS-02 | PW.6 |
+| SQL injection | V1.2.4 | A03 | AIS-02 | PW.6 |
+| Command injection | V1.2.5 | A03 | AIS-02 | PW.6 |
+| Output encoding | V1.1, V1.2.1 | A03 | AIS-02 | PW.6 |
+| File upload | V5.2 | A04 | AIS-02 | PW.6 |

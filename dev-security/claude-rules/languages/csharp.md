@@ -231,6 +231,6 @@ Recommended: Security Code Scan, Semgrep with C# rules, Roslyn Analyzers with se
 ## Framework alignment
 
 Supplements `core/` rules. C# / .NET controls implement:
-- OWASP ASVS V5 (Input), V6 (Crypto), V3 (Session), V14 (Config)
+- OWASP ASVS V2 (Input), V11 (Crypto), V7 (Session), V13 (Config)
 - OWASP Top 10 A03 (Injection), A02 (Crypto), A07 (Auth)
 - NIST SSDF PW.6, PW.8

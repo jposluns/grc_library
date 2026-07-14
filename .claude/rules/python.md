@@ -191,6 +191,6 @@ semgrep --config=p/python-security .
 ## Framework alignment
 
 Supplements `core/` rules. Python-specific controls implement:
-- OWASP ASVS V5 (Input Validation), V6 (Cryptography), V2 (Authentication)
+- OWASP ASVS V2 (Input Validation), V11 (Cryptography), V6 (Authentication)
 - OWASP Top 10 A03 (Injection), A02 (Cryptographic Failures)
 - NIST SSDF PW.6 (Code Reviews), PW.8 (Automated Testing)

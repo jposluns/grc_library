@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Code Review Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.3\
-**Date:** 2026-07-02\
+**Version:** 0.0.4\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -280,7 +280,7 @@ Automated findings inform but do not replace the human review.
 | --- | --- | --- |
 | NIST SP 800-218 | SSDF PW.7 (review and analysis) | Secure development practice |
 | OWASP SAMM | Verification: secure code review | Software assurance maturity |
-| OWASP ASVS v5 | V1 Architecture; V14 Configuration | Verification expectations |
+| OWASP ASVS v5 | V15 Secure Coding and Architecture; V13 Configuration | Verification expectations |
 | ISO/IEC 27001:2022 | A.8.28 Secure coding; A.8.29 Security testing in development and acceptance | Secure development |
 | ISO/IEC 27002:2022 | 8.28, 8.29, 8.30 | Outsourced development; testing |
 | OpenSSF Best Practices | Code review | Open-source baseline |
