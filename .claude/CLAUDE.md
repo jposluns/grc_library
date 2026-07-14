@@ -233,10 +233,14 @@ drive end-to-end on the maintainer's behalf:
    as part of THIS PR's own diff (not a post-merge step), so merging the PR cycles the file,
    and the console `next:` statusline that reads it, forward to the next work item.** Each PR
    drops the item it just closed and reflects the current next-five (drawn from TODO); the
-   file is a committed, between-session-durable projection of the queue. **Format: the
-   next-five items go on a SINGLE line (`1) ...; 2) ...; 3) ...`), because the statusline
-   surfaces only the first line; a `# then:` comment line may follow for the further-out
-   queue.** A stale entry there
+   file is a committed, between-session-durable projection of the queue. **Format
+   (maintainer-directed 2026-07-14): the items go on a SINGLE first line
+   (`1) ...; 2) ...; 3) ...`), because the console `next:` statusline surfaces ONLY that
+   first line and truncates it at roughly 120 characters. Keep the first line to roughly
+   120 characters or under, make each item a very brief few-word description (not a full
+   sentence), and fit at least three items so the statusline gives a useful "what's next"
+   glance. Put any longer detail or the further-out queue on a following `# then:` comment
+   line, which the statusline does not surface.** A stale entry there
    (an already-done item still shown as `next:`, the #847-era drift) is the signal that a PR
    shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
    otherwise unchanged.

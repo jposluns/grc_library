@@ -1,7 +1,7 @@
 # Third-Party and Infrastructure Issues
 
-**Version:** 1.0.9\
-**Date:** 2026-07-08\
+**Version:** 1.0.10\
+**Date:** 2026-07-14\
 **License:** CC BY-SA 4.0
 
 A running log of third-party service and execution-environment issues encountered during maintenance of this library: outages, flakes, and misconfigurations in infrastructure the project depends on but does not own (the commit-signing service, the remote execution sandbox, CI runners, external citation sources, MCP servers). The purpose is to distinguish environment artifacts from genuine corpus or tooling defects, so a future session does not mistake an infrastructure flake for a regression and chase a non-existent bug.
@@ -9,6 +9,16 @@ A running log of third-party service and execution-environment issues encountere
 This file is maintainer working state, exempt from corpus audit gates per the `.working/` directory exemption. Entries are reverse-chronological (newest first). Each entry records: what was observed, the diagnosis, the impact, how it was distinguished from a real defect, and the resolution.
 
 ## Entries
+
+### 2026-07-14: commit-signing key absent in this session type, so feature-branch commits are GitHub-Unverified
+
+**Observed.** The stop-hook flagged this session's feature-branch commits (`08085c4a`, `1360a192` on `claude/cloudflare-public-website-2d7sis`) as GitHub "Unverified" (no signature). The committer identity is already `Claude <noreply@anthropic.com>`; the missing element is the cryptographic signature.
+
+**Diagnosis.** `git config` has `commit.gpgsign=true`, `gpg.format=ssh`, and `user.signingkey=/home/claude/.ssh/commit_signing_key.pub`, but that public-key file is 0 bytes and the matching private key (`/home/claude/.ssh/commit_signing_key`) does not exist, and the session runs as `root` (HOME=/root), not `claude`. SSH signing therefore cannot produce a signature. This is a persistent missing-key configuration for this session type, distinct from the transient 2026-06-22 signing-server 503 outage below (that server recovered on its own; this is a config/identity gap).
+
+**How it was distinguished from a real defect.** `run_all_audits.sh` was green throughout; "Unverified" is a GitHub signature-verification property of the feature-branch commits, not a gate or corpus failure. The stop-hook's suggested `git commit --amend --no-edit --reset-author` only resets the committer identity (already correct) and cannot add a signature without a private key; a locally-generated key would not verify either, because GitHub verifies only keys registered to the account.
+
+**Impact / resolution.** None to the corpus. The squash-merge through the GitHub merge API replaces the feature-branch commits with a single commit GitHub signs with its own key, which shows Verified on `main` (as `1850276a`/#919 and `1ae6e7a`/#918 do now); the unsigned feature-branch commits never reach `main` as-is. No amend or rebase was performed (it cannot sign, and rewriting history for no benefit is churn). Lesson for a future session: in this session type, treat the stop-hook's Unverified-feature-branch warning as a known environment limitation, not a defect to chase, and do not rewrite history attempting to sign.
 
 ### 2026-07-06: PreToolUse hooks do not fire in resumed/child sessions (`CLAUDE_PROJECT_DIR` unset), so the pipe-guard hook gives no defence-in-depth
 
