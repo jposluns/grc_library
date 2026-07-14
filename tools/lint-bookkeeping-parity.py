@@ -92,6 +92,18 @@ checklist convention. Adding this as a fourth internal check of gate 50 (not
 a new numbered gate) follows the gate-48 "two checks to four" precedent: no
 gate-count change, no four-surface re-wiring.
 
+**Check 5, deep-assessment register row-order (the r3 guardrail-review G3
+surface).** The deep-assessment run register
+(``.working/deep-assessment/register.md``) lists its runs in strictly
+ascending run-number order (r1, r2, r3 ...), but had no ordering check while
+its sibling structured-bookkeeping files ARE gated (the detailed mirror by
+gate 59, the concurrency lease by gate 63). This closes that one-of-a-pair
+gap: flag ONLY a run row whose number is not greater than the previous run
+row's (precision-first / FP-free; #888 mis-ordered a row and it reached main,
+caught post-merge by /validate-pr). A register-less fork yields no findings.
+Added as a fifth internal check of gate 50 (not a new numbered gate), the same
+no-count-ripple precedent as Check 4.
+
 Exit codes:
     0 - All present-and-rotated checks pass.
     1 - At least one missing record or rotation-failure marker detected.
@@ -113,6 +125,7 @@ DETAILED_CHANGELOG_PATH = ".working/changelog-details/CHANGELOG-detailed.md"
 VALIDATE_PR_HISTORY = ".working/validate-pr/history.md"
 IMPROVEMENT_LOG = ".working/improvement-log.md"
 TODO_PATH = "TODO.md"
+DEEP_ASSESSMENT_REGISTER = ".working/deep-assessment/register.md"
 
 # The PR number from which the QA-cadence parity check applies. Set to a
 # recent known-clean frontier rather than the earliest row, because the
@@ -205,6 +218,12 @@ METADATA_VERSION = re.compile(r"^\*\*Version:\*\*\s*([0-9]+(?:\.[0-9]+)+)", re.M
 VERSION_HISTORY_HEADING = re.compile(r"^##\s+Version history\s*$", re.MULTILINE)
 # A whole table cell that is a dotted version token (2+ parts).
 VERSION_TOKEN = re.compile(r"^[0-9]+(?:\.[0-9]+)+$")
+
+# Check 5 (deep-assessment register row-order): a run-table data row whose
+# first (Run) column is an `rN` run identifier. The register lists runs in
+# strictly ascending run-number order (r1, r2, r3 ...); a row out of order is
+# the #888 mis-order the r3 guardrail-review G3 finding flagged.
+REGISTER_RUN_ROW = re.compile(r"^\|\s*r(\d+)\s*\|")
 
 
 def read(rel: str) -> str:
@@ -389,6 +408,35 @@ def version_history_parity_findings(files: list[tuple[str, str]]) -> list[str]:
     return findings
 
 
+def register_row_order_findings(register_text: str) -> list[str]:
+    """Check 5: the deep-assessment run register's run-table rows must appear in
+    strictly ascending run-number order (r1, r2, r3 ...).
+
+    Precision-first / FP-free: flag ONLY a run row whose number is not greater
+    than the previous run row's. The register is a low-churn ledger whose
+    sibling structured-bookkeeping files ARE gated (the detailed mirror by gate
+    59, the lease by gate 63) while it was not; this closes that one-of-a-pair
+    gap (the r3 guardrail-review G3 finding; #888 mis-ordered a row and it
+    reached main, caught post-merge by /validate-pr). An empty or register-less
+    input yields no findings (a fork without the register is not a defect).
+    """
+    findings: list[str] = []
+    prev_n: int | None = None
+    for line in register_text.splitlines():
+        m = REGISTER_RUN_ROW.match(line)
+        if not m:
+            continue
+        n = int(m.group(1))
+        if prev_n is not None and n <= prev_n:
+            findings.append(
+                f"  [register-row-order] {DEEP_ASSESSMENT_REGISTER}: run r{n} "
+                f"row appears after r{prev_n}; the run-table must be in strictly "
+                f"ascending run-number order (the #888 mis-order class)."
+            )
+        prev_n = n
+    return findings
+
+
 WORKER_PROVENANCE_RE = re.compile(
     r"^(?:[-*][ \t]+)?\*\*Worker provenance:\*\*(.*)$", re.MULTILINE
 )
@@ -446,12 +494,20 @@ def main() -> int:
     all_findings.extend(todo_rotation_findings(todo_text))
     all_findings.extend(version_history_parity_findings(discover_version_history_files()))
     all_findings.extend(worker_provenance_findings(detailed_text))
+    # Fork-safe: a fork that keeps `.working/` but has never run /deep-assessment
+    # may lack the register. read_text_safe re-raises FileNotFoundError (it catches
+    # only decode errors), and this read is outside main()'s FileNotFoundError
+    # guard, so guard the missing-file case explicitly -> no findings, no crash.
+    register_path = REPO_ROOT / DEEP_ASSESSMENT_REGISTER
+    register_text = read_text_safe(register_path) if register_path.is_file() else ""
+    all_findings.extend(register_row_order_findings(register_text))
 
     if not all_findings:
         print(
             "OK: bookkeeping-parity audit clean "
             f"(QA-cadence parity from PR #{INCEPTION}; TODO/DONE rotation; "
-            "version-history parity; worker-provenance attestation)."
+            "version-history parity; worker-provenance attestation; "
+            "deep-assessment register row-order)."
         )
         return 0
 
