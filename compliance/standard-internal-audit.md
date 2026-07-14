@@ -2,8 +2,8 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.1.0\
-**Date:** 2026-07-06\
+**Version:** 1.2.0\
+**Date:** 2026-07-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/template-audit-evidence-package.md`](template-audit-evidence-package.md)\
@@ -74,7 +74,8 @@ The **Chief Audit Executive (CAE)**, or where a dedicated CAE role does not exis
 - Maintaining and updating this standard;
 - Developing and obtaining approval for the Annual Audit Plan;
 - Ensuring adequate audit resources, competency, and independence;
-- Reporting audit programme status, key findings, and trend analysis to the ERC on at least a quarterly basis;
+- Reporting the Annual Audit Plan and significant audit findings to the Board Audit Committee (the functional reporting line that preserves independence, per section 2.3);
+- Reporting audit programme status, key findings, and trend analysis to the ERC on at least a quarterly basis (the operational reporting line);
 - Coordinating with the CISO on security and privacy audit activity.
 
 ### 2.2 CISO responsibilities
@@ -92,7 +93,7 @@ The internal audit function must operate with sufficient independence to provide
 
 a. **Auditor independence:** An auditor must not conduct an audit of any area, process, or control for which they hold direct operational responsibility. This applies regardless of seniority or role title.
 
-b. **Structural independence:** The CAE/GRC Manager must have a reporting line that permits direct escalation to the ERC without obstruction by the areas being audited.
+b. **Structural independence:** The CAE/GRC Manager reports **functionally to the Board Audit Committee** (or, where the organization has no separate audit committee, to the board or its equivalent governing body, per the consolidation patterns in [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md)) and **administratively to senior leadership**, consistent with [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) section 4.3.1. This functional reporting line must permit direct, unobstructed escalation to the Board Audit Committee, and to the ERC for operational risk matters, without obstruction by the areas being audited.
 
 c. **Conflict disclosure:** Any auditor who identifies a potential conflict of interest must disclose it to the CAE/GRC Manager before fieldwork commences. The CAE/GRC Manager will reassign the engagement if a material conflict exists.
 
@@ -125,7 +126,7 @@ The CAE/GRC Manager develops an **Annual Audit Plan** each year. The plan must:
 
 - Be risk-prioritized, drawing on the Enterprise Risk Register and control assessment data;
 - Provide coverage across all in-scope GRC domains, with higher-risk domains scheduled for more frequent review;
-- Be reviewed and approved by the **ERC no later than 31 January** of the year to which it applies;
+- Be reviewed by the ERC and approved by the **Board Audit Committee no later than 31 January** of the year to which it applies, consistent with the functional reporting line in section 2.3 and [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) section 4.2.1;
 - Be made available to the CISO, domain owners, and relevant senior leadership;
 - Be reviewed at mid-year and updated to reflect changes in organizational risk, incidents, or regulatory changes.
 
@@ -295,7 +296,7 @@ Audit findings are classified using the following scheme, aligned to the CAPA Pr
 
 **Response requirements:**
 - Immediate verbal or written notification to the CISO and CIO on the day of identification;
-- Escalation to the ERC within **2 business days**;
+- Escalation to the ERC and the Board Audit Committee within **2 business days** (per [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) section 4.6.2);
 - Documented remediation plan within **5 business days**;
 - Remediation or interim compensating control implemented within **30 days**;
 - Mandatory CAPA record (see §10);
