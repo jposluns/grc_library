@@ -5363,6 +5363,40 @@ class BookkeepingParityTests(LinterTestCase):
             "a file without a Version history table is out of scope",
         )
 
+    def test_register_row_order_ascending_passes(self) -> None:
+        # Check 5: a run-table in strictly ascending run-number order: no flag.
+        mod = self._load_module()
+        text = "| r1 | 2026-07-10 |\n| r2 | 2026-07-11 |\n| r3 | 2026-07-13 |\n"
+        self.assertEqual(
+            mod.register_row_order_findings(text), [],
+            "ascending run-number order must not flag",
+        )
+
+    def test_register_row_order_misordered_flagged(self) -> None:
+        # Check 5: a run row out of ascending order (the #888 class): flag.
+        mod = self._load_module()
+        text = "| r1 | 2026-07-10 |\n| r3 | 2026-07-13 |\n| r2 | 2026-07-11 |\n"
+        findings = mod.register_row_order_findings(text)
+        self.assertTrue(findings, "a mis-ordered run row should flag")
+        self.assertIn("register-row-order", findings[0])
+
+    def test_register_row_order_duplicate_flagged(self) -> None:
+        # Check 5: a non-increasing (duplicate) run number: flag.
+        mod = self._load_module()
+        text = "| r1 | 2026-07-10 |\n| r2 | 2026-07-11 |\n| r2 | 2026-07-12 |\n"
+        self.assertTrue(
+            mod.register_row_order_findings(text),
+            "a duplicate (non-increasing) run number should flag",
+        )
+
+    def test_register_row_order_empty_passes(self) -> None:
+        # Check 5: an empty / register-less input is not a defect (fork-safe).
+        mod = self._load_module()
+        self.assertEqual(
+            mod.register_row_order_findings(""), [],
+            "an empty register input must not flag",
+        )
+
     def test_version_history_parity_tolerates_extra_historical_rows(self) -> None:
         # Check 4: history rows with no current metadata match (the normal
         # historical rows) are tolerated; only the metadata Version must match.
