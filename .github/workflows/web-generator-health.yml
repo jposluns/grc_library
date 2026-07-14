@@ -1,0 +1,41 @@
+name: Web generator health
+
+# NOT an audit gate. This is a coupling-breakage detector for the .web/ static-site
+# generator (the public grclibrary.ai landing page, TODO section 2.4). Because the site
+# reads corpus content live at build time and keeps no committed copies, there is nothing
+# to keep in sync, so there is no sync gate; instead this check runs the generator in
+# --check mode, which parses taxonomy.yml + README.md and renders the template WITHOUT
+# writing output, and fails only if the generator can no longer parse the corpus it
+# projects (a renamed metadata field, a moved file, a taxonomy schema change). That
+# catches generator-to-corpus breakage at PR time, before a red production deploy on
+# Cloudflare Pages. It is deliberately SEPARATE from quality.yml and is NOT one of the
+# audit-programme gates (the four-surface parity gate counts only the quality.yml gates).
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# Least-privilege token: this job only reads the repository (checkout + a dry-run of the
+# generator); it never writes contents, comments, or artefacts.
+permissions:
+  contents: read
+
+jobs:
+  web-generator-health:
+    name: Web generator health (.web/ --check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Generator health check (parse corpus + render template; write nothing)
+        run: python3 .web/build.py --check
