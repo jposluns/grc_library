@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.8\
-**Date:** 2026-07-13\
+**Version:** 1.6.9\
+**Date:** 2026-07-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -66,6 +66,8 @@ The following table defines the rights managed under this procedure, the applica
 | **Automated Decision Review (including profiling)** | GDPR Art. 22; UK GDPR Art. 22 | Right to not be subject to solely automated decisions with significant legal or similarly significant effect; request human review | Acknowledgement within 5 business days; human review completed within one month | Decisions necessary for contract performance; authorized by law; explicit consent with appropriate safeguards |
 
 **Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; it would require reintroduction in a future Parliament (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization processes the personal information of Quebec residents, Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
+
+**Brazil and Mexico fixed windows.** Where a request falls under Brazil's LGPD, confirmation-of-existence and access requests must be met within 15 days (LGPD Art. 19); other LGPD Article 18 rights carry no fixed statutory day-count, so the internal service level applies. Where a request falls under Mexico's LFPDPPP, the controller must communicate its determination on an ARCO request (access, rectification, cancellation, opposition) within 20 days (LFPDPPP Art. 31). These windows are narrower than the GDPR one-month clock; where more than one regime applies to a single request, the fulfilment team runs the strictest (shortest) applicable window. See [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) and [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md).
 
 **California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged.
 

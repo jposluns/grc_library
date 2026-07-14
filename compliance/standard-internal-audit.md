@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.0\
+**Version:** 1.2.1\
 **Date:** 2026-07-14\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -69,7 +69,7 @@ This standard applies to all personnel who plan, conduct, manage, or are subject
 
 ### 2.1 Audit function ownership
 
-The **Chief Audit Executive (CAE)**, or where a dedicated CAE role does not exist, the **GRC Manager**, holds primary accountability for the internal audit function. Responsibilities include:
+The **Chief Audit Executive (CAE)**, or where a dedicated CAE role does not exist, the **GRC Programme Manager**, holds primary accountability for the internal audit function. Where the GRC Programme Manager acts as CAE fallback, the continuous-assurance and control-testing programmes that role owns (per [`governance/register-role-authority.md`](../governance/register-role-authority.md)) must be audited by qualified external auditors or peer reviewers under the external-support provision in section 2.3(d), to preserve the auditor-independence rule in section 2.3 (an internal auditor must not audit an area for which they hold operational responsibility). Responsibilities include:
 
 - Maintaining and updating this standard;
 - Developing and obtaining approval for the Annual Audit Plan;
@@ -93,9 +93,9 @@ The internal audit function must operate with sufficient independence to provide
 
 a. **Auditor independence:** An auditor must not conduct an audit of any area, process, or control for which they hold direct operational responsibility. This applies regardless of seniority or role title.
 
-b. **Structural independence:** The CAE/GRC Manager reports **functionally to the Board Audit Committee** (or, where the organization has no separate audit committee, to the board or its equivalent governing body, per the consolidation patterns in [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md)) and **administratively to senior leadership**, consistent with [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) section 4.3.1. This functional reporting line must permit direct, unobstructed escalation to the Board Audit Committee, and to the ERC for operational risk matters, without obstruction by the areas being audited.
+b. **Structural independence:** The CAE/GRC Programme Manager reports **functionally to the Board Audit Committee** (or, where the organization has no separate audit committee, to the board or its equivalent governing body, per the consolidation patterns in [`governance/guideline-minimum-viable-governance-structure.md`](../governance/guideline-minimum-viable-governance-structure.md)) and **administratively to senior leadership**, consistent with [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md) section 4.3.1. This functional reporting line must permit direct, unobstructed escalation to the Board Audit Committee, and to the ERC for operational risk matters, without obstruction by the areas being audited.
 
-c. **Conflict disclosure:** Any auditor who identifies a potential conflict of interest must disclose it to the CAE/GRC Manager before fieldwork commences. The CAE/GRC Manager will reassign the engagement if a material conflict exists.
+c. **Conflict disclosure:** Any auditor who identifies a potential conflict of interest must disclose it to the CAE/GRC Programme Manager before fieldwork commences. The CAE/GRC Programme Manager will reassign the engagement if a material conflict exists.
 
 d. **External support:** Where internal independence cannot be achieved for a particular domain (e.g., where the audit team is small), the organization may supplement the internal audit function with qualified external auditors or peer reviewers to maintain objectivity.
 
@@ -122,7 +122,7 @@ The internal audit function operates in accordance with the following principles
 
 ### 4.1 Annual audit plan
 
-The CAE/GRC Manager develops an **Annual Audit Plan** each year. The plan must:
+The CAE/GRC Programme Manager develops an **Annual Audit Plan** each year. The plan must:
 
 - Be risk-prioritized, drawing on the Enterprise Risk Register and control assessment data;
 - Provide coverage across all in-scope GRC domains, with higher-risk domains scheduled for more frequent review;
@@ -188,11 +188,11 @@ Examines the governance, transparency, accountability, and risk management contr
 
 ## 6. Audit lifecycle
 
-All internal audits follow the lifecycle defined in this section. Deviations from this lifecycle must be documented and approved by the CAE/GRC Manager.
+All internal audits follow the lifecycle defined in this section. Deviations from this lifecycle must be documented and approved by the CAE/GRC Programme Manager.
 
 ### 6.1 Planning
 
-The CAE/GRC Manager, in consultation with relevant domain owners, defines:
+The CAE/GRC Programme Manager, in consultation with relevant domain owners, defines:
 
 - Audit objectives and scope;
 - Audit type and applicable criteria (policies, standards, regulatory requirements);
@@ -266,7 +266,7 @@ Where a dispute cannot be resolved, the finding is reported in the final report 
 
 ### 6.8 Final report
 
-The lead auditor issues the final audit report within **10 business days** of fieldwork completion. Where the management-response window makes the 10-business-day target infeasible, the CAE/GRC Manager may extend it to **15 business days** with documented rationale (see [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) §8.3). The final report includes:
+The lead auditor issues the final audit report within **10 business days** of fieldwork completion. Where the management-response window makes the 10-business-day target infeasible, the CAE/GRC Programme Manager may extend it to **15 business days** with documented rationale (see [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md) §8.3). The final report includes:
 
 - Audit identification details (scope, dates, audit team, auditee);
 - Executive summary;
@@ -276,13 +276,13 @@ The lead auditor issues the final audit report within **10 business days** of fi
 - Overall audit opinion;
 - Distribution list.
 
-The final report is distributed to the auditee, the CAE/GRC Manager, the CISO (for security and privacy audits), and the ERC.
+The final report is distributed to the auditee, the CAE/GRC Programme Manager, the CISO (for security and privacy audits), and the ERC.
 
 ### 6.9 Closure tracking
 
-All findings are entered into the audit register and, where required, into the CAPA register (see §10). The CAE/GRC Manager tracks remediation progress against agreed target dates and reports overdue items to the ERC.
+All findings are entered into the audit register and, where required, into the CAPA register (see §10). The CAE/GRC Programme Manager tracks remediation progress against agreed target dates and reports overdue items to the ERC.
 
-Findings are marked as closed only when the CAE/GRC Manager has verified that the corrective action has been implemented and is effective.
+Findings are marked as closed only when the CAE/GRC Programme Manager has verified that the corrective action has been implemented and is effective.
 
 ---
 
@@ -383,14 +383,14 @@ Lead auditors must hold at least one of the following, or must be operating unde
 
 - Relevant professional certification in auditing, information security, risk management, or a cognate discipline (e.g., certified internal auditor, certified information systems auditor, or equivalent);
 - Documented completion of formal audit training that covers the ISO 19011 competency framework, with a minimum of three completed supervised audits as supporting lead auditor;
-- For technical security audits: specialist technical certification or documented equivalent experience, reviewed and approved by the CAE/GRC Manager.
+- For technical security audits: specialist technical certification or documented equivalent experience, reviewed and approved by the CAE/GRC Programme Manager.
 
 ### 9.3 Supervised qualification programme
 
 Where an auditor does not yet hold the required credentials, they may conduct audits under the direct supervision of a qualified lead auditor. The supervisory arrangement must be:
 
 - Documented before commencement of the supervised audit;
-- Reviewed by the CAE/GRC Manager;
+- Reviewed by the CAE/GRC Programme Manager;
 - Limited to no more than three consecutive supervised engagements before formal qualification is required.
 
 ### 9.4 Continuing professional development
@@ -419,7 +419,7 @@ Conversely, each audit finding record in the audit register must reference the c
 
 ### 10.3 Moderate and low findings
 
-Moderate findings may be elevated to a CAPA record at the discretion of the CAE/GRC Manager, particularly where:
+Moderate findings may be elevated to a CAPA record at the discretion of the CAE/GRC Programme Manager, particularly where:
 
 - The finding represents a recurring issue across multiple audit cycles;
 - The control area is material to a certification or regulatory requirement;
@@ -429,7 +429,7 @@ Low / Observation findings are tracked in the audit register and do not routinel
 
 ### 10.4 CAPA closure verification
 
-Audit findings are not closed in the audit register until the corresponding CAPA record (where one exists) has been verified as closed by the GRC Manager. The CAE/GRC Manager may request evidence of closure and, for Critical and High findings, may require a follow-up audit to confirm sustained effectiveness.
+Audit findings are not closed in the audit register until the corresponding CAPA record (where one exists) has been verified as closed by the GRC Manager. The CAE/GRC Programme Manager may request evidence of closure and, for Critical and High findings, may require a follow-up audit to confirm sustained effectiveness.
 
 ---
 

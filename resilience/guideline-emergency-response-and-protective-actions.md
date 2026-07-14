@@ -2,8 +2,8 @@
 
 **Document Title:** Emergency Response and Protective Actions Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-14\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-crisis-management-eoc-activation.md`](procedure-crisis-management-eoc-activation.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md)\
@@ -34,7 +34,7 @@ This guideline may be adapted for offices, facilities, warehouses, operational s
 2. Local protective action may be required before executive or crisis management activation.
 3. Emergency response must not expose individuals to unnecessary harm for evidence preservation or asset protection.
 4. Communications must be factual, authorized, and appropriate to the emergency stage.
-5. Response activity must transition to crisis management or continuity governance when disruption exceeds local response capability.
+5. Response activity should transition to crisis management or continuity governance when disruption exceeds local response capability.
 6. Public CC BY-SA 4.0 templates must not include facility addresses, floor plans, evacuation routes, emergency contacts, access codes, security procedures, or site-specific vulnerabilities.
 
 ---

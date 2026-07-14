@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.12\
-**Date:** 2026-07-12\
+**Version:** 1.3.13\
+**Date:** 2026-07-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -95,7 +95,7 @@ Use this to decide which domains and sector annexes your organization needs.
 | --- | --- | --- |
 | Does the organization handle any personal data of identifiable individuals? | `privacy/` domain + applicable jurisdiction annexes in `privacy/jurisdictions/` | All of privacy/ |
 | Does the organization operate AI systems, services, or agents in production? | `ai/` domain | All of ai/ (but keep the framework as reference) |
-| Does the organization operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use | The non-relevant cloud baselines |
+| Does the organization operate cloud workloads? | `dev-security/standard-cloud-hardening-baseline-{aws,azure,gcp}.md` for the platforms in use (see also [`docs/decision-tree.md`](decision-tree.md) section 5.2 for the operations cloud-security-configuration baseline plus network-segmentation and cloud-exit standards) | The non-relevant cloud baselines |
 | Does the organization deliver customer-facing services? | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md), `resilience/` domain | The SLA-related operations content |
 | Does the organization participate in BASC trade-security certification? | `compliance/logistics/` | All of compliance/logistics/ |
 | Does the organization participate in CTPAT, AEO, AEO-S, or PIP trade programmes? | The relevant programme annexes in `compliance/` | The non-relevant trade-compliance annexes |

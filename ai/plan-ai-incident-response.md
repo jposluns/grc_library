@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.7\
-**Date:** 2026-07-11\
+**Version:** 1.0.8\
+**Date:** 2026-07-14\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -61,7 +61,7 @@ Consistent with the NIST AI Generative AI Profile (NIST AI 600-1) action GV-2.1-
 | P3 | AI safety event with no operational impact; localized behaviour regression | Eval-suite regression on a non-customer model |
 | P4 | False positive; reproducible-only-by-researcher edge case | Lab-only proof of concept with no production exposure |
 
-The Joint Command convenes for P1 within 60 minutes of declaration; P2 within 8 business hours; P3 by next business day.
+The Joint Command (the cross-stream coordinating body defined in the "Joint command structure" of [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), convened when the AI stream coordinates with the security, privacy, or executive streams) convenes for P1 within 60 minutes of declaration; P2 within 8 business hours; P3 by next business day.
 
 ---
 
