@@ -83,14 +83,14 @@ _107 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.36 | 2026-07-13 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.30 | 2026-07-10 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.0 | 2026-07-06 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.84 | 2026-07-12 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.85 | 2026-07-14 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.13 | 2026-07-10 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.4 | 2026-07-03 |
 | [governance/specification-audit-programme.md](../governance/specification-audit-programme.md) | Audit Programme Specification | Specification | 1.17.3 | 2026-07-14 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.15 | 2026-07-11 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.4.17 | 2026-07-10 |
-| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.2 | 2026-07-04 |
+| [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.3 | 2026-07-14 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.7 | 2026-07-10 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.8 | 2026-07-14 |
 | [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.7 | 2026-07-04 |
@@ -235,12 +235,12 @@ _169 documents._
 | [operations/ot/register-ot-asset-inventory-and-lifecycle.md](../operations/ot/register-ot-asset-inventory-and-lifecycle.md) | OT Asset Inventory and Lifecycle Register | Register | 1.0.2 | 2026-07-02 |
 | [operations/ot/standard-ot-ics-security.md](../operations/ot/standard-ot-ics-security.md) | OT/ICS Security Standard | Standard | 1.0.4 | 2026-07-02 |
 | [operations/procedure-patch-management.md](../operations/procedure-patch-management.md) | Patch Management Procedure | Procedure | 1.0.5 | 2026-07-05 |
-| [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.2 | 2026-07-02 |
+| [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.3 | 2026-07-14 |
 | [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.0.6 | 2026-07-02 |
 | [operations/register-it-security-operations.md](../operations/register-it-security-operations.md) | IT Security Operations Register | Register | 1.0.1 | 2026-07-02 |
-| [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.4 | 2026-07-02 |
-| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.3 | 2026-07-02 |
-| [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.4 | 2026-07-03 |
+| [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.5 | 2026-07-14 |
+| [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.4 | 2026-07-14 |
+| [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.5 | 2026-07-14 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.3 | 2026-07-02 |
 | [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.13 | 2026-07-11 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.8 | 2026-07-02 |
@@ -372,7 +372,7 @@ _36 documents._
 | [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.3 | 2026-07-09 |
-| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.5 | 2026-07-02 |
+| [operations/standard-observability-and-telemetry.md](../operations/standard-observability-and-telemetry.md) | Observability and Telemetry Standard | Standard | 0.0.6 | 2026-07-14 |
 | [privacy/jurisdictions/annex-privacy-mexico.md](../privacy/jurisdictions/annex-privacy-mexico.md) | Mexico Privacy Regulatory Requirements | Annex | 0.0.2 | 2026-07-13 |
 | [security/framework-zero-trust-architecture.md](../security/framework-zero-trust-architecture.md) | Zero Trust Architecture Framework | Framework | 0.0.5 | 2026-07-10 |
 

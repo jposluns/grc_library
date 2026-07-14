@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.84\
-**Date:** 2026-07-12\
+**Version:** 1.27.85\
+**Date:** 2026-07-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -270,7 +270,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Operations | Framework | IT Service Management Framework | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) | Chief Information Officer | Annual | ISO/IEC 20000-1:2018, ITIL 4, COBIT DSS02/DSS03, EU NIS 2 Directive | template |
 | Operations | Register | Asset Inventory Register | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Chief Information Officer | Continuous / Quarterly | ISO/IEC 27001 Annex A.5.9, NIST SP 800-53 CM-8, COBIT BAI09 | template |
 | Operations | Register | IT Security Operations Register | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | Chief Information Security Officer | Continuous / Monthly | ISO/IEC 27001 §9.1, NIST SP 800-53 CA-7, COBIT DSS05 | template |
-| Operations | Standard | Service Level Management Standard | [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md) | Chief Information Officer | Annual | ISO/IEC 20000-1:2018 §8.3, ITIL 4 SLM, COBIT DSS02/APO09, EU NIS 2 | template |
+| Operations | Standard | Service Level Management Standard | [`operations/standard-service-level-management.md`](../operations/standard-service-level-management.md) | Chief Information Officer | Annual | ISO/IEC 20000-1:2018 §8.3.3, ITIL 4 SLM, COBIT DSS02/APO09, EU NIS 2 | template |
 | Operations | Register | IT Operations Key Performance Indicators Register | [`operations/register-it-operations-kpis.md`](../operations/register-it-operations-kpis.md) | Chief Information Officer | Annual | ISO/IEC 20000-1:2018 §9.1, ITIL 4, COBIT DSS02/DSS03, EU NIS 2 Directive | template |
 | Operations | Standard | Observability and Telemetry Standard | [`operations/standard-observability-and-telemetry.md`](../operations/standard-observability-and-telemetry.md) | Chief Information Officer | Annual | Google SRE four golden signals, ITIL 4, ISO/IEC 20000-1, ISO/IEC 27001 Annex A.5.7/A.8.15/A.8.16, NIST SP 800-137, OpenTelemetry, W3C Trace Context | template |
 | Operations | Standard | Site Reliability Engineering Standard | [`operations/standard-site-reliability-engineering.md`](../operations/standard-site-reliability-engineering.md) | Chief Information Officer | Annual | Google SRE Book and Workbook, ITIL 4, ISO/IEC 20000-1, ISO/IEC 27001 Annex A.5.29, ISO 22301, DORA Arts 5-16, NIST CSF 2.0 | template |
