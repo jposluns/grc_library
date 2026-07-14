@@ -4,8 +4,8 @@
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
-**Library Version:** 2026.07.393 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.9.754 (semantic per-document version for this file)
+**Library Version:** 2026.07.394 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.9.755 (semantic per-document version for this file)
 
 ---
 
@@ -28,7 +28,7 @@ In modern programmes the boundaries between the three overlap with **security** 
 | An adopter setting up a programme | [`docs/portal.md`](docs/portal.md) (canonical front door), then [`docs/adopter-guide.md`](docs/adopter-guide.md) and [`docs/template-quickstart.md`](docs/template-quickstart.md). |
 | An auditor or reviewer assessing scope | [`docs/portal.md`](docs/portal.md) and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md). |
 | A maintainer or contributor | [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`specification-master-project.md`](specification-master-project.md). |
-| Looking up an unfamiliar acronym or regulator | [`governance/register-glossary.md`](governance/register-glossary.md). |
+| Looking up an unfamiliar acronym or regulator | [`governance/register-glossary.md`](governance/register-glossary.md) and [`governance/register-key-terms-and-definitions.md`](governance/register-key-terms-and-definitions.md). |
 
 ---
 

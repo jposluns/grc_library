@@ -2,8 +2,8 @@
 
 **Document Title:** Library Quality and Review Cadence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.19\
-**Date:** 2026-07-10\
+**Version:** 1.0.20\
+**Date:** 2026-07-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/procedure-continuous-improvement-register.md`](procedure-continuous-improvement-register.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/template-document-review-record.md`](template-document-review-record.md), [`specification-master-project.md`](../specification-master-project.md), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -46,6 +46,7 @@ It does not govern external consumers' own forks; it governs the canonical repos
 | Source of truth | The review schedule register lists each document, its owner, its review frequency, its last review date, and its next review due date |
 | Population | Schedule entries derived from each document's metadata block (Date and Review Frequency fields) |
 | Refresh | The schedule is refreshed when documents are added, retired, or rewritten |
+| Adopter note | The corpus does not ship a filled review-schedule register or a template of it (the live register is maintainer project-governance state, per the project/corpus separation). Adopters build their own instance from each document's `Date` and `Review Frequency` metadata, in the same way as the compliance-obligations register. |
 | Visibility | The schedule is published in the repository and surfaced via tooling |
 
 ### Step 2: Detect overdue reviews
