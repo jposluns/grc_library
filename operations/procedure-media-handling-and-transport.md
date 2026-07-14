@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.7\
-**Date:** 2026-07-10\
+**Version:** 1.3.8\
+**Date:** 2026-07-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -121,7 +121,7 @@ The use of personal cloud storage services (including consumer file-sharing serv
 
 ### 5.3 Encrypted channels
 
-All digital transfers of Confidential or Restricted data over any network, including the internal corporate network, must use an encrypted channel with TLS 1.3 or a higher-equivalent standard. TLS 1.2 may be used only where a documented technical constraint prevents TLS 1.3, with the constraint recorded in the exception register and reviewed quarterly.
+All digital transfers of Confidential or Restricted data over any network, including the internal corporate network, must use an encrypted channel with TLS 1.3 or a higher-equivalent standard, consistent with the canonical encryption-standards mandate in [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) section 4. TLS 1.0, 1.1, and 1.2 must not be used.
 
 ### 5.4 Transfer to third parties
 
