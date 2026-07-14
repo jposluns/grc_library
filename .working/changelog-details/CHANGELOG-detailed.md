@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-14, Library Version 2026.07.404, PR #916
+
+P1 §1.2 (maintainer-flagged 2026-07-14): the root [`CHANGELOG.md`](../../CHANGELOG.md) entries for #902-#914 had reverted to long, dense, semicolon-chained run-on sentences (67-140 words) a general reader cannot follow, re-introducing the exact drift #908 had just fixed for #887-#901. This PR reformats them and strengthens the guardrail, and carries the batched #915 post-merge QA.
+
+### Changed
+
+- **Reformatted the root CHANGELOG #902-#914 entries** to the compact plain-language form (two plain sentences each, 62-79 words, down from 67-140-word semicolon-chains). Each compression was research-drafted then verified by the orchestrator against the detailed-mirror entry (the research-assistant discipline, as #908 did for #887-#901). Every `**YYYY-MM-DD | X.Y.Z | PR #N**` header is byte-unchanged, so gate-59 mirror-header-parity holds; only the summary prose after `** - ` changed. The detailed-mirror entries are untouched (they remain the full audit trail).
+- **Strengthened the advisory guard** [`tools/audit-changelog-entry-length.py`](../../tools/audit-changelog-entry-length.py) (closes TODO §1.2): added a longest-single-sentence signal (`--sentence-warn`, default 65 words) alongside the existing total-word signal, because the #902-#914 drift entries were each a dense single sentence UNDER the 130-word total ceiling, i.e. the word-count-only check missed them. The sentence splitter is crude-by-design (splits on a period-then-space boundary) so it can only under-split (a false negative), never over-flag. Still advisory (exit 0, not gate-wired); self-test extended to 6 cases (adds a dense-run-on-under-the-word-ceiling case and a two-short-sentences-clean case). Live run against the reformatted CHANGELOG is clean (densest sentence now 60 words).
+- **Batched #915 post-merge QA** (the Sweep 103 `/validate` close-out; `/validate-pr` + `/retro` rows). The `/validate-pr` caught two in-window `.working/` bookkeeping issues, both gate-blind and both FIXED here:
+  - **F1 (warning, table-row-join):** the Sweep 103 row I prepended to [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) merged onto one physical line with the retained Sweep 102 row (the new row lacked the trailing line break), so the Sweep 102 row lost its `| Date | Sweep |` identifier columns. Escaped to `main` because that ledger is not read by gate 50 and the post-edit self-check was skipped. Split back into two well-formed rows (Sweep 102 identifier restored).
+  - **F2 (note, Low, paired-surface-value-lag):** `session-handoff.md:38` still read "171+ PRs behind" while #915 freshly wrote "185" elsewhere; reconciled to 185 (and the inherited duplicate `(3)` list marker relabelled).
+- **Routed a machinery proposal to TODO §3.73** (from the #915 `/retro` auto-graduation): a structural ledger-table-row-integrity check over the reverse-chronological `.working/` bookkeeping tables. F1 is the FIRST escape of the table-row-join class (all prior occurrences self-caught pre-commit), which refutes the #891 retro's "no gate, the self-check catches it" disposition.
+
+### Verification
+
+- `tools/run_all_audits.sh` all 69 gates pass (post-fix); `tools/audit-changelog-entry-length.py --self-test` 6/6 OK; the live guard run is clean. Root CHANGELOG dash-free; every path-shaped reference in the added detailed lines is a markdown link.
+- A pre-push skeptical verifier reviewed the reformat faithfulness (against the detailed mirror) and the guard's sentence logic.
+
 ## 2026-07-14, Library Version 2026.07.403, PR #915
 
 First PR of the 2026-07-14 resumed session (`claude/resume-sweep103-validate`, resumed from #914; attended-autonomous, on the VM): the loop-break corpus-wide validation **Sweep 103** over the #901..#914 delta window (the compensating control for session-closing handoff PR #914, which skipped its trailing `/validate-pr` + `/retro`), plus the one in-window finding it surfaced, the handoff prune, the lease ACQUIRE, and the resume-decision bank.
