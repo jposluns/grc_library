@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing and about pages (TODO section 2.4).
+"""Static-site generator for the grclibrary.ai public site: the landing, about, and per-domain pages (TODO section 2.4).
 
-WHAT THIS IS. A stdlib-only generator that renders the public site (landing + about pages) from
-the LIVE corpus at build time. There is one source of truth (the corpus); the
-site is a projection of it. Every corpus figure on the page is recomputed here
+WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
+the about page, and one page per corpus domain) from the LIVE corpus at build time.
+There is one source of truth (the corpus); the site is a projection of it. Every
+corpus figure on the pages is recomputed here
 from ``taxonomy.yml`` (the canonical machine-readable taxonomy, kept in sync with
 the corpus by the taxonomy-drift gate) and the library version from ``README.md``.
-Nothing is hardcoded; the preview HTML that seeded the template carried a
+Nothing is hardcoded; the preview HTML that seeded the templates carried a
 point-in-time snapshot that this generator overwrites.
 
 CONTENT BOUNDARY (why this is safe to publish). The generator reads EXACTLY an
@@ -60,7 +61,7 @@ TAXONOMY = REPO_ROOT / "taxonomy.yml"
 README = REPO_ROOT / "README.md"
 DEFAULT_OUT = WEB_DIR / "dist"
 
-# Shared chrome injected into every page from a single source, so the two pages
+# Shared chrome injected into every page from a single source, so the pages
 # cannot drift. Placeholder name -> partial filename under PARTIALS_DIR. A
 # partial may itself carry figure placeholders (CALVER in the topbar,
 # DOC_TOTAL / DOMAIN_COUNT in the footer), resolved in render_page()'s 2nd pass.
@@ -121,7 +122,7 @@ class BuildError(Exception):
 
 
 def parse_taxonomy(text):
-    """Return a list of {'path','domain','type'} dicts from taxonomy.yml.
+    """Return a list of {'path','domain','type','title'} dicts from taxonomy.yml.
 
     Deliberately a tiny structural parser (the corpus toolchain is stdlib-only,
     no YAML library) tolerant only of the regular one-document-per-block shape
@@ -158,32 +159,68 @@ def parse_taxonomy(text):
 
 
 def read_domain_purpose(domain):
-    """Return the first paragraph of the ``## Purpose`` section of
-    ``<domain>/README.md`` as plain text (markdown links flattened to their
-    text). Every corpus domain README follows the section model and carries a
-    Purpose section; a missing file or missing section is a coupling breakage the
+    """Return the ``## Purpose`` intro of ``<domain>/README.md`` as clean plain
+    text. Normally that is the section's first paragraph. When the first
+    paragraph is a list lead-in (it ends with a colon, the dev-security case),
+    the following list items' lead-in sentences are folded in so the page never
+    renders a dangling colon. Markdown links, bold, and code spans are flattened.
+    Every corpus domain README follows the section model and carries a Purpose
+    section; a missing file or missing section is a coupling breakage the
     generator-health check must surface."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
-    out = []
+    # Collect the section's lines (stripped), stopping at the next heading / rule.
+    lines = []
     in_purpose = False
     for line in p.read_text(encoding="utf-8").splitlines():
         if not in_purpose:
             if re.match(r"^##\s+Purpose\s*$", line):
                 in_purpose = True
             continue
-        stripped = line.strip()
-        if stripped.startswith("## ") or stripped == "---":
+        if line.strip().startswith("## ") or line.strip() == "---":
             break
-        if stripped == "":
-            if out:
-                break  # end of the first paragraph
-            continue
-        out.append(stripped)
-    if not out:
+        lines.append(line.strip())
+
+    i = 0
+    while i < len(lines) and not lines[i]:
+        i += 1
+    para = []
+    while i < len(lines) and lines[i]:
+        para.append(lines[i])
+        i += 1
+    if not para:
         raise BuildError(f"{domain}/README.md has no '## Purpose' paragraph")
-    return _MD_LINK_RE.sub(r"\1", " ".join(out))
+    intro = " ".join(para)
+
+    if intro.endswith(":"):
+        # Fold the following list items' first sentences into the lead-in.
+        items = []
+        cur = None
+        while i < len(lines):
+            m = re.match(r"^(?:\d+\.|[-*])\s+(.*)$", lines[i])
+            if m:
+                if cur is not None:
+                    items.append(cur)
+                cur = m.group(1)
+            elif lines[i] == "":
+                pass
+            elif cur is not None:
+                cur += " " + lines[i]
+            else:
+                break
+            i += 1
+        if cur is not None:
+            items.append(cur)
+        leads = []
+        for it in items:
+            it = it.replace("**", "").replace("`", "")
+            first = re.split(r"(?<=\.)\s", it, 1)[0].rstrip(".")
+            leads.append(first)
+        if leads:
+            intro = intro.rstrip(":").rstrip() + ": " + "; ".join(leads) + "."
+
+    return _MD_LINK_RE.sub(r"\1", intro).replace("**", "").replace("`", "")
 
 
 def compute_figures():
@@ -273,11 +310,15 @@ def compute_figures():
 
 
 def _esc(s):
-    """Minimal HTML-text escaping for interpolated corpus-derived strings."""
+    """Minimal HTML escaping for interpolated corpus-derived strings. Escapes the
+    double-quote too, so the same helper is safe in an attribute context (a URL
+    or value interpolated into ``href="..."`` / ``content="..."``), not only in a
+    text node."""
     return (
         s.replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
+        .replace('"', "&quot;")
     )
 
 
@@ -331,7 +372,7 @@ def render_domain_doc_rows(dp):
             f'          <li class="doc-row">'
             f'<span class="doc-type">{_esc(d["type"])}</span>'
             f'<span class="doc-title">{_esc(d["title"])}</span>'
-            f'<a class="doc-link" href="{url}" target="_blank" rel="noopener">GitHub &rarr;</a>'
+            f'<a class="doc-link" href="{_esc(url)}" target="_blank" rel="noopener">GitHub &rarr;</a>'
             f"</li>"
         )
     return "\n".join(rows)
@@ -446,7 +487,7 @@ def render_site(figures):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing and about pages) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, and per-domain pages) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
