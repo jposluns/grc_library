@@ -2,7 +2,7 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -36,7 +36,7 @@ The Directive requires the following, some obligations scaled to the impact leve
 
 ## The Algorithmic Impact Assessment
 
-The **Algorithmic Impact Assessment (AIA)** is the mandatory risk-assessment tool under the Directive. It is a questionnaire of 65 risk questions and 41 mitigation questions (the counts as of the current release; the government revises the question set over time) across risk areas (project, system, algorithm, decision, impact, and data) and mitigation areas (consultations and de-risking). The raw score places the system in one of four impact levels (Level I little-to-no, Level II moderate, Level III high, Level IV very high), assessed on the reversibility and duration of the impact and on impact areas including the rights, the equality, dignity, privacy and autonomy, the health and well-being, and the economic interests of individuals, and the sustainability of an ecosystem; a sufficient mitigation score reduces the level.
+The **Algorithmic Impact Assessment (AIA)** is the mandatory risk-assessment tool under the Directive. It is a questionnaire of 65 risk questions and 41 mitigation questions (as of the 2026-05-28 version of the tool; TBS revises the question set over time) across risk areas (project, system, algorithm, decision, impact, and data) and mitigation areas (consultations and de-risking). The raw score places the system in one of four impact levels (Level I little-to-no, Level II moderate, Level III high, Level IV very high), assessed on the reversibility and duration of the impact and on impact areas including the rights, the equality, dignity, privacy and autonomy, the health and well-being, and the economic interests of individuals, and the sustainability of an ecosystem; a sufficient mitigation score reduces the level.
 
 ## Federal generative-AI guidance: the FASTER principles
 
