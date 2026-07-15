@@ -1,7 +1,7 @@
 name: Web generator health
 
 # NOT an audit gate. This is a coupling-breakage detector for the .web/ static-site
-# generator (the public grclibrary.ai landing page, TODO section 2.4). Because the site
+# generator (the public grclibrary.ai landing page). Because the site
 # reads corpus content live at build time and keeps no committed copies, there is nothing
 # to keep in sync, so there is no sync gate; instead this check runs the generator in
 # --check mode, which parses taxonomy.yml + README.md and renders the template WITHOUT

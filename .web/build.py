@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages (TODO section 2.4).
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages.
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
 the about page, the governance-pack page, one page per corpus domain, and one listing
