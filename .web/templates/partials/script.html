@@ -24,5 +24,50 @@
         try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
       });
     }
+
+    // Scrollspy (TODO 2.16): highlight the sidebar quick-nav link whose section or
+    // sub-item is in view. Runs on any page with a `.sidenav-inner` carrying on-page
+    // (#) anchors (the landing and pack pages); it is harmless where there is no
+    // active-state CSS. Static links stay fully functional if this does not run.
+    var navLinks = Array.prototype.slice.call(
+      document.querySelectorAll('.sidenav-inner a[href^="#"]')
+    );
+    if (navLinks.length && "IntersectionObserver" in window) {
+      var linkById = {};
+      var targets = [];
+      var subParent = {};   // sub-link target id -> its parent (non-sub) link's target id
+      var lastTop = null;   // derived from DOM order (sub-links follow their parent), so
+                            // it stays correct if the sidebar structure changes
+      navLinks.forEach(function (a) {
+        var id = a.getAttribute("href").slice(1);
+        if (a.classList.contains("sub")) { if (lastTop) { subParent[id] = lastTop; } }
+        else { lastTop = id; }
+        var el = id ? document.getElementById(id) : null;
+        if (el) { linkById[id] = a; targets.push(el); }
+      });
+      var visible = {};
+      function setActive() {
+        // Among targets in the top band, the one lowest on screen (greatest top) is the
+        // most specific current item, so a nested sub-item wins over its tall parent
+        // section rather than being shadowed by it.
+        var currentId = null, best = -Infinity;
+        for (var id in visible) {
+          if (visible[id] > best) { best = visible[id]; currentId = id; }
+        }
+        if (currentId === null) { return; }   // keep the prior active during scroll gaps
+        navLinks.forEach(function (a) { a.classList.remove("active"); });
+        if (linkById[currentId]) { linkById[currentId].classList.add("active"); }
+        var parent = subParent[currentId];   // also light the parent section for a sub-item
+        if (parent && linkById[parent]) { linkById[parent].classList.add("active"); }
+      }
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { visible[e.target.id] = e.boundingClientRect.top; }
+          else { delete visible[e.target.id]; }
+        });
+        setActive();
+      }, { rootMargin: "0px 0px -70% 0px", threshold: 0 });
+      targets.forEach(function (t) { obs.observe(t); });
+    }
   })();
 </script>

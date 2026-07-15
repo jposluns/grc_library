@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.436, PR #948
+
+Landing-page left-nav enhancement, the TODO §2.16 residual (Get-started nesting + scrollspy), plus the batched post-merge QA for PR #947. Website template + generator only; no corpus document body changed.
+
+### Added
+
+- **Get-started nesting.** Added `id="gs-*"` jump-target ids to the six "Get started" `.feat` cards in [`.web/templates/landing.html`](../../.web/templates/landing.html) `<section id="start">`, and nested six indented `<a class="sub" href="#gs-*">` links under "Get started" in the landing sidebar (matching the existing domains-under-"By domain" and Standards sub-link nesting).
+- **Scrollspy** in the shared [`.web/templates/partials/script.html`](../../.web/templates/partials/script.html): an IntersectionObserver highlights the sidebar link whose section or sub-item is currently in view (top-band rootMargin), selecting the lowest in-view target so a nested sub-item wins over its tall parent section, and also lighting the parent section link when a sub-item is active. The parent-of-a-sub-link mapping is derived from the sidebar DOM order (sub-links follow their parent), so it stays correct if the sidebar changes. Guarded (`navLinks.length && "IntersectionObserver" in window`), so it no-ops on pages without a `.sidenav-inner` of on-page anchors and degrades gracefully to plain static anchor links; it is appended inside the existing theme-toggle IIFE (the page already ran that script), and the live site's CSP is report-only with inline script permitted, so the earlier CSP concern is cleared.
+- Active-state CSS (`.sidenav-inner a.active`, `.sub.active`) and `scroll-margin-top` for anchor targets in `landing.html`.
+
+### QA (batched per recursion-avoidance)
+
+- PR #947 `/validate-pr`: 0 findings. Zero-finding history row + [`.working/improvement-log.md`](../improvement-log.md) retro row batched into this PR.
+
+### Verification
+
+- A refute-briefed skeptical verifier returned **SHIP-WITH-NOTES** (2 non-blocking notes): the script comment overstated the landing-only scope (the pack sidebar also runs the harmless observer, no active-state CSS there), and the original `min-top` selection let the parent section shadow nested sub-items. **Both were fixed in-window before push**: the comment was corrected, and the selection was changed to pick the lowest in-view target plus light the parent (so sub-items highlight as intended). `node --check` on the rewritten script body: OK (valid ES5, theme toggle unaffected). `.web/build.py --check` EXIT=0; render confirms 6/6 gs ids + 6 sub-links, all 19 landing `#`-anchors resolve, and the shared script no-ops on the about/for-ai/domain pages. `tools/run_all_audits.sh` 69/69. Library CalVer `2026.07.435` -> `2026.07.436`, README Version `1.9.796` -> `1.9.797`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.435, PR #947
 
 Attribution/citation link on the landing page (a maintainer-directed website request, maintainer-chosen approach) plus the batched post-merge QA for PR #946. Website template + working-state only; no corpus document body changed.
