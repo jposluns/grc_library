@@ -51,8 +51,11 @@
       display: grid; grid-template-columns: 230px minmax(0, 1fr);
       gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
     }
-    .sidenav { padding-inline: 0; position: sticky; top: 1.25rem; }
-    .sidenav-inner { margin-block: 0; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
+    /* The full rule + skill index is long (13 + 23); render it inline and let it
+       scroll with the page so every skill is listed and reachable, rather than
+       clipping to a short internal-scroll box that hid most of the skills. */
+    .sidenav { padding-inline: 0; }
+    .sidenav-inner { margin-block: 0; }
     .shell > main { min-width: 0; }
     .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
   }

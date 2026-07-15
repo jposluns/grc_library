@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.416, PR #928
+
+Three follow-up fixes to the public grclibrary.ai site from the maintainer's live review, plus the batched PR #927 post-merge QA. Template-scoped ([`.web/templates/landing.html`](../../.web/templates/landing.html) and [`.web/templates/pack.html`](../../.web/templates/pack.html)); the generator was not touched and no corpus document changed.
+
+### Changed
+- **Hero CTAs made comprehensive.** The landing hero now carries five buttons covering the page's main sections: "Get started" (`#start`, primary), "How it's built" (`#build`), "The governance pack" (`/pack`, internal), "Browse the domains" (`#register`), and "Standards" (`#standards`). Previously the hero under-represented the page; the maintainer asked for it to be comprehensive and to link the pack page.
+- **Get-started cards aligned to the page's card pattern.** The six "Get started" cards now use the same shape as the feature cards in sections 01/03/04: the `.k` keyword is the link (to the corpus document), the `<h3>` is an unlinked statement. They previously used a different colour/style, "Begin 1/2/3" and "Use 1/2/3" placeholder titles, and an inconsistent link structure; the maintainer flagged the inconsistency.
+
+### Fixed
+- **Pack-page sidebar now lists all 23 skills.** The wide-screen `.sidenav` in [`.web/templates/pack.html`](../../.web/templates/pack.html) had `max-height: calc(100vh - 2.5rem)` + `overflow-y: auto` + `position: sticky`, which hid roughly 21 of the 23 skills behind an internal scroll region. Those three properties are removed from the `@media (min-width:1080px)` block so all 13 rules and 23 skills render inline in the contents sidebar; the `.shell` grid and the rest of the layout are unchanged.
+- **PR #927 post-merge review.** Zero findings (SHIP, 0/0/0); the row is recorded and batched here.
+
+### Verification
+- The generator's `--check` is rc=0 (14 pages, no leftover placeholders). On the landing page the Get-started section has six `.k` links and zero linked `<h3>` (matching sections 01/03/04, all 18 feature cards consistent), the hero has exactly five CTAs whose four `#` anchor ids each exist once and whose `/pack` target renders, and zero off-site-vs-internal `target=_blank` contradictions. On the pack page all 13 rule + 23 skill links resolve to files on disk, and `max-height`/`overflow-y`/`position: sticky` have zero residual in the page CSS. Full `tools/run_all_audits.sh` = 69/69.
+- **PR #928 skeptical verifier** (refute-briefed, read-only-git): **SHIP, 0 blocking / 0 material findings, 1 informational note** (the landing page keeps its on-page `id="pack"` teaser section while the hero CTA routes to the standalone `/pack` page, intentional per the change description). Visual/responsive appearance (CTA wrap at five buttons, sidebar inline flow) is not browser-verifiable on the build host; the maintainer reviews the live preview.
+- **PR #927 post-merge validation** (Subagent A, refute-briefed, read-only-git on `2d164c6`): SHIP, 0 error / 0 warning / 0 note; batched here per recursion-avoidance.
+
+### Notes
+- These are §2.4 website follow-ups from the live-review loop; §2.4 stays open until the publish go. The DRY-the-sidebar-CSS cleanup (landing/pack duplication) remains a tracked follow-up. Per the maintainer's changelog-length feedback, the root entry for this PR is deliberately terse; the deferred remediation of the over-long recent root entries (#921 onward) and the length-guard strengthening are tracked as TODO §1.12, to run after the website work.
+
 ## 2026-07-15, Library Version 2026.07.415, PR #927
 
 Working-state close-out: a new backlog item and the batched PR #926 QA; nothing adopter-facing changed.
