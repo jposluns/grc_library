@@ -303,7 +303,14 @@ def compute_figures():
                 f"{len(untitled)} taxonomy entr(y/ies) in domain '{domain}' "
                 f"missing a title (schema change?); first: {untitled[0]}"
             )
-        ddocs = sorted(ddocs, key=lambda d: (TYPE_RANK.get(d["type"], len(TYPE_ORDER)), d["title"]))
+        # Secondary key mirrors tools/build-taxonomy.py: case-insensitive title then
+        # repo-relative path tiebreaker, so the on-site domain-page order matches the
+        # canonical taxonomy.yml / portal.md order (a case-sensitive title key here made
+        # e.g. "eIDAS ..." sort to the end of its type; Sweep 105 finding A-1).
+        ddocs = sorted(
+            ddocs,
+            key=lambda d: (TYPE_RANK.get(d["type"], len(TYPE_ORDER)), d["title"].lower(), d["path"]),
+        )
         domain_pages.append(
             {
                 "domain": domain,
