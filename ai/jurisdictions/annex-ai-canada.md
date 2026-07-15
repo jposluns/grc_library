@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-07-12\
+**Version:** 1.0.1\
+**Date:** 2026-07-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -30,9 +30,9 @@ Canada has no omnibus AI law in force. Federal AI governance rests on a binding 
 
 ## Federal public-sector automated decision-making: the Treasury Board Directive
 
-The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** is binding on federal government institutions that use an automated decision system to make an administrative decision about a client. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its third review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 have until 24 June 2026 to meet the new or updated requirements. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
+The **Treasury Board of Canada Secretariat (TBS) Directive on Automated Decision-Making** is binding on federal government institutions that use an automated decision system to make an administrative decision about a client. It is **in force**: it took effect on 1 April 2019, with compliance required by 1 April 2020, and applies to automated decision systems developed or procured after 1 April 2020. Following its fourth review, the Directive was amended; existing automated decision systems developed or procured before 24 June 2025 have until 24 June 2026 to meet the new or updated requirements. (The 24 June 2025 date is a compliance-transition date for the updated requirements, not the Directive's in-force date, which is 2019.) The Directive is reviewed on a defined cycle.
 
-The Directive requires, scaled to an impact level: an Algorithmic Impact Assessment; transparency (notice before the decision, a meaningful explanation after it, and access to system components); quality assurance (testing, monitoring, data quality and governance, peer review, Gender-Based Analysis Plus, employee training, security, and legal review); recourse; and reporting. At the two highest impact levels the final decision must be made by a human. The TBS Guide on the Scope of the Directive sets out the five elements that bring a system into scope.
+The Directive requires the following, some obligations scaled to the impact level and others applied as a baseline: an Algorithmic Impact Assessment; transparency (notice before the decision, a meaningful explanation after it, and access to system components); quality assurance (testing, monitoring, data quality and governance, peer review, Gender-Based Analysis Plus, employee training, security, and legal review); recourse; and reporting. At the two highest impact levels the final decision must be made by a human. The TBS Guide on the Scope of the Directive sets out the five elements that bring a system into scope.
 
 ## The Algorithmic Impact Assessment
 
@@ -41,6 +41,10 @@ The **Algorithmic Impact Assessment (AIA)** is the mandatory risk-assessment too
 ## Federal generative-AI guidance: the FASTER principles
 
 The **TBS Guide on the Use of Generative AI** provides advisory guidance for federal institutions using generative AI, organized on the **FASTER** principles (Fair, Accountable, Secure, Transparent, Educated, and Relevant). It is guidance, not a binding instrument, and is updated over time.
+
+## Federal public-service AI adoption: the AI Strategy for the Federal Public Service 2025-2027
+
+The **AI Strategy for the Federal Public Service 2025-2027**, published by the Treasury Board of Canada Secretariat (Office of the Chief Information Officer and Chief Data Officer) on 4 March 2025, is the Government of Canada's first strategy for the responsible, secure adoption of artificial intelligence across the federal public service. It is built on four principles (human-centred, collaborative, ready, and responsible) and sets the government's internal direction for how federal institutions adopt and use AI. It is a strategy and policy direction, not a binding obligation on an external adopter; it applies to organizations subject to the Policy on Service and Digital, with exempt bodies encouraged to comply as good practice. One of its transparency deliverables is the **Government of Canada AI Register**, published as a minimum viable product by the Treasury Board of Canada Secretariat on 28 November 2025, a public inventory of the artificial-intelligence systems in use across federal institutions.
 
 ## Federal soft-law for industry: the ISED Voluntary Code
 
@@ -66,6 +70,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 
 - A **federal government institution** using an automated decision system for administrative decisions is bound by the Treasury Board Directive and completes the AIA.
 - An organization **developing or managing advanced generative AI** may commit to the ISED Voluntary Code (voluntary).
+- A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter); its AI systems appear in the Government of Canada AI Register.
 - A **federally regulated financial institution** prepares for OSFI Guideline E-23 (effective 1 May 2027).
 - An **Ontario public-sector entity** monitors the EDSTA AI provisions (enacted, not yet in force).
 - Any organization may adopt **CAN/DGSI 101:2025** for conformity assessment (voluntary).
@@ -80,7 +85,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 - This annex is a consolidating per-regime view, not a substitute for the instruments themselves or for legal advice; the controlling texts are the Treasury Board Directive, the OSFI Guideline, the Ontario statute, and the standards and guidance cited.
 - **Not in force / not law:** the **Artificial Intelligence and Data Act (AIDA)** lapsed and is not law; the **Ontario EDSTA AI provisions** are enacted but not yet in force (proclamation and regulations pending). **OSFI Guideline E-23** is published but not effective until 1 May 2027. These statuses are current-events facts; the adopter confirms them upstream before committing to a compliance milestone.
 - The Treasury Board Directive dates are the Directive's own: effective 2019, compliance 2020, and a 24 June 2025 to 24 June 2026 compliance transition for the updated requirements. 24 June 2025 is not the Directive's in-force date.
-- Detail that the Directive and the EDSTA delegate to guidance or regulations (the scope elements, the impact-level requirement scaling, and the EDSTA prescribed requirements) is not fixed in the primary text; the adopter confirms the current position against the guidance and regulations as issued.
+- Detail that the Directive and the EDSTA delegate to guidance or regulations (the scope elements and the EDSTA prescribed requirements) is not fixed in the primary text; the adopter confirms the current position against the guidance and regulations as issued. (The impact-level requirement scaling itself is fixed in the Directive's Appendix C.)
 - The corpus operational substance this annex references (the AI classification, impact-assessment, and model-risk workflow) is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the AI procedures and model-risk documents; on any divergence, those documents govern the operational procedure and this annex governs the per-regime framing.
 
 ## Framework alignment
@@ -89,6 +94,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 | --- | --- | --- | --- |
 | Public-sector automated-decision governance and impact assessment | Treasury Board Directive on Automated Decision-Making; the Algorithmic Impact Assessment | Govern, Map, Measure | Clause 8 |
 | Generative-AI governance (federal institutions) | TBS Guide on the Use of Generative AI (FASTER) | Govern | Annex A.8 |
+| Federal public-service AI adoption (strategy and system inventory) | AI Strategy for the Federal Public Service 2025-2027; Government of Canada AI Register | Govern | Clause 5 |
 | Responsible generative-AI development (industry) | ISED Voluntary Code of Conduct | Govern, Manage | Clause 8 |
 | Financial-services model risk management | OSFI Guideline E-23 | Manage | Clause 8.3 |
 | Provincial public-sector AI accountability | Ontario EDSTA, 2024 (not yet in force) | Govern | Annex A.8 |
