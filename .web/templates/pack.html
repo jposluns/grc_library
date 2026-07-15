@@ -25,39 +25,17 @@
   .mode h3 { font-size: 1.02rem; margin: 0 0 0.5rem; line-height: 1.3; }
   .mode p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.55; }
 
-  /* Contents sidebar (mirrors the landing-page sidebar; duplicated here for a
-     self-contained page, a candidate to DRY into the shared partial later). */
-  .shell { max-width: 1280px; margin: 0 auto; }
-  .sidenav { padding-inline: var(--pad); }
-  .sidenav-inner {
-    border: 1px solid var(--line); border-left: 3px solid var(--brass);
-    border-radius: var(--radius); background: var(--surface);
-    padding: 1.1rem 1.2rem; margin-block: 1.6rem;
-    display: flex; flex-direction: column; gap: 0.1rem;
-  }
-  .sidenav-h {
-    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--brass); margin: 0.9rem 0 0.4rem;
-  }
-  .sidenav-h:first-child { margin-top: 0; }
-  .sidenav-inner a {
-    font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft);
-    padding: 0.28rem 0; text-decoration: none; word-break: break-word;
-  }
-  .sidenav-inner a:hover { color: var(--brass); }
+  /* Pack sidebar overrides on the shared sidenav (defined in head-style.html).
+     The pack's rule + skill index is long (13 rules + 23 skills), so it must NOT
+     be a sticky internal-scroll box (that clipped most skills out of view); it is
+     rendered inline and scrolls with the page. Also a slightly wider column and a
+     hair smaller link font than the shared default. */
+  .sidenav-inner a { font-size: 0.8rem; padding: 0.28rem 0; }
 
   @media (min-width: 1080px) {
-    .shell {
-      display: grid; grid-template-columns: 230px minmax(0, 1fr);
-      gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
-    }
-    /* The full rule + skill index is long (13 + 23); render it inline and let it
-       scroll with the page so every skill is listed and reachable, rather than
-       clipping to a short internal-scroll box that hid most of the skills. */
-    .sidenav { padding-inline: 0; }
-    .sidenav-inner { margin-block: 0; }
-    .shell > main { min-width: 0; }
-    .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
+    .shell { grid-template-columns: 230px minmax(0, 1fr); }
+    .sidenav { position: static; top: auto; }
+    .sidenav-inner { max-height: none; overflow-y: visible; }
   }
 </style>
 </head>

@@ -25,10 +25,10 @@
       });
     }
 
-    // Scrollspy (TODO 2.16): highlight the sidebar quick-nav link whose section or
-    // sub-item is in view. Runs on any page with a `.sidenav-inner` carrying on-page
-    // (#) anchors (the landing and pack pages); it is harmless where there is no
-    // active-state CSS. Static links stay fully functional if this does not run.
+    // Scrollspy: highlight the sidebar quick-nav link whose section or sub-item is in
+    // view. Runs on any page with a `.sidenav-inner` carrying on-page (#) anchors (the
+    // landing, pack, For-AI, About, and domain pages); it is harmless where there is
+    // no active-state CSS. Static links stay fully functional if this does not run.
     var navLinks = Array.prototype.slice.call(
       document.querySelectorAll('.sidenav-inner a[href^="#"]')
     );
@@ -46,23 +46,38 @@
         if (el) { linkById[id] = a; targets.push(el); }
       });
       var visible = {};
-      function setActive() {
-        // Among targets in the top band, the one lowest on screen (greatest top) is the
-        // most specific current item, so a nested sub-item wins over its tall parent
-        // section rather than being shadowed by it.
-        var currentId = null, best = -Infinity;
-        for (var id in visible) {
-          if (visible[id] > best) { best = visible[id]; currentId = id; }
-        }
-        if (currentId === null) { return; }   // keep the prior active during scroll gaps
-        navLinks.forEach(function (a) { a.classList.remove("active"); });
-        if (linkById[currentId]) { linkById[currentId].classList.add("active"); }
-        var parent = subParent[currentId];   // also light the parent section for a sub-item
+      function lightUp(id) {
+        if (linkById[id]) { linkById[id].classList.add("active"); }
+        var parent = subParent[id];   // also light the parent section for a sub-item
         if (parent && linkById[parent]) { linkById[parent].classList.add("active"); }
+      }
+      function setActive() {
+        // Read live positions of the currently-intersecting targets. The one lowest on
+        // screen (greatest top) is the most specific current item, so a nested sub-item
+        // wins over its tall parent section rather than being shadowed by it.
+        var tops = {}, best = -Infinity, any = false;
+        for (var id in visible) {
+          var el = document.getElementById(id);
+          if (!el) { continue; }
+          var top = el.getBoundingClientRect().top;
+          tops[id] = top; any = true;
+          if (top > best) { best = top; }
+        }
+        if (!any) { return; }   // keep the prior active during scroll gaps
+        navLinks.forEach(function (a) { a.classList.remove("active"); });
+        // Light every target sharing the winning scroll position, not just one, so
+        // grid-row peers highlight together (the three Standards sub-groups laid out in
+        // one row share a scroll point; the maintainer expects all three lit at once).
+        // On a narrow layout where the grid collapses to one column the tops diverge and
+        // this degrades to a single active link, which is the desired behaviour there.
+        var EPS = 4;   // px tolerance for "same scroll position"
+        for (var vid in tops) {
+          if (Math.abs(tops[vid] - best) <= EPS) { lightUp(vid); }
+        }
       }
       var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          if (e.isIntersecting) { visible[e.target.id] = e.boundingClientRect.top; }
+          if (e.isIntersecting) { visible[e.target.id] = true; }
           else { delete visible[e.target.id]; }
         });
         setActive();

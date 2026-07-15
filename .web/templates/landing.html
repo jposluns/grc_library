@@ -23,53 +23,6 @@
 </script>
 
 {{HEAD_STYLE}}
-<style>
-  /* Landing-page contents navigation. Default: a boxed in-flow panel shown up
-     front (phones / iPad-portrait). Wide screens (>= 1080px): a sticky left
-     sidebar beside the content, so the site's breadth stays visible while scrolling. */
-  .shell { max-width: 1280px; margin: 0 auto; }
-  .sidenav { padding-inline: var(--pad); }
-  .sidenav-inner {
-    border: 1px solid var(--line); border-left: 3px solid var(--brass);
-    border-radius: var(--radius); background: var(--surface);
-    padding: 1.1rem 1.2rem; margin-block: 1.6rem;
-    display: flex; flex-direction: column; gap: 0.1rem;
-  }
-  .sidenav-h {
-    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--brass); margin: 0.9rem 0 0.4rem;
-  }
-  .sidenav-h:first-child { margin-top: 0; }
-  .sidenav-inner a {
-    font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft);
-    padding: 0.3rem 0; text-decoration: none;
-  }
-  .sidenav-inner a:hover { color: var(--brass); }
-  /* Two-level quick-nav (TODO 2.16): the domains under "By domain" and the six
-     Standards sub-groups render as indented, lighter-weight sub-links. */
-  .sidenav-inner a.sub {
-    padding-left: 1rem; font-size: 0.74rem; opacity: 0.82;
-    padding-block: 0.22rem;
-  }
-  /* Scrollspy active state (TODO 2.16): the sidebar link for the section/sub-item
-     currently in view is highlighted. Applied by script.html via IntersectionObserver;
-     the nav is fully functional as static links if the script does not run. */
-  .sidenav-inner a.active { color: var(--brass); font-weight: 600; }
-  .sidenav-inner a.sub.active { opacity: 1; }
-  /* Anchor jumps clear the top edge (the sidebar is sticky; give targets breathing room). */
-  section[id], .feat[id], h3[id] { scroll-margin-top: 1.5rem; }
-
-  @media (min-width: 1080px) {
-    .shell {
-      display: grid; grid-template-columns: 220px minmax(0, 1fr);
-      gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
-    }
-    .sidenav { padding-inline: 0; position: sticky; top: 1.25rem; }
-    .sidenav-inner { margin-block: 0; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
-    .shell > main { min-width: 0; }
-    .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
-  }
-</style>
 </head>
 
 <body>
