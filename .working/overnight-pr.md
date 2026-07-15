@@ -15,7 +15,7 @@
 - Then self-contained P3 gate/tooling items that are non-protected, non-egress, non-attended (e.g. §3.12 See-Also parity gate, §3.34 detailed-mirror link-resolution, §3.50 gate-69 idiom, §3.73 ledger-row-integrity), as HA candidates.
 - Blocked overnight (do NOT attempt): §1.1 (protected pack rule), §1.12 (gated on website work), §1.14 (egress), §2.15/§2.16 (attended-only), §2.6 (maintainer console), source-gated annexes.
 
-**Build progress:** PR #930 (this branch `claude/todo-split-massive-items`): splitting §3.57 / §3.62 / §3.63 / §3.68; batches #929 `/validate-pr` + `/retro`.
+**Build progress:** #930 MERGED (split §3.57 / §3.62 / §3.63 / §3.68, the four P3 routed-findings/apply items). PR #931 (branch `claude/todo-split-website-umbrella`): split the §2.4 website umbrella (build rounds #919-#928 rotated to DONE, §2.4 trimmed to remaining maintainer-gated items, kept OPEN); batches #930 QA. Next: PR-4 §2.5 AI-delta split, then P3 gate/tooling HA items. Each PR runs two independent HA verifiers (correctness + completeness) + per-PR `/validate-pr` + `/retro`.
 
 <!-- OVERNIGHT-PR-STUB -->
 

@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §2.4 (website build complete and live; item stays open until the maintainer's publish go): public presence at grclibrary.ai (2026-07-15)
+
+The public landing site is built and live on Cloudflare Pages at grclibrary.ai, developed across a maintainer live-review loop: the build + polish round #919-#924 (the `.web/` live-corpus generator, 11 per-domain pages, feature-card and doc-title corpus links, and the responsive contents sidebar), the adoption round #925-#926 (a dedicated `/pack` governance-pack page and the landing restructure with a "Get started" section and a standalone licence section), and the nav-consistency fixes #928 (comprehensive hero CTAs, the pack sidebar listing all 23 skills, Get-started cards matching the page pattern). §2.4 stays open for the remaining maintainer-gated items only: further live-review fixes, the confirmed follow-ups §2.15/§2.16, the §2.6 Cloudflare-console watch-paths, and the publish go-decision.
+
 ### TODO §3.57 (apply wave complete; item stays open for the matrix TSC-column residual): reference-breadth new-ingest apply (2026-07-15)
 
 The reference-breadth new-ingest apply over the 63 2026-07-12 ref sources landed across #866-#883: the High EDPB-privacy cluster (4/2019 #866, 05/2020 #867, 01/2022 #868, 9/2022 #869, 07/2022 #873) plus the version-sensitive rows AICPA TSP 100 (#876), EU 2021/915 (#877), ANPD 18/2024 (#878), SOR/2018-64 (#879), EDPB 28/2024 (#880), NIS2 2024/2690 (#881), EDPB 8/2022 (#882), and the Brazil Resolution 4/2023 follow-up (#883), each verified verbatim against the held source, upstream-currency-confirmed this turn, refute-verified, and each with a canonical-citations register row. Split out per the 2026-07-15 numbering hygiene: §3.57 stays open only for the deferred matrix TSC-column mapping (a `/matrix-fit` single-file sensitive change).
