@@ -31,6 +31,7 @@ Stdlib-only Python 3.11 (unittest, tempfile, subprocess).
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -6990,6 +6991,65 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
             0,
             f"'TODO item' prose without a section token must not be flagged.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
+class GeneratorSortKeyParityTests(unittest.TestCase):
+    """TODO 3.76: the two generators that order documents must stay in sync.
+
+    ``tools/build-taxonomy.py`` orders ``taxonomy.yml`` and ``.web/build.py`` orders the
+    website domain pages; the type-reading-progression rank ``TYPE_ORDER`` is replicated
+    in both (``.web/`` is a standalone stdlib-only generator, isolated from ``tools/``).
+    If the two drift, the taxonomy source order and the on-site page order silently
+    diverge. This guards the WHOLE per-domain sort key, the ``TYPE_ORDER`` rank AND the
+    secondary tiebreaker, widened from a rank-only concern by Sweep 105 finding A-1
+    (identical ``TYPE_ORDER`` but a divergent secondary key: case-sensitive vs
+    case-insensitive title). A text extract, no import coupling."""
+
+    _taxo = (REPO_ROOT / "tools" / "build-taxonomy.py").read_text(encoding="utf-8")
+    _web = (REPO_ROOT / ".web" / "build.py").read_text(encoding="utf-8")
+
+    @staticmethod
+    def _type_order(src: str) -> list:
+        m = re.search(r"TYPE_ORDER = \((.*?)\)", src, re.DOTALL)
+        assert m is not None, "TYPE_ORDER tuple not found"
+        return re.findall(r'"([^"]+)"', m.group(1))
+
+    def test_type_order_identical(self) -> None:
+        taxo_order = self._type_order(self._taxo)
+        web_order = self._type_order(self._web)
+        self.assertTrue(taxo_order, "TYPE_ORDER parsed empty from build-taxonomy.py")
+        self.assertEqual(
+            taxo_order,
+            web_order,
+            "TYPE_ORDER diverges between tools/build-taxonomy.py and .web/build.py; "
+            "the two generators must carry an identical reading-progression rank.",
+        )
+
+    def test_secondary_sort_key_case_insensitive_with_path_tiebreaker(self) -> None:
+        # build-taxonomy.py: the _order_key return tuple (single line; capture to EOL,
+        # since a non-greedy match would stop at the inner ``len(TYPE_ORDER)`` paren).
+        taxo_key = re.search(r"return \(domain, TYPE_RANK[^\n]*", self._taxo)
+        self.assertIsNotNone(taxo_key, "build-taxonomy.py _order_key return tuple not found")
+        self.assertIn(
+            "title.lower()", taxo_key.group(0),
+            "build-taxonomy.py sort key must be case-insensitive on the title (.lower()).",
+        )
+        self.assertIn(
+            "rel", taxo_key.group(0),
+            "build-taxonomy.py sort key must carry a repo-relative-path tiebreaker (rel).",
+        )
+        # .web/build.py: the per-domain ddocs sort key (single line; capture to EOL).
+        web_key = re.search(r"key=lambda d: \(TYPE_RANK[^\n]*", self._web)
+        self.assertIsNotNone(web_key, ".web/build.py ddocs sort key not found")
+        self.assertIn(
+            'd["title"].lower()', web_key.group(0),
+            ".web/build.py sort key must be case-insensitive on the title (.lower()); "
+            "a case-sensitive key diverges from the canonical taxonomy order (Sweep 105 A-1).",
+        )
+        self.assertIn(
+            'd["path"]', web_key.group(0),
+            ".web/build.py sort key must carry a path tiebreaker (d[\"path\"]).",
         )
 
 
