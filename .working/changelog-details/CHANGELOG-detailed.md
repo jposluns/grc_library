@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.438, PR #950
+
+Website "License" spelling fix (maintainer-directed site adjustment 1 of a batch), a folded-in generator-docstring reword, and the batched post-merge QA for PR #949. Website template + working-state only; no corpus document body changed.
+
+### Changed
+
+- **"License" (s) throughout the visible site text**, replacing the mixed "Licence" (c). The maintainer flagged the "Licence" spelling; confirmed it is the outlier, not a convention: the corpus uses "License" (s) ~183 times (the per-document `**License:**` metadata field, the [`LICENSE`](../../LICENSE) file, Creative Commons' own name) vs "Licence" (c) ~19, and [`tools/lint-language.py`](../../tools/lint-language.py) enforces neither. Edited the user-visible text only, across `.web/templates/landing.html` (the §07 "License & reuse" heading, the sidebar and stat and body prose, the CC-license link text), `.web/templates/for-ai.html` (the §04 "License and reuse" heading + body), and `.web/templates/partials/footer.html` ("License & attribution" + the License link, which propagates to every page). Left internal, non-visible identifiers unchanged (the `#licence` anchor ids, the `.licence-note`/`.licence-fine` CSS classes, the `creativecommons.org/licenses/` URLs, the `rel="license"` and JSON-LD `"license"` which already use s): renaming them is churn with no user-facing benefit and the maintainer's concern was the visible word. Verified by render: user-visible "Licence"/"licence" (c) = 0 on the landing, For-AI, and about pages; only "License"/"license" (s) remains visible.
+- Reworded a stale backlog reference in [`.web/build.py`](../../.web/build.py) (`(TODO 2.16)` -> `(#941)`, the #949 `/validate-pr` out-of-window note-1: §2.16 was rotated closed, so the docstring provenance now cites the shipping PR instead of the closed TODO section).
+
+### QA (batched per recursion-avoidance)
+
+- PR #949 `/validate-pr`: 0 in-window findings (2 low out-of-window/non-actionable notes; note-1, the generator-docstring provenance ref, is reworded here). Zero-finding history row + [`improvement-log.md`](../improvement-log.md) retro row batched into this PR.
+
+### Verification
+
+- `.web/build.py --check` EXIT=0; render confirms visible "License" (s) only. No corpus document body changed. Library CalVer `2026.07.437` -> `2026.07.438`, README Version `1.9.798` -> `1.9.799`. Pre-push guard green. First of a maintainer-directed website-adjustment batch (this = item 1; items 2-8 follow as their own PRs, §2.4 publish last).
+
 ## 2026-07-15, Library Version 2026.07.437, PR #949
 
 TYPE_ORDER drift guard between the two document-ordering generators (TODO §3.76), the TODO->DONE rotation of §3.76 and §2.16, and the batched post-merge QA for PR #948. Test + working-state only; no corpus document body changed.
