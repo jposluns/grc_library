@@ -349,7 +349,7 @@ _35 documents._
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.7 | 2026-07-12 |
-| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.0 | 2026-07-11 |
+| [ai/procedure-integrated-ai-and-privacy-assessment.md](../ai/procedure-integrated-ai-and-privacy-assessment.md) | Integrated AI and Privacy Assessment Procedure | Procedure | 0.1.1 | 2026-07-15 |
 | [ai/procedure-training-data-governance.md](../ai/procedure-training-data-governance.md) | Training Data Governance Procedure | Procedure | 0.0.10 | 2026-07-12 |
 | [ai/register-model-registry.md](../ai/register-model-registry.md) | Model Registry | Register | 0.0.7 | 2026-07-12 |
 | [ai/standard-ai-access-and-agent-permissions.md](../ai/standard-ai-access-and-agent-permissions.md) | AI Access and Agent Permissions Standard | Standard | 0.0.9 | 2026-07-11 |

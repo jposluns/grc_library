@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/canada-ai-annex-updates
+**Active-session:** claude/procedure-fourth-review-fix
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-15T18:19:14Z
+**Last-heartbeat-UTC:** 2026-07-15T18:58:22Z
 
-**Current-task:** ACTIVE. The 2026-07-15 resumed session (`/resume` from #954), attended-autonomous on the VM, gh-CLI (no GitHub MCP). At resume the maintainer redirected to urgent website-priority work AHEAD of the standing loop-break Sweep 106: (a) a read-only fact-check of the Canada AI regulatory annex before a Canada AI Alliance expert review, then maintainer-approved corrections, landing as PR #955 (Treasury Board Directive review-ordinal fix third->fourth, two accuracy-polish items, and a new AI Strategy for the Federal Public Service 2025-2027 section with its Government of Canada AI Register); and (b) a batch of landing/about-page text fixes (two heading line-break fixes, stashed; plus an about-page "over thirty"->"thirty" edit) to ship as a follow-up website PR. **STILL PENDING this session:** the loop-break corpus-wide `/validate` (Sweep 106) over the #943..#954 delta window (not yet run, deferred behind the urgent website work); the per-PR `/validate-pr` + `/retro` for #955; and the website-text follow-up PR. Lease acquired for this PR (#955).
+**Current-task:** ACTIVE. The 2026-07-15 resumed session (`/resume` from #954), attended-autonomous on the VM, gh-CLI (no GitHub MCP). Merged this session: #955 (Canada AI regulatory annex, maintainer-requested ahead of a Canada AI Alliance expert review: Treasury Board Directive review-ordinal fix third->fourth, two accuracy-polish items, and a new AI Strategy for the Federal Public Service 2025-2027 section with its Government of Canada AI Register; v0.0.2->1.0.1). This PR #956 fixes the SAME "third review" error in `ai/procedure-integrated-ai-and-privacy-assessment.md` (surfaced by #955's `/validate-pr` cross-reference check; maintainer chose fix-now) and batches #955's `/validate-pr` + `/retro` records (including the first-ever skeptical-verifier override, a false-positive "trusted", logged in `verifier-overrides.md`). **STILL PENDING this session:** the website-text batch PR (4 fixes, staged/stashed: landing hero two-line, landing §01 one-line, about "over thirty"->"thirty", for-ai hero colour-per-line); the version-maturation initiative (per-doc Versions under 1.0.1 -> 1.0.1, maintainer-flagged 2026-07-15, after the website work); and the standing loop-break corpus-wide `/validate` (Sweep 106) over #943..#954. Lease active.
 
 **Worker-dispatches:** this session dispatched three parallel adversarial fact-check subagents (read-only) over the Canada AI annex, each verifying one instrument cluster against the held `grc_library_ref` primary sources; all findings re-verified by the orchestrator at apply time and the two date/ordinal items confirmed upstream on canada.ca. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition; unchanged this session.
 
