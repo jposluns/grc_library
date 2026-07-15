@@ -98,7 +98,7 @@ New AI-jurisdiction annexes deferred pending per-jurisdiction held-source suffic
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.77.**
+**Next item number: 3.78.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
