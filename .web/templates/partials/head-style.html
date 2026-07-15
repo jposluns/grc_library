@@ -352,4 +352,48 @@
     @keyframes rise { to { opacity: 1; transform: none; } }
     .btn, .theme-toggle, table.register tbody tr { }
   }
+
+  /* ---------- Contents sidebar (shared) ---------- */
+  /* A sticky left quick-nav beside the content on wide screens, a boxed in-flow
+     panel on narrow. Used by the landing, For-AI, About, and per-domain pages.
+     The pack page overrides to non-sticky (its long rule + skill index scrolls
+     with the page rather than clipping). Scrollspy active-state is applied by
+     script.html via IntersectionObserver; the nav is fully functional as static
+     links if the script does not run. */
+  .shell { max-width: 1280px; margin: 0 auto; }
+  .sidenav { padding-inline: var(--pad); }
+  .sidenav-inner {
+    border: 1px solid var(--line); border-left: 3px solid var(--brass);
+    border-radius: var(--radius); background: var(--surface);
+    padding: 1.1rem 1.2rem; margin-block: 1.6rem;
+    display: flex; flex-direction: column; gap: 0.1rem;
+  }
+  .sidenav-h {
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--brass); margin: 0.9rem 0 0.4rem;
+  }
+  .sidenav-h:first-child { margin-top: 0; }
+  .sidenav-inner a {
+    font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft);
+    padding: 0.3rem 0; text-decoration: none; word-break: break-word;
+  }
+  .sidenav-inner a:hover { color: var(--brass); }
+  /* Two-level quick-nav: nested sub-links (domains under "By domain", the six
+     Standards sub-groups, the six Get-started steps) render indented + lighter. */
+  .sidenav-inner a.sub { padding-left: 1rem; font-size: 0.74rem; opacity: 0.82; padding-block: 0.22rem; }
+  .sidenav-inner a.active { color: var(--brass); font-weight: 600; }
+  .sidenav-inner a.sub.active { opacity: 1; }
+  /* Anchor jumps clear the top edge (the sidebar is sticky; give targets room). */
+  section[id], .feat[id], h3[id] { scroll-margin-top: 1.5rem; }
+
+  @media (min-width: 1080px) {
+    .shell {
+      display: grid; grid-template-columns: 220px minmax(0, 1fr);
+      gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
+    }
+    .sidenav { padding-inline: 0; position: sticky; top: 1.25rem; }
+    .sidenav-inner { margin-block: 0; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
+    .shell > main { min-width: 0; }
+    .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
+  }
 </style>
