@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.445, PR #957
+
+Four public-site text/typography fixes (website templates only; no corpus content changed). Also batches PR #956's post-merge QA per recursion-avoidance.
+
+### Changed
+- [`.web/templates/landing.html`](../../.web/templates/landing.html): the hero `<h1>` "Governance documentation, engineered like software." now breaks only after "documentation," (each phrase held on one line via `&nbsp;` plus an explicit `<br>`), removing the mid-phrase wraps after "Governance" and "engineered".
+- [`.web/templates/landing.html`](../../.web/templates/landing.html) and [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html): the §01 heading "A reference library you can cite, not just read." now fills the line greedily (a `nobalance` class opting that one heading out of `text-wrap: balance`) instead of splitting after "you".
+- [`.web/templates/about.html`](../../.web/templates/about.html): "with over thirty years of leadership" changed to "with thirty years of leadership".
+- [`.web/templates/for-ai.html`](../../.web/templates/for-ai.html): the hero `<h1>` keeps each colour on one line ("Learning governance and security" in white via `&nbsp;`, "from this corpus." in orange), removing the mid-phrase wraps after "learning" and "governance".
+
+### Verification
+- The web generator [`.web/build.py`](../../.web/build.py) `--check` returned EXIT=0; all four edits were confirmed in the rendered `dist/` (landing hero two-line, §01 one-line, about "thirty years", for-ai colour-per-line).
+- PR #956 `/validate-pr` (Subagent A, read-only-git on `a761c05`): PASS, 0 findings; history row added. PR #956 `/retro`: row added to [`improvement-log.md`](../improvement-log.md).
+- Pre-push guard green (full audit + PR-time checks); library CalVer 2026.07.445, README 1.9.806.
+
 ## 2026-07-15, Library Version 2026.07.444, PR #956
 
 Fixes the same "third review" factual error that PR #955 corrected in the Canada AI annex, now in [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md), surfaced by PR #955's post-merge `/validate-pr` cross-reference check (maintainer chose fix-now). Also batches PR #955's post-merge QA records per recursion-avoidance.
