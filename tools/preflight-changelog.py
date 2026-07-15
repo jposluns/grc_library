@@ -8,14 +8,22 @@ CHANGELOG, as:
 
 It exits non-zero (so the ``&&`` chain will not fire) when the working-tree
 additions to the root [`CHANGELOG.md`] or its detailed mirror
-[`.working/changelog-details/CHANGELOG-detailed.md`] contain either:
+[`.working/changelog-details/CHANGELOG-detailed.md`] contain any of:
 
   - an em-dash or en-dash in prose (the no-dash convention: delta gate D3
     enforces this PR-time on the root file, and gate 51 enforces it on the
     ``.working/`` mirror, but NEITHER fires on the first local commit), or
   - a path-shaped backtick code span that is not wrapped in a markdown link
     (the link-coverage convention that ``lint-changelog-link-coverage.py``
-    enforces post-commit on the root file).
+    enforces post-commit on the root file), or
+  - a relative markdown-link whose in-repo target does not resolve to an
+    existing file (TODO 3.34): unlike the two checks above, this one has NO
+    authoritative gate behind it, because the detailed mirror lives under
+    ``.working/`` (gate-exempt) so the corpus broken-link gate never scans it,
+    a dangling link there is otherwise ungated. Cross-repo / out-of-repo
+    targets (a sibling repo, an ``inbox/`` worker-provenance path), external
+    ``http(s)``/``mailto:``/anchor targets, and code-span-illustrative links
+    are excluded; resolution is relative to the source file's own directory.
 
 This is a developer AID, not a new audit gate. The authoritative gates
 (D3, gate 51, the link-coverage gate) remain and run in CI and
@@ -154,6 +162,43 @@ def unlinked_refs_in_line(line: str) -> list[str]:
     return findings
 
 
+# --- Markdown-link target resolution (TODO 3.34) ---
+# The detailed mirror lives under `.working/` (gate-exempt), so the corpus
+# broken-link gate does not scan it; a dangling relative link there is otherwise
+# ungated. This check verifies that each IN-REPO relative markdown-link target
+# an added line introduces resolves to an existing file. Excluded (per TODO
+# 3.19 and by construction): external `http(s)`/`mailto:`/anchor targets;
+# cross-repo / out-of-repo targets (a sibling repo such as `grc_library_ref` /
+# `grc_library_scratch`, or an `inbox/` worker-provenance path, or any target
+# that resolves outside this repo); and links inside a code span (an
+# illustrative ``[text](url)``). Resolution is relative to the SOURCE file's
+# own directory, so the same check serves both CHANGELOG files.
+MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+CROSS_REPO_MARKERS = ("grc_library_ref", "grc_library_scratch", "/inbox/")
+
+
+def unresolved_link_targets(source_rel_path: str, line: str) -> list[str]:
+    """Return in-repo relative markdown-link targets on ``line`` that do NOT
+    resolve to an existing file (see the block comment above for exclusions)."""
+    findings: list[str] = []
+    stripped = CODE_SPAN_RE.sub("", line)  # drop code-span-illustrative links
+    source_dir = (REPO_ROOT / source_rel_path).parent
+    for match in MD_LINK_RE.finditer(stripped):
+        base = match.group(1).split("#", 1)[0].strip()
+        if not base or base.startswith(("http://", "https://", "mailto:")):
+            continue
+        if any(marker in base for marker in CROSS_REPO_MARKERS):
+            continue
+        resolved = (source_dir / base).resolve()
+        try:
+            resolved.relative_to(REPO_ROOT)
+        except ValueError:
+            continue  # resolves outside this repo: treated as cross-repo
+        if not resolved.exists():
+            findings.append(base)
+    return findings
+
+
 def added_lines(staged: bool) -> list[tuple[str, str]]:
     """Return (file, added-line-text) for every line the working tree (or the
     staged diff) adds to a CHANGELOG file relative to HEAD."""
@@ -202,6 +247,10 @@ def main(argv: list[str]) -> int:
             findings.append((path, "em/en dash in prose", text.strip()))
         for ref in unlinked_refs_in_line(text):
             findings.append((path, f"unlinked file reference `{ref}`", text.strip()))
+        for tgt in unresolved_link_targets(path, text):
+            findings.append(
+                (path, f"dangling markdown-link target `{tgt}`", text.strip())
+            )
 
     if not findings:
         scope = "staged" if args.staged else "working-tree"

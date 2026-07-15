@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.422, PR #934
+
+Advanced backlog item §3.34 (detailed-mirror markdown-link resolution) by shipping its go-forward half, and folded in the batched PR #933 cosmetic note. Tooling + backlog only; no corpus document, template, or generated artefact changed (no spec change this PR, so no taxonomy regen).
+
+### Changed
+- **Go-forward link-resolution check added to [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)** (advancing §3.34): the aid now flags any newly-added CHANGELOG line (root or detailed mirror) that introduces an in-repo relative markdown-link target which does not resolve to an existing file, resolved relative to the source file's own directory. Excluded (per §3.19 and by construction): cross-repo / out-of-repo targets (a sibling repo such as `grc_library_ref`, an `inbox/` worker-provenance path, or any target resolving outside the repo), external `http(s)` / `mailto:` / anchor targets, and links inside a code span (an illustrative `[text](url)`). This check has NO authoritative gate behind it, the detailed mirror is `.working/`-exempt from the corpus broken-link gate, so it is the sole guard; verified FP-safe by a 10-case behaviour test (resolving in-repo links pass; dangling, cross-repo, external, anchor, and code-span-illustrative correctly classified).
+
+### Fixed
+- **PR #933 post-merge note (in-window, cosmetic).** The gate-69 docstring in [`tools/lint-positional-backlog-tokens.py`](../../tools/lint-positional-backlog-tokens.py) had a fourth in-file carrier (the scope-summary line) still naming two qualifier forms after #933 widened the detection to three; brought into parallelism with the lead example, the regex comment, and the §6 narrative.
+
+### Notes
+- **§3.34 stays OPEN.** The go-forward half (this check) closes the new-dangling-link gap. A census of the existing mirror found about 23 dangling in-repo links (mostly `.working/` sibling-file references written as a bare filename without the leading `../`, so they resolve inside the changelog-details directory instead of one level up, plus about 2 illustrative link-syntax false-positives to leave code-spanned); that per-link historical cleanup, and then enabling a full-mirror (not only added-lines) scan, remain under §3.34 for an attended / fresh-context session. Recorded there so the finding is tracked, not lost.
+
+### Verification
+- The new check's 10-case behaviour test passed (see [`TODO.md`](../../TODO.md) §3.34 for the census result); [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run over this PR's own added CHANGELOG lines is clean (dogfooded, every link target here resolves). Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green. The aid is not wired into the regression suite (it is git-diff-based, like its existing untested dash / unlinked-ref checks), so the new check is verified by the behaviour test rather than a suite fixture, consistent with the aid's pattern.
+- **Two independent high-assurance verifiers** (correctness + completeness, refute-briefed, read-only-git): scoped to the new check's FP-safety (no legitimate link newly flagged), its cross-repo / code-span exclusions, and the §3.34 partial-progress framing.
+- **PR #933 post-merge validation** (Subagent A, read-only-git on `09c3102`): SHIP-WITH-NOTES; the one cosmetic docstring-parallelism note fixed here.
+
 ## 2026-07-15, Library Version 2026.07.421, PR #933
 
 Widened audit gate 69's detection to catch the `TODO item N.M` phrasing, closing backlog item §3.50. Gate-logic + tooling + backlog; the only corpus change is the gate-69 description in the audit-programme spec (a gate-description update; no corpus requirement or normative content changed).
