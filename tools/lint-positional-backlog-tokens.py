@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Flag renumber-fragile positional backlog-token references in corpus prose.
 
-A reference like ``TODO §4.10`` or ``backlog item P4.17`` points at a backlog
-item by its POSITION in `TODO.md`. A backlog item's number retires when the item
+A reference like ``TODO §4.10``, ``TODO item 3.4``, or ``backlog item P4.17``
+points at a backlog item by its POSITION in `TODO.md`. A backlog item's number retires when the item
 closes (so such a reference dangles), and items numbered before the permanent-
 numbering rule were historically renumbered; either way a positional reference in
 a durable corpus document can dangle or point at a different item. The stable
@@ -36,12 +36,16 @@ from pathlib import Path
 
 from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_non_code_lines, read_text_safe
 
-# A positional backlog reference: TODO / backlog item, then a section-shaped
-# token (a `§`- or `P`-prefixed number, or a dotted N.M). A bare single digit
-# with no prefix and no dot is deliberately NOT matched (too ambiguous to be
-# false-positive-free). Case-sensitive TODO; "backlog item(s)" either case.
+# A positional backlog reference: TODO / TODO item(s) / backlog item(s), then a
+# section-shaped token (a `§`- or `P`-prefixed number, or a dotted N.M). A bare
+# single digit with no prefix and no dot is deliberately NOT matched (too
+# ambiguous to be false-positive-free), so an optional `item(s)` qualifier
+# between `TODO` and the token only ever matches when a section token follows
+# (ordinary prose like "the financial-services TODO item covers ..." has no
+# token and is not flagged). Case-sensitive TODO; "item(s)" / "backlog item(s)"
+# either case.
 POSITIONAL_REF = re.compile(
-    r"(?<![\w-])(?:TODO|[Bb]acklog items?)\s+(?:(?:§|P)\d+(?:\.\d+)*|\d+\.\d+)\b"
+    r"(?<![\w-])(?:TODO(?:\s+[Ii]tems?)?|[Bb]acklog items?)\s+(?:(?:§|P)\d+(?:\.\d+)*|\d+\.\d+)\b"
 )
 
 INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
