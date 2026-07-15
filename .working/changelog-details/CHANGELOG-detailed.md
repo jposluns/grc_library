@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.435, PR #947
+
+Attribution/citation link on the landing page (a maintainer-directed website request, maintainer-chosen approach) plus the batched post-merge QA for PR #946. Website template + working-state only; no corpus document body changed.
+
+### Changed
+
+- **"GRC Library" in the landing §07 "Licence & reuse" section now links to [`AUTHORS.md`](../../AUTHORS.md)** on GitHub. The maintainer wanted the attribution text ("you attribute the GRC Library as the source") to point at a nicely-formatted, human-readable attribution file (the machine-readable [`CITATION.cff`](../../CITATION.cff) is not that). Advised and maintainer-confirmed (Option A): reuse the existing AUTHORS.md, which already carries the attribution posture, a "How to cite" section with ready APA and BibTeX citations, the AI-assistance disclosure, and the contributors list, rather than create a new dedicated citation file that would duplicate that content.
+- Harmonized the landing "For AI" sidebar link from `/for-ai` to `/for-ai/` (a trailing-slash consistency fix, the #946 `/validate-pr` cosmetic non-finding), matching the sitemap and canonical URLs.
+
+### QA (batched per recursion-avoidance)
+
+- PR #946 `/validate-pr`: 0 findings (the AI-friendliness feature was also skeptical-verified SHIP pre-merge). Zero-finding history row + [`.working/improvement-log.md`](../improvement-log.md) retro row batched into this PR. The retro logged a 1st-occurrence behavioural note: a `.web/` generator change that emits a new external URL/namespace (here the sitemap `www.sitemaps.org` namespace) should add the domain to the external-link allow-list in the same PR.
+
+### Verification
+
+- `.web/build.py --check` EXIT=0; temp render confirms the §07 "GRC Library" link resolves to AUTHORS.md and the "For AI" sidebar link now carries the trailing slash. AUTHORS.md confirmed present at the repository root. No corpus document body changed. Library CalVer `2026.07.434` -> `2026.07.435`, README Version `1.9.795` -> `1.9.796`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.434, PR #946
 
 AI-training-friendliness feature for the public site (a maintainer-directed and maintainer-plan-approved website addition), plus the batched post-merge QA for PR #945. Website generator + templates only; no corpus document body changed.
