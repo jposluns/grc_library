@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.452, PR #964
+
+Resume of a fresh attended-autonomous session from session-closing handoff PR #963, on the VM (gh-CLI, no GitHub MCP). This is the `/resume` first PR: the mandatory loop-break Sweep 107 corpus-wide `/validate` close-out over the #955..#963 delta window, plus the lease acquire and cursor advance. One low-severity in-window finding, fixed here.
+
+### Fixed
+- **The §2.4 closed-section prose-orphan (Sweep 107 finding B-1, in-window, contradicts an asserted-clean claim).** PR #960 closed TODO §2.4 (the grclibrary.ai public site) and rotated it to [`.working/DONE.md`](../DONE.md), but its residual grep searched only the `§2.4` glyph form inside [`TODO.md`](../../TODO.md). Three live carriers of the differently-keyed prose form `(TODO section 2.4)` survived, in file types the glyph-scoped grep never reached:
+  - [`.web/build.py`](../../.web/build.py) line 2 (module docstring),
+  - [`.github/workflows/web-generator-health.yml`](../../.github/workflows/web-generator-health.yml) line 4 (comment),
+  - [`.working/cloudflare-pages-setup.md`](../cloudflare-pages-setup.md) line 1 (runbook title).
+  The stale `(TODO section 2.4)` pointer is dropped from all three (the surrounding prose already fully describes each file, and the durable provenance lives in the DONE ledger and this mirror). The two frozen historical carriers further down in this file (the PR4 navigation-sidebar follow-up and the feature-card-links follow-up narrative, both describing work that was tracked under §2.4 at the time) are correctly LEFT as as-of-write-time narrative per the frozen-`.working`-record convention. This is the reference-key-width + file-type-width axes of the CLAUDE.md §N-orphan cross-FILE cleanup guard; §2.6 residual is genuinely 0.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): prepended the Sweep 107 iter-1 row; Version 2.0.105 to 2.0.106.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the Resume-cursor `Last validation sweep` line to Sweep 107 (demoting the prior chain to `Prior:`). The per-session blocks were already at the keep-current-plus-one-prior retention (the #955-#962 and #943-#953 blocks; no older per-session blocks remained to prune).
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease (`Active-session: claude/resume-sweep107-validate`, `Status: active`, fresh heartbeat) and recorded the maintainer-set running order for this session.
+- [`.working/next-prs.txt`](../next-prs.txt): cycled to this session's queue.
+- Library CalVer `2026.07.451` to `2026.07.452`; [`README.md`](../../README.md) README Version `1.9.812` to `1.9.813`.
+
+### Added
+- [`.working/validate-sweeps/2026-07-15-sweep107-iter1.md`](../validate-sweeps/2026-07-15-sweep107-iter1.md): the Sweep 107 iter-1 detail file (trigger, the three A/B/C subagent returns verbatim, orchestrator synthesis, resulting PR).
+
+### Verification
+- Sweep 107 baseline: `tools/run_all_audits.sh` = 69/69 OK at `23087a3`/#963 (a descendant of the closing session's asserted green-at `674914b`/#962; no close-vs-start drift), clone non-shallow.
+- Three read-only A/B/C subagents dispatched: **A** 0 findings (all four asserted-clean claims confirmed), **B** 1 note (the B-1 §2.4 orphan, fixed here) with all other corpus-wide classes refuted clean, **C** 0 findings (four-surface parity 69, counts 69/13/23/14/18 live-vs-prose consistent, [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py) / [`tools/build-portal.py`](../../tools/build-portal.py) `--check` EXIT=0, regression 383 OK, #963 handoff exemption marker correct).
+- Asserted-expectations cross-check: B-1 contradicts the closing session's "§2.4/§2.6 residual 0 across the whole repo" claim (a genuine low-severity miss, escalated and fixed); all other asserted-clean surfaces corroborated, 0 contradicted. Loop-break control for #963 PASSES.
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration were required (the three edited files are internal tooling / working-state, not versioned corpus documents).
+
 ## 2026-07-15, Library Version 2026.07.451, PR #963
 
 Session-closing handoff for the 2026-07-15 resumed session (`/resume` from #954; merged #955-#962). Working-state only; no corpus or website content changed.

@@ -1,7 +1,7 @@
-# Cloudflare Pages setup runbook, grclibrary.ai public site (TODO section 2.4)
+# Cloudflare Pages setup runbook, grclibrary.ai public site
 
-**Version:** 1.0.4\
-**Date:** 2026-07-14\
+**Version:** 1.0.5\
+**Date:** 2026-07-15\
 **License:** CC BY-SA 4.0
 
 Maintainer-facing runbook for standing up (and re-deploying) the public landing site
