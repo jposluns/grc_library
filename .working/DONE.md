@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §2.16 (partial): landing-nav two-level nesting shipped (2026-07-15, PR #941)
+
+The landing page's left nav was rebuilt into a two-level quick-nav: the 11 domains nest as indented sub-links under "By domain" (no longer a flat Domains group at the bottom), the 6 Standards sub-groups nest under "Standards" (anchored to new `std-*` heading ids), Licence kept, and a Contributors link (to `/about`) added at the end, plus `.sub` indent CSS and the `render_sidenav_domains` change. Fixes the maintainer's observation that the nav "ended with domains" without visible Standards/Licence. §2.16 stays OPEN for the residual (scrollspy active-highlighting + Get-started-step nesting).
+
 ### TODO §3.8 (GR-10, resolved keep-as-is): history-aware gate subprocess batching (2026-07-15, PR #939)
 
 The maintainer decided NOT to batch the per-document git subprocess in gates 31/40 into a single `git log --name-only` pass: the optimization would trade `--follow` rename-history fidelity for speed, and per the AIQT tier correctness/accuracy outranks the guard's runtime. No code change; gates 31 and 40 keep their per-document `--follow` subprocess. Closed as won't-do.

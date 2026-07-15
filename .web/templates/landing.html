@@ -29,6 +29,12 @@
     padding: 0.3rem 0; text-decoration: none;
   }
   .sidenav-inner a:hover { color: var(--brass); }
+  /* Two-level quick-nav (TODO 2.16): the domains under "By domain" and the six
+     Standards sub-groups render as indented, lighter-weight sub-links. */
+  .sidenav-inner a.sub {
+    padding-left: 1rem; font-size: 0.74rem; opacity: 0.82;
+    padding-block: 0.22rem;
+  }
 
   @media (min-width: 1080px) {
     .shell {
@@ -86,10 +92,16 @@
       <a href="#build">How it&rsquo;s built</a>
       <a href="#pack">Governance pack</a>
       <a href="#register">By domain</a>
-      <a href="#standards">Standards</a>
-      <a href="#licence">Licence</a>
-      <p class="sidenav-h">Domains</p>
 {{SIDENAV_DOMAINS}}
+      <a href="#standards">Standards</a>
+      <a class="sub" href="#std-infosec">Information security</a>
+      <a class="sub" href="#std-ai">AI governance</a>
+      <a class="sub" href="#std-nist">NIST cybersecurity</a>
+      <a class="sub" href="#std-dataprot">Data-protection law</a>
+      <a class="sub" href="#std-eu">EU regulation</a>
+      <a class="sub" href="#std-frameworks">Security frameworks</a>
+      <a href="#licence">Licence</a>
+      <a href="/about">Contributors</a>
     </div>
   </nav>
 
@@ -296,7 +308,7 @@
       </p>
       <div class="biblio">
         <div class="biblio-col">
-          <h3>Information security &amp; management systems</h3>
+          <h3 id="std-infosec">Information security &amp; management systems</h3>
           <ul>
             <li><span class="id">ISO/IEC 27001:2022</span><span class="topic">Information security management</span></li>
             <li><span class="id">ISO/IEC 27002:2022</span><span class="topic">Information security controls</span></li>
@@ -312,7 +324,7 @@
           </ul>
         </div>
         <div class="biblio-col">
-          <h3>AI governance &amp; assurance</h3>
+          <h3 id="std-ai">AI governance &amp; assurance</h3>
           <ul>
             <li><span class="id">ISO/IEC 42001:2023</span><span class="topic">AI management systems</span></li>
             <li><span class="id">ISO/IEC 42005:2025</span><span class="topic">AI system impact assessment</span></li>
@@ -328,7 +340,7 @@
           </ul>
         </div>
         <div class="biblio-col">
-          <h3>NIST cybersecurity</h3>
+          <h3 id="std-nist">NIST cybersecurity</h3>
           <ul>
             <li><span class="id">NIST CSF 2.0</span><span class="topic">Cybersecurity Framework</span></li>
             <li><span class="id">NIST SP 800-53 Rev. 5</span><span class="topic">Security &amp; privacy controls</span></li>
@@ -342,7 +354,7 @@
           </ul>
         </div>
         <div class="biblio-col">
-          <h3>Global data-protection law</h3>
+          <h3 id="std-dataprot">Global data-protection law</h3>
           <ul>
             <li><span class="id">EU GDPR</span><span class="topic">Regulation (EU) 2016/679</span></li>
             <li><span class="id">UK GDPR / DPA 2018</span><span class="topic">UK data protection</span></li>
@@ -357,7 +369,7 @@
           </ul>
         </div>
         <div class="biblio-col">
-          <h3>EU digital &amp; sector regulation</h3>
+          <h3 id="std-eu">EU digital &amp; sector regulation</h3>
           <ul>
             <li><span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span></li>
             <li><span class="id">EU DORA</span><span class="topic">Regulation (EU) 2022/2554</span></li>
@@ -370,7 +382,7 @@
           </ul>
         </div>
         <div class="biblio-col">
-          <h3>Security frameworks &amp; threat models</h3>
+          <h3 id="std-frameworks">Security frameworks &amp; threat models</h3>
           <ul>
             <li><span class="id">OWASP Top 10 (2025)</span><span class="topic">Web application risks</span></li>
             <li><span class="id">OWASP ASVS 5.0</span><span class="topic">App security verification</span></li>

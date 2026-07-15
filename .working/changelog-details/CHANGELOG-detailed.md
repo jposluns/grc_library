@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.429, PR #941
+
+Landing-page left-nav two-level nesting (TODO §2.16, maintainer-directed this session). Website template + generator only; no corpus document content changed.
+
+### Changed
+
+- [`.web/templates/landing.html`](../../.web/templates/landing.html): the left contents nav was a flat "Contents" group (7 section links) followed by a separate flat "Domains" group, so the nav ENDED with the 11 domains and the Standards / Licence links sat above them (the maintainer read this as "ends with domains, no Standards/Licence"). Rebuilt into a two-level quick-nav: the 11 domains now render as indented sub-links directly under the "By domain" link (the separate "Domains" group is gone), the six Standards sub-groups render as short indented sub-links under "Standards" (anchored to new `std-*` ids added to the six sub-group headings), Licence is kept, and a new **Contributors** link (to `/about`, the about/contributors page) is added at the end. The nav now flows What it is, Get started, How it's built, Governance pack, By domain (+ 11 domains), Standards (+ 6 sub-groups), Licence, Contributors.
+- [`.web/build.py`](../../.web/build.py) `render_sidenav_domains`: the domain links now carry `class="sub"` (indented sub-links nested under "By domain") instead of a flat group.
+- Added a `.sidenav-inner a.sub` CSS rule (indent + lighter weight) for the nested sub-links.
+- **Scrollspy active-highlighting and Get-started-step nesting are deferred** as the §2.16 residual (scrollspy is a new inline-JS addition on an otherwise script-free page and wants a Content-Security-Policy check first; Get-started nesting needs ids on the six step cards). §2.16 stays open for those; the shipped structural nesting is recorded in [`.working/DONE.md`](../DONE.md).
+
+### Fixed
+
+- **Concurrency-lease append-not-reconcile (the #940 `/validate-pr` warning, third occurrence this session).** #940 updated the lease tail / Active-session / heartbeat but left the Current-task LEAD carrying a #939-era snapshot (wrong branch, stale merged-through and green-at). The whole Current-task field in [`.working/session-state.md`](../session-state.md) was REWRITTEN wholesale (the adopted durable control: rewrite the entire field on each update, never patch individual sentences), so no carried sentence can go stale. Logged as a `[3rd-occurrence]` graduated control in the #940 `/retro`.
+
+### Verification
+
+- `.web/build.py --check` OK (generator-health, all 14 pages render); a temp build confirms the rendered nav order (By domain, then the 11 domains as `class="sub"`, then Standards + the 6 `std-*` sub-links, then Licence, then Contributors -> `/about`). Pre-push guard (`tools/run_all_audits.sh` 69/69 + PR-time checks) green; one refute-briefed skeptical verifier on the nav change. The deployed grclibrary.ai domain pages + landing nav update on merge (Cloudflare Pages rebuilds; `.web/dist/` is git-ignored).
+- Batched PR #940's post-merge QA: the #940 `/validate-pr` row (SHIP-WITH-NOTES, 1 warning fixed here) in [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.708) and the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (1.0.644).
+
 ## 2026-07-15, Library Version 2026.07.428, PR #940
 
 Domain-page document ordering: alphabetical -> a logical reading progression, applied in BOTH the taxonomy source generator and the website generator (maintainer-chosen "source + type-priority sort", 2026-07-15). Tooling only; no corpus document content changed.

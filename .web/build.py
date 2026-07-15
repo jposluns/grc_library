@@ -359,9 +359,11 @@ def render_domain_rows(figures):
 
 def render_sidenav_domains(figures):
     """The landing-page contents-sidebar domain links (one per domain, register
-    order), each to its on-site domain page."""
+    order), each to its on-site domain page. Rendered as indented sub-links
+    (``class="sub"``) nested under the "By domain" section link, so the nav is a
+    two-level quick-nav rather than a separate flat Domains group (TODO 2.16)."""
     return "\n".join(
-        f'      <a href="/{_esc(domain)}/">{_esc(domain)}</a>'
+        f'      <a class="sub" href="/{_esc(domain)}/">{_esc(domain)}</a>'
         for domain, _ in figures["domains"]
     )
 
