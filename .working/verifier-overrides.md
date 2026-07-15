@@ -1,7 +1,7 @@
 # Skeptical-Verifier Override Register
 
-**Version:** 1.0.0\
-**Date:** 2026-06-29\
+**Version:** 1.0.1\
+**Date:** 2026-07-15\
 **License:** CC BY-SA 4.0
 
 The durable, cross-session register for skeptical-verifier **overrides** (the pack rule
@@ -56,11 +56,12 @@ This file is maintainer working state, exempt from corpus audit gates.
 
 ## Active overrides (pending maintainer review)
 
-None. No verifier override has been made yet. (The skeptical-verifier standard itself was
-codified in PR #461; the first override, if any, will be logged here.)
+None pending. The first-ever verifier override (PR #955, the Canada AI annex FPS
+fourth-principle "trusted" false positive) was made and maintainer-reviewed within the
+same attended session; it is recorded in the Reviewed table below.
 
 ## Reviewed overrides (retained for the audit trail)
 
 | Date | PR | Finding (verbatim, with `path:line`) | Validation reasoning for overruling | Revert information | Attended? | Status | Follow-up |
 |---|---|---|---|---|---|---|---|
-| (none yet) | | | | | | | |
+| 2026-07-15 | #955 | Pre-push verifier, HIGH, DO-NOT-SHIP: "`annex-ai-canada.md:47` ... names the four principles as 'human-centred, collaborative, ready, and responsible'. Multiple canada.ca-scoped searches converge on the fourth principle being 'trusted', not 'responsible' ... precisely the class of error a Canada AI Alliance expert would catch on sight." | False positive. The canada.ca "AI Strategy for the Federal Public Service 2025-2027: Overview" Principles section (provided verbatim by the maintainer, twice) lists the four as Human centred / Collaborative / Ready / Responsible; the fourth principle's own description reads "so that they trust that our use of AI ...", which the verifier's snippet-based web search latched onto and mis-reported, conflating the Overview "Principles" with the separate "Priority areas" page. Canada.ca blocks direct curl and WebFetch (403), so the maintainer's verbatim page is the authoritative source. Maintainer confirmed "Responsible" via AskUserQuestion and re-pasted the Principles section. | Branch `claude/canada-ai-annex-updates`; if wrong, change "responsible" to "trusted" in `ai/jurisdictions/annex-ai-canada.md` line 47 (FPS principles list) and the CHANGELOG-detailed FPS bullet. | Attended | reviewed (maintainer-confirmed 2026-07-15) | None; "Responsible" confirmed correct. The verifier's valid secondary point (the CHANGELOG over-claimed held-source coverage of the not-held FPS section) was fixed in the same PR. |
