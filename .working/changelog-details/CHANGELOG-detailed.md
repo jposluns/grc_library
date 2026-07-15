@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.423, PR #935
+
+Overnight preparation PR: staged the remaining protected-surface machinery items for the daytime apply (per the overnight protocol's "draft the content in advance" direction) and recorded an assessment of the one FP-delicate gate item. Working-state and backlog only; no corpus document, template, gate, tool logic, or generated artefact changed.
+
+### Added
+- Two prepared items in [`deferred-protected-changes.md`](../deferred-protected-changes.md) for the daytime protected-backlog clearance:
+  - **Item 8 (§3.22):** the D7 handoff-snapshot marker fix, fully drafted, the non-protected tool + test halves (redirect `snapshot_line()` to the `Version snapshot` sub-line the #746 restructure moved the tokens onto; update the D7 test fixtures to the two-line shape) plus the protected `.claude/` config's D7-note reword (the reason it defers, and why the whole item applies together to avoid a multi-surface inconsistency).
+  - **Item 9 (§3.12):** the See-Also parity gate (new gate 70), design + full surface list (the new linter, the four wiring surfaces, the fixture, and the 69-to-70 gate-count ripple that reaches the protected `.claude/` config).
+
+### Changed
+- **§3.22 and §3.12** annotated in [`TODO.md`](../../TODO.md) as overnight-deferred, each pointing at its drafted [`deferred-protected-changes.md`](../deferred-protected-changes.md) item.
+- **§3.38** annotated with a 2026-07-15 assessment: gate 39's mechanizable count-idioms are largely already covered, the digit forms by patterns P1-P8 (P8 handles `N automated audits`, with a bare `N audits` deliberately excluded as FP-unsafe) and the word forms by P9-P12; the FP-safe residual is narrow (a digit `N governance rules` sibling of P11) and needs a careful attended per-idiom census, and the un-gateable free-prose half stays dropped per the maintainer's 2026-07-10 disposition. No gate change made (rushing an FP-delicate multi-pattern gate this deep in the session would risk a false-positive; AIQT over Speed).
+
+### Verification
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (gate 45) rc=0; the three TODO annotations and the two staging items are well-formed; the staging surface is under `.working/` (not protected). Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green.
+- **Two independent high-assurance verifiers** (correctness + completeness): honoring the maintainer's "high assurance for all" over the default working-state / bookkeeping tier, scoped to the accuracy of the drafted D7-fix + See-Also-gate approaches and the §3.38 assessment (that P8-P12 do cover the claimed idioms).
+- **PR #934 post-merge validation** (Subagent A, read-only-git on `99f3a5b`): batched here.
+
+### Notes
+- Overnight run. After this PR, the overnight-safe unblocked queue is exhausted: the remaining items are protected (§3.22/§3.12, drafted here for daytime), attended (§3.34 historical-dangler cleanup, §3.73 self-deferring FP-free-detector design), FP-delicate (§3.38 residual), or source/egress-gated. The session stays in overnight mode per the maintainer's instruction, holding at this clean state, and continues if a further unblocked item is identified.
+
 ## 2026-07-15, Library Version 2026.07.422, PR #934
 
 Advanced backlog item §3.34 (detailed-mirror markdown-link resolution) by shipping its go-forward half, and folded in the batched PR #933 cosmetic note. Tooling + backlog only; no corpus document, template, or generated artefact changed (no spec change this PR, so no taxonomy regen).
