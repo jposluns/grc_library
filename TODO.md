@@ -4,7 +4,7 @@ Forward-looking backlog of planned enhancements for the GRC Documentation Librar
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions, with one narrow exception: [`tools/lint-todo-staleness.py`](tools/lint-todo-staleness.py) (gate 45) scans this file for the queued-PR-already-merged drift shape (its companion sweep-cursor-behind-history check reads the resume cursor from [`.working/session-handoff.md`](.working/session-handoff.md)). The intra-document section-reference gate also scans it. Other audit gates skip this file.
 
-**How items are numbered and formatted.** Items are grouped by priority (P1-P7), tiered by work type (maintainer's 2026-06-30 leaning): P1 fix errors and prevent recurrence, P2 fill significant gaps, P3 clean up and tooling, P4 adopter experience, P5-P6 expand the corpus (overlays, then new domains), P7 awaiting decision. **Every item is a `### N.M` subsection whose leading digit is its priority** (so a P3 item is `3.x`); within a section items run lowest-effort-first. **One item is one functional action / one distinct resolution path** (maintainer-directed 2026-07-10): multiple bullets sit under one number only when they resolve as a single action (same file, same fix, one commit); otherwise they are split into separate numbered items. The `N.M` number is a position, not a permanent id, so it changes if an item is re-tiered, resequenced, or split; the **stable id is the `FR-N` / descriptive identifier in the heading**, and a `(was X.Y)` tag preserves the prior number for one cycle so older references (CHANGELOG, handoff, retro log, tool docstrings) stay resolvable. Each heading carries `(id, severity, effort)` where severity is `H[critical]` / `H` / `M` / `L` / `FYI` and effort is `XS` / `S` / `M` / `L` / `XL`. A `⚠` marks a persona-quoted finding to verify at action time.
+**How items are numbered and formatted.** Items are grouped by priority (P1-P7), tiered by work type (maintainer's 2026-06-30 leaning): P1 fix errors and prevent recurrence, P2 fill significant gaps, P3 clean up and tooling, P4 adopter experience, P5-P6 expand the corpus (overlays, then new domains), P7 awaiting decision. **Every item is a `### N.M` subsection; the leading digit is the priority the item was created under** (so a newly-created P3 item is `3.x`; a re-tiered item keeps its original number, so its leading digit records its priority-at-creation, see the permanent-numbering rule below); within a section items run lowest-effort-first. **One item is one functional action / one distinct resolution path** (maintainer-directed 2026-07-10): multiple bullets sit under one number only when they resolve as a single action (same file, same fix, one commit); otherwise they are split into separate numbered items. The `N.M` number is a **permanent id that is never recycled** (maintainer-directed 2026-07-15): each priority section carries a **`Next item number:` counter** stating the next number to assign, and every edit that adds an item (including an item split out of a larger one) draws that number and advances the counter, so one number maps to exactly one item across the whole history of the file and a lookup by number is unambiguous. A closed item's number retires with it and is never reused; existing items are never renumbered when the file is reorganized (renumbering would break the CHANGELOG, DONE, and handoff references that point at them), so a re-tiered item keeps its original number and its leading digit then records the priority it was created under rather than its current section. The heading's `FR-N` / descriptive identifier remains a stable secondary id; the older `(was X.Y)` renumber-breadcrumb practice is discontinued (existing breadcrumbs stay for resolvability). The `## Reference-base work` section is not an `N.M` section; its `SR-N` / `RB-N` coded ids likewise never recycle. Each heading carries `(id, severity, effort)` where severity is `H[critical]` / `H` / `M` / `L` / `FYI` and effort is `XS` / `S` / `M` / `L` / `XL`. A `⚠` marks a persona-quoted finding to verify at action time.
 
 **Effort scale** (referenced by the `(sev, effort)` tags): **XS** single-line / single-cell (5-15 min, bundle 5-10); **S** single-doc section add (30-90 min, bundle 2-4); **M** multi-doc bounded (2-4 hrs, 1/PR); **L** new artefact + multi-doc propagation (4-8 hrs, 1/PR); **XL** new domain / library-wide reshape (1-3 days, may split).
 
@@ -24,9 +24,11 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
+**Next item number: 1.15.**
+
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing. The routine `/validate`, `/validate-pr`, `/matrix-fit`, and `/claim-fit` cadences are the reactive half of this tier; the standing preventive half is the fix-and-prevent items listed here when any are open.
 
-P1 currently holds one open item (§1.1, the discussion-vs-execution mode gate). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
+P1 currently holds three open items (§1.1, the discussion-vs-execution mode gate; §1.12, the root-CHANGELOG entry-length remediation; and §1.14, the external-source currency detection mechanism). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
 
 ### 1.1 Discussion-vs-execution mode gate (guardrail against assistant overeagerness) (H, M)
 
@@ -36,7 +38,13 @@ Design a guardrail against a recurring assistant failure class: treating a conce
 
 **Do only AFTER the §2.4 website changes are complete (maintainer-directed 2026-07-15).** The recent root [`CHANGELOG.md`](CHANGELOG.md) entries (the website PRs #921 onward) drifted back to long, multi-sentence paragraphs, re-introducing the readability regression the earlier reformat (#916) and the #908 advisory guard were meant to prevent; the root compact form should be a short, scannable summary. Two parts: (1) compress the over-long recent root entries (roughly #921 onward, plus any others exceeding the compact form) to the short one-to-two-sentence summary ([`tools/reformat-root-changelog.py`](tools/reformat-root-changelog.py) is the existing reformat aid); (2) strengthen the readability guardrail, since [`tools/audit-changelog-entry-length.py`](tools/audit-changelog-entry-length.py) did not flag these (dense but under its word-count threshold): tighten the threshold or add a sentence-count / paragraph-length signal that fires on the multi-sentence-paragraph shape. Record-only; do not begin until the website work is done and the item is picked.
 
+### 1.14 External-source currency detection: cadence gate + scheduled egress sweep (maintainer-confirmed 2026-07-15, H, M-L)
+
+A two-layer mechanism to detect when an external source the corpus cites (a standard, framework, regulation, or dataset) changes upstream, so the maintainer is notified and the citation / version can be updated under QA. Maintainer-confirmed shape 2026-07-15 ("cadence gate + scheduled egress sweep"). **Layer A (egress-free, in the lint CI):** a currency-cadence gate over a register (the canonical-citations register plus `grc_library_ref`'s `catalogue.yml`) recording each cited source's version, `last_checked`, upstream URL, and re-check cadence; the gate warns or fails when a source is past its window. This is the mechanizing of SR-1 (the inert `last_checked` field) and §3.9 (require-registration currency gate); build those as Layer A rather than duplicating them. **Layer B (egress-required, a SEPARATE scheduled workflow or a maintainer-triggered skill the assistant runs, NOT the read-only PR lint CI):** fetch a lightweight upstream signal per source (HTTP `Last-Modified` / `ETag`, a version string on the source's landing page, a releases / RSS feed), compare to the recorded version, and notify on a detected change (open an issue or post a report). Fail-loud, bounded, and authenticated, per the evidence-grounded API-polling guardrails. **Auto-update under QA:** a detected change is a maintainer-notified proposal; any applied version / citation update is upstream-confirmed this turn (never from memory), skeptical-verifier-checked, and gate-validated before merge, never silent. Depends on egress access for Layer B (the DD-10 egress constraint means Layer B runs in a network-enabled runner or a maintainer-egress session). Serves the §2.15 standards-linking accuracy and the whole corpus's citation currency.
+
 ## Priority 2 — Fill significant gaps
+
+**Next item number: 2.17.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -68,7 +76,17 @@ The maintainer-directed AI-domain workstream. The original 2026-07-10 plan (Work
 
 **Maintainer console action, for the next computer session (the maintainer's 2026-07-15 morning); the assistant cannot do this (no Cloudflare API token in the execution environment).** In the Cloudflare Pages project for grclibrary.ai, set the build-watch-paths to INCLUDE the 11 domain directories (`ai/`, `architecture/`, `compliance/`, `dev-security/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`) alongside `.web/`, `taxonomy.yml`, and `README.md`. Reason: since PR #922 each per-domain page derives from its `<domain>/README.md`, so a domain-README edit must trigger a Cloudflare rebuild for the page to refresh; if the watch-paths exclude the domain dirs, such edits will silently not redeploy. Confirm the exact watch-path feature name and any bypass thresholds against the live Cloudflare dashboard (vendor-set). Runbook: [`.working/cloudflare-pages-setup.md`](.working/cloudflare-pages-setup.md) step 4. This is the last open §2.4 build item; after it, only the publish go-decision remains before §2.4 closes.
 
+### 2.15 Landing-page standards list: link each item to its authoritative source (maintainer-confirmed 2026-07-15, M, S-M)
+
+Link each entry in the landing page's "Standards & frameworks it maps to" section to its authoritative source, with a tiered target policy the maintainer confirmed 2026-07-15 ("link all, tiered targets"): freely-available sources (NIST CSRC, OWASP, MITRE ATT&CK / ATLAS, ETSI, EU legislation via EUR-Lex, EDPB, CSA CCM / AICM) link to the primary document or its official landing page; licensed / paywalled sources (ISO/IEC, IEEE) link to the official catalogue / abstract page (e.g. `iso.org/standard/<N>`) that publicly describes the standard, never hosting or linking paywalled full text and never bypassing a paywall. Every item name becomes the link (consistent with the #923 title-as-link pattern); off-site links carry the established new-tab plus arrow convention. Accuracy is the load-bearing risk: source each URL from [`grc_library_ref`](../grc_library_ref)'s `catalogue.yml` (verified, never fabricated) and confirm each current upstream at build, keeping the mapping in one place so link rot is a one-file fix. Note the external-link-domain gate scans corpus `.md` / `.py`, not the generated site HTML, so URL correctness is a manual build-time discipline. Multi-part series (ISO/IEC 5259 parts) and framework families (CSA CCM) without a single-document URL link to the series / family overview page. Confirm at build whether the standards list is template-authored or taxonomy-generated (that decides where the URL data lives). Attended website work under §2.4.
+
+### 2.16 Landing-page left nav: two-level nested quick-nav (maintainer-confirmed 2026-07-15, M, S)
+
+Deepen the landing page's left contents nav from flat section links into a two-level quick-nav for everything on the page (maintainer-confirmed "two-level nested nav" 2026-07-15). Keep the 7 section links; nest each section's on-page sub-blocks as indented, lighter-weight sub-links: the 6 Get-started steps under "Get started", the 11 domains under "By domain" (already nested), and the Standards sub-groups under "Standards" only if the section is actually grouped (confirm the section structure at build; do not nest individual standards lines, that is what the section link is for). Add scrollspy active-highlighting so the current section or sub-item highlights on scroll. Design rule: nest a section only where its sub-blocks are useful jump targets, hierarchy plus indentation keeps it from looking busy. Implementation: the nested targets need anchor ids (the Get-started cards, any Standards sub-groups) plus indent styling; page-scoped to the landing sidebar so about / domain pages are untouched. Attended website work under §2.4.
+
 ## Priority 3 — Clean up and tooling
+
+**Next item number: 3.76.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -291,7 +309,13 @@ The table-row-join / ledger-row-fusion class (a reverse-chronological ledger row
 
 The maintainer prefers listing ISO / IEC / IEEE standards with their release year, as more complete and comprehensible, and set "ISO/IEC 5259:2024" as an example of the norm to standardize toward. Review how the corpus references standards across the repo (document bodies, framework-alignment tables, the landing-page standards list, and the canonical-citations register) and standardize the rendering. Points for the review to settle: (a) the release-year form as the default for ISO / IEC / IEEE citations; (b) multi-part series, where ISO/IEC 5259 is parts 5259-1 through 5259-4 (all 2024) with no single unitary edition, so the review decides how to render a series-level reference versus a specific part such as 5259-4:2024, and whether the corpus's current mix (bare series names plus part-and-year citations) is harmonized or left as-is; (c) standards versioned by semantic version rather than year (OWASP ASVS is rendered "OWASP ASVS 5.0" on the landing page while the register records 5.0.0), which need a companion rule since the release-year form does not apply to them. The canonical-citations register ([`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)) is the ground-truth source for each standard's version and year. Surfaced from the §2.4 landing-page work: a #920 attempt to render 5259 without its year was reverted to the year form per this directive, and the holistic standardization was deferred here rather than applied piecemeal.
 
+### 3.75 Website-to-corpus link integrity: generated manifest + resolution gate + resolve-by-id (maintainer-confirmed 2026-07-15, M, M)
+
+Keep every link from the public site to a corpus document (or its GitHub source) accurate as the corpus changes, with the maintainer notified of breaks and safe auto-update on rename. Maintainer-confirmed shape 2026-07-15 ("manifest + gate + resolve-by-id"). Three parts: (1) `.web/build.py` emits a **committed link manifest**, every corpus / GitHub target mapped to the website location and link text that points at it, so the reverse map is a generator byproduct that cannot drift, diffable in every PR. (2) A new **egress-free CI gate** (`lint-web-corpus-links.py`, in the existing lint workflow) resolves every manifest target against the repo and fails on any renamed or deleted target, the CI failure being the maintainer notification; it extends the gate-3 internal-link philosophy to the generated site and pairs with §3.34 (detailed-mirror link-resolution) and the §2.4 generator-health check. (3) **Resolve links by a stable doc-id** carried in corpus-doc metadata rather than a hardcoded path, so a corpus rename resolves to the new path at build with no manual edit (auto-update); a keyword-to-doc template link (the feature-card `.k` links) that breaks is caught by the gate and fixed with a one-line id update. Careful QA: an auto-resolved change is validated by the resolution gate plus a skeptical verifier before merge. Wire the new gate into all four gate surfaces (workflow, runner, pre-commit, audit-programme spec) plus a regression fixture, per the gate-addition discipline. Serves §2.15 (standards-linking) and the whole public site's link accuracy.
+
 ## Priority 4 — Adopter experience
+
+**Next item number: 4.29.**
 
 Capability and guidance for organizations adopting the library, and the operator-experience tooling for running the project. Scheduled deliberately, after the fix/gap/cleanup tiers.
 
@@ -335,6 +359,8 @@ Maintainer-decision inputs to the public-site pack distribution (§2.4), routed 
 
 ## Priority 5 — Expand: country / regulator / programme overlays
 
+**Next item number: 5.10.**
+
 Adding new coverage to existing domains. Each subitem is a separate small or medium PR; the maintainer schedules deliberately.
 
 ### 5.2 Logistics country / programme expansion (was 5.1)
@@ -373,6 +399,8 @@ The `ai/jurisdictions/` subdirectory and its first two annexes (EU AI Act #743, 
 
 ## Priority 6 — Expand: new domains
 
+**Next item number: 6.6.**
+
 Entirely new domains, multi-week scope each. The maintainer schedules deliberately. Ordered lowest-effort-first.
 
 ### 6.1 Identity-specific content depth (L) (was 6.2)
@@ -398,6 +426,8 @@ Per-cloud hardening baselines for AWS/Azure/GCP exist; the gap is multi-cloud go
 ---
 
 ## Priority 7 — Awaiting maintainer decision
+
+**Next item number: 7.6.**
 
 ### 7.1 Ruleset `non_fast_forward` (force-push) rule (deep-assessment r1 R8b, maintainer-owned)
 
@@ -445,6 +475,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 - **"More PRs, keep each one clean"** — favor small focused PRs.
 - **"One item, one functional action"** (2026-07-10) — split TODO items per distinct resolution path; group bullets under one number only when they resolve as a single action.
+- **TODO numbers are permanent and never recycled** (2026-07-15) — each priority section carries a `Next item number:` counter, maintained on every TODO edit; new and split-out items each draw the next number and advance the counter, closed numbers retire with their item, and existing items are not renumbered when the file is reorganized (so a number maps to exactly one item across the file's whole history and lookups by number stay unambiguous).
 - **"I prefer /validate, not /validation-sweep"** — short slash commands; skill names stay descriptive.
 - **"Don't explicitly name or link `.working/`"** in template-content files that adopters see.
 - **"Inference must be validated before committing or before anything else uses that information"** — operationalized in [`validate-inference-before-action.md`](dev-security/claude-rules/governance/validate-inference-before-action.md).

@@ -2,12 +2,13 @@
 """Flag renumber-fragile positional backlog-token references in corpus prose.
 
 A reference like ``TODO §4.10`` or ``backlog item P4.17`` points at a backlog
-item by its POSITION in `TODO.md`. Positions renumber as the backlog is worked;
-a positional reference in a durable corpus document then dangles or, worse,
-silently points at a different item. The stable form is the item's coded id
-(`FR-N`, `GR-N`, `SR-N`) or its topic name. This gate flags the fragile form so
-authors reword toward the stable one, the same class as the CLAUDE.md
-section-close cross-file cleanup guard, made mechanical for the corpus.
+item by its POSITION in `TODO.md`. A backlog item's number retires when the item
+closes (so such a reference dangles), and items numbered before the permanent-
+numbering rule were historically renumbered; either way a positional reference in
+a durable corpus document can dangle or point at a different item. The stable
+form is the item's coded id (`FR-N`, `GR-N`, `SR-N`) or its topic name. This gate
+flags the fragile form so authors reword toward the stable one, the same class as
+the CLAUDE.md section-close cross-file cleanup guard, made mechanical for the corpus.
 
 Scope: authored corpus prose only. The pack subtree
 ``dev-security/claude-rules/`` is EXEMPT (its README version-history legitimately
