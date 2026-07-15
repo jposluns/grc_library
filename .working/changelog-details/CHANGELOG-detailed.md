@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.449, PR #961
+
+Two small public-site copy and style tweaks (maintainer-directed 2026-07-15). Website templates only; no corpus content changed. Also batches PR #960's post-merge QA.
+
+### Changed
+- [`.web/templates/about.html`](../../.web/templates/about.html): the `.m-name` span "Jeff Posluns, CGEIT, CISSP" now wraps ", CGEIT, CISSP" in a nested `<span class="m-certs">`, so the name and the certifications can carry different sizes.
+- [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html): added `.m-name .m-certs { font-size: 0.5em; font-weight: 600; }` after the `.m-name` rule. At `0.5em` the certifications render at half the name's font size, so their uppercase cap-height is about half the visual height of "Jeff Posluns" (cap-height scales linearly with font-size), matching the maintainer's "about half the visual size" direction; the weight is eased from the name's 700 to 600 so the small caps read as a deliberate suffix.
+- [`.web/templates/landing.html`](../../.web/templates/landing.html): the §01 lede reworded from "It is not advice or a product; it is a public corpus, released under CC BY-SA 4.0, that [audiences] can adopt from directly and tailor to their own context." to the positive form "It is a public corpus of openly-licensed reference documentation, released under CC BY-SA 4.0, that [audiences] can freely read, cite, adopt, and tailor to their own context." (maintainer's Option B). Removes the "not X; it is Y" contrast framing the house style avoids; the same information (public corpus, openly licensed, freely usable by the listed audiences) is carried positively.
+
+### Verification
+- The web generator [`.web/build.py`](../../.web/build.py) `--check` returned EXIT=0; the rendered `dist/about/index.html` carries `Jeff Posluns<span class="m-certs">, CGEIT, CISSP</span>` (name full-size, certs half-size).
+- Pre-push guard green; library CalVer 2026.07.449, README 1.9.810.
+
 ## 2026-07-15, Library Version 2026.07.448, PR #960
 
 Maintainer-flagged TODO stale-item cleanup (notably the public-site items) plus the PR #959 QA close-out. No corpus content changed.
