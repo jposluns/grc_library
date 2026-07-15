@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.446, PR #958
+
+Date-anchored the AIA question counts in the Canada AI regulatory annex so they age visibly rather than silently. Maintainer-directed (the annex faces a Canada AI Alliance expert review). Also batches PR #957's post-merge QA per recursion-avoidance.
+
+### Changed
+- [`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md) line 39: the AIA parenthetical "(the counts as of the current release; the government revises the question set over time)" changed to "(as of the 2026-05-28 version of the tool; TBS revises the question set over time)". The 65 risk / 41 mitigation counts are unchanged and correct; the held `grc_library_ref` AIA overview page (`Date modified: 2026-05-28`) states verbatim "It is composed of 65 risk questions and 41 mitigation questions". The edit replaces the undated "current release" with the source's version date so a reader can see when the counts were current, and so a future revision to the question set makes the annex visibly (not silently) stale. Version 1.0.1 -> 1.0.2, Date 2026-07-15; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (version-only, no maturity-status transition; the annex stays Baseline).
+
+### Verification
+- The AIA counts and date were verified against the held Treasury Board AIA overview page in the `grc_library_ref` reference base (the Canada-TBS frameworks bucket, `Date modified: 2026-05-28`; body "It is composed of 65 risk questions and 41 mitigation questions"). The source was already held in the reference base (catalogued 2026-07-10); it is not new to this PR.
+- PR #957 `/validate-pr` (Subagent A, refute-briefed, read-only-git on squash `a3f93b1`): PASS, 0 findings; history row added to [`validate-pr/history.md`](../validate-pr/history.md). PR #957 `/retro`: row added to [`improvement-log.md`](../improvement-log.md).
+- Pre-push guard (full audit suite + PR-time checks) green; library CalVer 2026.07.446, README 1.9.807.
+
 ## 2026-07-15, Library Version 2026.07.445, PR #957
 
 Four public-site text/typography fixes (website templates only; no corpus content changed). Also batches PR #956's post-merge QA per recursion-avoidance.

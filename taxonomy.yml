@@ -878,7 +878,7 @@ documents:
   domain: "ai"
   type: "Annex"
   title: "Canada AI Regulatory Requirements"
-  version: "1.0.1"
+  version: "1.0.2"
   date: "2026-07-15"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
