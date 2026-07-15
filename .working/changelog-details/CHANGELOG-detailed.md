@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.418, PR #930
+
+First application of the new permanent-numbering hygiene (maintainer-directed 2026-07-15): split four massive partially-done backlog items so their completed components rotate to [`DONE.md`](../DONE.md) and only each item's open residual remains in [`TODO.md`](../../TODO.md). Working-state and backlog only; no corpus document, template, or generated artefact changed. Each item keeps its permanent number (no renumbering); no new items, so the counters are unchanged.
+
+### Changed
+- **§3.57** (reference-breadth new-ingest apply) trimmed from the full #866-#883 apply-wave narrative to just its open residual, the deferred matrix TSC-column mapping (a `/matrix-fit` single-file sensitive change). The apply wave (High EDPB-privacy cluster + the version-sensitive rows, each held-source-verified and upstream-currency-confirmed) rotated to DONE.
+- **§3.62** (guardrail-review r10 proposals) trimmed to its one open proposal, G1 (the branch-to-main edit-guard hook, a maintainer decision). The resolved proposals (G3 built as gate 50 Check 5 in #913, G5 EXPIRED in #909, the gate-41 docstring symmetry in #909) rotated to DONE.
+- **§3.63** (reference-audit FULL findings) trimmed to its one residual, the RB-ETSI-104128 secondary see-also in the AI security-and-risk standard's alignment table. The resolved findings (RB-FFIEC-CAT currency fix #899, the RB-ETSI primary see-also #907) rotated to DONE.
+- **§3.68** (vuln-remediation-SLA SoT) trimmed to the four ROUTED divergent-value carriers that need a maintainer judgment call (pentest, supplier-tier, patch-exception-deferral, BASC-KPI); its heading was refocused off the now-rotated conversions. The clear stricter-safe conversions (#912) rotated to DONE.
+
+### Added
+- Four DONE-ledger entries in [`DONE.md`](../DONE.md), each marked as a partial rotation (the item stays open for its named residual), keyed to the split items.
+
+### Verification
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (gate 45) rc=0; §3.62's G3/G5/Overlap bullets removed with G1 retained; §3.68 carries a single routed-carriers header; no `### N.M` heading deleted or renumbered (the four items keep their numbers). Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green.
+- **Two independent high-assurance verifiers** (correctness + completeness lenses, refute-briefed, read-only-git): scoped to confirm no open residual was dropped, every rotated component is genuinely complete (evidence: the cited merged PRs), each DONE entry is accurate, and no unrelated item was disturbed.
+- **PR #929 post-merge validation** (Subagent A, refute-briefed, read-only-git on `f8917b7`): SHIP, 0 findings; batched here per recursion-avoidance.
+
+### Notes
+- This is the first split PR; the two P2 umbrellas (§2.4 website, §2.5 AI-domain delta) are the next split (they need more judgment, §2.5's remaining workstreams re-home into their own new-numbered items). Overnight run, high-assurance harness on every item.
+
 ## 2026-07-15, Library Version 2026.07.417, PR #929
 
 TODO numbering-convention change, a gate-69 rationale consistency fix in one governance spec (the new never-recycle rule made the old "positions renumber as the backlog is worked" rationale stale), and the batched PR #928 post-merge QA. Touches [`TODO.md`](../../TODO.md), `.working/` records, one governance spec ([`specification-audit-programme.md`](../../governance/specification-audit-programme.md)), the [`tools/lint-positional-backlog-tokens.py`](../../tools/lint-positional-backlog-tokens.py) docstring, and the taxonomy / portal / scorecard regenerated from the spec's version bump.

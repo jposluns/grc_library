@@ -11,6 +11,22 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.57 (apply wave complete; item stays open for the matrix TSC-column residual): reference-breadth new-ingest apply (2026-07-15)
+
+The reference-breadth new-ingest apply over the 63 2026-07-12 ref sources landed across #866-#883: the High EDPB-privacy cluster (4/2019 #866, 05/2020 #867, 01/2022 #868, 9/2022 #869, 07/2022 #873) plus the version-sensitive rows AICPA TSP 100 (#876), EU 2021/915 (#877), ANPD 18/2024 (#878), SOR/2018-64 (#879), EDPB 28/2024 (#880), NIS2 2024/2690 (#881), EDPB 8/2022 (#882), and the Brazil Resolution 4/2023 follow-up (#883), each verified verbatim against the held source, upstream-currency-confirmed this turn, refute-verified, and each with a canonical-citations register row. Split out per the 2026-07-15 numbering hygiene: §3.57 stays open only for the deferred matrix TSC-column mapping (a `/matrix-fit` single-file sensitive change).
+
+### TODO §3.63 (both routed findings resolved; item stays open for the RB-ETSI secondary see-also): reference-breadth FULL routed findings (2026-07-15)
+
+The two genuine findings from the first `/reference-audit` FULL run (deep-assessment r3 Phase-3) are resolved: RB-FFIEC-CAT (the FFIEC sunset the Cybersecurity Assessment Tool 31 Aug 2025; the financial-services annex row corrected stricter-safe in #899) and the primary half of RB-ETSI-104128 (the ETSI TR 104 128 corroborative see-also added to the AI security technical-implementation guide in #907). Split out per numbering hygiene: §3.63 stays open only for the secondary RB-ETSI see-also in the AI security-and-risk standard's alignment table.
+
+### TODO §3.68 (clear conversions complete; item stays open for the routed divergent carriers): vuln-remediation-SLA single-source-of-truth (2026-07-15)
+
+The clear stricter-safe conversions to the vuln-management-procedure SoT (section 2) landed in #912: the production-security full-table restatement, the patch-management deployment-timeline column, the dev-security secure-development restatement, and the software-evaluation "15 days or fewer" looser Critical, all re-anchored to cite the SoT. Split out per numbering hygiene: §3.68 stays open only for the four ROUTED divergent-value carriers that need a maintainer judgment call (pentest, supplier-tier, patch-exception-deferral, and the BASC-KPI drift-hardening), not mechanical conversions.
+
+### TODO §3.62 (resolved proposals built/expired; item stays open for the G1 hook decision): guardrail-review r10 routed machinery proposals (2026-07-15)
+
+The r10 `/guardrails` routed proposals are dispositioned: G3 (register row-order guard) built as gate 50 Check 5 in #913, G5 (#376 paired-surface candidate) formally EXPIRED in #909 as superseded by gate 50 Check 4 plus the convention, and the gate-41 docstring cross-reference symmetry added in #909. Split out per numbering hygiene: §3.62 stays open only for G1 (the branch-to-main edit-guard hook, a maintainer build-or-keep-convention decision); G2/G4 are already-tracked cross-references, not new work.
+
 ### TODO §1.2: Root CHANGELOG #902+ compact plain-language reformat + readability guardrail (2026-07-14)
 
 Reformatted the root CHANGELOG entries for #902-#914 from long, dense, semicolon-chained run-on sentences (67-140 words) back to the compact plain-language two-sentence form a general reader can follow (each compression research-drafted, then verified against the detailed mirror; every `**date | version | PR #N**` header left byte-unchanged so gate-59 parity holds). Also strengthened the advisory guardrail `tools/audit-changelog-entry-length.py` with a longest-single-sentence signal (WARN when any one sentence exceeds 65 words), which catches the dense sub-130-word run-ons the prior word-count-only threshold missed. Closes the P1 recurrence of the exact drift #908 had just fixed for #887-#901.
