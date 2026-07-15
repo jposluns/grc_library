@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.431, PR #943
+
+The `/resume` loop-break **Sweep 105** corpus-wide `/validate` close-out for the just-closed 2026-07-15 long resumed session (the compensating control for session-closing handoff PR #942, which skipped its trailing `/validate-pr` + `/retro`), covering the **#918..#942** delta window. Full three-subagent A/B/C dispatch, all read-only-git on the shared tree.
+
+### Fixed
+
+- **A-1 (website domain-page ordering; the sweep's one finding).** [`.web/build.py`](../../.web/build.py) sorted each domain's documents within a type by a case-SENSITIVE title key (`d["title"]`), while [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py) sorts case-INSENSITIVELY with a repo-path tiebreaker (`title.lower(), rel`). With `TYPE_ORDER` byte-identical between the two generators, the *secondary* key still diverged, so the on-site domain pages presented a different within-type reading order than the canonical taxonomy and portal ordering (e.g. the compliance page listed "eIDAS Sector Requirements Annex" last, after all uppercase-initial titles, instead of among the E-annexes). Aligned the generator's sort key to `(TYPE_RANK..., d["title"].lower(), d["path"])`, matching the taxonomy generator. Verified: `.web/build.py --check` EXIT=0; a temp render now orders "eIDAS ... Annex" among the E-annexes (DORA -> eIDAS -> Energy). Cosmetic (ordering only; no data loss, no wrong document, no broken link) but user-visible on the live site. This finding CONTRADICTED the #942 handoff's asserted-clean "#940 ... consistent" claim (the "TYPE_ORDER IDENTICAL" sub-claim held; the "consistent" header was the miss), so it is a genuine miss of the closing session's self-assessment, escalated and fixed in-window.
+
+### Changed
+
+- Widened TODO §3.76 (the TYPE_ORDER DRY guard) so its scope is the WHOLE per-domain sort key (primary rank plus the secondary tiebreaker), not only the `TYPE_ORDER` tuple, per the A-1 lesson.
+- Advanced the resume cursor and added the Sweep 105 row + detail file ([`.working/validate-sweeps/2026-07-15-sweep105-iter1.md`](../validate-sweeps/2026-07-15-sweep105-iter1.md)); bumped [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) to 2.0.103.
+- Pruned [`.working/session-handoff.md`](../session-handoff.md) per the keep-current-plus-one-prior discipline (kept the #942 and #917 session blocks; dropped the #901-#913 sweep102 blocks) and neutralized the resulting dangling "#914" pointer.
+- Acquired the concurrency lease ([`.working/session-state.md`](../session-state.md): Status active, Active-session `claude/resume-sweep105-validate`, fresh heartbeat).
+
+### Verification
+
+- Mechanical baseline **69/69** at #942 (`7651a1b`), a descendant of the asserted green-at `3fc2a0c`/#941; no close-vs-start drift; clone non-shallow.
+- Sweep result: **0 error / 1 warning / 0 note** (A: 1 warning [A-1, fixed]; B: 0; C: 0). Pre-flight 421 files, 11 candidates all the collection-count-word false-positive class, dismissed by all three subagents. Asserted-expectations cross-check: A-1 contradicts the "#940 consistent" claim (escalated + fixed); all other asserted-clean surfaces corroborated, 0 further contradictions. **Loop-break control for #942 PASSES.**
+- Subagent B confirmed corpus-wide: fabricated-AICM residue 0, no closed-section orphans in gate-exempt carriers, counts 69/13/23/14/18, no website content-boundary leak. Subagent C confirmed four-surface parity at gate 69, the #933 gate-69 widening reflected in all free-prose surfaces, regression suite 381 EXIT=0, both generators `--check` EXIT=0.
+- No corpus document body changed (the A-1 fix is to the `.web/` generator, not a versioned corpus document; `.web/dist/` is git-ignored and rebuilt on deploy; the taxonomy source already sorted correctly). Library CalVer `2026.07.430` -> `2026.07.431`, README Version `1.9.791` -> `1.9.792`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.430, PR #942
 
 Session-closing handoff (terse; working-state only, no corpus content changed). The 2026-07-15 long resumed session (overnight #929-#936 + attended wind-down #937-#941, merged through #941) lands its working state on `main` as a green merge so the next session resumes from the branch. This PR: refreshes [`.working/session-handoff.md`](../session-handoff.md) (a new State snapshot + Asserted-expectations + Next-actions block, leading with the maintainer's directive to review the deployed grclibrary.ai site first; green-at `3fc2a0c`/#941 = 69/69); adds the [`.working/session-metrics.md`](../session-metrics.md) row (measured post-compaction subagent floor ~1.98M across ~11 dispatches; pre-compaction dispatches excluded, not fabricated; orchestrator not instrumented); batches PR #941's `/validate-pr` (SHIP 0/0/0) + `/retro`; and RELEASES the concurrency lease ([`.working/session-state.md`](../session-state.md): Status released, Active-session none). Per the closing-handoff loop-break (PR-workflow step 5a exception) it takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #918..#942 deltas, cross-checked against this handoff's Asserted-expectations. Pre-push guard (`tools/run_all_audits.sh` 69/69 + PR-time checks) green.
