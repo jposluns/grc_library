@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, and per-domain pages (TODO section 2.4).
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, and per-domain pages (TODO section 2.4).
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
-the about page, and one page per corpus domain) from the LIVE corpus at build time.
+the about page, the governance-pack page, and one page per corpus domain) from the
+LIVE corpus at build time.
 There is one source of truth (the corpus); the site is a projection of it. Every
 corpus figure on the pages is recomputed here
 from ``taxonomy.yml`` (the canonical machine-readable taxonomy, kept in sync with
@@ -16,7 +17,7 @@ explicit allow-list: ``taxonomy.yml``, ``README.md``, each corpus domain's own
 and shared partials under ``.web/templates/``. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. Its only output is the rendered site under
-``.web/dist/`` (``index.html``, ``about/index.html``, and one
+``.web/dist/`` (``index.html``, ``about/index.html``, ``pack/index.html``, and one
 ``<domain>/index.html`` per corpus domain). So the published surface is those
 pages and nothing else; a repo file cannot leak onto the public site through this
 generator. The about page's content is static template prose (the maintainer bio
