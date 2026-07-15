@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.432, PR #944
+
+Pack-page card links (a maintainer-directed website request) plus the batched post-merge QA for PR #943.
+
+### Changed
+
+- **Pack-page "Three ways to use it" cards now link (website consistency).** The three `.mode` cards in the §02 section of [`.web/templates/pack.html`](../../.web/templates/pack.html) had a plain-text kicker (`.m-k`: "As shipped" / "With overlays" / "Standalone") and no link, unlike every card on the landing page (whose `.feat` kicker `.k > a` links to the most-relevant document). Wrapped each pack-card kicker in a link, matching the landing pattern exactly (the landing "How it's built" kickers "Structured" / "Cross-linked" / "Practical" are the same shape, abstract labels linking to relevant docs): **As shipped** -> the repository (to fork), `https://github.com/jposluns/grc_library`; **With overlays** -> the adopter guide, [`docs/adopter-guide.md`](../../docs/adopter-guide.md); **Standalone** -> the pack directory, [`dev-security/claude-rules`](../../dev-security/claude-rules) (the one directory to drop into any project). No CSS change was needed: the global anchor style is brass with hover-underline and `.mode .m-k` is already brass, so the kicker link renders consistently with the landing kicker links. Verified by a temp render (all 3 links present and correct) and `.web/build.py --check` (EXIT=0). Card 2's target (adopter guide vs pack README) was the one judgment call, resolved to the adopter guide as the canonical "adopt in a fork" resource.
+
+### Fixed
+
+- Corrected a meta-prose count conflation in the PR #943 Sweep 105 detail file (the #943 `/validate-pr` Subagent A note N-1): "All 6 pre-flight FP candidates" -> "All 11 pre-flight candidates (across 6 files)", reconciling with the file's own "11 candidates" and the history row. Gate-exempt `.working/` frozen record; no adopter or correctness impact.
+
+### QA (batched per recursion-avoidance)
+
+- PR #943 `/validate-pr`: 0 error / 0 warning / 1 note (the N-1 count conflation above, fixed here); the A-1 sort-key fix independently re-verified correct (0/12 domains diverging post-fix). Record: [`.working/validate-pr/2026-07-15-PR-943.md`](../validate-pr/2026-07-15-PR-943.md); history row + [`.working/improvement-log.md`](../improvement-log.md) retro row batched into this PR.
+
+### Verification
+
+- `.web/build.py --check` EXIT=0 (312 documents, 14 pages, library 2026.07.432); temp render confirms the 3 pack-card kicker links. No corpus document body changed (website template + working-state only). Library CalVer `2026.07.431` -> `2026.07.432`, README Version `1.9.792` -> `1.9.793`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.431, PR #943
 
 The `/resume` loop-break **Sweep 105** corpus-wide `/validate` close-out for the just-closed 2026-07-15 long resumed session (the compensating control for session-closing handoff PR #942, which skipped its trailing `/validate-pr` + `/retro`), covering the **#918..#942** delta window. Full three-subagent A/B/C dispatch, all read-only-git on the shared tree.
