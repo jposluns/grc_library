@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.430, PR #942
+
+Session-closing handoff (terse; working-state only, no corpus content changed). The 2026-07-15 long resumed session (overnight #929-#936 + attended wind-down #937-#941, merged through #941) lands its working state on `main` as a green merge so the next session resumes from the branch. This PR: refreshes [`.working/session-handoff.md`](../session-handoff.md) (a new State snapshot + Asserted-expectations + Next-actions block, leading with the maintainer's directive to review the deployed grclibrary.ai site first; green-at `3fc2a0c`/#941 = 69/69); adds the [`.working/session-metrics.md`](../session-metrics.md) row (measured post-compaction subagent floor ~1.98M across ~11 dispatches; pre-compaction dispatches excluded, not fabricated; orchestrator not instrumented); batches PR #941's `/validate-pr` (SHIP 0/0/0) + `/retro`; and RELEASES the concurrency lease ([`.working/session-state.md`](../session-state.md): Status released, Active-session none). Per the closing-handoff loop-break (PR-workflow step 5a exception) it takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #918..#942 deltas, cross-checked against this handoff's Asserted-expectations. Pre-push guard (`tools/run_all_audits.sh` 69/69 + PR-time checks) green.
+
 ## 2026-07-15, Library Version 2026.07.429, PR #941
 
 Landing-page left-nav two-level nesting (TODO §2.16, maintainer-directed this session). Website template + generator only; no corpus document content changed.
