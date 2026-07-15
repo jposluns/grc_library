@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.414, PR #926
+
+The public landing-page restructure (backlog section 2.4, closing the adoption round), plus the batched PR #925 post-merge QA. Landing-page-scoped; no corpus document changed and no generated artefact was touched. This completes the website effort (PR #921 through #926).
+
+### Changed
+- **New "Get started" section, placed third** in [`.web/templates/landing.html`](../../.web/templates/landing.html) (right after "What it is"), with six cards linking to material already in the corpus: find your path ([`docs/decision-tree.md`](../../docs/decision-tree.md)), see it done ([`docs/worked-example-adoption.md`](../../docs/worked-example-adoption.md)), start from a template ([`docs/template-quickstart.md`](../../docs/template-quickstart.md)), map your obligations ([`compliance/matrix-grc-compliance-alignment.md`](../../compliance/matrix-grc-compliance-alignment.md)), adopt the whole programme ([`docs/adopter-guide.md`](../../docs/adopter-guide.md)), and assess your maturity ([`docs/template-maturity-self-assessment.md`](../../docs/template-maturity-self-assessment.md)). The hero's primary button is now "Get started". Nothing new was authored; every card links to an existing document.
+- **Governance-pack section slimmed to a teaser.** It now shows three highlight rule cards (project-integrity, gate-discipline, evidence-grounded-completion) and a "See the full pack: 13 rules and 23 skills" link to the `/pack` page (internal); the other three rule cards moved to `/pack` in PR #925.
+- **Licence split into its own closing section.** The former section 06 "Use it, adapt it, cite it" (which opened with the licence) became section 07 "Licence & reuse" at the very end, carrying the CC BY-SA intro and the ShareAlike explanation only; its three adopt cards folded into "Get started". Sections renumbered 01-07 (what / get-started / how-it's-built / pack / by-domain / standards / licence); the sidebar and the shared footer nav ([`.web/templates/partials/footer.html`](../../.web/templates/partials/footer.html)) were updated to match, and no `#adopt` anchor is left dangling.
+
+### Removed
+- The now-unused `.adopt-grid` / `.adopt-card` CSS in [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html) (orphaned when the adopt cards moved into "Get started", which uses the existing `.feat-grid`). No template references them.
+
+### Fixed
+- **PR #925 post-merge review (both in-window, internal-only).** The [`.web/build.py`](../../.web/build.py) module docstring's page-set enumeration omitted the pack page in three carriers; the pack page is now listed in all three. And the concurrency-lease `Current-task` in [`.working/session-state.md`](../../.working/session-state.md) was one PR behind; it is refreshed to the current state.
+
+### Verification
+- The generator's `--check` is rc=0 (14 pages, no leftover placeholders); the landing page has exactly seven sections numbered 01-07 in order, every sidebar anchor resolves to a section, no `#adopt` remains, all six Get-started links and the three pack-rule links resolve, and the `/pack` teaser is an internal link. Full `tools/run_all_audits.sh` = 69/69.
+- **PR A skeptical verifier** (refute-briefed, read-only-git): **SHIP, 0 defects** across seven checks, including content-preservation: the ShareAlike licence block is byte-identical to before, and all three former adopt actions survive as Get-started cards. Visual/responsive appearance was not browser-verified (no browser on the build host); the maintainer reviews the live preview.
+- **PR #925 post-merge validation** (Subagent A, refute-briefed, read-only-git on `e50fc22`): SHIP-WITH-NOTES, 0 error / 0 warning / 2 note (the docstring and the lease), both FIXED here; record at [`2026-07-15-PR-925.md`](../validate-pr/2026-07-15-PR-925.md).
+
+### Notes
+- This closes the §2.4 website effort. The remaining §2.4 items are maintainer-only (confirm the Cloudflare build-watch-paths include the 11 domain directories, and the publish go-decision); §2.4 stays open until publish. One small cleanup is tracked: DRY the landing/pack contents-sidebar CSS into the shared partial (currently duplicated per-page).
+
 ## 2026-07-15, Library Version 2026.07.413, PR #925
 
 A dedicated `/pack` page on the public site for the AI-assistant governance pack (backlog section 2.4, the adoption round), plus the batched PR #924 post-merge QA. No corpus document changed and no generated artefact was touched.
