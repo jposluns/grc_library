@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.450, PR #962
+
+Public-site For-AI citation clarity + two maintainer-flagged P3 backlog items. Website template and backlog only; no corpus content changed. Also batches PR #961's post-merge QA.
+
+### Changed
+- [`.web/templates/for-ai.html`](../../.web/templates/for-ai.html): the two AI-documentation-practice entries dropped their opaque academic author-citations for plain-language source references. "Model Cards (Mitchell et al., 2019), the origin of the model-card practice" becomes "Model Cards, from the 2019 research paper that introduced the practice"; "Datasheets for Datasets (Gebru et al., 2018), the origin of the dataset-datasheet practice" becomes "Datasheets for Datasets, from the 2018 research paper that introduced it" (the maintainer's "name the source plainly" option). `.web/build.py --check` EXIT=0; the old author-et-al forms have 0 residual in the rendered site.
+
+### Added
+- [`TODO.md`](../../TODO.md) §3.78 (website: link each skill to its SKILL.md file, not the bare skill directory) and §3.79 (give corpus coverage to the For-AI "named, not yet covered" instruments, then sync the page; corpus-first, tied to the §2.17-2.21 jurisdiction annexes). Both tagged as the maintainer's prioritized P3 items (2026-07-15); the P3 `Next item number` counter advanced to 3.80.
+
+### Verification
+- PR #961 `/validate-pr` (Subagent A, refute-briefed, read-only-git on `5a48c7a`): SHIP, 0 findings; history row added to [`validate-pr/history.md`](../validate-pr/history.md). PR #961 `/retro`: row added to [`improvement-log.md`](../improvement-log.md).
+- Pre-push guard green; library CalVer 2026.07.450, README 1.9.811.
+
 ## 2026-07-15, Library Version 2026.07.449, PR #961
 
 Two small public-site copy and style tweaks (maintainer-directed 2026-07-15). Website templates only; no corpus content changed. Also batches PR #960's post-merge QA.
