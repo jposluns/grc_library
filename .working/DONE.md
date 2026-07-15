@@ -11,6 +11,14 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.76: TYPE_ORDER drift guard between the two generators (2026-07-15, PR #949)
+
+Added a regression-suite test (`GeneratorSortKeyParityTests` in `tests/test_linters.py`) that asserts the two document-ordering generators, `tools/build-taxonomy.py` and `.web/build.py`, carry an identical `TYPE_ORDER` rank AND a matching secondary sort key (case-insensitive title + repo-relative-path tiebreaker), a text extract with no import coupling. Widened from a rank-only guard by Sweep 105 finding A-1, which found identical `TYPE_ORDER` but a divergent case-sensitive-vs-insensitive secondary key; the test now fails if either drifts. Closed §3.76.
+
+### TODO §2.16: landing-nav scrollspy + Get-started nesting (residual complete) (2026-07-15, PR #948)
+
+Completed the §2.16 residual left open after the #941 structural nesting: the 6 "Get started" cards got anchor ids and nest as indented sidebar sub-links, and a guarded IntersectionObserver scrollspy was added to the shared `script.html` (highlights the section/sub-item in view, lowest-in-view wins so nested sub-items are not shadowed, parent section also lit; drift-proof DOM-derived parent map; graceful degradation to static links). §2.16 fully closed (nesting #941 + residual #948). (Rotation batched into PR #949: the §2.16 close-out in #948 built the residual but missed rotating the TODO item; corrected here.)
+
 ### TODO §2.16 (partial): landing-nav two-level nesting shipped (2026-07-15, PR #941)
 
 The landing page's left nav was rebuilt into a two-level quick-nav: the 11 domains nest as indented sub-links under "By domain" (no longer a flat Domains group at the bottom), the 6 Standards sub-groups nest under "Standards" (anchored to new `std-*` heading ids), Licence kept, and a Contributors link (to `/about`) added at the end, plus `.sub` indent CSS and the `render_sidenav_domains` change. Fixes the maintainer's observation that the nav "ended with domains" without visible Standards/Licence. §2.16 stays OPEN for the residual (scrollspy active-highlighting + Get-started-step nesting).
