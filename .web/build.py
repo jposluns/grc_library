@@ -104,6 +104,21 @@ DOMAIN_SCOPE = {
 # The taxonomy marks the root-level specification documents with this domain.
 ROOT_DOMAIN = "root"
 
+# Reading-progression rank for the per-domain document list on each domain page
+# (maintainer-directed 2026-07-15, "source + type-priority ordering"): a domain's
+# documents read most-foundational-first (govern -> define -> do -> reference), then
+# alphabetically by title within a type, instead of alphabetically by type string.
+# This MUST stay in sync with ``TYPE_ORDER`` in ``tools/build-taxonomy.py`` (the
+# source-side rank that orders taxonomy.yml the same way); the value is replicated
+# here rather than imported because this site generator is deliberately standalone
+# (stdlib-only, isolated from ``tools/``). A type not listed sorts last (rank = len).
+TYPE_ORDER = (
+    "Principle", "Charter", "Policy", "Framework", "Standard", "Specification",
+    "Procedure", "SOP", "Guide", "Guideline", "Plan", "Roadmap",
+    "Matrix", "Register", "Checklist", "Template", "Annex",
+)
+TYPE_RANK = {t: i for i, t in enumerate(TYPE_ORDER)}
+
 _DOC_RE = re.compile(r'^- path:\s*"(.*)"\s*$')
 _DOMAIN_RE = re.compile(r'^  domain:\s*"(.*)"\s*$')
 _TYPE_RE = re.compile(r'^  type:\s*"(.*)"\s*$')
@@ -277,7 +292,8 @@ def compute_figures():
     types = sorted(by_type.items(), key=lambda kv: (-kv[1], kv[0]))
 
     # Per-domain page data: the domain's document list (title / type / path from
-    # the taxonomy, sorted by type then title) plus its README Purpose intro.
+    # the taxonomy, sorted by reading-progression type rank then title) plus its
+    # README Purpose intro.
     domain_pages = []
     for domain, count in domains:
         ddocs = [d for d in docs if d["domain"] == domain]
@@ -287,7 +303,7 @@ def compute_figures():
                 f"{len(untitled)} taxonomy entr(y/ies) in domain '{domain}' "
                 f"missing a title (schema change?); first: {untitled[0]}"
             )
-        ddocs = sorted(ddocs, key=lambda d: (d["type"], d["title"]))
+        ddocs = sorted(ddocs, key=lambda d: (TYPE_RANK.get(d["type"], len(TYPE_ORDER)), d["title"]))
         domain_pages.append(
             {
                 "domain": domain,

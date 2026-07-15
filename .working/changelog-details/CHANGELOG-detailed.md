@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.428, PR #940
+
+Domain-page document ordering: alphabetical -> a logical reading progression, applied in BOTH the taxonomy source generator and the website generator (maintainer-chosen "source + type-priority sort", 2026-07-15). Tooling only; no corpus document content changed.
+
+### Changed
+
+- [`.web/build.py`](../../.web/build.py) (the website generator, the surface the maintainer reviews): its per-domain page list was sorted by `(type-string, title)`, i.e. by type name ALPHABETICALLY, so Annex / Charter / Framework floated to the top, which is the "order doesn't seem right" that was observed. Changed to sort by a `TYPE_RANK` reading-progression rank, so each domain page now reads govern -> define -> do -> reference (Charter/Policy, then Framework/Standard, then Procedure/Guide, then Register/Template/Annex), alphabetical by title within a type. **This website-generator sort is what actually reorders the published pages**: the generator filters the taxonomy to a domain and then re-sorts, so taxonomy row order alone would not have changed the pages (a correction to an earlier assumption that the source order propagates).
+- [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py): added the same `TYPE_ORDER`/`TYPE_RANK` rank and an `_order_key(path)` that sorts by (domain, type-rank, title, path); `iter_all_docs()` now returns `sorted(set(files), key=_order_key)` instead of `sorted(set(files))`. This puts the taxonomy source itself into the same logical order, so the source file reads consistently with the pages (the maintainer's "source" choice). An unlisted type sorts last (rank = len). The rank is replicated in the two generators because `.web/` is a standalone stdlib-only tool isolated from `tools/`; the two copies MUST stay in sync, and a consistency guard is queued (TODO §3.76).
+- [`docs/portal.md`](../../docs/portal.md) (sorts by audience then type/title) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) (sorts by path) order INDEPENDENTLY of taxonomy row order, so both are UNCHANGED by this PR (git status confirms neither moved); that is correct, they carry their own intentional orders. The order-insensitive lint consumers (version-bump-recency, listing-surface-completeness, gate parity, changelog-link, preflight) use the document set, not its order. Domains keep their alphabetical grouping; the only inter-domain move is the two root `specification-*.md` files sorting among the r-domains in the taxonomy source.
+
+### Verification
+
+- Lossless re-sort of the taxonomy source: the set of `- path:` entries is unchanged (312 before and after; `git diff` shows 181 moved positions, net zero added/removed). `build-taxonomy.py --check` and `build-portal.py --check` clean (drift gates confirm deterministic reproducibility). `.web/build.py --check` OK (generator-health, all 14 pages render), and a temp build confirms each domain page now lists in type-rank order (ai: Charter, Charter, Policy, Framework..., Standard...). Regression suite OK; [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 69/69. One refute-briefed skeptical verifier checked the taxonomy re-sort's losslessness, within-domain type-order correctness across multiple domains, determinism, domain-grouping preservation, and full type coverage (ZERO findings).
+- Batched PR #939's post-merge QA: the #939 `/validate-pr` row (SHIP, 0 findings) in [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.707) and the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (1.0.643).
+
 ## 2026-07-15, Library Version 2026.07.427, PR #939
 
 Resolves three maintainer decisions from the attended wind-down and batches PR #938's QA. The one corpus-content change is the AICM citation fix.
