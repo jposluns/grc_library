@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/procedure-fourth-review-fix
+**Active-session:** claude/website-text-fixes
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-15T18:58:22Z
+**Last-heartbeat-UTC:** 2026-07-15T19:14:47Z
 
-**Current-task:** ACTIVE. The 2026-07-15 resumed session (`/resume` from #954), attended-autonomous on the VM, gh-CLI (no GitHub MCP). Merged this session: #955 (Canada AI regulatory annex, maintainer-requested ahead of a Canada AI Alliance expert review: Treasury Board Directive review-ordinal fix third->fourth, two accuracy-polish items, and a new AI Strategy for the Federal Public Service 2025-2027 section with its Government of Canada AI Register; v0.0.2->1.0.1). This PR #956 fixes the SAME "third review" error in `ai/procedure-integrated-ai-and-privacy-assessment.md` (surfaced by #955's `/validate-pr` cross-reference check; maintainer chose fix-now) and batches #955's `/validate-pr` + `/retro` records (including the first-ever skeptical-verifier override, a false-positive "trusted", logged in `verifier-overrides.md`). **STILL PENDING this session:** the website-text batch PR (4 fixes, staged/stashed: landing hero two-line, landing §01 one-line, about "over thirty"->"thirty", for-ai hero colour-per-line); the version-maturation initiative (per-doc Versions under 1.0.1 -> 1.0.1, maintainer-flagged 2026-07-15, after the website work); and the standing loop-break corpus-wide `/validate` (Sweep 106) over #943..#954. Lease active.
+**Current-task:** ACTIVE. The 2026-07-15 resumed session (`/resume` from #954), attended-autonomous on the VM, gh-CLI. Merged this session: #955 (Canada AI annex accuracy corrections + new AI Strategy for the Federal Public Service 2025-2027 section, v1.0.1), #956 (the same "third review" fix in the integrated AI-and-privacy procedure, surfaced by #955's cross-ref). This PR #957 ships four public-site text fixes (landing hero two-line, landing §01 one-line, about "thirty years", For-AI hero colour-per-line) and batches #956's `/validate-pr` + `/retro`. **STILL PENDING this session:** the version-maturation initiative (per-doc Versions under 1.0.1 -> 1.0.1, maintainer-flagged 2026-07-15, next after this website PR); the standing loop-break corpus-wide `/validate` (Sweep 106) over #943..#954; and the `grc_library_ref` ingest of the 71 Canada.ca source files the maintainer added to `ingest/` (resynced 2026-07-15; maintainer to give ingest instructions). Lease active.
 
 **Worker-dispatches:** this session dispatched three parallel adversarial fact-check subagents (read-only) over the Canada AI annex, each verifying one instrument cluster against the held `grc_library_ref` primary sources; all findings re-verified by the orchestrator at apply time and the two date/ordinal items confirmed upstream on canada.ca. The `grc_library_scratch` inbox holds 15 pure-research seeds (11 PENDING + 4 UNMAPPED per `tools/audit-delivery-status.py`), all deliberately KEPT in the §3.58 disposition; unchanged this session.
 

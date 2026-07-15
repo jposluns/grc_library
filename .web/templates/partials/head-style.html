@@ -242,6 +242,9 @@
     text-wrap: balance;
     margin: 0;
   }
+  /* Opt a specific section heading out of balanced wrapping so it fills the
+     line greedily (one line where it fits) instead of splitting mid-phrase. */
+  .sec-head h2.nobalance { text-wrap: wrap; }
   .lede { font-size: 1.15rem; line-height: 1.6; color: var(--ink-soft); max-width: none; margin: 0 0 2.4rem; }
   .lede b { color: var(--ink); font-weight: 600; }
 
