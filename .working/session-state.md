@@ -1,10 +1,10 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/website-landing-eyebrows-cta
+**Active-session:** claude/website-per-type-pages
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-15T16:27:43Z
+**Last-heartbeat-UTC:** 2026-07-15T16:55:48Z
 
 **Current-task:** ACTIVE. The 2026-07-15 resumed session (`/resume` from #942) holds the lease, now on branch `claude/website-sidebars-scrollspy`, attended-autonomous on the VM, gh-CLI (no GitHub MCP). Working the maintainer's **website-adjustment batch** (website updates take priority this session). Merged so far this session through #950 (Sweep 105 close-out #943; pack card-links #944; landing §05 lede #945; For-AI page + robots/sitemap/llms #946; AUTHORS attribution link #947; §2.16 residual #948; §3.76 parity guard #949; "License" spelling #950). Merged #951 (batch item 2: sidebars + DRY sidebar CSS + scrollspy trio-highlight). This PR (#952) is batch **item 3** (landing polish): an orange eyebrow tagline above every landing section + the green-check "machine-auditable" line converted to a boxed CTA to the audit-programme spec + removal of the orphaned `verified-note` CSS; it fixes the #951 `/validate-pr` warning W-1 (the Priority-3 `Next item number` counter left at 3.77, now 3.78) and batches #951's QA. **Maintainer-applied out-of-band:** the Cloudflare Pages build-watch-paths config (`\.web/*, taxonomy.yml, README.md, */README.md`) was updated by the maintainer 2026-07-15 and that item is closed (external config, no repo artefact). **NEXT:** batch item (4) per-type listing pages + clickable "By document type" chips (Option A), then §2.15 standards-source links, then §3.75 web->corpus link-integrity, THEN the maintainer-gated §2.4 publish go (Cloudflare console). Tooling follow-up §3.77 (CHANGELOG link-gate `.html`/`.css`/`.js` extensions) after the website batch.
 

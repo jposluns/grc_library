@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, and per-domain pages (TODO section 2.4).
+"""Static-site generator for the grclibrary.ai public site: the landing, about, pack, per-domain, and per-type pages (TODO section 2.4).
 
 WHAT THIS IS. A stdlib-only generator that renders the public site (the landing page,
-the about page, the governance-pack page, and one page per corpus domain) from the
-LIVE corpus at build time.
+the about page, the governance-pack page, one page per corpus domain, and one listing
+page per document type) from the LIVE corpus at build time.
 There is one source of truth (the corpus); the site is a projection of it. Every
 corpus figure on the pages is recomputed here
 from ``taxonomy.yml`` (the canonical machine-readable taxonomy, kept in sync with
@@ -18,8 +18,9 @@ and shared partials under ``.web/templates/``. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. Its only output is the rendered site under
 ``.web/dist/`` (``index.html``, ``about/index.html``, ``pack/index.html``,
-``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, and the
-three generated files ``robots.txt``, ``sitemap.xml``, and ``llms.txt``). So the
+``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
+``types/<slug>/index.html`` per document type, and the three generated files
+``robots.txt``, ``sitemap.xml``, and ``llms.txt``). So the
 published surface is those pages and files and nothing else; a repo file cannot
 leak onto the public site through this generator. The about page and the For-AI
 page are static template prose (the maintainer bio and acknowledged contributors;
@@ -118,6 +119,41 @@ DOMAIN_SCOPE = {
     "risk": "Risk methodology, assessment, and treatment",
     "architecture": "Reference architectures and secure-design control patterns",
 }
+
+# One-line description per document TYPE, shown as the intro on each per-type
+# listing page (the /types/<slug>/ pages the "By document type" chips link to).
+# A type present in the taxonomy but missing here is a build error (mirrors the
+# DOMAIN_SCOPE completeness check). Descriptions of the pairs the ingestion spec
+# distinguishes (Procedure/SOP, Plan/Roadmap, Guideline/Guide, Template) follow
+# specification-ingestion.md "Type selection guidance"; the rest describe how the
+# corpus uses the type.
+TYPE_SCOPE = {
+    "Standard": "Normative control requirements that policies delegate to and audits test against",
+    "Procedure": "Multi-actor, cross-functional workflows that coordinate several roles",
+    "Annex": "Jurisdiction- and sector-specific overlays that extend a parent document",
+    "Register": "Living inventories of record: assets, risks, controls, and decisions",
+    "Template": "Reusable blank skeletons meant to be copied into working instances",
+    "Framework": "Organizing structures that arrange controls, functions, and lifecycles",
+    "Policy": "Governing intent and mandatory direction the rest of the corpus implements",
+    "Guideline": "Advisory interpretation of a policy or standard requirement",
+    "Plan": "Event-triggered or schedule-bound coordination such as incident or recovery",
+    "Matrix": "Cross-walks that map controls and citations across frameworks",
+    "Specification": "The library's own meta-documents defining how the corpus is built",
+    "Charter": "Mandates that establish a function's authority, scope, and accountability",
+    "Guide": "Technical reference material organized for adoption and implementation",
+    "SOP": "Single-actor or narrow-team step sequences for one repeatable task",
+    "Checklist": "Point-in-time verification lists for a defined activity",
+    "Principle": "Foundational commitments that anchor the corpus's design choices",
+    "Roadmap": "Multi-phase forward strategy tied to milestones and dependencies",
+}
+
+
+def type_slug(type_name):
+    """URL slug for a document type (e.g. 'Standard' -> 'standard', 'SOP' -> 'sop').
+    Lowercase, non-alphanumeric runs collapsed to a hyphen, so a future multi-word
+    type stays a clean single path segment."""
+    return re.sub(r"[^a-z0-9]+", "-", type_name.lower()).strip("-")
+
 
 # The taxonomy marks the root-level specification documents with this domain.
 ROOT_DOMAIN = "root"
@@ -339,6 +375,36 @@ def compute_figures():
             }
         )
 
+    # Per-type page data: each type's document list across ALL domains (including
+    # the root specification docs, which are in by_type though popped from
+    # by_domain), sorted by domain then title, plus its curated one-line scope. A
+    # taxonomy type with no TYPE_SCOPE entry is a build error.
+    unknown_types = sorted(set(by_type) - set(TYPE_SCOPE))
+    if unknown_types:
+        raise BuildError(
+            "document type(s) in the taxonomy with no TYPE_SCOPE description: "
+            + ", ".join(unknown_types)
+        )
+    type_pages = []
+    for type_name, count in types:
+        tdocs = sorted(
+            [d for d in docs if d["type"] == type_name],
+            key=lambda d: (d["domain"], d["title"].lower(), d["path"]),
+        )
+        if len(tdocs) != count:
+            raise BuildError(
+                f"type '{type_name}' count mismatch: {count} vs {len(tdocs)} docs"
+            )
+        type_pages.append(
+            {
+                "type": type_name,
+                "slug": type_slug(type_name),
+                "scope": TYPE_SCOPE[type_name],
+                "docs": tdocs,
+                "count": count,
+            }
+        )
+
     return {
         "total": total,
         "root_count": root_count,
@@ -349,6 +415,7 @@ def compute_figures():
         "types": types,
         "calver": calver,
         "domain_pages": domain_pages,
+        "type_pages": type_pages,
     }
 
 
@@ -394,11 +461,15 @@ def render_sidenav_domains(figures):
 
 
 def render_type_chips(figures):
+    """The "By document type" chips on the landing #register section, each a link
+    to that type's per-type listing page (/types/<slug>/)."""
     chips = []
     for type_name, count in figures["types"]:
+        slug = type_slug(type_name)
         chips.append(
-            f'          <span class="type-chip"><span class="tn">{count}</span>'
-            f'<span class="tk">{_esc(type_name)}</span></span>'
+            f'          <a class="type-chip" href="/types/{slug}/">'
+            f'<span class="tn">{count}</span>'
+            f'<span class="tk">{_esc(type_name)}</span></a>'
         )
     return "\n".join(chips)
 
@@ -451,6 +522,45 @@ def domain_page_values(dp):
             "domain of the open, CC BY-SA 4.0 GRC Library."
         ),
         "DOMAIN_CANONICAL": f"{SITE_BASE}/{name}/",
+    }
+
+
+def render_type_doc_rows(tp):
+    """One list row per document of this type: a small tag showing the document's
+    DOMAIN (all rows on a type page share the type) and the document title rendered
+    as the link to its source on GitHub. Reuses the shared .doc-* list styles."""
+    rows = []
+    for d in tp["docs"]:
+        url = GITHUB_BLOB_BASE + d["path"]
+        # Root-level specs (domain "root") only ever surface on a type page; show
+        # a reader-friendly "library" tag rather than the internal "root".
+        dom = "library" if d["domain"] == ROOT_DOMAIN else d["domain"]
+        rows.append(
+            f'          <li class="doc-row">'
+            f'<span class="doc-type">{_esc(dom)}</span>'
+            f'<a class="doc-title" href="{_esc(url)}" target="_blank" rel="noopener">'
+            f'{_esc(d["title"])}<span class="ext">&#8599;</span></a>'
+            f"</li>"
+        )
+    return "\n".join(rows)
+
+
+def type_page_values(tp):
+    """The per-page values for one per-type listing page (merged on top of the
+    shared values in render_page). All are built from controlled strings (the type
+    name, curated scope, count), never from document prose."""
+    name = tp["type"]
+    return {
+        "TYPE_NAME": _esc(name),
+        "TYPE_SCOPE_TEXT": _esc(tp["scope"]),
+        "TYPE_DOC_COUNT": str(tp["count"]),
+        "TYPE_DOC_ROWS": render_type_doc_rows(tp),
+        "TYPE_TITLE": f"{_esc(name)} documents: GRC Library",
+        "TYPE_SEO_DESC": _esc(
+            f"{tp['scope']}. {tp['count']} {name}-type documents in the open, "
+            "CC BY-SA 4.0 GRC Library."
+        ),
+        "TYPE_CANONICAL": f"{SITE_BASE}/types/{tp['slug']}/",
     }
 
 
@@ -610,6 +720,16 @@ def render_site(figures):
         )
         pages.append((f"{dp['domain']}/index.html", html))
 
+    # One page per document type, from the shared type template plus that type's
+    # per-page values. Like the domain pages, each page's own leftover check in
+    # render_page guarantees its TYPE_* placeholders all resolved. The "By document
+    # type" chips on the landing page link here (/types/<slug>/).
+    for tp in figures["type_pages"]:
+        html, _ = render_page(
+            "type.html", figures, partials, extra=type_page_values(tp)
+        )
+        pages.append((f"types/{tp['slug']}/index.html", html))
+
     unused = sorted(all_values - used_across)
     if unused:
         raise BuildError(
@@ -628,7 +748,7 @@ def render_site(figures):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, pack, and per-domain pages) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
