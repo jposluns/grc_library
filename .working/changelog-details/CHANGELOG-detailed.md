@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.413, PR #925
+
+A dedicated `/pack` page on the public site for the AI-assistant governance pack (backlog section 2.4, the adoption round), plus the batched PR #924 post-merge QA. No corpus document changed and no generated artefact was touched.
+
+### Added
+- **The governance-pack page** at `pack/index.html`, from a new template [`.web/templates/pack.html`](../../.web/templates/pack.html) registered in [`.web/build.py`](../../.web/build.py)'s `PAGES` (14 pages total). It frames the pack as the portable operating-discipline layer distilled from running an AI-managed project, distinct in kind from the GRC corpus, and presents: the three adoption modes taken from the pack README (fork-as-shipped, fork-with-overlays, standalone-baseline); all 13 governance rules, each with a one-line purpose and a link to its file; and all 23 skills grouped by purpose (validation and QA, semantic-fit and reference audits, escalation and high-assurance, rule-companion disciplines), each linked. A contents sidebar lists every rule and every skill as an at-a-glance reference (a visual index of the pack's breadth). The rule/skill inventory is curated static template content, consistent with the landing page's hardcoded standards bibliography; every one of the 38 GitHub link targets was cross-checked to exist on disk.
+- The site footer's "Governance pack" link (in [`.web/templates/partials/footer.html`](../../.web/templates/partials/footer.html)) now points to `/pack`, so the page is reachable site-wide. The landing §03's repoint to `/pack` and the §03 slim are deferred to the next PR (the landing restructure).
+
+### Verification
+- The generator's `--check` is rc=0 (14 pages render, no leftover placeholders); the generator's diff is exactly the one `PAGES` line, no new file read or directory walk (content boundary unchanged). All 13 rule links and 23 skill links resolve to real files/dirs; 13 distinct rule targets, 23 distinct skills (groups 6+4+3+10), no dead links, no omissions. Full `tools/run_all_audits.sh` = 69/69.
+- **PR B skeptical verifier** (refute-briefed, read-only-git on the pack page): SHIP-WITH-NOTES, 0 critical / 0 high. One Medium accuracy finding, the `ai-assistant-workflow-disciplines` one-line description had named the fifth discipline wrong (it listed "tiered skeptical verification," which the rule explicitly says is a standard layered on top, not one of the five; the real fifth is productive use of CI-wait windows), FIXED here. One informational note, the landing/pack contents-sidebar CSS is duplicated per-page (flagged in-file; a tracked follow-up to DRY it into the shared partial). The 12 other rule one-liners and the three adoption modes verified faithful to their sources.
+- **PR #924 post-merge validation** (Subagent A, refute-briefed, read-only-git on `7be28de`): SHIP, 0 error / 0 warning / 0 note; record at [`2026-07-15-PR-924.md`](../validate-pr/2026-07-15-PR-924.md). The live-tree "14 pages" vs #924's "13 pages" was confirmed a concurrent-run artefact, not a defect.
+
+### Notes
+- UTC rolled over to 2026-07-15 during this PR (the maintainer's local clock was still 2026-07-14 evening); per the project's UTC date convention this entry, the bumped Dates, and the QA records use 2026-07-15, while the prior same-session PRs #921-#924 remain 2026-07-14.
+- Next in the adoption round: the landing restructure (one 6-card Get-started section placed 3rd, the CC BY-SA licence split into its own closing section, §03 slimmed to a `/pack` teaser, sidebar + footer nav updated).
+
 ## 2026-07-14, Library Version 2026.07.412, PR #924
 
 A contents-navigation sidebar on the public landing page (backlog section 2.4, the fourth maintainer-review PR, completing the live-review round), plus the batched PR #923 post-merge QA. No corpus document changed and no generated artefact was touched; the change is landing-page-scoped, so the about and domain pages are untouched.
