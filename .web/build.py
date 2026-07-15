@@ -500,7 +500,7 @@ def render_site(figures):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(
-        description="Render the grclibrary.ai public site (landing, about, and per-domain pages) from the live corpus.",
+        description="Render the grclibrary.ai public site (landing, about, pack, and per-domain pages) from the live corpus.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument(
