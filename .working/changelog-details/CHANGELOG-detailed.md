@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.440, PR #952
+
+Website batch item 3 (landing content polish): an orange eyebrow tagline above every landing section, and the out-of-place green check-marked "machine-auditable" closing line converted to a boxed call-to-action. Also fixes the #951 `/validate-pr` warning (the Priority-3 `Next item number` counter) and batches #951's QA.
+
+### Changed
+- Added a brass (orange) eyebrow tagline above each landing section that lacked one, matching the existing "For AI-assisted teams" eyebrow on the governance-pack section, in [`.web/templates/landing.html`](../../.web/templates/landing.html): §01 "Reference-grade", §02 "Your entry points", §03 "Governed like code", §05 "The full corpus", §06 "Grounded in the standards", §07 "Open for reuse". The §04 governance-pack section already carried one. Taglines are count-free (no hard-coded figures) to avoid drift.
+- Converted the lone green check-marked closing line of the "machine-auditable by construction" section (the `verified-note` span) into a boxed call-to-action styled like that page's "See the full pack" CTA (`pack-cta`), reading "See the audit programme: every gate, every PR" and linking to the [audit-programme specification](../../governance/specification-audit-programme.md), so it matches the surrounding standard-text style instead of standing out as a green line ([`.web/templates/landing.html`](../../.web/templates/landing.html)).
+
+### Removed
+- The now-unused `.verified-note` and `.verified-note .tick` CSS rules from [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html) (their only consumer was the converted line). The `--verified` colour token is retained as a theme-palette entry across the light/dark variants.
+
+### Fixed
+- Advanced the Priority-3 `**Next item number:**` counter in [`TODO.md`](../../TODO.md) from 3.77 to 3.78, closing the #951 `/validate-pr` warning W-1 (the counter was not advanced in the same edit that added §3.77).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 69/69 (via [`tools/tail-safe.sh`](../../tools/tail-safe.sh)); [`.web/build.py`](../../.web/build.py) `--check` EXIT=0 (18 pages).
+- Rendered the site to a scratch dir and confirmed the six new eyebrows render, the boxed CTA replaces the green line (0 `verified-note` residual anywhere), and the CTA target resolves.
+- Refute-briefed skeptical pre-push verifier on the diff (substantive multi-section template change).
+
+### Discipline observation
+- The #951 warning W-1 (counter not advanced when §3.77 was added) is the first occurrence of a new paired-surface shape introduced by the 2026-07-15 permanent-numbering counter convention: adding a numbered item is now a two-surface edit (the item + the section's `Next item number`). Recorded in the #951 retro for pattern-watch; a mechanical backstop is proposed there if it recurs.
+
 ## 2026-07-15, Library Version 2026.07.439, PR #951
 
 Added per-page contents sidebars to the For-AI, per-domain, and Contributors pages of the public site, refined the sidebar scrollspy so grid-row-peer nav items highlight together, and DRY'd the shared sidebar CSS into the common head stylesheet. This is item 2 of the maintainer's website-adjustment batch (the requested sidebars, items 3 and 4). It also folds in the #950 `/validate-pr` fix and batches #950's post-merge QA rows.
