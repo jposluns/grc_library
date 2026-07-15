@@ -17,15 +17,20 @@ explicit allow-list: ``taxonomy.yml``, ``README.md``, each corpus domain's own
 and shared partials under ``.web/templates/``. It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. Its only output is the rendered site under
-``.web/dist/`` (``index.html``, ``about/index.html``, ``pack/index.html``, and one
-``<domain>/index.html`` per corpus domain). So the published surface is those
-pages and nothing else; a repo file cannot leak onto the public site through this
-generator. The about page's content is static template prose (the maintainer bio
-and the acknowledged contributors), not corpus-derived. Each domain page draws
-only its intro (the domain README's ``## Purpose`` paragraph, public corpus
-content) and its document list (title / type / path from ``taxonomy.yml``, each
-linking out to the document's GitHub blob), so the allow-list additions are the
-eleven domain READMEs and nothing else.
+``.web/dist/`` (``index.html``, ``about/index.html``, ``pack/index.html``,
+``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, and the
+three generated files ``robots.txt``, ``sitemap.xml``, and ``llms.txt``). So the
+published surface is those pages and files and nothing else; a repo file cannot
+leak onto the public site through this generator. The about page and the For-AI
+page are static template prose (the maintainer bio and acknowledged contributors;
+and, for For-AI, descriptive guidance plus a resource index whose links point at
+public corpus artefacts on GitHub), not corpus-derived. ``robots.txt`` welcomes
+AI/search crawlers, ``sitemap.xml`` lists the rendered pages, and ``llms.txt`` is
+a curated Markdown map of public corpus artefacts. Each domain page draws only its
+intro (the domain README's ``## Purpose`` paragraph, public corpus content) and
+its document list (title / type / path from ``taxonomy.yml``, each linking out to
+the document's GitHub blob), so the allow-list additions are the eleven domain
+READMEs and nothing else.
 
 QUALITATIVE, NOT COUNTED. The automated gating system is described qualitatively
 on the page ("comprehensive, continuously-improving", "Continuous"), never as a
@@ -79,7 +84,20 @@ PAGES = [
     ("landing.html", "index.html"),
     ("about.html", "about/index.html"),
     ("pack.html", "pack/index.html"),
+    ("for-ai.html", "for-ai/index.html"),
 ]
+
+# AI and search crawlers explicitly welcomed in robots.txt (documenting intent;
+# a trailing wildcard group allows everyone, but naming the known AI/training
+# crawlers records that this openly-licensed corpus welcomes them and overrides
+# any restrictive platform-managed default). Order is alphabetical.
+AI_CRAWLER_USER_AGENTS = (
+    "AI2Bot", "Amazonbot", "anthropic-ai", "Applebot", "Applebot-Extended",
+    "Bytespider", "CCBot", "ChatGPT-User", "Claude-User", "Claude-Web",
+    "ClaudeBot", "cohere-ai", "Diffbot", "DuckAssistBot", "FacebookBot",
+    "Google-Extended", "GPTBot", "Meta-ExternalAgent", "OAI-SearchBot",
+    "PerplexityBot", "Perplexity-User", "Timpibot", "YouBot",
+)
 
 # The eleven corpus domains, with the one-line scope description shown in the
 # section-04 register. Curated prose (a scope sentence is not derivable from
@@ -491,10 +509,88 @@ def render_page(template_name, figures, partials, extra=None):
     return rendered, used
 
 
+def render_robots_txt():
+    """robots.txt welcoming AI and search crawlers. This corpus is CC BY-SA 4.0
+    and intended to be widely read, cited, and learned from (including as AI
+    training data), so the file names the known AI/training crawlers explicitly
+    with ``Allow: /`` and then allows everyone via a trailing wildcard group,
+    and advertises the sitemap. It is deliberately permissive and replaces any
+    platform-managed default that would restrict AI crawlers."""
+    lines = [
+        "# grclibrary.ai",
+        "# This is an open, CC BY-SA 4.0 governance, risk, and compliance corpus,",
+        "# intended to be widely read, cited, and learned from, including as",
+        "# training data for AI systems. All crawlers are welcome on every path.",
+        "",
+    ]
+    for ua in AI_CRAWLER_USER_AGENTS:
+        lines += [f"User-agent: {ua}", "Allow: /", ""]
+    lines += ["User-agent: *", "Allow: /", "", f"Sitemap: {SITE_BASE}/sitemap.xml", ""]
+    return "\n".join(lines)
+
+
+def _site_url_for(out_rel):
+    """Map a rendered page's output path to its canonical site URL."""
+    if out_rel == "index.html":
+        return f"{SITE_BASE}/"
+    if out_rel.endswith("/index.html"):
+        return f"{SITE_BASE}/{out_rel[: -len('index.html')]}"
+    return f"{SITE_BASE}/{out_rel}"
+
+
+def render_sitemap(html_page_rels):
+    """sitemap.xml listing every rendered site page as a directory-style URL,
+    built from the HTML page set so a newly-added page is listed automatically."""
+    locs = "\n".join(
+        f"  <url><loc>{_site_url_for(rel)}</loc></url>" for rel in html_page_rels
+    )
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{locs}\n"
+        "</urlset>\n"
+    )
+
+
+def render_llms_txt(figures):
+    """llms.txt (the llmstxt.org convention): a curated Markdown map of the site
+    and corpus for LLMs. Descriptive register only (a link list with short
+    notes). Corpus artefacts link to GitHub (the source material); site pages
+    link to grclibrary.ai. All links resolve to real, verified artefacts."""
+    gh = GITHUB_BLOB_BASE
+    repo = "https://github.com/jposluns/grc_library"
+    return f"""# GRC Library
+
+> An openly-licensed (CC BY-SA 4.0) corpus of organization-neutral governance,
+> risk, and compliance documentation in Markdown, spanning {figures['domain_count']} domains including a
+> self-contained AI-governance sub-corpus. Descriptive reference material; not legal advice.
+
+## Core
+- [GitHub repository]({repo}): the raw Markdown corpus, the source material.
+- [taxonomy.yml]({gh}taxonomy.yml): machine-readable inventory of every document.
+- [Adopter portal]({gh}docs/portal.md): audience-keyed navigation front door.
+- [Compliance matrix]({gh}compliance/matrix-grc-compliance-alignment.md): control-to-framework mappings.
+- [For AI]({SITE_BASE}/for-ai/): how AI systems can learn from the corpus, plus a resource index.
+
+## AI governance
+- [AI domain index]({gh}ai/README.md): the AI governance, risk, security, and documentation sub-corpus.
+- [AI compliance policy]({gh}ai/policy-ai-compliance.md): risk-tier classification and obligations.
+- [Governance rule-pack]({gh}dev-security/claude-rules/README.md): the disciplines an AI assistant follows when contributing to the corpus.
+
+## Optional
+- [Canonical citations register]({gh}governance/register-canonical-citations.md): the corpus's verified external-standard citations.
+- [Decision tree]({gh}docs/decision-tree.md), [Adopter guide]({gh}docs/adopter-guide.md), [Maturity scorecard]({gh}docs/maturity-scorecard.md).
+"""
+
+
 def render_site(figures):
     """Render every page. Returns a list of ``(out_rel, html)``. Enforces that
     every computed value is used by at least one page: a value used by no page is
-    a dead computation (or a dropped placeholder), which is a build error."""
+    a dead computation (or a dropped placeholder), which is a build error.
+
+    After the HTML pages, three generated non-template outputs are appended:
+    ``robots.txt``, ``sitemap.xml``, and ``llms.txt`` (they bypass the template
+    placeholder machinery, so they are added after the dead-value check)."""
     partials = load_partials()
     all_values = set(PARTIALS) | set(figure_values(figures))
     pages = []
@@ -520,6 +616,13 @@ def render_site(figures):
             "value(s) used by no page (dead computation or a dropped placeholder): "
             f"{', '.join('{{' + k + '}}' for k in unused)}"
         )
+
+    # Generated non-template outputs. The sitemap lists the HTML pages rendered
+    # above; append the three after the dead-value check.
+    html_page_rels = [rel for rel, _ in pages]
+    pages.append(("robots.txt", render_robots_txt()))
+    pages.append(("sitemap.xml", render_sitemap(html_page_rels)))
+    pages.append(("llms.txt", render_llms_txt(figures)))
     return pages
 
 

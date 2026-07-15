@@ -94,6 +94,10 @@ ALLOW_LIST = {
     "promptfoo.dev",
     # Schema.org and JSON schema
     "schema.org", "json-schema.org",
+    # Sitemaps.org: the XML namespace URI required in the generated sitemap.xml
+    # (.web/build.py). A protocol namespace, not a citation publisher, so the
+    # citation-verification spec (§7) is not updated (as with grclibrary.ai).
+    "sitemaps.org", "www.sitemaps.org",
     # SANS / CIS
     "sans.org", "cisecurity.org",
     # Library maintainer profile
