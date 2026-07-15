@@ -102,9 +102,13 @@ New AI-jurisdiction annexes deferred pending per-jurisdiction held-source suffic
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.76.**
+**Next item number: 3.77.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.76 TYPE_ORDER drift guard between the two generators (M, XS)
+
+The document-type reading-progression rank `TYPE_ORDER` is defined in BOTH [`tools/build-taxonomy.py`](tools/build-taxonomy.py) (orders `taxonomy.yml`) and [`.web/build.py`](.web/build.py) (orders the website domain pages), replicated because `.web/` is a standalone stdlib-only generator isolated from `tools/` (added in #940). The two copies must stay identical, or the taxonomy source order and the website page order would silently diverge. Add a consistency guard, a regression-suite test that parses `TYPE_ORDER` from both files and asserts they are identical (a small text/AST extract, no import coupling), so a future edit to one rank that misses the other fails the suite rather than drifting unnoticed. XS.
 
 ### 3.1 Base-unverified ISO/IEC designation debt tracker (L, S)
 

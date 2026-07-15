@@ -64,6 +64,38 @@ FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
 
 
+# Reading-progression rank for the per-domain document order (maintainer-directed
+# 2026-07-15, "source + type-priority ordering"). The taxonomy lists a domain's documents
+# most-foundational-first (govern -> define -> do -> reference), then alphabetically by
+# title within a type; the surfaces that render taxonomy order, notably the per-domain
+# website pages, inherit it. Ordering at the source keeps taxonomy.yml, the website domain
+# pages, and the scorecard consistent (the order-insensitive lint consumers are unaffected).
+# A document type not listed here sorts AFTER all known types (rank = len), so a newly
+# introduced type is visibly last rather than silently interleaved.
+TYPE_ORDER = (
+    "Principle", "Charter", "Policy", "Framework", "Standard", "Specification",
+    "Procedure", "SOP", "Guide", "Guideline", "Plan", "Roadmap",
+    "Matrix", "Register", "Checklist", "Template", "Annex",
+)
+TYPE_RANK = {t: i for i, t in enumerate(TYPE_ORDER)}
+
+
+def _order_key(path: Path) -> tuple:
+    """Sort key for the per-domain reading-progression order: (domain, type-rank, title, path).
+
+    Domains keep their alphabetical grouping (unchanged); within a domain, documents run
+    most-foundational-first by ``TYPE_RANK``, then alphabetically by title, with the
+    repo-relative path as a final deterministic tiebreaker (so the order is reproducible and
+    the drift gate stays clean). Reads the small metadata block so type/title are available
+    before emission. Maintainer-directed 2026-07-15."""
+    rel = path.relative_to(REPO_ROOT).as_posix()
+    domain = rel.split("/", 1)[0] if "/" in rel else "root"
+    meta = extract_metadata(path.read_text(encoding="utf-8"))
+    doc_type = meta.get("Document Type", "")
+    title = meta.get("Document Title", path.stem)
+    return (domain, TYPE_RANK.get(doc_type, len(TYPE_ORDER)), title.lower(), rel)
+
+
 def iter_all_docs() -> list[Path]:
     """Active governance artefacts (not READMEs, not exempt dirs, not superseded)."""
     files: list[Path] = []
@@ -85,7 +117,7 @@ def iter_all_docs() -> list[Path]:
         p = REPO_ROOT / name
         if p.exists():
             files.append(p)
-    return sorted(set(files))
+    return sorted(set(files), key=_order_key)
 
 
 def extract_metadata(text: str) -> dict[str, str]:
