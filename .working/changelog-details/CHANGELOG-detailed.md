@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.433, PR #945
+
+Landing "By domain" (§05 register) section text clarity (a maintainer-directed website request) plus the batched post-merge QA for PR #944.
+
+### Changed
+
+- **Doc-count text moved out of the table as a section-intro paragraph.** In [`.web/templates/landing.html`](../../.web/templates/landing.html) the §05 "The corpus, by domain" section previously carried its document count only as a `<table>` `<caption>` ("{{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} governance domains, counts from the generated taxonomy"). Per the maintainer, that text now renders as a `<p class="lede">` section-intro paragraph ABOVE the table, matching every other section's intro-paragraph style, and the table caption is removed. New intro: "The corpus spans {{DOC_TOTAL}} documents across {{DOMAIN_COUNT}} governance domains. Every count here is recomputed from the generated taxonomy on each change, so the numbers stay current."
+- **Below-table note reworded for clarity and up-sized to the section-paragraph style.** The note previously read "Domain counts total {{DOMAIN_DOC_TOTAL}}; a further {{ROOT_COUNT}} programme-level specification documents sit at the corpus root, for {{DOC_TOTAL}} in all." (class `register-note`, 0.86rem, faint), which read oddly because the headline says {{DOC_TOTAL}} (312) while the note led with {{DOMAIN_DOC_TOTAL}} (310). Reworded to explain the gap plainly and set to `class="lede"` (1.15rem, matching the intro paragraph, per the maintainer's "match the text size of the paragraph before the table"): "The per-domain counts in the table sum to {{DOMAIN_DOC_TOTAL}}; the remaining {{ROOT_COUNT}} of the {{DOC_TOTAL}} total documents are programme-level specifications that sit at the corpus root rather than inside any one domain." The `.register-note` CSS is retained (still used on the pack page); the now-orphaned `table.register caption` CSS is left in place (harmless scoped selector, in the shared partial).
+- Trimmed [`.working/next-prs.txt`](../next-prs.txt) line 1 back under the ~120-char console-statusline budget (the #944 `/validate-pr` note N-1; it had grown to 150 chars).
+
+### QA (batched per recursion-avoidance)
+
+- PR #944 `/validate-pr`: 0 error / 0 warning / 1 note (the next-prs.txt overlength above, fixed here); pack-card links, targets, version bumps, CHANGELOG parity, and batched #943 QA all verified clean. Record: [`.working/validate-pr/2026-07-15-PR-944.md`](../validate-pr/2026-07-15-PR-944.md); history row + [`.working/improvement-log.md`](../improvement-log.md) retro row batched into this PR.
+
+### Verification
+
+- `.web/build.py --check` EXIT=0; a temp render confirms the §05 section now shows the intro lede above the table (no caption), the reworded note below (rendered numbers 312 / 11 / 310 / 2), both at lede size. No corpus document body changed (website template + working-state only). Library CalVer `2026.07.432` -> `2026.07.433`, README Version `1.9.793` -> `1.9.794`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.432, PR #944
 
 Pack-page card links (a maintainer-directed website request) plus the batched post-merge QA for PR #943.
