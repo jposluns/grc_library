@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.427, PR #939
+
+Resolves three maintainer decisions from the attended wind-down and batches PR #938's QA. The one corpus-content change is the AICM citation fix.
+
+### Fixed
+
+- **Live AICM citation defect (the §3.43 matrix-fit, maintainer-approved).** The `## Framework alignment` table in [`dev-security/guideline-ai-coding-assistant-security.md`](../../dev-security/guideline-ai-coding-assistant-security.md) cited 7 fabricated codes in its `CSA AICM` column. Each was remapped to the best-fit REAL AICM v1.1.0 control, judged against the held CSA AICM v1.1.0 catalogue titles: AI tool authorization `AI-GOV-01`->`GRC-09` (Acceptable Use of the AI Service); Data handling for AI inputs `AI-DATA-01`->`DSP-07` (Data Protection by Design and Default); Code review of AI output `AI-SEC-02`->`AIS-10` (Output Validation); Prompt injection awareness `AI-SEC-03`->`AIS-15` (Prompt Differentiation); Agentic use controls `AI-GOV-03`->`AIS-11` (Agents Security Boundaries); Deterministic enforcement `AI-SEC-04`->`TVM-13` (Guardrails); Incident reporting `AI-INC-01`->`SEF-08` (Security Breach Notification). gate 48 was blind to the fabricated codes because the leading `AI-` defeated its `CODE_RE` lookbehind (the §3.43 class). The guideline doc Version bumped 1.3.5->1.3.6, Date to 2026-07-15; taxonomy + portal + scorecard regenerated (taxonomy first) to pick up the version.
+
+### Changed
+
+- **TODO §3.47 rescoped (maintainer):** strip only the date / `Surfaced #N` / `Mined (sweep N)` / PR-number / maintainer-directed provenance and KEEP the `(was X.Y)` renumber breadcrumbs, per the #929 convention that existing breadcrumbs stay for resolvability. Still attended-preferred (a large single-file editorial sweep), queued not run.
+- **TODO §3.8 closed as won't-do (maintainer):** gates 31 and 40 keep their per-document `--follow` git subprocess rather than batching into one `git log --name-only` pass; correctness/history-fidelity outranks the guard's runtime (AIQT tier). Rotated to [`.working/DONE.md`](../DONE.md); no code change.
+
+### Verification
+
+- [`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py) (gate 48) rc=0 (420 files, all CCM/AICM citations valid); each new code confirmed present + in-range in the held AICM v1.1.0 reference; a refute-briefed skeptical verifier checked the 7 remaps (real codes, in-range, semantic fit, no collateral edit). `build-taxonomy.py --check` and `build-portal.py --check` clean after regen. Pre-push guard (`tools/run_all_audits.sh` + PR-time checks) green.
+- Batched PR #938's post-merge QA: the #938 `/validate-pr` row (SHIP-WITH-NOTES, 2 cosmetic notes fixed in-batch) in [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.706) and the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md) (1.0.642).
+
 ## 2026-07-15, Library Version 2026.07.426, PR #938
 
 Working-state / bookkeeping tier. Batches PR #937's post-merge QA and routes a backlog scope-conflict; no corpus, tooling, gate, or generated-artefact change.

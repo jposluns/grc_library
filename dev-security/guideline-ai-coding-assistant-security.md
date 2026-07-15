@@ -2,8 +2,8 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.5\
-**Date:** 2026-07-05\
+**Version:** 1.3.6\
+**Date:** 2026-07-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/claude-rules/README.md`](claude-rules/README.md), [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -297,13 +297,13 @@ The following publicly available resources provide additional guidance for AI co
 
 | Control Area | ISO/IEC 27001:2022 | NIST SSDF | CSA AICM | ISO/IEC 42001 | Regulatory |
 | --- | --- | --- | --- | --- | --- |
-| AI tool authorization | A.5.36 | PO.1, PO.3 | AI-GOV-01 | Clause 6 (planning) | EU AI Act Art. 9 |
-| Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | AI-DATA-01 | Clause 8 (operation) | GDPR, PIPEDA |
-| Code review of AI output | A.8.27, A.8.29 | PW.7 | AI-SEC-02 | Clause 9 (performance evaluation) | N/A |
-| Prompt injection awareness | A.5.30 | N/A | AI-SEC-03 | Annex A.6 (AI risk treatment) | N/A |
-| Agentic use controls | A.5.18, A.8.2 | PW.1 | AI-GOV-03 | Clause 8 (operation) | EU AI Act Art. 14 |
-| Deterministic enforcement | A.8.16, A.8.34 | PW.1 | AI-SEC-04 | Annex A.6 (AI risk treatment) | EU AI Act Art. 14 |
-| Incident reporting | A.5.26 | RV.1 | AI-INC-01 | Clause 10 (improvement) | PIPEDA, GDPR |
+| AI tool authorization | A.5.36 | PO.1, PO.3 | GRC-09 | Clause 6 (planning) | EU AI Act Art. 9 |
+| Data handling for AI inputs | A.5.12, A.8.10 | PS.1 | DSP-07 | Clause 8 (operation) | GDPR, PIPEDA |
+| Code review of AI output | A.8.27, A.8.29 | PW.7 | AIS-10 | Clause 9 (performance evaluation) | N/A |
+| Prompt injection awareness | A.5.30 | N/A | AIS-15 | Annex A.6 (AI risk treatment) | N/A |
+| Agentic use controls | A.5.18, A.8.2 | PW.1 | AIS-11 | Clause 8 (operation) | EU AI Act Art. 14 |
+| Deterministic enforcement | A.8.16, A.8.34 | PW.1 | TVM-13 | Annex A.6 (AI risk treatment) | EU AI Act Art. 14 |
+| Incident reporting | A.5.26 | RV.1 | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
 
 ---
 

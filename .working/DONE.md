@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.8 (GR-10, resolved keep-as-is): history-aware gate subprocess batching (2026-07-15, PR #939)
+
+The maintainer decided NOT to batch the per-document git subprocess in gates 31/40 into a single `git log --name-only` pass: the optimization would trade `--follow` rename-history fidelity for speed, and per the AIQT tier correctness/accuracy outranks the guard's runtime. No code change; gates 31 and 40 keep their per-document `--follow` subprocess. Closed as won't-do.
+
 ### TODO §3.10 (fence-predicate consolidation; GR-4 tilde-blindness closed): shared `is_fence_line()` (2026-07-15, PR #937)
 
 Consolidated the fenced-code-block skip predicate onto a single shared `lint_common.is_fence_line(line)` (backtick or tilde). Routed the generator `iter_non_code_lines` and eight linters through it, including the six formerly TILDE-BLIND private copies (`lint-changelog-link-coverage`, `lint-directional-dependency`, `lint-document-control-codes` (gate 54), `lint-document-iso-annex-a` (gate 58), `lint-links`, `lint-shall-near-uncertainty`), closing the GR-4 silent-suppression class where a stray `~~~` fence would stick a tilde-blind linter in code mode to EOF. Latent on the current corpus (zero tilde fences), verified behaviour-preserving by two independent HA verifiers; added an `is_fence_line` unit test and a guard-first tilde-fence skip fixture. `run_all_audits` 69/69, regression 381 tests OK.
