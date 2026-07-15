@@ -2,8 +2,8 @@
 
 **Document Title:** Integrated AI and Privacy Assessment Procedure\
 **Document Type:** Procedure\
-**Version:** 0.1.0\
-**Date:** 2026-07-11\
+**Version:** 0.1.1\
+**Date:** 2026-07-15\
 **Owner:** AI Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`privacy/template-dpia.md`](../privacy/template-dpia.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -73,7 +73,7 @@ Identify which of the trigger events above are present. The determination is per
 
 - **GDPR Article 22 and Article 35** are in force; the ADM register entry and the DPIA apply whenever their triggers are met.
 - **The EU AI Act Article 27 FRIA deployer obligation applies from 2 August 2026** (Regulation (EU) 2024/1689, Article 113: the Regulation applies from that date, and Article 27 falls under the general application date rather than the earlier or later carve-outs). A deployer in scope performs the FRIA before deploying an in-scope high-risk AI system on or after that date. Confirm the current in-force position of any cited provision against the official consolidated text before relying on it, since a regulation's consolidated version can be amended.
-- **The Canada Treasury Board Directive on Automated Decision-Making** is in force (current version dated 24 June 2025, following the directive's third review; automated decision systems developed or procured before that date have until 24 June 2026 to meet the new or updated requirements). A federal institution subject to the Policy on Service and Digital completes and publishes the AIA before an in-scope automated decision system enters production; other organizations apply it as a leading practice.
+- **The Canada Treasury Board Directive on Automated Decision-Making** is in force (current version dated 24 June 2025, following the directive's fourth review; automated decision systems developed or procured before that date have until 24 June 2026 to meet the new or updated requirements). A federal institution subject to the Policy on Service and Digital completes and publishes the AIA before an in-scope automated decision system enters production; other organizations apply it as a leading practice.
 - **The NIST Privacy Framework** is a voluntary privacy-risk-management framework, not a statute, and carries no commencement date; it applies wherever the organization elects to manage privacy risk under it.
 
 ---
