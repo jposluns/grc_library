@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.444, PR #956
+
+Fixes the same "third review" factual error that PR #955 corrected in the Canada AI annex, now in [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md), surfaced by PR #955's post-merge `/validate-pr` cross-reference check (maintainer chose fix-now). Also batches PR #955's post-merge QA records per recursion-avoidance.
+
+### Changed
+- [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../../ai/procedure-integrated-ai-and-privacy-assessment.md) line 76: "current version dated 24 June 2025, following the directive's **third review**" corrected to "**fourth review**". The 24 June 2025 version of the TBS Directive on Automated Decision-Making is the fourth review (canada.ca "Progress on AI in government"); the third review took effect 25 April 2023. Version 0.1.0 -> 0.1.1, Date 2026-07-15; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated.
+
+### Verification (PR #955 QA batched here per recursion-avoidance)
+- PR #955 `/validate-pr` (Subagent A, read-only-git on squash `1c4ec69`): PASS, 0 error / 0 warning / 1 low cosmetic note; its cross-reference check surfaced this procedure-doc error (out-of-window). Record: [`2026-07-15-PR-955.md`](../validate-pr/2026-07-15-PR-955.md); history row added.
+- PR #955 `/retro`: row added to [`improvement-log.md`](../improvement-log.md) (the fact-correction-scope observation; the first-ever verifier override, a false-positive "trusted" refuted against the canada.ca Overview page and maintainer-confirmed "responsible", logged in [`verifier-overrides.md`](../verifier-overrides.md)).
+- `tools/run_all_audits.sh` + `tools/run-pr-time-checks.sh` green (see the PR's checks); library CalVer 2026.07.444, README 1.9.805.
+
 ## 2026-07-15, Library Version 2026.07.443, PR #955
 
 Corrected and expanded [`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md) ahead of a review by Canada AI Alliance readers. The annex's pre-existing instruments were fact-checked against the full-text primary sources held in the `grc_library_ref` reference base (the TBS Directive on Automated Decision-Making, the AIA questionnaire and tool page, the Scope Guide, the Generative-AI Guide, the ISED Voluntary Code, the AI for All strategy, Ontario Bill 194 / EDSTA, OSFI Guideline E-23, and CAN/DGSI 101:2025), by three independent adversarial fact-checkers, plus an upstream canada.ca confirmation of the two date/ordinal items. The newly-added AI Strategy for the Federal Public Service 2025-2027 and Government of Canada AI Register are NOT held in the reference base; their facts (publication dates, the four principles, the register) were verified against the canada.ca source pages provided for this change. The document was in good shape: the AIA 65-risk / 41-mitigation question counts, the human-final-decision-at-Levels-III-and-IV point, the TBS in-force dates, the FASTER principles, the Voluntary Code's six outcomes, the six AI for All pillars (launched 4 June 2026, confirmed against the Prime Minister's release), the Ontario citation and not-in-force status, the OSFI E-23 dates (published 11 September 2025, effective 1 May 2027), and CAN/DGSI 101:2025 all verified correct. One real error and two imprecisions were corrected, and one coverage gap was filled.
