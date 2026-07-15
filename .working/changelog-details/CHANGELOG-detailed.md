@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.426, PR #938
+
+Working-state / bookkeeping tier. Batches PR #937's post-merge QA and routes a backlog scope-conflict; no corpus, tooling, gate, or generated-artefact change.
+
+- Batched PR #937's `/validate-pr` (Subagent A, SHIP-WITH-NOTES: one in-window working-state warning) into [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.705) and its `/retro` into [`.working/improvement-log.md`](../improvement-log.md) (1.0.641). The warning (`session-state-append-not-reconcile`) was that #937 reconciled the [`.working/session-state.md`](../session-state.md) Current-task LEAD but left the carried TAIL asserting "HOLDING / queue EXHAUSTED" and listing the now-done §3.10 as deferred; fixed in this batch (tail reconciled; HOLDING/EXHAUSTED dropped, §3.10 removed, §3.43 recast as blocked, green-at bumped to `191699c`).
+- Routed a backlog scope-conflict in [`TODO.md`](../../TODO.md) §3.47: its plan to strip residual `(was X.Y)` renumber breadcrumbs contradicts the #929 permanent-numbering convention (which states "existing breadcrumbs stay for resolvability"). Annotated §3.47 with the conflict and the need for a maintainer rescope; noted it is also a large attended-preferred editorial sweep (~85 items, weak mechanical verification), not an unattended-overnight item.
+- Recorded the overnight hold rationale in the lease and [`.working/next-prs.txt`](../next-prs.txt): after an evidence-based item-by-item reassessment (each blocker verified by reading the item), no cleanly-buildable-unattended HA item remains (§3.43 blocked on the AICM matrix-fit decision, §3.47 scope-conflict, §3.8 maintainer trade-off, §3.60/§3.73 fresh-session dispositions, rest protected/egress/source/maintainer/attended-website). Session holds in overnight mode per the maintainer's "stay in overnight mode until morning".
+
+### Verification
+
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean on the added lines; pre-push guard ([`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 69/69 + PR-time checks) green. Bookkeeping tier, so no pre-push HA verifier (the mechanical gates plus the next PR's `/validate-pr` are the QA of record); #938's own `/validate-pr` + `/retro` batch into the next substantive PR.
+
 ## 2026-07-15, Library Version 2026.07.425, PR #937
 
 Fence-predicate consolidation (TODO §3.10, closes it): the fenced-code-block skip check is now a single shared `lint_common.is_fence_line()` predicate that recognizes both backtick and tilde fences, closing the GR-4 tilde-blindness class in which six linters ignored `~~~` fences and could stick in code mode to EOF (or scan content they should skip). Latent on the current corpus (zero tilde fences), so no document's audit result changes; the fix is a robustness hardening. Also batches PR #936's post-merge QA and routes a live citation defect surfaced during the §3.43 FP-census. Overnight run, high-assurance tier.
