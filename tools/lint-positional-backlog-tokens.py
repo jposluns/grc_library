@@ -15,8 +15,9 @@ Scope: authored corpus prose only. The pack subtree
 narrates past PRs by their then-current backlog position), as are ``CHANGELOG.md``
 and ``TODO.md`` itself (the backlog is the source of the numbering, not a fragile
 external reference to it), and the ``.working`` / ``.claude`` trees (already outside
-the corpus scan set). Only references QUALIFIED by ``TODO`` or ``backlog item`` are
-flagged; a document's own internal ``§N`` section cross-reference is not.
+the corpus scan set). Only references QUALIFIED by ``TODO`` (optionally
+``TODO item(s)``) or ``backlog item(s)`` are flagged; a document's own internal
+``§N`` section cross-reference is not.
 
 Usage:
     python3 tools/lint-positional-backlog-tokens.py
