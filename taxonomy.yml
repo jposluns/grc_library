@@ -2720,7 +2720,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Audit Programme Specification"
-  version: "1.17.5"
+  version: "1.17.6"
   date: "2026-07-15"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
