@@ -103,6 +103,7 @@ from pathlib import Path
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
+    is_fence_line,
     iter_markdown_targets,
     read_text_safe,
 )
@@ -287,7 +288,7 @@ def scan_file(path: Path) -> list[Finding]:
     ccm_col: int | None = None  # set when the current table has a CSA-CCM/AICM column
     for i, line in enumerate(text.splitlines(), start=1):
         stripped = line.lstrip()
-        if stripped.startswith("```") or stripped.startswith("~~~"):
+        if is_fence_line(line):
             in_fence = not in_fence
             prev_cells = None
             ccm_col = None

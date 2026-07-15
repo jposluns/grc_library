@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.10 (fence-predicate consolidation; GR-4 tilde-blindness closed): shared `is_fence_line()` (2026-07-15, PR #937)
+
+Consolidated the fenced-code-block skip predicate onto a single shared `lint_common.is_fence_line(line)` (backtick or tilde). Routed the generator `iter_non_code_lines` and eight linters through it, including the six formerly TILDE-BLIND private copies (`lint-changelog-link-coverage`, `lint-directional-dependency`, `lint-document-control-codes` (gate 54), `lint-document-iso-annex-a` (gate 58), `lint-links`, `lint-shall-near-uncertainty`), closing the GR-4 silent-suppression class where a stray `~~~` fence would stick a tilde-blind linter in code mode to EOF. Latent on the current corpus (zero tilde fences), verified behaviour-preserving by two independent HA verifiers; added an `is_fence_line` unit test and a guard-first tilde-fence skip fixture. `run_all_audits` 69/69, regression 381 tests OK.
+
 ### TODO §3.50: widen gate 69 to the "TODO item N.M" phrasing (2026-07-15)
 
 Widened gate 69 (`tools/lint-positional-backlog-tokens.py`) so its `TODO` arm also accepts an optional `item(s)` qualifier before the section token, catching the `TODO item N.M` phrasing (previously only `TODO §N` / `TODO N.M` / `backlog item PN.M` matched). FP-safe: a corpus census found zero live `TODO item <token>` carriers and confirmed ordinary `TODO item covers ...` prose has no section token, so it is not flagged; the widened regex passed a 9-case behaviour test and the gate stays 0 over the corpus. Added two regression fixtures (the `TODO item 3.4` detect + the `TODO item covers` clean case) and updated the §6 gate-69 narrative + spec version.

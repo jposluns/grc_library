@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.425, PR #937
+
+Fence-predicate consolidation (TODO §3.10, closes it): the fenced-code-block skip check is now a single shared `lint_common.is_fence_line()` predicate that recognizes both backtick and tilde fences, closing the GR-4 tilde-blindness class in which six linters ignored `~~~` fences and could stick in code mode to EOF (or scan content they should skip). Latent on the current corpus (zero tilde fences), so no document's audit result changes; the fix is a robustness hardening. Also batches PR #936's post-merge QA and routes a live citation defect surfaced during the §3.43 FP-census. Overnight run, high-assurance tier.
+
+### Changed
+
+- Added a shared fence predicate `is_fence_line(line)` to [`tools/lint_common.py`](../../tools/lint_common.py) (True when the left-stripped line starts with three backticks or three tildes) and refactored the existing `iter_non_code_lines` generator to call it, so there is one source of truth for fence detection.
+- Routed eight linters' in-code-block skip loops through the shared predicate, replacing their private inline checks. Six were TILDE-BLIND before this change (a `~~~` fence was not recognized): [`tools/lint-changelog-link-coverage.py`](../../tools/lint-changelog-link-coverage.py), [`tools/lint-directional-dependency.py`](../../tools/lint-directional-dependency.py), [`tools/lint-document-control-codes.py`](../../tools/lint-document-control-codes.py) (gate 54), [`tools/lint-document-iso-annex-a.py`](../../tools/lint-document-iso-annex-a.py) (gate 58), [`tools/lint-links.py`](../../tools/lint-links.py), and [`tools/lint-shall-near-uncertainty.py`](../../tools/lint-shall-near-uncertainty.py). Two were already tilde-aware inline and are converted for consolidation (behaviour-preserving): [`tools/lint-ccm-aicm-citations.py`](../../tools/lint-ccm-aicm-citations.py) and [`tools/lint-cobit-iso31000-citations.py`](../../tools/lint-cobit-iso31000-citations.py). Gate 66's [`tools/lint-unbalanced-fences.py`](../../tools/lint-unbalanced-fences.py) is intentionally left (it is the fence-balance gate with its own width/pairing semantics).
+- Rotated TODO §3.10 to [`.working/DONE.md`](../DONE.md) (the P3 counter is unchanged; a closed number retires, it does not renumber).
+
+### Added
+
+- Two regression tests in [`tests/test_linters.py`](../../tests/test_linters.py): `test_is_fence_line_predicate` (both fence characters, info strings, indentation, and negatives including inline code, a two-character run, and an empty line) and the guard-first `test_shall_near_uncertainty_inside_tilde_fence_ignored` (a shall-near-uncertainty phrase inside a `~~~` fence must be skipped; this test fails against the old tilde-blind code and passes now, a non-vacuous proof).
+
+### Notes (finding routed, not fixed here)
+
+- The §3.43 FP-census (run to design the deferred gate-48 Check 6) surfaced a live citation defect: the `## Framework alignment` table in [`dev-security/guideline-ai-coding-assistant-security.md`](../../dev-security/guideline-ai-coding-assistant-security.md) has a `CSA AICM` column citing seven fabricated codes (`AI-GOV-01`, `AI-DATA-01`, `AI-SEC-02`, `AI-SEC-03`, `AI-GOV-03`, `AI-SEC-04`, `AI-INC-01`), none of which is a valid AICM v1.1.0 code (confirmed against the CSA AICM v1.1.0 catalogue held in `grc_library_ref`). gate 48 is blind to them by construction (the leading `AI-` defeats its `CODE_RE` lookbehind, the exact §3.43 class). The fix is a semantic matrix-fit judgment (which real AICM code per row), so it is routed to [`.working/pending-decisions.md`](../pending-decisions.md) for the maintainer (recommended: run `/matrix-fit` on the table), not guessed unattended. §3.43's guard-first build is blocked on this resolution and annotated accordingly in TODO.
+
+### Verification
+
+- Two independent adversarial HA verifiers (a behaviour-divergence lens and a coverage-completeness lens), read-only-git on the shared tree, each returned ZERO findings: the change is behaviour-preserving on every carrier except the intended latent tilde-awareness, no tilde-blind carrier was missed (full enumeration of every fence literal across the `tools/` linter sources), and the guard-first fixture is non-vacuous.
+- Full regression suite 381 tests OK (was 379; plus the two new tests); `tools/run_all_audits.sh` 69/69; corpus behaviour unchanged (zero tilde fences in the corpus, so no document's result moves).
+- Batched PR #936 QA: the #936 `/validate-pr` (Subagent A, SHIP 0/0/0) row in [`.working/validate-pr/history.md`](../validate-pr/history.md) and the `/retro` row in [`.working/improvement-log.md`](../improvement-log.md).
+
 ## 2026-07-15, Library Version 2026.07.424, PR #936
 
 Overnight resting-point close-out. Working-state and backlog only; no corpus document, template, gate, tool, or generated artefact changed.

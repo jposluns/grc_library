@@ -76,6 +76,7 @@ from pathlib import Path
 from lint_common import (
     AUDITED_DOMAIN_DIRS,
     REPO_ROOT,
+    is_fence_line,
     iter_markdown_targets,
     read_text_safe,
 )
@@ -160,7 +161,7 @@ def scan_file(path: Path) -> list[Finding]:
 
     for lineno, line in enumerate(lines, start=1):
         stripped = line.strip()
-        if stripped.startswith("```"):
+        if is_fence_line(line):
             in_fence = not in_fence
             prev_cells = None
             nist_col = None
