@@ -11,6 +11,14 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §2.4: Public presence at grclibrary.ai (Cloudflare Pages) (2026-07-15, PR #960)
+
+The public landing site is built and live on Cloudflare Pages at grclibrary.ai (a top-level `.web/` live-corpus generator; rendered HTML is an ephemeral build artefact, only the generator + templates committed). Closed per the maintainer's 2026-07-15 read that §2.4 is done: the build + adoption + nav + polish rounds (#919-#953) and the four public-site text fixes (#957) shipped; §2.16 (two-level nav + scrollspy, #941/#948), §2.6 (Cloudflare watch-paths, maintainer console), and the sidebar-CSS DRY (#951) are complete. The remaining maintainer-owned action is the publish go-decision (the site stays preview until the maintainer flips it) plus the production branch / Cloudflare project settings; the About credential-strip styling is being actioned separately (#961, per the maintainer's 2026-07-15 request). The still-open referenced item §2.15 (standards-list authoritative-source links) remains tracked separately.
+
+### TODO §2.6: Cloudflare build-watch-paths include the 11 domain directories (2026-07-15, PR #960)
+
+The maintainer applied the Cloudflare Pages build-watch-paths in the project console 2026-07-15 (recorded closed at the #954 website-session handoff; the TODO item and its §2.4 sub-bullet were left un-rotated until this stale-item cleanup, maintainer-flagged 2026-07-15). The 11 domain directories are now watched alongside `.web/`, `taxonomy.yml`, and `README.md`, so a domain-README edit triggers a Cloudflare rebuild. This was the last open §2.4 *build* item; only the publish go-decision (plus §2.15 standards-linking and ongoing live-review) remains before §2.4 closes.
+
 ### TODO §3.76: TYPE_ORDER drift guard between the two generators (2026-07-15, PR #949)
 
 Added a regression-suite test (`GeneratorSortKeyParityTests` in `tests/test_linters.py`) that asserts the two document-ordering generators, `tools/build-taxonomy.py` and `.web/build.py`, carry an identical `TYPE_ORDER` rank AND a matching secondary sort key (case-insensitive title + repo-relative-path tiebreaker), a text extract with no import coupling. Widened from a rank-only guard by Sweep 105 finding A-1, which found identical `TYPE_ORDER` but a divergent case-sensitive-vs-insensitive secondary key; the test now fails if either drifts. Closed §3.76.
