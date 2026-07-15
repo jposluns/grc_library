@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.451, PR #963
+
+Session-closing handoff for the 2026-07-15 resumed session (`/resume` from #954; merged #955-#962). Working-state only; no corpus or website content changed.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): added this session's Next-actions (CLOSING + NEXT-SESSION-overnight), State-snapshot, and Asserted-expectations blocks; pruned the per-session stacks to keep current + #954 (dropped the #942 and #917 blocks), per the keep-current-plus-one-prior discipline.
+- [`.working/session-metrics.md`](../session-metrics.md): added this session's row (measured subagent-token FLOOR ~1.92M across 10 re-retrievable post-compaction dispatches; orchestrator tokens `not instrumented`; pre-compaction dispatches excluded rather than fabricated).
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Active-session: none`, `Status: released`).
+- [`.working/next-prs.txt`](../next-prs.txt): cycled to the overnight session's queue.
+
+### Added (batched PR #962 QA)
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #962 `/validate-pr` row (SHIP, 0 findings), plus this handoff PR's own `SKIPPED (handoff-PR exception)` row (the loop-break marker gate 50 reads).
+- [`.working/improvement-log.md`](../improvement-log.md): the #962 `/retro` row.
+
+### Verification / loop-break
+- Per the session-closing handoff loop-break, this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 107) over #955..#963, cross-checked against the #963 Asserted-expectations block.
+- Pre-push guard green (69/69 + PR-time checks D1-D7); green-at `674914b`/#962 = 69/69; library CalVer 2026.07.451, README 1.9.812.
+
 ## 2026-07-15, Library Version 2026.07.450, PR #962
 
 Public-site For-AI citation clarity + two maintainer-flagged P3 backlog items. Website template and backlog only; no corpus content changed. Also batches PR #961's post-merge QA.
