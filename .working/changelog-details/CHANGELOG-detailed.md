@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.453, PR #965
+
+Batches PR #964's post-merge QA and closes task 1 ("correct issues") of the 2026-07-15 resumed session's maintainer-set running order. Working-state records only; no corpus or website content changed.
+
+### Changed
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the PR #964 row (Subagent A SHIP, 0 findings, read-only-git on squash `9e5c7e5`); Version 1.2.729 to 1.2.730.
+- [`.working/improvement-log.md`](../improvement-log.md): added the PR #964 `/retro` row (two guard-caught authoring slips, the bookkeeping-authoring-slip WATCH continues; a process note that a pending-decisions entry can go stale when its fix ships without rotating the entry out); Version 1.0.664 to 1.0.665.
+- [`.working/pending-decisions.md`](../pending-decisions.md): marked the "LIVE fabricated-AICM-code defect" entry RESOLVED. The defect was already fixed in **PR #939** ("AICM matrix-fit: remap 7 fabricated codes to real AICM v1.1.0 codes"), which performed exactly the `/matrix-fit` remap the entry called for; the entry was never rotated out. The maintainer chose `/matrix-fit` for this at the Sweep 107 resume, unaware it was fixed; the orchestrator re-verified all seven current codes against the held CSA AICM v1.1.0 catalogue titles (GRC-09 Acceptable Use of the AI Service, DSP-07 Data Protection by Design and Default, AIS-10 Output Validation, AIS-15 Prompt Differentiation, AIS-11 Agents Security Boundaries, TVM-13 Guardrails, SEF-08 Security Breach Notification), all fit; gate 48 passes. A fresh full `/matrix-fit` skill run was skipped under the maintainer's credit-conservation directive. TODO §3.43 (gate-48 Check-6, the `AI-`-prefix lookbehind blindness) is now unblocked (the corpus is clean).
+- [`.working/next-prs.txt`](../next-prs.txt): advanced to the post-task-1 queue.
+- Library CalVer `2026.07.452` to `2026.07.453`; [`README.md`](../../README.md) README Version `1.9.813` to `1.9.814`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 at the pre-push guard; `/validate-pr` #964 returned SHIP / 0 findings.
+- The seven AICM codes were re-verified by reading the held [`grc_library_ref`](../../../grc_library_ref) CSA AICM v1.1.0 catalogue CSV titles against each control-area row; the fit is sound and matches PR #939's remap.
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration.
+
 ## 2026-07-15, Library Version 2026.07.452, PR #964
 
 Resume of a fresh attended-autonomous session from session-closing handoff PR #963, on the VM (gh-CLI, no GitHub MCP). This is the `/resume` first PR: the mandatory loop-break Sweep 107 corpus-wide `/validate` close-out over the #955..#963 delta window, plus the lease acquire and cursor advance. One low-severity in-window finding, fixed here.
