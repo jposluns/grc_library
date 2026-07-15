@@ -77,6 +77,7 @@ PARTIALS = {
 PAGES = [
     ("landing.html", "index.html"),
     ("about.html", "about/index.html"),
+    ("pack.html", "pack/index.html"),
 ]
 
 # The eleven corpus domains, with the one-line scope description shown in the

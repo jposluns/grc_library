@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Claude Code governance pack: 13 rules and 23 skills distilled from running an AI-managed GRC library, an open CC BY-SA 4.0 discipline layer you can drop into any AI-assisted project.">
+<link rel="canonical" href="https://grclibrary.ai/pack/">
+<title>The governance pack: GRC Library</title>
+{{HEAD_STYLE}}
+<style>
+  /* Pack page (pack-only styles): rule and skill inventories. */
+  .pack-list { list-style: none; margin: 0 0 1.6rem; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .pack-list li { padding: 0.8rem 1.1rem; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .pack-list li:last-child { border-bottom: none; }
+  .pack-list .r-name { font-family: var(--font-mono); font-weight: 700; font-size: 0.92rem; color: var(--ink); text-decoration: none; }
+  .pack-list .r-name:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
+  .pack-list .r-desc { display: block; color: var(--ink-soft); font-size: 0.92rem; margin-top: 0.2rem; line-height: 1.5; }
+  .skill-group { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); margin: 1.5rem 0 0.5rem; }
+  .skill-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .skill-chips a { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 0.35rem 0.6rem; text-decoration: none; }
+  .skill-chips a:hover { color: var(--brass); border-color: var(--brass); text-decoration: none; }
+  .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-top: 0.5rem; }
+  .mode { background: var(--surface); padding: 1.5rem 1.4rem; }
+  .mode .m-k { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); margin-bottom: 0.6rem; }
+  .mode h3 { font-size: 1.02rem; margin: 0 0 0.5rem; line-height: 1.3; }
+  .mode p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.55; }
+
+  /* Contents sidebar (mirrors the landing-page sidebar; duplicated here for a
+     self-contained page, a candidate to DRY into the shared partial later). */
+  .shell { max-width: 1280px; margin: 0 auto; }
+  .sidenav { padding-inline: var(--pad); }
+  .sidenav-inner {
+    border: 1px solid var(--line); border-left: 3px solid var(--brass);
+    border-radius: var(--radius); background: var(--surface);
+    padding: 1.1rem 1.2rem; margin-block: 1.6rem;
+    display: flex; flex-direction: column; gap: 0.1rem;
+  }
+  .sidenav-h {
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--brass); margin: 0.9rem 0 0.4rem;
+  }
+  .sidenav-h:first-child { margin-top: 0; }
+  .sidenav-inner a {
+    font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft);
+    padding: 0.28rem 0; text-decoration: none; word-break: break-word;
+  }
+  .sidenav-inner a:hover { color: var(--brass); }
+
+  @media (min-width: 1080px) {
+    .shell {
+      display: grid; grid-template-columns: 230px minmax(0, 1fr);
+      gap: clamp(1.5rem, 3vw, 3rem); align-items: start; padding-inline: var(--pad);
+    }
+    .sidenav { padding-inline: 0; position: sticky; top: 1.25rem; }
+    .sidenav-inner { margin-block: 0; max-height: calc(100vh - 2.5rem); overflow-y: auto; }
+    .shell > main { min-width: 0; }
+    .shell > main .wrap { max-width: none; margin: 0; padding-inline: 0; }
+  }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Governance pack</p>
+    <h1 class="reveal d2">The disciplines that keep an <span class="accent">AI-managed project honest.</span></h1>
+    <p class="dek reveal d3">
+      This corpus is maintained largely by an AI assistant working under a compact, open pack
+      of governance rules and skills, distilled from the lessons of running the project itself.
+      It is library-original content under CC&nbsp;BY-SA&nbsp;4.0, written to be lifted straight
+      into any AI-assisted project, not only this one.
+    </p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-primary" href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules" target="_blank" rel="noopener">Read the pack on GitHub &rarr;</a>
+      <a class="btn btn-ghost" href="/">&larr; Back to the library</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Pack contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#what">What it is</a>
+      <a href="#use">Ways to use it</a>
+      <a href="#rules">The rules</a>
+      <a href="#skills">The skills</a>
+      <p class="sidenav-h">Rules</p>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/project-integrity.md" target="_blank" rel="noopener">project-integrity</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/evidence-grounded-completion.md" target="_blank" rel="noopener">evidence-grounded-completion</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/gate-discipline.md" target="_blank" rel="noopener">gate-discipline</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/clarify-before-acting.md" target="_blank" rel="noopener">clarify-before-acting</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/validate-inference-before-action.md" target="_blank" rel="noopener">validate-inference-before-action</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/surface-counterproductive-instructions.md" target="_blank" rel="noopener">surface-counterproductive-instructions</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/action-before-explanation-of-inaction.md" target="_blank" rel="noopener">action-before-explanation-of-inaction</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/change-tracking.md" target="_blank" rel="noopener">change-tracking</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/artefact-and-branch-discipline.md" target="_blank" rel="noopener">artefact-and-branch-discipline</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md" target="_blank" rel="noopener">ai-assistant-workflow-disciplines</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/session-lifecycle.md" target="_blank" rel="noopener">session-lifecycle</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/high-assurance-verification.md" target="_blank" rel="noopener">high-assurance-verification</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/trust-recovery-escalation.md" target="_blank" rel="noopener">trust-recovery-escalation</a>
+      <p class="sidenav-h">Skills</p>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validation-sweep" target="_blank" rel="noopener">validation-sweep</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validation-sweep-pr-scoped" target="_blank" rel="noopener">validation-sweep-pr-scoped</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/pr-retrospective" target="_blank" rel="noopener">pr-retrospective</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/library-fitness-review" target="_blank" rel="noopener">library-fitness-review</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/deep-qa-review" target="_blank" rel="noopener">deep-qa-review</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/guardrail-review" target="_blank" rel="noopener">guardrail-review</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/matrix-fit" target="_blank" rel="noopener">matrix-fit</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/claim-fit" target="_blank" rel="noopener">claim-fit</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/reference-audit" target="_blank" rel="noopener">reference-audit</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/citation-quote-verification" target="_blank" rel="noopener">citation-quote-verification</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/deep-assessment" target="_blank" rel="noopener">deep-assessment</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/high-assurance-verification" target="_blank" rel="noopener">high-assurance-verification</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/publication-screening" target="_blank" rel="noopener">publication-screening</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/action-before-explanation-of-inaction" target="_blank" rel="noopener">action-before-explanation-of-inaction</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/clarify-before-acting" target="_blank" rel="noopener">clarify-before-acting</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/evidence-grounded-completion" target="_blank" rel="noopener">evidence-grounded-completion</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/gate-discipline-diagnose" target="_blank" rel="noopener">gate-discipline-diagnose</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validate-inference" target="_blank" rel="noopener">validate-inference</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/surface-instruction-concern" target="_blank" rel="noopener">surface-instruction-concern</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/artefact-discipline-check" target="_blank" rel="noopener">artefact-discipline-check</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/change-tracking-write-entry" target="_blank" rel="noopener">change-tracking-write-entry</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/fresh-reader-validation" target="_blank" rel="noopener">fresh-reader-validation</a>
+      <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/skill-authoring-discipline" target="_blank" rel="noopener">skill-authoring-discipline</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 What it is ===== -->
+  <section id="what">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>Not GRC content, the operating discipline.</h2></div>
+      <p class="lede">
+        The rest of this library is governance, risk, and compliance documentation. This pack is
+        different in kind: it is the <b>operating discipline</b> the AI assistant follows to build
+        and maintain that documentation, evidence before assertion, no quality gate weakened to
+        force a pass, ambiguity surfaced before action, and integrity ahead of speed. Every rule
+        traces to a real maintenance lesson from this project, and the whole pack is portable, it
+        carries its own version sequence and needs no GRC corpus to be useful.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== 02 Three ways to use it ===== -->
+  <section id="use">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Three ways to use it.</h2></div>
+      <div class="mode-grid">
+        <div class="mode">
+          <div class="m-k">As shipped</div>
+          <h3>Fork the whole library</h3>
+          <p>Fork the parent repository and the pack is already wired into the Claude Code rules and skills, no action required.</p>
+        </div>
+        <div class="mode">
+          <div class="m-k">With overlays</div>
+          <h3>Adopt it in a fork</h3>
+          <p>Fork, substitute your organization-specific values across the corpus, and inherit the pack as the discipline your Claude Code sessions apply.</p>
+        </div>
+        <div class="mode">
+          <div class="m-k">Standalone</div>
+          <h3>Drop it into any project</h3>
+          <p>Take this one directory and drop it into any project's Claude Code context, no GRC corpus needed. A <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/setup-generator-prompt.md" target="_blank" rel="noopener">setup generator</a> automates it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 The rules ===== -->
+  <section id="rules">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>The rules (13).</h2></div>
+      <p class="lede">Each rule is one governance discipline, framework-aligned and traceable to the maintenance event that motivated it. Names link to the rule on GitHub.</p>
+      <ul class="pack-list">
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/project-integrity.md" target="_blank" rel="noopener">project-integrity</a><span class="r-desc">The apex rule: quality outranks speed outranks cost (Accuracy = Integrity = Quality = Trust), non-negotiable.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/evidence-grounded-completion.md" target="_blank" rel="noopener">evidence-grounded-completion</a><span class="r-desc">Never claim something is done, or assert a property of an artefact, without reading it and running the verification protocol first.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/gate-discipline.md" target="_blank" rel="noopener">gate-discipline</a><span class="r-desc">A failing check is signal: fix the artefact, never weaken, suppress, or bypass the gate to force a pass.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/clarify-before-acting.md" target="_blank" rel="noopener">clarify-before-acting</a><span class="r-desc">When a request is genuinely ambiguous, surface it with named options and ask, rather than silently guessing.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/validate-inference-before-action.md" target="_blank" rel="noopener">validate-inference-before-action</a><span class="r-desc">Before an action depends on an inferred state, confirm the premise with a concrete check, so one wrong assumption cannot cascade.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/surface-counterproductive-instructions.md" target="_blank" rel="noopener">surface-counterproductive-instructions</a><span class="r-desc">A clear instruction is not automatically a correct one; surface a net-negative effect with options before executing it.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/action-before-explanation-of-inaction.md" target="_blank" rel="noopener">action-before-explanation-of-inaction</a><span class="r-desc">Never explain why a safe, reversible external action cannot proceed without first attempting it.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/change-tracking.md" target="_blank" rel="noopener">change-tracking</a><span class="r-desc">Every change carries an audit-trail entry; the forward backlog and the closed-work ledger stay honest.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/artefact-and-branch-discipline.md" target="_blank" rel="noopener">artefact-and-branch-discipline</a><span class="r-desc">Generated artefacts are read-only (regenerate, do not hand-edit); protected branches are append-only.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md" target="_blank" rel="noopener">ai-assistant-workflow-disciplines</a><span class="r-desc">Five disciplines for multi-change AI work: research-then-author, parallel research with serial apply, apply-time correction, split-when-in-doubt, and productive use of CI-wait windows, with a tiered skeptical-verification standard layered on top.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/session-lifecycle.md" target="_blank" rel="noopener">session-lifecycle</a><span class="r-desc">Durable handoffs, explicit operating modes, evidence-gated wind-down, and a clean closing merge for long multi-session work.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/high-assurance-verification.md" target="_blank" rel="noopener">high-assurance-verification</a><span class="r-desc">A heavier pre-apply harness for sensitive changes: independent adversarial verifiers and a deterministic, re-checked apply.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/trust-recovery-escalation.md" target="_blank" rel="noopener">trust-recovery-escalation</a><span class="r-desc">The recovery tier when discipline lapses put a window of work in question: white-box re-examination to explicit sign-off.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== 04 The skills ===== -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;04</span><h2>The skills (23).</h2></div>
+      <p class="lede">Executable procedures the assistant runs on demand, the operational companions to the rules. Grouped by purpose; each links to its skill on GitHub.</p>
+
+      <p class="skill-group">Validation &amp; QA sweeps</p>
+      <div class="skill-chips">
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validation-sweep" target="_blank" rel="noopener">validation-sweep</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validation-sweep-pr-scoped" target="_blank" rel="noopener">validation-sweep-pr-scoped</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/pr-retrospective" target="_blank" rel="noopener">pr-retrospective</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/library-fitness-review" target="_blank" rel="noopener">library-fitness-review</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/deep-qa-review" target="_blank" rel="noopener">deep-qa-review</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/guardrail-review" target="_blank" rel="noopener">guardrail-review</a>
+      </div>
+
+      <p class="skill-group">Semantic-fit &amp; reference audits</p>
+      <div class="skill-chips">
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/matrix-fit" target="_blank" rel="noopener">matrix-fit</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/claim-fit" target="_blank" rel="noopener">claim-fit</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/reference-audit" target="_blank" rel="noopener">reference-audit</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/citation-quote-verification" target="_blank" rel="noopener">citation-quote-verification</a>
+      </div>
+
+      <p class="skill-group">Escalation &amp; high-assurance</p>
+      <div class="skill-chips">
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/deep-assessment" target="_blank" rel="noopener">deep-assessment</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/high-assurance-verification" target="_blank" rel="noopener">high-assurance-verification</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/publication-screening" target="_blank" rel="noopener">publication-screening</a>
+      </div>
+
+      <p class="skill-group">Rule-companion disciplines</p>
+      <div class="skill-chips">
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/action-before-explanation-of-inaction" target="_blank" rel="noopener">action-before-explanation-of-inaction</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/clarify-before-acting" target="_blank" rel="noopener">clarify-before-acting</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/evidence-grounded-completion" target="_blank" rel="noopener">evidence-grounded-completion</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/gate-discipline-diagnose" target="_blank" rel="noopener">gate-discipline-diagnose</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/validate-inference" target="_blank" rel="noopener">validate-inference</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/surface-instruction-concern" target="_blank" rel="noopener">surface-instruction-concern</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/artefact-discipline-check" target="_blank" rel="noopener">artefact-discipline-check</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/change-tracking-write-entry" target="_blank" rel="noopener">change-tracking-write-entry</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/fresh-reader-validation" target="_blank" rel="noopener">fresh-reader-validation</a>
+        <a href="https://github.com/jposluns/grc_library/tree/main/dev-security/claude-rules/skills/skill-authoring-discipline" target="_blank" rel="noopener">skill-authoring-discipline</a>
+      </div>
+      <p class="register-note">The pack is versioned independently so standalone adopters can track its updates; provenance for every rule is recorded in the pack's rule-provenance register on GitHub.</p>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>
