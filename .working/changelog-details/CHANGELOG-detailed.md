@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.419, PR #931
+
+Second TODO-split-hygiene PR (permanent-numbering hygiene): split the §2.4 website-umbrella item. Working-state and backlog only; no corpus document, template, or generated artefact changed. §2.4 keeps its permanent number; no new items (counters unchanged).
+
+### Changed
+- **§2.4** (public presence at grclibrary.ai) trimmed from the long #919-#928 build-narrative to a lean statement of current state (built and live on Cloudflare Pages) plus only its remaining maintainer-gated items: further live-review fixes, the confirmed follow-ups §2.15 (standards-list source links) and §2.16 (two-level nav), the §2.6 Cloudflare-console watch-paths action, the publication go-decision (branch name, project settings, About credential strip), and the DRY-sidebar-CSS cleanup. Stays ATTENDED-ONLY and OPEN until publish.
+
+### Added
+- A DONE-ledger entry ([`DONE.md`](../DONE.md)) recording the completed website build effort (the live-review round #919-#924, the adoption round #925-#926, and the nav-consistency fixes #928), marked as a partial rotation (§2.4 stays open until the maintainer's publish go).
+
+### Verification
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (gate 45) rc=0; §2.4 keeps heading number 2.4 (no renumber); the §2.15/§2.16/§2.6 cross-references resolve; the DONE entry matches the trimmed residual. Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green.
+- **Two independent high-assurance verifiers** (correctness + completeness lenses, refute-briefed, read-only-git): scoped to confirm the rotated build rounds are genuinely merged/live, no remaining maintainer-gated item was dropped, and no adjacent item was disturbed.
+- **PR #930 post-merge validation** (Subagent A, refute-briefed, read-only-git on `26620e3`): batched here per recursion-avoidance.
+
+### Notes
+- Overnight run, high-assurance harness on every item. The companion §2.5 AI-domain-delta split (which re-homes its remaining workstreams into new-numbered items and retires the §2.5 umbrella) is the next PR.
+
 ## 2026-07-15, Library Version 2026.07.418, PR #930
 
 First application of the new permanent-numbering hygiene (maintainer-directed 2026-07-15): split four massive partially-done backlog items so their completed components rotate to [`DONE.md`](../DONE.md) and only each item's open residual remains in [`TODO.md`](../../TODO.md). Working-state and backlog only; no corpus document, template, or generated artefact changed. Each item keeps its permanent number (no renumbering); no new items, so the counters are unchanged.
