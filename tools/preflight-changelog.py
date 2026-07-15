@@ -55,7 +55,7 @@ Usage:
     python3 tools/preflight-changelog.py --staged   # staged diff only
 
 Exit codes:
-    0   no dash or unlinked-reference issue in the added CHANGELOG lines
+    0   no dash, unlinked-reference, or dangling-link issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error
 """
@@ -224,7 +224,8 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
-            "dash in prose or an unlinked path-shaped reference."
+            "dash in prose, an unlinked path-shaped reference, or a dangling "
+            "in-repo markdown-link target."
         )
     )
     parser.add_argument(
@@ -255,8 +256,9 @@ def main(argv: list[str]) -> int:
     if not findings:
         scope = "staged" if args.staged else "working-tree"
         print(
-            f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are dash-free "
-            f"and every path-shaped reference is a markdown link."
+            f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are dash-free, "
+            f"every path-shaped reference is a markdown link, and every in-repo "
+            f"link target resolves."
         )
         return 0
 
@@ -265,9 +267,11 @@ def main(argv: list[str]) -> int:
     print(
         f"\n{len(findings)} CHANGELOG-hygiene issue(s) in the added lines. Fix "
         f"before committing: remove em/en dashes from prose (use commas, "
-        f"colons, or parentheses), and wrap path-shaped references as "
-        f"[`path`](path). This aid mirrors delta gate D3, gate 51, and the "
-        f"link-coverage gate, surfaced before the first commit.",
+        f"colons, or parentheses), wrap path-shaped references as "
+        f"[`path`](path), and fix any dangling in-repo link target (or exclude "
+        f"a cross-repo / illustrative link). This aid mirrors delta gate D3, "
+        f"gate 51, the link-coverage gate, and the detailed-mirror "
+        f"link-resolution check (TODO 3.34), surfaced before the first commit.",
         file=sys.stderr,
     )
     return 1
