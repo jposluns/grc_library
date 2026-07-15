@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{TYPE_SEO_DESC}}">
+<link rel="canonical" href="{{TYPE_CANONICAL}}">
+<title>{{TYPE_TITLE}}</title>
+{{HEAD_STYLE}}
+<style>
+  /* Per-type listing page (type-only styles). Like the domain pages these are
+     short, so tighten the section / hero rhythm here without touching the
+     content-rich landing page. The .doc-index / .doc-row / .doc-type / .doc-title
+     document-list styles are shared with the domain pages and live in the
+     head-style partial. */
+  section { padding-block: clamp(1.4rem, 3vw, 2.2rem); }
+  .hero { padding-block: clamp(1.8rem, 4vw, 3rem); }
+  .sec-head { margin-bottom: 1.1rem; }
+  .lede { margin-bottom: 1.4rem; }
+  .type-h1 { text-transform: uppercase; letter-spacing: 0.02em; }
+</style>
+</head>
+
+<body>
+<header class="mast">
+  <div class="wrap">
+{{TOPBAR}}
+  </div>
+
+  <div class="wrap hero">
+    <p class="eyebrow reveal d1">Document type</p>
+    <h1 class="type-h1 reveal d2">{{TYPE_NAME}}</h1>
+    <p class="dek reveal d3">Every {{TYPE_NAME}}-type document in the library, and what this type is for.</p>
+    <div class="cta-row reveal d4">
+      <a class="btn btn-ghost" href="/#register">&larr; By document type</a>
+      <a class="btn btn-ghost" href="/">Home</a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidenav" aria-label="Page contents">
+    <div class="sidenav-inner">
+      <p class="sidenav-h">Contents</p>
+      <a href="#about">About this type</a>
+      <a href="#documents">Documents</a>
+      <a href="/#register">&larr; By document type</a>
+      <a href="/">Home</a>
+    </div>
+  </nav>
+
+<main>
+  <!-- ===== 01 About this type ===== -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;01</span><h2>About this type.</h2></div>
+      <p class="lede">{{TYPE_SCOPE_TEXT}}.</p>
+    </div>
+  </section>
+
+  <!-- ===== 02 Documents ===== -->
+  <section id="documents">
+    <div class="wrap">
+      <div class="sec-head"><span class="sec-num">&sect;02</span><h2>Documents.</h2></div>
+      <p class="lede">{{TYPE_DOC_COUNT}} {{TYPE_NAME}}-type documents in the library, listed by domain. Each links to its source on GitHub, where the corpus is version-controlled and continuously gated.</p>
+      <ul class="doc-index">
+{{TYPE_DOC_ROWS}}
+      </ul>
+    </div>
+  </section>
+</main>
+</div>
+
+{{FOOTER}}
+
+{{SCRIPT}}
+</body>
+</html>

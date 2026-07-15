@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.441, PR #953
+
+Website batch item 4 (Option A): a per-type listing page for each of the 17 document types, with the landing page's "By document type" chips now linking to them. Also batches #952's QA.
+
+### Added
+- One listing page per document type at `types/<slug>/index.html` (17 pages: standard, procedure, annex, register, template, framework, policy, guideline, plan, matrix, specification, charter, guide, sop, checklist, principle, roadmap), generated from the live taxonomy by a new [`.web/templates/type.html`](../../.web/templates/type.html) template plus a `type_pages` computation and a per-type render loop in [`.web/build.py`](../../.web/build.py). Each page carries a one-line description of the type (a new `TYPE_SCOPE` map, with the Procedure/SOP, Plan/Roadmap, Guideline/Guide, and Template descriptions following the "Type selection guidance" in [`specification-ingestion.md`](../../specification-ingestion.md)) and lists every document of that type across all domains, each row tagged with its domain and linking to its GitHub source, sorted by domain then title. A build-time check fails if a taxonomy type has no `TYPE_SCOPE` entry, and an assertion guards each per-type count against the taxonomy. The new pages are automatically included in `sitemap.xml`.
+
+### Changed
+- The landing page's "By document type" chips are now links to the corresponding per-type page (`<a class="type-chip" href="/types/<slug>/">`), previously inert `<span>` elements (`render_type_chips` in [`.web/build.py`](../../.web/build.py); hover and link styling added in [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html)).
+- Moved the shared document-list CSS (`.doc-index` / `.doc-row` / `.doc-type` / `.doc-title`) into [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html) so the per-domain and per-type pages draw from one definition, and removed the now-duplicated block from [`.web/templates/domain.html`](../../.web/templates/domain.html) (a DRY move, no visible domain-page change).
+- On a type page, a root-level document (the two library-wide specification docs) shows a "library" domain tag rather than the internal "root".
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 69/69; [`.web/build.py`](../../.web/build.py) `--check` EXIT=0 (now 35 pages, up from 18).
+- Rendered the site to a scratch dir and confirmed: 17 type pages generated; all 17 landing chips link to a real per-type page (slug matches path, including `SOP` -> `sop`); per-type `<li>` row counts match the taxonomy (Standard 62; SOP 2; Checklist, Principle, Roadmap 1 each; Specification 5 including the 2 root specs shown as "library"); the domain pages still render their list styled after the CSS move; each type page has a unique title, description, and canonical URL.
+- Refute-briefed skeptical pre-push verifier on the feature diff.
+
+### Discipline observation
+- Batches #952's `/validate-pr` (0 findings, 2 non-defect notes) and `/retro`. Per the #952 retro's process note, this PR's title omits the trailing `(#N)` (the `gh` squash-append adds the PR number, so a title carrying it produced the doubled `(#N) (#N)` merge subjects seen earlier this session).
+
 ## 2026-07-15, Library Version 2026.07.440, PR #952
 
 Website batch item 3 (landing content polish): an orange eyebrow tagline above every landing section, and the out-of-place green check-marked "machine-auditable" closing line converted to a boxed call-to-action. Also fixes the #951 `/validate-pr` warning (the Priority-3 `Next item number` counter) and batches #951's QA.
