@@ -17,25 +17,8 @@
   .sec-head { margin-bottom: 1.1rem; }
   .lede { margin-bottom: 1.4rem; }
   .domain-h1 { text-transform: uppercase; letter-spacing: 0.02em; }
-  .doc-index {
-    list-style: none; margin: 0; padding: 0;
-    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
-  }
-  .doc-row {
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 1rem;
-    padding: 0.7rem 1.1rem; background: var(--surface); border-bottom: 1px solid var(--line);
-  }
-  .doc-row:last-child { border-bottom: none; }
-  .doc-type {
-    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--brass); min-width: 7.5rem;
-  }
-  /* The document name is the link (opens its source on GitHub in a new tab); a
-     small arrow marks the off-site jump. No separate "GitHub" link, one link per row. */
-  .doc-title { flex: 1 1 14rem; color: var(--ink); text-decoration: none; }
-  .doc-title:hover { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
-  .doc-title .ext { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); margin-left: 0.4rem; }
-  .doc-title:hover .ext { color: var(--brass); }
+  /* The .doc-index / .doc-row / .doc-type / .doc-title document-list styles are
+     shared with the per-type pages and live in the head-style partial. */
 </style>
 </head>
 
