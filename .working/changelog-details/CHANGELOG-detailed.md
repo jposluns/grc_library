@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.420, PR #932
+
+Third TODO-split-hygiene PR (permanent-numbering hygiene): split the §2.5 AI-domain-delta umbrella. This is the "split into components" case (as distinct from the §2.4/§3.x trim-in-place): §2.5's remaining distinct workstreams re-home into their own new-numbered items, and the §2.5 umbrella is retired. Working-state and backlog only; no corpus document, template, or generated artefact changed.
+
+### Changed
+- **§2.5** (AI-domain post-plan delta) retired as an umbrella. Its landed workstreams (Workstream A EU/CA fold-ins A.1-A.5, #843/#844/#847/#849; Workstream C residuals C.1/#850, C.3/#850, C.4-resolved) rotated to [`DONE.md`](../DONE.md). Its number 2.5 is retired (never reused, per the permanent-numbering rule).
+
+### Added
+- Five new P2 items re-homed from §2.5, each drawing the next number from the P2 counter (advanced 2.17 -> 2.22): **§2.17** AI jurisdiction annex California CCPA/ADMT (was Workstream A.6, binding, egress-gated dates), **§2.18** South Korea AI Basic Act annex (was B.1, held primary), **§2.19** Singapore Model AI Governance Framework annex (was B.2, held primary), **§2.20** ref-side `last_checked` sweep for the 6 EU/CA AI sources (was C.2, cross-repo), **§2.21** further AI-jurisdiction annexes deferred pending held sources (was B.3, source-gated, cross-refs §5.9).
+- A DONE-ledger entry recording the executed delta and the re-homing map.
+
+### Fixed
+- **§N-orphan cleanup (the retire-a-section guard).** Repointed the live cross-file reference in [`.working/high-assurance/register.md`](../high-assurance/register.md) from "TODO §2.5 Workstreams A.6 and B" to "TODO §2.17 / §2.18 / §2.19" (the re-homed item numbers), so the HA register's `pending` AI-annex rows no longer dangle on the retired §2.5. Whole-repo grep confirmed this was the only live dangling reference (the other §2.5 hits are a different document's section, NIST 600-1 §2.5, or frozen historical records).
+
+### Verification
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (gate 45) rc=0; [`tools/lint-cross-file-section-refs.py`](../../tools/lint-cross-file-section-refs.py) (gate 62) rc=0; P2 now carries no §2.5 (0 residual heading), §2.4 -> §2.6 adjacency clean (the anomalous `---` removed), the five new items well-formed with `(severity, effort)` tags, counter at 2.22. Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green.
+- **Two independent high-assurance verifiers** (correctness + completeness lenses, refute-briefed, read-only-git): scoped to confirm every landed workstream is genuinely merged, every remaining workstream is re-homed (none dropped), the §2.5 retirement left no dangling reference, and no adjacent item was disturbed.
+- **PR #931 post-merge validation** (Subagent A, refute-briefed, read-only-git on `e75f045`): SHIP, 0 findings; batched here.
+
+### Notes
+- Overnight run, high-assurance harness on every item. This completes the massive-item split wave (§3.57/§3.62/§3.63/§3.68 in #930, §2.4 in #931, §2.5 here). Next: the self-contained P3 gate/tooling HA candidates (§3.12, §3.34, §3.50, §3.73).
+
 ## 2026-07-15, Library Version 2026.07.419, PR #931
 
 Second TODO-split-hygiene PR (permanent-numbering hygiene): split the §2.4 website-umbrella item. Working-state and backlog only; no corpus document, template, or generated artefact changed. §2.4 keeps its permanent number; no new items (counters unchanged).

@@ -44,7 +44,7 @@ A two-layer mechanism to detect when an external source the corpus cites (a stan
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.17.**
+**Next item number: 2.22.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -68,18 +68,6 @@ The public landing site is **built and live on Cloudflare Pages at grclibrary.ai
 
 Confirm current Cloudflare watch-path-bypass thresholds and deploy-hook rate limits against live vendor docs before relying on exact figures. Runbook: [`.working/cloudflare-pages-setup.md`](.working/cloudflare-pages-setup.md).
 
----
-
-### 2.5 AI-domain post-plan delta (ai-gaps-expansion-plan rework, maintainer-directed 2026-07-12, full-delta-now, H, M)
-
-The maintainer-directed AI-domain workstream. The original 2026-07-10 plan (Workstreams 0-10) is substantially EXECUTED (verified against the live `ai/` corpus, 48 docs, 2026-07-12); the genuine forward work is the DELTA below, being executed now in sequence (maintainer chose "full delta now"). Delivery: `grc_library_scratch/inbox/ai-gaps-expansion-plan/` (MANIFEST + PROPOSED-TODOS). Each piece is its own PR with full per-PR QA + skeptical verifier; new government-facing annexes warrant the high-assurance harness. Trust tier: the EU GPAI Code chapters and Commission Guidelines are authoritative soft-law (cite as issuer guidance; anchor binding obligations to the AI Act article); the California regulation is binding.
-
-- **Workstream A (EU/CA source fold-ins):** A.4 + A.5 (Commission Guidelines) **LANDED #843**; A.2 (GPAI Safety-Security cross-fold) **LANDED #844**; A.3 (GPAI Copyright) **LANDED #847**; A.1 (GPAI Transparency + Model-Documentation-Form-to-card mapping) **LANDED #849** (its blocker resolved by acquiring and ingesting the Form into `grc_library_ref`, ref PR #77). Remaining: A.6 (California CCPA/ADMT: new `annex-ai-us-california.md` + policy US-state row, binding, `[VERIFY]` ADMT dates upstream).
-- **Workstream B (new-jurisdiction annexes, held primaries):** B.1 South Korea AI Basic Act (`[VERIFY]` phased effective dates; catalogue says effective 22 Jan 2026); B.2 Singapore Model AI Governance Framework for GenAI. B.3 (UK/Malaysia/AU/US-federal/US-Texas/US-Illinois) DEFER pending per-jurisdiction held-source sufficiency.
-- **Workstream C (currency + residuals):** C.1 Canada TBS Directive third-review dates **reconfirmed current #850** (before 24 Jun 2025 -> until 24 Jun 2026, upstream tbs-sct.canada.ca; corpus already correct); C.2 ref-side `last_checked` sweep for the 6 new EU/CA sources (cross-repo, OPEN); C.3 IEEE 7000 `/claim-fit` **LANDED #850** (dropped the imprecise §7.3 clause pointer, kept IEEE 7000-2021 as a broad synthesis input); C.4 ISO/PAS 8800 no-action (resolved).
-- **Reference note (AI Act citations):** the EU AI Act full text (Regulation (EU) 2024/1689) IS held in `grc_library_ref` (`legislation/EU/EU-AI-Act-Regulation-2024-1689--full-text.md`, `version_sensitive: true`); verify each load-bearing AI Act article citation against the held text, and confirm currency upstream for version-sensitive points (the EU annex Limitations flags a pending Digital Omnibus amendment). (#844's Article 51 fix was verified upstream and is corroborated by the held Act; the A.2 skeptical verifier's transient "AI Act not held" was a false-negative inventory claim, corrected here.)
-- **A.1 blocker: RESOLVED (#849 / ref #77).** The held Transparency Chapter PDF truncated at the Model Documentation Form heading; the separately-published official Form DOCX was acquired from europa.eu and ingested into `grc_library_ref` as a held companion source (ref PR #77), and the Transparency entry's `notes` were corrected. A.1 folded against the now-held Form in #849.
-
 ### 2.6 Cloudflare build-watch-paths: include the 11 domain directories (maintainer console, tomorrow-morning action, added 2026-07-15)
 
 **Maintainer console action, for the next computer session (the maintainer's 2026-07-15 morning); the assistant cannot do this (no Cloudflare API token in the execution environment).** In the Cloudflare Pages project for grclibrary.ai, set the build-watch-paths to INCLUDE the 11 domain directories (`ai/`, `architecture/`, `compliance/`, `dev-security/`, `governance/`, `operations/`, `privacy/`, `resilience/`, `risk/`, `security/`, `supply-chain/`) alongside `.web/`, `taxonomy.yml`, and `README.md`. Reason: since PR #922 each per-domain page derives from its `<domain>/README.md`, so a domain-README edit must trigger a Cloudflare rebuild for the page to refresh; if the watch-paths exclude the domain dirs, such edits will silently not redeploy. Confirm the exact watch-path feature name and any bypass thresholds against the live Cloudflare dashboard (vendor-set). Runbook: [`.working/cloudflare-pages-setup.md`](.working/cloudflare-pages-setup.md) step 4. This is the last open §2.4 build item; after it, only the publish go-decision remains before §2.4 closes.
@@ -91,6 +79,26 @@ Link each entry in the landing page's "Standards & frameworks it maps to" sectio
 ### 2.16 Landing-page left nav: two-level nested quick-nav (maintainer-confirmed 2026-07-15, M, S)
 
 Deepen the landing page's left contents nav from flat section links into a two-level quick-nav for everything on the page (maintainer-confirmed "two-level nested nav" 2026-07-15). Keep the 7 section links; nest each section's on-page sub-blocks as indented, lighter-weight sub-links: the 6 Get-started steps under "Get started", the 11 domains under "By domain" (already nested), and the Standards sub-groups under "Standards" only if the section is actually grouped (confirm the section structure at build; do not nest individual standards lines, that is what the section link is for). Add scrollspy active-highlighting so the current section or sub-item highlights on scroll. Design rule: nest a section only where its sub-blocks are useful jump targets, hierarchy plus indentation keeps it from looking busy. Implementation: the nested targets need anchor ids (the Get-started cards, any Standards sub-groups) plus indent styling; page-scoped to the landing sidebar so about / domain pages are untouched. Attended website work under §2.4.
+
+### 2.17 AI jurisdiction annex: California CCPA / ADMT (H, M)
+
+New `ai/jurisdictions/annex-ai-us-california.md` plus a policy US-state row for California's CCPA automated-decision-making-technology (ADMT) regulation (binding). `[VERIFY]` the ADMT effective / compliance dates upstream at apply (egress-gated). A government-facing binding annex, so it warrants the high-assurance harness. Re-homed from the retired AI-domain-delta umbrella (Workstream A.6).
+
+### 2.18 AI jurisdiction annex: South Korea AI Basic Act (H, M)
+
+New jurisdiction annex for the South Korea AI Basic Act (held primary). `[VERIFY]` the phased effective dates upstream at apply (the catalogue records effective 22 Jan 2026; egress-gated). A government-facing annex, high-assurance harness. Re-homed from the retired AI-domain-delta umbrella (Workstream B.1).
+
+### 2.19 AI jurisdiction annex: Singapore Model AI Governance Framework for GenAI (M, M)
+
+New jurisdiction annex for the Singapore Model AI Governance Framework for Generative AI (held primary). Re-homed from the retired AI-domain-delta umbrella (Workstream B.2).
+
+### 2.20 Ref-side `last_checked` sweep for the 6 new EU / CA AI sources (M, S; cross-repo)
+
+Stamp `last_checked` on the 6 EU / CA AI sources ingested for the AI-domain delta in `grc_library_ref`'s `catalogue.yml` (a cross-repo `grc_library_ref` PR; OPEN). Pairs with the SR-1 currency mechanism. Re-homed from the retired AI-domain-delta umbrella (Workstream C.2).
+
+### 2.21 Further AI-jurisdiction annexes, deferred pending held sources (M, L; source-gated)
+
+New AI-jurisdiction annexes deferred pending per-jurisdiction held-source sufficiency: UK, Malaysia, Australia, US federal, US Texas, US Illinois. Source-gated (no held primary yet); acquire the primary source per the missing-reference-document SOP before building each. Cross-references the P5.9 AI-jurisdiction-overlays umbrella. Re-homed from the retired AI-domain-delta umbrella (Workstream B.3).
 
 ## Priority 3 — Clean up and tooling
 
