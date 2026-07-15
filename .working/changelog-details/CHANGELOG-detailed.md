@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.421, PR #933
+
+Widened audit gate 69's detection to catch the `TODO item N.M` phrasing, closing backlog item §3.50. Gate-logic + tooling + backlog; the only corpus change is the gate-69 description in the audit-programme spec (a gate-description update; no corpus requirement or normative content changed).
+
+### Changed
+- **Gate 69 detection widened** in [`tools/lint-positional-backlog-tokens.py`](../../tools/lint-positional-backlog-tokens.py): the `POSITIONAL_REF` regex now accepts an optional `item(s)` qualifier between `TODO` and the section token (`TODO(?:\s+[Ii]tems?)?`), so `TODO item 3.4` is flagged as a positional reference (previously only `TODO §N` / `TODO N.M` / `backlog item PN.M` matched). The comment and module docstring were updated to describe the widened form and the FP guard. The §6 gate-69 narrative in [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (Version 1.17.5 to 1.17.6) was updated to list the `TODO item N.M` example; taxonomy/portal/scorecard regenerated from the spec bump.
+
+### Added
+- Two regression fixtures in [`tests/test_linters.py`](../../tests/test_linters.py): `test_positional_todo_item_dotted_flagged` (the `TODO item 3.4` detect case) and `test_todo_item_prose_without_token_not_flagged` (the `TODO item covers ...` clean case, the FP guard).
+
+### Removed
+- Backlog item §3.50 (rotated to [`DONE.md`](../DONE.md)); its P3 number retires.
+
+### Verification
+- **FP analysis (the crux of the widen-vs-document decision):** a corpus census over the gate-scanned set found ZERO live `TODO item <token>` carriers, and confirmed the existing `... TODO item covers ...` prose (register-coverage-gaps) has no section token after `item` so the widening does not newly-flag it. A 9-case behaviour test on the widened regex passed (target forms match, all FP prose forms and the bare-single-digit `TODO item 3` do not), and the gate stays 0 over the corpus.
+- Full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69 (gate 69 green, gate 36 regression suite green with the 2 new fixtures, gate 39 count-phrasing green); the linter regression suite (`python3 -m unittest tests.test_linters`) = 379 tests OK. Pre-push guard green.
+- **Two independent high-assurance verifiers** (correctness + completeness, refute-briefed): scoped to the regex change, the FP-safety, the fixture coverage, and the spec/docstring completeness.
+- **PR #932 post-merge validation** (Subagent A, read-only-git on `a62418e`): SHIP, 0 findings; batched here.
+
+### Notes
+- Overnight run, high-assurance harness. §3.50's directive allowed either widening (with FP analysis) or documenting the omission as intentional; the FP analysis was clean, so the widening was applied. Next: the remaining self-contained P3 gate/tooling HA candidates (§3.12 See-Also parity gate, §3.34 detailed-mirror link-resolution); §3.73 self-defers to a fresh session per its own build note.
+
 ## 2026-07-15, Library Version 2026.07.420, PR #932
 
 Third TODO-split-hygiene PR (permanent-numbering hygiene): split the §2.5 AI-domain-delta umbrella. This is the "split into components" case (as distinct from the §2.4/§3.x trim-in-place): §2.5's remaining distinct workstreams re-home into their own new-numbered items, and the §2.5 umbrella is retired. Working-state and backlog only; no corpus document, template, or generated artefact changed.

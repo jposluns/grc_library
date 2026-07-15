@@ -6932,6 +6932,33 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_positional_todo_item_dotted_flagged(self) -> None:
+        # The "TODO item N.M" qualifier form (widened 2026-07-15, TODO 3.50): an
+        # optional `item(s)` qualifier between TODO and a dotted token is still a
+        # positional reference and must be flagged.
+        fixture = self.make_fixture(
+            "positional-todo-item-dotted.md",
+            "# X\n\nSee TODO item 3.4 for the queued widening.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertLinterFails(result, "TODO item 3.4")
+
+    def test_todo_item_prose_without_token_not_flagged(self) -> None:
+        # "TODO item" followed by ordinary prose (no section token) is not a
+        # positional reference: the widened qualifier only matches when a
+        # section-shaped token follows (the FP guard for the widening).
+        fixture = self.make_fixture(
+            "todo-item-prose.md",
+            "# X\n\nThe financial-services TODO item covers country regulators only.\n",
+        )
+        result = run_linter("tools/lint-positional-backlog-tokens.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"'TODO item' prose without a section token must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

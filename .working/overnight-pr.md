@@ -12,10 +12,10 @@
 
 **Overnight work plan (highest-priority authorized independent items):**
 - The maintainer-directed TODO split (split the massive partially-done items so completed components rotate to DONE and only remaining parts stay, each drawing fresh counter numbers): §3.57, §3.62, §3.63, §3.68 (P3 routed-findings/apply cleanups) then §2.4, §2.5 (P2 umbrellas). Each under the HA harness + per-PR `/validate-pr` + `/retro`.
-- Then self-contained P3 gate/tooling items that are non-protected, non-egress, non-attended (e.g. §3.12 See-Also parity gate, §3.34 detailed-mirror link-resolution, §3.50 gate-69 idiom, §3.73 ledger-row-integrity), as HA candidates.
+- Then self-contained P3 gate/tooling items that are non-protected, non-egress, non-attended (e.g. §3.12 See-Also parity gate, §3.34 detailed-mirror link-resolution, §3.73 ledger-row-integrity), as HA candidates.
 - Blocked overnight (do NOT attempt): §1.1 (protected pack rule), §1.12 (gated on website work), §1.14 (egress), §2.15/§2.16 (attended-only), §2.6 (maintainer console), source-gated annexes.
 
-**Build progress:** the massive-item TODO-split wave is COMPLETE, #930 MERGED (split §3.57/§3.62/§3.63/§3.68), #931 MERGED (§2.4 website umbrella), PR #932 (branch `claude/todo-split-ai-delta`) splits the §2.5 AI-delta umbrella (landed workstreams to DONE; remaining re-homed to new §2.17-§2.21; §2.5 retired; HA-register §2.5 pointer repointed); batches #931 QA. Next: the self-contained P3 gate/tooling HA candidates one at a time (§3.12, §3.34, §3.50, §3.73). Each PR runs two independent HA verifiers (correctness + completeness) + per-PR `/validate-pr` + `/retro`.
+**Build progress:** the massive-item TODO-split wave is COMPLETE and merged (#930 §3.57/§3.62/§3.63/§3.68, #931 §2.4, #932 §2.5). Now on the P3 gate/tooling HA candidates: PR #933 (branch `claude/gate69-todo-item-widening`) CLOSES §3.50, widening gate 69 to catch `TODO item N.M` (FP-safe corpus census; 2 fixtures + §6 narrative + spec 1.17.6 + taxonomy regen); batches #932 QA. Next: §3.12 (See-Also parity gate), §3.34 (detailed-mirror link-resolution). §3.73 self-defers to a fresh session per its own note. Each PR runs two independent HA verifiers (correctness + completeness) + per-PR `/validate-pr` + `/retro`.
 
 <!-- OVERNIGHT-PR-STUB -->
 
