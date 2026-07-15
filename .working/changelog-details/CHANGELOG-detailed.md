@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.437, PR #949
+
+TYPE_ORDER drift guard between the two document-ordering generators (TODO §3.76), the TODO->DONE rotation of §3.76 and §2.16, and the batched post-merge QA for PR #948. Test + working-state only; no corpus document body changed.
+
+### Added
+
+- **`GeneratorSortKeyParityTests`** in [`tests/test_linters.py`](../../tests/test_linters.py) (the regression suite run by the linter-regression runner and gate 36). It asserts, by text extract with no import coupling, that [`tools/build-taxonomy.py`](../../tools/build-taxonomy.py) (which orders [`taxonomy.yml`](../../taxonomy.yml)) and [`.web/build.py`](../../.web/build.py) (which orders the website domain pages) carry (a) an identical `TYPE_ORDER` rank tuple and (b) a matching secondary per-domain sort key: case-insensitive title (`.lower()`) plus a repo-relative-path tiebreaker. Scope widened from a rank-only guard by Sweep 105 finding A-1 (identical `TYPE_ORDER` but a divergent case-sensitive vs case-insensitive secondary key that made the on-site order diverge from the canonical taxonomy). Added `import re`. Guard-validity checked: the test passes on the current aligned generators and fails on a simulated TYPE_ORDER swap or a case-sensitive-key regression. An interim regex bug in the test itself (a non-greedy match truncated the sort-key tuple at the inner paren) was caught by running the test and fixed (capture-to-end-of-line).
+
+### Changed
+
+- **TODO->DONE rotation** ([`TODO.md`](../../TODO.md) + [`DONE.md`](../DONE.md)): §3.76 rotated (closed here); **§2.16 rotated (its residual shipped in PR #948 but the rotation was missed there; corrected here)**, and the stale TODO "adoption follow-up §2.16" forward-reference reworded (§2.16 complete: nesting #941, residual #948).
+
+### QA (batched per recursion-avoidance)
+
+- PR #948 `/validate-pr`: 0 findings attributable to #948 (the gate-36 regression FAIL the subagent observed was the orchestrator's in-flight §3.76 test edit on this branch, a read-only-git shared-tree concurrency artefact, out-of-window). Zero-finding history row + [`improvement-log.md`](../improvement-log.md) retro row batched here; the retro logged the §2.16 rotation-miss (a residual-completion rotation slip, corrected in this PR).
+
+### Verification
+
+- `python3 -m unittest tests.test_linters.GeneratorSortKeyParityTests` passes (2 tests); the full linter-regression runner exits 0 with the new test integrated; the audit suite is 69/69 (gate 36 exercises the suite). No corpus document body changed. Library CalVer `2026.07.436` -> `2026.07.437`, README Version `1.9.797` -> `1.9.798`. Pre-push guard green.
+
 ## 2026-07-15, Library Version 2026.07.436, PR #948
 
 Landing-page left-nav enhancement, the TODO §2.16 residual (Get-started nesting + scrollspy), plus the batched post-merge QA for PR #947. Website template + generator only; no corpus document body changed.
