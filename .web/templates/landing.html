@@ -51,6 +51,13 @@
     padding-left: 1rem; font-size: 0.74rem; opacity: 0.82;
     padding-block: 0.22rem;
   }
+  /* Scrollspy active state (TODO 2.16): the sidebar link for the section/sub-item
+     currently in view is highlighted. Applied by script.html via IntersectionObserver;
+     the nav is fully functional as static links if the script does not run. */
+  .sidenav-inner a.active { color: var(--brass); font-weight: 600; }
+  .sidenav-inner a.sub.active { opacity: 1; }
+  /* Anchor jumps clear the top edge (the sidebar is sticky; give targets breathing room). */
+  section[id], .feat[id], h3[id] { scroll-margin-top: 1.5rem; }
 
   @media (min-width: 1080px) {
     .shell {
@@ -105,6 +112,12 @@
       <p class="sidenav-h">Contents</p>
       <a href="#what">What it is</a>
       <a href="#start">Get started</a>
+      <a class="sub" href="#gs-decision-tree">Decision tree</a>
+      <a class="sub" href="#gs-worked-example">Worked example</a>
+      <a class="sub" href="#gs-templates">Templates</a>
+      <a class="sub" href="#gs-compliance-matrix">Compliance matrix</a>
+      <a class="sub" href="#gs-adopter-guide">Adopter guide</a>
+      <a class="sub" href="#gs-maturity">Maturity self-assessment</a>
       <a href="#build">How it&rsquo;s built</a>
       <a href="#pack">Governance pack</a>
       <a href="#register">By domain</a>
@@ -165,32 +178,32 @@
         ready to lift and adapt to your own organization, nothing to install.
       </p>
       <div class="feat-grid">
-        <div class="feat">
+        <div class="feat" id="gs-decision-tree">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/decision-tree.md" target="_blank" rel="noopener">Decision tree</a></div>
           <h3>Find the path that fits you</h3>
           <p>A short decision tree points you to the documents and templates that fit your organization&rsquo;s size, sector, and maturity.</p>
         </div>
-        <div class="feat">
+        <div class="feat" id="gs-worked-example">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/worked-example-adoption.md" target="_blank" rel="noopener">Worked example</a></div>
           <h3>See it done end to end</h3>
           <p>A worked example shows the library adopted into a running programme, so you can see the shape of it before you start.</p>
         </div>
-        <div class="feat">
+        <div class="feat" id="gs-templates">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/template-quickstart.md" target="_blank" rel="noopener">Templates</a></div>
           <h3>Start from a template</h3>
           <p>Take the quick-start template, or the startup, implementation-roadmap, or maturity self-assessment templates, and tailor one to your context.</p>
         </div>
-        <div class="feat">
+        <div class="feat" id="gs-compliance-matrix">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/compliance/matrix-grc-compliance-alignment.md" target="_blank" rel="noopener">Compliance matrix</a></div>
           <h3>Map your obligations</h3>
           <p>Trace a control to the standards and regulations it satisfies through the compliance matrix and framework alignments.</p>
         </div>
-        <div class="feat">
+        <div class="feat" id="gs-adopter-guide">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/adopter-guide.md" target="_blank" rel="noopener">Adopter guide</a></div>
           <h3>Adopt the whole programme</h3>
           <p>The adopter guide stands up a coherent programme across every domain; a multi-entity guide covers groups and subsidiaries.</p>
         </div>
-        <div class="feat">
+        <div class="feat" id="gs-maturity">
           <div class="k"><a href="https://github.com/jposluns/grc_library/blob/main/docs/template-maturity-self-assessment.md" target="_blank" rel="noopener">Maturity self-assessment</a></div>
           <h3>Assess where you are</h3>
           <p>Baseline your current maturity with the self-assessment template and track progress as you adopt.</p>
