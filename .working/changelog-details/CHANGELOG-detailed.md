@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.448, PR #960
+
+Maintainer-flagged TODO stale-item cleanup (notably the public-site items) plus the PR #959 QA close-out. No corpus content changed.
+
+### Changed
+- [`TODO.md`](../../TODO.md) + [`.working/DONE.md`](../DONE.md): closed §2.4 (public presence at grclibrary.ai) and §2.6 (Cloudflare build-watch-paths) to the DONE ledger. §2.4 is built and live and the maintainer confirmed it done 2026-07-15 (remaining: the maintainer-owned publish go-decision, and the separately-tracked §2.15 standards-linking; the About credential-strip styling is actioned in #961). §2.6's build-watch-paths were applied in the maintainer console 2026-07-15 (recorded closed at the #954 handoff but never rotated). Reworded the six now-dangling `§2.4` references (the intra-doc-ref gate would otherwise flag them once the heading is gone): §1.12 (its "after the website work" deferral lifted, now ready), §2.15, §3.74, §3.75, and §4.9 (heading + body).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep 106 row's leading tally "0 error / 1 warning / 0 note" corrected to "1 note" (its own body cell, the detail file, the commit message, and CHANGELOG-detailed all already said one note, from Subagent C's routed handoff-snapshot-lag note; the #959 `/validate-pr` finding). Version 2.0.104 -> 2.0.105.
+
+### Added
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #959 `/validate-pr` row (Subagent A, 1 Low `.working/` finding = the tally above, fixed here; all corpus surfaces clean). Version 1.2.725 -> 1.2.726.
+- [`.working/improvement-log.md`](../improvement-log.md): #959 `/retro` row (the bookkeeping-authoring-slip class; both this session's slips caught in-window). Version 1.0.660 -> 1.0.661.
+
+### Verification
+- Bookkeeping-tier PR (no corpus content). `§2.4`/`§2.6` residual grep across TODO: 0. The assembled TODO/DONE rows were re-read for boundary integrity before commit (the #959 `/retro` lesson). Pre-push guard green (the intra-doc-ref gate, gate 45 TODO-staleness, and gate 50 bookkeeping-parity all pass); library CalVer 2026.07.448, README 1.9.809.
+
 ## 2026-07-15, Library Version 2026.07.447, PR #959
 
 The Sweep 106 loop-break corpus-wide `/validate` close-out (the compensating control for session-closing handoff PR #954): corrects one in-window finding and batches PR #958's post-merge QA. Sweep record: [`2026-07-15-sweep106-iter1.md`](../validate-sweeps/2026-07-15-sweep106-iter1.md).
