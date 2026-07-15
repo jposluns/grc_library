@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.415, PR #927
+
+Working-state close-out: a new backlog item and the batched PR #926 QA; nothing adopter-facing changed.
+
+- Added backlog item §2.6: the maintainer-console Cloudflare build-watch-paths action (include the 11 domain directories), deferred to the next computer session; the last open §2.4 build item before the publish go.
+- Corrected the fourth generator help-text page-set carrier (the argparse description) that the #925 docstring sweep missed; a full-file grep confirms all four carriers now include the pack page.
+- Batched PR #926's post-merge validation (Subagent A, read-only-git on `76bbbcd`): SHIP-WITH-NOTES, 0 error / 0 warning / 1 note (the argparse carrier, fixed here); record at [`2026-07-15-PR-926.md`](../validate-pr/2026-07-15-PR-926.md). README 2026.07.415 / 1.9.776.
+
 ## 2026-07-15, Library Version 2026.07.414, PR #926
 
 The public landing-page restructure (backlog section 2.4, closing the adoption round), plus the batched PR #925 post-merge QA. Landing-page-scoped; no corpus document changed and no generated artefact was touched. This completes the website effort (PR #921 through #926).
