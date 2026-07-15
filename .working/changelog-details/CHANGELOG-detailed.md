@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.442, PR #954
+
+`.working/` session-closing handoff for the 2026-07-15 long resumed website session (#943-#953). Batches PR #953's `/validate-pr` (history row + record file [`2026-07-15-PR-953.md`](../validate-pr/2026-07-15-PR-953.md)) and its `/retro` row; fixes the #953 `/validate-pr` warning W-1 (the [`session-state.md`](../session-state.md) Current-task / Worker-dispatches prose was a PR stale after the heartbeat re-stamp); refreshes [`session-handoff.md`](../session-handoff.md) with new Next-actions, State-snapshot, and Asserted-expectations blocks for this session (green-at `b82475b`/#953 = 69/69) and adds the [`session-metrics.md`](../session-metrics.md) row; and RELEASES the concurrency lease ([`session-state.md`](../session-state.md), Status released, Active-session none). Per the loop-break, this session-closing handoff PR takes no trailing `/validate-pr` + `/retro` (compensating control = the next `/resume`'s corpus-wide `/validate`, Sweep 106, over #943..#954). Working-state + version + CHANGELOG only; no corpus document or website content changed.
+
 ## 2026-07-15, Library Version 2026.07.441, PR #953
 
 Website batch item 4 (Option A): a per-type listing page for each of the 17 document types, with the landing page's "By document type" chips now linking to them. Also batches #952's QA.
