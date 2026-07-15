@@ -50,6 +50,7 @@ from pathlib import Path
 from lint_common import (
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
+    is_fence_line,
     iter_markdown_targets,
 )
 
@@ -140,8 +141,7 @@ def scan_file(path: Path) -> list[Finding]:
     findings: list[Finding] = []
     in_fence = False
     for i, line in enumerate(text.splitlines(), start=1):
-        stripped = line.lstrip()
-        if stripped.startswith("```") or stripped.startswith("~~~"):
+        if is_fence_line(line):
             in_fence = not in_fence
             continue
         if in_fence:

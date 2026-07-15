@@ -27,7 +27,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS
+from lint_common import AUDITED_DOMAIN_DIRS, is_fence_line
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -64,7 +64,7 @@ def check_file(path: Path) -> list[tuple[int, str, str]]:
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
-            if line.lstrip().startswith("```"):
+            if is_fence_line(line):
                 in_code = not in_code
                 continue
             if in_code:

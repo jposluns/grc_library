@@ -630,6 +630,23 @@ class ShallNearUncertaintyTests(LinterTestCase):
         result = run_linter("tools/lint-shall-near-uncertainty.py", fixture)
         self.assertLinterFails(result)
 
+    def test_shall_near_uncertainty_inside_tilde_fence_ignored(self) -> None:
+        # TODO 3.10 (GR-4 tilde-blindness): a ~~~ fenced code block must be
+        # skipped exactly as a backtick fence is. Before the shared
+        # lint_common.is_fence_line() consolidation this linter was tilde-blind
+        # and scanned the shall-near-uncertainty phrase inside the fence (a
+        # false positive); routed through the shared predicate it now skips it.
+        fixture = self.make_fixture(
+            "standard-shall-tilde-fence.md",
+            VALID_METADATA
+            + "\n\n~~~\n[Unverified] The organization shall implement controls.\n~~~\n",
+        )
+        result = run_linter("tools/lint-shall-near-uncertainty.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a shall-near-uncertainty phrase inside a ~~~ fence must be "
+            f"skipped.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
 
 class PlaceholderLeakageTests(LinterTestCase):
     """tools/lint-placeholder-leakage.py"""
@@ -3799,6 +3816,22 @@ class LintCommonHelperTests(unittest.TestCase):
         lc = self._lint_common()
         lines = [l for _, l in lc.iter_non_code_lines("a\n```\nhidden\n```\nb\n")]
         self.assertEqual(lines, ["a", "b"])
+
+    def test_is_fence_line_predicate(self) -> None:
+        # TODO 3.10: the shared fence predicate the corpus linters route their
+        # in-code-block skip loops through. It recognizes both backtick and
+        # tilde fences (closing the GR-4 tilde-blindness in the six formerly
+        # private copies) and tolerates leading indentation, but does not match
+        # inline code, a two-tilde strikethrough, or prose.
+        # `4-space indent` is deliberately still a fence here (the predicate is
+        # more permissive than CommonMark's 3-space max, matching
+        # iter_non_code_lines); the 2-char negatives are tested symmetrically on
+        # both fence characters.
+        lc = self._lint_common()
+        for fence in ("```", "```python", "~~~", "~~~text", "   ```", "  ~~~", "    ```"):
+            self.assertTrue(lc.is_fence_line(fence), f"{fence!r} should be a fence")
+        for prose in ("prose", "`inline`", "``bold``", "~~strike~~", "", "  text ```"):
+            self.assertFalse(lc.is_fence_line(prose), f"{prose!r} should not be a fence")
 
 
 class DocumentDateStalenessTests(LinterTestCase):

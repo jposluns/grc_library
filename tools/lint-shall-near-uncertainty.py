@@ -56,7 +56,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, read_text_safe
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, is_fence_line, read_text_safe
 
 # Uncertainty markers that should not appear in mandatory text.
 UNCERTAINTY_PATTERNS = [
@@ -133,7 +133,7 @@ def check_file(path: Path) -> list[tuple[int, str, str]]:
     in_code_lines: set[int] = set()
     in_code_block = False
     for i, line in enumerate(lines):
-        if line.lstrip().startswith("```"):
+        if is_fence_line(line):
             in_code_block = not in_code_block
             in_code_lines.add(i)  # the fence line itself is also non-content
             continue

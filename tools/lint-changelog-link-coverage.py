@@ -35,6 +35,8 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import is_fence_line
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TARGET = REPO_ROOT / "CHANGELOG.md"
 
@@ -97,13 +99,13 @@ def scan(path: Path) -> list[tuple[int, str]]:
         return []
     findings: list[tuple[int, str]] = []
     text = path.read_text(encoding="utf-8")
-    # Strip code blocks (```...```) so backticks inside code blocks are ignored.
-    # CHANGELOG.md may contain code blocks for examples; references inside them
-    # are not navigation targets.
+    # Strip fenced code blocks (backtick or tilde, via the shared
+    # lint_common.is_fence_line predicate) so backticks inside code blocks are
+    # ignored. CHANGELOG.md may contain code blocks for examples; references
+    # inside them are not navigation targets.
     in_code_block = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if stripped.startswith("```"):
+        if is_fence_line(line):
             in_code_block = not in_code_block
             continue
         if in_code_block:

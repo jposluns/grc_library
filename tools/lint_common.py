@@ -365,6 +365,27 @@ def head_version(text: str | None, *, head_lines: int = METADATA_HEAD_LINES) -> 
     return value or None
 
 
+def is_fence_line(line: str) -> bool:
+    """True if ``line`` is a fenced-code-block delimiter.
+
+    A fence is a line whose left-stripped form starts with three backticks
+    (``` ``` ```) OR three tildes (``~~~``). Leading whitespace is tolerated
+    (CommonMark permits up to a 3-space indent; this is more permissive, which
+    does not matter for the current corpus). Both fence characters count so that
+    a stray CommonMark-valid ``~~~`` fence cannot silently suppress scanning of
+    everything after it (the GR-4 tilde-blindness class).
+
+    This is the SHARED fence predicate the corpus linters use for their
+    in-code-block skip loops, so a fence toggle is recognized consistently
+    across gates. It replaces the per-linter private ``startswith("```")``
+    checks, six of which were tilde-blind before the r5 GR-4 consolidation
+    (TODO 3.10). A toggle is a toggle: this predicate does not pair fences by
+    character or match fence widths, consistent with :func:`iter_non_code_lines`.
+    """
+    stripped = line.lstrip()
+    return stripped.startswith("```") or stripped.startswith("~~~")
+
+
 def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     """Yield ``(lineno, line)`` for each line outside a fenced code block.
 
@@ -409,8 +430,7 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
     """
     in_code = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if stripped.startswith("```") or stripped.startswith("~~~"):
+        if is_fence_line(line):
             in_code = not in_code
             continue
         if in_code:
