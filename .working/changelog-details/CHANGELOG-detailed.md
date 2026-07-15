@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.424, PR #936
+
+Overnight resting-point close-out. Working-state and backlog only; no corpus document, template, gate, tool, or generated artefact changed.
+
+### Changed
+- **Refreshed [`next-prs.txt`](../next-prs.txt)** to the queue-exhausted / daytime-priority state, fixing the PR #935 `/validate-pr` warning (W1): #935 did not touch the file, so its first line still listed §3.38 and §3.22 as the immediate overnight-safe "next" while #935's own conclusion had deferred both and declared the overnight-safe queue exhausted (the PR-workflow-step-6 "a PR shipped without refreshing next-prs" signal). The refreshed file records the full deferral rationale (protected / attended-for-quality / egress / maintainer-decision / source-gated) and the daytime-return priority.
+
+### Notes
+- **Overnight run summary.** This run merged #929 (the TODO permanent-numbering framework: never-recycled numbers + per-section counters), #930-#932 (the massive-item TODO-split wave: split §3.57/§3.62/§3.63/§3.68, §2.4, and §2.5 so completed components moved to the DONE ledger and only remaining parts stayed, §2.5's workstreams re-homed into new §2.17-§2.21), #933 (the gate 69 widening to catch `TODO item N.M`, §3.50), #934 (§3.34 go-forward preflight link-resolution check), #935 (staged the §3.22/§3.12 protected machinery for daytime + the §3.38 assessment), and this #936 close-out. Every substantive PR ran two independent high-assurance verifiers plus a post-merge `/validate-pr`; every finding was caught pre-push or fixed in the batching PR; net zero adopter-facing escapes.
+- **Resting point (still in overnight mode).** The cleanly-unblocked overnight-safe queue is exhausted. Every remaining item is deferred for a specific quality or authorization reason (not a depth excuse): protected `.claude/`/pack items (daytime auth, drafted in [`deferred-protected-changes.md`](../deferred-protected-changes.md) items 6/8/9); attended/fresh-context-for-quality items where a hasty change would risk a real defect (per the apex AIQT rule); egress / cross-repo; maintainer-decision; and source-gated content. Per the maintainer's instruction the session stays in overnight mode (no wind-down, no handoff) and resumes building if the maintainer redirects or a further unblocked item surfaces.
+
+### Verification
+- [`tools/lint-todo-staleness.py`](../../tools/lint-todo-staleness.py) (gate 45) rc=0; full [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) = 69/69; pre-push guard green. Working-state / bookkeeping tier (next-prs refresh + QA rows + version bumps), so no pre-push HA verifier per the tiered standard; the batched PR #935 `/validate-pr` (SHIP-WITH-NOTES, its next-prs warning fixed here) is the QA of record.
+- **PR #935 post-merge validation** (Subagent A, read-only-git on `4a6a668`): SHIP-WITH-NOTES, 0 error / 1 warning (the next-prs staleness fixed here) / 0 note; batched here.
+
 ## 2026-07-15, Library Version 2026.07.423, PR #935
 
 Overnight preparation PR: staged the remaining protected-surface machinery items for the daytime apply (per the overnight protocol's "draft the content in advance" direction) and recorded an assessment of the one FP-delicate gate item. Working-state and backlog only; no corpus document, template, gate, tool logic, or generated artefact changed.
