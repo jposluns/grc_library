@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-15, Library Version 2026.07.447, PR #959
+
+The Sweep 106 loop-break corpus-wide `/validate` close-out (the compensating control for session-closing handoff PR #954): corrects one in-window finding and batches PR #958's post-merge QA. Sweep record: [`2026-07-15-sweep106-iter1.md`](../validate-sweeps/2026-07-15-sweep106-iter1.md).
+
+### Fixed
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) line 148 (the canonical citations register): the Treasury Board Directive on Automated Decision-Making row labelled the 24 June 2025 -> 24 June 2026 compliance transition as "**third-review** amendments announced 8 October 2024"; corrected to "**fourth-review**". This is the same ordinal error PR #955 fixed in the Canada AI annex and PR #956 in the AI-and-privacy procedure; it survived here on a third carrier because it used the hyphenated `third-review`, which the earlier space-form "third review" grep did not match (a separator-tolerance gap). The 24 June 2025 transition is the fourth review, double-confirmed via PR #955's maintainer-verified conclusion and an upstream check this turn; the 8 October 2024 announcement date is retained as the fourth-review announcement (consistent with the maintainer-verified evidence that the third review's amendments were effective 25 April 2023, so cannot also have been announced October 2024). The row is re-stamped `verified 2026-07-15`. Version 1.5.36 -> 1.5.37, Date 2026-07-15; [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (version-only, stays Baseline).
+
+### Verification
+- Sweep 106 (`/validate`), three subagents (A recent-PR deep review, B corpus-wide stale-reference, C audit-programme integrity): 0 error / 1 warning (A-1, fixed here) / 1 note (C, the `.working/` handoff snapshot lag, routed to the session-closing handoff refresh). All 11 pre-flight candidates confirmed legitimate prose. Counts 13 rules / 23 skills / 69 gates verified; both generators `--check` EXIT 0. Loop-break control for #954 PASSES.
+- PR #958 `/validate-pr` (Subagent A, refute-briefed, read-only-git on `b1828c6`): PASS, 0 findings; history row added. PR #958 `/retro`: row added to [`improvement-log.md`](../improvement-log.md).
+- Pre-push guard (full 69-gate audit suite + PR-time checks) green; library CalVer 2026.07.447, README 1.9.808.
+
 ## 2026-07-15, Library Version 2026.07.446, PR #958
 
 Date-anchored the AIA question counts in the Canada AI regulatory annex so they age visibly rather than silently. Maintainer-directed (the annex faces a Canada AI Alliance expert review). Also batches PR #957's post-merge QA per recursion-avoidance.
