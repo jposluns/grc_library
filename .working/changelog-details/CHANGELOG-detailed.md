@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.459, PR #971
+
+The **Sweep 108 `/validate` close-out** (the loop-break compensating control for session-closing handoff PR #968), plus the two validated worker findings applied and PR #970's post-merge QA batched. Working-state and [`TODO.md`](../../TODO.md) only; no corpus or website content changed. Sweep 108 was the FIRST OFFLOADED corpus-wide `/validate` (run on worker `worker-20260716-a`, orchestrator-validated under full elevated QA including an adversarial auditor that returned WORKER-CLEAN-CONFIRMED); the loop-break control for #968 passes.
+
+### Changed
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): added the Sweep 108 row (0 error / 0 warning / 1 note; offloaded + orchestrator-validated; loop-break for #968 passes); Version 2.0.106 to 2.0.107.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the Resume-cursor to Sweep 108 (gate 45), and **pruned** the per-session blocks to keep current + 1 prior (retained the #964-#967 and #955-#962 stacks; dropped the #943-#953 website-session Next-actions / State-snapshot / Asserted-expectations blocks, whose narrative is preserved in the CHANGELOG, DONE, sweep history, and git).
+- [`TODO.md`](../../TODO.md): applied the two validated Sweep-108 / validate-pr-969 worker findings to §3.80: the phase-1 completion date `2026-07-15` to `2026-07-16` (the UTC date; scratch PR #168 merged 2026-07-15 21:51 EDT = 2026-07-16 01:51 UTC), and added the omitted `verify` to the offloadable-pass list (matching the design doc and CLAUDE.md). Added §2.23 (CCPA statute eff. 2026-01-01 currency + alignment review, blocked on the ref ingestion; maintainer-flagged 2026-07-16).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #970 row (self-run PR-scoped sweep; the worker was on the maintainer's priority Canada + CCPA-ingestion work). Version 1.2.734 to 1.2.735.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #970 `/retro` row (logs the process-PR-QA-spend-vs-busy-single-worker pattern). Version 1.0.669 to 1.0.670.
+- [`.working/session-state.md`](../session-state.md): re-stamped the lease heartbeat, moved `Active-session` to `claude/sweep108-closeout`, recorded the close-out state and the CCPA ref-update tracking.
+- [`.working/next-prs.txt`](../next-prs.txt): cycled forward.
+- Library CalVer `2026.07.458` to `2026.07.459`; [`README.md`](../../README.md) README Version `1.9.819` to `1.9.820`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 and `tools/run-pr-time-checks.sh` green at the pre-push guard (bookkeeping-tier close-out; no separate pre-push skeptical verifier). Gate 45 confirms the Resume-cursor matches the new Sweep 108 history row.
+- The Sweep 108 result was independently validated before this close-out recorded it (SHAs, counts, gate 54, and pre-flight all exact-match; the one note re-verified at source; adversarial auditor WORKER-CLEAN-CONFIRMED). The two applied findings were each re-verified at source, and the phase-1 date resolution was confirmed against the actual scratch #168 merge timestamp.
+- No corpus document body changed; no per-document Version/Date bump; no generated-artefact regeneration. This close-out's own `/validate-pr` + `/retro` batch forward per recursion-avoidance.
+
 ## 2026-07-16, Library Version 2026.07.458, PR #970
 
 Codifies the **credit-offload new-worker QA-trust-tier policy** (maintainer-directed 2026-07-16, after the first live worker's first QA deliveries) and batches PR #969's offloaded-and-validated post-merge QA rows. `.claude/` + `.working/` only; no corpus or website content changed. Context: this session's Sweep 108 `/validate` and #969 `/validate-pr` were both offloaded to worker `worker-20260716-a` (Opus 4.8) and independently validated by the orchestrator (delivery 1 under full elevated QA including an adversarial auditor that returned WORKER-CLEAN-CONFIRMED; delivery 2 under graduated elevated QA); the worker is validated-as-working and the loop-break control for #968 passes (its close-out is the next PR).
@@ -23,7 +42,7 @@ Codifies the **credit-offload new-worker QA-trust-tier policy** (maintainer-dire
 
 ### Verification
 - `tools/run_all_audits.sh` 69/69 and `tools/run-pr-time-checks.sh` green at the pre-push guard. A refute-briefed skeptical verifier ran on the policy prose (CLAUDE.md bullet + design-doc subsection internally consistent, no QA-skip loophole introduced).
-- The worker-validation evidence backing the #969 QA row: independent re-derivation of the worker's Sweep 108 claims (the five in-window SHAs, counts 14/23/13/18, gate 54 clean 336 docs, pre-flight 421/11/33) all exact-match; the one Sweep 108 note (phase-1 date drift) and the one validate-pr-969 note (`verify` enum drift) both re-verified real at source; an adversarial false-negative auditor returned WORKER-CLEAN-CONFIRMED.
+- The worker-validation evidence backing the #969 QA row: independent re-derivation of the worker's Sweep 108 claims (the five in-window SHAs, counts 13/23/14/18, gate 54 clean 336 docs, pre-flight 421/11/33) all exact-match; the one Sweep 108 note (phase-1 date drift) and the one validate-pr-969 note (`verify` enum drift) both re-verified real at source; an adversarial false-negative auditor returned WORKER-CLEAN-CONFIRMED.
 - No corpus document body changed; no per-document Version/Date bump; no generated-artefact regeneration. This PR's own `/validate-pr` + `/retro` batch forward per recursion-avoidance.
 
 ## 2026-07-16, Library Version 2026.07.457, PR #969
