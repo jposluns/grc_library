@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.457, PR #969
+
+Applies credit-offload **phase 3** (the deferred-protected-changes staging item 10; maintainer-authorized attended on the VM): the orchestrator-side wiring of the multi-worker QA-and-research offload queue into the resume flow and the project instructions. First PR of the 2026-07-16 resumed session; the mandatory loop-break Sweep 108 `/validate` (#964..#968) is itself OFFLOADED to the live worker `worker-20260716-a` as the credit-offload test (enqueued as the blocking, priority-0 order `sweep-108-validate` on `grc_library_scratch`), so its close-out (the sweep row + handoff prune) lands when the worker delivers, not in this PR. `.claude/` + `.working/` + backlog only; no corpus or website content changed.
+
+### Added
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a new `## Credit-offload mode` section (after `## Multi-session orchestration`) codifying the orchestrator-side discipline: the offloadable read-only pass set vs what stays orchestrator-side (authoring/apply/route/merge + the pre-push skeptical verifier per §3.81); the worker-availability gate (enqueue when >= 1 live worker, self-run on an empty pool, best-effort and never a QA skip); the blocking resume `/validate` vs the non-blocking per-PR passes; the consume/trust discipline (re-verify positives, trust clean, orchestrator writes the audit-trail rows); the honest cost-shifting limitation; the `/tmp/grc_library_ref` worker-read-copy re-sync obligation; and the note that the `/credit-offload` worker command lives in `grc_library_scratch`, so the `grc_library` slash-command count is unchanged (still 14).
+
+### Changed
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 6 now leads with the credit-offload check (read the scratch `workers/` registry; with a live worker, enqueue the loop-break `/validate` as a blocking priority-0 order pinned to the resume `main` SHA, wait on the results plane, consume + re-verify positives + record the sweep row; with 0 workers or a stale order, self-run inline); step 3 gains a credit-offload queue/results check alongside the brief-freshness and delivery-status probes.
+- [`.working/credit-offload-design.md`](../credit-offload-design.md): Status to IN USE, phase 3 marked APPLIED and phase 2 marked under live test; added the worker wind-down/re-register design-of-record note (the two light hooks, worktree cleanup on wind-down/crash and reconcile-on-re-register, plus the serve-loop self-refresh and the intra-order-checkpoint non-goal) from `worker-20260716-a`'s `worker-lifecycle-winddown` design assessment; Version 1.0.1 to 1.1.0.
+- [`TODO.md`](../../TODO.md): §3.80 phase-3 sub-item rotated to APPLIED; phase 2 marked in-progress (the two hooks + self-refresh + live write-path test); §3.80 stays open pending phase-2 hardening.
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 10 rotated out (landed note added to the summary); items 6, 8, 9 remain.
+- [`.working/session-state.md`](../session-state.md): ACQUIRED the concurrency lease for `claude/credit-offload-phase3` (`Status: active`, fresh heartbeat); Current-task and Worker-dispatches updated for this session.
+- Library CalVer `2026.07.456` to `2026.07.457`; [`README.md`](../../README.md) README Version `1.9.817` to `1.9.818`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 and `tools/run-pr-time-checks.sh` green at the pre-push guard. A refute-briefed skeptical verifier ran on the resume-flow prose change (the `/resume` step-6/step-3 edits and the new CLAUDE.md section read coherently end-to-end and are internally consistent with the design of record and the mandatory-QA discipline).
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration.
+- This PR's own `/validate-pr` (the Subagent-A analysis pass) is OFFLOADED to the worker (the credit-offload model) and consumed at the next PR boundary; the `/retro` stays orchestrator-side (a reflective pass, not in the offloadable set, like the audit-trail-row writing). Both rows batch forward per recursion-avoidance.
+
 ## 2026-07-16, Library Version 2026.07.456, PR #968
 
 Session-closing handoff for the 2026-07-16 resumed session (`/resume` from #963; merged #964-#967 plus `grc_library_scratch` #166-#170). Working-state only; no corpus or website content changed. Per the loop-break, this handoff PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 108), which cross-checks the Asserted-expectations block this PR records.

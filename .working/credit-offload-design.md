@@ -1,9 +1,9 @@
 # Credit-offload: a multi-worker QA + research queue (design of record)
 
-**Version:** 1.0.1\
+**Version:** 1.1.0\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0\
-**Status:** DESIGN SETTLED (maintainer-co-designed 2026-07-15). Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168, a worker is testable); phase 2 hardening (the write-path test) remains; phase 3 (the orchestrator-side wiring) is staged for maintainer review. See `## Build phases`.
+**Status:** IN USE. Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168). **Phase 3 (the orchestrator-side wiring) is APPLIED** (2026-07-16, maintainer-authorized attended): the worker-availability check + blocking-resume-`/validate` enqueue/consume is wired into `.claude/commands/resume.md` (step 6, plus a queue/results check in step 3) and the `## Credit-offload mode` section of `.claude/CLAUDE.md`. **Phase 2 write-path is under live test:** the first live worker (`worker-20260716-a`) is exercising the claim/heartbeat/deliver path against the offloaded Sweep 108 `/validate` order. See `## Build phases`.
 
 Maintainer working state, exempt from corpus audit gates. This is the design of record for **credit-offload**: a scheme that moves the token-heavy, read-only analysis passes (QA sweeps and research/drafting) off the orchestrator's account onto standing worker sessions on other accounts, so the orchestrator (which is low on usage credits) spends only on the irreducible author -> apply -> route -> merge work. It generalizes the existing research-worker model (`grc_library_scratch` Mode B: workers research, the orchestrator applies) to also cover the QA passes, on a polling work queue with a lease/fencing lifecycle.
 
@@ -36,6 +36,38 @@ The orchestrator's own setup at `/home/jposluns/{grc_library,grc_library_ref,grc
 
 Lease timing: heartbeat 5 min / stale 20 min (the looser setting, chosen to suit long-running orders such as the deep-assessment phases).
 
+**Worker wind-down and re-register (no full handoff; two light hooks).** A worker needs no
+orchestrator-style handoff/resume: it is stateless between orders, and all cross-interruption
+state is already externalized to this coordination plane (the queue IS the next-actions list;
+"resume" is just re-registration). A per-worker handoff document would be a second coordination
+plane (the split-brain hazard this design resolves) and would violate scratch's wipeable
+invariant. The lifecycle instead carries two light, protocol-consistent hooks (design assessment
+by `worker-20260716-a`, 2026-07-16; developed orchestrator-side into
+`tools/credit-offload-queue.py`, `.claude/commands/credit-offload.md`, and `queue/README.md` on
+scratch):
+
+- **Worktree cleanup on wind-down/crash.** The happy-path serve loop removes its
+  `wt-<order-id>` worktree after delivery, but the graceful-`checkout` path and an ungraceful
+  stop do not, so worktrees accumulate in the per-machine cache and a revived worker re-claiming
+  the SAME order collides on the existing `wt-<order-id>` path at `git worktree add`. The
+  `checkout` operation (and, where the harness allows a stop trap, an ungraceful stop) prunes
+  `wt-*` worktrees for orders the worker no longer holds.
+- **Reconcile on re-register (the worker-side of the fencing guarantee).** On `register` with an
+  existing worker id, the worker scans the queue for orders still stamped `claimed_by=<me>` and,
+  for each, compares the order's CURRENT `fencing_token` to the token it last held: if the token
+  moved (it was declared stale and reclaimed) it must NOT deliver and drops that worktree; if the
+  token still matches and the heartbeat is fresh it may continue a genuinely-live claim. It also
+  prunes worktrees for orders now `done`/`pending`. This makes re-registration idempotent and
+  self-healing (the worker-side analogue of the orchestrator's resume lease-check), rather than
+  assuming a clean slate.
+
+**Deliberate non-goal: intra-order checkpointing.** There is intentionally no way to resume PART
+of an order; a worker that dies mid-order loses that work and the order restarts from scratch
+under a new claim. Partial-findings delivery would violate the "an offloaded run is the full
+formal pass, abbreviation is never authorized" discipline. If resumability inside a long order
+is ever wanted, the lever is SMALLER orders (finer granularity), not a per-worker checkpoint file
+(which would be a third state surface).
+
 ## Worker liveness and token-budget-aware checkout
 
 - **`workers/` liveness registry** (on scratch): each serving worker posts `worker-id`, `mode` (VM|cloud), `egress-class`, and a `last-seen` heartbeat. The orchestrator reads it to decide behaviour: **0 live workers -> never wait, self-run** (offload is pure best-effort); **>=1 live worker -> enqueue offloadable orders (and, for the resume `/validate`, wait on the result)**; mid-session changes adapt (a worker appearing lets the orchestrator start shifting work to it; all workers dropping reverts it to self-run, or it just enqueues non-blocking seeds for later pickup). The orchestrator never burns time waiting on an empty pool.
@@ -62,8 +94,8 @@ Richer metrics on scratch (per-order cost, per-worker spend, queue depth over ti
 
 - **Phase 0 (maintainer):** provision the least-privilege worker account(s) (read `grc_library` + `grc_library_ref`, write `grc_library_scratch`); the same-VM shared `/tmp/grc_library_working` clone cache and the worker sessions are launched by the maintainer (permissions bind at session launch).
 - **Phase 1 (scratch, built in scratch PR #168, 2026-07-16):** the queue protocol + directory conventions on scratch (`queue/`, `results/`, `workers/`, the check-in/out log, `metrics/`), the `tools/credit-offload-queue.py` helper (claim/heartbeat/fence-check/deliver over the scratch-git plane), the `/credit-offload` worker command (`.claude/commands/credit-offload.md` in scratch), and a first real test order (the Canada.ca reference-breadth research seed).
-- **Phase 2 (scratch):** the `/credit-offload` worker command + the worker onboarding shipped initial in scratch PR #168; the remaining hardening is the poll-claim-worktree-dispatch-deliver-checkout loop's write path (untested until a live worker exercises it), the dispatch table mapping order commands to the corpus skills, and the safety rails.
-- **Phase 3 (grc_library, protected):** the orchestrator-side enqueue/consume convention and the credit-offload directive wired into `/resume` (worker-availability check before the loop-break `/validate`) and the PR close-out (consume results, re-verify positives, write rows). These touch `/resume` and CLAUDE.md, so they are staged for maintainer-reviewed application.
+- **Phase 2 (scratch):** the `/credit-offload` worker command + the worker onboarding shipped initial in scratch PR #168; the remaining hardening is the poll-claim-worktree-dispatch-deliver-checkout loop's write path (UNDER LIVE TEST 2026-07-16: `worker-20260716-a` is exercising it against the offloaded Sweep 108 order), the dispatch table mapping order commands to the corpus skills, the two worker-lifecycle hooks (worktree cleanup on wind-down/crash, reconcile on re-register; see the lease/fencing section), a **serve-loop self-refresh** (`git fetch origin && git reset --hard origin/main` on the scratch clone at the top of each poll cycle, so a running worker adopts helper updates without a restart; the command/CLAUDE wording still needs a `/credit-offload` re-invoke, since it is context-loaded), and the safety rails.
+- **Phase 3 (grc_library, protected): APPLIED 2026-07-16 (maintainer-authorized attended).** The orchestrator-side enqueue/consume convention and the credit-offload directive are wired into `/resume` (the worker-availability check + blocking-resume-`/validate` enqueue/wait/consume in step 6, plus a queue/results check in step 3) and the `## Credit-offload mode` section of `.claude/CLAUDE.md` (offloadable set, worker-availability gate, consume/trust discipline, honest limitation, and the `/tmp/grc_library_ref` worker-read-copy re-sync obligation).
 
 ## Prohibited / honest limitations
 
