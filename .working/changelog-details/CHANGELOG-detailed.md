@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.458, PR #970
+
+Codifies the **credit-offload new-worker QA-trust-tier policy** (maintainer-directed 2026-07-16, after the first live worker's first QA deliveries) and batches PR #969's offloaded-and-validated post-merge QA rows. `.claude/` + `.working/` only; no corpus or website content changed. Context: this session's Sweep 108 `/validate` and #969 `/validate-pr` were both offloaded to worker `worker-20260716-a` (Opus 4.8) and independently validated by the orchestrator (delivery 1 under full elevated QA including an adversarial auditor that returned WORKER-CLEAN-CONFIRMED; delivery 2 under graduated elevated QA); the worker is validated-as-working and the loop-break control for #968 passes (its close-out is the next PR).
+
+### Added
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Credit-offload mode`: a "New-worker QA-trust tiers (ELEVATED then routine)" bullet. A worker's clean QA result is a trust assertion, re-established each session and keyed on `(worker-id + model)` (a model change re-triggers it); it applies to QA-kind deliveries only (research/draft seeds already get full re-authoring at apply). The first 2-to-3 QA-kind deliveries per `(worker + model)` per session get elevated QA (proof-of-run genuineness, independent re-derivation of mechanical facts, re-verify every finding, and a graduated adversarial auditor: full auditor on delivery 1, steps 1-to-3 on 2-to-3). The count is a floor not a cap; any confirmed miss/sham/scope-error resets the window, escalates, and marks the worker unvalidated. Honest limitation stated (raises the bar, does not guarantee detection; independent re-derivation is the load-bearing guard).
+
+### Changed
+- [`.working/credit-offload-design.md`](../credit-offload-design.md): added the "New-worker QA-trust tiers" subsection to the trust model (the design-of-record for the CLAUDE.md bullet); Version 1.1.0 to 1.2.0.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #969 row, recording that its `/validate-pr` was OFFLOADED to `worker-20260716-a` (scratch order `validate-pr-969`), returned 1 note (`verify` enum drift, routed to the Sweep 108 close-out), and was validated under elevated QA; the worker also caught a real orchestrator error (a SHA-field typo in the order). Version 1.2.733 to 1.2.734.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #969 `/retro` row (the credit-offload machine exercised end-to-end; the offload's independence caught an orchestrator error the inline verifier could not see). Version 1.0.668 to 1.0.669.
+- [`.working/session-state.md`](../session-state.md): re-stamped the lease heartbeat, moved `Active-session` to `claude/credit-offload-worker-qa-policy`, and recorded the worker-validation state and the elevated-QA-window count (2 of 2-to-3 done, both clean).
+- [`.working/next-prs.txt`](../next-prs.txt): cycled forward (Sweep 108 close-out next).
+- Library CalVer `2026.07.457` to `2026.07.458`; [`README.md`](../../README.md) README Version `1.9.818` to `1.9.819`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 and `tools/run-pr-time-checks.sh` green at the pre-push guard. A refute-briefed skeptical verifier ran on the policy prose (CLAUDE.md bullet + design-doc subsection internally consistent, no QA-skip loophole introduced).
+- The worker-validation evidence backing the #969 QA row: independent re-derivation of the worker's Sweep 108 claims (the five in-window SHAs, counts 14/23/13/18, gate 54 clean 336 docs, pre-flight 421/11/33) all exact-match; the one Sweep 108 note (phase-1 date drift) and the one validate-pr-969 note (`verify` enum drift) both re-verified real at source; an adversarial false-negative auditor returned WORKER-CLEAN-CONFIRMED.
+- No corpus document body changed; no per-document Version/Date bump; no generated-artefact regeneration. This PR's own `/validate-pr` + `/retro` batch forward per recursion-avoidance.
+
 ## 2026-07-16, Library Version 2026.07.457, PR #969
 
 Applies credit-offload **phase 3** (the deferred-protected-changes staging item 10; maintainer-authorized attended on the VM): the orchestrator-side wiring of the multi-worker QA-and-research offload queue into the resume flow and the project instructions. First PR of the 2026-07-16 resumed session; the mandatory loop-break Sweep 108 `/validate` (#964..#968) is itself OFFLOADED to the live worker `worker-20260716-a` as the credit-offload test (enqueued as the blocking, priority-0 order `sweep-108-validate` on `grc_library_scratch`), so its close-out (the sweep row + handoff prune) lands when the worker delivers, not in this PR. `.claude/` + `.working/` + backlog only; no corpus or website content changed.
