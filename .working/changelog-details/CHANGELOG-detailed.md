@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.456, PR #968
+
+Session-closing handoff for the 2026-07-16 resumed session (`/resume` from #963; merged #964-#967 plus `grc_library_scratch` #166-#170). Working-state only; no corpus or website content changed. Per the loop-break, this handoff PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 108), which cross-checks the Asserted-expectations block this PR records.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): prepended this session's Next-actions (CLOSING + the NEXT-SESSION plan, whose first substantive task is credit-offload phase 3, ask the maintainer about the deferred-protected-changes staging item 10 first), State-snapshot, and Asserted-expectations blocks.
+- [`.working/overnight-pr.md`](../overnight-pr.md): reset from a stale `in-flight` (left by a 2026-07-15 #929-#936 run that was never routed) to `stub`, per the mode-exit "route and reset the overnight file" cleanup; the #929-#936 content was build-progress narrative already recorded per-PR, no un-routed design decision remained.
+- [`.working/session-state.md`](../session-state.md): RELEASED the concurrency lease (`Active-session: none`, `Status: released`, fresh heartbeat).
+- [`.working/session-metrics.md`](../session-metrics.md): added this session's row (measured ~1.32M subagent tokens across 7 re-retrievable dispatches, all re-retrievable so a true total not a floor; orchestrator tokens `not instrumented`); Version 1.0.59 to 1.0.60.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the #967 row (SHIP, 0 findings) and the #968 handoff row (SKIPPED, handoff-PR exception in the Findings cell); Version 1.2.732 to 1.2.733.
+- [`.working/improvement-log.md`](../improvement-log.md): added the #967 `/retro` row (no #968 `/retro` per the loop-break); Version 1.0.667 to 1.0.668.
+- [`.working/next-prs.txt`](../next-prs.txt): cycled to the next session's queue (Sweep 108, then credit-offload phase 3).
+- Library CalVer `2026.07.455` to `2026.07.456`; [`README.md`](../../README.md) README Version `1.9.816` to `1.9.817`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 at the pre-push guard. PR #967's PR-scoped sweep returned SHIP / 0 findings. This handoff PR skips its own trailing QA (loop-break); the next `/resume` runs Sweep 108 over #964..#968.
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration. The credit-offload build lives on `grc_library_scratch` (#166-#170); phase 3 is staged for maintainer review as the deferred-protected-changes staging item 10.
+
 ## 2026-07-16, Library Version 2026.07.455, PR #967
 
 Adds the Canada.ca reference-utilization plan to the backlog (Canada-priority for the imminent expert review) and batches PR #966's post-merge QA. Working-state records and backlog only; no corpus or website content changed. Second PR of the overnight run, after the credit-offload build.
