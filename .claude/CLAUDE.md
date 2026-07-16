@@ -680,6 +680,59 @@ was declared applied; the reconciliation report lists the review set that refute
 claim). This is `evidence-grounded-completion` applied to the delivery pipeline: the status
 claim is composed FROM the tool's output, not from inference.
 
+## Credit-offload mode
+
+The orchestrator's usage credits are the scarce resource. The token-heavy passes it runs are
+of two kinds: the read-only analysis passes (the QA sweeps and the semantic-fit cadences) and
+the research/drafting seeds. Both are cleanly detachable from the author-apply-route-merge
+critical path, so **credit-offload** moves them onto standing worker sessions on other accounts
+(the existing Mode-B research-worker model, generalized to the QA passes), on a polling work
+queue with a lease/fencing lifecycle. The design of record is
+[`.working/credit-offload-design.md`](../.working/credit-offload-design.md); the coordination
+plane and the worker-side protocol live in `grc_library_scratch` (`queue/`, `results/`,
+`workers/`, the `tools/credit-offload-queue.py` helper, and the `/credit-offload` worker
+command). This section is the ORCHESTRATOR-side discipline.
+
+- **Offloadable (read-only, produces findings/drafts):** `/validate`, `/validate-pr`,
+  `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`,
+  `/fitness`, `/full-qa`, the read-only probe phases of `/deep-assessment`, AND research/draft
+  seeds. **Stays orchestrator-side:** authoring corpus prose, applying diffs, routing findings,
+  writing the audit-trail rows (a worker cannot write `grc_library`), merging, and the pre-push
+  skeptical verifier (it sits on the critical path before push, so offloading it adds a blocking
+  wait; kept orchestrator-side pending the periodic reassessment, TODO §3.81).
+- **Worker-availability gate (best-effort, never a QA skip).** Before an offloadable pass, read
+  the scratch `workers/` liveness registry (`python3 tools/credit-offload-queue.py
+  list-workers`). **>= 1 live worker:** enqueue the pass as a queue order pinned to an exact
+  `grc_library` SHA and consume its result at the next PR boundary. **0 live workers (or an
+  order goes stale unserved):** self-run the pass inline, exactly as before. Offload is pure
+  best-effort; the mandatory-QA discipline is UNCHANGED (an offloaded run is the full formal
+  pass, abbreviation is never authorized, and an unserved order falls back to a self-run).
+- **The blocking resume `/validate`.** The one pass the orchestrator WAITS on is the loop-break
+  corpus-wide `/validate` at `/resume` (step 6): when a worker is live it is enqueued as a
+  `blocking`, priority-0 order and the orchestrator polls the results plane for the delivery
+  before recording the sweep row; with 0 workers it self-runs. Every other offloadable pass
+  (per-PR `/validate-pr`, the semantic-fit cadences, research seeds) is NON-blocking, consumed
+  at the next PR boundary.
+- **Consume discipline (trust model).** A worker finding is a hypothesis until the orchestrator
+  confirms it: **re-verify every POSITIVE finding at source** before routing (cheap relative to
+  the sweep, so the net saving holds), and **trust a clean/zero-finding result** as inline
+  subagents are trusted (the result file carries the subagent returns as the proof-of-run). The
+  orchestrator, not the worker, writes the `grc_library` audit-trail rows
+  (`validate-sweeps/history.md`, `validate-pr/history.md`), because the worker cannot write
+  `grc_library`. There is no trusted-worker fast path; worker provenance never reduces the QA a
+  change receives.
+- **Honest limitation.** Credit-offload SHIFTS cost across accounts; it does not reduce total
+  spend, and the orchestrator still pays to verify positives and to run the pre-push verifier.
+  The net saving is real only when the other accounts have spare capacity.
+- **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
+  order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
+  `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`
+  (`rsync -av --delete`, not `-avn`) after any `grc_library_ref` update** or workers read stale
+  reference text.
+- **Command-count note.** The `/credit-offload` worker command lives in `grc_library_scratch`'s
+  `.claude/commands/`, NOT in `grc_library`, so it does NOT change the `grc_library` slash-command
+  count (still 14); this section adds no user-facing count-bearing collection to `grc_library`.
+
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 
 The compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md))
