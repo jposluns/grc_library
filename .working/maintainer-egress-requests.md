@@ -1,6 +1,6 @@
 # Maintainer egress requests
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0
 
@@ -92,6 +92,14 @@ before trusting).
 the three GC AI-program provenance sources) are the highest-value, since the AI annex is the expert-review
 focus. Items 3-5 are value-specific (numbers), so their currency matters most for accuracy. The rest are
 name-level citations where the held 2026-07-15 editions are already recent.
+
+### 2026-07-16 - Egress-blocked ref-acquisition sources (3 items the workers could not fetch from this VM)
+
+**Context.** The credit-offload ref-acquisition workers acquired most of their queued sources, but three are on hosts this VM cannot reach (the workers deliberately did NOT substitute unofficial copies). Drop each into `grc_library_ref/ingest/` (the Portuguese/official text, not a translation); the assistant then ingests and catalogues.
+
+1. **Brazil ANPD Resolução CD/ANPD nº 32, de 26 de janeiro de 2026** (recognition of the EU as an adequate jurisdiction). The Portuguese official text is only on in.gov.br (blocked from this VM, HTTP 000): `https://www.in.gov.br/web/dou/-/resolucao-n-32-de-26-de-janeiro-de-2026-683334547`. The gov.br/anpd site hosts only Spanish + English translations (not a substitute for the official text). Needed to complete the Brazil ANPD set (companions ingested in ref PR #86).
+2. **US NYDFS Virtual Currency Regulation, 23 NYCRR Part 200 (BitLicense).** DFS (`https://www.dfs.ny.gov/virtual_currency_businesses`) confirms Part 200 but links the full text only to the official NY codes at `govt.westlaw.com` (Cloudflare/JS-gated; HTTP 403 to automated fetch). No free DFS full-text PDF (legacy path 404s). Needed for FR-70 / the crypto-regulation backlog.
+3. **Colombia Decreto Único Reglamentario 1074 de 2015** (the data-protection portion compiling Decreto 1377/2013). `funcionpublica.gov.co` gestornormativo was unreachable from this VM (HTTP 000). Needed to complete the Colombia privacy-law holdings (companion Ley 1581/2012 already held).
 
 ## Fulfilled
 
