@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.13\
-**Date:** 2026-07-11\
+**Version:** 1.0.14\
+**Date:** 2026-07-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -101,7 +101,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | UK | UK GDPR, DPA 2018 | ICO AI guidance; automated decision rights | Adequacy regulations, IDTA | £17.5M / 4% turnover |
 | Switzerland | nFADP/revDSG | Automated decision review; DPIA for high-risk | Adequacy (EU, UK); FDPIC SCCs; BCRs | CHF 250,000 (natural persons only) |
 | Canada | PIPEDA, Quebec Law 25 (CPPA/AIDA lapsed with Bill C-27, Jan 2025) | Automated decision-making notice and review (QC Law 25 s. 12.1); federal Treasury Board Directive on Automated Decision-Making (Algorithmic Impact Assessment, federal institutions); AIDA high-impact-AI regime lapsed | Contractual safeguards; PIPEDA comparable-protection accountability | CAD 25M / 4% turnover (QC Law 25, penal) |
-| United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT opt-out (CPRA); Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending) | DPF (EU/UK); contractual (CCPA) | USD 7,500/violation (CCPA); USD 5,000/violation (BIPA class action) |
+| United States | FTC Act, CCPA/CPRA, state laws, BIPA (single-recovery post SB 2979) | NIST AI RMF; ADMT pre-use notice, opt-out, and access (final CCPA Regs 11 CCR ss. 7220-7222, eff 2026-01-01, compliance 2027-01-01); Colorado AI Act (SB 24-205 repealed and re-enacted as SB 26-189, ADMT consequential-decision duties on/after 2027-01-01; litigation pending) | DPF (EU/UK); contractual (CCPA) | USD 7,500/violation (CCPA); USD 5,000/violation (BIPA class action) |
 | Brazil | LGPD | Automated decision review (Art. 20); ANPD DPIA guidance | ANPD SCCs (Resolution 19/2024) | BRL 50M per violation / 2% Brazil revenue |
 | Mexico | LFPDPPP (2025) | Privacy-notice transparency for automated processing; ARCO rights | Privacy-notice disclosure + consent (Arts. 35 and 36) | 320,000 UMA (up to 2x for sensitive data) |
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
