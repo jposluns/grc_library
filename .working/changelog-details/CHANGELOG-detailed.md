@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.464, PR #976
+
+Aligns the United States privacy jurisdiction annex to the FINAL California CCPA regulations (11 CCR Division 6 Chapter 1, effective 2026-01-01), the first slice of the TODO §2.23 CCPA alignment (the `ccpa-regs-2026-alignment` worker delivery). Every section anchor, figure, and date was independently re-verified against the held regulation text before authoring, currency was confirmed upstream this cycle (cppa.ca.gov, which, unlike canada.ca, is fetchable from this environment), and a refute-briefed skeptical verifier returned SHIP.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) (Version 1.2.1 to 1.2.2): the CCPA regulations are now final, not "under development" / "draft".
+  - The state-laws CCPA bullet now states the CPPA final regulations (11 CCR Division 6 Chapter 1) took effect 2026-01-01, adding ADMT, risk-assessment, and cybersecurity-audit rules, with ADMT compliance for a significant decision required no later than 2027-01-01.
+  - The "CCPA/CPRA automated decision-making" subsection was rewritten from draft framing into three source-anchored final-regulation bullets: **ADMT** (Article 11, sections 7200 to 7222: a pre-use notice (section 7220), a right to opt out of ADMT (section 7221), a right to access ADMT (section 7222), a human-appeal exception in place of the opt-out (section 7221(b)(1)), and the "significant decision" definition from section 7001, whose enumeration replaces the prior imprecise "employment, credit, health, housing, education" list); **risk assessments** (Article 10, sections 7150 to 7157, conducted *before initiating* the section 7150(b)-triggered processing); and **cybersecurity audits** (Article 9, sections 7120 to 7124), corrected from the prior text that conflated the audit and the risk assessment into one "before processing" test: the audit is a distinct, threshold-based, periodic obligation (section 7120 thresholds of 250,000 consumers or households, or 50,000 sensitive-PI consumers) with first audits phased by revenue (2028-04-01 / 2029-04-01 / 2030-04-01).
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.37 to 1.5.38): added a "US CCPA Regulations 2026" row (11 CCR Div 6 Ch 1, effective 2026-01-01, ADMT compliance 2027-01-01), distinct from the existing CCPA statute row; upstream check location `cppa.ca.gov/regulations/`, verified 2026-07-16.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the two Version bumps (taxonomy first, then portal/scorecard; both `--check` clean).
+- Batched PR #975's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.674 to 1.0.675) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.739 to 1.2.740, a zero-findings pass; worker-b's elevated-QA window completed at 3 of 2-to-3, now routine). Marked the §3.83 validate-before-deliver nit CLOSED (the `/credit-offload` command now forces a pre-`deliver` scratch-gate house-style pass, done scratch-side this turn).
+- Library CalVer `2026.07.463` to `2026.07.464`; [`README.md`](../../README.md) README Version `1.9.824` to `1.9.825`.
+
+### Verification
+
+- Every CCPA regulation anchor was re-verified against the held `grc_library_ref` full-text extract of the final CCPA Regulations, 11 CCR Div 6 Ch 1 (article headings, section numbers, the section 7001 "significant decision" enumeration, the section 7150 "before initiating" trigger, the section 7120 thresholds and 2028-2030 phasing, the 2027-01-01 ADMT compliance date). The CCPA statute `(a)(15)`-vs-`(a)(16)` fix and the ADM register / DSR procedure carriers are NOT in this PR; they are the next §2.23 slice.
+- Upstream currency confirmed this cycle via `cppa.ca.gov/regulations/` (CCPA Regulations effective 2026-01-01, from the September 2025 rulemaking package covering ADMT, risk assessments, cybersecurity audits, and insurance).
+- One refute-briefed skeptical verifier (substantive external-facing corpus tier) returned SHIP after independently re-deriving every anchor; its one non-blocking fidelity note ("or households" on the 250,000 threshold) was applied.
+- Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
+
 ## 2026-07-16, Library Version 2026.07.463, PR #975
 
 Establishes a standing maintainer-egress channel and defers the TODO §2.22 Canada.ca reference-utilization apply on a confirmed currency blocker. Working-state and backlog only; no corpus, website, or gate change.

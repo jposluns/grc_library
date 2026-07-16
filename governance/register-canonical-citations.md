@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.37\
-**Date:** 2026-07-15\
+**Version:** 1.5.38\
+**Date:** 2026-07-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -135,6 +135,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US HITECH | 2009 | 2009 | Health Information Technology for Economic and Clinical Health Act | - | https://www.govinfo.gov/app/details/PLAW-111publ5 | 2026-06-30 |
 | US SOX | 2002 | 2002-07 | Sarbanes-Oxley Act | - | https://www.govinfo.gov/app/details/PLAW-107publ204 | 2026-06-30 |
 | US CCPA | 2018 (CPRA amendments 2020) | 2018 | California Consumer Privacy Act | - | https://oag.ca.gov/privacy/ccpa | 2026-06-30 |
+| US CCPA Regulations 2026 | Final regulations effective 1 January 2026 (CCPA updates, cybersecurity audits, risk assessments, ADMT, and insurance), 11 CCR Division 6 Chapter 1, sections 7000-7304; ADMT compliance for a significant decision required no later than 1 January 2027 | 2026-01-01 | California Consumer Privacy Act Regulations (11 CCR Div 6 Ch 1); ADMT (Art 11), risk assessments (Art 10), cybersecurity audits (Art 9) | - | https://cppa.ca.gov/regulations/ | 2026-07-16 |
 | Illinois BIPA | 2008 as amended by Illinois SB 2979 (signed 2 August 2024 and effective immediately), which limits damages to a "single recovery" per BIPA §15(b) and §15(d) violation type per individual and recognizes electronic written release | 2008 | Biometric Information Privacy Act (740 ILCS 14/) | - | https://www.ilga.gov/Legislation/ILCS/Articles?ActID=3004&ChapterID=57 | 2026-06-30 |
 | Colorado AI Act | 2024 (Colorado SB 24-205, signed 17 May 2024). Original effective date 1 February 2026; postponed by Colorado SB 25B-004 (signed 28 August 2025) to 30 June 2026. Enforcement effectively frozen by U.S. District Court for the District of Colorado on 27 April 2026 pending litigation (xAI v. Colorado). Following the Governor's Working Group framework (17 March 2026), the legislature repealed and re-enacted SB 24-205 via Colorado SB 26-189 (Automated Decision-Making Technology), signed into law May 2026, with revised automated-decision-making requirements and a revised effective date of 1 January 2027 | 2024-05-17 | Colorado Consumer Protections for Artificial Intelligence (SB 24-205) as re-enacted by SB 26-189 | - | https://leg.colorado.gov/bills/sb24-205 | 2026-06-30 |
 | NYC Local Law 144 (AEDT) | Local Law 144 of 2021, implemented by the DCWP final rule 6 RCNY 5-300 to 5-304; effective 1 January 2023 and enforced by the Department of Consumer and Worker Protection from 5 July 2023; in force in 2026 | 2021 (Local Law 144); 2023 (DCWP rule) | Automated employment decision tools: annual independent bias audit and candidate notice | - | https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page | 2026-07-11 |
