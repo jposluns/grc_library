@@ -1,6 +1,6 @@
 # Maintainer egress requests
 
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0
 
@@ -101,6 +101,12 @@ name-level citations where the held 2026-07-15 editions are already recent.
 2. **US NYDFS Virtual Currency Regulation, 23 NYCRR Part 200 (BitLicense).** DFS (`https://www.dfs.ny.gov/virtual_currency_businesses`) confirms Part 200 but links the full text only to the official NY codes at `govt.westlaw.com` (Cloudflare/JS-gated; HTTP 403 to automated fetch). No free DFS full-text PDF (legacy path 404s). Needed for FR-70 / the crypto-regulation backlog.
 3. **Colombia Decreto Único Reglamentario 1074 de 2015** (the data-protection portion compiling Decreto 1377/2013). `funcionpublica.gov.co` gestornormativo was unreachable from this VM (HTTP 000). Needed to complete the Colombia privacy-law holdings (companion Ley 1581/2012 already held).
 
+### 2026-07-16 - AI Strategy for the Federal Public Service 2025-2027 (COMPLETE full-text re-download)
+
+**Context.** The fresh 2026-07-16 capture of the AI Strategy FPS full-text page (in the §2.22 batch) was a **17-page / ~3798-token SUBSET** of the held **38-page / ~9486-token** extract (verified dual-extractor by the `canada-new-items-ingest-prep` worker: about 98.7% of the fresh tokens appear in the held, and the held carries substantive AI use-case content the fresh lacks). So the held fuller version STANDS (it was NOT refreshed). **What is needed:** the COMPLETE AI Strategy FPS full-text page re-downloaded (the fresh capture looks like a collapsed or partial print), so its currency at the 2026-02-25 page-modified stamp can be confirmed against the complete text. Drop into `grc_library_ref/ingest/`. Held: `programs/Canada-AI-Strategy-FPS/Canada-AI-Strategy-Federal-Public-Service-2025-2027--full-text.md` (38-page; ISBN 978-0-660-76811-3). **Low urgency** (the held version is already the fuller one; this is a currency-confirmation, not a content gap).
+
 ## Fulfilled
 
-(none yet)
+### 2026-07-16 - Canada.ca §2.22 sources (16 items) - INGESTED
+
+The 16 fresh Canada.ca / OPC sources requested in the §2.22 block above were uploaded by the maintainer to `grc_library_ref/ingest/` and processed: 13 confirmed DUP-CURRENT (currency confirmed against held), 2 DUP-NEWER (Policy on Privacy Protection currency-refreshed; AI Strategy FPS left held + re-download requested above), and the genuinely-NEW content (10 per-principle PIPEDA pages, the ITSP.50.103 Annex B Medium Cloud profile, the GC AI Register MVP dataset CSV) ingested into `grc_library_ref` PR #87. The §2.22 block above remains for the record; its currency half is discharged.
