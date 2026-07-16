@@ -2,8 +2,8 @@
 
 **Document Title:** Children's Data Framework\
 **Document Type:** Framework\
-**Version:** 1.0.8\
-**Date:** 2026-07-02\
+**Version:** 1.0.9\
+**Date:** 2026-07-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/framework-consent-management.md`](framework-consent-management.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -146,6 +146,7 @@ These defaults apply by design wherever the product or feature is likely to be a
 | COPPA | 16 CFR 312 | Children under 13 in the US |
 | California AB 2273 (Age-Appropriate Design Code Act, 2022) | Multiple sections | Design-defaults and best-interests obligations for online services likely accessed by minors. Note: AB 2273 has been partially enjoined by the Ninth Circuit in 2024; adopters should monitor injunction status. |
 | California AB 1394 (Social Media Platform Duty to Children, 2023) | Health and Safety Code Div. 110 | Distinct from AB 2273; addresses social-media-platform duties regarding child sexual abuse material (CSAM) and known minor users |
+| CCPA / CPRA minor provisions | CCPA Regs 11 CCR ss. 7070-7072 | Opt-in/opt-out mechanics for the sale or sharing of minors' personal information: affirmative opt-in for consumers at least 13 and under 16 (s. 7071), parental consent for consumers under 13 (s. 7070), and the notices to consumers under 16 (s. 7072) |
 | LGPD | Article 14 | Child consent and best interest |
 | PIPL | Article 31 | Children under 14 |
 | EU AI Act | Article 5(1)(b) | Prohibition on exploiting vulnerabilities of children |

@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.467, PR #979
+
+CCPA §2.23 slice 4 (breadth): adds the relevant final-CCPA-regulation section citations to four privacy framework-alignment tables, completing the `ccpa-regs-2026-alignment` regulations-alignment (the primary carriers were slices 1-3). Low-risk citation-breadth additions; every section anchor re-verified at the held regs and a refute-briefed skeptical verifier returned SHIP.
+
+### Changed
+
+- [`privacy/framework-consent-management.md`](../../privacy/framework-consent-management.md) (Version 1.0.9 to 1.0.10): the CCPA/CPRA framework-alignment row now cites 11 CCR s. 7004 (methods for submitting CCPA requests and obtaining consumer consent, including symmetry-in-choice and no-dark-patterns).
+- [`privacy/framework-childrens-data.md`](../../privacy/framework-childrens-data.md) (Version 1.0.8 to 1.0.9): added a "CCPA / CPRA minor provisions" framework-alignment row citing 11 CCR ss. 7070-7072 (parental consent under 13 (s. 7070), affirmative opt-in for consumers at least 13 and under 16 (s. 7071), notices to consumers under 16 (s. 7072)).
+- [`privacy/register-cookie-and-tracker.md`](../../privacy/register-cookie-and-tracker.md) (Version 1.0.5 to 1.0.6): the CCPA/CPRA row now cites 11 CCR ss. 7025-7026 (opt-out preference signals / the Global Privacy Control, and requests to opt out of sale/sharing).
+- [`privacy/template-dsar-workflow.md`](../../privacy/template-dsar-workflow.md) (Version 1.1.4 to 1.1.5): the CCPA/CPRA row now cites 11 CCR s. 7021 (request-handling timelines) and ss. 7221-7222 (ADMT opt-out and access).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the four Version bumps.
+- [`TODO.md`](../../TODO.md) §2.23: the CCPA REGULATIONS-alignment half is now COMPLETE (primary carriers + breadth); the statute-currency half remains separately open.
+- Batched PR #978's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.677 to 1.0.678) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- Library CalVer `2026.07.466` to `2026.07.467`; [`README.md`](../../README.md) README Version `1.9.827` to `1.9.828`.
+
+### Verification
+
+- Each cited section's subject re-verified against the held CCPA regs body (s. 7004 consent methods; s. 7025 opt-out preference signals / GPC; s. 7026 opt-out of sale/sharing; s. 7070/7071/7072 minors bands and mechanic; s. 7021 timelines; ss. 7221-7222 ADMT).
+- One refute-briefed skeptical verifier (external-facing citation tier) returned SHIP (all section subjects match, the minors age-bands correct, no overstatement, each edit alters only the CCPA/CPRA row).
+- Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
+
 ## 2026-07-16, Library Version 2026.07.466, PR #978
 
 CCPA §2.23 slice 3: propagates the final California CCPA regulations to the remaining primary carriers, the jurisdiction index, the privacy-notice template, and the data-subject-rights procedure. Completes the primary-carrier set of the `ccpa-regs-2026-alignment` delivery (slices 1-2 were the US annex and the ADM register). Every anchor and timeline re-verified at the held regs; a refute-briefed skeptical verifier returned SHIP.

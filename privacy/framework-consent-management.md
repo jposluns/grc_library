@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.9\
-**Date:** 2026-07-13\
+**Version:** 1.0.10\
+**Date:** 2026-07-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -168,7 +168,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | PIPL | Articles 13, 14 | Consent definition and conditions |
 | COPPA | 16 CFR 312 | Verifiable parental consent |
 | CPPA | Sections 14, 18 (proposed) | Express versus implied consent |
-| CCPA / CPRA | Section 1798.120 to 1798.121 | Opt-out and opt-in |
+| CCPA / CPRA | Cal. Civ. Code ss. 1798.120-1798.121; CCPA Regs 11 CCR s. 7004 | Opt-out and opt-in; consent-method requirements (symmetry in choice, no dark patterns) |
 | ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure |
 
 ---
