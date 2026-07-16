@@ -4218,7 +4218,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "United States Privacy Regulatory Requirements"
-  version: "1.2.2"
+  version: "1.2.3"
   date: "2026-07-16"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
