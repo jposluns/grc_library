@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.9\
-**Date:** 2026-07-14\
+**Version:** 1.6.10\
+**Date:** 2026-07-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -69,7 +69,7 @@ The following table defines the rights managed under this procedure, the applica
 
 **Brazil and Mexico fixed windows.** Where a request falls under Brazil's LGPD, confirmation-of-existence and access requests must be met within 15 days (LGPD Art. 19); other LGPD Article 18 rights carry no fixed statutory day-count, so the internal service level applies. Where a request falls under Mexico's LFPDPPP, the controller must communicate its determination on an ARCO request (access, rectification, cancellation, opposition) within 20 days (LFPDPPP Art. 31). These windows are narrower than the GDPR one-month clock; where more than one regime applies to a single request, the fulfilment team runs the strictest (shortest) applicable window. See [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) and [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md).
 
-**California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged.
+**California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged. The CCPA automated-decision-making regulations (11 CCR Article 11, effective 2026-01-01, with compliance for a significant decision required no later than 2027-01-01) add, beyond the GDPR-style human review in the rights table above, a right to opt out of ADMT used to make a significant decision (11 CCR section 7221; the business gives effect to the opt-out no later than 15 business days from receipt, section 7221(n)) and a right to access ADMT (section 7222). Requests to access or to appeal ADMT run on the section 7021 timeline (receipt confirmed no later than 10 business days, substantive response no later than 45 calendar days, extendable once to a 90-day maximum), matching the 45-day consumer-request clock above.
 
 ---
 
