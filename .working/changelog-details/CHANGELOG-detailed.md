@@ -6,13 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.463, PR #975
+
+Establishes a standing maintainer-egress channel and defers the TODO §2.22 Canada.ca reference-utilization apply on a confirmed currency blocker. Working-state and backlog only; no corpus, website, or gate change.
+
+### Added
+
+- [`.working/maintainer-egress-requests.md`](../maintainer-egress-requests.md) (new, Version 1.0.0): a standing queue of reference documents the assistant cannot fetch from this environment (egress-blocked hosts such as canada.ca, or paywalled/licensed sources). Per item it records the exact instrument title, issuing body, the held edition the ref base records, the ref path, the reason needed, and a URL only where a verified one is available (no fabricated URLs). Destination confirmed as `grc_library_ref/ingest/`. First batch: the ~16 Canada.ca instruments the §2.22 apply cites (the TBS AI/security/privacy suite, CCCS ITSP.80.022, OPC principles/disposal, the GC AI-program provenance sources, plus a note that CCCS ITSP.50.103 is not held). Maintainer-directed 2026-07-16.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) §2.22 status line: **DEFERRED-BLOCKED on currency.** canada.ca returns a WAF access-rejection to this environment (confirmed 2026-07-16 against `tbs-sct.canada.ca`; the DD-10 egress limitation), so neither the orchestrator nor a worker can re-verify the in-force versions of the 49 Canada.ca sources at apply, and the apply is bound for a Canada expert review. The maintainer elected to personally download fresh copies (via the egress-requests file); §2.22 proceeds (split into per-domain PRs, respecting the sector-neutrality placement caveat and the register-canonical-citations row precondition) once they land.
+- [`.working/pending-decisions.md`](../pending-decisions.md): added the §2.22 deferral entry (what blocks it, the maintainer decision, what unblocks it).
+- Batched PR #974's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.673 to 1.0.674): a two-friction row (the #974 next-prs miss; worker-b's house-style-tripping delivered result prose), both caught in-window, both routed.
+- **Consumed the offloaded `validate-pr-974` result** (worker-b delivery 2, graduated elevated QA) and recorded its row in [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.738 to 1.2.739). It returned **one real finding (F1, LOW)**: the credit-offload design-of-record claim-precedence bullet OVERCLAIMED the serve-loop (it asserted a non-blocking priority-1 `/validate-pr` is taken "regardless of role", but the `/credit-offload` command elevates only `blocking` orders above the role-kind preference). Re-verified at the scratch command source and **fixed here**: [`.working/credit-offload-design.md`](../credit-offload-design.md) (Version 1.3.0 to 1.3.1) narrowed to the loop's actual guarantee, with the optional "give all priority-1 orders precedence over role" strengthening tracked in §3.83; and the #974 root + detailed CHANGELOG echoes of the overclaim corrected in place (the #974 detailed "does not overclaim" bullet carries an explicit flagged correction). The offload independence caught an overclaim the orchestrator introduced and missed; worker-b's elevated-QA window is now 2 of 2-to-3 (a correct finding is a sound pass, not a reset).
+- [`TODO.md`](../../TODO.md) §3.83: folded in two credit-offload tooling nits (the scratch `/credit-offload` delivery step does not force a pre-`deliver` validate run, so a worker can push a house-style-tripping result that reddens scratch CI; and the serve-loop should give all priority-1 orders, not only `blocking` ones, precedence over the role preference, the F1 strengthening). §3.85: folded in `validate-pr-974` OBS-B (the shared `/tmp` cache is not writable across Unix users, so a per-worker read-clone is needed for permission isolation too, applying to both the `grc_library` and `grc_library_ref` caches).
+- Refreshed [`.working/next-prs.txt`](../next-prs.txt) and the [`.working/session-state.md`](../session-state.md) lease (heartbeat, unattended-mode note, merged-through #974, worker-b elevated-QA 2-of-2-to-3).
+- Library CalVer `2026.07.462` to `2026.07.463`; [`README.md`](../../README.md) README Version `1.9.823` to `1.9.824`.
+
+### Verification
+
+- Confirmed the canada.ca block first-hand (a WebFetch of a `tbs-sct.canada.ca` document URL returned a WAF access-rejection) rather than asserting the block from the worker's report alone.
+- Pulled the ~16 instruments' exact titles and held editions from the `grc_library_ref` catalogue; listed the two URL leads that extraction produced reliably and left the rest as title-only (no fabricated URLs).
+- Working-state + backlog + version + CHANGELOG only; no corpus body, gate, or generated artefact touched. Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean. Bookkeeping tier, so no standing skeptical verifier.
+
 ## 2026-07-16, Library Version 2026.07.462, PR #974
 
 Codifies two credit-offload worker-behaviour models into the design of record and opens a backlog item to close a reference-read gap the codification surfaced. Working-state and backlog only; no corpus, website, or gate change.
 
 ### Added
 
-- [`.working/credit-offload-design.md`](../credit-offload-design.md) design-of-record (Version 1.2.0 to 1.3.0): a `## Worker allocation and specialization (one-at-a-time + role-based soft split)` section (one order at a time; the maintainer's initial hard QA/research split refined into a SOFT split that prefers the worker's `role` but falls back to any eligible order so a live worker never idles beside serveable work; the egress-natural bias, research needs egress and qa is `egress-none`; and the claim precedence, where a priority-1 or blocking order outranks the role preference), and a `### Reference-read basis and multi-worker resync` subsection recording the current shared-`/tmp/grc_library_ref` read gap (a ref update mid-order silently changes what a running worker reads, since the ref read is not pinned to the order's `grc_library_ref_sha` the way the `grc_library` read is) and the target per-order-pinned model. Also extended the order-schema prose to list `capability-needs` and to name the worker-registry `role` attribute.
+- [`.working/credit-offload-design.md`](../credit-offload-design.md) design-of-record (Version 1.2.0 to 1.3.0): a `## Worker allocation and specialization (one-at-a-time + role-based soft split)` section (one order at a time; the maintainer's initial hard QA/research split refined into a SOFT split that prefers the worker's `role` but falls back to any eligible order so a live worker never idles beside serveable work; the egress-natural bias, research needs egress and qa is `egress-none`; and the claim precedence, where a blocking order outranks the role preference), and a `### Reference-read basis and multi-worker resync` subsection recording the current shared-`/tmp/grc_library_ref` read gap (a ref update mid-order silently changes what a running worker reads, since the ref read is not pinned to the order's `grc_library_ref_sha` the way the `grc_library` read is) and the target per-order-pinned model. Also extended the order-schema prose to list `capability-needs` and to name the worker-registry `role` attribute.
 - [`TODO.md`](../../TODO.md) §3.85 (credit-offload thread-5): the worker reference-read model + multi-worker resync coordination item that closes the gap the design-doc subsection documents; P3 `Next item number` counter advanced 3.85 to 3.86.
 
 ### Changed
@@ -24,7 +48,7 @@ Codifies two credit-offload worker-behaviour models into the design of record an
 
 ### Verification
 
-- The design-doc claim-precedence prose was cross-checked against the actual `grc_library_scratch` credit-offload serve-loop command and corrected to match it (an over-specific "then oldest-queued" tiebreak the loop does not instruct was removed) before commit, so the design of record does not overclaim the implementation.
+- The design-doc claim-precedence prose was cross-checked against the actual `grc_library_scratch` credit-offload serve-loop command and corrected to match it (an over-specific "then oldest-queued" tiebreak the loop does not instruct was removed) before commit. (Correction flagged in #975: a SECOND overclaim of the same class survived this cross-check, the "non-blocking priority-1 `/validate-pr` taken regardless of role" claim, which the serve-loop makes only for `blocking` orders; it was caught by `validate-pr-974` (worker-b, F1) and fixed in #975. This bullet's original "does not overclaim" assertion was therefore not fully accurate as of #974.)
 - Working-state + backlog + version + CHANGELOG only; no corpus body, gate, or generated artefact touched. Pre-push guard (69 gates + PR-time checks D1-D7 and gates 45/40/31) green; the CHANGELOG preflight aid clean. Quick-fix/bookkeeping tier, so no standing skeptical verifier (per the tiered pre-push standard).
 
 ## 2026-07-16, Library Version 2026.07.461, PR #973
