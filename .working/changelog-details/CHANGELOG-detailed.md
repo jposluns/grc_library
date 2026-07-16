@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.471, PR #983
+
+Working-state bookkeeping batch assembled during the unattended run, to record session state durably (against compaction) before the §2.22 corpus apply. No corpus, website, or gate change.
+
+### Added
+
+- [`.working/deep-assessment/2026-07-16-r4.md`](../deep-assessment/2026-07-16-r4.md) (new): the dated per-run record for `/deep-assessment` run **r4**, the first OFFLOADED deep-assessment (read-only probe phases run by credit-offload worker `worker-20260716-b`). PARTIAL and re-entrant: phases 1 / 2 / 4a / the phase-3 advisory aids COMPLETE (corpus GREEN 69/69, reference-modules clean, ledgers honest); the heavy phase-3 instruments + 4b/4c/4d + 5 + 6 deferred whole (not abbreviated).
+
+### Changed
+
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): new r4 row (Status in-progress; findings F-P2-1 + OBS-1; Phase 8 holds for maintainer sign-off) + per-run prose. The continuation (phases 3/4b-d/5/6) is to be enqueued after the §2.22 apply.
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (Version 1.0.1 to 1.0.2): four consume rows (currency-classify ~85K, deep-assessment-r4-probe ~170K, ingest-prep ~140K, validate-pr-982 ~70K); roll-up updated to **~1.98M** est. orchestrator tokens conserved (17 with figures + 4 not captured).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.746 to 1.2.747): the #982 `/validate-pr` row (SHIP; §7121 re-verified at source), AND the frozen #976 row's §7120->§7121 phasing correction (the phasing/timing is section 7121; §7120 is the threshold section), with an inline correction note.
+- [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.681 to 1.0.682): the #982 `/retro` row (a 2nd-occurrence sub-section citation-precision pattern, after the (a)(16)->(a)(15) fix).
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): the frozen #976 detailed entry's "section 7120 ... phasing" disambiguated to "section 7120 thresholds and the section 7121 ... phasing".
+- [`.working/credit-offload-design.md`](../credit-offload-design.md) (Version 1.3.2 to 1.3.3) and the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) credit-offload section (maintainer-authorized protected edit): codify the **wind-down pre-positioning** of the resume corpus-wide `/validate` (enqueue it at wind-down pinned to the handoff-merge SHA so a worker can run it in the between-session gap; `/resume` checks the results plane first; best-effort, never trusts a stale/absent result).
+- [`.working/maintainer-egress-requests.md`](../maintainer-egress-requests.md) (Version 1.0.1 to 1.0.2): queued a COMPLETE re-download of the AI Strategy FPS 2025-2027 full-text page (the fresh 2026-07-16 capture was a 17-page subset of the held 38-page version); moved the fulfilled Canada §2.22 block to Fulfilled.
+- [`.working/session-state.md`](../session-state.md) + [`.working/next-prs.txt`](../next-prs.txt): refreshed; recorded the maintainer's four pre-loaded unattended-run decisions and the ordered NEXT queue (worker-process brief first).
+- Library CalVer `2026.07.470` to `2026.07.471`; [`README.md`](../../README.md) README Version `1.9.831` to `1.9.832`.
+
+### Verification
+
+- Every finding recorded (F-P2-1, OBS-1) was re-verified at source by the orchestrator before recording; F-P2-1's fix (ref PR #87) was confirmed by the reference-base validation gate going green (696 items).
+- The §7120->§7121 correction was verified against the held CCPA Regulations §7121 "Timing Requirements" and applied to every phasing carrier in the two frozen records (leaving the correct threshold references to §7120).
+- The metrics roll-up arithmetic re-checked (prior ~1.51M + ~465K = ~1.98M).
+- CLAUDE.md addition checked for em/en dashes and British spelling (the addition is clean; the file's other em-dashes are pre-existing and gate-exempt); [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before commit; pre-push guard green.
+
 ## 2026-07-16, Library Version 2026.07.470, PR #982
 
 Precision tightening in the United States privacy annex: the California cybersecurity-audit phasing sentence now carries the per-tier measurement years. Surfaced by PR #976's `/validate-pr` NOTE 1 (tracked in TODO §2.23) and folded in for the expert review. Corpus body change (one annex), no gate or website change.
@@ -150,7 +177,7 @@ Aligns the United States privacy jurisdiction annex to the FINAL California CCPA
 
 ### Verification
 
-- Every CCPA regulation anchor was re-verified against the held `grc_library_ref` full-text extract of the final CCPA Regulations, 11 CCR Div 6 Ch 1 (article headings, section numbers, the section 7001 "significant decision" enumeration, the section 7150 "before initiating" trigger, the section 7120 thresholds and 2028-2030 phasing, the 2027-01-01 ADMT compliance date). The CCPA statute `(a)(15)`-vs-`(a)(16)` fix and the ADM register / DSR procedure carriers are NOT in this PR; they are the next §2.23 slice.
+- Every CCPA regulation anchor was re-verified against the held `grc_library_ref` full-text extract of the final CCPA Regulations, 11 CCR Div 6 Ch 1 (article headings, section numbers, the section 7001 "significant decision" enumeration, the section 7150 "before initiating" trigger, the section 7120 thresholds and the section 7121 2028-2030 phasing (the timing section; §7120->§7121 disambiguated in #983), the 2027-01-01 ADMT compliance date). The CCPA statute `(a)(15)`-vs-`(a)(16)` fix and the ADM register / DSR procedure carriers are NOT in this PR; they are the next §2.23 slice.
 - Upstream currency confirmed this cycle via `cppa.ca.gov/regulations/` (CCPA Regulations effective 2026-01-01, from the September 2025 rulemaking package covering ADMT, risk assessments, cybersecurity audits, and insurance).
 - One refute-briefed skeptical verifier (substantive external-facing corpus tier) returned SHIP after independently re-deriving every anchor; its one non-blocking fidelity note ("or households" on the 250,000 threshold) was applied.
 - Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
