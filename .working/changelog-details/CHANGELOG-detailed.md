@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.466, PR #978
+
+CCPA §2.23 slice 3: propagates the final California CCPA regulations to the remaining primary carriers, the jurisdiction index, the privacy-notice template, and the data-subject-rights procedure. Completes the primary-carrier set of the `ccpa-regs-2026-alignment` delivery (slices 1-2 were the US annex and the ADM register). Every anchor and timeline re-verified at the held regs; a refute-briefed skeptical verifier returned SHIP.
+
+### Changed
+
+- [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md) (Version 1.0.13 to 1.0.14): the cross-jurisdiction table's United States AI-obligation cell (C5) expanded from "ADMT opt-out (CPRA)" to "ADMT pre-use notice, opt-out, and access (final CCPA Regs 11 CCR ss. 7220-7222, eff 2026-01-01, compliance 2027-01-01)".
+- [`privacy/template-privacy-notice.md`](../../privacy/template-privacy-notice.md) (Version 1.0.6 to 1.0.7): the automated-decision-making section (C6) gained a California pre-use-notice element (11 CCR s. 7220, may be provided in the Notice at Collection) covering the consumer's rights to opt out of and access the ADMT.
+- [`privacy/procedure-data-subject-rights-management.md`](../../privacy/procedure-data-subject-rights-management.md) (Version 1.6.9 to 1.6.10): the "California (CCPA / CPRA) basis" paragraph (A5) gained the distinct CCPA ADMT rights beyond the GDPR-style human review, a right to opt out of ADMT (11 CCR s. 7221; opt-out given effect no later than 15 business days from receipt, s. 7221(n)) and a right to access ADMT (s. 7222), with the s. 7021 request-handling timeline (receipt confirmed no later than 10 business days; substantive response no later than 45 calendar days, extendable once to a 90-day maximum).
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the three Version bumps.
+- Batched PR #977's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.676 to 1.0.677) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- Library CalVer `2026.07.465` to `2026.07.466`; [`README.md`](../../README.md) README Version `1.9.826` to `1.9.827`.
+
+### Verification
+
+- Every anchor re-verified at the held CCPA regs: ss. 7001, 7220, 7221, 7221(n), 7222, 7021, Article 11; the 15-business-day opt-out-effect deadline (s. 7221(n)); the s. 7021 timeline (10 business days receipt confirmation, 45 calendar days response, 90-day maximum); the pre-use-notice-in-Notice-at-Collection permission (s. 7220); the 2026-01-01 / 2027-01-01 dates.
+- One refute-briefed skeptical verifier (substantive external-facing corpus tier) returned SHIP; all edits touched only California CCPA context (no Canadian-CPPA / Bill-C-27 conflation).
+- Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
+
 ## 2026-07-16, Library Version 2026.07.465, PR #977
 
 CCPA §2.23 slice 2: aligns the automated-decision-making register to the final California CCPA regulations, correcting a statute-citation error and adding the CCPA ADMT subject rights. Continues the `ccpa-regs-2026-alignment` worker delivery (slice 1 = #976, the US privacy annex). Every anchor was re-verified at the held source and a refute-briefed skeptical verifier returned SHIP.
