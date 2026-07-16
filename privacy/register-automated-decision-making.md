@@ -2,8 +2,8 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-07-09\
+**Version:** 1.0.7\
+**Date:** 2026-07-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`ai/template-ai-system-register.md`](../ai/template-ai-system-register.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md)\
@@ -100,6 +100,7 @@ A system is registered when any of the following is true:
 5. The system's bias and fairness assessment is refreshed at least annually and after any material model or data change.
 6. Material changes (new input categories, new decision categories, model version with materially different behaviour) trigger a register update and a refresh of the privacy notice content.
 7. Decommissioning a system is recorded; the row is retained for the audit period.
+8. For an activity in scope of the California CCPA regulations (an automated decision-making technology that makes a "significant decision" as defined in 11 CCR section 7001), subjects additionally have, beyond the human-review pathway above, a right to a pre-use notice (section 7220), a right to opt out of the ADMT (section 7221), and a right to access the ADMT (section 7222). Where the business relies on the human-appeal exception in place of the opt-out, subjects can appeal the decision to a human reviewer who has authority to overturn it (section 7221(b)(1)). These requests are handled through the data subject rights workflow within the applicable regulatory window. Compliance for a significant decision is required no later than 2027-01-01.
 
 ---
 
@@ -132,7 +133,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | LGPD | Article 20 | Right to review of automated decisions |
 | PIPL | Article 24 | Automated decision-making transparency and refusal |
 | CPPA | Section 19 (proposed) | Automated decision system rights |
-| CCPA / CPRA | Section 1798.185(a)(16) | Automated decision-making rights |
+| CCPA / CPRA | Cal. Civ. Code s. 1798.185(a)(15); CCPA Regulations 11 CCR Article 11 (ss. 7200-7222) | ADMT pre-use notice, opt-out, and access rights (final regulations effective 2026-01-01; compliance by 2027-01-01) |
 | NIST AI RMF | MAP, MEASURE, MANAGE | AI risk management functions |
 
 ---
