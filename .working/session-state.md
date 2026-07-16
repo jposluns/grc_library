@@ -1,10 +1,10 @@
 # Session State (concurrency lease)
 
-**Active-session:** ccpa-regs-2026-alignment-223
+**Active-session:** ccpa-223-slice2-adm-register
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-16T18:33:11Z
+**Last-heartbeat-UTC:** 2026-07-16T18:47:54Z
 
 **Current-task:** ACTIVE. The 2026-07-16 resumed session (`/resume` from #968, on the VM, gh-CLI). **Maintainer switched to UNATTENDED mode ~18:00Z for the next few hours** ("continue with everything you can do as long as quality holds and there's no degradation; two workers ready"). **Merged this session: #969-#976.** Credit-offload phase-3 + elevated-QA policy + Sweep 108 close-out [loop-break for #968 PASSED] + backlog §3.82/§3.83 + design-of-record worker-allocation/ref-read models + §3.85 (#969-#974); the maintainer-egress channel + TODO §2.22 defer + the validate-pr-974 F1 fix (#975); and **THIS PR (#976): the first slice of the TODO §2.23 CCPA alignment** - updated `privacy/jurisdictions/annex-privacy-united-states.md` (v1.2.2) to the FINAL California CCPA regs (11 CCR Div 6 Ch 1, eff 2026-01-01): ADMT Art 11, risk assessments Art 10, cybersecurity audits Art 9 (corrected the prior audit/risk-assessment conflation + the significant-decision scope), added a 2026-CCPA-Regs canonical-citations row (currency confirmed via fetchable cppa.ca.gov), every anchor re-verified at the held source + skeptical verifier SHIP. **§2.22 Canada remains DEFERRED** (egress; the maintainer downloads to `grc_library_ref/ingest/` per `maintainer-egress-requests.md`). **NEXT (currency-confirmable/independent, unattended):** the remaining §2.23 slices (register-automated-decision-making + DSR procedure; then jurisdiction-index + notice-template; then breadth carriers - WATCH the CPPA acronym collision: Canadian Bill C-27 vs California agency), the ref-acquisition packages -> `grc_library_ref` PR + rsync, ETSI §3.14 + GR-GAP-1 §3.15, deferred-protected items 8/9/6. Repo-safety: confirm target repo before every write; keep `/tmp/grc_library_ref` in sync (rsync -av --delete, no -n) on any ref update.
 
