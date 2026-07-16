@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.455, PR #967
+
+Adds the Canada.ca reference-utilization plan to the backlog (Canada-priority for the imminent expert review) and batches PR #966's post-merge QA. Working-state records and backlog only; no corpus or website content changed. Second PR of the overnight run, after the credit-offload build.
+
+### Added
+- [`TODO.md`](../../TODO.md) §2.22 (Priority 2, `H`, `L`): Canada.ca reference utilization, systematic engagement of the 49 newly-held Canada.ca authoritative sources (ref PRs #80/#81/#82: the TBS AI-governance suite, OSFI B-13/E-23, the Privacy Act / OPC / PIPEDA set, ITSG-33 / CCCS ITSP.80.022 / the GC cloud profile / the Pan-Canadian Trust Framework, and the TBS public-sector policy/directive suite) across the Canada AI annex, the privacy annex, the compliance matrix, and the security baselines, flagged Canada-priority because Canadian experts review the corpus in the next few days. Its research half is delivered as three priority-1 credit-offload seeds on `grc_library_scratch` (`canada-ca-reference-breadth`, `canada-annexes-source-verification`, `canada-matrix-fit`) for tomorrow's workers; the apply is orchestrator validate-then-apply per delivery. P2 counter advanced to 2.23.
+
+### Changed
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the PR #966 row (see the row for the sweep outcome).
+- [`.working/improvement-log.md`](../improvement-log.md): added the PR #966 `/retro` row (three guard-caught authoring slips incl. a new row-merge sub-shape that reinforces TODO §3.73; WATCH continues).
+- [`.working/next-prs.txt`](../next-prs.txt), [`.working/session-state.md`](../session-state.md): overnight queue + lease heartbeat.
+- Library CalVer `2026.07.454` to `2026.07.455`; [`README.md`](../../README.md) README Version `1.9.815` to `1.9.816`.
+
+### Fixed
+- [`.working/credit-offload-design.md`](../credit-offload-design.md) (the 2 low-severity notes PR #966's PR-scoped sweep found, both in this gate-exempt working doc): (1) a broken internal section-anchor, the Status line pointed at `## Build status` but the section is titled `## Build phases`; (2) a build-status overstatement, the Status line read "phases 2-3 partially built" while phase 3 is STAGED not built (per the doc's own Build-phases section and TODO §3.80). The Status line and the Phase 1/2 markers were reworded to the accurate current state (phases 1 and the initial phase-2 worker command built on scratch PR #168, a worker testable; phase 2 write-path hardening pending; phase 3 staged). Version 1.0.0 to 1.0.1.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 at the pre-push guard. PR #966's PR-scoped sweep (Subagent A, read-only-git on the #966 squash) found 2 low-severity self-consistency notes in the new credit-offload design doc, both fixed in this PR (see Fixed); all other classes clean (TODO consistency, version/date coherence, the improvement-log row separation, CHANGELOG hygiene).
+- The three Canada credit-offload seeds were queued on scratch (PRs #168 and #169) and the queue helper's read commands smoke-tested; the Canada apply work is orchestrator validate-then-apply once the workers deliver.
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration.
+
 ## 2026-07-16, Library Version 2026.07.454, PR #966
 
 Records the credit-offload design (maintainer-co-designed across the 2026-07-15 session) and opens its backlog, and batches PR #965's post-merge QA. Working-state records and backlog only; no corpus or website content changed. This is the first PR of the overnight run (maintainer entered overnight mode 2026-07-15).

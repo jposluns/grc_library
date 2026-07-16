@@ -1,9 +1,9 @@
 # Credit-offload: a multi-worker QA + research queue (design of record)
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0\
-**Status:** DESIGN SETTLED (maintainer-co-designed 2026-07-15); phase 1 built, phases 2-3 partially built overnight; see `## Build status`.
+**Status:** DESIGN SETTLED (maintainer-co-designed 2026-07-15). Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168, a worker is testable); phase 2 hardening (the write-path test) remains; phase 3 (the orchestrator-side wiring) is staged for maintainer review. See `## Build phases`.
 
 Maintainer working state, exempt from corpus audit gates. This is the design of record for **credit-offload**: a scheme that moves the token-heavy, read-only analysis passes (QA sweeps and research/drafting) off the orchestrator's account onto standing worker sessions on other accounts, so the orchestrator (which is low on usage credits) spends only on the irreducible author -> apply -> route -> merge work. It generalizes the existing research-worker model (`grc_library_scratch` Mode B: workers research, the orchestrator applies) to also cover the QA passes, on a polling work queue with a lease/fencing lifecycle.
 
@@ -61,8 +61,8 @@ Richer metrics on scratch (per-order cost, per-worker spend, queue depth over ti
 ## Build phases
 
 - **Phase 0 (maintainer):** provision the least-privilege worker account(s) (read `grc_library` + `grc_library_ref`, write `grc_library_scratch`); the same-VM shared `/tmp/grc_library_working` clone cache and the worker sessions are launched by the maintainer (permissions bind at session launch).
-- **Phase 1 (scratch, built 2026-07-15):** the queue protocol + directory conventions on scratch (`queue/`, `results/`, `workers/`, the check-in/out log, `metrics/`), the `tools/credit-offload-queue.py` helper (claim/heartbeat/fence-check/deliver over the scratch-git plane), the `/credit-offload` worker command (`.claude/commands/credit-offload.md` in scratch), and a first real test order (the Canada.ca reference-breadth research seed).
-- **Phase 2 (scratch):** harden the `/credit-offload` worker command (the poll-claim-worktree-dispatch-deliver-checkout loop, the dispatch table mapping order commands to the corpus skills, the safety rails) and the worker onboarding.
+- **Phase 1 (scratch, built in scratch PR #168, 2026-07-16):** the queue protocol + directory conventions on scratch (`queue/`, `results/`, `workers/`, the check-in/out log, `metrics/`), the `tools/credit-offload-queue.py` helper (claim/heartbeat/fence-check/deliver over the scratch-git plane), the `/credit-offload` worker command (`.claude/commands/credit-offload.md` in scratch), and a first real test order (the Canada.ca reference-breadth research seed).
+- **Phase 2 (scratch):** the `/credit-offload` worker command + the worker onboarding shipped initial in scratch PR #168; the remaining hardening is the poll-claim-worktree-dispatch-deliver-checkout loop's write path (untested until a live worker exercises it), the dispatch table mapping order commands to the corpus skills, and the safety rails.
 - **Phase 3 (grc_library, protected):** the orchestrator-side enqueue/consume convention and the credit-offload directive wired into `/resume` (worker-availability check before the loop-break `/validate`) and the PR close-out (consume results, re-verify positives, write rows). These touch `/resume` and CLAUDE.md, so they are staged for maintainer-reviewed application.
 
 ## Prohibited / honest limitations

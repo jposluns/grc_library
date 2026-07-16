@@ -48,7 +48,7 @@ Prevent the wrong-repo write/mutation failure mode: the assistant works across t
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.22.**
+**Next item number: 2.23.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -83,6 +83,10 @@ Stamp `last_checked` on the 6 EU / CA AI sources ingested for the AI-domain delt
 ### 2.21 Further AI-jurisdiction annexes, deferred pending held sources (M, L; source-gated)
 
 New AI-jurisdiction annexes deferred pending per-jurisdiction held-source sufficiency: UK, Malaysia, Australia, US federal, US Texas, US Illinois. Source-gated (no held primary yet); acquire the primary source per the missing-reference-document SOP before building each. Cross-references the P5.9 AI-jurisdiction-overlays umbrella. Re-homed from the retired AI-domain-delta umbrella (Workstream B.3).
+
+### 2.22 Canada.ca reference utilization: engage the 49 newly-held Canada.ca sources (maintainer-flagged 2026-07-15, CANADA-PRIORITY, H, L)
+
+Systematically engage the 49 Canada.ca authoritative sources newly held in `grc_library_ref` (ref PRs #80/#81/#82: the TBS AI-governance suite, OSFI B-13/E-23, the Privacy Act / OPC / PIPEDA privacy set, ITSG-33 / CCCS ITSP.80.022 / the GC cloud security-control profile, the Pan-Canadian Trust Framework, and the TBS public-sector policy/directive suite) across the corpus, prioritized because **Canadian experts review the corpus in the next few days** (maintainer 2026-07-15: be as close to perfection on Canada as possible). Opportunity classes: (a) **Canada AI annex** (`ai/jurisdictions/annex-ai-canada.md`) accuracy verification + citation-breadth against the held TBS AI suite (Directive on ADM, AIA tool, Guide to Peer Review of ADS, Guide on Departmental AI Responsibilities, Guide on Agentic AI, Guiding Principles, FASTER, FPS AI Strategy, GC AI Register, AI for All, the Voluntary Code); (b) **privacy annex** (`privacy/jurisdictions/annex-privacy-canada.md`) against the Privacy Act, OPC Fair Information Principles, OPC retention/disposal, the Breach of Security Safeguards Regulations, and the TBS Policy on Privacy Protection; (c) **matrix / framework-alignment** fit-check + breadth against OSFI E-23 (model risk, covers AI/ML), B-13, ITSG-33, CCCS baselines, the GC cloud profile; (d) **public-sector overlay / security-baseline** citation-breadth from the TBS security policies/directives. **Research half (DELIVERED as credit-offload seeds, queued priority-1 for tomorrow's workers):** `grc_library_scratch` `research/canada-ca-reference-breadth` (both-directions breadth), `research/canada-annexes-source-verification` (annex accuracy + citation-breadth), `research/canada-matrix-fit` (matrix fit + breadth). The apply is orchestrator validate-then-apply per delivery (re-verify positives, reconfirm upstream currency, gate-check, skeptical verifier on the substantive annex edits). High accuracy bar (government-facing, expert-reviewed); no fabricated codes, no unverified currency.
 
 ## Priority 3 — Clean up and tooling
 
