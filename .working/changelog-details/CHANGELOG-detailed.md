@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.462, PR #974
+
+Codifies two credit-offload worker-behaviour models into the design of record and opens a backlog item to close a reference-read gap the codification surfaced. Working-state and backlog only; no corpus, website, or gate change.
+
+### Added
+
+- [`.working/credit-offload-design.md`](../credit-offload-design.md) design-of-record (Version 1.2.0 to 1.3.0): a `## Worker allocation and specialization (one-at-a-time + role-based soft split)` section (one order at a time; the maintainer's initial hard QA/research split refined into a SOFT split that prefers the worker's `role` but falls back to any eligible order so a live worker never idles beside serveable work; the egress-natural bias, research needs egress and qa is `egress-none`; and the claim precedence, where a priority-1 or blocking order outranks the role preference), and a `### Reference-read basis and multi-worker resync` subsection recording the current shared-`/tmp/grc_library_ref` read gap (a ref update mid-order silently changes what a running worker reads, since the ref read is not pinned to the order's `grc_library_ref_sha` the way the `grc_library` read is) and the target per-order-pinned model. Also extended the order-schema prose to list `capability-needs` and to name the worker-registry `role` attribute.
+- [`TODO.md`](../../TODO.md) §3.85 (credit-offload thread-5): the worker reference-read model + multi-worker resync coordination item that closes the gap the design-doc subsection documents; P3 `Next item number` counter advanced 3.85 to 3.86.
+
+### Changed
+
+- Batched PR #973's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.672 to 1.0.673): a clean row (no new pattern, no proposed improvement; the first worker-sourced corpus edit was first-pass clean through preflight, the guard, and the verifier, and proved the worker-delivery consume path for corpus edits).
+- Recorded PR #973's OFFLOADED `/validate-pr` result in [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.737 to 1.2.738): a zero-findings pass by credit-offload worker `worker-20260716-b`, which was worker-b's FIRST QA delivery and therefore validated under FULL ELEVATED QA (proof-of-run genuineness; independent re-derivation of the SHAs and diff scope, all exact-match; re-verification of all four Quebec Law 25 figures at the held CQLR P-39.1 source; and a dedicated adversarial false-negative auditor returning WORKER-CLEAN-CONFIRMED). This is what unblocks #974 (gate 50 requires the per-PR QA row before the next PR can ship).
+- Refined [`TODO.md`](../../TODO.md) §3.84 with two verified observations from that `/validate-pr` pass: OBS-1 added a second `section 3.3` carrier (`privacy/template-dpia.md:25`, not only :204), and OBS-2 resolved the item's original "confirm 12.1" uncertainty (s. 12.1 IS the automated-decision-making provision per the held source, so the ADM citation is correct and only the PIA `3.3` -> `23.3` correction is needed).
+- Library CalVer `2026.07.461` to `2026.07.462`; [`README.md`](../../README.md) README Version `1.9.822` to `1.9.823`.
+
+### Verification
+
+- The design-doc claim-precedence prose was cross-checked against the actual `grc_library_scratch` credit-offload serve-loop command and corrected to match it (an over-specific "then oldest-queued" tiebreak the loop does not instruct was removed) before commit, so the design of record does not overclaim the implementation.
+- Working-state + backlog + version + CHANGELOG only; no corpus body, gate, or generated artefact touched. Pre-push guard (69 gates + PR-time checks D1-D7 and gates 45/40/31) green; the CHANGELOG preflight aid clean. Quick-fix/bookkeeping tier, so no standing skeptical verifier (per the tiered pre-push standard).
+
 ## 2026-07-16, Library Version 2026.07.461, PR #973
 
 Corrects a material Quebec Law 25 penalty-structure error and two related accuracy issues in the Canada privacy jurisdiction annex, applied from a credit-offload worker's `canada-annexes-source-verification` research delivery after the orchestrator independently re-verified every corrected figure against the held Quebec Law 25 text (the research-assistant discipline; expert-review-facing Canada content, high accuracy bar). Corpus content changed (one privacy annex + regenerated artefacts).
