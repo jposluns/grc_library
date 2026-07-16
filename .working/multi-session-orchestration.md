@@ -1,7 +1,7 @@
 # Multi-session / multi-worker orchestration runbook
 
-**Version:** 1.1.8\
-**Date:** 2026-07-08\
+**Version:** 1.1.9\
+**Date:** 2026-07-16\
 **License:** CC BY-SA 4.0
 
 The operational runbook for running `grc_library` work across multiple sessions and
@@ -13,6 +13,17 @@ Maintainer working state, exempt from corpus audit gates per the `.working/` exe
 This runbook is the `grc_library`-side companion to the worker-facing `CLAUDE.md` seeded
 at the root of the `grc_library_scratch` exchange repo (which any worker instance reads
 first). This file is for the **orchestrator**; that file is for the **workers**.
+
+**Credit-offload (2026-07-15):** the credit-offload scheme, a polling multi-worker queue
+on `grc_library_scratch` that moves the read-only QA sweeps and research/drafting seeds
+onto standing worker sessions on other accounts (so the orchestrator spends credits only
+on author-apply-route-merge), has its own design of record in
+[`credit-offload-design.md`](credit-offload-design.md). It extends the two worker
+primitives (§4) to the QA passes; the queue protocol, the `/credit-offload` worker
+command, the lease/fencing lifecycle, the `workers/` liveness registry, and the
+scratch-git-coordination / `/tmp` clone-cache split live there. Build status and the
+staged orchestrator-side wiring are tracked in `TODO.md` §3.80 and
+[`deferred-protected-changes.md`](deferred-protected-changes.md) item 10.
 
 ---
 
