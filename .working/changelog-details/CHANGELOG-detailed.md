@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.468, PR #980
+
+Adds a maintainer-requested credit-offload metrics tab: a running record of what the workers have done and, per session, the estimated orchestrator credits conserved by offloading passes to them. Working-state, design-of-record, and one CLAUDE.md convention line; no corpus, website, or gate change.
+
+### Added
+
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (new, Version 1.0.0): the running ledger. One row per offloaded delivery (order, kind, command, worker + model, the worker's best-effort estimated token spend as a conservative proxy for **estimated orchestrator credits conserved**, the consuming PR, and notes) plus a per-session roll-up. Backfilled for this session (12 deliveries with figures + 1 not captured; roll-up ~1.44M estimated orchestrator tokens conserved across the this-session-consumed set). The metric definition carries three explicit caveats: it is an estimate (workers cannot read an exact in-session count), credit-offload shifts cost across accounts rather than reducing total spend, and worker-spend is a conservative proxy (the Sweep-108 self-run comparable ~609K exceeded the ~237K worker spend).
+
+### Changed
+
+- [`.working/credit-offload-design.md`](../credit-offload-design.md) (Version 1.3.1 to 1.3.2): the `## Metrics and reporting` section now documents the orchestrator-side running tab, the ledger plus a short chat tally at each major activity (a worker delivering, a PR finishing), the metric, and the no-per-DONE-line choice.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Credit-offload mode`: a new "Metrics tab" bullet codifying the convention (maintainer-directed 2026-07-16; a protected-file touch, authorized on the local VM for the requested feature).
+- Batched PR #979's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.678 to 1.0.679) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- Library CalVer `2026.07.467` to `2026.07.468`; [`README.md`](../../README.md) README Version `1.9.828` to `1.9.829`.
+
+### Verification
+
+- The maintainer chose the shape (ledger + chat surface, no per-DONE line) and the metric (estimated orchestrator credits conserved) via `AskUserQuestion`; the design honours both.
+- The backfill figures were read from each worker result's proof-of-run/token-spend section; four research deliveries carried no figure and are recorded as `not captured` (an honest gap, not zero).
+- New prose (ledger, design-of-record section, CLAUDE.md bullet) checked for em/en dashes and British spelling before commit (CLAUDE.md is gate-exempt, so the check is manual there).
+- Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
+
 ## 2026-07-16, Library Version 2026.07.467, PR #979
 
 CCPA §2.23 slice 4 (breadth): adds the relevant final-CCPA-regulation section citations to four privacy framework-alignment tables, completing the `ccpa-regs-2026-alignment` regulations-alignment (the primary carriers were slices 1-3). Low-risk citation-breadth additions; every section anchor re-verified at the held regs and a refute-briefed skeptical verifier returned SHIP.
