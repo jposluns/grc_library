@@ -1,10 +1,10 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/sweep108-closeout
+**Active-session:** credit-offload-backlog-items
 
 **Status:** active
 
-**Last-heartbeat-UTC:** 2026-07-16T15:04:22Z
+**Last-heartbeat-UTC:** 2026-07-16T16:07:37Z
 
 **Current-task:** ACTIVE. The 2026-07-16 resumed session (`/resume` from #968, on the VM, gh-CLI, attended-autonomous). Merged #969 (credit-offload phase-3 wiring) + #970 (elevated-QA-window policy codification). Credit-offload is LIVE, exercised end-to-end, and `worker-20260716-a` (Opus 4.8) is VALIDATED (Sweep 108 `/validate` + #969 `/validate-pr` both offloaded + delivered ~3 min + orchestrator-validated under elevated QA incl. a WORKER-CLEAN-CONFIRMED adversarial auditor). THIS PR (#971): the Sweep 108 close-out (records the sweep-108 history row, advances the cursor, prunes the handoff to keep #964-#967 + #955-#962, applies the 2 validated worker findings in TODO §3.80 [phase-1 date `2026-07-15`->`2026-07-16` UTC; add `verify` to the offloadable list], and batches #970's self-run `/validate-pr` + `/retro`). **CCPA ref-update tracking:** the maintainer added the CCPA statute (eff. 2026-01-01) to `grc_library_ref` (`ingest/`); a worker is ingesting it to full-text. At this close-out's post-merge ref-check, catch the landed full-text, resync `/tmp/grc_library_ref`, and QUEUE the CCPA currency+alignment offload order (TODO §2.23). NEXT after the close-out: scratch PR B (the 2 worker-lifecycle hooks + serve-loop self-refresh + worker-`model` field + Fable-5 capability scaffold [§3.82] + consume the winddown delivery), then deferred items 8/9/6, then Canada §2.22 + CCPA §2.23 on worker delivery. Repo-safety: confirm target repo before every write; keep `/tmp/grc_library_ref` in sync (rsync -av --delete, no -n) on any ref update.
 
