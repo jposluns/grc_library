@@ -757,6 +757,17 @@ command). This section is the ORCHESTRATOR-side discipline.
 - **Honest limitation.** Credit-offload SHIFTS cost across accounts; it does not reduce total
   spend, and the orchestrator still pays to verify positives and to run the pre-push verifier.
   The net saving is real only when the other accounts have spare capacity.
+- **Metrics tab (maintainer-directed 2026-07-16).** Maintain the running productivity/savings tab
+  [`.working/credit-offload-metrics.md`](../.working/credit-offload-metrics.md): append one row per
+  offloaded delivery (order, kind, worker + model, the worker's best-effort estimated token spend as
+  a conservative proxy for **estimated orchestrator credits conserved**, the consuming PR, notes) and
+  keep the per-session roll-up current. At each MAJOR ACTIVITY, a worker delivering a result and a PR
+  finishing, surface a short (a couple of lines) chat tally of the session's passes and estimated
+  orchestrator credits conserved. Always label the figure an ESTIMATE (workers cannot read an exact
+  in-session count) and carry the shift-not-reduce caveat. There is deliberately NO per-DONE-entry
+  line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics.md`
+  row. Design-of-record: [`.working/credit-offload-design.md`](../.working/credit-offload-design.md)
+  `## Metrics and reporting`.
 - **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
   order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
   `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`

@@ -1,6 +1,6 @@
 # Credit-offload: a multi-worker QA + research queue (design of record)
 
-**Version:** 1.3.1\
+**Version:** 1.3.2\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0\
 **Status:** IN USE. Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168). **Phase 3 (the orchestrator-side wiring) is APPLIED** (2026-07-16, maintainer-authorized attended): the worker-availability check + blocking-resume-`/validate` enqueue/consume is wired into `.claude/commands/resume.md` (step 6, plus a queue/results check in step 3) and the `## Credit-offload mode` section of `.claude/CLAUDE.md`. **Phase 2 write-path is under live test:** the first live worker (`worker-20260716-a`) is exercising the claim/heartbeat/deliver path against the offloaded Sweep 108 `/validate` order. See `## Build phases`.
@@ -120,6 +120,18 @@ Each order (a file under the scratch queue) carries: `id`, `kind` (`qa` | `resea
 ## Metrics and reporting
 
 Richer metrics on scratch (per-order cost, per-worker spend, queue depth over time, worker utilization, check-in/out events) back on-demand detailed reports, so the maintainer can validate whether the offload actually nets out. Each worker logs its token spend into its result and a scratch metrics file (a `session-metrics` analogue). Net saving is real only if the other accounts have spare capacity; the scheme SHIFTS cost across accounts rather than reducing total spend.
+
+**Orchestrator-side running tab (maintainer-directed 2026-07-16).** The orchestrator maintains a
+running productivity/savings tab in [`credit-offload-metrics.md`](credit-offload-metrics.md): one row
+per offloaded delivery (order, kind, worker + model, the worker's best-effort estimated token spend as
+a conservative proxy for **estimated orchestrator credits conserved**, the consuming PR, and notes) plus
+a per-session roll-up. The chosen surface is that ledger PLUS a short (a couple of lines) chat tally at
+each MAJOR ACTIVITY, a worker delivering a result and a PR finishing, reporting the session's passes and
+estimated orchestrator credits conserved; there is deliberately NO per-DONE-entry line. The metric is
+always labelled an ESTIMATE (workers cannot read an exact in-session count) and carries the standing
+caveat that credit-offload shifts cost across accounts rather than reducing total spend, and that the
+orchestrator still pays a small consume/verify cost (and the pre-push verifier) on its own account. The
+session-closing handoff folds the roll-up figure into the `session-metrics.md` row.
 
 ## Build phases
 
