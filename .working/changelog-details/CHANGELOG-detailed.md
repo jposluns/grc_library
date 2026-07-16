@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.470, PR #982
+
+Precision tightening in the United States privacy annex: the California cybersecurity-audit phasing sentence now carries the per-tier measurement years. Surfaced by PR #976's `/validate-pr` NOTE 1 (tracked in TODO §2.23) and folded in for the expert review. Corpus body change (one annex), no gate or website change.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) (Version 1.2.2 to 1.2.3): the cybersecurity-audit first-audit phasing sentence previously gave the three deadlines and dollar bands but named the measurement year only for the first tier (2026 revenue). Added the measurement years for the other two tiers: the 2029-04-01 deadline keys to a business's 2027 annual gross revenue (USD 50 to 100 million) and the 2030-04-01 deadline to its 2028 revenue (under USD 50 million). Deadlines and dollar bands were already correct, so this is precision, not a substance change.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the Version bump ([`docs/portal.md`](../../docs/portal.md) carries no per-document version, so it is byte-identical and not in the diff).
+- Batched PR #981's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- [`TODO.md`](../../TODO.md) §2.23: the "Precision follow-up" (per-tier cyber-audit measurement years) is marked applied; the statute-currency half of §2.23 remains separately open.
+- Library CalVer `2026.07.469` to `2026.07.470`; [`README.md`](../../README.md) README Version `1.9.830` to `1.9.831`.
+
+### Verification
+
+- The per-tier measurement years were re-verified at the CURRENT held source (the reference base's CCPA Regulations full-text extract, effective 2026-01-01), section 7121 "Timing Requirements" (April 1, 2028 keyed to 2026 revenue "more than one hundred million"; April 1, 2029 keyed to 2027 revenue "between fifty [and one hundred million]"; April 1, 2030 keyed to 2028 revenue "less than fifty million"), not from the finding note. (The phasing/timing is section 7121; section 7120 is the audit-requirement/threshold section. The annex body cites the "sections 7120 to 7124" range and attributes only the thresholds to 7120, so it is accurate; this precision was confirmed by the pre-push verifier.)
+- Currency: the CPPA final regulations effective 2026-01-01 are the current version (the superseded 2025 draft is retained under `grc_library_ref/.superseded/`); the held current file was used.
+- A refute-briefed skeptical verifier reviewed the one-line annex change and the version/generator co-bumps before push.
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before commit; pre-push guard (`run_all_audits.sh` + PR-time checks) green.
+
 ## 2026-07-16, Library Version 2026.07.469, PR #981
 
 Records the `grc_library` side of the completed reference-acquisition task. The reference documents themselves were acquired by the credit-offload research workers and ingested into the private reference base as `grc_library_ref` pull requests #85 (four EDPB / WP29 GDPR soft-law items) and #86 (three Brazil ANPD resolutions, Argentina Decreto 1558/2001, and the Quebec anonymization regulation); `/tmp/grc_library_ref` was re-synced. This PR captures what belongs in `grc_library`: the sources that could not be fetched, the metrics-ledger consume rows, and the previous PR's quality-assurance result. Working-state and bookkeeping only; no corpus, website, or gate change.
