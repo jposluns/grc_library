@@ -1,25 +1,6 @@
 # Overnight PR
 
-**Status:** in-flight
-
-## Current overnight run: 2026-07-15
-
-**Authorization (maintainer, 2026-07-15):** "change to overnight mode, and proceed through any TODO items that you can in high assurance mode for all. If you see quality degraded with evidence, then wind down." Stay in overnight mode until the maintainer explicitly says it is morning; do not exit overnight mode even if the maintainer resumes a session mid-night.
-
-**Mode rules in force:** overnight (green CI = merge authority, no idle-stop); the high-assurance harness (two independent adversarial verifiers + deterministic apply) applied to EVERY item worked; protected-surface edits (`.claude/`, `dev-security/claude-rules/`) staged for daytime, not merged unattended; the §2.4 website items (§2.15/§2.16) are ATTENDED-ONLY and wait for the maintainer; wind down only on named, evidence-backed quality degradation.
-
-**Session context at overnight start:** merged through #929 (the TODO permanent-numbering framework). PR-1 (#929) shipped with two independent HA verifiers + one re-verify (final SHIP; findings P1-count, P6-counter, gate-69-rationale, severity-tokens all caught and fixed pre-push).
-
-**Overnight work plan (highest-priority authorized independent items):**
-- The maintainer-directed TODO split (split the massive partially-done items so completed components rotate to DONE and only remaining parts stay, each drawing fresh counter numbers): §3.57, §3.62, §3.63, §3.68 (P3 routed-findings/apply cleanups) then §2.4, §2.5 (P2 umbrellas). Each under the HA harness + per-PR `/validate-pr` + `/retro`.
-- Then self-contained P3 gate/tooling items that are non-protected, non-egress, non-attended (e.g. §3.12 See-Also parity gate, §3.34 detailed-mirror link-resolution, §3.73 ledger-row-integrity), as HA candidates.
-- Blocked overnight (do NOT attempt): §1.1 (protected pack rule), §1.12 (gated on website work), §1.14 (egress), §2.15/§2.16 (attended-only), §2.6 (maintainer console), source-gated annexes.
-
-**Build progress:** OVERNIGHT RUN COMPLETE to a clean resting point (still in overnight mode). Merged this run: #929 (TODO permanent-numbering framework), #930-#932 (the massive-item TODO-split wave: §3.57/§3.62/§3.63/§3.68, §2.4, §2.5), #933 (§3.50 gate-69 widening), #934 (§3.34 go-forward preflight link-resolution check), #935 (staged §3.22/§3.12 protected machinery + §3.38 assessment + preflight-message parallelism), and #936 (this: resting-point close-out, refreshed next-prs, batched #935 QA). Each substantive PR ran two independent HA verifiers (correctness + completeness) + per-PR `/validate-pr` + `/retro`; every finding was caught pre-push or fixed in the batching PR; net zero adopter-facing escapes. The overnight-safe UNBLOCKED queue is EXHAUSTED, every remaining item is deferred for a specific quality/authorization reason (protected daytime = deferred-protected-changes.md items 6/8/9; attended/fresh-for-quality per AIQT; egress/cross-repo; maintainer-decision; source-gated). HOLDING in overnight mode per the maintainer until morning / redirect. Daytime priority: clear deferred-protected (items 6/8/9), then the attended quality items, the routed forks, the website review + publish. The #936 `/validate-pr` row batches into the next session's first PR (its `/resume` corpus-wide `/validate` is the loop-break compensating control).
-
-<!-- OVERNIGHT-PR-STUB -->
-
-## Last run closure note: 2026-07-07 and 2026-07-08 overnight (routed by the 2026-07-08 `/resume` close-out PR, ending overnight mode)
+**Status:** stub
 
 This file is the durable handoff record for a maintainer-authorized autonomous overnight
 session. It is `stub` when no overnight session is in flight (the default state).
@@ -32,17 +13,10 @@ Lifecycle (audit gate 46 enforces it: passes on `stub` and `in-flight`, fails on
 
 <!-- OVERNIGHT-PR-STUB -->
 
-## Last run closure note: 2026-07-07 and 2026-07-08 overnight (routed by the 2026-07-08 `/resume` close-out PR, ending overnight mode)
+## Last run closure note: reset at the 2026-07-16 session-closing handoff
 
-The maintainer directed the resumed session to end overnight mode, morning-process this file, ask the deferred questions, and begin attended-autonomous daytime mode. This close-out routes the two overnight run sections (2026-07-07 NUC daytime-then-overnight, and 2026-07-08 overnight) and resets to `stub`.
+This file had been left `in-flight` since a 2026-07-15 overnight run (merged #929-#936: the TODO permanent-numbering framework, the massive-item TODO-split wave, and several gate/tooling and staged-protected items) that held in overnight mode and was never routed by the subsequent 2026-07-15 sessions (the #943-#953 website session and the #955-#963 session). Its content was pure build-progress narrative; the #929-#936 work is durably recorded per-PR in [`DONE.md`](DONE.md) and [`CHANGELOG.md`](../CHANGELOG.md), and no un-routed design decision remained (the design decisions of that run were recorded in-run). The build-progress noise is discarded per the protocol; this file is reset to `stub`.
 
-Runs covered: the 2026-07-07 session (Sweep 88 + TODO 1.12 close, then the reference-library split #687-#689, then the reference-base ingests, tracked separately in `grc_library_ref`) and the 2026-07-08 overnight run (#694 `/full-qa` follow-up fixes; #695 changelog-restructure PR 1 machinery; #696 TODO 1.11 ANPD residual; #697 FR-63 adoption worked example closing §2.7; #698 README companion-catalogue row + register-ageing-tool deferral). Session merged through #698 and closed at the #699 session-closing handoff.
+The 2026-07-16 resumed session (which merged #964-#967 plus scratch #166-#170 and built the credit-offload system) ran its overnight window tracked via [`session-state.md`](session-state.md) and the per-PR records, NOT this file, so there is no separate content to route from it; its state is captured in the session handoff and the CHANGELOG. This reset is the mode-exit "route and reset overnight-pr.md" cleanup for that session's wind-down.
 
-Content routing (morning-processing):
-- **Design decisions** to [`design-decisions.md`](design-decisions.md): the changelog-restructure current-week model and the reference-library split were already recorded in-run (via TODO §3.19 and the #687-#689/#695 CHANGELOG entries and `design-decisions.md`); no un-routed design decision remained.
-- **Closed work** to [`DONE.md`](DONE.md): routed per-PR during the runs (#687-#698 each carry their DONE entries).
-- **Queued follow-ups** to [`../TODO.md`](../TODO.md) and [`pending-decisions.md`](pending-decisions.md): the blocked/deferred set (changelog PR 2 sweep-to-scratch privacy-gate decision, PR 3 root reformat/compress, the 3.16/3.17 alignment maps, the register-ageing classifier, the egress-priority items, the git-history collapse) is recorded in `pending-decisions.md` / TODO / the session-handoff CLOSING block, surfaced to the maintainer at this resume. TODO 3.19 tracks the changelog-restructure remainder.
-- **Reference-repo open ambiguities (recorded here for provenance):** the fast-follow reference-source `license:` schema shape (formal field vs codify-the-convention; default codify-the-convention) and a reference-source re-snapshot currency-watch cadence are `grc_library_ref` concerns, tracked in that repo's own backlog, not in grc_library TODO (the reference base moved out of this corpus in the #687-#689 split).
-- **Noise discarded**: the build-progress and files-modified lists.
-
-Maintainer items surfaced from the runs: the deferred-question queue (changelog PR 2/PR 3, alignment maps, register-ageing tool, egress-priority items, git-history collapse) is surfaced at the 2026-07-08 `/resume` for triage.
+<!-- OVERNIGHT-PR-STUB -->
