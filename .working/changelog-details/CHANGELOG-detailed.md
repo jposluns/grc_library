@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.465, PR #977
+
+CCPA §2.23 slice 2: aligns the automated-decision-making register to the final California CCPA regulations, correcting a statute-citation error and adding the CCPA ADMT subject rights. Continues the `ccpa-regs-2026-alignment` worker delivery (slice 1 = #976, the US privacy annex). Every anchor was re-verified at the held source and a refute-briefed skeptical verifier returned SHIP.
+
+### Changed
+
+- [`privacy/register-automated-decision-making.md`](../../privacy/register-automated-decision-making.md) (Version 1.0.6 to 1.0.7):
+  - **Framework-alignment table, the "CCPA / CPRA" row (A4 accuracy fix + C4 currency):** corrected the enabling-statute citation from `Section 1798.185(a)(16)` to `Cal. Civ. Code s. 1798.185(a)(15)` (verified against the held statute: `(a)(15)` is "regulations governing access and opt-out rights with respect to a business' use of automated decisionmaking technology"; `(a)(16)` is the law-enforcement-investigation paragraph), and added the now-final operative regulations (11 CCR Article 11, ss. 7200-7222, effective 2026-01-01, compliance by 2027-01-01). Touched ONLY the California CCPA/CPRA row, NOT the Canadian "CPPA Section 19 (proposed)" (Bill C-27) row (acronym-collision guard).
+  - **Subject rights section (A5):** added a California-CCPA item, the register's subject-rights list was GDPR-framed (human review, explanation, rectification) and did not carry the distinct CCPA ADMT rights. New item 8 states that for an ADMT making a "significant decision" (11 CCR s. 7001), subjects additionally have a pre-use notice (s. 7220), a right to opt out of ADMT (s. 7221), and a right to access ADMT (s. 7222), with the human-appeal exception in place of the opt-out (s. 7221(b)(1)), handled via the DSR workflow within the applicable regulatory window; compliance by 2027-01-01.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the Version bump.
+- [`TODO.md`](../../TODO.md) §2.23: status updated (regs-alignment half in progress, slices 1-2 done, slice 3 + breadth remaining; the statute-currency half still open).
+- Batched PR #976's `/retro` row into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.675 to 1.0.676) and its `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md).
+- Library CalVer `2026.07.464` to `2026.07.465`; [`README.md`](../../README.md) README Version `1.9.825` to `1.9.826`.
+
+### Verification
+
+- The `(a)(15)` fix and every regulation anchor (ss. 7001, 7200-7222, 7220, 7221, 7222, 7221(b)(1)) were re-verified against the held CCPA statute and regulations full-text extracts in `grc_library_ref`; the held regs themselves cite "s. 1798.185(a)(15) and Article 11", closing the loop.
+- One refute-briefed skeptical verifier (substantive external-facing corpus tier) returned SHIP (no overclaim in item 8, human-appeal correctly framed as an alternative to the opt-out, acronym-collision confirmed avoided).
+- Pre-push guard (69 gates + PR-time checks) green; the CHANGELOG preflight aid clean.
+
 ## 2026-07-16, Library Version 2026.07.464, PR #976
 
 Aligns the United States privacy jurisdiction annex to the FINAL California CCPA regulations (11 CCR Division 6 Chapter 1, effective 2026-01-01), the first slice of the TODO §2.23 CCPA alignment (the `ccpa-regs-2026-alignment` worker delivery). Every section anchor, figure, and date was independently re-verified against the held regulation text before authoring, currency was confirmed upstream this cycle (cppa.ca.gov, which, unlike canada.ca, is fetchable from this environment), and a refute-briefed skeptical verifier returned SHIP.
