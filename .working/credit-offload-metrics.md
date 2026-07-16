@@ -1,6 +1,6 @@
 # Credit-offload metrics: worker productivity and estimated orchestrator credits conserved
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0
 
@@ -60,16 +60,21 @@ The net saving is real only when the other accounts have spare capacity.
 | 2026-07-16 | validate-pr-977 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~72K | #978 | |
 | 2026-07-16 | validate-pr-978 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~82K | #979 | |
 | 2026-07-16 | validate-pr-979 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~72K | #980 | first delivery under the aligned `## Token spend` format; worker-b cumulative self-estimate ~550-700K in + 70-90K out across its 7 orders (cross-checks this ledger). |
+| 2026-07-16 | validate-pr-980 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~72K | #981 | ~70-85K; caught 3 stale-`~1.37M` secondary surfaces (mid-PR figure-drift), fixed in #981. worker-b's 8th delivery. |
+| 2026-07-16 | ref-acquire-edpb-softlaw | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #85 | 7 EDPB/WP29 GDPR soft-law PDFs acquired; 4 new ingested (E-03/E-04/E-05/WP260), 3 dups skipped. Package MANIFEST carried no token figure. |
+| 2026-07-16 | ref-acquire-brazil-anpd | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #86 | 3 ANPD resolutions ingested (19/2024, 2/2022, 1/2021) + 1 egress-blocked (32/2026). No token figure. |
+| 2026-07-16 | ref-acquire-latam-crypto-quebec | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #86 | Argentina Decreto 1558/2001 + Quebec anonymization regulation ingested + 2 egress-blocked (NYDFS, Colombia). No token figure. |
 
 **Other deliveries in the results plane (delivery-session attribution and consume status vary; NOT
 counted in the session roll-up below to avoid over-attribution):** `etsi-en304223-option3-apply-draft`
 (~114K), `gr-gap-1-gate-draft` (~161K), `matrix-fit-full-pass` (~153K), `claim-fit-tier-a-pass` (~46K),
-`screen-publications-pending` (~55K), `ref-acquire-{brazil-anpd,edpb-softlaw,latam-crypto-quebec}` (not
-captured). These are delivered-but-not-yet-consumed or from an earlier window; they are added to the
-roll-up when consumed this session.
+`screen-publications-pending` (~55K). These are delivered-but-not-yet-consumed or from an earlier
+window; they are added to the roll-up when consumed this session. (The three `ref-acquire-*` orders,
+formerly listed here, are now consumed and carried as proper rows above; their token spend was not
+captured.)
 
 ## Per-session roll-up
 
 | Session (resume) | Offloaded passes counted | Est. orchestrator credits conserved (midpointed, this-session-consumed set) | Notes |
 | --- | --- | --- | --- |
-| 2026-07-16 (resumed from #968) | 12 with figures (+ 1 not captured) | **~1.44M tokens (est.)** | Conservative (worker-spend proxy). The Sweep-108 self-run comparable alone was ~609K vs ~237K worker, so the true conserved is higher. Excludes 5 delivered-but-unconsumed passes (etsi/gr-gap/matrix-fit-full/claim-fit/screen-pub, ~529K more if/when consumed) and the 4 not-captured research deliveries. Orchestrator main-loop tokens remain `not instrumented`. |
+| 2026-07-16 (resumed from #968) | 13 with figures (+ 4 not captured) | **~1.51M tokens (est.)** | Conservative (worker-spend proxy). The Sweep-108 self-run comparable alone was ~609K vs ~237K worker, so the true conserved is higher. Excludes 5 delivered-but-unconsumed passes (etsi/gr-gap/matrix-fit-full/claim-fit/screen-pub, ~529K more if/when consumed) and the 4 not-captured research deliveries (canada-ca-reference-breadth + the 3 ref-acquire orders). Orchestrator main-loop tokens remain `not instrumented`. |

@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.469, PR #981
+
+Records the `grc_library` side of the completed reference-acquisition task. The reference documents themselves were acquired by the credit-offload research workers and ingested into the private reference base as `grc_library_ref` pull requests #85 (four EDPB / WP29 GDPR soft-law items) and #86 (three Brazil ANPD resolutions, Argentina Decreto 1558/2001, and the Quebec anonymization regulation); `/tmp/grc_library_ref` was re-synced. This PR captures what belongs in `grc_library`: the sources that could not be fetched, the metrics-ledger consume rows, and the previous PR's quality-assurance result. Working-state and bookkeeping only; no corpus, website, or gate change.
+
+### Added
+
+- [`.working/maintainer-egress-requests.md`](../maintainer-egress-requests.md) (Version 1.0.0 to 1.0.1): a new "Egress-blocked ref-acquisition sources" block with the three items the workers could not fetch from this VM and deliberately did not substitute with an unofficial copy: Brazil ANPD Resolução CD/ANPD nº 32/2026 (in.gov.br, blocked), the US NYDFS Virtual Currency Regulation 23 NYCRR Part 200 (BitLicense; the full text is behind govt.westlaw.com), and Colombia Decreto Único Reglamentario 1074 de 2015 (funcionpublica.gov.co, unreachable). Each names its authoritative host and why the automated fetch failed; destination is `grc_library_ref/ingest/`.
+
+### Changed
+
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (Version 1.0.0 to 1.0.1): four consume rows added, `validate-pr-980` (~72K) plus the three `ref-acquire-*` research orders (token spend not captured), and the roll-up updated to **~1.51M estimated orchestrator tokens conserved (13 with figures + 4 not captured)**. The rise from ~1.44M is entirely the newly-consumed `validate-pr-980` pass; the #980 point-in-time records (its own CHANGELOG entry and improvement-log row) correctly stay at ~1.44M.
+- [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.679 to 1.0.680): the PR #980 retro row's session-tally figure harmonized `~1.37M` to `~1.44M` (its point-in-time #980 truth), part of the validate-pr-980 finding fix.
+- [`.working/session-state.md`](../session-state.md) and [`.working/next-prs.txt`](../next-prs.txt): rewritten fresh to the current state (merged #969-#980 + ref #85/#86, ref-acquisition COMPLETE, roll-up ~1.51M, heartbeat re-stamped, `Active-session: ref-acq-closeout-egress-metrics`), which also clears their stale `~1.37M` figures (the other two of the three surfaces the #980 quality-assurance pass flagged).
+- Batched PR #980's `/validate-pr` row into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.744 to 1.2.745) and its `/retro` row (already present) into [`.working/improvement-log.md`](../improvement-log.md).
+- Library CalVer `2026.07.468` to `2026.07.469`; [`README.md`](../../README.md) README Version `1.9.829` to `1.9.830`.
+
+### Fixed
+
+- The validate-pr-980 LOW finding (`bookkeeping/session-tally-figure-drift`): three working-state surfaces (the session-state lease, the next-PRs file, the improvement-log #980 row) still read `~1.37M` while the ledger and #980 CHANGELOG read `~1.44M`. All three corrected (the two live-tally surfaces to the current `~1.51M` via their fresh rewrites, the point-in-time #980 row to `~1.44M`). Re-verified by a bare-token grep confirming the session-metrics ledger's `1.37M` is the unrelated 2026-06-27 batch-10 research figure and correctly untouched.
+
+### Verification
+
+- The three egress-blocked items were each confirmed unreachable from this environment before routing (in.gov.br HTTP 000, govt.westlaw.com 403, funcionpublica.gov.co HTTP 000); no unofficial substitute was ingested and no URL was fabricated.
+- The metrics roll-up arithmetic re-checked: prior ~1.44M + validate-pr-980 ~72K = ~1.51M; the row count (13 with figures + 4 not captured) recounted against the ledger.
+- validate-pr-980 was offloaded to `worker-20260716-b` (Opus 4.8, ROUTINE consume, 8th delivery); its one LOW finding re-verified at source and fixed here.
+- New CHANGELOG prose checked for em/en dashes and British spelling; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before commit; pre-push guard (`run_all_audits.sh` + PR-time checks) green.
+
 ## 2026-07-16, Library Version 2026.07.468, PR #980
 
 Adds a maintainer-requested credit-offload metrics tab: a running record of what the workers have done and, per session, the estimated orchestrator credits conserved by offloading passes to them. Working-state, design-of-record, and one CLAUDE.md convention line; no corpus, website, or gate change.
