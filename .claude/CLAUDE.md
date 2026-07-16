@@ -712,7 +712,15 @@ command). This section is the ORCHESTRATOR-side discipline.
   `blocking`, priority-0 order and the orchestrator polls the results plane for the delivery
   before recording the sweep row; with 0 workers it self-runs. Every other offloadable pass
   (per-PR `/validate-pr`, the semantic-fit cadences, research seeds) is NON-blocking, consumed
-  at the next PR boundary.
+  at the next PR boundary. **Wind-down pre-positioning (maintainer-directed 2026-07-16).** At
+  wind-down the orchestrator ALSO enqueues the corpus-wide `/validate` immediately, pinned to
+  the session-closing handoff PR's merge SHA, so a live worker can run it during the
+  between-session gap; the next `/resume` then checks the results plane FIRST and consumes a
+  delivered result (re-verifying positives per the consume discipline) instead of running the
+  sweep fresh, self-running or re-enqueuing only if the result is absent or stale. Strictly
+  better than enqueue-at-resume (it uses the idle gap), but best-effort: it pays off only when
+  a live worker's `grc_library` clone can fetch the handoff SHA, and `/resume` never records a
+  sweep row from a stale or absent result.
 - **Consume discipline (trust model).** A worker finding is a hypothesis until the orchestrator
   confirms it: **re-verify every POSITIVE finding at source** before routing (cheap relative to
   the sweep, so the net saving holds), and **trust a clean/zero-finding result** as inline

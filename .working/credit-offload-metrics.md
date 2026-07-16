@@ -1,6 +1,6 @@
 # Credit-offload metrics: worker productivity and estimated orchestrator credits conserved
 
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0
 
@@ -64,6 +64,10 @@ The net saving is real only when the other accounts have spare capacity.
 | 2026-07-16 | ref-acquire-edpb-softlaw | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #85 | 7 EDPB/WP29 GDPR soft-law PDFs acquired; 4 new ingested (E-03/E-04/E-05/WP260), 3 dups skipped. Package MANIFEST carried no token figure. |
 | 2026-07-16 | ref-acquire-brazil-anpd | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #86 | 3 ANPD resolutions ingested (19/2024, 2/2022, 1/2021) + 1 egress-blocked (32/2026). No token figure. |
 | 2026-07-16 | ref-acquire-latam-crypto-quebec | research | reference-acquisition | worker-20260716-a (Opus 4.8) | not captured | ref PR #86 | Argentina Decreto 1558/2001 + Quebec anonymization regulation ingested + 2 egress-blocked (NYDFS, Colombia). No token figure. |
+| 2026-07-16 | canada-2226-currency-classify | qa | verify | worker-20260716-a (Opus 4.8) | ~85K | ref PR #87 | classified the 27 fresh §2.22 uploads (13 dup-current / 2 dup-newer / 12 new); drove the ref-reconcile. worker-a elevated window (~3rd QA-kind, re-verified at source). |
+| 2026-07-16 | deep-assessment-r4-probe | qa | deep-assessment | worker-20260716-b (Opus 4.8) | ~170K | #983 (register) + ref #87 (F-P2-1 fix) | first OFFLOADED `/deep-assessment`; partial phases 1/2/4a/aids; found F-P2-1 (ref gate-red) + OBS-1; confirmed corpus green 69/69. |
+| 2026-07-16 | canada-new-items-ingest-prep | research | research | worker-20260716-a (Opus 4.8) | ~140K | ref PR #87 | extracted + draft-catalogued the 12 NEW items; corrected the AI Register record count to 412; flagged the AI Strategy fresh capture as incomplete. |
+| 2026-07-16 | validate-pr-982 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~70K | #983 | SHIP; re-verified §7121 at source; one NOTE on 2 frozen #976 §7120-phasing records (corrected in #983). |
 
 **Other deliveries in the results plane (delivery-session attribution and consume status vary; NOT
 counted in the session roll-up below to avoid over-attribution):** `etsi-en304223-option3-apply-draft`
@@ -77,4 +81,4 @@ captured.)
 
 | Session (resume) | Offloaded passes counted | Est. orchestrator credits conserved (midpointed, this-session-consumed set) | Notes |
 | --- | --- | --- | --- |
-| 2026-07-16 (resumed from #968) | 13 with figures (+ 4 not captured) | **~1.51M tokens (est.)** | Conservative (worker-spend proxy). The Sweep-108 self-run comparable alone was ~609K vs ~237K worker, so the true conserved is higher. Excludes 5 delivered-but-unconsumed passes (etsi/gr-gap/matrix-fit-full/claim-fit/screen-pub, ~529K more if/when consumed) and the 4 not-captured research deliveries (canada-ca-reference-breadth + the 3 ref-acquire orders). Orchestrator main-loop tokens remain `not instrumented`. |
+| 2026-07-16 (resumed from #968) | 17 with figures (+ 4 not captured) | **~1.98M tokens (est.)** | Conservative (worker-spend proxy). The Sweep-108 self-run comparable alone was ~609K vs ~237K worker, so the true conserved is higher. The +~465K over the prior ~1.51M is the Canada §2.22 pipeline consumed this stretch (currency-classify ~85K + r4-probe ~170K + ingest-prep ~140K + validate-pr-982 ~70K). Excludes 5 delivered-but-unconsumed passes (etsi/gr-gap/matrix-fit-full/claim-fit/screen-pub, ~529K more if/when consumed) and the 4 not-captured research deliveries (canada-ca-reference-breadth + the 3 ref-acquire orders). Orchestrator main-loop tokens remain `not instrumented`. |

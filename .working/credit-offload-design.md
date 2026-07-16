@@ -1,6 +1,6 @@
 # Credit-offload: a multi-worker QA + research queue (design of record)
 
-**Version:** 1.3.2\
+**Version:** 1.3.3\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0\
 **Status:** IN USE. Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168). **Phase 3 (the orchestrator-side wiring) is APPLIED** (2026-07-16, maintainer-authorized attended): the worker-availability check + blocking-resume-`/validate` enqueue/consume is wired into `.claude/commands/resume.md` (step 6, plus a queue/results check in step 3) and the `## Credit-offload mode` section of `.claude/CLAUDE.md`. **Phase 2 write-path is under live test:** the first live worker (`worker-20260716-a`) is exercising the claim/heartbeat/deliver path against the offloaded Sweep 108 `/validate` order. See `## Build phases`.
@@ -95,6 +95,8 @@ The allocation model (maintainer-steered 2026-07-16, refined into the soft split
 ## Blocking model
 
 Orders carry a `blocking` flag and a `priority`. The **resume loop-break `/validate` blocks** (the orchestrator enqueues it at resume and waits, polling, for the result before proceeding, one wait per session, only when >=1 worker is live; with 0 workers it self-runs). **`/validate-pr`, the semantic-fit cadences, and research/draft seeds are non-blocking** (consumed at the next PR boundary). Blocking outranks background in priority.
+
+**Wind-down pre-positioning of the resume `/validate` (maintainer-directed 2026-07-16).** In addition to enqueuing the blocking `/validate` AT resume, the orchestrator enqueues it AT WIND-DOWN, pinned to the session-closing handoff PR's merge SHA, so a live worker can run the corpus-wide sweep during the between-session gap. The next `/resume` checks the results plane first: a delivered result is consumed (positives re-verified at source per the consume discipline, elevated-QA applied if the `(worker+model)` is unvalidated that session) rather than re-run; an absent or stale result falls back to a fresh self-run or re-enqueue. Strictly better than enqueue-at-resume (it uses the otherwise-idle between-session gap) but best-effort: it pays off only when a live worker's `grc_library` clone can fetch the handoff SHA (the recurring worker-clone-lag caveat), and `/resume` never records a sweep row from a stale or absent result.
 
 ## Trust and re-verification
 
