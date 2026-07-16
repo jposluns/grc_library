@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.454, PR #966
+
+Records the credit-offload design (maintainer-co-designed across the 2026-07-15 session) and opens its backlog, and batches PR #965's post-merge QA. Working-state records and backlog only; no corpus or website content changed. This is the first PR of the overnight run (maintainer entered overnight mode 2026-07-15).
+
+### Added
+- [`.working/credit-offload-design.md`](../credit-offload-design.md): the design of record for credit-offload, a multi-worker QA + research queue on `grc_library_scratch` that offloads the read-only analysis passes and research/drafting seeds to worker sessions on other accounts. Covers the offloadable/on-account split, the scratch-git-coordination + `/tmp` clone-cache topology (split-brain-free across a VM+cloud worker mix), the lease/fencing lifecycle (5-min heartbeat / 20-min stale; fencing token rejects a stale worker's late delivery), the `workers/` liveness registry + best-effort/self-run fallback, token-budget-aware graceful checkout (best-effort, fencing backstop), the order schema, metrics, and the phased build. Version 1.0.0.
+- [`TODO.md`](../../TODO.md): three items. §1.15 (Priority 1, cross-repo write-safety guardrail: a fail-loud repo-asserting git wrapper + a standing confirm-the-repo-before-write convention, prompted by the 2026-07-15 cwd-persistence incident where a grc_library-intended `git checkout main && git pull` ran in `grc_library_scratch`). §3.80 (the credit-offload build, phased; phase 1 built on scratch, phase 3 staged). §3.81 (periodic reassessment of keeping the pre-push verifier on-account). P1 counter advanced to 1.16; P3 counter to 3.82.
+
+### Changed
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): staged item 10, the credit-offload phase-3 orchestrator-side wiring (a worker-availability check in the `/resume` command plus a blocking loop-break `/validate` enqueue; a credit-offload-mode section in the project CLAUDE.md instructions), for maintainer review rather than unattended application (maintainer-directed 2026-07-15). On overnight exit the assistant pauses and reminds the maintainer to read this staged file, which lives in the `grc_library` repo's working state.
+- [`.working/multi-session-orchestration.md`](../multi-session-orchestration.md): added a credit-offload cross-reference to the design doc; Version 1.1.8 to 1.1.9.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): added the PR #965 row (Subagent A SHIP, 0 findings); Version 1.2.730 to 1.2.731.
+- [`.working/improvement-log.md`](../improvement-log.md): added the PR #965 `/retro` row (the read-before-asserting win on the AICM defect; a WATCH on pending-decisions-entry staleness, 2nd occurrence); Version 1.0.665 to 1.0.666.
+- [`.working/next-prs.txt`](../next-prs.txt), [`.working/session-state.md`](../session-state.md): overnight queue + lease heartbeat.
+- Library CalVer `2026.07.453` to `2026.07.454`; [`README.md`](../../README.md) README Version `1.9.814` to `1.9.815`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 at the pre-push guard; `/validate-pr` #965 returned SHIP / 0 findings; the AICM-resolution re-verification confirmed all 7 codes against the held CSA AICM v1.1.0 titles.
+- No corpus document body changed, so no per-document Version/Date bump and no generated-artefact regeneration. The credit-offload phase-1/2 build (the scratch queue + `/credit-offload` worker command) lands separately on `grc_library_scratch`.
+
 ## 2026-07-15, Library Version 2026.07.453, PR #965
 
 Batches PR #964's post-merge QA and closes task 1 ("correct issues") of the 2026-07-15 resumed session's maintainer-set running order. Working-state records only; no corpus or website content changed.
