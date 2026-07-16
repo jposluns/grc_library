@@ -94,7 +94,7 @@ The maintainer added the CCPA statute version effective 2026-01-01 to `grc_libra
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.82.**
+**Next item number: 3.85.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -331,6 +331,10 @@ Give credit-offload workers a degradation signal and a lightweight self-restart,
 ### 3.83 Credit-offload worktree-prune TOCTOU race + 2 nits (worker-lifecycle-hooks verifier follow-up, 2026-07-16, S) `[machinery]`
 
 The worker-lifecycle-hooks PR (scratch) left one narrow, non-blocking, adversarial-verifier-flagged shared-VM race, documented in `grc_library_scratch` `queue/README.md`: `cmd_register`/`cmd_checkout` compute the worktree-prune keep-set (`_claimed_order_ids`) from the clone snapshot taken at their top-of-function `reset --hard`, and do not re-fetch between that read and the `wt-*` deletion, so in the sub-millisecond window another same-VM worker could claim an order and create `wt-<order>` that the pruning worker's stale keep-set omits and deletes. Robust closes: re-fetch the keep-set immediately before each prune, OR scope worktree caches per-worker (`wt-<worker-id>-<order-id>`) so no two workers ever share a `wt-` path (the cleaner fix; also removes the revive-collision entirely). Plus two nits: the register resume-vs-clear control flow keys on a substring of the reconcile note (fragile to rewording, make it a boolean), and `register` skips the opportunistic prune for a brand-new worker (no existing worker file). Cross-repo (scratch `tools/credit-offload-queue.py`).
+
+### 3.84 Quebec Law 25 PIA / ADM citation-section inconsistency across 3 documents (surfaced by #973's verifier, 2026-07-16, S)
+
+Three corpus documents cite the Quebec Law 25 privacy-impact-assessment obligation as **section 3.3** (and automated-decision-making as **12.1**), but the held authoritative Law 25 full-text (`grc_library_ref` CQLR P-39.1) has no "3.3" PIA section: the PIA duty is **s. 23.3** and the cross-border-transfer PIA is **s. 17** (as the Canada privacy annex now correctly cites after #973). Carriers: `privacy/template-dpia.md:204`, `privacy/procedure-privacy-impact-and-cross-border-transfer.md:280`, `governance/register-document-index-and-classification.md:131`. A reference-alignment pass: verify each carrier's intended provision against the held text and correct the section numbers (confirm whether the "3.3"/"12.1" refer to Law-25 sections at all or to a different instrument's numbering before changing). Pre-existing (not introduced by #973); low risk but citation-accuracy-relevant given the Canada expert review.
 
 ## Priority 4 — Adopter experience
 
