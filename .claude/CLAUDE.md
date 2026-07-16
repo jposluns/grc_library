@@ -721,6 +721,39 @@ command). This section is the ORCHESTRATOR-side discipline.
   (`validate-sweeps/history.md`, `validate-pr/history.md`), because the worker cannot write
   `grc_library`. There is no trusted-worker fast path; worker provenance never reduces the QA a
   change receives.
+- **New-worker QA-trust tiers: ELEVATED then routine (maintainer-directed 2026-07-16).** The
+  routine consume discipline above (re-verify positives, trust clean-with-proof-of-run) applies
+  only AFTER a worker is trust-established. A worker's clean QA result is a trust assertion, and
+  trust is session-scoped and instance-scoped, so it is re-established each orchestrator session.
+  The window is keyed on **`(worker-id + model)`**: a model change (for example Opus 4.8 to
+  Fable 5) RE-TRIGGERS the elevated window for the same worker-id, because a different model has
+  different failure modes. It applies to **QA-kind deliveries only** (`/validate`, `/validate-pr`,
+  `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`,
+  `/full-qa`, read-only `/deep-assessment` phases), where "clean" is a trust assertion; research
+  and draft seeds already get full orchestrator re-authoring at apply (the research-assistant
+  discipline), so they are outside this window. For the first **2 to 3 QA-kind deliveries** from a
+  `(worker + model)` each session, apply **ELEVATED QA** before trusting the result:
+  1. **Proof-of-run genuineness:** the result must carry real subagent returns (pre-flight
+     counts, per-finding `path:line`, token spend); a bare "clean" with no proof-of-run is a RED
+     FLAG, not a pass.
+  2. **Independent re-derivation** of everything mechanically derivable (the pinned SHA and delta
+     scope, the counts, the gate results, the pre-flight numbers): re-run/re-count yourself and
+     confirm they match the worker's claims. This is the strongest guard, since mechanical facts
+     cannot be faked.
+  3. **Re-verify EVERY finding at source** (not just positives).
+  4. **A graduated adversarial auditor:** delivery 1 = a dedicated false-negative auditor subagent
+     (hunt for what the worker MISSED, and for sham/scope errors); deliveries 2 to 3 = the above
+     three steps without a separate auditor, escalating to a fresh auditor only on a red flag.
+  The **2 to 3 count is a floor, not a cap**: it means at least that many CLEAN elevated passes
+  before relaxing to routine. Any confirmed miss, sham, or scope error RESETS the window and is
+  ESCALATED to the maintainer, and the worker is treated as UNVALIDATED (self-run its passes,
+  trust no result) until re-established. Track the per-`(worker + model)` elevated-pass count for
+  the session in the session working-state (`session-state.md` Worker-dispatches); it resets each
+  session by construction. **Honest limitation:** elevated QA raises the bar but does not
+  guarantee detection; a worker fabricating an internally-consistent proof-of-run is a residual
+  risk it reduces but cannot eliminate, which is why step 2 (independent re-derivation of
+  mechanical facts) is load-bearing. See the design-of-record trust model in
+  [`.working/credit-offload-design.md`](../.working/credit-offload-design.md).
 - **Honest limitation.** Credit-offload SHIFTS cost across accounts; it does not reduce total
   spend, and the orchestrator still pays to verify positives and to run the pre-push verifier.
   The net saving is real only when the other accounts have spare capacity.

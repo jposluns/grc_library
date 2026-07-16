@@ -1,6 +1,6 @@
 # Credit-offload: a multi-worker QA + research queue (design of record)
 
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Date:** 2026-07-16\
 **License:** CC BY-SA 4.0\
 **Status:** IN USE. Phase 1 and the initial phase-2 worker command + onboarding are built on `grc_library_scratch` (scratch PR #168). **Phase 3 (the orchestrator-side wiring) is APPLIED** (2026-07-16, maintainer-authorized attended): the worker-availability check + blocking-resume-`/validate` enqueue/consume is wired into `.claude/commands/resume.md` (step 6, plus a queue/results check in step 3) and the `## Credit-offload mode` section of `.claude/CLAUDE.md`. **Phase 2 write-path is under live test:** the first live worker (`worker-20260716-a`) is exercising the claim/heartbeat/deliver path against the offloaded Sweep 108 `/validate` order. See `## Build phases`.
@@ -81,6 +81,19 @@ Orders carry a `blocking` flag and a `priority`. The **resume loop-break `/valid
 ## Trust and re-verification
 
 Findings from a worker are hypotheses until confirmed (the research-assistant discipline). The orchestrator **re-verifies each positive finding** before routing (cheap relative to the sweep, so the net saving holds) and **trusts a clean/zero-finding** result as it trusts its own inline subagents, the worker's result file carries the subagent returns as the proof-of-run. The orchestrator writes the audit-trail rows (`validate-sweeps/history.md`, `validate-pr/history.md`) because those are `grc_library` files the worker cannot write. Mandatory-QA discipline is unchanged: the offloaded run is the full formal pass; abbreviation is never authorized, and if no worker serves an order before it goes stale the orchestrator runs the pass itself.
+
+### New-worker QA-trust tiers: elevated then routine (maintainer-directed 2026-07-16)
+
+The routine trust above (re-verify positives, trust clean-with-proof-of-run) applies only AFTER a worker is trust-established. Because a clean QA result is a trust assertion, and trust is session-scoped and instance-scoped, it is re-established each orchestrator session, keyed on **`(worker-id + model)`** (a model change, for example Opus 4.8 to Fable 5, re-triggers the window for the same worker-id, since a different model has different failure modes). The window applies to **QA-kind deliveries only** (the `command` values `validate` / `validate-pr` / `matrix-fit` / `claim-fit` / `reference-audit` / `screen-publications` / `verify` / `fitness` / `full-qa` / `deep-assessment-readonly`), where a clean claim asserts no defect escaped; research/draft seeds are outside it (they already get full orchestrator re-authoring at apply).
+
+For the first **2 to 3 QA-kind deliveries** from a `(worker + model)` each session, the orchestrator applies **ELEVATED QA** before trusting the result:
+
+1. **Proof-of-run genuineness:** the result must carry real subagent returns (pre-flight counts, per-finding `path:line`, token spend); a bare "clean" with no proof-of-run is a red flag, not a pass.
+2. **Independent re-derivation** of everything mechanically derivable (the pinned SHA and delta scope, the counts, the gate results, the pre-flight numbers): re-run/re-count and confirm they match the worker's claims. This is the load-bearing guard, because mechanical facts cannot be faked.
+3. **Re-verify EVERY finding at source** (not only positives).
+4. **A graduated adversarial auditor:** delivery 1 gets a dedicated false-negative auditor subagent (hunt for what the worker missed, plus sham/scope errors); deliveries 2 to 3 use steps 1 to 3 without a separate auditor, escalating to a fresh auditor only on a red flag.
+
+The 2-to-3 count is a **floor, not a cap** (at least that many CLEAN elevated passes before relaxing to routine). Any confirmed miss, sham, or scope error resets the window, is escalated to the maintainer, and the worker is treated as UNVALIDATED (self-run its passes; trust no result) until re-established. The per-`(worker + model)` elevated-pass count for the session is tracked in the session working-state (`session-state.md` Worker-dispatches) and resets each session by construction. **Honest limitation:** elevated QA raises the bar but does not guarantee detection; a worker fabricating an internally-consistent proof-of-run is a residual risk it reduces but cannot eliminate, which is why step 2 is load-bearing. The project instantiation is the `## Credit-offload mode` "New-worker QA-trust tiers" bullet in [`.claude/CLAUDE.md`](../.claude/CLAUDE.md).
 
 ## Order schema
 
