@@ -116,6 +116,7 @@ ALLOW_LIST = {
     # with justification.)
     # Additional publisher canonical domains (Q4 worklist coverage)
     "oag.ca.gov",  # California Attorney General
+    "cppa.ca.gov",  # California Privacy Protection Agency (CCPA regulations publisher)
     "dodcio.defense.gov",  # US DoD CIO
     "parl.ca",  # Canadian Parliament
     "fedlex.admin.ch",  # Swiss federal legislation
