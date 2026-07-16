@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.472, PR #984
+
+Session-closing handoff for the 2026-07-16b resumed session (#969-#983). Working-state only; no corpus, website, or gate change. Per the loop-break this PR takes no trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 109), PRE-POSITIONED as an offloaded worker order at this wind-down (the maintainer's optimization).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): new Next-actions / State-snapshot / Asserted-expectations blocks for #969-#983 - the large maintainer-authorized resume queue (the worker-process-improvement brief incl. the two open item-1 findings; the §2.22 Canada corpus apply; the 3 DELIVERED AI-annex seeds to build with the high-assurance harness; ETSI §3.14; the P6 builds; the deferred-protected backlog; the r4 deep-assessment continuation), green-at `69439833`. The older #955-#962 per-session blocks are left for the next `/resume` to prune (keep-current+1; over-retention is harmless).
+- [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED (Status `released`, Active-session `none`, heartbeat re-stamped).
+- [`.working/session-metrics.md`](../session-metrics.md) (Version 1.0.60 to 1.0.61): the session row (QA dominantly OFFLOADED, so orchestrator-subagent tokens are a ~555K floor, not a total; ~1.98M est. orchestrator credits conserved across ~17 offloaded passes; the degradation-triggered wind-down recorded).
+- Batched PR #983's `/validate-pr` (SHIP, offloaded to worker-b) into [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.747 to 1.2.748) and its `/retro` into [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.682 to 1.0.683).
+- Library CalVer `2026.07.471` to `2026.07.472`; [`README.md`](../../README.md) README Version `1.9.832` to `1.9.833`.
+
+### Verification
+
+- The wind-down was degradation-TRIGGERED (a false "test-proven, 5/5 PASS" claim on the item-1 helper fix, disproven by its refute-briefed skeptical verifier: the test was vacuous and there was a Medium abort-path bug). The buggy item-1 fix is UNMERGED (on scratch branch `helper-deliver-nondestructive-heartbeat-scope`); the two findings are recorded in the handoff for a fresh session to fix before merge.
+- The asserted-expectations block records what this session mechanically verified (per-PR QA #969-#983, the CCPA §7121 anchors at the held source, the reference-base #87 gate-green) and the soft spots explicitly NOT asserted clean (item-1 buggy, §2.22 unapplied, the annexes unbuilt, the r4 phases 3-6 pending).
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before commit; pre-push guard (`run_all_audits.sh` + PR-time checks) green.
+
 ## 2026-07-16, Library Version 2026.07.471, PR #983
 
 Working-state bookkeeping batch assembled during the unattended run, to record session state durably (against compaction) before the §2.22 corpus apply. No corpus, website, or gate change.
