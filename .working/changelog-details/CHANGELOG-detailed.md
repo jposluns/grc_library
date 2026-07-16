@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.461, PR #973
+
+Corrects a material Quebec Law 25 penalty-structure error and two related accuracy issues in the Canada privacy jurisdiction annex, applied from a credit-offload worker's `canada-annexes-source-verification` research delivery after the orchestrator independently re-verified every corrected figure against the held Quebec Law 25 text (the research-assistant discipline; expert-review-facing Canada content, high accuracy bar). Corpus content changed (one privacy annex + regenerated artefacts).
+
+### Fixed
+- [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md) Quebec Law 25:
+  - **Penalty structure (material):** the annex presented the CAI administrative monetary penalty as two tiers with a "CAD 25 million or 4% (more serious)" second tier. That figure is the PENAL FINE (s. 91), not a second administrative tier. Corrected per held s. 90.12 to a single administrative cap (the greater of CAD 10 million or 2% of worldwide turnover; natural persons up to CAD 50,000), and moved the CAD 25M / 4% figure to the penal-fine line (s. 91: organizations CAD 15,000 to 25,000,000 or, if greater, 4% of worldwide turnover; natural persons CAD 5,000 to 100,000). Resolves the double-count.
+  - **PIA scope:** narrowed the general PIA duty from "any project involving personal information" to the held s. 23.3 scope ("acquire, develop, or overhaul an information system or electronic service delivery system involving personal information"), at both the key-provisions bullet and the PIA line, and noted the separate s. 17 cross-border-transfer PIA.
+  - Version 1.1.2 to 1.1.3; Date to 2026-07-16.
+
+### Changed
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the annex Version bump (taxonomy first, then portal/scorecard; both `--check` clean).
+- Batched PR #972's `/validate-pr` + `/retro` rows, and fixed its `/validate-pr`'s two in-window findings: the [`TODO.md`](../../TODO.md) P3 "Next item number" counter (left at `3.82` though #972 assigned §3.82 AND §3.83; a permanent-numbering-rule violation risking number recycling) advanced to `3.85`, and the [`.working/session-state.md`](../session-state.md) Current-task line (stale, still referencing "#971") refreshed to the current state.
+- [`TODO.md`](../../TODO.md): added §3.84 (a pre-existing Quebec Law 25 PIA/ADM citation-section inconsistency, "s. 3.3"/"12.1" vs the held s. 23.3 / s. 17, in three other documents, surfaced by this PR's verifier as an out-of-scope observation; routed as a reference-alignment follow-up).
+- Library CalVer `2026.07.460` to `2026.07.461`; [`README.md`](../../README.md) README Version `1.9.821` to `1.9.822`.
+
+### Verification
+- Every corrected figure independently re-verified at the held source: s. 90.12 (single admin cap, greater of CAD 10M or 2%, natural persons CAD 50,000), s. 91 (penal fine, orgs CAD 15,000-25,000,000 or 4%, natural persons CAD 5,000-100,000), s. 23.3 (system-project PIA scope) all confirmed verbatim against `grc_library_ref` Quebec Law 25. A refute-briefed skeptical verifier checked faithfulness + any residual/parallel carrier of the old framing corpus-wide.
+- `tools/run_all_audits.sh` + `tools/run-pr-time-checks.sh` green at the pre-push guard; generators `--check` clean.
+- The worker's other findings (citation-breadth additions; the AI-annex fourth-review confirmation; the not-held/upstream flags: AIDA lapse currency, EU adequacy, the Quebec 60-day biometric notice living in the unheld LCCJTI, the ref INDEX "third-review" descriptor defect) are recorded for follow-up, not applied here (this PR is the verified accuracy corrections only). This PR's own `/validate-pr` is OFFLOADED to the credit-offload qa worker.
+
 ## 2026-07-16, Library Version 2026.07.460, PR #972
 
 Adds two credit-offload-thread backlog items and batches PR #971's post-merge QA. Working-state and [`TODO.md`](../../TODO.md) only; no corpus or website content changed.
