@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-16, Library Version 2026.07.460, PR #972
+
+Adds two credit-offload-thread backlog items and batches PR #971's post-merge QA. Working-state and [`TODO.md`](../../TODO.md) only; no corpus or website content changed.
+
+### Added
+- [`TODO.md`](../../TODO.md) **§3.82** (credit-offload worker degradation check + in-session self-restart): give workers a named degradation signal and a lightweight self-restart (`/clear` then re-invoke `/credit-offload`, which re-registers and reconciles held orders via the fencing-token hook), since a worker holds no durable authorial state and needs no orchestrator-style handoff (maintainer-flagged 2026-07-16).
+- [`TODO.md`](../../TODO.md) **§3.83** (worker-lifecycle-hooks verifier follow-up): the narrow shared-VM worktree-prune TOCTOU race the adversarial verifier flagged (re-fetch the keep-set before pruning, or per-worker worktree caches) plus two nits, documented in the scratch repo's queue-protocol README.
+
+### Changed
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): batched the #971 row (self-run, since the worker was on the maintainer's priority acquisition tasks). Version 1.2.735 to 1.2.736.
+- [`.working/improvement-log.md`](../improvement-log.md): batched the #971 `/retro` row. Version 1.0.670 to 1.0.671.
+- [`.working/session-state.md`](../session-state.md): lease heartbeat re-stamp + `Active-session` update.
+- [`.working/next-prs.txt`](../next-prs.txt): cycled forward.
+- Library CalVer `2026.07.459` to `2026.07.460`; [`README.md`](../../README.md) README Version `1.9.820` to `1.9.821`.
+
+### Verification
+- `tools/run_all_audits.sh` 69/69 + `tools/run-pr-time-checks.sh` green at the pre-push guard (bookkeeping-tier; no separate pre-push verifier). #971's self-run `/validate-pr` Subagent A result batched here.
+- No corpus document body changed; no per-document Version/Date bump; no generated-artefact regeneration. This PR's own QA batches forward per recursion-avoidance.
+
 ## 2026-07-16, Library Version 2026.07.459, PR #971
 
 The **Sweep 108 `/validate` close-out** (the loop-break compensating control for session-closing handoff PR #968), plus the two validated worker findings applied and PR #970's post-merge QA batched. Working-state and [`TODO.md`](../../TODO.md) only; no corpus or website content changed. Sweep 108 was the FIRST OFFLOADED corpus-wide `/validate` (run on worker `worker-20260716-a`, orchestrator-validated under full elevated QA including an adversarial auditor that returned WORKER-CLEAN-CONFIRMED); the loop-break control for #968 passes.
