@@ -1,8 +1,8 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/mistake-prevention-fixes
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** attended-autonomous
 

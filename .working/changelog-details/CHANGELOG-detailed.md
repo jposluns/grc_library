@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.479, PR #991
+
+Session-closing handoff PR for the 2026-07-16c resumed session (`/resume` from #984, PRs #985-#990). Its purpose is to land the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main`, and to document the maintainer-co-designed operational-state-privatization spec as a Priority-1 multi-phase backlog item. Per the loop-break it takes no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate`, pre-positioned at wind-down as an offloaded worker order.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) `§1.19` (parent) plus phased deliverables `§1.19.1` through `§1.19.13`: privatize the maintainer's operational state and process narrative (the surface a 2026-07-17 cold-sales email mined from public `.working/`) WITHOUT reducing what an adopter gets, and make the public repo robustly clonable-and-usable by a fork that reaches no sibling repo (`_ref` / `_scratch` / `_private`). Co-designed with the maintainer across a considerations discussion; locked items include the sibling-independence invariant + portability test (`§1.19.1`), placeholder stub dirs + a hard-blocking stub-guard gate (`§1.19.3`/`§1.19.4`), `detect-env` maintainer/adopter origin-identity detection (`§1.19.5`), a `/adopt` run-once onboarding skill (`§1.19.6`), a `.ref` bootstrap for adopters (`§1.19.7`), and the move-list + reference-repointing rules (`§1.19.8`). Execution is FRESH next session; the `§1.19.x` discussion CONTINUES on `/resume` at the still-open items recorded at `§1.19` (#7 `_private` hygiene / `§1.19.11`, #8 public-changelog weekly-rollup / `§1.19.10`, and the worker-read-only-`_private` lean).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): prepended the 2026-07-16c Next-actions, State-snapshot (library `2026.07.479`, spec `1.17.8`, gate 69, D1-D8), and Asserted-expectations blocks (scoped to what this session mechanically verified; KNOWN-OPEN carried forward: the r4 W1/N2/W2 corpus citations remain unfixed, tracked at `§1.17`).
+- [`.working/session-metrics.md`](../session-metrics.md) (`1.0.61` -> `1.0.62`): one row for the 2026-07-16c session (6 PRs + this handoff; measured orchestrator-subagent FLOOR ~216K, the rest offloaded; ~793K est. credits conserved across 7 offloaded passes).
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (`1.0.3` -> `1.0.4`): added the six missing 2026-07-16c `/validate-pr` delivery rows (985-990) and corrected the per-session roll-up from ~207K (Sweep 109 only) to ~793K gross across 7 passes.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (-> `1.2.754`): the validate-pr-990 SHIP row (worker-a 2nd post-reset PASS, consumed clean) and the #991 SKIPPED / handoff-exception row (marker in the Findings cell per the gate-50 convention).
+- [`.working/improvement-log.md`](../improvement-log.md) (-> `1.0.689`): the #990 `/retro` row.
+- [`.working/session-state.md`](../session-state.md): lease RELEASED (`Status: released`, `Active-session: none`, `Operating-mode` retained); gate 63 green.
+- [`README.md`](../../README.md): Library `2026.07.478` -> `2026.07.479`, README `1.9.839` -> `1.9.840`.
+
+### Verification
+
+- The pre-push guard (run_all_audits 69/69 plus the D1-D8 PR-time checks) was green standalone before push; the CHANGELOG preflight was clean on the added lines. No corpus-document body or generated-artefact change (no taxonomy, portal, or scorecard regen needed). This handoff PR intentionally skips its own `/validate-pr` + `/retro` (loop-break); the compensating control is the next `/resume`'s corpus-wide `/validate`.
+
 ## 2026-07-17, Library Version 2026.07.478, PR #990
 
 Two mistake-prevention fixes for errors flagged this session (the AskUserQuestion-in-unattended blunder and the ISO-27002 partial-grep error), plus the PR #989 QA batch.
