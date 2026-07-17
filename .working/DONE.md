@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.1: Sibling-independence invariant + adopter-clone portability test (2026-07-17, PR #993)
+
+Shipped `tools/check-portability.sh`, which git-clones the repo's HEAD into a sibling-free temp dir and runs `run_all_audits.sh` there, asserting all 69 gates pass with no `grc_library_ref`/`_scratch`/`_private` sibling present, the first Phase-1 deliverable of the §1.19 operational-state-privatization track. Verified both directions: PASS on the real corpus (69/69 sibling-free) and non-vacuous FAIL when a gate is made to reach a sibling. Locks the guarantee that an adopter clone runs every gate green.
+
 ### TODO §3.61: Delivery-status tool low-confidence flag for recycled section tokens (2026-07-17, PR #987)
 
 The delivery-status reconciliation tool (`audit-delivery-status.py`) now flags any PENDING/APPLIED verdict resting only on a recyclable section-number token (no stable FR/SR/GR coded id) as LOW-CONFIDENCE, so a renumbered/recycled section number (the 2026-07-16 gr-gap `3.15`->MITRE-ATLAS and etsi `3.16`->CHANGELOG mis-maps) is surfaced for verification rather than trusted; a coded-id match stays high-confidence. Self-test extended (5/5 pass); the live report now reports the low-confidence count.
