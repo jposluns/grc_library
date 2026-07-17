@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.5: detect-env origin-identity maintainer/adopter detection (2026-07-17, PR #997)
+
+Added an origin-identity probe to `tools/detect-env.py` that classifies the operator as maintainer, adopter fork, or maintainer-on-a-fresh-machine, by matching the git `origin` remote against the canonical maintainer owner/repo and corroborating with sibling-repo presence. Detection only (a new `operator_identity` decision line + a printed profile line); the `/resume` maintainer-vs-adopter path acts on it, and the adopter onboarding flow is wired in §1.19.6 so nothing references a not-yet-built command. Six `DetectEnvIdentityTests` cover the HTTPS/SSH origin matching (including fork rejection) and the four classifications. The fifth §1.19 Phase-1 deliverable.
+
 ### TODO §1.19.2: Uniform graceful-degradation for sibling-reaching advisory tools (2026-07-17, PR #996)
 
 Added a shared `resolve_sibling(name)` + `sibling_placeholder_present(name)` helper to `tools/lint_common.py` (locate `../grc_library_<ref|scratch|private>`, or None on a portable clone) and routed the three advisory tools that reach a sibling today (`ref-holds` -> `_ref`; `audit-brief-freshness` + `audit-delivery-status` -> `_scratch`) through it so they no-op + exit 0 instead of erroring when the sibling is absent. Scope corrected at build from the design's six tools to three: `credit-offload-queue` is scratch-side and `residual-scan`/`tension-scan` read only in-repo `.working/` (they become sibling-reaching in Phase 2 §1.19.8/9). `tools/check-portability.sh` extended to prove the three degrade in a sibling-free clone; six new `ResolveSiblingTests`. The fourth §1.19 Phase-1 deliverable. (The #996 skeptical verifier deferred six further `grc_library_ref`-reaching maintainer-cadence tools to TODO §3.91.)

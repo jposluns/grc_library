@@ -7268,5 +7268,76 @@ class ResolveSiblingTests(unittest.TestCase):
                 lc.REPO_ROOT = orig
 
 
+class DetectEnvIdentityTests(unittest.TestCase):
+    """tools/detect-env.py origin-identity probe (TODO section 1.19.5):
+    `_origin_is_maintainer` URL matching and `probe_identity` classification.
+    probe_identity reads the module-global `_origin_url` at call time, so the
+    classification tests monkeypatch that global (no real git needed).
+    """
+
+    def _load(self, unique: str):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/detect-env.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_origin_is_maintainer_matches_https_and_ssh(self) -> None:
+        mod = self._load("_detect_env_match")
+        for url in (
+            "https://github.com/jposluns/grc_library.git",
+            "https://github.com/jposluns/grc_library",
+            "https://github.com/jposluns/grc_library/",
+            "git@github.com:jposluns/grc_library.git",
+            "git@github.com:jposluns/grc_library",
+            "https://github.com/JPosluns/GRC_Library.git",  # case-insensitive
+        ):
+            self.assertTrue(mod._origin_is_maintainer(url), url)
+
+    def test_origin_is_maintainer_rejects_forks_and_absent(self) -> None:
+        mod = self._load("_detect_env_reject")
+        for url in (
+            None,
+            "",
+            "https://github.com/someone/grc_library.git",       # different owner
+            "https://github.com/someone/grc_library-fork.git",  # different repo
+            "git@github.com:acme/grc_library.git",
+            "https://github.com/jposluns/other-repo.git",       # same owner, other repo
+        ):
+            self.assertFalse(mod._origin_is_maintainer(url), url)
+
+    def test_classification_maintainer(self) -> None:
+        mod = self._load("_detect_env_maint")
+        mod._origin_url = lambda: "https://github.com/jposluns/grc_library.git"
+        out = mod.probe_identity({"grc_library_ref": {"readable": True},
+                                  "grc_library_scratch": {"readable": False}})
+        self.assertEqual(out["classification"], "maintainer")
+
+    def test_classification_maintainer_fresh_machine(self) -> None:
+        mod = self._load("_detect_env_fresh")
+        mod._origin_url = lambda: "git@github.com:jposluns/grc_library.git"
+        out = mod.probe_identity({"grc_library_ref": {"readable": False},
+                                  "grc_library_scratch": {"readable": False}})
+        self.assertEqual(out["classification"], "maintainer-fresh-machine")
+
+    def test_classification_adopter_fork(self) -> None:
+        mod = self._load("_detect_env_fork")
+        mod._origin_url = lambda: "https://github.com/someone/grc_library.git"
+        # A fork is an adopter even with a sibling readable.
+        out = mod.probe_identity({"grc_library_ref": {"readable": True}})
+        self.assertEqual(out["classification"], "adopter")
+
+    def test_classification_adopter_no_origin(self) -> None:
+        mod = self._load("_detect_env_noorigin")
+        mod._origin_url = lambda: None
+        out = mod.probe_identity({"grc_library_ref": {"readable": False}})
+        self.assertEqual(out["classification"], "adopter")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
