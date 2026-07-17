@@ -261,6 +261,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-handoff-snapshot-on-pr.py
 
+      - name: CHANGELOG length-on-PR check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-changelog-length-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
