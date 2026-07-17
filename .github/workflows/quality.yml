@@ -233,6 +233,9 @@ jobs:
       - name: Positional backlog-token audit
         run: python3 tools/lint-positional-backlog-tokens.py
 
+      - name: Sibling-repo stub-guard audit
+        run: python3 tools/lint-sibling-placeholders.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
