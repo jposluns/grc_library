@@ -7344,6 +7344,42 @@ class DetectEnvIdentityTests(unittest.TestCase):
         out = mod.probe_identity({"grc_library_ref": {"readable": False}})
         self.assertEqual(out["classification"], "adopter")
 
+    # _ref-required loud gate (TODO section 1.19.7): a missing grc_library_ref is a
+    # LOUD failure for the maintainer, never a silent graceful degradation.
+    def test_ref_gate_maintainer_absent_halts_loud(self) -> None:
+        mod = self._load("_detect_env_refgate_m")
+        msg = mod.ref_availability_decision("maintainer", False)
+        self.assertIn("HALT (LOUD)", msg)
+        self.assertIn("REQUIRED", msg)
+
+    def test_ref_gate_fresh_machine_absent_clone_first(self) -> None:
+        mod = self._load("_detect_env_refgate_f")
+        msg = mod.ref_availability_decision("maintainer-fresh-machine", False)
+        self.assertIn("clone _ref FIRST", msg)
+        self.assertNotIn("HALT (LOUD)", msg)
+
+    def test_ref_gate_adopter_absent_graceful(self) -> None:
+        mod = self._load("_detect_env_refgate_a")
+        msg = mod.ref_availability_decision("adopter", False)
+        self.assertTrue(msg.startswith("ok"))
+        self.assertIn("adopter", msg)
+        self.assertNotIn("HALT", msg)
+
+    def test_ref_gate_readable_ok_for_all(self) -> None:
+        mod = self._load("_detect_env_refgate_ok")
+        for cls in ("maintainer", "maintainer-fresh-machine", "adopter"):
+            msg = mod.ref_availability_decision(cls, True)
+            self.assertTrue(msg.startswith("ok"), (cls, msg))
+            self.assertNotIn("HALT", msg)
+
+    def test_ref_gate_unknown_identity_fails_safe_loud(self) -> None:
+        # Fail-safe: an unknown/undetermined classification with _ref absent must NOT
+        # silently take the adopter graceful path; it halts loud (correct-by-construction).
+        mod = self._load("_detect_env_refgate_unknown")
+        msg = mod.ref_availability_decision("bogus-identity", False)
+        self.assertIn("HALT (LOUD)", msg)
+        self.assertIn("undetermined", msg)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
