@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.485, PR #997
+
+The fifth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.5): an origin-identity probe so the resume step can tell a maintainer clone from an adopter fork. Sixth PR of the 2026-07-17 resumed session. Detection only; the `/resume` adopter-path wiring lands in §1.19.6. No corpus or website content changed.
+
+### Added
+
+- [`tools/detect-env.py`](../../tools/detect-env.py): a `probe_identity(siblings)` classifier plus `_origin_url()` / `_origin_is_maintainer(url)` helpers and a `MAINTAINER_ORIGIN_OWNER_REPO` constant. It classifies the operator by the git `origin` remote: `maintainer` (origin is the canonical repo AND a sibling is readable), `maintainer-fresh-machine` (origin is the canonical repo but no sibling is readable, a fresh clone, NOT an adopter), or `adopter` (a fork origin, or none). `_origin_is_maintainer` matches both the HTTPS and SSH remote forms case-insensitively, tolerates a trailing `.git` / slash, and requires the owner boundary so a same-repo-name fork under a different owner does not match. The probe result feeds a new `operator_identity` line in the profile's decisions block and a printed profile line; the module docstring records the new probe.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a `DetectEnvIdentityTests` class (6 tests): the HTTPS/SSH/`.git`/case-insensitive match set, the fork/different-repo/absent reject set, and the four classifications (maintainer, maintainer-fresh-machine, adopter-fork, adopter-no-origin) driven by monkeypatching the module's `_origin_url`. Run under gate 36.
+
+### Changed
+
+- [`README.md`](../../README.md): Library `2026.07.484` -> `2026.07.485`, README `1.9.845` -> `1.9.846`. No corpus-document body or generated-artefact change (no taxonomy/portal/scorecard regen).
+
+### Verification
+
+- `tools/run_all_audits.sh` = **70/70** (working tree); the new `DetectEnvIdentityTests` (6) pass under gate 36's suite. [`tools/detect-env.py`](../../tools/detect-env.py) was smoke-tested on the VM and correctly classifies it `maintainer` (origin `jposluns/grc_library`, siblings present). The full sweep caught a PII-gate hit on an email-shaped `git@<host>` docstring example (the SSH-URL illustration), fixed by rewording the example before commit.
+- The pre-push guard (`run_all_audits` + D1-D8) is run green standalone before push; a refute-briefed skeptical verifier reviewed the diff. Batches PR #996's `/validate-pr` + `/retro`. This is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` batch into the next PR.
+
 ## 2026-07-17, Library Version 2026.07.484, PR #996
 
 The fourth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.2): uniform graceful-degradation for the advisory tools that reach a sibling repo, so a fork that clones only the public repo runs them without a spurious error. Fifth PR of the 2026-07-17 resumed session. No corpus or website content changed.
