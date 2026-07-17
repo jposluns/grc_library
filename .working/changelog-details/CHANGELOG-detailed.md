@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.478, PR #990
+
+Two mistake-prevention fixes for errors flagged this session (the AskUserQuestion-in-unattended blunder and the ISO-27002 partial-grep error), plus the PR #989 QA batch.
+
+### Added
+
+- [`tools/ref-holds.py`](../../tools/ref-holds.py): forcing-function aid (advisory, not a gate) answering held/not-held for `grc_library_ref` from its INDEX/catalogue (quoted output), never a partial filename grep (Mistake 2). Self-test 3/3; a `ref-holds` `27002` query returns HELD, the exact check that would have prevented the ISO-27002 error.
+- [`.claude/hooks/block-askuserquestion-unattended.py`](../../.claude/hooks/block-askuserquestion-unattended.py): PreToolUse hook (matcher `AskUserQuestion`) that blocks the call when the session `Operating-mode` is unattended (Mistake 1); fail-open on any read failure; self-test 4/4. Registered in [`.claude/settings.json`](../../.claude/settings.json).
+- [`.working/session-state.md`](../session-state.md) `**Operating-mode:**` field, gate-63-validated (`fully-attended` / `attended-autonomous` / `overnight-unattended` / `daytime-unattended`).
+
+### Changed
+
+- [`tools/lint-session-state.py`](../../tools/lint-session-state.py) (gate 63): `Operating-mode` added as a required + value-validated field; docstring updated. [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (1.17.7 to 1.17.8): the gate-63 prose (both the §5 grouped narrative and the §6 detailed paragraph) updated from five to six fields including `Operating-mode`. [`tests/test_linters.py`](../../tests/test_linters.py): the `VALID_LEASE` fixture gains the field, plus two new gate-63 tests (invalid mode flagged; unattended mode passes). Generated artefacts regenerated.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the executed-not-narrated rule for held/not-held claims (quote `ref-holds`, never a partial grep) in the reference-currency section; the mechanical-backstop rule (the `Operating-mode` field + the hook) in the no-idle-stop section.
+- **validate-pr-989 NOTE-1 fixed in-window:** the r4 W2 CONFIRMED-at-held-source disposition was propagated to the two stale surfaces ([`2026-07-16-r4.md`](../deep-assessment/2026-07-16-r4.md) and the [`register.md`](../deep-assessment/register.md) r4 row), which had lagged at "SOURCE-NOT-HELD".
+- #989 QA batch: the validate-pr-989 SHIP row (worker-b delivery-3, graduated to routine) + the #989 retro row; session-state lease re-stamped and updated.
+
+### Verification
+
+- the `ref-holds` self-test 3/3 (plus a live `27002` HELD query); the hook self-test 4/4; gate 63 green on the live lease; the linter regression suite (385 tests) green; the settings file is valid JSON. Pre-push guard (run_all_audits + D1-D8 + history-aware trio) green.
+- validate-pr-989 (worker-b, delivery-3, elevated) returned SHIP with one NOTE (the r4 W2 paired-surface lag), re-verified at source and fixed here; worker-b graduated to routine trust (3 clean elevated passes: sweep-109, the deep-assessment continuation, validate-pr-989).
+
 ## 2026-07-17, Library Version 2026.07.477, PR #989
 
 CHANGELOG length delta gate D8 (the enforcement for the recurring root-entry drift), the deep-assessment r4 continuation consume, and the PR #988 QA batch.

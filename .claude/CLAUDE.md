@@ -969,7 +969,16 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
    `grc_library_ref/catalogue.yml`, `grc_library_ref/SECTION-INDEX.md`,
    `grc_library_ref/COVERAGE-MAP.md`) to find the held
    artefact and its recorded version. (MITRE lives under `grc_library_ref/frameworks/`, not
-   `grc_library_ref/standards/`.)
+   `grc_library_ref/standards/`.) **A held / not-held claim is EXECUTED, not narrated:** run
+   `python3 tools/ref-holds.py <query>` and quote its output (HELD with the path, or
+   NOT-FOUND-IN-INDEX), never a partial filename grep. A `grep` may FIND a file, but its
+   ABSENCE from a partial/filtered grep never proves not-held (the 2026-07-17 recurrence: a
+   `grep -rlE '27002' ... | head -1` grabbed a vendor publication and wrongly concluded
+   ISO/IEC 27002:2022 was not held, when the index lists it plainly; `ref-holds.py "27002"`
+   returns HELD). This is the same executed-not-narrated forcing function as
+   `audit-delivery-status.py` for delivery-status claims, and the
+   `evidence-grounded-completion` "inventory/absence claims require the index, not a partial
+   look" corollary.
 2. **Validate the current version upstream this turn.** The authoritative answer to "is
    this current?" is the upstream / primary source (the vendor's releases page or
    repository), never the `grc_library_ref` copy, a stored note, or memory. `grc_library_ref` is
@@ -1117,6 +1126,19 @@ skeptical verifiers, never deferred to the maintainer in unattended mode. Two ca
 slips, or any defect the guard or verifier catches before it escapes, are the verification
 layer working, not a degradation signal. (Codified after the 2026-07-06 overnight run stopped
 to ask the maintainer which authorized P2 item to take, idling the run.)
+
+**Mechanical backstop (never a blocking prompt in unattended mode).** The session's mode is
+recorded in the `**Operating-mode:**` field of
+[`.working/session-state.md`](../.working/session-state.md) (gate-63-validated:
+`fully-attended` / `attended-autonomous` / `overnight-unattended` / `daytime-unattended`), and a
+PreToolUse hook [`block-askuserquestion-unattended.py`](hooks/block-askuserquestion-unattended.py)
+BLOCKS an `AskUserQuestion` call when the recorded mode is unattended, so a blocking prompt cannot
+idle the run. When unattended, record the decision as pending
+([`pending-decisions.md`](../.working/pending-decisions.md) or the relevant register) and continue.
+Set the field to the true mode at each mode transition; a stale `attended-*` value defeats the hook
+(the hook is defence-in-depth, not a substitute for keeping the field current). Motivating
+recurrence: the 2026-07-17 r4 deep-assessment Phase-8 sign-off was posed as an `AskUserQuestion`
+during overnight mode and idled the run ~7 hours while the work it blocked was already unblocked.
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
