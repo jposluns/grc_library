@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.476, PR #988
+
+TODO §2.22 first bite (a sector-neutral Canada comparator row), plus the local-VM worker-exchange transport design record, a routed QA finding (§1.16), and PR #987's `/validate-pr` + `/retro` batch.
+
+### Added
+
+- [`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md) (Version 0.0.9 to 0.0.10): TODO §2.22 (A2). A labelled sector-neutral comparator row after the AIS-13 row in the framework-alignment table, citing the Canadian TBS Guide on the Use of Agentic AI for its bounded-autonomy (labelled activity-permission levels, tight tool/data/scope limits, accountable agent owners) and recoverability (pausable agents, tamper-evident logging) principles, marked advisory and not binding on an external adopter. Verified against the held TBS Guide on the Use of Agentic AI full-text in the `grc_library_ref` Canada-TBS frameworks bucket. Sector-neutrality respected: Canada-specific instrument placed as a labelled comparator, not a primary anchor. Generated artefacts regenerated.
+- [`.working/design-decisions.md`](../design-decisions.md): the "Local-VM exchange transport for credit-offload" design (maintainer-directed 2026-07-17): a `/tmp/grc_exchange` shared-directory transport (per-worker inbox/outbox/heartbeat, push plus stale-reclaim assignment, no crash backup, coexisting with the git-`scratch` cloud transport via [`tools/detect-env.py`](../../tools/detect-env.py)) for the all-on-one-VM case, replacing the git round-trips that are pure overhead on one VM. Resolves TODO §3.85.
+- [`TODO.md`](../../TODO.md): new §3.87 (build the local-VM exchange transport, credit-offload thread-6, resolves §3.85; P3 counter to 3.88); new §1.16 (COBIT management-objective title normalization plus a title-text validation gate, routed from validate-pr-987 N1; P1 counter to 1.17).
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.750 to 1.2.751): the validate-pr-987 SHIP row (N1 routed to §1.16; records the elevated-QA-caught worker-a enumeration miss and window reset).
+- [`.working/improvement-log.md`](../improvement-log.md) (1.0.685 to 1.0.686): the PR #987 `/retro` row.
+- [`.working/session-state.md`](../session-state.md): lease re-stamped to `claude/canada-2226-agentic`; Current-task and Worker-dispatches updated (worker-a elevated window RESET on the d3 miss).
+- [`.working/next-prs.txt`](../next-prs.txt): cycled to the next queue (CHANGELOG remediation now leads).
+
+### Verification
+
+- validate-pr-987 (worker-a delivery-3) SHIP verdict independently re-derived correct (self-test 5/5, APO14 canonical title, both #987 changes). Elevated-QA mechanical re-derivation caught a confirmed miss (N1 enumeration 32/25 vs true 35/28); worker-a window reset and escalated to the maintainer (see §1.16 and the validate-pr row).
+- A2 comparator row verified against the held TBS source; `run_all_audits.sh` + `run-pr-time-checks.sh` green; CHANGELOG root written in the short compact form per the 2026-07-17 maintainer directive.
+
 ## 2026-07-17, Library Version 2026.07.475, PR #987
 
 Delivery-status tooling fix (closes TODO §3.61) plus a QA-surfaced gate-blind COBIT title fix, and batches PR #986's `/validate-pr` + `/retro`.
