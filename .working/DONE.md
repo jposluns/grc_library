@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.2: Uniform graceful-degradation for sibling-reaching advisory tools (2026-07-17, PR #996)
+
+Added a shared `resolve_sibling(name)` + `sibling_placeholder_present(name)` helper to `tools/lint_common.py` (locate `../grc_library_<ref|scratch|private>`, or None on a portable clone) and routed the three advisory tools that reach a sibling today (`ref-holds` -> `_ref`; `audit-brief-freshness` + `audit-delivery-status` -> `_scratch`) through it so they no-op + exit 0 instead of erroring when the sibling is absent. Scope corrected at build from the design's six tools to three: `credit-offload-queue` is scratch-side and `residual-scan`/`tension-scan` read only in-repo `.working/` (they become sibling-reaching in Phase 2 §1.19.8/9). `tools/check-portability.sh` extended to prove the three degrade in a sibling-free clone; six new `ResolveSiblingTests`. The fourth §1.19 Phase-1 deliverable. (The #996 skeptical verifier deferred six further `grc_library_ref`-reaching maintainer-cadence tools to TODO §3.91.)
+
 ### TODO §1.19.4: Hard-blocking sibling-repo stub-guard gate (gate 70) (2026-07-17, PR #995)
 
 Shipped gate 70 (`tools/lint-sibling-placeholders.py`, "Sibling-repo stub-guard audit"): a hard gate that enforces each in-repo `.ref`/`.scratch`/`.private` placeholder holds exactly a marker-stamped, <=25-line `README.md` and nothing else, so no reference/worker-exchange/private-operational payload can leak into the public repo through them. The third Phase-1 deliverable of the §1.19 privatization track; the enforcement half of the §1.19.1 portability invariant. Wired across all four parity surfaces + spec §5/§6 + a 7-case regression fixture; verified both directions (clean PASS + injected-payload FAIL); corpus now 70/70. Named to avoid the gate-9 marker word "placeholder" in the §6 table row.
