@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.61: Delivery-status tool low-confidence flag for recycled section tokens (2026-07-17, PR #987)
+
+The delivery-status reconciliation tool (`audit-delivery-status.py`) now flags any PENDING/APPLIED verdict resting only on a recyclable section-number token (no stable FR/SR/GR coded id) as LOW-CONFIDENCE, so a renumbered/recycled section number (the 2026-07-16 gr-gap `3.15`->MITRE-ATLAS and etsi `3.16`->CHANGELOG mis-maps) is surfaced for verification rather than trusted; a coded-id match stays high-confidence. Self-test extended (5/5 pass); the live report now reports the low-confidence count.
+
 ### TODO §2.4: Public presence at grclibrary.ai (Cloudflare Pages) (2026-07-15, PR #960)
 
 The public landing site is built and live on Cloudflare Pages at grclibrary.ai (a top-level `.web/` live-corpus generator; rendered HTML is an ephemeral build artefact, only the generator + templates committed). Closed per the maintainer's 2026-07-15 read that §2.4 is done: the build + adoption + nav + polish rounds (#919-#953) and the four public-site text fixes (#957) shipped; §2.16 (two-level nav + scrollspy, #941/#948), §2.6 (Cloudflare watch-paths, maintainer console), and the sidebar-CSS DRY (#951) are complete. The remaining maintainer-owned action is the publish go-decision (the site stays preview until the maintainer flips it) plus the production branch / Cloudflare project settings; the About credential-strip styling is being actioned separately (#961, per the maintainer's 2026-07-15 request). The still-open referenced item §2.15 (standards-list authoritative-source links) remains tracked separately.
