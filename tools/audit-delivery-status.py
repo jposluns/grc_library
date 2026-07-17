@@ -37,6 +37,13 @@ name), then classifies against the live ``TODO.md`` open-item set:
   - UNMAPPED  : no backlog token could be extracted; reported for manual triage
                 rather than guessed (the tool never invents a status).
 
+Each PENDING/APPLIED verdict also carries a CONFIDENCE flag (TODO §3.61). A verdict
+that rests ONLY on a section-number token (``N.M``) with no stable coded id (FR/SR/GR-N)
+is marked LOW-CONFIDENCE: a section number can be renumbered/recycled to a DIFFERENT
+current item than the delivery intended (the 2026-07-16 gr-gap ``3.15``->MITRE-ATLAS and
+etsi ``3.16``->CHANGELOG mis-maps), so such a map is flagged for manual verification
+against the live TODO heading rather than trusted. A coded-id match is high-confidence.
+
 A PENDING or UNMAPPED delivery is NOT proof of un-applied work by itself (a
 research-only scoping delivery legitimately leaves its item open pending a
 maintainer-scheduled build), and a per-item disposition still lives in the scratch
@@ -162,26 +169,57 @@ def deliveries(scratch):
         yield d.parent.name, d.name, rel, delivery_tokens(text, d.name)
 
 
+def _is_coded(token):
+    """True if the token is a STABLE coded backlog id (FR-N / SR-N / GR-N), which is
+    never recycled, as opposed to a section number (N.M), which CAN be renumbered/
+    recycled to a different item (TODO §3.61)."""
+    return bool(CODED_TOKEN_RE.fullmatch(token.replace(" ", "")))
+
+
 def classify(tokens, live_open):
-    """PENDING if any token maps to an open item; UNMAPPED if no token; else
-    APPLIED (every token maps only to closed items)."""
+    """Returns (bucket, low_confidence). PENDING if any token maps to an open item;
+    UNMAPPED if no token; else APPLIED (every token maps only to closed items).
+
+    `low_confidence` is True when the classification rests ONLY on a recyclable
+    section-number token (N.M) with no stable coded id (FR/SR/GR-N) confirming it: a
+    renumbered/recycled section token can map to a DIFFERENT current item than the
+    delivery intended (the 2026-07-16 gr-gap `3.15`->MITRE-ATLAS and etsi `3.16`
+    ->CHANGELOG mis-maps), so such a map is flagged for manual verification against the
+    current heading rather than trusted (TODO §3.61). A coded-id match is always
+    high-confidence."""
     if not tokens:
-        return "UNMAPPED"
-    return "PENDING" if (tokens & live_open) else "APPLIED"
+        return ("UNMAPPED", False)
+    coded = {t for t in tokens if _is_coded(t)}
+    if tokens & live_open:
+        matched_via_coded = bool((tokens & live_open) & coded)
+        return ("PENDING", not matched_via_coded)
+    # APPLIED (no token maps to an open item). Low-confidence when it rests only on
+    # section tokens: a recycled section number could belong to an open item under its
+    # NEW meaning, so an all-section APPLIED verdict is not fully trustworthy either.
+    return ("APPLIED", not coded)
 
 
 def run_report(scratch):
     live = open_refs()
     buckets = {"PENDING": [], "APPLIED": [], "UNMAPPED": []}
+    low_conf_count = 0
     for _worker, _unit, rel, tokens in deliveries(scratch):
+        bucket, low_conf = classify(tokens, live)
         shown = ", ".join(sorted(tokens)) if tokens else "(no backlog token found)"
-        buckets[classify(tokens, live)].append((rel, shown))
+        if low_conf:
+            low_conf_count += 1
+            shown += " [LOW-CONFIDENCE: section-token only, no stable coded id; a " \
+                     "renumbered/recycled section number may map to the wrong current " \
+                     "item, verify against the live TODO heading]"
+        buckets[bucket].append((rel, shown))
 
     total = sum(len(v) for v in buckets.values())
     print(f"delivery-pipeline reconciliation: {total} inbox delivery(ies); "
           f"{len(buckets['PENDING'])} PENDING (map to an open TODO item), "
           f"{len(buckets['APPLIED'])} APPLIED (map only to closed items), "
-          f"{len(buckets['UNMAPPED'])} UNMAPPED (no token; triage manually).")
+          f"{len(buckets['UNMAPPED'])} UNMAPPED (no token; triage manually)"
+          + (f"; {low_conf_count} LOW-CONFIDENCE (section-token-only map, verify)"
+             if low_conf_count else "") + ".")
     for name in ("PENDING", "UNMAPPED", "APPLIED"):
         rows = buckets[name]
         if not rows:
@@ -298,10 +336,19 @@ def self_test():
 
         def test_classify(self):
             live = {"2.2", "FR-60", "3.13", "SR-1"}
-            self.assertEqual(classify({"2.2", "FR-60"}, live), "PENDING")
-            self.assertEqual(classify({"2.4", "FR-99"}, live), "APPLIED")
-            self.assertEqual(classify(set(), live), "UNMAPPED")
-            self.assertEqual(classify({"3.13"}, live), "PENDING")
+            # classify returns (bucket, low_confidence); a stable coded id (FR/SR/GR-N)
+            # confirming the match is high-confidence, a section-token-only map is low.
+            self.assertEqual(classify({"2.2", "FR-60"}, live), ("PENDING", False))
+            self.assertEqual(classify({"2.4", "FR-99"}, live), ("APPLIED", False))
+            self.assertEqual(classify(set(), live), ("UNMAPPED", False))
+            # section-token-only PENDING -> low-confidence (the token could be recycled):
+            self.assertEqual(classify({"3.13"}, live), ("PENDING", True))
+            self.assertEqual(classify({"2.2"}, live), ("PENDING", True))
+            # section-token-only APPLIED -> low-confidence (a renumbered token might now
+            # belong to an open item under its NEW meaning):
+            self.assertEqual(classify({"2.4"}, live), ("APPLIED", True))
+            # a coded id maps APPLIED with high confidence even alongside a section token:
+            self.assertEqual(classify({"2.4", "GR-99"}, live), ("APPLIED", False))
 
         def test_open_ref_regexes(self):
             todo = ("### 2.2 HIPAA operational deepening (FR-60, H, L)\n"
