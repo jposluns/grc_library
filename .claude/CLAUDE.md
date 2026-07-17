@@ -369,6 +369,19 @@ is external. Two mechanisms:
      unmerged `origin/claude/*` siblings). Design record:
      [`.working/design-decisions.md`](../.working/design-decisions.md), "Session-concurrency
      safety".
+   - **Sync scratch every PR** (maintainer-directed 2026-07-17; the §3.93 recurrence-prevention).
+     Before relying on any credit-offload / scratch state at close-out, `cd` to the
+     `grc_library_scratch` checkout and `git fetch origin && git reset --hard origin/main`
+     (or read via `git show origin/main:<path>`), **delivery pending or not**, so the
+     coordination plane (the `workers/` liveness registry, `queue/`, `results/`) is current at
+     every PR boundary. The local scratch checkout does NOT auto-sync, and the
+     `credit-offload-queue.py list-workers` / `list-pending` and `results/` reads operate on
+     that local checkout, so a worker delivery pushed to scratch `origin/main` is invisible
+     until you fetch. Skipping this is the 2026-07-16 / 2026-07-17 stale-scratch-read
+     recurrence (a wrong "workers stale / order unclaimed" report from an un-synced checkout
+     while a worker had already delivered on `origin/main`). A per-tick fetch is likewise
+     mandatory inside any scratch poll loop. Mechanical backstop queued: the queue tool's
+     read subcommands auto-fetch origin (§3.93(c), a `grc_library_scratch` PR).
    - **If this is the first PR of a resumed session** (the `/resume` `/validate`
      close-out), the handoff was **pruned** per its `## Refresh and pruning discipline`:
      keep current + 1 prior in each per-session stack, delete older blocks and superseded
@@ -776,6 +789,21 @@ command). This section is the ORCHESTRATOR-side discipline.
   line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics.md`
   row. Design-of-record: [`.working/credit-offload-design.md`](../.working/credit-offload-design.md)
   `## Metrics and reporting`.
+- **Orchestrator coordination-plane reads: fetch scratch FIRST (§3.93).** Every orchestrator
+  read of the scratch coordination plane, the `workers/` liveness registry
+  (`credit-offload-queue.py list-workers`), the `queue/` (`list-pending` or an order file),
+  and `results/`, is preceded by `cd <grc_library_scratch> && git fetch origin && git reset
+  --hard origin/main` (or is done via `git show origin/main:<path>`). The local scratch
+  checkout does NOT auto-sync, so a working-tree read after no fetch (or a bare fetch) reports
+  stale state: a worker delivery pushed to scratch `origin/main` is invisible until you fetch.
+  This governs the `/resume` step-3 credit-offload check, the availability gate above, any
+  consume, AND a per-tick fetch inside any poll loop. Never characterize worker / queue /
+  result state, "workers stale", "order unclaimed", "not delivered", from an un-synced
+  checkout (the 2026-07-16 / 2026-07-17 recurrence: a wrong worker-restart ask while a worker
+  had already delivered on `origin/main`). The primary standing form is the **sync-scratch-every-PR**
+  close-out line in `## Session migration and PR close-out checklist`; the mechanical backstop
+  (the queue tool's `list-workers` / `list-pending` auto-fetching origin) is queued as §3.93(c),
+  a `grc_library_scratch` PR.
 - **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
   order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
   `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`

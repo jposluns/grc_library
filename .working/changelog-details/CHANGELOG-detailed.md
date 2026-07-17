@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.491, PR #1003
+
+Codifies the "sync scratch every PR" discipline (TODO §3.93 parts (a) and (b)), the recurrence-prevention for a maintainer-flagged mistake that fired twice (2026-07-16 and again at this resume): the local `grc_library_scratch` checkout does not auto-sync, but the credit-offload reads (the `workers/` liveness registry, `queue/`, `results/`) operate on it, so a worker delivery pushed to scratch `origin/main` is invisible until the orchestrator fetches. At this resume that produced a wrong "both workers stale, Sweep-111 order unclaimed" report and a needless worker-restart ask, when worker-a had already delivered on `origin/main`. A dedicated memory already existed and did not prevent recurrence, so the fix is a forcing function in the standing surfaces rather than another note.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) - added the primary **sync-scratch-every-PR** bullet to the `## Session migration and PR close-out checklist` (fetch and hard-reset the scratch checkout to `origin/main` at every close-out, delivery pending or not), and an orchestrator **coordination-plane-read** bullet to the `## Credit-offload mode` section (fetch scratch before any `list-workers` / `list-pending` / `results/` read, and per-tick inside any poll loop; never characterize worker/queue/result state from an un-synced checkout).
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) - the step-3 credit-offload check now fetches and hard-resets the scratch checkout before `list-workers` / `list-pending` / `results/`.
+
+### Notes
+- This is §3.93 parts (a) and (b) only. Part (c), the mechanical backstop that makes the scratch queue tool's read subcommands auto-fetch origin, is a separate `grc_library_scratch` PR (a cross-repo change), so **TODO §3.93 stays open** until (c) lands; not rotated to DONE.
+- The behavioural fix is already in force this session (scratch is fetched before every coordination read); this PR makes it durable across sessions.
+
+### Verification
+- Recursion-avoidance batch: PR #1002's `/validate-pr` row (offloaded to worker-b, elevated-QA delivery 3, CLEAN PASS, clears the 2-to-3 floor to routine trust) and `/retro` row are carried here.
+- No corpus document, generated artefact, or gate touched (a `.claude/` AI-guidance codification plus the QA batch); no per-document version bump needed. Pre-push guard green.
+
 ## 2026-07-17, Library Version 2026.07.490, PR #1002
 
 Website fix (maintainer-flagged): the "For AI" and "Contributors" links appeared to vanish from the landing-page Contents sidebar. Diagnosis (evidence-grounded): both links are present in the live DOM (confirmed by fetching the live site, sidebar lines 527-528) and in a fresh [`.web/build.py`](../../.web/build.py) render, so nothing hides them. The cause is the sticky sidebar's viewport-height cap with inner scroll (`max-height: calc(100vh - 2.5rem); overflow-y: auto` at `min-width: 1080px`, in [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html)): as the Contents nav grew (Get-started sub-links, 11 domain links, 6 Standards sub-groups across the recent website PRs) it now exceeds the viewport on typical laptops, so its last two entries (For AI, Contributors) scroll below the sidebar's inner fold. Per maintainer direction, the fix makes the For-AI page reachable independently of the sidebar rather than reworking the sidebar: add a "For AI" link to the site-wide footer, where "About and contributors" already lives.
