@@ -9,7 +9,8 @@
 #   1. The PR-only delta gates (D1 CHANGELOG-on-PR, D2 per-PR
 #      version-bump, D3 CHANGELOG-dash-on-PR, D4 per-PR Version-Date
 #      co-bump, D5 backlog-rotation-on-PR, D6 pack-README
-#      version-history co-bump, D7 handoff-snapshot freshness). These
+#      version-history co-bump, D7 handoff-snapshot freshness,
+#      D8 CHANGELOG-length-on-PR). These
 #      compare the PR head to its merge base, so their inputs are not
 #      available in tools/run_all_audits.sh; they run
 #      only here and in quality.yml.
@@ -120,6 +121,13 @@ run_check "D6 Pack-README version-history co-bump check" \
 # mechanized at version-token width; duplicate labelled tokens fail).
 run_check "D7 Handoff-snapshot freshness check" \
     python3 tools/check-handoff-snapshot-on-pr.py "${BASE_REF}" "${HEAD_REF}"
+
+# Delta gate D8: newly-added root CHANGELOG.md entries must stay within
+# the compact-form length ceiling (<= 100 words, no sentence over 45
+# words), so root summaries cannot drift back into long paragraphs
+# (maintainer-directed 2026-07-17; history is exempt, new entries are not).
+run_check "D8 CHANGELOG length-on-PR check" \
+    python3 tools/check-changelog-length-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/

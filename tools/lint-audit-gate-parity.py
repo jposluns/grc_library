@@ -79,6 +79,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "Backlog-rotation-on-PR check",
     "Pack-README version-history co-bump check",
     "Handoff-snapshot freshness check",
+    "CHANGELOG length-on-PR check",
     "Detect collection candidates on pack PRs (informational)",
 }
 
