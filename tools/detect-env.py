@@ -222,6 +222,44 @@ def probe_identity(siblings: dict) -> dict:
     }
 
 
+def ref_availability_decision(classification: str, ref_readable: bool) -> str:
+    """The _ref-required loud gate (TODO section 1.19.7).
+
+    Reference-checking is critical to the orchestrator's content work, so a
+    missing grc_library_ref is a LOUD failure for the maintainer, never a silent
+    graceful degradation. Graceful degradation of the sibling-reaching tools
+    (lint_common.resolve_sibling) is ADOPTER-ONLY.
+    """
+    if ref_readable:
+        return "ok (grc_library_ref readable)."
+    if classification == "maintainer":
+        return (
+            "HALT (LOUD): identity is maintainer but grc_library_ref is NOT "
+            "readable. _ref is a REQUIRED orchestrator dependency (reference-"
+            "checking is critical to content work); do NOT proceed on reference-"
+            "dependent work. Grant sibling access (the FIX line above), then "
+            "re-resume. The sibling-reaching tools' graceful degradation is "
+            "ADOPTER-ONLY, never the maintainer.")
+    if classification == "maintainer-fresh-machine":
+        return (
+            "clone _ref FIRST: a fresh maintainer clone has no grc_library_ref; "
+            "content work requires it, so clone the private siblings before any "
+            "reference-dependent work (tooling-only work may proceed only if the "
+            "maintainer directs).")
+    if classification == "adopter":
+        return (
+            "ok (adopter, _ref absent as expected): the sibling-reaching tools "
+            "degrade gracefully; the committed reference-acquisition manifest + "
+            "/adopt .ref bootstrap cover reference acquisition.")
+    # Unknown / undetermined identity: fail SAFE (loud), never silently graceful-
+    # degrade (the gate's whole point). Unreachable for the closed probe_identity
+    # set today, but keeps the helper correct-by-construction if that set changes.
+    return (
+        f"HALT (LOUD): undetermined operator identity ({classification!r}) with "
+        "grc_library_ref unreadable; treat _ref as REQUIRED and do NOT silently "
+        "degrade. Resolve the identity and sibling access, then re-resume.")
+
+
 def probe_one(url: str, method: str) -> dict:
     req = urllib.request.Request(url, method=method,
                                  headers={"User-Agent": "grc-detect-env/1.0"})
@@ -311,6 +349,12 @@ def main(argv: list[str] | None = None) -> int:
                     "adopter-mode per the recorded config)."),
             }[idn["classification"]]
         )
+        # _ref-required loud gate (TODO section 1.19.7): a missing grc_library_ref is a LOUD
+        # failure for the maintainer, never a silent graceful degradation (that is adopter-only).
+        ref_readable = bool(
+            profile["siblings"].get("grc_library_ref", {}).get("readable"))
+        decisions["ref_availability"] = ref_availability_decision(
+            idn["classification"], ref_readable)
         profile["decisions"] = decisions
     except Exception as exc:  # never crash the resume step
         print(f"ERROR: {exc}", file=sys.stderr)
