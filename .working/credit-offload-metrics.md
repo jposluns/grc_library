@@ -1,7 +1,7 @@
 # Credit-offload metrics: worker productivity and estimated orchestrator credits conserved
 
-**Version:** 1.0.2\
-**Date:** 2026-07-16\
+**Version:** 1.0.3\
+**Date:** 2026-07-17\
 **License:** CC BY-SA 4.0
 
 Running tab of what the credit-offload workers have done and, per session, the **estimated
@@ -68,6 +68,7 @@ The net saving is real only when the other accounts have spare capacity.
 | 2026-07-16 | deep-assessment-r4-probe | qa | deep-assessment | worker-20260716-b (Opus 4.8) | ~170K | #983 (register) + ref #87 (F-P2-1 fix) | first OFFLOADED `/deep-assessment`; partial phases 1/2/4a/aids; found F-P2-1 (ref gate-red) + OBS-1; confirmed corpus green 69/69. |
 | 2026-07-16 | canada-new-items-ingest-prep | research | research | worker-20260716-a (Opus 4.8) | ~140K | ref PR #87 | extracted + draft-catalogued the 12 NEW items; corrected the AI Register record count to 412; flagged the AI Strategy fresh capture as incomplete. |
 | 2026-07-16 | validate-pr-982 | qa | validate-pr | worker-20260716-b (Opus 4.8) | ~70K | #983 | SHIP; re-verified §7121 at source; one NOTE on 2 frozen #976 §7120-phasing records (corrected in #983). |
+| 2026-07-16 | sweep-109-validate-2 | qa | validate | worker-20260716-b (Opus 4.8) | ~207K (gross) | this close-out PR (#985) | loop-break Sweep 109 over #969..#984; worker subagents A ~108K / B ~51K / C ~48K (worker total ~310-340K incl. its own orchestration). FIRST offloaded pass of the 2026-07-16c session, consumed under new-worker ELEVATED QA. **NET conserved is well below gross this delivery:** the orchestrator's elevated-QA validation (adversarial false-negative auditor ~216K + mechanical re-derivation) is a one-time trust-establishment cost that converts to near-gross saving on worker-b's subsequent routine-trust deliveries this session. |
 
 **Other deliveries in the results plane (delivery-session attribution and consume status vary; NOT
 counted in the session roll-up below to avoid over-attribution):** `etsi-en304223-option3-apply-draft`
@@ -82,3 +83,4 @@ captured.)
 | Session (resume) | Offloaded passes counted | Est. orchestrator credits conserved (midpointed, this-session-consumed set) | Notes |
 | --- | --- | --- | --- |
 | 2026-07-16 (resumed from #968) | 17 with figures (+ 4 not captured) | **~1.98M tokens (est.)** | Conservative (worker-spend proxy). The Sweep-108 self-run comparable alone was ~609K vs ~237K worker, so the true conserved is higher. The +~465K over the prior ~1.51M is the Canada §2.22 pipeline consumed this stretch (currency-classify ~85K + r4-probe ~170K + ingest-prep ~140K + validate-pr-982 ~70K). Excludes 5 delivered-but-unconsumed passes (etsi/gr-gap/matrix-fit-full/claim-fit/screen-pub, ~529K more if/when consumed) and the 4 not-captured research deliveries (canada-ca-reference-breadth + the 3 ref-acquire orders). Orchestrator main-loop tokens remain `not instrumented`. |
+| 2026-07-16c (resumed from #984) | 1 with figures | **~207K tokens (est., gross)** | First (and so far only) offloaded pass this session = the loop-break Sweep 109 (~207K worker A/B/C). **NET is materially lower this session-open** because Sweep 109 was worker-b's first delivery this fresh session, so it drew the full new-worker ELEVATED QA (adversarial false-negative auditor ~216K + mechanical re-derivation), which offsets most of the gross for this one delivery; worker-b's next 1-2 clean deliveries this session graduate it to routine trust and convert nearer gross. Orchestrator main-loop tokens remain `not instrumented`. |

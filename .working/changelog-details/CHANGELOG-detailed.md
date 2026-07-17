@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.473, PR #985
+
+The Sweep 109 validation close-out (the loop-break compensating control for session-closing handoff PR #984, which skipped its trailing `/validate-pr` + `/retro`), covering the #969..#984 delta window. The first OFFLOADED-then-elevated-QA-validated sweep of the 2026-07-16c resumed session.
+
+### Changed
+
+- [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) (Version 1.2.3 to 1.2.4): the California cybersecurity-audit threshold parenthetical (section 7120) now states BOTH section 7120(b) triggers, where it previously rendered only the (b)(2) prong. The fix (finding S109-N1, surfaced by the elevated-QA adversarial auditor) is a summary-completeness precision tightening, not a citation error (the sentence already defers to "the section 7120 thresholds" as authoritative). Verified at the held CCPA Regulations section 7120(b) (two independent triggers) and Civil Code section 1798.140(d)(1)(A) (">USD 25 million gross revenue", held file line 256) and (d)(1)(C) ("derives 50 percent or more of annual revenue from selling or sharing personal information", lines 258 to 259).
+- Regenerated [`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md), and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) after the per-document version bump.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (Version 2.0.107 to 2.0.108): the Sweep 109 row.
+- [`.working/session-handoff.md`](../session-handoff.md): advanced the Resume cursor to Sweep 109, and PRUNED the 2026-07-15 #955-#962 per-session stack (the Next-actions / State-snapshot / Asserted-expectations blocks) per keep-current-plus-one-prior.
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED for branch `claude/resume-sweep109-validate` (Status active, fresh heartbeat) for the 2026-07-16c resumed session.
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (Version 1.0.2 to 1.0.3): the `sweep-109-validate-2` consume row (~207K gross; net materially lower this delivery due to the one-time new-worker elevated-QA cost) plus a new per-session roll-up row for the 2026-07-16c session.
+- Library CalVer `2026.07.472` to `2026.07.473`; [`README.md`](../../README.md) README Version `1.9.833` to `1.9.834`.
+
+### Added
+
+- [`.working/validate-sweeps/2026-07-16-sweep109-iter1.md`](../validate-sweeps/2026-07-16-sweep109-iter1.md) (new): the Sweep 109 per-iteration detail (worker B's A/B/C returns, the orchestrator elevated-QA synthesis, and the S109-N1 note plus fix).
+
+### Verification
+
+- Sweep 109 was OFFLOADED to credit-offload `worker-20260716-b` (Opus 4.8) as order `sweep-109-validate-2`, pinned to `28d4146b`/#984. (The pre-positioned `sweep-109-validate` came back BLOCKED on an unreachable pinned SHA before the maintainer had the worker clones resynced, so it was re-enqueued.) Worker B returned ZERO findings; the asserted-expectations cross-check was ALL corroborated / 0 contradicted; the loop-break control for #984 PASSES.
+- Consumed under new-worker ELEVATED QA (fresh session, worker B's first QA-kind delivery): proof-of-run genuine; the orchestrator INDEPENDENTLY re-derived HEAD `28d4146b`, baseline 69/69, pre-flight 421/33/11, four-surface parity 69, and counts 13/23/14 (all EXACT-MATCH to the worker's claims); and a dedicated adversarial false-negative auditor re-verified every load-bearing CCPA citation and Quebec Law 25 figure at the held source, returning NO MISSED FINDING. Worker B elevated-QA: PASS (1 of 2-3 clean passes before routine trust).
+- The one note the elevated-QA auditor raised (S109-N1) was verified at source and fixed in-window (see Changed above).
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before the first commit; pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; a refute-briefed skeptical verifier ran on the annex diff before push.
+- Per the loop-break, the prior session-closing handoff (#984) took no `/validate-pr` + `/retro`; this Sweep 109 IS that compensating control, so there is no #984 per-PR QA row to batch.
+
+### Note (maintainer directives codified cross-repo)
+
+- Two maintainer directives were codified in `grc_library_scratch` (the worker-exchange repository, not this repository, so no `grc_library` surface changed): the `/credit-offload` worker command now (1) resync-CHECKs whether it can reach the pinned `grc_library` revision when a worker picks up a task (delivering a BLOCKED result rather than running against a stale revision), and (2) staggers worker check-ins at 5/N-minute offsets across N live workers.
+
 ## 2026-07-16, Library Version 2026.07.472, PR #984
 
 Session-closing handoff for the 2026-07-16b resumed session (#969-#983). Working-state only; no corpus, website, or gate change. Per the loop-break this PR takes no trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (Sweep 109), PRE-POSITIONED as an offloaded worker order at this wind-down (the maintainer's optimization).
