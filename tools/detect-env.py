@@ -11,8 +11,10 @@ shared 5,000/hr GraphQL pool is exhausted, observed in #687), the stop-hook
 auto-commit-push (present in cloud, absent on the NUC), the pipe-guard PreToolUse
 hook (fires on the NUC; silent in cloud resumed sessions because
 ``CLAUDE_PROJECT_DIR`` is unset there, the #677 root cause), egress
-reachability per source family, and sibling-repo access. This tool probes what a
-SCRIPT can observe and prints one profile block the resume step consumes; the
+reachability per source family, sibling-repo access, and the operator identity
+(maintainer vs adopter fork, by the ``origin`` remote, TODO section 1.19.5). This
+tool probes what a SCRIPT can observe and prints one profile block the resume step
+consumes; the
 items only the assistant can observe from its own side (which MCP tools are in
 its tool list) are printed as ASSISTANT-PROBE lines for the assistant to fill,
 never guessed.
@@ -44,6 +46,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SIBLINGS = ("grc_library_ref", "grc_library_scratch")
+
+# The canonical maintainer origin (owner/repo). A clone whose ``origin`` remote
+# points here is the maintainer's own repo; any other owner is an adopter fork.
+# Used by the origin-identity probe (TODO section 1.19.5).
+MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
 
 # Representative egress probes, one per source family the project's work waits
 # on. Reachability of the FAMILY is what the profile reports; a probe is a HEAD
@@ -128,6 +135,68 @@ def probe_siblings() -> dict:
     return out
 
 
+def _origin_url() -> str | None:
+    rc, out = run(["git", "-C", str(REPO_ROOT), "remote", "get-url", "origin"])
+    out = out.strip()
+    return out if rc == 0 and out else None
+
+
+def _origin_is_maintainer(url: str | None) -> bool:
+    """True if ``url`` points at the canonical maintainer owner/repo.
+
+    Matches both HTTPS (``github.com/jposluns/grc_library``) and SSH
+    (``git@<host>:jposluns/grc_library``) forms, case-insensitively, tolerating a
+    trailing ``.git`` and a trailing slash. Requires the owner boundary (``/`` or
+    ``:``) so a fork like ``someone/grc_library-fork`` or ``other/grc_library``
+    does not match.
+
+    Known looseness, acceptable while this is DETECTION-ONLY (no action is wired
+    until TODO section 1.19.6): the host is not pinned (a non-GitHub origin whose
+    owner is literally ``jposluns`` would match) and a malformed 3-segment path
+    (``host/x/jposluns/grc_library``) would match. Neither is constructible for a
+    real GitHub fork (owner names are unique on github.com and a clone URL's path
+    is exactly ``owner/repo``). Section 1.19.6, which makes the classification
+    load-bearing (it drives the ``/resume`` maintainer-vs-adopter path), tightens
+    this to a host-pinned owner/repo parse.
+    """
+    if not url:
+        return False
+    u = url.strip().lower().rstrip("/")
+    if u.endswith(".git"):
+        u = u[:-4]
+    target = MAINTAINER_ORIGIN_OWNER_REPO.lower()
+    return u.endswith("/" + target) or u.endswith(":" + target)
+
+
+def probe_identity(siblings: dict) -> dict:
+    """Classify the operator by ORIGIN IDENTITY (TODO section 1.19.5).
+
+    - ``maintainer``: origin is the canonical maintainer repo AND at least one
+      private sibling is readable (corroboration).
+    - ``maintainer-fresh-machine``: origin is the maintainer repo but NO sibling
+      is readable (a fresh maintainer clone; the siblings should be cloned, this
+      is NOT an adopter).
+    - ``adopter``: origin is a fork (any other owner) or absent.
+
+    Detection only: the ``/resume`` maintainer-vs-adopter path acts on this, and
+    the adopter onboarding flow is wired in TODO section 1.19.6 (so nothing here
+    references a not-yet-built command).
+    """
+    url = _origin_url()
+    is_maint_origin = _origin_is_maintainer(url)
+    any_sibling = any(bool(e.get("readable")) for e in siblings.values())
+    if is_maint_origin:
+        classification = "maintainer" if any_sibling else "maintainer-fresh-machine"
+    else:
+        classification = "adopter"
+    return {
+        "origin_url": url,
+        "origin_is_maintainer_repo": is_maint_origin,
+        "any_sibling_readable": any_sibling,
+        "classification": classification,
+    }
+
+
 def probe_one(url: str, method: str) -> dict:
     req = urllib.request.Request(url, method=method,
                                  headers={"User-Agent": "grc-detect-env/1.0"})
@@ -170,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
             "hooks": probe_hooks(),
             "siblings": probe_siblings(),
         }
+        profile["identity"] = probe_identity(profile["siblings"])
         if not args.no_egress:
             profile["egress"] = probe_egress()
 
@@ -199,6 +269,22 @@ def main(argv: list[str] | None = None) -> int:
                            "piped verification command is actually blocked. Rely on "
                            "the unpiped-verification habit (RM-10) either way"),
         }
+        idn = profile["identity"]
+        decisions["operator_identity"] = (
+            f"{idn['classification']} (origin "
+            f"{'is' if idn['origin_is_maintainer_repo'] else 'is NOT'} "
+            f"{MAINTAINER_ORIGIN_OWNER_REPO}; sibling(s) "
+            f"{'present' if idn['any_sibling_readable'] else 'absent'}). "
+            + {
+                "maintainer": "proceed with the private siblings.",
+                "maintainer-fresh-machine": (
+                    "a fresh maintainer clone; clone the private siblings, then "
+                    "proceed as maintainer (NOT adopter)."),
+                "adopter": (
+                    "an adopter fork; the /resume adopter onboarding path is wired "
+                    "in TODO section 1.19.6."),
+            }[idn["classification"]]
+        )
         profile["decisions"] = decisions
     except Exception as exc:  # never crash the resume step
         print(f"ERROR: {exc}", file=sys.stderr)
@@ -227,6 +313,11 @@ def main(argv: list[str] | None = None) -> int:
         print(line)
         if "fix" in entry:
             print(f"  FIX: {entry['fix']}")
+    idn = profile["identity"]
+    print(f"- Operator identity: {idn['classification']} "
+          f"(origin={idn['origin_url']}, maintainer-repo="
+          f"{idn['origin_is_maintainer_repo']}, sibling(s) readable="
+          f"{idn['any_sibling_readable']})")
     for name, e in (profile.get("egress") or {}).items():
         print(f"- Egress {name}: {e['class']} (HTTP {e['status']})")
     print("\n## Decisions for the resume step\n")
