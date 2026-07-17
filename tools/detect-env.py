@@ -142,30 +142,54 @@ def _origin_url() -> str | None:
 
 
 def _origin_is_maintainer(url: str | None) -> bool:
-    """True if ``url`` points at the canonical maintainer owner/repo.
+    """True if ``url`` points at the canonical maintainer owner/repo on GitHub.
 
-    Matches both HTTPS (``github.com/jposluns/grc_library``) and SSH
-    (``git@<host>:jposluns/grc_library``) forms, case-insensitively, tolerating a
-    trailing ``.git`` and a trailing slash. Requires the owner boundary (``/`` or
-    ``:``) so a fork like ``someone/grc_library-fork`` or ``other/grc_library``
-    does not match.
-
-    Known looseness, acceptable while this is DETECTION-ONLY (no action is wired
-    until TODO section 1.19.6): the host is not pinned (a non-GitHub origin whose
-    owner is literally ``jposluns`` would match) and a malformed 3-segment path
-    (``host/x/jposluns/grc_library``) would match. Neither is constructible for a
-    real GitHub fork (owner names are unique on github.com and a clone URL's path
-    is exactly ``owner/repo``). Section 1.19.6, which makes the classification
-    load-bearing (it drives the ``/resume`` maintainer-vs-adopter path), tightens
-    this to a host-pinned owner/repo parse.
+    Parses the origin to a host plus an exactly-two-segment ``owner/repo`` path
+    and requires host ``github.com`` and ``owner/repo`` ==
+    ``MAINTAINER_ORIGIN_OWNER_REPO``. Handles HTTPS
+    (``https://github.com/owner/repo[.git]``), the scp-like SSH form (the ``git@``
+    prefix, host ``github.com``, path ``owner/repo``, optional ``.git``), and
+    ``ssh://`` URLs, case-insensitively, tolerating a trailing ``.git`` / slash. A non-GitHub host
+    (including an SSH host alias), a fork under a different owner, a different
+    repo, or a malformed multi-segment path does NOT match. The host-pin closes
+    the theoretical false-maintainer classifications noted in TODO section 1.19.5;
+    since section 1.19.6 makes the classification load-bearing (it drives the
+    ``/resume`` maintainer-vs-adopter path), a false MAINTAINER is the dangerous
+    direction and is foreclosed, while a maintainer using an unusual SSH host
+    alias degrades to the recoverable false-ADOPTER (``/resume`` proposes
+    ``/adopt``, which they decline).
     """
     if not url:
         return False
-    u = url.strip().lower().rstrip("/")
-    if u.endswith(".git"):
+    u = url.strip()
+    if u.endswith("/"):
+        u = u[:-1]
+    if u.lower().endswith(".git"):
         u = u[:-4]
-    target = MAINTAINER_ORIGIN_OWNER_REPO.lower()
-    return u.endswith("/" + target) or u.endswith(":" + target)
+
+    host: str | None = None
+    path: str | None = None
+    low = u.lower()
+    if low.startswith(("https://", "http://", "ssh://")):
+        rest = u.split("://", 1)[1]
+        if "/" not in rest:
+            return False
+        hostpart, path = rest.split("/", 1)
+        hostpart = hostpart.split("@")[-1]   # strip any user@
+        host = hostpart.split(":")[0]        # strip any :port
+    elif "@" in u and ":" in u.split("@", 1)[1]:
+        # scp-like SSH: [user@]host:owner/repo
+        after_at = u.split("@", 1)[1]
+        host, path = after_at.split(":", 1)
+    else:
+        return False
+
+    if not host or path is None or host.lower() != "github.com":
+        return False
+    segments = [s for s in path.split("/") if s]
+    if len(segments) != 2:
+        return False
+    return "/".join(segments).lower() == MAINTAINER_ORIGIN_OWNER_REPO.lower()
 
 
 def probe_identity(siblings: dict) -> dict:
@@ -178,9 +202,10 @@ def probe_identity(siblings: dict) -> dict:
       is NOT an adopter).
     - ``adopter``: origin is a fork (any other owner) or absent.
 
-    Detection only: the ``/resume`` maintainer-vs-adopter path acts on this, and
-    the adopter onboarding flow is wired in TODO section 1.19.6 (so nothing here
-    references a not-yet-built command).
+    Detection only: the ``/resume`` maintainer-vs-adopter path acts on this and,
+    on an un-onboarded adopter clone, proposes the ``/adopt`` run-once onboarding
+    skill (built in the same section-1.19.6 change as this probe's load-bearing
+    use).
     """
     url = _origin_url()
     is_maint_origin = _origin_is_maintainer(url)
@@ -281,8 +306,9 @@ def main(argv: list[str] | None = None) -> int:
                     "a fresh maintainer clone; clone the private siblings, then "
                     "proceed as maintainer (NOT adopter)."),
                 "adopter": (
-                    "an adopter fork; the /resume adopter onboarding path is wired "
-                    "in TODO section 1.19.6."),
+                    "an adopter fork; if no .claude/adopt-config.json exists, /resume "
+                    "proposes the /adopt run-once onboarding skill (else proceed in "
+                    "adopter-mode per the recorded config)."),
             }[idn["classification"]]
         )
         profile["decisions"] = decisions

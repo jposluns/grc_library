@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.6: `/adopt` run-once fork-onboarding skill + command (2026-07-17, PR #998)
+
+Added the `/adopt` pack skill + slash command (the 24th skill): run-once onboarding for a fork adopting the project. It confirms a genuine adopter clone, resets the machinery-core `.working/` working-state to clean baselines (a sanctioned adopter-only exception to the never-drop invariants), settles the sibling model, strips maintainer-only residue, and records a committed `.claude/adopt-config.json` the `/resume` step reads to proceed in adopter-mode. Also hardened `tools/detect-env.py`'s origin matcher (host-pinned exact owner/repo parse, closing the two #997 theoreticals) and wired the `/resume` adopter-path (with malformed-config + probe-error branches). The mandated `/guardrails` review (r11, auto-prompted by the skill+command machinery drift) fixed six issues in-window and routed three hardenings to §3.92. The sixth §1.19 Phase-1 deliverable.
+
 ### TODO §1.19.5: detect-env origin-identity maintainer/adopter detection (2026-07-17, PR #997)
 
 Added an origin-identity probe to `tools/detect-env.py` that classifies the operator as maintainer, adopter fork, or maintainer-on-a-fresh-machine, by matching the git `origin` remote against the canonical maintainer owner/repo and corroborating with sibling-repo presence. Detection only (a new `operator_identity` decision line + a printed profile line); the `/resume` maintainer-vs-adopter path acts on it, and the adopter onboarding flow is wired in §1.19.6 so nothing references a not-yet-built command. Six `DetectEnvIdentityTests` cover the HTTPS/SSH origin matching (including fork rejection) and the four classifications. The fifth §1.19 Phase-1 deliverable.
