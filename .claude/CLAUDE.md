@@ -783,7 +783,8 @@ command). This section is the ORCHESTRATOR-side discipline.
   reference text.
 - **Command-count note.** The `/credit-offload` worker command lives in `grc_library_scratch`'s
   `.claude/commands/`, NOT in `grc_library`, so it does NOT change the `grc_library` slash-command
-  count (still 14); this section adds no user-facing count-bearing collection to `grc_library`.
+  count (which is 15 as of the §1.19.6 `/adopt` addition); this section adds no user-facing
+  count-bearing collection to `grc_library`.
 
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 

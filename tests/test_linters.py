@@ -7308,6 +7308,12 @@ class DetectEnvIdentityTests(unittest.TestCase):
             "https://github.com/someone/grc_library-fork.git",  # different repo
             "git@github.com:acme/grc_library.git",
             "https://github.com/jposluns/other-repo.git",       # same owner, other repo
+            # Host-pin + exact-2-segment hardening (TODO 1.19.6): these matched the
+            # earlier endswith() form but are now correctly rejected.
+            "https://evil.com/jposluns/grc_library.git",        # non-GitHub host
+            "git@evil.com:jposluns/grc_library.git",            # non-GitHub SSH host/alias
+            "https://github.com/x/jposluns/grc_library",        # malformed 3-segment path
+            "https://gitlab.com/jposluns/grc_library.git",      # wrong host
         ):
             self.assertFalse(mod._origin_is_maintainer(url), url)
 

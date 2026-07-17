@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.486, PR #998
+
+The sixth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.6): the run-once `/adopt` fork-onboarding skill + command, plus the origin-matcher hardening queued from #997 and the `/resume` adopter-path wiring. Seventh PR of the 2026-07-17 resumed session. No corpus or website content changed.
+
+### Added
+
+- [`dev-security/claude-rules/skills/adopt/SKILL.md`](../../dev-security/claude-rules/skills/adopt/SKILL.md) (the twenty-fourth pack skill) + [`.claude/commands/adopt.md`](../../.claude/commands/adopt.md) (slash command `/adopt`): the run-once onboarding for a fork adopting the project. Seven steps: confirm the clone is a genuine adopter (not the maintainer's repo or a fresh-machine clone) and adoption has not already run; choose the sibling model (own siblings vs self-contained); reset the machinery-core `.working/` working-state to clean adopter baselines (a sanctioned, adopter-clone-only exception to the never-drop invariants); handle the sibling placeholders (fetched reference text always goes into an EXTERNAL sibling, never the in-repo `.ref` stub, so gate 70 stays green); strip maintainer-only residue; record a committed adopt-config under `.claude/` (fields `mode`/`adopted_at`/`sibling_choice`/`adopt_config_version`); verify + report. `derives_from` [`session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md). Never touches the corpus, pack, tooling, gates, or version lineage.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `DetectEnvIdentityTests` extended for the hardened matcher (now 6 tests: the reject set adds the non-GitHub-host and 3-segment cases that the host-pin now correctly rejects).
+
+### Changed
+
+- [`tools/detect-env.py`](../../tools/detect-env.py): `_origin_is_maintainer` hardened from an `endswith("/owner/repo")` match to a host-pinned exact `owner/repo`-parse (host must be `github.com`, path exactly two segments), closing the two theoretical false-maintainer classifications noted at #997 (a non-GitHub host with the maintainer owner; a malformed 3-segment path) now that §1.19.6 makes the classification load-bearing. The probe's docstring + adopter decision string updated to name the now-built `/adopt` (they previously pointed at a not-yet-built command, a stale forward-pointer the guardrail-review drift lens caught).
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 3 wires the adopter-path, act on the probe's `operator_identity`: an un-onboarded `adopter` HALTs and proposes `/adopt`; an `adopter` with a well-formed adopt-config proceeds in adopter-mode; a MALFORMED adopt-config is surfaced and re-proposes `/adopt`; a probe error leaves identity UNDETERMINED (ask, do not assume); `maintainer-fresh-machine` clones siblings, never `/adopt`.
+- [`tools/lint-paired-skill-step-parity.py`](../../tools/lint-paired-skill-step-parity.py): PAIRS registry extended with the `adopt` pair (steps 1-7 match on both surfaces).
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): skill-tree adds `adopt`; pack Version `1.61.6` -> `1.62.0` (minor; new skill) + a version-history row.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the credit-offload command-count note updated (grc_library slash commands now 15).
+- [`README.md`](../../README.md): Library `2026.07.485` -> `2026.07.486`, README `1.9.846` -> `1.9.847`. No corpus-document body or generated-artefact change (no taxonomy/portal/scorecard regen).
+
+### Verification
+
+- `tools/run_all_audits.sh` = **70/70** (working tree; the new skill+command drove gate-60 machinery-drift to 3, which is reset by the mandated guardrail-review r11 history row). The 6 `DetectEnvIdentityTests` pass under gate 36; the paired-skill-parity, collection-enumeration, gate-count, and derives-from gates green with the new skill.
+- **Mandated `/guardrails` review (r11)**: the `/adopt` machinery addition drove gate-60 drift to 3 (gates 69->70 in #995 + skills 23->24 + commands 14->15), auto-prompting a formal three-lens (overlap/gap/drift) review, recorded in [`.working/guardrail-reviews/history.md`](../guardrail-reviews/history.md) + [`2026-07-17-r11.md`](../guardrail-reviews/2026-07-17-r11.md). It found six issues fixed in-window (the gate-70 `.ref`-bootstrap contradiction in step 4; the unstated never-drop exception in step 3; the malformed-adopt-config + detect-env-error `resume` branches; the non-gated-shape verification asymmetry; the stale detect-env forward-pointer; the frontmatter step-5 omission) and routed three hardenings to TODO §3.92 (mechanical adopt-config validation, an optional maintainer-clone pre-flight guard, the classification-coupling note).
+- The pre-push guard (`run_all_audits` + D1-D8) is run green standalone before push; a refute-briefed skeptical verifier reviewed the diff. Batches PR #997's `/validate-pr` (worker-b, routine, SHIP clean) + `/retro`. This is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` batch into the next PR.
+
 ## 2026-07-17, Library Version 2026.07.485, PR #997
 
 The fifth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.5): an origin-identity probe so the resume step can tell a maintainer clone from an adopter fork. Sixth PR of the 2026-07-17 resumed session. Detection only; the `/resume` adopter-path wiring lands in §1.19.6. No corpus or website content changed.
