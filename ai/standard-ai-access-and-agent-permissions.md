@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.9\
-**Date:** 2026-07-11\
+**Version:** 0.0.10\
+**Date:** 2026-07-17\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -260,6 +260,7 @@ Retrieval-augmented generation and other context-injection patterns:
 | ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.1.2-6 (Principle 2); Provision 5.2.2-1 and 5.2.2-3 (Principle 6) | Least-privilege permissions on other systems; access-control-framework evaluation and least-privilege environment separation |
 | CSA AICM v1.1.0 | AIS-11 Agents Security Boundaries | Agent security-boundary enforcement |
 | CSA AICM v1.1.0 | AIS-13 AI Sandboxing | Isolated tool and plugin execution; lateral-movement limitation |
+| Canada TBS Guide on the Use of Agentic AI (comparator) | Bounded autonomy (labelled activity-permission levels such as read-only or draft-only; tight, explicit tool, data, and scope limits; designated accountable agent owners) and recoverability (agents pausable and returnable to a safe state; all agent actions logged where the agent cannot alter them) | Canadian public-sector agentic-AI guidance; advisory, not binding on an external adopter |
 
 ---
 

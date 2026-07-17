@@ -618,3 +618,52 @@ Three TODO 3.15 protection-tooling items were attempted this session (after the 
 - **GR-GAP-1 require-registration citation-currency gate: egress-gapped, NOT built.** Before building, validated the register coverage the gate depends on: of the 49 distinct `ISO(/IEC) NNNNN:YYYY` pairs the corpus cites, **17 have no row in `governance/register-canonical-citations.md`** (e.g. `ISO 19011:2018`, `ISO/IEC 20000-1:2018`, `ISO/IEC 27004:2022`, `ISO/IEC 29184:2020`), and there is a live `ISO/IEC 29134:2017`-vs-`:2023` corpus inconsistency (the exact wrong-year class the gate targets, #162/#482). A require-registration gate would false-fail on all 17 until the register is populated, and populating each row accurately requires confirming the standard's current version upstream (egress-gated, the same egress the 51 needs-reconfirm rows and TODO 1.5/1.11 wait on); guessing a version would violate the no-fabrication rule. The gate stays DECIDED-BUILD but sequenced behind register population by a future session with egress (populate the 17 rows, resolve the 29134 conflict, then build).
 
 Meta-lesson for the tooling backlog: an advisory whose trigger is a free-prose pattern (a count next to an enumeration, a section reference that might be stale) tends to fail its FP census because the signal is a SEMANTIC relationship the pattern cannot capture; the FP-census precondition is doing its job by catching this before ship (twice this session). Protections for these classes live better as close-out-checklist conventions (human/orchestrator judgment) than as mechanical tools. The census discipline (build, census over full history, discard if noisy) is cheap insurance against shipping decorative tools.
+
+## Local-VM exchange transport for credit-offload (maintainer-directed 2026-07-17)
+
+When the orchestrator and all workers run on ONE VM (no cloud sessions), the git-`grc_library_scratch`
+exchange is pure overhead and the root of most operational friction: every claim, heartbeat, and delivery
+is a git commit plus push plus GitHub round-trip; the ~5-minute worker poll creates idle gaps; and the
+stale-mirror, canada.ca-WAF, and git-proxy-403 problems all come from routing local IPC through GitHub.
+The maintainer expects the all-on-one-VM style to be the common case going forward and directed a local
+shared-directory transport for it. This is a TRANSPORT swap, not a model change: the credit-offload model
+is unchanged (workers produce research/QA read-only, the orchestrator authors/applies/merges to
+`grc_library` git, QA is never reduced, the elevated-trust window stands). It is bounded and
+low-conceptual-risk for that reason.
+
+**Locked design (maintainer decisions, 2026-07-17):**
+- **Shared dir** `/tmp/grc_exchange/` with per-worker subdirs `/<worker-id>/inbox/` (orchestrator assigns
+  tasks here), `/<worker-id>/outbox/` (worker writes results), and `/<worker-id>/heartbeat` (worker touches
+  it every ~30s). The orchestrator reads heartbeat mtimes to detect check-ins and to see who is live and
+  free (fresh heartbeat plus empty inbox = idle). This is the "detect worker check-ins in a shared
+  directory" capability the maintainer asked for.
+- **Separate Unix users** (worker/worker1, as tonight). The maintainer set up the shared dir directly
+  (2026-07-17): `/tmp/grc_exchange` exists, **group-writable for the `users` group** (orchestrator + both
+  worker sessions are members), and world-writable as a fallback. So cross-user read/write is handled by the
+  shared group (cleaner than the world-writable-subdir + sticky-bit scheme originally sketched); per-worker
+  subdirs are created under it at build time. One-time setup done by the maintainer; no per-run permission
+  edits.
+- **Push plus stale-reclaim (hybrid) assignment**, replacing pull/claim: the orchestrator writes a task to a
+  specific idle worker's inbox (no claim races, no fencing token); the worker polls its own inbox every
+  ~15-30s (local, free), dropping latency from ~5 min to seconds; if the assigned worker's heartbeat goes
+  stale mid-task, the orchestrator reclaims and reassigns the task.
+- **No crash backup (re-run on loss).** /tmp clears on reboot, but an unconsumed result is re-runnable
+  (re-assign the pass), and applied work is already durable in `grc_library` git, so there is no durable
+  loss. Simplest correct option; the periodic-outbox-snapshot alternative was declined.
+- **Durable outputs unchanged:** applied corpus diffs to `grc_library` git; audit/metrics rows to
+  `grc_library/.working`. /tmp is the wipeable transport, consistent with the existing "scratch is wipeable"
+  invariant.
+- **Coexistence with the cloud transport:** keep git-`scratch` as the cloud/distributed path; the
+  `tools/detect-env.py` probe picks the local transport when all-on-one-VM (e.g. `/tmp/grc_exchange` present
+  and workers local), else git-`scratch`. Both work; local is the default when detected.
+- **Resolves TODO 3.85** (worker shared-reference-mirror staleness) outright: no git mirror, just the shared
+  local filesystem, so the /tmp/grc_library_ref resync-and-repin dance for workers on one VM disappears.
+
+**Build sequencing.** This is a coherent transport that must be built worker-side and orchestrator-side
+TOGETHER (a heartbeat-detector alone is useless until the workers write to /tmp/grc_exchange), and adopting
+it swaps the workers' transport, so, like the item-1 helper hot-reload, it MUST be built when the workers
+are IDLE, not mid-task. The night this was decided the workers were running the deep-assessment and
+validate-pr-987, so the design is recorded here and the build is queued as a TODO item (credit-offload
+thread) for a session where the workers are quiescent / in fresh context. It touches the scratch
+`/credit-offload` command, `tools/credit-offload-queue.py`, and the orchestrator-side assignment/liveness
+wiring; it is tooling/worker-improvement (the prioritized tier), not new content.
