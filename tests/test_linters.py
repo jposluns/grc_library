@@ -4505,17 +4505,18 @@ class OvernightFileTests(LinterTestCase):
 class SessionStateTests(LinterTestCase):
     """tools/lint-session-state.py (gate 63)
 
-    Well-formedness of the session-concurrency lease: five required
-    field lines, a valid Status value, a parseable UTC heartbeat, and
-    status/branch coherence. All three status values pass when
-    coherent (the interlock decision lives in the /resume step-0
-    procedure, not in CI).
+    Well-formedness of the session-concurrency lease: six required
+    field lines (incl. Operating-mode), a valid Status value, a valid
+    Operating-mode value, a parseable UTC heartbeat, and status/branch
+    coherence. All three status values pass when coherent (the interlock
+    decision lives in the /resume step-0 procedure, not in CI).
     """
 
     VALID_LEASE = (
         "# Session State (concurrency lease)\n\n"
         "**Active-session:** claude/example-branch\n\n"
         "**Status:** active\n\n"
+        "**Operating-mode:** attended-autonomous\n\n"
         "**Last-heartbeat-UTC:** 2026-07-03T12:00:00Z\n\n"
         "**Current-task:** example task\n\n"
         "**Worker-dispatches:** none\n"
@@ -4578,6 +4579,26 @@ class SessionStateTests(LinterTestCase):
         missing, invalid = mod.check_text(text)
         self.assertEqual(missing, [])
         self.assertTrue(any("paused" in message for message in invalid))
+
+    def test_invalid_operating_mode_flagged(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Operating-mode:** attended-autonomous",
+            "**Operating-mode:** casual",
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertTrue(any("casual" in message for message in invalid))
+
+    def test_unattended_operating_mode_passes(self) -> None:
+        mod = self._load_module()
+        text = self.VALID_LEASE.replace(
+            "**Operating-mode:** attended-autonomous",
+            "**Operating-mode:** overnight-unattended",
+        )
+        missing, invalid = mod.check_text(text)
+        self.assertEqual(missing, [])
+        self.assertEqual(invalid, [])
 
     def test_malformed_heartbeat_flagged(self) -> None:
         mod = self._load_module()

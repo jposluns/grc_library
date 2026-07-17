@@ -15,6 +15,10 @@ the shared ``main`` state surfaces. Required fields, one per line:
 - ``**Status:**`` — ``active`` (a session holds the lease),
   ``winding-down`` (a session is landing its closing handoff PR), or
   ``released`` (no session holds the lease; the clean-close state).
+- ``**Operating-mode:**`` — ``fully-attended``, ``attended-autonomous``,
+  ``overnight-unattended``, or ``daytime-unattended``. The
+  AskUserQuestion-blocking hook reads this and refuses a blocking prompt when
+  the mode is unattended, so the value must always be present and current.
 - ``**Last-heartbeat-UTC:**`` — a ``YYYY-MM-DDTHH:MM:SSZ`` stamp
   (``date -u +%Y-%m-%dT%H:%M:%SZ``), refreshed at each PR close-out.
 - ``**Current-task:**`` — one line of free text.
@@ -55,6 +59,9 @@ FIELD_PATTERNS = {
         r"^\*\*Active-session:\*\*\s+(\S+)\s*$", re.MULTILINE
     ),
     "Status": re.compile(r"^\*\*Status:\*\*\s+(\S+)\s*$", re.MULTILINE),
+    "Operating-mode": re.compile(
+        r"^\*\*Operating-mode:\*\*\s+(\S+)\s*$", re.MULTILINE
+    ),
     "Last-heartbeat-UTC": re.compile(
         r"^\*\*Last-heartbeat-UTC:\*\*\s+(\S+)\s*$", re.MULTILINE
     ),
@@ -67,6 +74,15 @@ FIELD_PATTERNS = {
 }
 
 VALID_STATUSES = {"active", "winding-down", "released"}
+
+# Operating mode (the AskUserQuestion-blocking hook reads this: it blocks a blocking
+# prompt when the mode contains "unattended", so the value must be reliably present).
+VALID_MODES = {
+    "fully-attended",
+    "attended-autonomous",
+    "overnight-unattended",
+    "daytime-unattended",
+}
 
 HEARTBEAT_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
@@ -96,6 +112,13 @@ def check_text(text: str) -> tuple[list[str], list[str]]:
         invalid.append(
             f"Status value `{status}` is invalid; permitted values: "
             f"active, winding-down, released"
+        )
+
+    mode = values.get("Operating-mode")
+    if mode is not None and mode.lower() not in VALID_MODES:
+        invalid.append(
+            f"Operating-mode value `{mode}` is invalid; permitted values: "
+            f"fully-attended, attended-autonomous, overnight-unattended, daytime-unattended"
         )
 
     heartbeat = values.get("Last-heartbeat-UTC")
