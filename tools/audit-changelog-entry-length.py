@@ -48,10 +48,22 @@ It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the four-surface
 parity gate 35, the regression suite gate 36) does NOT auto-discover it, and it
 is NOT wired into ``run_all_audits.sh`` / ``quality.yml`` /
 ``.pre-commit-config.yaml``. It always exits 0: its findings are compress-queue
-candidates for the orchestrator, never workflow failures. Making it a blocking
-gate would be a decorative gate (gate-discipline rule): the compact/dense
-boundary is a judgement call, so a hard threshold would either false-positive on
-a legitimate long batch entry or be set so high it never fires. Its self-test
+candidates for the orchestrator, never workflow failures. This FULL-FILE tool
+stays advisory because making the WHOLE-FILE form blocking would be a decorative
+gate (gate-discipline rule): it would fail on the large body of historical
+entries that predate the compact convention, so it would need an unmanageable
+grandfather list or a ceiling set so high it never fires. Its role is the
+history-spanning compress-queue aid (which existing entries still need
+shortening).
+
+ENFORCEMENT lives in the sibling PR-time delta gate D8
+(``tools/check-changelog-length-on-pr.py``, maintainer-directed 2026-07-17),
+which applies the SAME measurement (compact-entry regex + sentence split, kept
+identical by convention) but only to the entries a PR ADDS, forward-only exactly
+like the D3 dash gate: a newly-added entry over the ceiling fails the PR, so new
+entries cannot drift while history is left for the compression pass. The
+advisory-only-was-not-enough lesson (three recurrences: #887-901, #902-914,
+#919-986) is why D8 exists; keep the two definitions in sync. Its self-test
 lives behind ``--self-test`` (inline unittest on the parser) rather than in
 ``tests/`` so the gate-36 regression runner does not adopt it as a gated test.
 
