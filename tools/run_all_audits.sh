@@ -165,6 +165,7 @@ run_gate "Unbalanced-fence audit"                         python3 tools/lint-unb
 run_gate "Document-Type enumeration parity audit"         python3 tools/lint-doctype-parity.py
 run_gate "Nested-markdown-link audit"                     python3 tools/lint-nested-markdown-links.py
 run_gate "Positional backlog-token audit"                 python3 tools/lint-positional-backlog-tokens.py
+run_gate "Sibling-repo stub-guard audit"                  python3 tools/lint-sibling-placeholders.py
 
 # ----------------------------------------------------------------------
 # Summary

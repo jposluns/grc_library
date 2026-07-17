@@ -7074,5 +7074,84 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
         )
 
 
+class SiblingPlaceholderTests(LinterTestCase):
+    """tools/lint-sibling-placeholders.py (gate 70)
+
+    The in-repo .ref/.scratch/.private sibling-repo placeholders must stay
+    stub-only: each dir exactly one README.md, whose first line is the
+    SIBLING-PLACEHOLDER marker, capped at 25 lines. Guards against reference,
+    worker-exchange, or private-operational payload leaking into the public
+    repo through the placeholders (TODO section 1.19.4).
+    """
+
+    GOOD_STUB = "<!-- SIBLING-PLACEHOLDER: ref -->\n# `.ref` placeholder\n\nStub.\n"
+
+    def test_runs_clean_on_corpus_at_head(self) -> None:
+        result = run_linter("tools/lint-sibling-placeholders.py")
+        self.assertEqual(
+            result.returncode, 0,
+            f"linter exited {result.returncode} on HEAD; the "
+            f".ref/.scratch/.private placeholders should be well-formed stubs.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def _load_module(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_lint_sibling_placeholders",
+            REPO_ROOT / "tools/lint-sibling-placeholders.py",
+        )
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _mk(self, files: dict[str, str], name: str = "ref") -> Path:
+        """Create a temp '.<name>' dir populated from files (filename->text); return it."""
+        d = Path(tempfile.mkdtemp()) / f".{name}"
+        d.mkdir()
+        for fn, text in files.items():
+            (d / fn).write_text(text, encoding="utf-8")
+        return d
+
+    def test_good_stub_passes(self) -> None:
+        mod = self._load_module()
+        d = self._mk({"README.md": self.GOOD_STUB})
+        self.assertEqual(mod.check_placeholder(d, "ref"), [])
+
+    def test_missing_dir_flagged(self) -> None:
+        mod = self._load_module()
+        missing = Path(tempfile.mkdtemp()) / ".ref"  # deliberately not created
+        findings = mod.check_placeholder(missing, "ref")
+        self.assertTrue(any("missing" in f for f in findings), findings)
+
+    def test_extra_payload_file_flagged(self) -> None:
+        mod = self._load_module()
+        d = self._mk({"README.md": self.GOOD_STUB, "PAYLOAD.txt": "leaked reference text\n"})
+        findings = mod.check_placeholder(d, "ref")
+        self.assertTrue(any("PAYLOAD.txt" in f for f in findings), findings)
+
+    def test_missing_marker_flagged(self) -> None:
+        mod = self._load_module()
+        d = self._mk({"README.md": "# no marker here\n\nstub\n"})
+        findings = mod.check_placeholder(d, "ref")
+        self.assertTrue(any("marker" in f for f in findings), findings)
+
+    def test_wrong_marker_token_flagged(self) -> None:
+        mod = self._load_module()
+        d = self._mk({"README.md": "<!-- SIBLING-PLACEHOLDER: scratch -->\nstub\n"})
+        findings = mod.check_placeholder(d, "ref")  # token mismatch vs the marker
+        self.assertTrue(any("marker" in f for f in findings), findings)
+
+    def test_too_long_readme_flagged(self) -> None:
+        mod = self._load_module()
+        body = "<!-- SIBLING-PLACEHOLDER: ref -->\n" + "\n".join(
+            f"line {i}" for i in range(30)
+        )
+        d = self._mk({"README.md": body + "\n"})
+        findings = mod.check_placeholder(d, "ref")
+        self.assertTrue(any("cap" in f or "exceeds" in f for f in findings), findings)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
