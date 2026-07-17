@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.482, PR #994
+
+The second Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.3): the in-repo sibling-repo placeholder stubs and their exemption. Third PR of the 2026-07-17 resumed session. §1.19.4 (the hard stub-guard gate) follows next; the placeholders ship one PR ahead of their guard because they are exempt content nothing edits in the interim.
+
+### Added
+
+- [`.ref/README.md`](../../.ref/README.md), [`.scratch/README.md`](../../.scratch/README.md), [`.private/README.md`](../../.private/README.md): three in-repo placeholder directories, each holding ONLY a README stub. Each stub carries a `<!-- SIBLING-PLACEHOLDER: <name> -->` marker (line 1), names the real sibling repo it stands in for (`grc_library_ref` / `grc_library_scratch` / `grc_library_private`) and its purpose, and gives an adopter/AI note (point your own sibling, or leave the stub and the dependent advisory tools skip cleanly). Each is <= 25 lines with no payload (the §1.19.4 gate will enforce this). They implement the resolution order real-sibling -> in-repo placeholder -> no-op for a fork that clones only the public repo.
+
+### Changed
+
+- [`tools/lint_common.py`](../../tools/lint_common.py): added `.ref`, `.scratch`, `.private` to `DEFAULT_EXEMPT_DIRS` (with a comment pointing at the stub-guard gate), so the content gates skip the placeholder dirs while the dedicated gate guards them.
+- [`TODO.md`](../../TODO.md): rotated `§1.19.3` to DONE (deleted the subsection; updated the §1.19 parent to record the placeholder stubs shipped in #994); recorded the **full Phase-1 build design LOCKED** (all of §1.19.2-§1.19.7, from the 2026-07-17 design session) in the §1.19 parent so the remaining PRs build to it.
+- [`README.md`](../../README.md): Library `2026.07.481` -> `2026.07.482`, README `1.9.842` -> `1.9.843`.
+- **Batched PR #993's QA** (offloaded, consumed this PR): the `validate-pr-993` SHIP row in [`validate-pr/history.md`](../validate-pr/history.md) (`1.2.755` -> `1.2.756`; worker-a delivery 2, elevated window, 0/0/0) and the #993 `/retro` row in [`improvement-log.md`](../improvement-log.md) (`1.0.690` -> `1.0.691`); the [`credit-offload-metrics.md`](../credit-offload-metrics.md) (`1.0.6` -> `1.0.7`) validate-pr-993 ledger row + roll-up (~583K gross this session). Routed one validate-pr-993 FYI, `check-portability.sh` covers relative sibling-reaches only, to new TODO §3.90.
+
+### Verification
+
+- `tools/run_all_audits.sh` = 69/69 (no count change; the placeholders are exempt content, no new gate this PR). `tools/check-portability.sh` (the §1.19.1 tool) still PASSES: the placeholders travel with a sibling-free clone and are exempt, so all 69 gates stay green with no sibling present.
+- The pre-push guard (run_all_audits 69/69 plus D1-D8) was green standalone before push. Normal (non-handoff) PR; its own `/validate-pr` + `/retro` batch into the next PR.
+
 ## 2026-07-17, Library Version 2026.07.481, PR #993
 
 The first Phase-1 deliverable of the §1.19 operational-state-privatization + adopter-clone-portability track (closes TODO §1.19.1), plus consumption of PR #992's post-merge QA and the corrections it surfaced. Second PR of the 2026-07-17 resumed session.
