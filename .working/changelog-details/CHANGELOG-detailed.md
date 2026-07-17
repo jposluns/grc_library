@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.475, PR #987
+
+Delivery-status tooling fix (closes TODO §3.61) plus a QA-surfaced gate-blind COBIT title fix, and batches PR #986's `/validate-pr` + `/retro`.
+
+### Fixed
+
+- [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py): TODO §3.61. `classify()` now returns `(bucket, low_confidence)`; a PENDING or APPLIED verdict resting ONLY on a recyclable section-number token (no stable FR/SR/GR coded id) is flagged LOW-CONFIDENCE, because a renumbered/recycled section number can map to a different current item than the delivery intended (the 2026-07-16 gr-gap `3.15` -> MITRE-ATLAS and etsi `3.16` -> CHANGELOG mis-maps). A coded-id match stays high-confidence. The report headline carries a low-confidence count and each flagged row a verify note; the module docstring documents the confidence model. Self-test extended (5 of 5 pass).
+- [`dev-security/register-compliance-controls-and-gap-register.md`](../../dev-security/register-compliance-controls-and-gap-register.md) (Version 1.0.4 to 1.0.5): validate-pr-986 Note-1. The COBIT process-alignment table's APO14 row listed the title as "Managed AI"; the canonical COBIT 2019 title is "Managed Data" (a substitution error, gate-blind since gate 61 validates code existence not title accuracy). Corrected; a corpus-wide `Managed AI` grep confirmed line 308 was the only COBIT-title carrier (the other hits are legitimate prose about managed AI services). Generated artefacts regenerated.
+
+### Changed
+
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (1.2.749 to 1.2.750): the validate-pr-986 SHIP row (Note-1 fixed in-window).
+- [`.working/improvement-log.md`](../improvement-log.md) (1.0.684 to 1.0.685): the PR #986 `/retro` row.
+- [`TODO.md`](../../TODO.md): TODO §3.61 closed (deleted); [`.working/DONE.md`](../DONE.md) gains the §3.61 rotation.
+- [`.working/session-state.md`](../session-state.md): concurrency-lease heartbeat re-stamped; Active-session `claude/delivery-status-coded-id`.
+- Library CalVer `2026.07.474` to `2026.07.475`; [`README.md`](../../README.md) README Version `1.9.835` to `1.9.836`.
+
+### Verification
+
+- `audit-delivery-status.py --self-test`: 5 of 5 pass; the live report now flags the 8 section-token-only PENDING deliveries as LOW-CONFIDENCE (the gr-gap / etsi recycled-token class).
+- validate-pr-986 (worker-20260716-a, elevated delivery-2, PASS): MF1 re-verified at the held COBIT source; Note-1 (this PR's register fix) re-verified real at source before applying.
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before the first commit; pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green.
+
 ## 2026-07-17, Library Version 2026.07.474, PR #986
 
 Consumes the four delivered worker quality-assurance passes (`matrix-fit-full-pass`, `canada-matrix-fit`, `claim-fit-tier-a-pass`, `screen-publications-pending`) and fixes the one defect surfaced (MF1). Also batches PR #985's `/validate-pr` + `/retro`. The QA-passes-first ordering is maintainer-directed (a QA delivery may contain a must-fix, so it is consumed ahead of build/tooling work).
