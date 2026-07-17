@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.477, PR #989
+
+CHANGELOG length delta gate D8 (the enforcement for the recurring root-entry drift), the deep-assessment r4 continuation consume, and the PR #988 QA batch.
+
+### Added
+
+- [`tools/check-changelog-length-on-pr.py`](../../tools/check-changelog-length-on-pr.py) (delta gate D8): fails a PR whose newly-added root CHANGELOG entry summary exceeds 100 words or has a sentence over 45 words. Forward-only (added lines only), like the D3 dash gate; history untouched. Inline self-test 4/4; verified it catches the #985 drift (237 words / 62-word sentence). Root cause it fixes: the prior length check ([`tools/audit-changelog-entry-length.py`](../../tools/audit-changelog-entry-length.py)) was advisory-only, wired into no gate, so nothing failed CI when an entry drifted (three recurrences: #887-901, #902-914, #919-986).
+- [`TODO.md`](../../TODO.md) §1.17: the r4 confirmed gate-blind citation fixes (W1 NIST cipher-suite, N2 CSF subcategories, W2 ISO 27002 clause), holding for r4 sign-off.
+
+### Changed
+
+- D8 wiring across surfaces: [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), `WORKFLOW_DELTA_GATE_STEPS` in [`tools/lint-audit-gate-parity.py`](../../tools/lint-audit-gate-parity.py), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (D8 table row + prose; Version 1.17.6 to 1.17.7). D1-D7 range claims updated to D1-D8 in [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh) and the active CLAUDE.md. The advisory tool's docstring now names D8 as its enforcing sibling.
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md) + [`2026-07-16-r4.md`](../deep-assessment/2026-07-16-r4.md): r4 continuation recorded (phases 3-7 complete via worker-b; Phase 8 holds for maintainer sign-off); findings routed.
+- [`TODO.md`](../../TODO.md): P3 `Next item number` counter 3.87 to 3.89 (the validate-pr-988 W1 fix set it to 3.88, then the new §3.88 item advanced it to 3.89); §1.17 (r4 citation fixes) and §3.88 (worker-registry stale-entry prune) added; §1.12 annotated (part 2 satisfied by D8). §1.16 is a #988 item, not touched here.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (to 1.2.752): validate-pr-987 + validate-pr-988 rows. [`.working/improvement-log.md`](../improvement-log.md) (to 1.0.687): #987 + #988 retro rows. [`.working/session-state.md`](../session-state.md): lease heartbeat + worker-dispatches.
+
+### Verification
+
+- Parity gates green (gate 35: 69 gates across four surfaces; spec-prose: 8 delta checks narrated and registry-matched). Pre-push guard (run_all_audits + PR-time D1-D8 + history-aware 45/40/31) green.
+- Worker QA consumed under elevated windows: validate-pr-987 (worker-a delivery-3, a confirmed enumeration miss caught by re-derivation, window RESET + escalated); deep-assessment r4 continuation (worker-b delivery-2, findings re-verified at held source, W1/N2/W2 all confirmed); validate-pr-988 (worker-a first post-reset, PASS, caught the real P3-counter defect). W2 was corrected from an initial wrong "source-not-held" call after the maintainer flagged that ISO/IEC 27002:2022 IS held (an absence-from-partial-grep error, now codified against).
+
 ## 2026-07-17, Library Version 2026.07.476, PR #988
 
 TODO §2.22 first bite (a sector-neutral Canada comparator row), plus the local-VM worker-exchange transport design record, a routed QA finding (§1.16), and PR #987's `/validate-pr` + `/retro` batch.
