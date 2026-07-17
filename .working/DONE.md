@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.3: Sibling-repo placeholder stub dirs + exemption (2026-07-17, PR #994)
+
+Shipped the in-repo `.ref/`, `.scratch/`, `.private/` placeholder directories (each holding only a marker-stamped `README.md` stub naming the real sibling and an adopter/AI note) and added the three to `DEFAULT_EXEMPT_DIRS`, the second Phase-1 deliverable of the §1.19 privatization track. They stand in for the `grc_library_ref`/`grc_library_scratch`/`grc_library_private` siblings so an adopter clone resolves real-sibling → placeholder → no-op; the hard stub-guard gate that enforces they stay stub-only follows in §1.19.4. Corpus stayed 69/69.
+
 ### TODO §1.19.1: Sibling-independence invariant + adopter-clone portability test (2026-07-17, PR #993)
 
 Shipped `tools/check-portability.sh`, which git-clones the repo's HEAD into a sibling-free temp dir and runs `run_all_audits.sh` there, asserting all 69 gates pass with no `grc_library_ref`/`_scratch`/`_private` sibling present, the first Phase-1 deliverable of the §1.19 operational-state-privatization track. Verified both directions: PASS on the real corpus (69/69 sibling-free) and non-vacuous FAIL when a gate is made to reach a sibling. Locks the guarantee that an adopter clone runs every gate green.
