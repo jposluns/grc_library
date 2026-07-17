@@ -2,8 +2,8 @@
 
 **Document Title:** API Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.10\
-**Date:** 2026-07-03\
+**Version:** 0.0.11\
+**Date:** 2026-07-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/standard-data-loss-prevention.md`](../security/standard-data-loss-prevention.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`ai/standard-ai-access-and-agent-permissions.md`](../ai/standard-ai-access-and-agent-permissions.md)\
@@ -107,7 +107,7 @@ For routine changes within an existing API contract, the security controls in th
 | Control area | Requirement |
 | --- | --- |
 | TLS | TLS 1.3 or stronger (aligned to [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) §4 (Encryption standards) canonical mandate); HSTS for browser-driven APIs |
-| Cipher suite | TLS 1.3 AEAD cipher suites per NIST SP 800-52 Rev. 2 §3.3.1: `TLS_AES_256_GCM_SHA384` (recommended), `TLS_AES_128_GCM_SHA256`, `TLS_CHACHA20_POLY1305_SHA256`. Older cipher suites (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH) rejected. |
+| Cipher suite | TLS 1.3 AEAD cipher suites: `TLS_AES_256_GCM_SHA384` (recommended) and `TLS_AES_128_GCM_SHA256` per NIST SP 800-52 Rev. 2 §3.3.1, together with `TLS_CHACHA20_POLY1305_SHA256` (an RFC 8446 AEAD suite not enumerated by SP 800-52 Rev. 2). Older cipher suites (RC4, 3DES, MD5-based, CBC-mode without AEAD, RSA key-exchange without forward secrecy, anonymous DH) rejected. |
 | Certificate management | Per the cryptographic key lifecycle framework |
 | mTLS | For service-to-service and high-sensitivity partner integrations |
 | WebSocket | Same authentication and authorization as the equivalent REST endpoint; ping-pong heartbeats with idle timeout |

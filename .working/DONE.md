@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.17: deep-assessment r4 confirmed gate-blind citation-accuracy fixes (2026-07-17, PR #1001)
+
+Applied the four held-source-verified citation fixes the r4 deep-assessment (and Sweep 110) surfaced, all gate-blind because the existence gates validate the framework and code, not the cited value: W1 (`TLS_CHACHA20_POLY1305_SHA256` de-attributed from NIST SP 800-52 Rev. 2 §3.3.1, now noted as an RFC 8446 suite, in the API-security standard), N2 (the monitoring procedure's §12 table CSF 1.1 subcategory IDs remapped to CSF 2.0 with a maintainer-confirmed best-fit + category-level-fallback mapping), W2 (ISO/IEC 27002:2022 `8.15.3` -> `8.17` Clock synchronization), and the same-class S110-1 (`ID.AM-3` -> `ID.AM-02` in the SCA standard). Ships with the r4 Phase-8 maintainer sign-off; a refute-briefed skeptical verifier confirmed each fix at held source.
+
 ### TODO §1.19.6: `/adopt` run-once fork-onboarding skill + command (2026-07-17, PR #998)
 
 Added the `/adopt` pack skill + slash command (the 24th skill): run-once onboarding for a fork adopting the project. It confirms a genuine adopter clone, resets the machinery-core `.working/` working-state to clean baselines (a sanctioned adopter-only exception to the never-drop invariants), settles the sibling model, strips maintainer-only residue, and records a committed `.claude/adopt-config.json` the `/resume` step reads to proceed in adopter-mode. Also hardened `tools/detect-env.py`'s origin matcher (host-pinned exact owner/repo parse, closing the two #997 theoreticals) and wired the `/resume` adopter-path (with malformed-config + probe-error branches). The mandated `/guardrails` review (r11, auto-prompted by the skill+command machinery drift) fixed six issues in-window and routed three hardenings to §3.92. The sixth §1.19 Phase-1 deliverable.

@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.489, PR #1001
+
+Applies the deep-assessment r4 confirmed gate-blind citation-accuracy fixes (TODO §1.17), which the maintainer signed off at the 2026-07-17b `/resume`, together with the same-class Sweep 110 finding S110-1. All four are gate-blind: the citation, currency, and control-code gates validate that a source exists and a code is well-formed, not that the cited value is the right one. Each was re-verified at the held source, and a refute-briefed skeptical verifier checked the set before push.
+
+### Changed
+- [`dev-security/standard-api-security.md`](../../dev-security/standard-api-security.md) §7 (W1) - the TLS 1.3 cipher-suite cell no longer attributes `TLS_CHACHA20_POLY1305_SHA256` to NIST SP 800-52 Rev. 2 §3.3.1 (which enumerates only the AES-GCM/CCM suites); the two AES-GCM suites are cited to 800-52r2 and ChaCha20-Poly1305 is noted as an RFC 8446 AEAD suite not enumerated by 800-52r2. Version 0.0.10 to 0.0.11.
+- [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md) §12 (N2 + W2) - the NIST CSF column's CSF 1.1-legacy subcategory IDs are remapped to CSF 2.0 (the library is pinned to 2.0) with a maintainer-confirmed best-fit + category-level-fallback mapping: `DE.CM-7` to `DE.CM-09` (log ingestion; and AI-assisted detection), `DE.CM-1` to `DE.CM` at category level (time synchronization has no 2.0 subcategory; ISO 8.17 is its anchor), `DE.CM-3, DE.CM-4` to `DE.CM-09, DE.AE-02` (alert rules), `RS.CO-1` to `RS.MA-02` (automated ticket creation), `RS.CO-3` to `RS.MA-04` (escalation, an exact 2.0 match); and the ISO/IEC 27002:2022 cell for time synchronization corrected from the non-existent `8.15.3` to `8.17` (Clock synchronization). Version 1.3.7 to 1.3.8.
+- [`dev-security/standard-software-composition-analysis.md`](../../dev-security/standard-software-composition-analysis.md) §-framework-alignment (S110-1) - the NIST CSF 2.0 cell's `ID.AM-3, Software asset inventory` corrected to `ID.AM-02` (software inventory; `ID.AM-03` is network/data-flow representations), fixing both the wrong subcategory and the unpadded 1.1-style format. Version 1.1.6 to 1.1.7.
+- [`taxonomy.yml`](../../taxonomy.yml), [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) - regenerated after the three per-document Version bumps (taxonomy first, then the portal/scorecard derivation).
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md) - r4 Phase 8 and Status set to `signed-off` with the maintainer sign-off note; the remaining r4 candidates (W5, W6, N1/N3/N4-N12, the OSCAL-vs-CSWP-29 note) route to their trackers.
+- [`TODO.md`](../../TODO.md) - §1.17 closed and rotated to [`DONE.md`](../DONE.md); the P1 count prose updated (eight to seven open items).
+
+### Verification
+- Each fix re-verified at held source: W1 against NIST SP 800-52 Rev. 2 §3.3.1; N2 against the held CSF 2.0 core (CSWP-29) subcategory enumeration; W2 against ISO/IEC 27002:2022 (8.15 Logging has no 8.15.3; 8.17 is Clock synchronization); S110-1 against CSWP-29 ID.AM-02/ID.AM-03.
+- Bare-token residual greps clean in all three touched docs and corpus-wide (the only other carriers of the old tokens are TODO §1.17's own finding text, which this PR removes).
+- A refute-briefed skeptical verifier reviewed the four fixes + the N2 mapping before push.
+- The N2 mapping style (best-fit + category fallback) was maintainer-confirmed via `AskUserQuestion`.
+- Recursion-avoidance batch: PR #1000's `/validate-pr` row and `/retro` row are carried in this PR.
+- Pre-push guard (`run_all_audits.sh` 70/70 + `run-pr-time-checks.sh`) green before push.
+
 ## 2026-07-17, Library Version 2026.07.488, PR #1000
 
 First PR of the 2026-07-17b resumed session (`/resume` from the session-closing handoff #999; on the VM, gh-CLI, no GitHub MCP; attended-autonomous). The loop-break Sweep 111 close-out: consumes the pre-positioned corpus-wide `/validate` and records its clean result, acquires the concurrency lease, and queues a recurrence-prevention backlog item. Working-state only; no corpus or website content changed.
