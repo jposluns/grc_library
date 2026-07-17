@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.492, PR #1004
+
+Website fix (maintainer-flagged, not critical): on the For-AI page the hero heading "Learning governance and security from this corpus." overflowed the coloured hero band on the maintainer's iPad, the "ty" of "security" spilling into the next section. Cause: the heading ([`.web/templates/for-ai.html`](../../.web/templates/for-ai.html)) joins "Learning governance and security" with `&nbsp;` into one unbreakable ~31-character token, which defeats the `.hero h1` `max-width: 18ch` + `text-wrap: balance` wrapping, so at tablet width the token, sized by the `font-size: clamp(2.15rem, 5.6vw, 4rem)`, rendered wider than the padded band and overflowed. Fix per maintainer direction (decrease the hero heading size): lower the clamp's `vw` term and floor so the token fits at tablet widths, leaving the `4rem` desktop cap unchanged.
+
+### Changed
+- [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html) - `.hero h1` font-size `clamp(2.15rem, 5.6vw, 4rem)` to `clamp(1.7rem, 4.3vw, 4rem)`. The reduction is concentrated on tablet and narrow widths (where the overflow occurred); the desktop cap stays `4rem`, so wide screens are visually unchanged. Shared `.hero h1` rule, so every hero page inherits the slightly-smaller tablet heading.
+
+### Notes
+- The underlying `&nbsp;`-defeats-`max-width:18ch` interaction (which also affects very narrow phone widths) is NOT changed here, to keep the fix to the maintainer's stated remedy (font-size) without altering the heading's line-break design. If the maintainer wants the heading to wrap into the intended narrow balanced block instead, removing the intra-phrase `&nbsp;` is the follow-up.
+- Verified visually on the maintainer's device pending (the orchestrator cannot render the iPad viewport); the clamp reduction gives comfortable margin at 768 to 1024 CSS px by calculation.
+
+### Verification
+- `python3 .web/build.py --check` rc 0; the new clamp `clamp(1.7rem, 4.3vw, 4rem)` is present in the built pages and the old value is gone (0 residual).
+- `.web/dist` is gitignored (Cloudflare rebuilds from the template); the committed change is the shared style partial only.
+- Recursion-avoidance batch: PR #1003's `/validate-pr` and `/retro` rows are carried here.
+- No corpus document, generated artefact, or gate touched. Pre-push guard green.
+
 ## 2026-07-17, Library Version 2026.07.491, PR #1003
 
 Codifies the "sync scratch every PR" discipline (TODO §3.93 parts (a) and (b)), the recurrence-prevention for a maintainer-flagged mistake that fired twice (2026-07-16 and again at this resume): the local `grc_library_scratch` checkout does not auto-sync, but the credit-offload reads (the `workers/` liveness registry, `queue/`, `results/`) operate on it, so a worker delivery pushed to scratch `origin/main` is invisible until the orchestrator fetches. At this resume that produced a wrong "both workers stale, Sweep-111 order unclaimed" report and a needless worker-restart ask, when worker-a had already delivered on `origin/main`. A dedicated memory already existed and did not prevent recurrence, so the fix is a forcing function in the standing surfaces rather than another note.
