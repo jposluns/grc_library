@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.483, PR #995
+
+The third Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.4): the hard sibling-repo stub-guard gate. Fourth PR of the 2026-07-17 resumed session. The corpus gate count rises 69 -> 70.
+
+### Added
+
+- [`tools/lint-sibling-placeholders.py`](../../tools/lint-sibling-placeholders.py) (gate 70, "Sibling-repo stub-guard audit"): enforces that each in-repo `.ref` / `.scratch` / `.private` placeholder directory (a) exists, (b) contains exactly one entry, its README stub, (c) whose first line is the `<!-- SIBLING-PLACEHOLDER: <name> -->` marker, and (d) is at most 25 lines, so no reference-base, worker-exchange, or private-operational payload can leak into the public repo through a placeholder. It scans only the three in-repo placeholder dirs, never the real sibling repos. The enforcement half of the §1.19.1 sibling-independence invariant.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a 7-case `SiblingPlaceholderTests` regression class (HEAD smoke test + good-stub pass + missing-dir / extra-payload / missing-marker / wrong-token / over-length fail cases). `check_placeholder` was refactored to take a `dir_path` so the fail cases run against temp dirs.
+
+### Changed
+
+- Four-surface gate wiring (gate-35 parity) + spec: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (§6 inventory row 70 + §6 detailed prose + §5 group 6 "Security and privacy"). The gate is named **"Sibling-repo stub-guard audit"** (not "Sibling-placeholder...") deliberately: "placeholder" is a gate-9 uncertainty marker, and the §6 table row sits within gate-9's 2-line window of the must-laden "Most gates..." paragraph, so a "placeholder" in the row name would trip gate 9; the detailed prose likewise avoids mandatory verbs (`must`/`shall`) next to the "placeholder"/"TODO" markers. No change to gate 9 itself.
+- [`tools/lint_common.py`](../../tools/lint_common.py): refreshed the module Scope-notes docstring to enumerate all 8 `DEFAULT_EXEMPT_DIRS` (the 5 originals + the 3 sibling-placeholder dirs added in #994) and reframe the "further via `exempt_dirs`" statement, fixing validate-pr-994's NOTE-1 (a paired-surface docstring lag).
+- [`TODO.md`](../../TODO.md): rotated `§1.19.4` to DONE (deleted the subsection; parent range now "§1.19.2 and §1.19.5 through §1.19.13"; the design-lock block's §1.19.4 clause reworded to drop the dangling token, recording the naming rationale).
+- **Batched PR #994's QA:** the validate-pr-994 SHIP-with-NOTE row in [`validate-pr/history.md`](../validate-pr/history.md) (`1.2.756` -> `1.2.757`), the #994 `/retro` row in [`improvement-log.md`](../improvement-log.md) (`1.0.691` -> `1.0.692`), and the [`credit-offload-metrics.md`](../credit-offload-metrics.md) (`1.0.7` -> `1.0.8`) validate-pr-994 ledger row + ~703K roll-up.
+- [`README.md`](../../README.md): Library `2026.07.482` -> `2026.07.483`, README `1.9.843` -> `1.9.844`.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) Version `1.17.8` -> `1.17.9` (its body changed: the gate-70 §6 row + detailed prose + §5 group). Generated artefacts regenerated: [`taxonomy.yml`](../../taxonomy.yml) (spec version row) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md); `docs/portal.md` unchanged.
+
+### Verification
+
+- `tools/run_all_audits.sh` = **70/70** (gate 70 wired + green). Gate 70 proven both directions: clean PASS on the live placeholders, and a non-vacuous FAIL on an injected payload file (exit 1) and via the 7 regression tests (all pass). Gate 9 (mandatory-near-uncertainty) re-confirmed clean after the naming + prose fix; gate 35 four-surface parity holds with the renamed gate.
+- validate-pr-994 consumed under ELEVATED QA (worker-b delivery 2): proof-of-run genuine, NOTE-1 re-verified real at source and fixed here. The pre-push guard (run_all_audits 70/70 + D1-D8) was green standalone before push; a refute-briefed skeptical verifier reviewed the diff. Normal (non-handoff) PR; its own `/validate-pr` + `/retro` batch into the next PR.
+
 ## 2026-07-17, Library Version 2026.07.482, PR #994
 
 The second Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.3): the in-repo sibling-repo placeholder stubs and their exemption. Third PR of the 2026-07-17 resumed session. §1.19.4 (the hard stub-guard gate) follows next; the placeholders ship one PR ahead of their guard because they are exempt content nothing edits in the interim.
@@ -51,7 +74,7 @@ The first Phase-1 deliverable of the §1.19 operational-state-privatization + ad
 
 - `tools/check-portability.sh` PASS-case: `run_all_audits.sh` = 69/69 in a sibling-free clone (exit 0). Non-vacuity: a scenario clone with an injected `grc_library_ref` reach in `run_all_audits.sh` made the check FAIL (exit 1, "PORTABILITY: FAIL rc=42"), confirming it detects a sibling reach.
 - validate-pr-992 consumed under full ELEVATED QA (proof-of-run genuine ~132K; mechanical facts independently re-derived; W1 re-verified as the orchestrator's own self-catch; a delivery-1 false-negative auditor found no additional substantive miss). worker-b is at 1 of 2-to-3 clean elevated passes this session.
-- The pre-push guard (run_all_audits 69/69 plus the D1-D8 PR-time checks) was green standalone before push. No corpus-document body or generated-artefact change (no taxonomy/portal/scorecard regen). This is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` batch into the next PR.
+- The pre-push guard (run_all_audits **70/70** plus the D1-D8 PR-time checks) was green standalone before push. The audit-programme spec's Version was co-bumped (`1.17.8` -> `1.17.9`) for its body change and the taxonomy + maturity-scorecard regenerated (the pre-push skeptical verifier caught the initially-missed spec Version bump, a gate-40 catch, pre-push). This is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` batch into the next PR.
 
 ## 2026-07-17, Library Version 2026.07.480, PR #992
 

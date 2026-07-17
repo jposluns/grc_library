@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.4: Hard-blocking sibling-repo stub-guard gate (gate 70) (2026-07-17, PR #995)
+
+Shipped gate 70 (`tools/lint-sibling-placeholders.py`, "Sibling-repo stub-guard audit"): a hard gate that enforces each in-repo `.ref`/`.scratch`/`.private` placeholder holds exactly a marker-stamped, <=25-line `README.md` and nothing else, so no reference/worker-exchange/private-operational payload can leak into the public repo through them. The third Phase-1 deliverable of the §1.19 privatization track; the enforcement half of the §1.19.1 portability invariant. Wired across all four parity surfaces + spec §5/§6 + a 7-case regression fixture; verified both directions (clean PASS + injected-payload FAIL); corpus now 70/70. Named to avoid the gate-9 marker word "placeholder" in the §6 table row.
+
 ### TODO §1.19.3: Sibling-repo placeholder stub dirs + exemption (2026-07-17, PR #994)
 
 Shipped the in-repo `.ref/`, `.scratch/`, `.private/` placeholder directories (each holding only a marker-stamped `README.md` stub naming the real sibling and an adopter/AI note) and added the three to `DEFAULT_EXEMPT_DIRS`, the second Phase-1 deliverable of the §1.19 privatization track. They stand in for the `grc_library_ref`/`grc_library_scratch`/`grc_library_private` siblings so an adopter clone resolves real-sibling → placeholder → no-op; the hard stub-guard gate that enforces they stay stub-only follows in §1.19.4. Corpus stayed 69/69.
