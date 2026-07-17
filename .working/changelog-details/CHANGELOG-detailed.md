@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.490, PR #1002
+
+Website fix (maintainer-flagged): the "For AI" and "Contributors" links appeared to vanish from the landing-page Contents sidebar. Diagnosis (evidence-grounded): both links are present in the live DOM (confirmed by fetching the live site, sidebar lines 527-528) and in a fresh [`.web/build.py`](../../.web/build.py) render, so nothing hides them. The cause is the sticky sidebar's viewport-height cap with inner scroll (`max-height: calc(100vh - 2.5rem); overflow-y: auto` at `min-width: 1080px`, in [`.web/templates/partials/head-style.html`](../../.web/templates/partials/head-style.html)): as the Contents nav grew (Get-started sub-links, 11 domain links, 6 Standards sub-groups across the recent website PRs) it now exceeds the viewport on typical laptops, so its last two entries (For AI, Contributors) scroll below the sidebar's inner fold. Per maintainer direction, the fix makes the For-AI page reachable independently of the sidebar rather than reworking the sidebar: add a "For AI" link to the site-wide footer, where "About and contributors" already lives.
+
+### Changed
+- [`.web/templates/partials/footer.html`](../../.web/templates/partials/footer.html) - added a `For AI` link (to `/for-ai/`) in the footer Project column, immediately before "About and contributors" (mirroring the sidebar's For AI then Contributors order). The footer is a shared partial, so the link now renders on all 32 full site pages.
+
+### Verification
+- [`.web/build.py`](../../.web/build.py) rebuilt 35 pages; the new footer link is present in all 32 full HTML pages (the other 3 generated outputs, robots.txt / sitemap.xml / llms.txt, carry no footer).
+- The generator's `--check` mode returned rc 0 (corpus parses, every page renders).
+- The generated site directory is gitignored (Cloudflare Pages rebuilds from the template at deploy), so the committed change is the template partial only.
+- No corpus document, generated artefact, or gate touched, and no per-document version bump needed. The residual sidebar-overflow root cause is tracked as TODO §3.94. Pre-push guard green.
+
 ## 2026-07-17, Library Version 2026.07.489, PR #1001
 
 Applies the deep-assessment r4 confirmed gate-blind citation-accuracy fixes (TODO §1.17), which the maintainer signed off at the 2026-07-17b `/resume`, together with the same-class Sweep 110 finding S110-1. All four are gate-blind: the citation, currency, and control-code gates validate that a source exists and a code is well-formed, not that the cited value is the right one. Each was re-verified at the held source, and a refute-briefed skeptical verifier checked the set before push.

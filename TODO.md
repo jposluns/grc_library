@@ -139,7 +139,7 @@ The maintainer added the CCPA statute version effective 2026-01-01 to `grc_libra
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.94.**
+**Next item number: 3.95.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -414,6 +414,10 @@ The `/adopt` guardrail review (r11, bundled in the #998 PR that shipped the skil
 ### 3.93 Sync scratch every PR + fetch-before-read the credit-offload coordination plane (maintainer-flagged 2026-07-17, recurrence-prevention, M, S) `[machinery]`
 
 Recurrence-prevention for a maintainer-flagged mistake that fired twice (2026-07-16 and again 2026-07-17). The local `grc_library_scratch` checkout does NOT auto-sync, but the credit-offload reads (`credit-offload-queue.py list-workers`/`list-pending`, `results/`, `queue/` files) operate on that local checkout, so a worker delivery pushed to scratch `origin/main` is invisible until the orchestrator fetches. At the 2026-07-17 `/resume` this caused a wrong "both workers stale / Sweep-111 order unclaimed" report and a needless ask to the maintainer to restart the workers, when worker-a had already claimed and delivered Sweep 111 on `origin/main`. A memory alone did not prevent recurrence, so the fix is a forcing function across three surfaces: (a) **the primary standing rule (maintainer-directed): sync scratch every PR** at close-out (`cd grc_library_scratch && git fetch origin && git reset --hard origin/main`), delivery pending or not, so scratch state is current at every boundary; add it to the CLAUDE.md `## Session migration and PR close-out checklist`. (b) **`/resume` step 3 + the CLAUDE.md `## Credit-offload mode` discipline**: mandate the scratch fetch (and a per-tick fetch in any poll loop) before ANY coordination-plane read. (c) **mechanical (scratch-side PR): `credit-offload-queue.py` `list-workers`/`list-pending` auto-`git fetch` origin (and read origin/main) before reporting**, so even an ad-hoc read is current — the actual forcing function a convention cannot be. Deliver (a)+(b) as a grc_library PR and (c) as a `grc_library_scratch` PR.
+
+### 3.94 Landing-page Contents sidebar overflows its viewport, hiding trailing links (maintainer-flagged 2026-07-17, L, S) `[website]`
+
+The landing-page "Contents" sidebar (`.sidenav-inner`) is capped at `max-height: calc(100vh - 2.5rem)` with `overflow-y: auto` at `min-width: 1080px` ([`.web/templates/partials/head-style.html`](.web/templates/partials/head-style.html)). As the nav grew (the Get-started sub-links, the 11 domain links, the 6 Standards sub-groups added across the recent website PRs) it now exceeds a typical laptop viewport, so its last entries ("For AI", "Contributors") scroll below the sidebar's inner fold and read as missing (maintainer report; the links are present in the live DOM). #1002 MITIGATED this by adding a "For AI" footer link (Contributors was already in the footer), so the pages stay reachable, and the maintainer judged the sidebar case now "matters less". This item tracks the underlying sidebar-overflow root cause for a later, lower-priority pass: options include collapsing the Standards/Get-started sub-groups by default, moving the cross-page links (For AI, Contributors) to the top of the sidenav or into the persistent topbar, or a subtler height budget. Website generator/template only; verify with `.web/build.py --check`.
 
 ## Priority 4 — Adopter experience
 
