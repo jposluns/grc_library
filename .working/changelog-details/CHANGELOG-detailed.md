@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.474, PR #986
+
+Consumes the four delivered worker quality-assurance passes (`matrix-fit-full-pass`, `canada-matrix-fit`, `claim-fit-tier-a-pass`, `screen-publications-pending`) and fixes the one defect surfaced (MF1). Also batches PR #985's `/validate-pr` + `/retro`. The QA-passes-first ordering is maintainer-directed (a QA delivery may contain a must-fix, so it is consumed ahead of build/tooling work).
+
+### Fixed
+
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md) (Version 1.2.7 to 1.2.8): **MF1** (from `matrix-fit-full-pass`, worker-20260716-a). The charter's sole COBIT alignment row cited `APO14 "Managed Data"` for a document whose subject is the AI Governance Council, a governance/oversight BODY (Mandate = "provide oversight of AI system risk and compliance"). Corrected to `EDM01 "Ensured Governance Framework Setting and Maintenance"`, the on-point COBIT objective for establishing and maintaining a governance body; re-verified against the held COBIT reference module (APO14 = "Managed Data"; EDM01 = "Ensured Governance Framework Setting and Maintenance") with gate 61 (COBIT citation-existence) green. Generated artefacts regenerated.
+
+### Changed
+
+- [`.working/matrix-fit/history.md`](../matrix-fit/history.md) (Version 1.0.10 to 1.0.11): two rows recording the consumption of `matrix-fit-full-pass` (1 mis-fit MF1 fixed; compliance matrix 0 mis-fits, 64/64 rows / 402/402 codes) and `canada-matrix-fit` (0 mis-fits; 23 Canada citations well-fitted; feeds §2.22).
+- [`.working/claim-fit/history.md`](../claim-fit/history.md) (Version 1.0.10 to 1.0.11): a row recording `claim-fit-tier-a-pass` (8 of 8 Tier-A attributions accurate: 7 prescribed, 1 informed-not-prescribed already correctly handled; 0 defects).
+- [`.working/validate-pr/history.md`](../validate-pr/history.md) (Version 1.2.748 to 1.2.749): PR #985's `/validate-pr` row (SHIP; 1 low note, Note-1, routed to TODO §3.86). Offloaded to `worker-20260716-a` as its first QA-kind delivery this session, consumed under elevated QA (delivery-1): mechanical facts independently re-derived, Note-1 re-verified real at the held statute; worker-a elevated delivery-1 PASS.
+- [`.working/improvement-log.md`](../improvement-log.md) (Version 1.0.683 to 1.0.684): PR #985's `/retro` row (committed earlier on this branch).
+- [`TODO.md`](../../TODO.md): new §3.86 (CCPA dollar-threshold CPI-adjustment caveat, corpus-wide, low priority) routing Note-1; the Priority-3 next-item counter advanced to 3.87.
+- [`.working/session-state.md`](../session-state.md): concurrency-lease heartbeat re-stamped; Active-session updated to `claude/pr985-qa-and-next`.
+- Library CalVer `2026.07.473` to `2026.07.474`; [`README.md`](../../README.md) README Version `1.9.834` to `1.9.835`.
+
+### Verification
+
+- The publications-screening pass (`screen-publications-pending`) reported the register fully drained (25/25 screened, 0 pending); no corpus action. Its bonus whole-bucket scan surfaced only benign extraction artefacts (zero-width / soft-hyphen), no injection content.
+- MF1 re-verified at source before apply (the worker-a QA consume discipline); Note-1 re-verified real at the held Civil Code §1798.140(d)(1)(A) (line 256, the "as adjusted pursuant to Section 1798.199.95" clause), and routed rather than fixed in isolation per the worker's consistency caution (the same clause is elided wherever the corpus cites the threshold).
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) run before the first commit; pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; gate 61 (COBIT) green after the MF1 code substitution.
+
+### Note (QA-passes-first ordering, maintainer-directed)
+
+- Every delivered QA pass is assessed FIRST and any surfaced fix outranks build/tooling/content work. This PR is that pass; MF1 was bumped ahead of the §2.22 Canada apply as the one must-fix among the four consumed QA deliveries.
+
 ## 2026-07-17, Library Version 2026.07.473, PR #985
 
 The Sweep 109 validation close-out (the loop-break compensating control for session-closing handoff PR #984, which skipped its trailing `/validate-pr` + `/retro`), covering the #969..#984 delta window. The first OFFLOADED-then-elevated-QA-validated sweep of the 2026-07-16c resumed session.
