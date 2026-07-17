@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/todo-1-19-1-portability-test
+**Active-session:** claude/todo-1-19-3-4-placeholders-stubguard
 
 **Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-17T15:34:07Z
+**Last-heartbeat-UTC:** 2026-07-17T16:38:10Z
 
 **Current-task:** ACTIVE. The 2026-07-17 resumed session (`/resume` from #991, on the VM, gh-CLI, no GitHub MCP; maintainer ATTENDED, mode `attended-autonomous`). Lease ACQUIRED this resume. **#992 MERGED (`claude/resume-sweep110-validate`):** the loop-break Sweep 110 close-out (offloaded to worker-a, elevated-QA PASS, loop-break for #991 PASSED) + §1.19.x locks + handoff prune + lease acquire. **#993 IN FLIGHT (`claude/todo-1-19-1-portability-test`):** §1.19 Phase-1 item §1.19.1 = `tools/check-portability.sh` (adopter-clone portability test, PASS 69/69 sibling-free + non-vacuity proven) + the validate-pr-992 consume (worker-b, elevated, delivery-1 auditor clean) + the self-caught worker-a trust-tier correction (W1) + the trivial 174-vs-175 fix + §3.89 (D7-inert) route. **§1.19.x locks decided this resume (the three open items + a new deferred item):** #7 (§1.19.11) = minimal `_private` validate gate + README + CLAUDE.md; #8 (§1.19.10) = tiered public CHANGELOG (current week per-PR 1-2 sentences / 30 words per sentence; weeks < 3mo -> one <=4-sentence weekly paragraph; > 3mo -> monthly), event-driven weekly cycle, maintainer-side generated projection (NOT a CI gate), per-PR + full detail move to `_private`, folds in §1.12 + reshapes D8, git-history minability accepted; worker-lean = worker inputs stay in scratch, `_private` orchestrator-only (tightest worker read surface). NEW deferred item: unix-socket/listener worker<->orchestrator transport (tied to §3.87, later discussion). **NEXT after this PR:** EXECUTE §1.19 Phase 1 (§1.19.1-§1.19.7) fresh, as its own PRs. Also open (lower): §1.16 COBIT title normalize + gate, §1.17 r4 citation fixes (HOLD for r4 sign-off), r4 Phase-8 sign-off (HOLDS), §3.87/§3.88 credit-offload thread. §2.22 Canada = DEFERRED-BLOCKED (maintainer egress downloads). Repo-safety: read `origin/main` via `git show origin/main:<path>`; explicit `cd` on cross-repo git; `grc_library_private` clone at `/home/jposluns/grc_library_private` (direct push works).
 

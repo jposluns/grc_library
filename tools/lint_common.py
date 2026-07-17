@@ -54,7 +54,21 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 # changes), so the corpus linters skip them. See ``.working/README.md``
 # for the convention.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
-    {".git", "node_modules", "__pycache__", ".claude", ".working"}
+    {
+        ".git",
+        "node_modules",
+        "__pycache__",
+        ".claude",
+        ".working",
+        # In-repo sibling-repo placeholders (TODO section 1.19.3): stub dirs that
+        # stand in for the grc_library_ref / grc_library_scratch / grc_library_private
+        # siblings when they are absent (an adopter clone). Each holds only a README
+        # stub; the dedicated stub-guard gate (lint-sibling-placeholders.py) enforces
+        # that, so the content gates exempt them here.
+        ".ref",
+        ".scratch",
+        ".private",
+    }
 )
 
 
