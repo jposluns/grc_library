@@ -24,11 +24,11 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
-**Next item number: 1.19.**
+**Next item number: 1.20.**
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing. The routine `/validate`, `/validate-pr`, `/matrix-fit`, and `/claim-fit` cadences are the reactive half of this tier; the standing preventive half is the fix-and-prevent items listed here when any are open.
 
-P1 currently holds seven open items (§1.1, the discussion-vs-execution mode gate; §1.12, the root-CHANGELOG entry-length remediation; §1.14, the external-source currency detection mechanism; §1.15, the cross-repo write-safety guardrail; §1.16, the COBIT management-objective title normalization + title-text gate; §1.17, the deep-assessment r4 confirmed citation fixes; and §1.18, the change-impact surface map + enforcement). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
+P1 currently holds eight open items (§1.1, the discussion-vs-execution mode gate; §1.12, the root-CHANGELOG entry-length remediation; §1.14, the external-source currency detection mechanism; §1.15, the cross-repo write-safety guardrail; §1.16, the COBIT management-objective title normalization + title-text gate; §1.17, the deep-assessment r4 confirmed citation fixes; §1.18, the change-impact surface map + enforcement; and §1.19, the operational-state privatization + adopter-clone portability multi-phase spec). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
 
 ### 1.1 Discussion-vs-execution mode gate (guardrail against assistant overeagerness) (H, M)
 
@@ -57,6 +57,59 @@ Three gate-blind citation-accuracy defects the r4 deep-assessment continuation s
 ### 1.18 Change-impact surface map + enforcement (D8 as the first worked item) (maintainer-directed 2026-07-17, M, L)
 
 Scope the complete "when you change X, update ALL of these surfaces" map, because a gate/lint/rule/skill/count change touches more surfaces than the existing partial guards cover, and the prose surfaces drift (evidence, both from THIS session: D8 shipped without updating the change-tracking pack rule's discipline description, and §1.17 was added without updating the P1 count prose, caught only by the pre-push verifier). Per change-type (new gate/lint; new or changed pack rule; new or changed skill; a count change), enumerate every surface to update: the four tooling surfaces (workflow, runner, pre-commit, spec §6 table) [gate-35-covered]; the spec §6 detailed-prose enumeration; CLAUDE.md; the relevant PACK rule's discipline-description (gates are project tooling and never pack artifacts, but a PORTABLE discipline a gate mechanizes belongs described project-agnostically in its pack rule so adopters enforce it); the pack README + its version-history table [D6-covered]; the website `grclibrary.ai` prose (counts auto-recompute from the taxonomy/README, but prose describing the pack/disciplines/gates does not); adopter-facing MD files (README, adopter guides); and README/prose counts. Deliver a documented surface map + a close-out-checklist section + a mechanizable gate where feasible (the multi-surface-incompleteness class). Fold in, do not duplicate, the existing partial coverage: gate 35 (four-surface parity), D6 (pack-README version), gate 39 (count idioms), the close-out-checklist prose-count line. **First item within this work: D8 (the CHANGELOG-length gate, #989) as the pilot/worked-example** — retroactively apply the map to it: add the CHANGELOG-length-ceiling discipline to the `change-tracking` pack rule (project-agnostic; it currently describes only the compact FORM, not enforcing a ceiling), and check/update the website + adopter MD surfaces, validating the map on a real recent gate. Significant scoping (maintainer: "needs some thinking and revision"); expect a written scope + maintainer review before build.
+
+### 1.19 Operational-state privatization + adopter-clone portability (multi-phase; maintainer-co-designed 2026-07-17, H, XL)
+
+**Parent item; phased deliverables are §1.19.1 through §1.19.13.** Goal: privatize the maintainer's operational state and process narrative (the surface a 2026-07-17 cold-sales email mined from public `.working/`) WITHOUT reducing what an adopter gets, and make the public repo robustly clonable-and-usable by a fork that reaches no sibling repo. Co-designed with the maintainer 2026-07-17 across a considerations discussion. **Execute FRESH next session; the §1.19.x discussion CONTINUES on `/resume` at the still-open items before execution.**
+
+**Model (LOCKED): INCREMENTAL, not inversion.** grc_library stays the PUBLIC, clonable, fully-usable repo (corpus + pack + full QA toolchain + gates + tests + the gate-read machinery-core `.working` + git history); only the operational/design NARRATIVE moves to `grc_library_private`. Rationale: the QA toolchain is PRODUCT (adopters clone and run it), not sensitive; only the operational state is. The inversion (rename-to-private + a curated public subset) was REJECTED (it omits the toolchain, defeating the clonable-and-usable goal).
+
+**Three-way repo separation (LOCKED):** `grc_library` (public) = product + gate-read machinery-core `.working`; `grc_library_private` = ALL durable operational state (living docs + dated archives + aged roll-up rows); `grc_library_scratch` = worker exchange ONLY (cloud / non-same-VM), with `/tmp/grc_exchange` (§3.87) the same-VM worker exchange.
+
+**Session entry (LOCKED, #2/#3):** run Claude + `/resume` from `grc_library` ALWAYS (standardized). `detect-env.py` classifies the operator by ORIGIN IDENTITY (`origin` == `jposluns/grc_library` = maintainer, corroborated by sibling presence; a fork origin = adopter; a `jposluns`-origin clone with siblings absent = maintainer-on-a-fresh-machine, clone the siblings, NOT adopter). Maintainer -> `/resume` proceeds with the private siblings; adopter -> `/resume` halts and proposes `/adopt` (unless an adopt-config exists). Operating `CLAUDE.md` loads from public grc_library and stays PUBLIC (not-very-sensitive per the maintainer; §1.19.12 review + a trim-to-`_private` is the fallback). Reference repointing (LOCKED three-bucket rule): `.claude/` (CLAUDE.md, commands, pack overlays, gate-3-exempt) -> explicit `_private` pointers; the roughly 5 non-exempt public files that markdown-link a moved doc -> bare code-span mentions; a CI-gate reference to a moved doc is REMOVED (D7 drops the runbook version token), an advisory-tool reference is REPOINTED to `_private`.
+
+**Move-list (§1.19.8 target = the §1.19.13 scrub worklist):** to `_private`: `third-party-issues`, `credit-offload-design`, `credit-offload-metrics`, `maintainer-egress-requests`, `cloudflare-pages-setup`, `design-decisions`, `multi-session-orchestration`, `hallucination-metrics`, `high-assurance/register`, the two `*-considerations` ledgers, `deferred-protected-changes`, `register-main-branch-protection`, `session-length-considerations`, `cross-file-section-ref-gate-design`. To `scratch`: `worker-brief-template` (worker input; but see the worker-read-`_private` lean). STAY public: the gate-read machinery-core (`session-state`, `session-handoff`, `*/history.md` roll-ups + registers, `DONE`, `overnight-pr`, `deep-assessment/register`, `changelog-details/CHANGELOG-detailed` current week, `pending-decisions`, `verifier-overrides`, `next-prs`, `reference-audit/doc-state`).
+
+**OPEN, lock on `/resume` before execution:** #7 (`_private` hygiene, §1.19.11), #8 (public-changelog weekly-rollup, §1.19.10), and the **worker-read-only-`_private` lean** (if workers get read-only `_private`, `worker-brief-template` and other worker-referenced operational context could live in `_private` instead of scratch; affects §1.19.8 placement + §3.87). More considerations may be added.
+
+### 1.19.1 Sibling-independence invariant + portability test (Phase 1; H, S)
+Verify no CI gate / `run_all_audits` path reaches `_ref`/`_scratch`/`_private` (appears already true: citation gates use in-repo reference modules), and lock it with a portability test that fails if a gate reaches a sibling. This is the guarantee that an adopter clone runs every gate with zero siblings.
+
+### 1.19.2 Uniform graceful-degradation for advisory tools (Phase 1; M, S)
+Sibling-reaching advisory tools (`ref-holds`, `audit-brief-freshness`, `audit-delivery-status`, `credit-offload-queue`, `residual-scan`, `tension-scan`) detect the sibling and no-op + exit 0 when it is absent, with a one-line "maintainer-only advisory; sibling absent, skipping".
+
+### 1.19.3 Placeholder stub dirs + README stubs + exemption (Phase 1; M, S)
+Ship `.ref/`, `.scratch/`, `.private/`, each containing ONLY a README stub (light metadata + the adopter/AI note); resolution order real-sibling then in-repo placeholder then no-op via the detect-env adopter signal; add the three to `DEFAULT_EXEMPT_DIRS`. Empty-README-only (no example payload).
+
+### 1.19.4 Hard-blocking stub-guard gate (Phase 1; H, M)
+A REAL gate: each stub dir contains ONLY `README.md`, bounded to the metadata + note (two checks: exactly-one-entry; README-content-bounded). Ships in the public repo (active on adopter clone+run); scans the public placeholders only, never the sibling repos. Four-surface wiring + spec + regression fixture.
+
+### 1.19.5 detect-env maintainer/adopter detection (Phase 1; M, S)
+The origin-identity signal (above) in `tools/detect-env.py`, driving the `/resume` maintainer-vs-adopter path.
+
+### 1.19.6 `/adopt` run-once onboarding skill (Phase 1; H, M-L)
+A `.claude/commands/adopt.md` + skill: reset the machinery-core `.working` to a clean adopter baseline (empty history, their own session-state); create fresh adopter versions of the moved operational docs (e.g. their own `design-decisions`); handle the placeholders (own siblings vs self-contained); strip maintainer-only machinery; record the adopter's choices in a fork-local adopt-config so it runs once. `/resume` halts and proposes it when adopter-detected and no adopt-config exists; once recorded, `/resume` proceeds in adopter-mode without re-asking.
+
+### 1.19.7 `.ref` bootstrap for adopters (Phase 1 enrichment; M, M-L)
+(a) Generate/maintain a PUBLIC reference-acquisition manifest in grc_library, derived from `_ref`'s catalogue with the held TEXT stripped (title, version, upstream URL, bucket, license/acquisition note). (b) Extend `/adopt` to bootstrap the adopter's `.ref` from it: webfetch the freely-and-legally-available + reachable sources, LIST the licensed/blocked ones for manual acquisition. Copyright guardrail: the manifest is a bibliography, never the texts; `/adopt` never redistributes licensed content. The manifest is independently valuable (the corpus's citation-source bibliography). Keep OUT of the core §1.19.6 first cut (enrichment layer).
+
+### 1.19.8 Relocate living docs to `_private` + reference repointing + `/resume` wiring (Phase 2; H, L)
+Move the living-doc move-list to `_private`; apply the LOCKED three-bucket reference repointing; add the `/resume` clone-if-absent + probe + `--add-dir` provisioning for `_private` (like `_ref`/`_scratch`). Run-from-grc_library (locked); operating `CLAUDE.md` stays public.
+
+### 1.19.9 Dated-archive sweep to `_private` (Phase 2; H, M-L)
+Generalize `sweep-working-records-to-scratch.py`, repointing its destination from scratch to `_private`, to sweep ALL dated archives (the per-PR / per-sweep / per-run dated detail files + the aged roll-up ROWS + the CHANGELOG-detail completed weeks) to `_private`; add DYNAMIC CUTOFFS to the gates reading the roll-ups (50, 60, D5) so a swept row is out-of-scope not missing (the gate-59 model). Data-safe emit-verify-prune. The dated detail files need no gate change (nothing reads them); only the aged roll-up rows need the cutoffs.
+
+### 1.19.10 Public-changelog weekly-rollup projection (Phase 3; #8, OPEN, lock on resume; M, M)
+The PUBLIC root `CHANGELOG.md` keeps only the CURRENT week itemized, then collapses each older week (Monday-Sunday) to one paragraph (`PRs ###-###` + a week-accomplishments summary); the PRIVATE detailed mirror keeps full per-PR detail. A public-projection script + a gate-59 dynamic-cutoff interaction. Confirm shape on resume.
+
+### 1.19.11 `_private` hygiene (Phase 4; #7, OPEN, lock on resume; M, S)
+`_private` gets its own minimal `validate` gate (like scratch's) + a README/CLAUDE.md so its commits stay clean. Confirm on resume.
+
+### 1.19.12 Manual maintainer review of CLAUDE.md (Phase 5; MAINTAINER ACTION; M, S)
+A human review of the operating `CLAUDE.md` for anything sensitive to trim to `_private` (per #2's fallback). NOT AI-executable; the maintainer performs it near the end of the series.
+
+### 1.19.13 History scrub (Phase 6; deferred, maintainer-gated; H, L)
+The git-history purge of the moved operational docs (worklist = the §1.19.8 move-list), per the artefact-and-branch-discipline force-push procedure: document the reason, obtain approval, notify collaborators, preserve the pre-rewrite ref under `refs/preservation/`, re-run version-monotonicity. The REAL purge (the move alone leaves content in public history, per #1 LOCKED). LAST.
 
 ## Priority 2 — Fill significant gaps
 
