@@ -7153,5 +7153,120 @@ class SiblingPlaceholderTests(LinterTestCase):
         self.assertTrue(any("cap" in f or "exceeds" in f for f in findings), findings)
 
 
+class ResolveSiblingTests(unittest.TestCase):
+    """lint_common.resolve_sibling / sibling_placeholder_present, and the
+    advisory tools' graceful degradation when a sibling repo is absent on a
+    portable clone (TODO section 1.19.2). resolve_sibling reads the module
+    global lint_common.REPO_ROOT at call time, so the tests drive the logic
+    by monkeypatching that global to a temp tree with / without siblings.
+    """
+
+    def _lc(self):
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import lint_common
+        return lint_common
+
+    def _load_ref_holds(self, unique: str):
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/ref-holds.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_unknown_name_raises(self) -> None:
+        lc = self._lc()
+        with self.assertRaises(ValueError):
+            lc.resolve_sibling("bogus")
+        with self.assertRaises(ValueError):
+            lc.sibling_placeholder_present("bogus")
+
+    def test_resolve_real_sibling_and_absent(self) -> None:
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                # No sibling checkout yet -> None (portable-clone state).
+                self.assertIsNone(lc.resolve_sibling("ref"))
+                # Create the real sibling next to the repo root -> returned.
+                (Path(td) / "grc_library_ref").mkdir()
+                self.assertEqual(
+                    lc.resolve_sibling("ref"), Path(td) / "grc_library_ref")
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_placeholder_present_and_absent(self) -> None:
+        lc = self._lc()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertFalse(lc.sibling_placeholder_present("scratch"))
+                (root / ".scratch").mkdir()
+                self.assertTrue(lc.sibling_placeholder_present("scratch"))
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_ref_holds_graceful_on_portable_clone(self) -> None:
+        # Real grc_library_ref absent, .ref placeholder present -> exit 0 (no-op).
+        lc = self._lc()
+        mod = self._load_ref_holds("_ref_holds_graceful")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            (root / ".ref").mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertEqual(mod.main(["ref-holds.py", "anything"]), 0)
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_ref_holds_errors_when_neither_present(self) -> None:
+        # Neither real sibling nor .ref placeholder -> exit 2 (broken checkout,
+        # not a portable clone): the graceful path is gated on the placeholder.
+        lc = self._lc()
+        mod = self._load_ref_holds("_ref_holds_broken")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertEqual(mod.main(["ref-holds.py", "anything"]), 2)
+            finally:
+                lc.REPO_ROOT = orig
+
+    def test_ref_holds_errors_on_corrupt_sibling(self) -> None:
+        # A real ../grc_library_ref dir that EXISTS but lacks its index (a
+        # corrupt/partial checkout) must still exit 2 even with the .ref
+        # placeholder present: the graceful branch is gated on
+        # resolve_sibling("ref") is None, so a broken ref is surfaced, not masked.
+        lc = self._lc()
+        mod = self._load_ref_holds("_ref_holds_corrupt")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "grc_library"
+            root.mkdir()
+            (root / ".ref").mkdir()
+            (Path(td) / "grc_library_ref").mkdir()  # exists but has no INDEX/catalogue
+            orig = lc.REPO_ROOT
+            try:
+                lc.REPO_ROOT = root
+                self.assertEqual(mod.main(["ref-holds.py", "anything"]), 2)
+            finally:
+                lc.REPO_ROOT = orig
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

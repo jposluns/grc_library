@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.484, PR #996
+
+The fourth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.2): uniform graceful-degradation for the advisory tools that reach a sibling repo, so a fork that clones only the public repo runs them without a spurious error. Fifth PR of the 2026-07-17 resumed session. No corpus or website content changed.
+
+### Added
+
+- [`tools/lint_common.py`](../../tools/lint_common.py): a shared `resolve_sibling(name)` helper (locate the real `../grc_library_<ref|scratch|private>` checkout, or `None`) and a companion `sibling_placeholder_present(name)` (whether the committed in-repo `.<name>` stub is present, which distinguishes an expected portable-clone `None` from a broken checkout). Module docstring Scope-notes updated to describe both.
+- [`tests/test_linters.py`](../../tests/test_linters.py): a `ResolveSiblingTests` class (6 tests): unknown-name `ValueError`; real-sibling-vs-absent resolution; placeholder present/absent; and three `ref-holds` integration tests (graceful exit 0 on a portable clone with the `.ref` stub but no real sibling; exit 2 when neither the sibling nor the stub is present; exit 2 when a real `grc_library_ref` dir exists but is corrupt, lacking its index, the pre-push-verifier NOTE-2 edge). Run under gate 36.
+
+### Changed
+
+- [`tools/ref-holds.py`](../../tools/ref-holds.py): the default ref-root lookup now goes through `resolve_sibling("ref")`. When the real `grc_library_ref` is absent and no explicit `--ref-root` was given, it degrades to an advisory no-op (exit 0) if the `.ref` placeholder confirms a portable clone, instead of the former exit-2 error. An explicit `--ref-root` that does not resolve still errors (exit 2), as before. The graceful branch is gated on `resolve_sibling("ref") is None` (the real sibling dir genuinely absent), so a corrupt/partial real `grc_library_ref` (dir present but missing its index) still errors rather than being silently masked (the pre-push-verifier NOTE-2 edge).
+- [`tools/audit-brief-freshness.py`](../../tools/audit-brief-freshness.py) and [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py): the default scratch lookup now goes through `resolve_sibling("scratch")` (they already exited 0 on an absent sibling; this centralizes the location logic and adds a placeholder-aware advisory note). Their explicit `--scratch` / `GRC_SCRATCH_PATH` overrides are unchanged.
+- [`tools/check-portability.sh`](../../tools/check-portability.sh): extended (now covers TODO §1.19.1 and §1.19.2) to also run the three sibling-reaching advisory tools in the sibling-free clone and assert each degrades to exit 0; header and verdict updated accordingly.
+- [`README.md`](../../README.md): Library `2026.07.483` -> `2026.07.484`, README `1.9.844` -> `1.9.845`. No corpus-document body or generated-artefact change (no taxonomy/portal/scorecard regen).
+
+### Discipline observation
+
+- **Scope corrected at build (six tools -> three).** The locked design named six sibling-reaching advisory tools; a read-before-editing pass found only three reach a sibling today. `credit-offload-queue` is scratch-side (a worker tool in `grc_library_scratch`, not a `grc_library` tool, so a `grc_library` helper cannot serve it), and [`tools/residual-scan.py`](../../tools/residual-scan.py) / [`tools/tension-scan.py`](../../tools/tension-scan.py) read only in-repo working-state files today (they become sibling-reaching only in Phase 2 §1.19.8/9, when their [`.working/hallucination-metrics.md`](../../.working/hallucination-metrics.md) target moves to `_private`, and get wired then). Wiring the other three now would have added dead no-op code; the stricter-safe reading was taken and the §1.19.2 TODO scope note corrected. Surfaced to the maintainer.
+
+### Verification
+
+- `tools/run_all_audits.sh` = **70/70** (working tree); the new `ResolveSiblingTests` (6) pass under gate 36's suite. The three tools were smoke-tested on the VM (siblings present, normal behaviour) and `ResolveSiblingTests` proves the absent-sibling graceful path (and the corrupt-sibling error path) deterministically via a monkeypatched `REPO_ROOT`.
+- A refute-briefed skeptical verifier reviewed the diff and caught three real items, all fixed here before push: a D8 length overrun in this entry's first-draft root sentence (53 words); the `ref-holds` corrupt-real-sibling masking edge (NOTE-2, now gated on `resolve_sibling("ref") is None`); and a portability-scope over-claim, six further `grc_library_ref`-reaching maintainer-cadence tools being deferred to TODO §3.91 (not adopter-blocking, they are skill-invoked, not gates). The pre-push guard (`run_all_audits` + D1-D8) is run green standalone before push. Batches PR #995's `/validate-pr` (offloaded to `worker-20260716-b`, its elevated-window delivery 3, SHIP clean, consumed under elevated QA with independent re-derivation of the mechanical facts) + `/retro`. This is a normal (non-handoff) PR, so its own `/validate-pr` + `/retro` batch into the next PR.
+
 ## 2026-07-17, Library Version 2026.07.483, PR #995
 
 The third Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.4): the hard sibling-repo stub-guard gate. Fourth PR of the 2026-07-17 resumed session. The corpus gate count rises 69 -> 70.

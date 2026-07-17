@@ -56,6 +56,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from lint_common import resolve_sibling, sibling_placeholder_present
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 STAMP_RE = re.compile(
@@ -85,8 +87,10 @@ def find_scratch(cli_path):
                   "research/ tree; not falling back to any other location; "
                   "nothing to report.")
             sys.exit(0)
-    default = REPO_ROOT.parent / "grc_library_scratch"
-    if default.is_dir() and (default / "research").is_dir():
+    # Default: the real grc_library_scratch sibling, via the shared resolver
+    # (TODO section 1.19.2). None on a portable clone with no scratch sibling.
+    default = resolve_sibling("scratch")
+    if default is not None and (default / "research").is_dir():
         return default
     return None
 
@@ -239,9 +243,14 @@ def main(argv):
 
     scratch = find_scratch(args.scratch)
     if scratch is None:
-        print("advisory: no scratch checkout found (no --scratch or "
-              "GRC_SCRATCH_PATH given, and no sibling grc_library_scratch "
-              "directory with a research/ tree); nothing to report.")
+        if sibling_placeholder_present("scratch"):
+            print("advisory: grc_library_scratch sibling absent (portable clone; "
+                  ".scratch placeholder present); maintainer-only advisory, "
+                  "nothing to report.")
+        else:
+            print("advisory: no scratch checkout found (no --scratch or "
+                  "GRC_SCRATCH_PATH given, and no sibling grc_library_scratch "
+                  "directory with a research/ tree); nothing to report.")
         return 0
 
     run_report(scratch)

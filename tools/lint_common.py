@@ -25,6 +25,12 @@ Scope notes:
   1.19.3, whose stub-only invariant the sibling-repo stub-guard gate
   enforces). Linters that need further exempt directories beyond this
   shared default pass them via the ``exempt_dirs`` argument.
+- ``resolve_sibling`` / ``sibling_placeholder_present`` locate a real
+  sibling repository (``grc_library_ref`` / ``grc_library_scratch`` /
+  ``grc_library_private``) by short name, returning ``None`` when it is
+  absent. Sibling-reaching ADVISORY tools route their default lookup
+  through these so a portable clone with no sibling degrades to an
+  advisory no-op (exit 0) rather than an error (TODO section 1.19.2).
 - ``iter_markdown_targets`` and ``is_markdown_target`` deliberately
   accept ``Iterable[str]`` for ``exempt_files`` so callers can pass a
   ``set``, ``frozenset``, or ``list`` interchangeably.
@@ -73,6 +79,59 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         ".private",
     }
 )
+
+
+# Sibling-repo short name -> the real sibling checkout's directory name.
+# The three siblings of the public ``grc_library`` repo. See TODO section
+# 1.19 (operational-state privatization + adopter-clone portability).
+_SIBLING_REPO_DIRS: dict[str, str] = {
+    "ref": "grc_library_ref",
+    "scratch": "grc_library_scratch",
+    "private": "grc_library_private",
+}
+
+
+def sibling_placeholder_present(name: str) -> bool:
+    """Return True if the in-repo ``.<name>`` placeholder stub is present.
+
+    ``name`` is a short sibling name (``ref`` / ``scratch`` / ``private``).
+    A portable ``grc_library`` clone always ships the committed ``.<name>``
+    stub (the sibling-repo stub-guard gate keeps it a stub), so this being
+    True is the signal that a ``None`` from :func:`resolve_sibling` is the
+    EXPECTED portable-clone state (an advisory tool no-ops), not a broken
+    checkout. Raises ``ValueError`` on an unknown name.
+    """
+    if name not in _SIBLING_REPO_DIRS:
+        raise ValueError(
+            f"unknown sibling name {name!r}; expected one of "
+            f"{sorted(_SIBLING_REPO_DIRS)}"
+        )
+    return (REPO_ROOT / f".{name}").is_dir()
+
+
+def resolve_sibling(name: str) -> Path | None:
+    """Locate a real sibling repository by short name, or return ``None``.
+
+    ``name`` is ``ref`` / ``scratch`` / ``private``. Returns the REAL sibling
+    checkout directory (``../grc_library_<full-name>`` relative to this repo's
+    root) when it exists, else ``None``. The in-repo ``.<name>`` placeholder is
+    deliberately NOT treated as a real sibling (it is a stub with no payload);
+    use :func:`sibling_placeholder_present` to tell an expected portable-clone
+    ``None`` (placeholder present) from a genuinely broken one.
+
+    An advisory tool routes its DEFAULT sibling lookup through this helper and
+    no-ops (exits 0) on ``None``; an EXPLICITLY named path (a ``--flag`` or
+    environment variable) stays the caller's own concern, since an explicit
+    wrong path is surfaced rather than papered over. Raises ``ValueError`` on
+    an unknown name.
+    """
+    if name not in _SIBLING_REPO_DIRS:
+        raise ValueError(
+            f"unknown sibling name {name!r}; expected one of "
+            f"{sorted(_SIBLING_REPO_DIRS)}"
+        )
+    candidate = REPO_ROOT.parent / _SIBLING_REPO_DIRS[name]
+    return candidate if candidate.is_dir() else None
 
 
 # Canonical list of audited-not-exempt top-level directories: the

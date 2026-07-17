@@ -38,6 +38,8 @@ import re
 import sys
 from pathlib import Path
 
+from lint_common import resolve_sibling, sibling_placeholder_present
+
 # Default: grc_library_ref is a sibling of the repo containing this tool.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_ROOT = REPO_ROOT.parent / "grc_library_ref"
@@ -49,8 +51,13 @@ def find_ref_root(explicit: str | None) -> Path | None:
     if explicit:
         p = Path(explicit).expanduser().resolve()
         return p if (p / "INDEX.md").exists() or (p / "catalogue.yml").exists() else None
-    if (DEFAULT_REF_ROOT / "INDEX.md").exists() or (DEFAULT_REF_ROOT / "catalogue.yml").exists():
-        return DEFAULT_REF_ROOT
+    # Default: the real grc_library_ref sibling, located via the shared resolver
+    # (TODO section 1.19.2). None on a portable clone that has no sibling.
+    sibling = resolve_sibling("ref")
+    if sibling is not None and (
+        (sibling / "INDEX.md").exists() or (sibling / "catalogue.yml").exists()
+    ):
+        return sibling
     return None
 
 
@@ -152,6 +159,28 @@ def main(argv: list[str]) -> int:
 
     ref_root = find_ref_root(a.ref_root)
     if ref_root is None:
+        # A GENUINELY ABSENT default sibling on a portable clone (the committed
+        # .ref placeholder confirms this is such a clone) degrades to an advisory
+        # no-op (exit 0), per TODO section 1.19.2: ref-holds is a maintainer-only
+        # forcing-function tool, and an adopter clone that never fetched
+        # grc_library_ref has nothing to answer against. The graceful branch is
+        # gated on resolve_sibling("ref") is None (the real sibling dir truly
+        # absent), NOT merely on find_ref_root being None: a real grc_library_ref
+        # dir that EXISTS but lacks its index (a corrupt/partial maintainer
+        # checkout) still errors (exit 2), so a broken ref is surfaced, not
+        # masked. An EXPLICIT --ref-root that did not resolve likewise stays the
+        # operator's mistake to surface (exit 2).
+        if (
+            a.ref_root is None
+            and resolve_sibling("ref") is None
+            and sibling_placeholder_present("ref")
+        ):
+            print(
+                "advisory: grc_library_ref sibling absent (portable clone; .ref "
+                "placeholder present); ref-holds is a maintainer-only advisory, "
+                "nothing to report."
+            )
+            return 0
         print(
             "ERROR: could not locate the grc_library_ref index. Pass --ref-root /path/to/grc_library_ref "
             f"(looked for {DEFAULT_REF_ROOT}).",

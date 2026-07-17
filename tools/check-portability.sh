@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 #
-# Adopter-clone portability check (TODO section 1.19.1).
+# Adopter-clone portability check (TODO sections 1.19.1 and 1.19.2).
 #
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
 # public grc_library repo (reaching no grc_library_ref / grc_library_scratch /
-# grc_library_private sibling) can still run every audit gate green. The corpus'
-# QA toolchain is PRODUCT (adopters clone and run it), so it must not depend on the
-# maintainer's private sibling repos.
+# grc_library_private sibling) can still run every audit gate green AND run the
+# three §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness,
+# audit-delivery-status) without a spurious error. The corpus' QA toolchain is
+# PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
+# private sibling repos. NOTE: further maintainer-cadence tools also reach
+# grc_library_ref (e.g. audit-claim-precision, audit-reference-breadth,
+# verify-reference-modules); wiring them for graceful degradation and adding them
+# to the advisory-tool loop below is tracked in TODO section 3.91.
 #
 # How it works: git-clones this repo's current HEAD into a fresh temp directory that
-# has NO sibling repos beside it, then runs tools/run_all_audits.sh inside that clone
-# and asserts it passes. If any gate reaches a sibling repo at runtime, the sibling is
-# absent in the temp clone and the gate fails, so this check fails LOUD.
+# has NO sibling repos beside it, then (1) runs tools/run_all_audits.sh inside that
+# clone and asserts it passes, and (2) runs each sibling-reaching advisory tool
+# (ref-holds, audit-brief-freshness, audit-delivery-status) and asserts it degrades
+# to a graceful exit 0 (TODO 1.19.2), not an error. If any gate or advisory tool
+# reaches a sibling repo at runtime, the sibling is absent in the temp clone and the
+# tool fails, so this check fails LOUD.
 #
 # This is the LOCAL reproduction of what CI already does implicitly (a GitHub Actions
 # runner checks out grc_library alone, with no siblings), surfaced as an explicit,
@@ -56,12 +64,40 @@ echo "Running tools/run_all_audits.sh in the sibling-free clone ..."
 ( cd "$CLONE" && tools/run_all_audits.sh )
 rc=$?
 
+# Advisory-tool graceful-degradation (TODO section 1.19.2): the sibling-reaching
+# advisory tools must no-op and exit 0 (not error) when their sibling repo is
+# absent, so an adopter running them on a sibling-free clone gets a clean advisory
+# rather than a spurious failure. ref-holds needs a query argument to reach the
+# lookup path; the other two take none.
+adv_rc=0
 echo
-if [ "$rc" -eq 0 ]; then
-  echo "PORTABILITY: PASS -- all audit gates green in a sibling-free clone; the corpus is adopter-portable."
+echo "Checking the three §1.19.2-scoped sibling-reaching advisory tools degrade gracefully (TODO 1.19.2) ..."
+for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py; do
+  if [ "$tool" = "ref-holds.py" ]; then
+    ( cd "$CLONE" && python3 "tools/$tool" probe-query >/dev/null 2>&1 )
+  else
+    ( cd "$CLONE" && python3 "tools/$tool" >/dev/null 2>&1 )
+  fi
+  trc=$?
+  if [ "$trc" -eq 0 ]; then
+    echo "  OK   tools/$tool exited 0 (graceful no-op)"
+  else
+    echo "  FAIL tools/$tool exited $trc without its sibling (should degrade to exit 0)"
+    adv_rc=1
+  fi
+done
+
+echo
+if [ "$rc" -eq 0 ] && [ "$adv_rc" -eq 0 ]; then
+  echo "PORTABILITY: PASS -- all audit gates green AND advisory tools degrade gracefully in a sibling-free clone; the corpus is adopter-portable."
   exit 0
 else
-  echo "PORTABILITY: FAIL (run_all_audits rc=$rc) -- a gate did not pass without the sibling repos."
-  echo "A gate likely reaches grc_library_ref / grc_library_scratch / grc_library_private at runtime; fix it to use in-repo data (e.g. the in-repo reference modules), so an adopter clone stays green."
+  if [ "$rc" -ne 0 ]; then
+    echo "PORTABILITY: FAIL (run_all_audits rc=$rc) -- a gate did not pass without the sibling repos."
+    echo "A gate likely reaches grc_library_ref / grc_library_scratch / grc_library_private at runtime; fix it to use in-repo data (e.g. the in-repo reference modules), so an adopter clone stays green."
+  fi
+  if [ "$adv_rc" -ne 0 ]; then
+    echo "PORTABILITY: FAIL -- a sibling-reaching advisory tool errored without its sibling; it should no-op and exit 0 per TODO section 1.19.2 (route its default sibling lookup through lint_common.resolve_sibling)."
+  fi
   exit 1
 fi
