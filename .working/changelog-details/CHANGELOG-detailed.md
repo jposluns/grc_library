@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.480, PR #992
+
+The Sweep 110 loop-break corpus-wide `/validate` close-out, the first PR of the 2026-07-17 resumed session (`/resume` from #991). Records the offloaded, elevated-QA-validated Sweep 110 result and its triage, the locked `§1.19.x` design decisions from the continued operational-state-privatization discussion, the `§3.87` worker-exchange transport design, the handoff prune, and the lease acquire. This is a normal (non-handoff) PR, so it takes its own `/validate-pr` + `/retro`, which batch into the next PR.
+
+### Added
+
+- [`TODO.md`](../../TODO.md) `§1.17` sub-item (d): routed Sweep-110 finding **S110-1** (`dev-security/standard-software-composition-analysis.md:253` cites `ID.AM-3, Software asset inventory` in a NIST CSF 2.0 cell; software inventory is CSF 2.0 `ID.AM-02` and `ID.AM-03` is network/data-flow representations), orchestrator-re-verified at held CSWP-29 (lines 791/793); same CSF-subcategory-accuracy class as N2/W2, gate-49/54-blind, NOT r4-gated.
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) (`2.0.108` -> `2.0.109`): the Sweep 110 row (0 error / 1 warning / 2 note; loop-break control for #991 PASSES).
+
+### Changed
+
+- [`TODO.md`](../../TODO.md) `§1.19`: recorded the three formerly-open items as LOCKED at this resume. **#7** (`§1.19.11`) = a minimal `_private` `validate` gate (secrets/PII + house-style) + README + CLAUDE.md. **#8** (`§1.19.10`) = a tiered public root CHANGELOG projection (current week per-PR 1-2 sentences at max 30 words/sentence; weeks < 3 months to one <=4-sentence weekly paragraph; > 3 months to monthly), event-driven weekly cycle, maintainer-side generated projection (NOT a CI gate, source moves to `_private` per `§1.19.1`), per-PR + full detail move to `_private`, folds in `§1.12` and reshapes D8, git-history minability accepted. **worker-lean = REJECTED** (worker inputs stay in scratch, `_private` orchestrator-only, the least-privilege read surface); the move-list `worker-brief-template`-to-scratch caveat resolved accordingly.
+- [`TODO.md`](../../TODO.md) `§3.87`: extended with the maintainer-co-designed control-plane / data-plane transport (a unix domain socket `/tmp/grc_exchange/orchestrator.sock` as the control plane, `/tmp/grc_exchange/` as the data plane, filesystem-as-durable-state-of-record with socket-down fallback to inbox polling, same-VM-only, directory + socket names confirmed).
+- [`CHANGELOG.md`](../../CHANGELOG.md) + this mirror: fixed Sweep-110 finding **S110-2**, the #986 entry mis-quoted the charter's deleted COBIT title as "Managed Data"; the charter cell at base `28d4146b` read `APO14: Manage Data` (an imperative-drift rendering), so both surfaces are reworded to the accurate deleted value (the canonical-title parenthetical is unchanged and correct). Because the S110-2 edit re-touched the #986 root entry (147 words, pre-dating the D8 ceiling), the root #986 summary was compressed to <= 100 words to satisfy D8, a small in-scope down-payment on §1.12 (its full detail already lives in this mirror).
+- [`.working/session-handoff.md`](../session-handoff.md): PRUNED per the keep-current-plus-1-prior discipline (dropped the #964-#967 blocks from the Next-actions, State-snapshot, and Asserted-expectations stacks, 175 -> 151 lines; no dangling supersede pointer); advanced the Resume cursor to Sweep 110.
+- [`.working/session-state.md`](../session-state.md): lease ACQUIRED (`Active-session: claude/resume-sweep110-validate`, `Status: active`, fresh heartbeat, `Operating-mode: attended-autonomous`); worker-20260716-a RE-GRADUATED to routine trust (its 3rd clean post-reset elevated pass, sweep-110).
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (`1.0.4` -> `1.0.5`): the `sweep-110-validate` ledger row (~359K gross) and a 2026-07-17 per-session roll-up row.
+- [`README.md`](../../README.md): Library `2026.07.479` -> `2026.07.480`, README `1.9.840` -> `1.9.841`.
+
+### Verification
+
+- Sweep 110 consumed under ELEVATED QA (worker-a on the post-reset window, delivery 3): proof-of-run genuine (~359K, A ~103K / B ~79K / C ~66K subagent returns + `path:line` evidence); base #984 `28d4146b`, baseline 69/69, pre-flight 421/33/11, four-surface parity 69, counts 13/23/14/18, and versions independently re-derived EXACT-MATCH; every finding (S110-1 at held CSWP-29, S110-2 at the charter's base-SHA cell + held COBIT title, S110-3 = the pre-declared known-open N2) re-verified at source. No red flag, so no separate adversarial auditor; worker-a re-graduates. **Loop-break control for #991 PASSES**; asserted-expectations all corroborated, 0 contradicted.
+- The pre-push guard (run_all_audits 69/69 plus the D1-D8 PR-time checks) was green standalone before push; the CHANGELOG preflight was clean on the added lines. No corpus-document body or generated-artefact change (no taxonomy/portal/scorecard regen needed).
+
 ## 2026-07-17, Library Version 2026.07.479, PR #991
 
 Session-closing handoff PR for the 2026-07-16c resumed session (`/resume` from #984, PRs #985-#990). Its purpose is to land the session's working-state on `main` as a green merge so the next `/resume` rebuilds from `main`, and to document the maintainer-co-designed operational-state-privatization spec as a Priority-1 multi-phase backlog item. Per the loop-break it takes no trailing `/validate-pr` or `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate`, pre-positioned at wind-down as an offloaded worker order.
@@ -122,7 +146,7 @@ Consumes the four delivered worker quality-assurance passes (`matrix-fit-full-pa
 
 ### Fixed
 
-- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md) (Version 1.2.7 to 1.2.8): **MF1** (from `matrix-fit-full-pass`, worker-20260716-a). The charter's sole COBIT alignment row cited `APO14 "Managed Data"` for a document whose subject is the AI Governance Council, a governance/oversight BODY (Mandate = "provide oversight of AI system risk and compliance"). Corrected to `EDM01 "Ensured Governance Framework Setting and Maintenance"`, the on-point COBIT objective for establishing and maintaining a governance body; re-verified against the held COBIT reference module (APO14 = "Managed Data"; EDM01 = "Ensured Governance Framework Setting and Maintenance") with gate 61 (COBIT citation-existence) green. Generated artefacts regenerated.
+- [`ai/charter-ai-governance-council.md`](../../ai/charter-ai-governance-council.md) (Version 1.2.7 to 1.2.8): **MF1** (from `matrix-fit-full-pass`, worker-20260716-a). The charter's sole COBIT alignment row cited `APO14 "Manage Data"` (an imperative-drift rendering of the canonical title "Managed Data") for a document whose subject is the AI Governance Council, a governance/oversight BODY (Mandate = "provide oversight of AI system risk and compliance"). Corrected to `EDM01 "Ensured Governance Framework Setting and Maintenance"`, the on-point COBIT objective for establishing and maintaining a governance body; re-verified against the held COBIT reference module (APO14 = "Managed Data"; EDM01 = "Ensured Governance Framework Setting and Maintenance") with gate 61 (COBIT citation-existence) green. Generated artefacts regenerated.
 
 ### Changed
 
