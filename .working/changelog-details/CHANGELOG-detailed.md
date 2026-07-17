@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.493, PR #1005
+
+The §1.19.7 `_ref`-required loud gate (maintainer-directed 2026-07-17). Reference-checking against the held ground truth in `grc_library_ref` is critical to the maintainer-orchestrator's content work, so a missing `_ref` must FAIL LOUD and be fixed, not be silently worked around. Graceful degradation of the sibling-reaching tools (`lint_common.resolve_sibling` no-op, §1.19.2) was designed for the ADOPTER portability case; for the maintainer it would mask a broken dependency (the drift/hallucination risk `_ref` exists to prevent). The gate is identity-keyed off `detect-env`'s existing maintainer/adopter classification, so it adds the loud maintainer-side check WITHOUT weakening the sibling-independence invariant (adopters stay graceful; `check-portability.sh` + gate 70 unaffected). This is the loud-gate part of the §1.19.7 `_ref`-integration umbrella; the manifest/generator/`acquisition`-field parts remain open, gated on the worker manifest draft, so §1.19.7 is NOT closed.
+
+### Added
+- [`tools/detect-env.py`](../../tools/detect-env.py) - a `ref_availability_decision(classification, ref_readable)` helper and a `ref_availability` entry in the resume-step decisions: `maintainer` + `_ref` unreadable -> `HALT (LOUD)`; `maintainer-fresh-machine` + `_ref` unreadable -> "clone `_ref` first"; `adopter` + `_ref` absent -> "ok (graceful, expected)"; `_ref` readable -> "ok"; and an unknown/undetermined classification -> `HALT (LOUD)` fail-safe (never silently takes the adopter graceful path, correct-by-construction if the closed `probe_identity` set ever changes). Never crashes the resume step (inside the existing try/except).
+- [`tests/test_linters.py`](../../tests/test_linters.py) - 5 `DetectEnvIdentityTests` cases for `ref_availability_decision` (maintainer-halts-loud, fresh-machine-clone-first, adopter-graceful, readable-ok-for-all, unknown-identity-fails-safe-loud).
+
+### Changed
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) - step 3 now acts on the `ref_availability` decision: on a `HALT (LOUD)` it STOPS and surfaces the `--add-dir` fix, with no reference-dependent (content) work until `_ref` access is granted and the session re-resumed. Distinguished explicitly from the adopter graceful-degradation path.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) - a `_ref`-is-a-required-maintainer-dependency principle added to `## Reference-version currency` (fails loud for the maintainer; graceful is adopter-only).
+- [`TODO.md`](../../TODO.md) - §1.19.7 rewritten as the `_ref`-integration umbrella (scope = trusted buckets; the `acquisition` field as source-of-truth in `_ref`; the generator + drift-check + `/adopt` bootstrap; this loud gate marked SHIPPED); NOT closed (manifest parts pending the draft).
+
+### Verification
+- `python3 -m unittest tests.test_linters.DetectEnvIdentityTests` 11/11 OK (6 existing + 5 new); the detect-env probe runs and emits `ref_availability: ok (grc_library_ref readable)` in this maintainer session.
+- A refute-briefed skeptical verifier reviewed the gate (the decision logic, the resume hard-halt, and that the adopter graceful path / sibling-independence is preserved).
+- Recursion-avoidance batch: PR #1004's `/validate-pr` and `/retro` rows are carried here.
+- No corpus document or generated artefact touched. Pre-push guard green.
+
 ## 2026-07-17, Library Version 2026.07.492, PR #1004
 
 Website fix (maintainer-flagged, not critical): on the For-AI page the hero heading "Learning governance and security from this corpus." overflowed the coloured hero band on the maintainer's iPad, the "ty" of "security" spilling into the next section. Cause: the heading ([`.web/templates/for-ai.html`](../../.web/templates/for-ai.html)) joins "Learning governance and security" with `&nbsp;` into one unbreakable ~31-character token, which defeats the `.hero h1` `max-width: 18ch` + `text-wrap: balance` wrapping, so at tablet width the token, sized by the `font-size: clamp(2.15rem, 5.6vw, 4rem)`, rendered wider than the padded band and overflowed. Fix per maintainer direction (decrease the hero heading size): lower the clamp's `vw` term and floor so the token fits at tablet widths, leaving the `4rem` desktop cap unchanged.

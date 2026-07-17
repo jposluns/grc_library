@@ -990,6 +990,17 @@ and the pack skill + `/screen-publications` command + scanner + wiring (this PR)
 The project-specific operationalization of the `evidence-grounded-completion` rule's
 external-version-currency corollary, for the `grc_library_ref` reference base.
 
+**`_ref` is a REQUIRED maintainer-orchestrator dependency; its absence fails LOUD (§1.19.7
+`_ref`-required gate).** Reference-checking against the held ground truth is critical to
+content correctness, so for the maintainer a missing `grc_library_ref` is a broken setup to
+FIX, never a state to silently work around. `/resume` step 3 acts on `detect-env`'s
+`ref_availability` decision: on `maintainer` identity with `_ref` NOT readable it HALTs and
+surfaces the `--add-dir` fix, and no reference-dependent (content) work proceeds until access
+is granted and the session re-resumed. The sibling-reaching tools' graceful degradation
+(`lint_common.resolve_sibling` no-op, §1.19.2) is ADOPTER-ONLY: an adopter legitimately has no
+`_ref` (the committed reference-acquisition manifest + `/adopt` `.ref` bootstrap cover it), so
+graceful there is correct, whereas for the maintainer it would mask the missing dependency.
+
 **The check order, whenever an externally-versioned reference (a standard, framework, or
 dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task:**
 1. **Find what `grc_library_ref` holds, via its index, not a guess.** Consult the
