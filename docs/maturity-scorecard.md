@@ -70,7 +70,7 @@ _107 documents._
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.5 | 2026-07-02 |
 | [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.13 | 2026-07-14 |
 | [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.9 | 2026-07-14 |
-| [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.6 | 2026-07-14 |
+| [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.7 | 2026-07-17 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.5 | 2026-07-08 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.0 | 2026-07-06 |
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.3 | 2026-07-08 |
@@ -93,7 +93,7 @@ _107 documents._
 | [operations/procedure-change-management-and-configuration-control.md](../operations/procedure-change-management-and-configuration-control.md) | Change Management and Configuration Control Procedure | Procedure | 1.3.3 | 2026-07-14 |
 | [operations/procedure-endpoint-management-and-device-compliance.md](../operations/procedure-endpoint-management-and-device-compliance.md) | Endpoint Management and Device Compliance Procedure | Procedure | 1.3.7 | 2026-07-10 |
 | [operations/procedure-media-handling-and-transport.md](../operations/procedure-media-handling-and-transport.md) | Media Handling and Transport Procedure | Procedure | 1.3.8 | 2026-07-14 |
-| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.7 | 2026-07-04 |
+| [operations/procedure-security-monitoring-and-alert-management.md](../operations/procedure-security-monitoring-and-alert-management.md) | Security Monitoring and Alert Management Procedure | Procedure | 1.3.8 | 2026-07-17 |
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.7 | 2026-07-03 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.2 | 2026-07-02 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.5 | 2026-07-14 |
@@ -367,7 +367,7 @@ _35 documents._
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.4 | 2026-06-20 |
 | [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.5 | 2026-07-02 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.4 | 2026-07-14 |
-| [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.10 | 2026-07-03 |
+| [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.11 | 2026-07-17 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
