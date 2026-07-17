@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.488, PR #1000
+
+First PR of the 2026-07-17b resumed session (`/resume` from the session-closing handoff #999; on the VM, gh-CLI, no GitHub MCP; attended-autonomous). The loop-break Sweep 111 close-out: consumes the pre-positioned corpus-wide `/validate` and records its clean result, acquires the concurrency lease, and queues a recurrence-prevention backlog item. Working-state only; no corpus or website content changed.
+
+### Changed
+- [`.working/session-state.md`](../session-state.md) - lease ACQUIRED for this session (`Active-session: claude/resume-sweep111-closeout`, `Status: active`, fresh `2026-07-17T21:01:10Z` heartbeat, `Operating-mode: attended-autonomous`); `Current-task` and `Worker-dispatches` rewritten for the 2026-07-17b session (both workers start UNVALIDATED per the session-scoped trust model; worker-a ELEVATED at 1 of 2-to-3 after serving Sweep 111).
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md) - added the Sweep 111 row (Version `2.0.110` to `2.0.111`).
+- [`.working/session-handoff.md`](../session-handoff.md) - advanced the machine-readable resume cursor to Sweep 111 (Sweep 110 demoted to `Prior:`); no session-block prune needed (already at current + 1 prior).
+
+### Added
+- [`TODO.md`](../../TODO.md) §3.93 - "Sync scratch every PR + fetch-before-read the credit-offload coordination plane", the recurrence-prevention item for the maintainer-flagged stale-scratch-read mistake (P3 `Next item number:` counter advanced `3.93` to `3.94`).
+
+### Verification
+- **Sweep 111 (loop-break control for #999): CLEAN PASS.** Offloaded to `worker-20260716-a` (Opus 4.8) as blocking prio-0 order `sweep-111-validate` pinned `65c5075b`/#999, deltas #992..#998. Consumed under full ELEVATED QA (worker-a delivery 1 this fresh session): proof-of-run genuine (~296K tokens, A/B/C returns); independent re-derivation of HEAD/baseline `70/70`/pre-flight 422-32-11/four-surface parity 70/counts 13-24-15-18/versions all EXACT-MATCH; a dedicated delivery-1 false-negative auditor (10 adversarial checks) returned CLEAN VERDICT HOLDS. 0 error / 0 warning / 0 new findings; the 2 notes (S111-1 = r4 §1.17 N2/W2, S111-2 = S110-1) are known-tracked and EXPECTED. All #992-#998 asserted-clean surfaces corroborated, 0 contradicted.
+- **Discipline observation (self-caught, routed §3.93):** at this resume the orchestrator first read the scratch coordination plane from the un-synced LOCAL scratch checkout (16 commits behind `origin/main`) and wrongly reported both workers stale and the Sweep-111 order unclaimed, when worker-a had already delivered on `origin/main`. A scratch `git fetch` corrected it. This is a recurrence of the 2026-07-16 stale-read mistake; the fix (sync scratch every PR + a queue-tool auto-fetch) is queued as §3.93.
+- Pre-push guard (`run_all_audits.sh` 70/70 + `run-pr-time-checks.sh`) green before push.
+
 ## 2026-07-17, Library Version 2026.07.487, PR #999
 
 Session-closing handoff for the 2026-07-17 resumed session (`/resume` from #991; merged #992-#998, the §1.19 operational-state-privatization Phase-1 execution sprint). Working-state only; no corpus or website content changed. Per the loop-break, this handoff PR takes NO trailing `/validate-pr` + `/retro` (the compensating control is the next `/resume`'s corpus-wide Sweep 111 `/validate`, pre-positioned as an offload at this wind-down and cross-checked against the refreshed `## Asserted expectations`).
