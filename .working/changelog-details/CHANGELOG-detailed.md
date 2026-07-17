@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-17, Library Version 2026.07.487, PR #999
+
+Session-closing handoff for the 2026-07-17 resumed session (`/resume` from #991; merged #992-#998, the §1.19 operational-state-privatization Phase-1 execution sprint). Working-state only; no corpus or website content changed. Per the loop-break, this handoff PR takes NO trailing `/validate-pr` + `/retro` (the compensating control is the next `/resume`'s corpus-wide Sweep 111 `/validate`, pre-positioned as an offload at this wind-down and cross-checked against the refreshed `## Asserted expectations`).
+
+### Changed
+
+- [`.working/session-handoff.md`](../session-handoff.md): refreshed and RECONCILED for the 2026-07-17 close (new "Next actions" closing + next-session blocks, State snapshot, and Asserted-expectations sub-block; the version snapshot reconciled to library `2026.07.487` / pack `1.62.0` / spec `1.17.9` / gate 70 / 24 skills / 15 commands), and PRUNED per keep-current-plus-one-prior (dropped the 2026-07-16b #969-#983 blocks; kept 2026-07-17 + 2026-07-16c).
+- [`.working/session-metrics.md`](../session-metrics.md): a 2026-07-17 row (measured FLOOR ~1,653K post-compaction orchestrator subagent tokens across the 4 pre-push verifiers + 3 r11 guardrail lenses; ~1.24M offloaded-worker credits conserved across 8 passes; orchestrator main-loop `not instrumented`).
+- [`.working/session-state.md`](../session-state.md): lease RELEASED (`Status: released`, `Active-session: none`), heartbeat re-stamped, Current-task marked CLOSED.
+- The #998 QA batch: [`.working/validate-pr/history.md`](../validate-pr/history.md) (`1.2.761`) the validate-pr-998 SHIP row (worker-a, 3rd elevated pass -> routine) + the #999 handoff-exempt `SKIPPED` row; [`.working/improvement-log.md`](../improvement-log.md) (`1.0.696`) the #998 retro; [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md) (`1.0.12`) the validate-pr-998 ledger row + the ~1.24M session-final roll-up.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed (§1.19.7 leads; #998 merged, #999 handoff closing).
+- [`README.md`](../../README.md): Library `2026.07.486` -> `2026.07.487`, README `1.9.847` -> `1.9.848`. No corpus-document body or generated-artefact change.
+
+### Verification
+
+- The pre-push guard (`run_all_audits` 70/70 + D1-D8) is run green standalone before push. Per the handoff-PR exception (a maintainer-authorized standing rule, PR-workflow step 5a loop-break), this PR skips its own `/validate-pr` + `/retro`; the gate-50 handoff marker (`SKIPPED`, handoff) is in this PR's [`validate-pr/history.md`](../validate-pr/history.md) row Findings cell. The wind-down was maintainer-chosen (an `AskUserQuestion` at the Phase-1/Phase-2 boundary) on the rising caught-slip density on #998 plus the heavy chained Phase-2 series ahead; quality held (net zero adopter escapes across #992-#998).
+
 ## 2026-07-17, Library Version 2026.07.486, PR #998
 
 The sixth Phase-1 deliverable of the §1.19 operational-state-privatization track (closes TODO §1.19.6): the run-once `/adopt` fork-onboarding skill + command, plus the origin-matcher hardening queued from #997 and the `/resume` adopter-path wiring. Seventh PR of the 2026-07-17 resumed session. No corpus or website content changed.
