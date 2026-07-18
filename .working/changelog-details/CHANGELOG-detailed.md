@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.506, PR #1018
+
+Close-out consolidation: rotate TODO §3.93 to DONE and batch PR #1017's QA (working-state only; no corpus change). §3.93 (stale-scratch-coordination-read recurrence-prevention) is now fully complete: parts (a) the sync-scratch-every-PR close-out line and (b) the `/resume` step-3 + `## Credit-offload mode` fetch-before-read mandate were already applied in the project CLAUDE.md (prior session), and part (c) shipped scratch-side (a `grc_library_scratch` PR: the credit-offload queue tool's `list-workers` / `list-pending` now best-effort fetch origin and read the shared `origin/main` queue and workers state via `git show` NON-MUTATINGLY, with a local-working-tree fallback; the field parser refactored into a text-core variant; only the two LIST commands changed).
+
+### Changed
+- [`TODO.md`](../../TODO.md): §3.93 deleted (closed) and rotated to [`.working/DONE.md`](../DONE.md); §3.92 annotated (part (b) tool-side shipped in #1017, `/adopt` invocation staged deferred item 14).
+- [`.working/DONE.md`](../DONE.md): §3.93 close entry (keyed PR #1018 + the scratch PR).
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 15 stages the daytime protected cleanup of two now-stale project-CLAUDE.md lines that still call §3.93(c) "queued" (factual staleness only; CLAUDE.md is gate-exempt, so nothing fails).
+
+### QA batch (recursion-avoidance)
+- Batches PR #1017's `/validate-pr` (validate-pr-1017, offloaded worker-b, CLEAN, the adopt-guard fail-safe re-derived by code + test + empirical refuse) and `/retro` rows.
+
+### Verification
+- All 72 audit gates pass; changelog preflight clean; pre-push guard both runners green. This is a pure grc_library bookkeeping / rotation PR (no code, no corpus); the §3.93(c) code change was verified and shipped in the scratch PR (the scratch validate gate green + both list commands manually exercised). Library 2026.07.506, README 1.9.867.
+
+### Discipline observation
+- The §3.93(c) scratch change was orchestrator-authored (not offloaded), so it carries no credit-offload metrics row; it is exchange-channel tooling maintenance under the orchestrator's scratch write authority. The grc_library-side closure (this PR) is where §3.93 rotates to DONE, since the scratch PR cannot write grc_library.
+
 ## 2026-07-18, Library Version 2026.07.505, PR #1017
 
 TODO §3.92 part (b): a mechanical pre-flight adopter-clone guard for `/adopt` (tooling only). `/adopt` resets the machinery-core working-state to adopter baselines, which is destructive on the wrong clone; the dangerous direction was defended by convention (host-pinned origin match, step-1 operator confirmation, config short-circuit, git-revertability). This adds a mechanical gate on top.

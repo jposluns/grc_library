@@ -94,6 +94,12 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers). 
 - **Prepared content (apply at daytime):** in the adopt SKILL step 1 (and the mirrored command step 1), add: before the working-state reset, RUN `python3 tools/adopt-preflight-guard.py`; it exits 0 only on an `adopter` classification and exits 3 (REFUSE) on maintainer / fresh-machine / undetermined, so a non-zero exit HARD-STOPS `/adopt` (do not proceed to the reset). This moves the maintainer-clone guard from the step-1 operator-confirmation convention to a mechanical gate (belt-and-braces on top of the host-pinned origin match + config short-circuit + git-revertability). Keep the existing operator confirmation too (defence in depth).
 - **QA:** `lint-language.py` on the reworded step-1 prose pre-commit; per-PR `/validate-pr` + `/retro`; confirm the SKILL and command step-1 stay in step-parity (gate 44). Rotate §3.92(b) fully to DONE when this lands (tool-side already shipped); §3.92 stays open for (c).
 
+### 15. [TODO §3.93 close-out] Update the two stale CLAUDE.md "queued §3.93(c)" lines to "shipped"
+
+- **Why deferred (2026-07-18 overnight):** §3.93(c) SHIPPED scratch-side (the `credit-offload-queue.py` auto-fetch), so the two `.claude/CLAUDE.md` lines that describe it as "queued" are now factually stale; CLAUDE.md is protected. (Factual staleness only, not a broken link/gate: CLAUDE.md is gate-exempt, so nothing fails; a daytime prose fix.)
+- **Prepared content (apply at daytime):** in `.claude/CLAUDE.md`, the `## Session migration ...` line "the queue tool's read subcommands auto-fetch origin (§3.93(c), a `grc_library_scratch` PR)" and the `## Credit-offload mode` line "the mechanical backstop (the queue tool's `list-workers` / `list-pending` auto-fetching origin) is queued as §3.93(c), a `grc_library_scratch` PR" both read as QUEUED/future. Reword each to past tense: the auto-fetch backstop SHIPPED scratch-side 2026-07-18 (`credit-offload-queue.py` `list-workers`/`list-pending` fetch origin + read `origin/main` non-mutatingly). Drop the "queued"/"is queued" framing.
+- **QA:** `lint-language.py` on the reworded lines pre-commit; per-PR `/validate-pr` + `/retro`. No gate rides on it (CLAUDE.md gate-exempt); convention-guarded prose currency.
+
 ---
 
 _Empty of items = nothing deferred. Add an item whenever an overnight task turns out to need a
