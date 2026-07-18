@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.523, PR #1035
+
+Section 1.19.10 slice 1 (non-destructive machinery): the tiered public-CHANGELOG projection scaffold tool. Tooling only; no corpus or website content changed.
+
+### Added
+- [`tools/build-public-changelog.py`](../../tools/build-public-changelog.py): projects the root CHANGELOG's per-PR compact entries into the locked tiered public form (TODO §1.19.10). Current ISO week kept per-PR verbatim; older weeks within 3 months collapse to a weekly paragraph header (`**Week of YYYY-MM-DD (PRs #N-#M)**`); older than 3 months to a monthly paragraph (`**YYYY-MM (PRs #N-#M)**`). It is a SCAFFOLD generator: a week holds dozens of PRs and an at-most-4-sentence accomplishments paragraph is an AUTHORED condensation, so the tool emits the tier structure plus a placeholder carrying the PR range and the raw per-PR summaries as material for the slice-2 migration to author. Not a CI `--check` gate (the per-PR source moves to the private repo under §1.19.10; no public gate may reach a private sibling). `--dry-run` / `--emit` / `--self-test` (3 cases). Stdlib-only (gate 71).
+
+### Changed
+- [`tools/check-changelog-length-on-pr.py`](../../tools/check-changelog-length-on-pr.py): a docstring note recording the tiered-model D8 interaction (see Discipline observation).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 72/72; the tool's `--self-test` 3/3 and `--dry-run` rc 0; [`tools/run-linter-regression.py`](../../tools/run-linter-regression.py) clean. The tool is advisory (not run on the real root in this PR; not wired into any gate).
+- Pre-push skeptical verifier (refute-briefed, read-only shared tree): CONFIRMED-CORRECT on all seven axes. Notably: the projection partitions the live root's 984 entries into 179 current + 805 weekly-bullet + 0 monthly with ZERO loss or duplication (each entry in exactly one tier); the ISO-week boundaries are correct and no week is split across the 3-month line; and the root has 0 legacy non-compact entries, so the slice-2 migration will drop nothing.
+
+### Discipline observation
+The locked #1020 design said §1.19.10 "reshapes D8", but on inspection D8's `ENTRY_RE` matches ONLY the per-PR compact header, so the weekly (`**Week of ...**`) and monthly (`**YYYY-MM ...**`) paragraph headers are ALREADY out of D8's scope with no change; only the current-week per-PR tier is length-gated, which is the intended behaviour. Documented in the D8 tool rather than changing it. This is the source-verify-the-spec-mechanics discipline (a co-designed spec can name a change that turns out unnecessary once the target is read).
+
 ## 2026-07-18, Library Version 2026.07.522, PR #1034
 
 Section 1.19.9 PR B2: runs the dated-archive migration (aged working-records to grc_library_private), the current-week window, maintainer-approved. **Closes TODO §1.19.9.** Working-state only; no corpus or website content changed.
