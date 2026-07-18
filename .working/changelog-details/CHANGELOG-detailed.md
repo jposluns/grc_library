@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.508, PR #1020
+
+Session-closing handoff for the 2026-07-17b resumed session (`/resume` from #999; merged #1000-#1019). Working-state and version surfaces only; no corpus or website content changed. Per the session-boundary loop-break, this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` (pre-positioned as **Sweep 112** at this wind-down, over the #1000..#1019 deltas, pinned to #1020's merge SHA).
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): added the 2026-07-17b "Next actions" CLOSING + LOCKED "NEXT SESSION" blocks, the "State snapshot" block, and the "Asserted expectations" block; set "Open decisions" to the wind-down EMPTY status. The next `/resume` prunes to keep-current-plus-one-prior.
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the fresh-session LOCKED order (consume Sweep 112 -> fix SEF-07 + §1.20 -> protected-apply bundle -> §3.22 D7 -> §1.19.x Phase 2).
+- [`.working/session-metrics.md`](../session-metrics.md): one row for this session (measured-versus-not-instrumented discipline; the offload plane's ~2.85M est. tokens conserved recorded as a conserved-token proxy, not a fabricated in-session subagent total).
+- [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED (`Active-session: none`, `Status: released`, fresh heartbeat).
+
+### Added (batched QA for PR #1019, per recursion-avoidance)
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #1019 `/validate-pr` row.
+- [`.working/improvement-log.md`](../improvement-log.md): the #1019 `/retro` row.
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md): the session-final roll-up.
+- [`.working/DONE.md`](../DONE.md) and [`TODO.md`](../../TODO.md): §3.100 closed and rotated; §1.20 added to P1 (the [`tools/adopt-preflight-guard.py`](../../tools/adopt-preflight-guard.py) test-portability regression surfaced by validate-pr-1019).
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): r5 recorded SIGNED OFF.
+- [`.working/pending-decisions.md`](../pending-decisions.md): wind-down EMPTY status; the morning decisions (Quebec RESOLVED, §1.14 CONFIRMED, r5 SIGNED OFF, SEF-07 chosen) recorded.
+
+### Verification
+- The pre-push guard (`run_all_audits.sh` at 72 gates + `run-pr-time-checks.sh` D1-D8) green standalone; D7 handoff-snapshot freshness confirms the version tokens on the "Current truth" line (library `2026.07.508`, README `1.9.869`, pack `1.62.1`, spec `1.17.11`). No skeptical verifier (pure bookkeeping tier).
+
 ## 2026-07-18, Library Version 2026.07.507, PR #1019
 
 Maintainer-authorized correction of a live Quebec Law 25 citation error (the HIGH morning-review escalation). The daytime maintainer directed "fix the HIGH quebec law issue first"; this is the corpus fix.

@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.100: re-ingested a clean Quebec Law 25 (P-39.1) source (2026-07-18, grc_library_ref #89)
+
+Replaced the corrupted held Quebec Law 25 full-text extract (whose `pdftotext` margin-note corruption caused the §3.84 escalation and the #973 annex "s. 23.3" error). Re-extracted with pymupdf from a maintainer-supplied PDF (clean section headers; s. 3.3 verified against the statute's own s. 3.4 cross-reference); superseded-archived the prior source + corrupted extract, updated the catalogue + indexes, `_ref` validate.py green, and re-synced the worker `/tmp` copy. The held source is now trustworthy for Quebec Law 25 section citations.
+
 ### TODO §3.84: Quebec Law 25 PIA-section citation corrected to s. 3.3 (2026-07-18, PR #1019)
 
 Reverted the #973-shipped "s. 23.3" error in [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) lines 30 and 60 to the confirmed-correct "s. 3.3" (maintainer-authorized). The held reference source's "23.3." header was PDF margin-note corruption; s. 3.3 is confirmed by the statute's own s. 3.4 cross-reference and upstream LégisQuébec. The clean-source re-ingest is tracked separately in §3.100.

@@ -24,9 +24,13 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
-**Next item number: 1.20.**
+**Next item number: 1.21.**
 
-Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing. The routine `/validate`, `/validate-pr`, `/matrix-fit`, and `/claim-fit` cadences are the reactive half of this tier; the standing preventive half is the fix-and-prevent items listed here when any are open.
+Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
+
+### 1.20 adopt-preflight-guard live-smoke test is not adopter-portable (validate-pr-1019 worker caveat, 2026-07-18, M, XS) `[machinery]`
+
+`tests/test_linters.py` `AdoptPreflightGuardTests.test_live_repo_refuses_on_maintainer_clone` asserts the guard exits 3 (REFUSE) on the live clone. That holds on the maintainer machine and in CI (both classify non-adopter) but FAILS on an actual ADOPTER clone, where `detect-env` classifies `adopter` so the guard correctly exits 0 (proceed) and the test's rc-3 assertion fails. This breaks the adopter-clone portability invariant (an adopter running `run-linter-regression` would see this one test fail). Fix: make the smoke test environment-agnostic, assert the guard's rc is CONSISTENT with the live `detect-env` classification (rc 0 iff classification is `adopter`, else rc 3) rather than hardcoding refuse. FRESH-SESSION first-fix (with the SEF-07 remap). Surfaced by validate-pr-1019's environment-artefact caveat (the worker's nested clone classifies `adopter`). The routine `/validate`, `/validate-pr`, `/matrix-fit`, and `/claim-fit` cadences are the reactive half of this tier; the standing preventive half is the fix-and-prevent items listed here when any are open.
 
 P1 currently holds six open items (§1.1, the discussion-vs-execution mode gate; §1.14, the external-source currency detection mechanism; §1.15, the cross-repo write-safety guardrail; §1.16, the COBIT management-objective title normalization + title-text gate; §1.18, the change-impact surface map + enforcement; and §1.19, the operational-state privatization + adopter-clone portability multi-phase spec). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
 
@@ -403,10 +407,6 @@ The `/adopt` `.ref` bootstrap planner (`tools/adopt-bootstrap-ref.py`, §1.19.7c
 ### 3.99 Parity-gate exclusion allow-lists + PR-only delta gates are unguarded (deep-assessment r5 Low-4, 2026-07-18, M) `[machinery]`
 
 The four-surface parity gate reconciles all surfaces (72/72/72/72 as of gate 72), but two latent gaps: (i) it relies on three hardcoded exclusion allow-lists (`WORKFLOW_DELTA_GATE_STEPS`, `WORKFLOW_SETUP_STEPS`, `PRECOMMIT_NON_GATE_HOOKS`) that are themselves unguarded, so a real gate mistakenly added to an exclusion set would be masked from parity; (ii) the 8 PR-only delta gates (D1-D8) live only in `quality.yml` with no cross-surface parity check on their naming or wiring. No current defect (allow-lists are correct today). Options: cross-check each exclusion-list member against a positive signal (e.g. a delta-gate member must actually be invoked in `run-pr-time-checks.sh`), and add a delta-gate naming/wiring parity check. Deep-assessment r5.
-
-### 3.100 Re-ingest a clean Quebec Law 25 (P-39.1) source; the held extract has margin-note corruption (Quebec-citation escalation, 2026-07-18, M; cross-repo `_ref`) `[machinery]`
-
-The held `grc_library_ref` Quebec Law 25 full-text (`legislation/Canada/Quebec-Law25-PI-Private-Sector-CQLR-P-39.1--full-text.md`) has PDF **margin-note corruption on its section headers**: the rotated "2021, c. 25" / "2025" annotation digits are interleaved into the extracted text, so section headers like "3.3." extract as "23.3." (a stray leading "2"). This directly caused the abandoned Quebec-citation inversion and the #973-shipped `annex-privacy-canada.md` "s. 23.3" error, by fooling two separate held-source verifications. Re-ingest a clean P-39.1 source (a text/HTML source from LégisQuébec/CanLII rather than the corrupted PDF extract, or a cleaned extraction) so the held section numbering is trustworthy; the annex-canada citation fix already landed in #1019 (verified against the statute's internal cross-references + upstream), so a clean held source lets that citation be RE-verified against trustworthy held text going forward. **UPDATE 2026-07-18: the maintainer uploaded a clean Quebec Law 25 to `_ref/ingest`; this item is now the ingest + superseded-archive of the corrupted file + the re-verification.** Cross-repo (`grc_library_ref` PR). Until then, Quebec Law 25 section citations rest on the statute's internal cross-references + upstream, not the held header. Broader lesson (retro): a held PDF-extract header can be corrupted; cross-check the statute's OWN internal section cross-references + upstream, not just the extracted header.
 
 ## Priority 4 — Adopter experience
 
