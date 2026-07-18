@@ -64,9 +64,13 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The per-PR compact root entry (identical to the D8 / audit ENTRY_RE).
+# A compact root entry. The `| PR #N` segment is OPTIONAL: the oldest ~34
+# entries (the pre-PR-number era, 2026-05-31 to 2026-06-19) use the form
+# `**YYYY-MM-DD | VERSION** - summary` with no PR number, while later entries add
+# `| PR #N`. Both must be projected (dropping the no-PR entries would lose the
+# earliest weeks). group(3) (the PR number) is None for a no-PR entry.
 ENTRY_RE = re.compile(
-    r"^\*\*(\d{4}-\d{2}-\d{2}) \| ([^|]+) \| PR #(\d+)\*\* - (.+)$"
+    r"^\*\*(\d{4}-\d{2}-\d{2}) \| ([^|]+?)(?: \| PR #(\d+))?\*\* - (.+)$"
 )
 
 
@@ -97,7 +101,7 @@ def parse_entries(text: str) -> tuple[str, list[dict]]:
             {
                 "date": datetime.date.fromisoformat(m.group(1)),
                 "version": m.group(2).strip(),
-                "pr": int(m.group(3)),
+                "pr": int(m.group(3)) if m.group(3) else None,
                 "summary": m.group(4).strip(),
                 "raw": line,
             }
@@ -118,6 +122,22 @@ def tier_of(d: datetime.date, current_week: datetime.date,
 def _pr_range(prs: list[int]) -> str:
     lo, hi = min(prs), max(prs)
     return f"#{lo}" if lo == hi else f"#{lo}-#{hi}"
+
+
+def _entry_tag(e: dict) -> str:
+    """The scaffold-bullet tag for an entry: its PR number, or its version for a
+    pre-PR-number (no-PR) entry."""
+    return f"PR #{e['pr']}" if e["pr"] is not None else f"v{e['version']}"
+
+
+def _group_label(grp: list[dict]) -> str:
+    """A tier-header label: a PR range when the group has PR entries, else a
+    version range (the pre-PR-number weeks). ``grp`` is newest-first, so
+    ``grp[-1]`` is the oldest and ``grp[0]`` the newest."""
+    prs = [e["pr"] for e in grp if e["pr"] is not None]
+    if prs:
+        return f"PRs {_pr_range(prs)}"
+    return f"versions {grp[-1]['version']} to {grp[0]['version']}"
 
 
 def project(entries: list[dict], current_week: datetime.date,
@@ -143,30 +163,28 @@ def project(entries: list[dict], current_week: datetime.date,
     # Weekly tier: newest week first.
     for wk in sorted(weekly, reverse=True):
         grp = weekly[wk]
-        prs = [e["pr"] for e in grp]
-        out.append(f"**Week of {wk.isoformat()} (PRs {_pr_range(prs)})**")
+        out.append(f"**Week of {wk.isoformat()} ({_group_label(grp)})**")
         out.append("")
         out.append(
             f"<!-- TIER-SCAFFOLD: author an accomplishments summary of at most "
-            f"4 sentences for this week ({len(grp)} PRs); raw per-PR material "
-            f"below, delete after authoring. -->"
+            f"4 sentences for this week ({len(grp)} entries); raw per-entry "
+            f"material below, delete after authoring. -->"
         )
         for e in grp:
-            out.append(f"- PR #{e['pr']}: {e['summary']}")
+            out.append(f"- {_entry_tag(e)}: {e['summary']}")
         out.append("")
     # Monthly tier: newest month first.
     for mo in sorted(monthly, reverse=True):
         grp = monthly[mo]
-        prs = [e["pr"] for e in grp]
-        out.append(f"**{mo} (PRs {_pr_range(prs)})**")
+        out.append(f"**{mo} ({_group_label(grp)})**")
         out.append("")
         out.append(
             f"<!-- TIER-SCAFFOLD: author a monthly accomplishments summary for "
-            f"{mo} ({len(grp)} PRs); raw per-PR material below, delete after "
-            f"authoring. -->"
+            f"{mo} ({len(grp)} entries); raw per-entry material below, delete "
+            f"after authoring. -->"
         )
         for e in grp:
-            out.append(f"- PR #{e['pr']}: {e['summary']}")
+            out.append(f"- {_entry_tag(e)}: {e['summary']}")
         out.append("")
     return "\n".join(out).rstrip() + "\n"
 
@@ -190,6 +208,7 @@ def self_test() -> int:
                 "**2026-07-14 | 2026.07.8 | PR #99** - recent two.\n\n"
                 "**2026-07-08 | 2026.07.7 | PR #98** - last week a.\n\n"
                 "**2026-07-06 | 2026.07.6 | PR #97** - last week b.\n\n"
+                "**2026-05-04 | 2026.05.1** - may pre-PR internal.\n\n"
                 "**2026-03-10 | 2026.03.1 | PR #50** - old one.\n"
             )
             return parse_entries(src)
@@ -197,15 +216,18 @@ def self_test() -> int:
         def test_parse(self):
             pre, entries = self._entries()
             self.assertIn("# Changelog", pre)
-            self.assertEqual([e["pr"] for e in entries], [100, 99, 98, 97, 50])
+            # The no-PR entry (2026-05-04) parses with pr=None, not dropped.
+            self.assertEqual([e["pr"] for e in entries],
+                             [100, 99, 98, 97, None, 50])
 
         def test_tiers(self):
             _, entries = self._entries()
             cw = monday_of(datetime.date(2026, 7, 15))  # 2026-07-13
             ws = datetime.date(2026, 4, 15)  # ~3 months before as-of
             counts = plan_counts(entries, cw, ws)
-            # 100/99 current week; 98/97 last week -> weekly; 50 (March) -> monthly
-            self.assertEqual(counts, {"current": 2, "weekly": 2, "monthly": 1})
+            # 100/99 current week; 98/97 (wk 07-06) + the no-PR 05-04 -> weekly;
+            # 50 (March) -> monthly.
+            self.assertEqual(counts, {"current": 2, "weekly": 3, "monthly": 1})
 
         def test_project_keeps_current_verbatim_and_scaffolds_rest(self):
             _, entries = self._entries()
@@ -218,6 +240,16 @@ def self_test() -> int:
             self.assertIn("TIER-SCAFFOLD", body)
             # A current-week PR is NOT re-listed under a weekly scaffold bullet.
             self.assertNotIn("- PR #100:", body)
+            # No-PR entry: bucketed (NOT dropped), with a version-range header
+            # and a version-tagged bullet.
+            self.assertIn(
+                "**Week of 2026-05-04 (versions 2026.05.1 to 2026.05.1)**", body)
+            self.assertIn("- v2026.05.1: may pre-PR internal.", body)
+            # Full conservation: every source entry appears exactly once, as a
+            # verbatim current entry OR a scaffold bullet (6 in, 6 out).
+            verbatim = len([ln for ln in body.splitlines() if ENTRY_RE.match(ln)])
+            bullets = len([ln for ln in body.splitlines() if ln.startswith("- ")])
+            self.assertEqual(verbatim + bullets, 6)
 
     runner = unittest.TextTestRunner(verbosity=1)
     result = runner.run(unittest.defaultTestLoader.loadTestsFromTestCase(T))
