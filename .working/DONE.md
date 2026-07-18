@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.93: sync-scratch-every-PR + fetch-before-read coordination reads (2026-07-18, PR #1018 + grc_library_scratch)
+
+Closed §3.93 (recurrence-prevention for stale scratch coordination-plane reads). Parts (a) the sync-scratch-every-PR close-out line and (b) the `/resume` step-3 + `## Credit-offload mode` fetch-before-read mandate were already applied in CLAUDE.md; part (c) shipped scratch-side (`credit-offload-queue.py` `list-workers` / `list-pending` now best-effort fetch origin and read `origin/main` non-mutatingly, with a local fallback). Two stale CLAUDE.md "queued §3.93(c)" prose lines are staged for a daytime protected cleanup (deferred item 15).
+
 ### TODO §3.91 (+ §3.90): sibling-reaching advisory-tool graceful degradation (2026-07-18, PR #1011)
 
 Closed §3.91: assessed all six maintainer-cadence tools that reach `grc_library_ref` and made the whole set adopter-portable. Three crashed on an absent reference base (`audit-reference-breadth`, `audit-reference-acquisition-gaps`, `scan-publication-instruction-content`) and were fixed to a graceful no-op exit 0 (default ref-base + absent -> no-op; explicit override still errors on a typo); the other three (`audit-claim-precision`, `verify-reference-modules`, `audit-register-currency`) already degraded. All six added to `check-portability.sh`'s degradation loop. Also closed §3.90 by documenting check-portability's relative-clone scope (an absolute-path sibling-reach is out of scope) in the script header.
