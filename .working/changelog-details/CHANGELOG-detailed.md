@@ -6,13 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.511, PR #1023
+
+Closes TODO §1.20 (P1, machinery): the `adopt-preflight-guard` live-smoke test was not adopter-portable. A tests-and-working-state PR; no corpus or website content changed.
+
+**The defect.** `tests/test_linters.py` `AdoptPreflightGuardTests.test_live_repo_refuses_on_maintainer_clone` shelled out to the real `classify()` and asserted the guard exits 3 (REFUSE). That holds on a maintainer clone and in CI (both classify non-adopter), but a genuine ADOPTER clone classifies `adopter`, so `adopt-preflight-guard.py` correctly exits 0 (proceed) and the hardcoded `== 3` assertion fails. An adopter running `run-linter-regression` would see that one test fail, breaking the adopter-clone portability invariant (validate-pr-1019's environment-artefact caveat, which is exactly how a worker's `adopter`-classified nested clone surfaced it).
+
+**The fix.** The test now reads the live classification and asserts the guard's exit is CONSISTENT with it: `rc == 0` iff `classify() == "adopter"`, else `rc == 3`. This is portable, a maintainer / fresh-machine / CI clone -> non-adopter -> rc 3; a genuine adopter clone -> rc 0; a failed or missing probe -> `None` (not `"adopter"`) -> the fail-safe rc 3. The test is renamed `test_live_repo_guard_consistent_with_classification` to reflect the environment-agnostic assertion. `main()`'s contract (`return 0` iff `classify() == "adopter"`, else `3`) is unchanged, so this only fixes the test, not the guard.
+
+### Changed
+- [`tests/test_linters.py`](../../tests/test_linters.py): rewrote the adopt-preflight live-smoke test to assert rc-consistency with the live `detect-env` classification (portable across clone types) and renamed it accordingly.
+- [`TODO.md`](../../TODO.md): deleted §1.20 (rotated to DONE); bumped the stale "Next item number" pointer `1.21` -> `1.22` (a #1021 omission: §1.21 was assigned without bumping the pointer); updated the P1 point-fix enumeration to drop the now-closed §1.20.
+
+**PR #1022 QA batch (recursion-avoidance).** This PR carries #1022's per-PR QA:
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1022 validate-pr row.
+- [`.working/improvement-log.md`](../improvement-log.md): #1022 `/retro` row.
+
+### Verification
+- The rewritten test exercises the real `classify()` shell-out; it passes on this maintainer clone (classify -> non-adopter -> guard rc 3 -> assert rc 3). The full `run_all_audits.sh` (gate 36 linter-regression) is green. Skeptical verifier not required for a test-portability fix beyond the regression run itself; per-PR `/validate-pr` + `/retro`.
+
 ## 2026-07-18, Library Version 2026.07.510, PR #1022
 
 The SEF-07 CSA CCM control-code remap (the deep-assessment r5 Medium-1 finding, maintainer-directed to `SEF-07` as the fresh-session first fix; pending-decisions morning-review item). A corpus citation correction.
 
 **The defect.** The incident-escalation SOP's `## Framework alignment` table cited `CSA CCM v4.1 | SEF-02: Incident Management`, and its row in the document-index register cited `CSA CCM SEF-02`. But held CSA CCM v4.1.0 (catalogue CSV:601) defines `SEF-02` as "Service Management Policy and Procedures", an IT-service-management control, not an incident-management one; the mislabel also invented the title "Incident Management". The correct control for a cloud-incident-escalation SOP is `SEF-07` "Incident Management and Response" (CSV:618: "Define, implement and evaluate processes, procedures and technical measures for timely and effective response to security incidents in accordance with incident categories and severity levels").
 
-**Scope discipline.** Corpus-wide grep found seven other `SEF-02` carriers; all were left untouched after verification: `compliance/matrix-grc-compliance-alignment.md:191,192` cite `SEF-02` for the IT-Service-Management framework and the Service-Level-Management standard (CORRECT, that is exactly what SEF-02 is); `security/procedure-security-incident-response.md:330` and `compliance/matrix-grc-compliance-alignment.md:147` cite `SEF-01, SEF-02, ...` in incident-management-policy contexts (SEF-02 defensible alongside SEF-01); the remaining carrier is a historical root-changelog entry. One separate candidate fit issue was noted for a future `/matrix-fit` pass, not fixed here (`operations/procedure-security-monitoring-and-alert-management.md:333` cites `SEF-02, SEF-03` for "Alert triage and response", where SEF-06 "Event Triage Processes" + SEF-07 would fit better); it is a distinct semantic-fit judgment, out of scope for this scoped r5 fix.
+**Scope discipline.** A corpus-wide grep found the citation at exactly the two fixed sites plus FIVE other corpus `SEF-02` carriers (measured by a corpus-wide grep over markdown, excluding the working tree and the root changelog: 5), all correctly LEFT after verification: `compliance/matrix-grc-compliance-alignment.md:191,192` cite `SEF-02` for the IT-Service-Management framework and the Service-Level-Management standard (CORRECT, that is exactly what SEF-02 is); `security/procedure-security-incident-response.md:330` and `compliance/matrix-grc-compliance-alignment.md:147` cite `SEF-01, SEF-02, ...` in incident-management-policy contexts (SEF-02 defensible alongside SEF-01); and `operations/procedure-security-monitoring-and-alert-management.md:333` cites `SEF-02, SEF-03` for "Alert triage and response", where SEF-06 "Event Triage Processes" + SEF-07 would fit better, a distinct semantic-fit judgment noted for a future `/matrix-fit` pass, out of scope for this scoped r5 fix. (A historical root-changelog entry also mentions SEF-02; excluded.)
 
 ### Changed
 - [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): `SEF-02: Incident Management` -> `SEF-07: Incident Management and Response` in the framework-alignment table. Version `1.2.6` -> `1.2.7`, Date -> 2026-07-18.
