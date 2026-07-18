@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.497, PR #1009
+
+Gate 71, the stdlib-only import audit (TODO §3.95, maintainer-approved). Closes the blind spot that let #1006's generator ship `import yaml` and fail only in CI: `check-portability.sh` clones sibling-free but runs under the maintainer's Python, so it tests sibling-ABSENCE, not the stdlib-only environment. The corpus now runs **71** audit gates.
+
+### Added
+- [`tools/lint-stdlib-only-imports.py`](../../tools/lint-stdlib-only-imports.py) (gate 71): AST-parses every runnable-toolchain Python file (`tools/`, `tests/`, `.web/`) and fails any imported ROOT module not in `sys.stdlib_module_names`, not a first-party in-repo module (the stem of a scanned `.py`, e.g. `lint_common` or the reference modules), and not in the explicit `ALLOWED_THIRD_PARTY` allow-list (empty; the toolchain is pure stdlib). Static AST (not grep) sees the real import graph incl. lazy imports. Runs inside `run_all_audits.sh`, so it catches a third-party import at every commit, earlier than CI. Sanctioned exception = an `ALLOWED_THIRD_PARTY` entry with a rationale (gate-discipline exception pattern).
+- `StdlibOnlyImportsTests` (4) in [`tests/test_linters.py`](../../tests/test_linters.py): flags a third-party import (top-level + lazy + from-import), passes stdlib + first-party sibling imports, and asserts the live HEAD tree is clean; the temp-tree tests save/restore `REPO_ROOT` (test isolation).
+
+### Changed
+- Four-surface wiring: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §6 inventory table (row 71) + §6 detailed prose (the gate-71 paragraph) + §5 grouped list (added to group 5, "Programme and index integrity"). Parity re-derives to 71/71/71/71 (gate 35).
+- [`TODO.md`](../../TODO.md): §3.95 closed (rotated to [`DONE.md`](../DONE.md)); §3.99's parity-count updated to 71/71/71/71.
+
+### Verification
+- All 71 audit gates pass (gate 71 green on HEAD: 111 toolchain files, all stdlib/first-party). Regression suite includes `StdlibOnlyImportsTests` 4/4. `check-portability.sh` re-run post-commit (gate 71 needs no siblings; it degrades cleanly / runs green sibling-free). A gate-20 (mandatory-verb-near-uncertainty) false trip from a "must ... TODO" adjacency in the new §6 prose was reworded to declarative before the suite went green.
+- **#1008 QA batch (recursion-avoidance) carried here:** the validate-pr-1008 SHIP row + the retro-1008 row.
+- Tooling only; no corpus, pack, or website content changed. Pre-push guard green.
+
 ## 2026-07-18, Library Version 2026.07.496, PR #1008
 
 Records the **deep-assessment r5** offloaded read-only probe pass (worker `worker-20260716-a`, pinned `a42a2a0b` / #1006) and routes its findings (Phase 7). The clean phases: mechanical baseline 70/70 + 412 regression tests, blind-spot map 0, mutation probe 15/0/5/0 (disposable clone), four-surface parity 70/70/70/70, reference modules match held source, full-history secret scan + PII watermark clean, 809-row QA-ledger meta-audit honest. Finding set (orchestrator-re-verified at source): 2 confirmed corpus (1 Medium, 1 Low) + 5 Low informational/tracked/robustness; **no High**. Phase 8 HOLDS for maintainer sign-off.

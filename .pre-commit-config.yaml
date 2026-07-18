@@ -507,3 +507,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-stdlib-only-imports
+        name: Stdlib-only import audit
+        entry: python3 tools/lint-stdlib-only-imports.py
+        language: system
+        pass_filenames: false
+        always_run: true

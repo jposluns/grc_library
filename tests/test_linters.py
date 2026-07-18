@@ -7517,5 +7517,66 @@ class AdoptBootstrapRefTests(unittest.TestCase):
         self.assertEqual(mod.main(["--manifest", "/nonexistent/manifest.md"]), 2)
 
 
+class StdlibOnlyImportsTests(unittest.TestCase):
+    """tools/lint-stdlib-only-imports.py (gate 71): flags a third-party import in the
+    runnable toolchain (tools/ tests/ .web/); stdlib + first-party (sibling .py) imports
+    pass. The gate reads REPO_ROOT as a module global, so the tests drive it by
+    monkeypatching that global to a temp tree, saving + restoring it (test isolation)."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/lint-stdlib-only-imports.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _run_on(self, mod, files: dict):
+        """Write {relpath: source} under a temp REPO_ROOT and return scan() findings.
+        Saves + restores mod.REPO_ROOT so later tests are unaffected."""
+        old = mod.REPO_ROOT
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel, src in files.items():
+                fp = root / rel
+                fp.parent.mkdir(parents=True, exist_ok=True)
+                fp.write_text(src, encoding="utf-8")
+            try:
+                mod.REPO_ROOT = root
+                return mod.scan()
+            finally:
+                mod.REPO_ROOT = old
+
+    def test_flags_third_party(self) -> None:
+        mod = self._load("_stdlib_flag")
+        findings = self._run_on(mod, {"tools/bad.py": "import os\nimport totally_not_stdlib_xyz\n"})
+        roots = [f[2] for f in findings]
+        self.assertIn("totally_not_stdlib_xyz", roots)  # third-party flagged
+        self.assertNotIn("os", roots)                   # stdlib not flagged
+
+    def test_flags_lazy_and_from_import(self) -> None:
+        mod = self._load("_stdlib_lazy")
+        src = ("def f():\n    import some_third_party_pkg  # lazy import still breaks adopter\n"
+               "from another_third_party.sub import thing\n")
+        findings = self._run_on(mod, {"tools/x.py": src})
+        roots = {f[2] for f in findings}
+        self.assertEqual(roots, {"some_third_party_pkg", "another_third_party"})
+
+    def test_clean_stdlib_and_first_party(self) -> None:
+        mod = self._load("_stdlib_clean")
+        # a.py imports sibling b (first-party) + stdlib; b.py imports stdlib only.
+        findings = self._run_on(mod, {
+            "tools/a.py": "import json\nimport b\nfrom pathlib import Path\n",
+            "tools/b.py": "import re\n",
+        })
+        self.assertEqual(findings, [])
+
+    def test_head_tree_is_clean(self) -> None:
+        # The live toolchain must itself pass the gate (green on HEAD).
+        mod = self._load("_stdlib_head")
+        self.assertEqual(mod.scan(), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

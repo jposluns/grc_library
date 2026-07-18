@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.95: stdlib-only import gate (gate 71) (2026-07-18, PR #1009)
+
+Closed §3.95 with a new audit gate 71 `tools/lint-stdlib-only-imports.py`: AST-scans the runnable toolchain (`tools/`, `tests/`, `.web/`) and fails any import whose root is not stdlib (`sys.stdlib_module_names`), a first-party in-repo module, or an allow-listed dependency (empty; the toolchain is pure stdlib). Closes the blind spot that let #1006's `import yaml` reach CI (check-portability tests sibling-absence, not the stdlib-only environment). Wired across the four parity surfaces + §5/§6 spec prose + a regression fixture (`StdlibOnlyImportsTests`); the corpus now runs 71 audit gates.
+
 ### TODO §1.19.7 (part c) + §1.12 + §3.18 closures (2026-07-18, PR #1007)
 
 Closed **§1.19.7** (`_ref` integration umbrella), the last §1.19 Phase-1 item: part (c) shipped the `/adopt` `.ref` bootstrap, a new stdlib-only planner `tools/adopt-bootstrap-ref.py` that reads the committed public reference-acquisition manifest and categorizes it into auto-fetchable (FREE + URL) / free-manual / licensed-manual, plus the `/adopt` SKILL step-4 concretization (WebFetch the auto-fetchable set into the EXTERNAL sibling; planner never fetches/writes; copyright boundary in the human-in-the-loop layer) and pack README bump 1.62.1. Also closed **§1.12** (root-CHANGELOG entry-length remediation: part 2 was already done by D8, part 1 is subsumed by §1.19.10's weekly collapse, maintainer-confirmed) and **§3.18** (`/reference-audit` publications-bucket inclusion: maintainer decided publications stay excluded until `/screen-publications` clears them).
