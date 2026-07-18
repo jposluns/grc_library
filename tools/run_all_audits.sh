@@ -166,6 +166,7 @@ run_gate "Document-Type enumeration parity audit"         python3 tools/lint-doc
 run_gate "Nested-markdown-link audit"                     python3 tools/lint-nested-markdown-links.py
 run_gate "Positional backlog-token audit"                 python3 tools/lint-positional-backlog-tokens.py
 run_gate "Sibling-repo stub-guard audit"                  python3 tools/lint-sibling-placeholders.py
+run_gate "Stdlib-only import audit"                       python3 tools/lint-stdlib-only-imports.py
 
 # ----------------------------------------------------------------------
 # Summary
