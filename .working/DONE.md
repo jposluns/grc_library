@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.98: gate-61 external-path ValueError guard (2026-07-18, PR #1010)
+
+Closed §3.98 (a deep-assessment r5 Low-3 robustness nit): `tools/lint-cobit-iso31000-citations.py` guarded its findings-print `path.relative_to(REPO_ROOT)` with a `_display_path` helper that falls back to the absolute path for a target outside the repo, so a hand-invocation on an external file with a finding no longer raises `ValueError`. Cosmetic (never triggered in the runner/CI); + a regression test.
+
 ### TODO §3.95: stdlib-only import gate (gate 71) (2026-07-18, PR #1009)
 
 Closed §3.95 with a new audit gate 71 `tools/lint-stdlib-only-imports.py`: AST-scans the runnable toolchain (`tools/`, `tests/`, `.web/`) and fails any import whose root is not stdlib (`sys.stdlib_module_names`), a first-party in-repo module, or an allow-listed dependency (empty; the toolchain is pure stdlib). Closes the blind spot that let #1006's `import yaml` reach CI (check-portability tests sibling-absence, not the stdlib-only environment). Wired across the four parity surfaces + §5/§6 spec prose + a regression fixture (`StdlibOnlyImportsTests`); the corpus now runs 71 audit gates.

@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.498, PR #1010
+
+Gate 61 external-path robustness guard (TODO §3.98, deep-assessment r5 Low-3). A cosmetic-only nit: the findings-print loop of [`tools/lint-cobit-iso31000-citations.py`](../../tools/lint-cobit-iso31000-citations.py) called `path.relative_to(REPO_ROOT)` unguarded, which raises `ValueError` on a target outside the repo (a hand-invocation with a finding). Never triggered in the runner/CI (always repo-relative), but fixed for robustness.
+
+### Changed
+- [`tools/lint-cobit-iso31000-citations.py`](../../tools/lint-cobit-iso31000-citations.py): added a `_display_path` helper (try `relative_to(REPO_ROOT).as_posix()`, fall back to the absolute POSIX path on `ValueError`) and used it in the findings-print loop.
+
+### Added
+- A `test_display_path_guards_external` regression test in [`tests/test_linters.py`](../../tests/test_linters.py) (`CobitIso31000CitationsTests`): in-repo path renders relative, an out-of-repo path renders absolute with no `ValueError`. (The synthetic module load registers the module in `sys.modules` so its `@dataclass` annotations resolve under Python 3.14, and de-registers it in a `finally`.)
+
+### Verification
+- All 71 audit gates pass; gate 61 still clean on HEAD; the new test passes. Pre-push guard green.
+- **#1009 QA batch (recursion-avoidance) carried here:** the validate-pr-1009 SHIP row + the retro-1009 row.
+- Tooling only; no corpus, pack, or website content changed.
+
 ## 2026-07-18, Library Version 2026.07.497, PR #1009
 
 Gate 71, the stdlib-only import audit (TODO §3.95, maintainer-approved). Closes the blind spot that let #1006's generator ship `import yaml` and fail only in CI: `check-portability.sh` clones sibling-free but runs under the maintainer's Python, so it tests sibling-ABSENCE, not the stdlib-only environment. The corpus now runs **71** audit gates.

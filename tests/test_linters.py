@@ -6226,6 +6226,27 @@ class CobitIso31000CitationsTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_display_path_guards_external(self) -> None:
+        # deep-assessment r5 Low-3 / TODO 3.98: the findings-print helper must not raise
+        # ValueError on a path outside REPO_ROOT (a hand-invocation on an external file).
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location(
+            "_cobit_disp", REPO_ROOT / "tools/lint-cobit-iso31000-citations.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod  # dataclass annotation resolution needs it registered
+        try:
+            spec.loader.exec_module(mod)
+        finally:
+            sys.modules.pop(spec.name, None)
+        # in-repo -> relative POSIX
+        self.assertEqual(
+            mod._display_path(REPO_ROOT / "governance" / "x.md"), "governance/x.md")
+        # out-of-repo -> absolute POSIX, no ValueError raised
+        self.assertEqual(mod._display_path(Path("/tmp/elsewhere/y.md")), "/tmp/elsewhere/y.md")
+
     def _doc(self, body_line: str) -> str:
         return (
             "# X\n\n## Framework alignment\n\n"

@@ -188,6 +188,16 @@ def scan_file(path: Path) -> list[Finding]:
     return findings
 
 
+def _display_path(path: Path) -> str:
+    """Repo-relative POSIX path for display, falling back to the absolute path for a
+    target outside REPO_ROOT (a hand-invocation on an external file), so the findings
+    loop never raises ValueError from ``relative_to`` (deep-assessment r5 Low-3 / TODO 3.98)."""
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def main(argv: list[str]) -> int:
     paths = argv[1:] or [str(REPO_ROOT)]
     targets = iter_markdown_targets(
@@ -209,7 +219,7 @@ def main(argv: list[str]) -> int:
     for f in all_findings:
         by_file.setdefault(f.path, []).append(f)
     for path in sorted(by_file):
-        print(f"=== {path.relative_to(REPO_ROOT).as_posix()} ===")
+        print(f"=== {_display_path(path)} ===")
         for f in by_file[path]:
             print(f"  L{f.line} [{f.rule}] {f.message}")
     print(
