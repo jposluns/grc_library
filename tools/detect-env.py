@@ -45,7 +45,7 @@ import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SIBLINGS = ("grc_library_ref", "grc_library_scratch")
+SIBLINGS = ("grc_library_ref", "grc_library_scratch", "grc_library_private")
 
 # The canonical maintainer origin (owner/repo). A clone whose ``origin`` remote
 # points here is the maintainer's own repo; any other owner is an adopter fork.
@@ -295,6 +295,48 @@ def ref_availability_decision(classification: str, ref_readable: bool) -> str:
         "degrade. Resolve the identity and sibling access, then re-resume.")
 
 
+def private_availability_decision(classification: str, private_readable: bool) -> str:
+    """The _private-required loud gate (TODO section 1.19.8 layered assurance).
+
+    grc_library_private holds the maintainer orchestrator's operational state, so
+    for the maintainer a missing _private is a LOUD failure to fix (clone it),
+    never a silent skip or a hallucinated-from-memory work-around. The graceful
+    path is ADOPTER-ONLY: an adopter legitimately has no _private and is offered a
+    choice (redirect to the in-repo .private placeholder, or create their own).
+    Mirrors ref_availability_decision; the PreToolUse hook is the mechanical
+    enforcement that this decision is not merely advisory.
+    """
+    if private_readable:
+        return "ok (grc_library_private readable)."
+    if classification == "maintainer":
+        return (
+            "HALT (LOUD): identity is maintainer but grc_library_private is NOT "
+            "readable. _private is a REQUIRED orchestrator dependency (it holds "
+            "the operational state the CLAUDE.md delegation directive points to); "
+            "do NOT proceed on operational work and do NOT reconstruct its content "
+            "from memory. Grant sibling access (the FIX line above) or clone it "
+            "(git clone https://github.com/jposluns/grc_library_private.git "
+            "../grc_library_private), then re-resume.")
+    if classification == "maintainer-fresh-machine":
+        return (
+            "clone _private FIRST: a fresh maintainer clone has no "
+            "grc_library_private; operational work requires it, so clone the "
+            "private siblings (git clone "
+            "https://github.com/jposluns/grc_library_private.git "
+            "../grc_library_private) before proceeding.")
+    if classification == "adopter":
+        return (
+            "ok (adopter, _private absent as expected): _private is the "
+            "maintainer's private operational store; an adopter is offered a "
+            "choice (point their own store at ../grc_library_private, use the "
+            "in-repo .private placeholder, or create their own). Nothing here is "
+            "required to use the corpus or run the public gates.")
+    return (
+        f"HALT (LOUD): undetermined operator identity ({classification!r}) with "
+        "grc_library_private unreadable; treat _private as REQUIRED and do NOT "
+        "silently degrade. Resolve the identity and sibling access, then re-resume.")
+
+
 def probe_one(url: str, method: str) -> dict:
     req = urllib.request.Request(url, method=method,
                                  headers={"User-Agent": "grc-detect-env/1.0"})
@@ -322,12 +364,47 @@ def probe_egress() -> dict:
     return out
 
 
+def _self_test() -> int:
+    """Unit tests for the sibling-availability decision functions."""
+    import unittest
+
+    class T(unittest.TestCase):
+        def test_private_readable_ok(self):
+            self.assertTrue(private_availability_decision("maintainer", True).startswith("ok"))
+
+        def test_private_maintainer_absent_halts(self):
+            self.assertIn("HALT (LOUD)", private_availability_decision("maintainer", False))
+
+        def test_private_fresh_machine_clones(self):
+            self.assertIn("clone _private FIRST", private_availability_decision("maintainer-fresh-machine", False))
+
+        def test_private_adopter_graceful(self):
+            self.assertTrue(private_availability_decision("adopter", False).startswith("ok (adopter"))
+
+        def test_private_unknown_fails_safe(self):
+            self.assertIn("HALT (LOUD)", private_availability_decision("weird", False))
+
+        def test_ref_parity(self):
+            self.assertIn("HALT (LOUD)", ref_availability_decision("maintainer", False))
+            self.assertTrue(ref_availability_decision("adopter", False).startswith("ok"))
+
+    result = unittest.TextTestRunner(verbosity=2).run(
+        unittest.TestLoader().loadTestsFromTestCase(T)
+    )
+    return 0 if result.wasSuccessful() else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--no-egress", action="store_true")
     ap.add_argument("--json", action="store_true",
                     help="Print the machine-readable profile only.")
+    ap.add_argument("--self-test", action="store_true",
+                    help="Run the availability-decision unit tests and exit.")
     args = ap.parse_args(argv)
+
+    if args.self_test:
+        return _self_test()
 
     try:
         profile: dict = {
@@ -390,6 +467,12 @@ def main(argv: list[str] | None = None) -> int:
             profile["siblings"].get("grc_library_ref", {}).get("readable"))
         decisions["ref_availability"] = ref_availability_decision(
             idn["classification"], ref_readable)
+        # _private-required loud gate (TODO section 1.19.8 layered assurance): a missing
+        # grc_library_private is a LOUD failure for the maintainer, never a silent skip.
+        private_readable = bool(
+            profile["siblings"].get("grc_library_private", {}).get("readable"))
+        decisions["private_availability"] = private_availability_decision(
+            idn["classification"], private_readable)
         profile["decisions"] = decisions
     except Exception as exc:  # never crash the resume step
         print(f"ERROR: {exc}", file=sys.stderr)

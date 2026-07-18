@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.11: _private hygiene gate + conventions complete (2026-07-18, PR #1029)
+
+grc_library_private now has its own stdlib-only `validate` gate (no-secrets, house style, authored-doc link integrity, INDEX completeness) run in CI, plus a CLAUDE.md, a refreshed README, and the INDEX dispatcher. Shipped _private-side (Part 0); a skeptical verifier caught and fixed a real dead-`-ise`-stem defect in the gate. This grc_library PR carries the TODO rotation and the layered `_private`-required fail-loud assurance for the maintainer orchestrator (detect-env `private_availability` HALT + a PreToolUse Edit/Write hook + a pre-push-guard line). (P1, §1.19.x.)
+
 ### TODO §1.15: cross-repo write-safety guardrail complete (2026-07-18, PR #1026)
 
 Part (a) shipped in #1013 (`tools/repo-guard.sh`, a fail-loud `<repo> -- <cmd>` wrapper + `RepoGuardTests`); part (b), the standing project-CLAUDE.md convention line, landed here in the Boundaries section (confirm the target repo before every cross-repo Write/Edit or repo-mutating git command: `git rev-parse --show-toplevel` or route through `repo-guard.sh`; prefix git sequences with an explicit `cd /home/jposluns/<repo> &&`). Both parts of the two-part guardrail are now in place. (P1, guardrail.)

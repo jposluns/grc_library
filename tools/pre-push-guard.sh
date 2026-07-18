@@ -70,6 +70,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
 
+# _private defence-in-depth (TODO section 1.19.8 layered assurance): on the maintainer's
+# OWN clone (origin is jposluns/grc_library), grc_library_private is a REQUIRED operational
+# dependency. Fail LOUD at push time if it is absent, so a push authored without it (the
+# Bash-write path the PreToolUse Edit/Write hook does not gate) is caught here too. This is
+# identity-conditional: an adopter clone (any other origin) and CI are exempt (they legitimately
+# have no _private). Exit 4 is the _private-refuse code (3 is the pipe-refuse above).
+_origin="$(git remote get-url origin 2>/dev/null || true)"
+# Boundary-anchored (a "/" or ":" before the owner) so a fork owner ending in "jposluns"
+# is not misread as the maintainer.
+case "${_origin}" in
+  */jposluns/grc_library|*:jposluns/grc_library|*/jposluns/grc_library.git|*:jposluns/grc_library.git)
+    if [ ! -d "${REPO_ROOT}/../grc_library_private" ] || [ -z "$(ls -A "${REPO_ROOT}/../grc_library_private" 2>/dev/null)" ]; then
+      echo "pre-push-guard: REFUSING to push (TODO 1.19.8 _private-required): origin is the maintainer repo but grc_library_private is absent or empty. It holds the operational state the CLAUDE.md delegation directive points to; clone it (git clone https://github.com/jposluns/grc_library_private.git ../grc_library_private) or grant access (--add-dir ../grc_library_private), then retry. An adopter clone is exempt." >&2
+      exit 4
+    fi
+    ;;
+esac
+
 # Best-effort refresh of the merge base so the delta gates in
 # run-pr-time-checks.sh compare against the true base ref (origin/main by
 # default; whatever BASE_REF names otherwise). Fetching all of origin keeps
