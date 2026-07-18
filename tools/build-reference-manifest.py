@@ -27,17 +27,12 @@ Usage:
 `--check` is an orchestrator/maintainer drift check (it reads `_ref`), NOT a CI gate; run it
 at `_ref`-update / resume, folded into the resync-`_ref` discipline.
 """
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lint_common  # noqa: E402
-
-try:
-    import yaml
-except ImportError:
-    print("PyYAML required", file=sys.stderr)
-    sys.exit(2)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = REPO_ROOT / "docs" / "reference-acquisition-manifest.md"
@@ -55,6 +50,77 @@ BUCKET_LABEL = {
     "legislation": "Legislation",
     "programs": "Programs",
 }
+
+
+_DQ_ESCAPES = {'"': '"', "\\": "\\", "n": "\n", "t": "\t",
+               "r": "\r", "/": "/", "0": "\0"}
+
+
+def _unescape_double(s: str) -> str:
+    """Unescape the YAML double-quoted-scalar backslash escapes present in the
+    catalogue (chiefly `\\\"`), matching yaml.safe_load's result byte-for-byte."""
+    out = []
+    i = 0
+    while i < len(s):
+        if s[i] == "\\" and i + 1 < len(s):
+            out.append(_DQ_ESCAPES.get(s[i + 1], s[i + 1]))
+            i += 2
+        else:
+            out.append(s[i])
+            i += 1
+    return "".join(out)
+
+
+def _scalar(v: str):
+    """Parse a catalogue scalar value: strip a matched surrounding quote pair
+    (unescaping YAML escapes per quote style), map bare booleans, else return the
+    raw string. (The audit toolchain is stdlib-only, so this hand-parses the
+    catalogue rather than importing PyYAML.)"""
+    v = v.strip()
+    if len(v) >= 2 and v[0] == v[-1] == '"':
+        return _unescape_double(v[1:-1])
+    if len(v) >= 2 and v[0] == v[-1] == "'":
+        return v[1:-1].replace("''", "'")  # YAML single-quote escape
+    if v == "true":
+        return True
+    if v == "false":
+        return False
+    return v
+
+
+def _parse_catalogue(text: str) -> dict:
+    """Minimal stdlib parser for grc_library_ref/catalogue.yml.
+
+    The catalogue is machine-generated with a fixed, regular shape: top-level
+    bucket keys at column 0 (`standards:`), list entries beneath them
+    (`  - key: value`), and entry fields (`    key: value`). Values are quoted
+    strings, bare scalars, or booleans; the one list field (`topics`) is stored
+    verbatim and never read. Returns `{bucket: [entry_dict, ...]}`, matching the
+    dict shape `render()`/`_max_date()` consume. This avoids a non-stdlib PyYAML
+    dependency in the stdlib-only audit toolchain (no tool imports `yaml`)."""
+    catalogue: dict = {}
+    bucket = None
+    entry = None
+    for raw in text.splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        m = re.match(r"^([A-Za-z_][\w-]*):\s*$", raw)  # top-level bucket opener
+        if m:
+            bucket = m.group(1)
+            catalogue.setdefault(bucket, [])
+            entry = None
+            continue
+        if bucket is None:  # pre-bucket top-level metadata scalars: skip
+            continue
+        m = re.match(r"^  - ([A-Za-z_][\w-]*):\s?(.*)$", raw)  # entry start
+        if m:
+            entry = {m.group(1): _scalar(m.group(2))}
+            catalogue[bucket].append(entry)
+            continue
+        m = re.match(r"^    ([A-Za-z_][\w-]*):\s?(.*)$", raw)  # entry field
+        if m and entry is not None:
+            entry[m.group(1)] = _scalar(m.group(2))
+    return catalogue
 
 
 def _cell(v: str) -> str:
@@ -191,7 +257,7 @@ def main() -> int:
     if not catalogue_path.is_file():
         print(f"build-reference-manifest: {catalogue_path} not found", file=sys.stderr)
         return 2
-    catalogue = yaml.safe_load(catalogue_path.read_text(encoding="utf-8"))
+    catalogue = _parse_catalogue(catalogue_path.read_text(encoding="utf-8"))
     rendered = render(catalogue)
     if check:
         current = MANIFEST.read_text(encoding="utf-8") if MANIFEST.exists() else ""

@@ -7418,6 +7418,32 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         self.assertIn("| NIST AI 100-1 |  | NIST | https://csrc.nist.gov/x | FREE |", out)
         self.assertIn("**Total: 2 sources (1 free, 1 licensed).**", out)
 
+    def test_parse_catalogue_stdlib(self) -> None:
+        # The generator hand-parses catalogue.yml (the audit toolchain is stdlib-only;
+        # no tool imports PyYAML). This locks the parser's shape AND the YAML
+        # double-quote unescape that a plain outer-quote strip missed (the CI catch:
+        # an escaped inner quote must resolve to a bare quote, matching yaml.safe_load).
+        mod = self._load("_refman_parse")
+        cat = mod._parse_catalogue(
+            'schema_version: "1"\n'          # pre-bucket metadata: ignored
+            "standards:\n"
+            '  - title: "ISO/IEC 27001:2022, Info security"\n'  # colon inside value
+            '    origin: "ISO/IEC"\n'
+            "    acquisition: \"licensed\"\n"
+            "    authoritative: true\n"
+            '  - title: "OWASP thing, the \\"edge\\" copy"\n'    # escaped inner quotes
+            '    origin: "OWASP"\n'
+            "    acquisition: \"free\"\n"
+            "frameworks: []\n"
+        )
+        self.assertEqual(list(cat["standards"][0].keys())[0], "title")
+        self.assertEqual(cat["standards"][0]["title"], "ISO/IEC 27001:2022, Info security")
+        self.assertEqual(cat["standards"][0]["acquisition"], "licensed")
+        self.assertIs(cat["standards"][0]["authoritative"], True)
+        self.assertEqual(cat["standards"][1]["title"], 'OWASP thing, the "edge" copy')
+        self.assertNotIn("schema_version", cat)  # top-level scalar not a bucket
+        self.assertEqual(len(cat["standards"]), 2)
+
     def test_degrades_when_ref_absent(self) -> None:
         # Adopter portability: main() no-ops (exit 0) when grc_library_ref is absent.
         mod = self._load("_refman_degrade")
