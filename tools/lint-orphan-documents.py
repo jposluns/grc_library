@@ -53,6 +53,10 @@ ALWAYS_EXEMPT = {
     # collapses bodies, so relying on that incidental link is fragile. It is
     # reached by convention, not by inbound link, so it is exempt like its peers.
     "RESUME.md",
+    # Generated public bibliography (tools/build-reference-manifest.py): reached by
+    # the /adopt bootstrap and its standalone purpose, not by an inbound corpus link,
+    # the same convention-reached category as RESUME.md (TODO 1.19.7).
+    "reference-acquisition-manifest.md",
 }
 
 # Reference patterns: markdown links to local files.

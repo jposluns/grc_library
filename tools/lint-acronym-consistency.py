@@ -89,6 +89,9 @@ EXEMPT_FILES = {
     "register-glossary.md",
     # The CHANGELOG describes the patterns and is allowed to use them freely.
     "CHANGELOG.md",
+    # Generated bibliography (tools/build-reference-manifest.py): its cells are
+    # verbatim source titles/issuers, not authored prose (TODO 1.19.7).
+    "reference-acquisition-manifest.md",
 }
 # Phase 23.62 removed `lint-acronym-consistency.py` from this set: the
 # linter uses `iter_markdown_targets` and only scans `.md`, so the

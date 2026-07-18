@@ -71,8 +71,8 @@ rc=$?
 # lookup path; the other two take none.
 adv_rc=0
 echo
-echo "Checking the three §1.19.2-scoped sibling-reaching advisory tools degrade gracefully (TODO 1.19.2) ..."
-for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py; do
+echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (TODO 1.19.2, 1.19.7) ..."
+for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py build-reference-manifest.py; do
   if [ "$tool" = "ref-holds.py" ]; then
     ( cd "$CLONE" && python3 "tools/$tool" probe-query >/dev/null 2>&1 )
   else

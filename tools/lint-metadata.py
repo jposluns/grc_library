@@ -167,6 +167,7 @@ PREFIX_EXEMPT_BASENAMES = {
     "decision-tree.md",
     "portal.md",
     "maturity-scorecard.md",
+    "reference-acquisition-manifest.md",
     "specification-master-project.md",
     "specification-ingestion.md",
     "instruction-ai-document-ingestion.md",

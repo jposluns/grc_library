@@ -7381,5 +7381,61 @@ class DetectEnvIdentityTests(unittest.TestCase):
         self.assertIn("undetermined", msg)
 
 
+class ReferenceManifestGeneratorTests(unittest.TestCase):
+    """tools/build-reference-manifest.py (TODO 1.19.7): the render() output shape and
+    the sibling-free graceful degradation (adopter portability)."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/build-reference-manifest.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    _FAKE_CAT = {
+        "standards": [
+            {"title": "ISO/IEC 27001:2022", "origin": "ISO/IEC",
+             "acquisition": "licensed", "checked_edition": "2022"},
+            {"title": "NIST AI 100-1", "origin": "NIST", "acquisition": "free",
+             "upstream_url": "https://csrc.nist.gov/x", "last_updated": "2026-07-07"},
+        ],
+        "frameworks": [], "legislation": [], "programs": [],
+    }
+
+    def test_render_shape(self) -> None:
+        mod = self._load("_refman_render")
+        out = mod.render(self._FAKE_CAT)
+        # 13-field metadata block present (a docs/ file must carry it).
+        self.assertIn("**Document Title:** Reference-Acquisition Manifest", out)
+        self.assertIn("**License:** CC BY-SA 4.0", out)
+        self.assertIn("## Overview", out)  # Guide orientation section
+        # Deterministic Date from the max reference-base date, not today().
+        self.assertIn("**Date:** 2026-07-07", out)
+        # rows carry the acquisition class (upper-cased) and no held text.
+        self.assertIn("| ISO/IEC 27001:2022 | 2022 | ISO/IEC |  | LICENSED |", out)
+        self.assertIn("| NIST AI 100-1 |  | NIST | https://csrc.nist.gov/x | FREE |", out)
+        self.assertIn("**Total: 2 sources (1 free, 1 licensed).**", out)
+
+    def test_degrades_when_ref_absent(self) -> None:
+        # Adopter portability: main() no-ops (exit 0) when grc_library_ref is absent.
+        mod = self._load("_refman_degrade")
+        # Monkeypatch the SHARED lint_common.resolve_sibling; save + restore it in
+        # the finally so this test does not pollute later tests (e.g.
+        # ResolveSiblingTests) that rely on the real function.
+        old_resolve = mod.lint_common.resolve_sibling
+        mod.lint_common.resolve_sibling = lambda name: None
+        old_argv = sys.argv
+        try:
+            sys.argv = ["build-reference-manifest.py"]
+            self.assertEqual(mod.main(), 0)
+            sys.argv = ["build-reference-manifest.py", "--check"]
+            self.assertEqual(mod.main(), 0)
+        finally:
+            sys.argv = old_argv
+            mod.lint_common.resolve_sibling = old_resolve
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
