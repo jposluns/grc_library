@@ -78,6 +78,14 @@ DEFAULT_SENTENCE_MAX = 45
 ENTRY_RE = re.compile(r"^\*\*\d{4}-\d{2}-\d{2} \| [^|]+ \| PR #(\d+)\*\* - (.+)$")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!)\"'])\s+")
 
+# Tiered-public-CHANGELOG note (TODO section 1.19.10): ENTRY_RE matches ONLY the
+# per-PR compact header. In the tiered model the older weeks collapse to weekly
+# (``**Week of YYYY-MM-DD (PRs #N-#M)**``) and monthly (``**YYYY-MM (PRs ...)**``)
+# paragraph headers, which do NOT match ENTRY_RE, so those tiers are already out
+# of this gate's scope and only the CURRENT-WEEK per-PR tier is length-gated.
+# That is the intended behaviour; the model needs no change to this gate (the
+# projection is built by tools/build-public-changelog.py).
+
 
 def sentence_word_counts(summary: str) -> list[int]:
     """Word count of each sentence in a summary (crude splitter; under-splits on
