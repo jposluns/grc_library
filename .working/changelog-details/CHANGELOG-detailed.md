@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.520, PR #1032
+
+Section 1.19.9 PR A (guard-first): the bookkeeping-parity gate (gate 50) Check 1 gains a dynamic per-register floor, so the upcoming dated-archive sweep (PR B) can move AGED roll-up rows out of the in-repo history registers to the private companion repo without Check 1 flagging the swept PRs as missing their validate-pr / retro rows. Tooling and working-state only; no corpus or website content changed.
+
+### Changed
+- [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py): new `effective_floor(present_prs, floor=INCEPTION)` helper returning `max(floor, min(present_prs))` (empty-guarded), mirroring gate 59's `effective_cutoff`. Check 1 (`qa_cadence_findings`) now computes a per-register floor for the validate-pr-history and improvement-log registers independently and skips a PR below its register's floor: a row swept to the private repo drops below the floor and is out of scope, not flagged missing. The two registers sweep independently, so each gets its own floor (a single combined floor would keep the higher-floored register in scope below its own oldest row and re-introduce false missing-row findings). The root CHANGELOG (Check 1's universe set) keeps every PR, so the asymmetry is exactly gate 59's. Docstring updated (the Check-1 window bound and a new exemption bullet).
+- [`TODO.md`](../../TODO.md): section 1.19.9 annotated with the two-PR split and the source-verified gate-grouping correction (only gate 50 needs the floor; gate 60 reads the newest guardrail-review row only, so its obligation is sweep-safety not a cutoff; D5 reads only the current PR diff, so it needs no change; the spec's "50, 60, D5" list was inexact).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 72/72 (behaviour unchanged: with the live registers both floors equal INCEPTION 329, since validate-pr rows begin #183 and retro rows #213); [`tools/run-linter-regression.py`](../../tools/run-linter-regression.py) clean.
+- Two regression tests added in [`tests/test_linters.py`](../../tests/test_linters.py) (`BookkeepingParityTests`, 29/29): a swept-below-floor PR is out of scope, and a genuine miss above the floor still flags.
+- Pre-push skeptical verifier (refute-briefed, read-only shared tree) probed over-suppression, under-suppression, the empty-register edge, the exemption interactions, the floor source, and the behaviour-unchanged claim: CONFIRMED-CORRECT on every point, no defect. The one honest limitation (a genuine QA-cadence miss strictly below the register floor becomes invisible AFTER the sweep) is the accepted gate-59-parallel design trade, dormant until PR B, and does not weaken any check pre-sweep.
+
 ## 2026-07-18, Library Version 2026.07.519, PR #1031
 
 Cleans the last stale references left by the §1.19.8 operational-state privatization arc (which relocated 19 living operational docs from the public working-state tree to the private companion repo across #1028/#1029/#1030). Closes the seven findings from the maintainer-directed §1.19.8-change-set deep-assessment (offloaded to a credit-offload worker, pinned to #1030's merge SHA; the scratch deep-assessment record), plus six same-class stragglers the #1031 pre-push skeptical verifier and a class-width re-grep surfaced. Tooling / pack / assistant-guidance / working-state only; no corpus or website content changed.

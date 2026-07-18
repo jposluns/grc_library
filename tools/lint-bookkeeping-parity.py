@@ -28,7 +28,7 @@ The five checks:
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
 ``**date | version | PR #N**`` form (the TODO 3.16 root-reformat default) and
-the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``INCEPTION <= N < max(PR)``, require a row in
+the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with ``max(INCEPTION, oldest surviving row) <= N < max(PR)``, require a row in
 ``.working/validate-pr/history.md`` AND (for substantive PRs) a row in
 ``.working/improvement-log.md``, with these exemptions:
 
@@ -49,6 +49,14 @@ the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form. For each PR N with 
   exemption-row convention existed, so they carry no validate-pr row at all;
   they are listed in ``KNOWN_HANDOFF_NO_ROW`` so the gate does not
   false-positive on a legitimately-absent row.
+- The window's lower bound is a DYNAMIC per-register floor,
+  ``max(INCEPTION, oldest surviving row in that register)`` (``effective_floor``,
+  mirroring gate 59): the dated-archive sweep (TODO section 1.19.9) moves AGED
+  validate-pr / retro rows out to ``grc_library_private``, keeping each register
+  to a recent window, so a swept-out PR falls below its register's floor and is
+  out of scope, not flagged missing. The two registers sweep independently, so
+  each gets its own floor. Before any sweep both floors equal ``INCEPTION`` and
+  behaviour is identical to the fixed-constant gate.
 
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
@@ -279,6 +287,28 @@ def parse_retro_prs(text: str) -> set[int]:
     return prs
 
 
+def effective_floor(present_prs: set[int], *, floor: int = INCEPTION) -> int:
+    """The dynamic Check-1 floor: ``max(INCEPTION, oldest surviving row)``.
+
+    The dated-archive sweep (TODO section 1.19.9) moves AGED roll-up rows out
+    of the in-repo history registers (``validate-pr/history.md`` and
+    ``improvement-log.md``) to ``grc_library_private``, keeping each register
+    to a recent window (the gate-59 current-week model applied to the
+    registers). The root ``CHANGELOG.md`` (the universe set Check 1 iterates)
+    keeps EVERY PR, so once a register's old rows are swept this floor rises to
+    that register's oldest SURVIVING row and a swept-out PR falls below it,
+    correctly out of scope rather than flagged as a missing row. The floor
+    never drops below ``INCEPTION``; before any sweep the oldest surviving row
+    is far below it (validate-pr rows begin #183, retro rows #213), so the
+    floor is ``INCEPTION`` and behaviour is identical to the pre-sweep
+    fixed-constant gate. Per-register (not one combined floor): the two
+    registers sweep independently, so their oldest surviving rows can differ;
+    a combined floor would keep the higher-floored register in scope below its
+    own oldest row and re-introduce false missing-row findings.
+    """
+    return max(floor, min(present_prs)) if present_prs else floor
+
+
 def qa_cadence_findings(
     changelog_prs: set[int],
     vp_status: dict[int, str],
@@ -292,12 +322,21 @@ def qa_cadence_findings(
     if not changelog_prs:
         return ["  [qa-cadence] CHANGELOG.md has no parseable PR headers."]
     max_pr = max(changelog_prs)
+    # Dynamic per-register floors (TODO section 1.19.9): a row swept to
+    # grc_library_private drops below its register's floor and is out of scope,
+    # not flagged missing. Before any sweep both floors equal INCEPTION.
+    vp_floor = effective_floor(set(vp_status), floor=inception)
+    retro_floor = effective_floor(retro_prs, floor=inception)
 
     for pr in sorted(p for p in changelog_prs if inception <= p < max_pr):
         if pr in known_handoff:
             continue
         st = vp_status.get(pr)
         if st is None:
+            if pr < vp_floor:
+                # Older than the oldest surviving validate-pr row: its row was
+                # swept to grc_library_private (section 1.19.9), so out of scope.
+                continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "
                 f"Every merged PR in [{inception}, {max_pr}) needs a "
@@ -310,8 +349,9 @@ def qa_cadence_findings(
             # Handoff: both rows legitimately absent. Subsumption: validate-pr
             # satisfied by the note row, no retro required.
             continue
-        # Normal substantive PR: validate-pr row present; require the retro row.
-        if pr not in retro_prs:
+        # Normal substantive PR: validate-pr row present; require the retro row
+        # unless it is older than the oldest surviving retro row (swept out).
+        if pr not in retro_prs and pr >= retro_floor:
             findings.append(
                 f"  [qa-cadence] PR #{pr}: has a /validate-pr row but no "
                 f"/retro row in {IMPROVEMENT_LOG}. A substantive PR's "
