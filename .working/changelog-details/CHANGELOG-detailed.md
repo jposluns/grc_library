@@ -6,9 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.501, PR #1013
+
+Cross-repo write-safety guard, TODO §1.15a part (a) (tooling + working-state only; no corpus change). The maintainer-orchestrator works across colocated repos (`grc_library`, `grc_library_ref`, `grc_library_scratch`, `grc_library_private`) and the `Bash` tool persists a `cd` across calls, so a cwd-dependent repo-mutating git command can silently target the wrong repository (observed 2026-07-15: a `grc_library`-intended `git checkout main && git pull` ran in `grc_library_scratch`). This PR ships the mechanical half.
+
+### Added
+- [`tools/repo-guard.sh`](../../tools/repo-guard.sh): a fail-loud wrapper, `tools/repo-guard.sh <expected-repo-basename> -- <command...>`. It refuses (exit 3, command NOT run) when `git rev-parse --show-toplevel`'s basename does not match the asserted repo, or when the cwd is not inside a git work tree; on a match it `exec`s the command, so the command's own exit code passes through. Exit 2 on usage error (missing assertion, missing `--`, empty command). It is a utility wrapper, NOT an audit gate: not wired into `run_all_audits.sh`, never runs in CI.
+- [`tests/test_linters.py`](../../tests/test_linters.py) `RepoGuardTests`: three cases (match runs and passes the command's exit code through; mismatch refuses without running, verified by a sentinel file that must NOT be created; usage errors exit 2).
+
+### Changed
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 11 stages part (b), the protected project CLAUDE.md convention line (confirm the target repo before every Write/Edit and every repo-mutating git command; route git sequences through the wrapper or an explicit `cd`), for the daytime apply. Also a stale-number note on item 9 (its "gate 70 / 69-to-70" figures predate gates 70/71; the applier recomputes to gate 72 / 71-to-72).
+- [`TODO.md`](../../TODO.md) §1.15a: annotated part (a) SHIPPED, part (b) STAGED; §1.15a closes when part (b) applies.
+
+### Fixed
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): corrected the PR #1012 detailed entry, which credited "upstream CanLII"; the independent validate-pr-1012 re-verification showed CanLII returned a 403 bot-challenge and LégisQuébec (HTTP 200) is the confirming upstream source.
+
+### Verification
+- Manual path testing of `repo-guard.sh`: match (exit 0, command ran, exit code passed through), mismatch (exit 3, command NOT run), not-in-work-tree (exit 3), usage errors (exit 2). `RepoGuardTests` 3/3 pass in the linter-regression suite.
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green; a pre-push skeptical verifier on the diff.
+
+### Discipline observation
+- Recursion-avoidance: this PR batches PR #1012's `/validate-pr` (validate-pr-1012, offloaded, CLEAN, independently confirming the Quebec Law 25 s. 3.3 escalation at held source + upstream LégisQuébec) and `/retro` rows.
+- Credit-offload: the §1.19.12 CLAUDE.md trim-list was dispatched as a research seed to worker-b (`seed-119-12-claudemd-trimlist`) during this PR; consumed and re-authored in the next PR (§1.19.12/13 prep-drafts).
+
 ## 2026-07-18, Library Version 2026.07.500, PR #1012
 
-Quebec Law 25 citation-accuracy escalation (working-state only; no corpus change). The §3.84 attempt to "correct" the Quebec Law 25 PIA citation "3.3" -> "23.3" was ABANDONED (not merged) when its pre-push skeptical verifier proved the premise INVERTED: **s. 3.3 is the correct in-force PIA-duty section**; "23.3" does not exist in P-39.1 (ss. 23/24 are the public-sector Act A-2.1). The held reference source's "23.3." header is PDF margin-note corruption (a stray digit from the rotated "2021, c. 25" annotation). Confirmed by the statute's own s. 3.4 cross-reference to "section 3.3", the clean alternating header series (3.2/3.4/3.6), and upstream CanLII. This fooled both the earlier orchestrator re-verification and the #973 worker QA.
+Quebec Law 25 citation-accuracy escalation (working-state only; no corpus change). The §3.84 attempt to "correct" the Quebec Law 25 PIA citation "3.3" -> "23.3" was ABANDONED (not merged) when its pre-push skeptical verifier proved the premise INVERTED: **s. 3.3 is the correct in-force PIA-duty section**; "23.3" does not exist in P-39.1 (ss. 23/24 are the public-sector Act A-2.1). The held reference source's "23.3." header is PDF margin-note corruption (a stray digit from the rotated "2021, c. 25" annotation). Confirmed by the statute's own s. 3.4 cross-reference to "section 3.3", the clean alternating header series (3.2/3.4/3.6), and upstream LégisQuébec (the official Quebec-government source, fetched HTTP 200 by the offloaded validate-pr-1012; CanLII returned a Cloudflare bot-challenge 403 and did not contribute). (Correction, PR #1013: this entry originally credited "upstream CanLII"; the independent re-verification showed CanLII 403'd and LégisQuébec is the confirming source.) This fooled both the earlier orchestrator re-verification and the #973 worker QA.
 
 ### Changed
 - [`.working/pending-decisions.md`](../pending-decisions.md): a HIGH/ESCALATION morning-review item records the finding, the SHIPPED "s. 23.3" error in [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md) lines 30 + 60 (from PR #973), the corrupted-source root cause, and the recommended maintainer-gated remediation (revert the annex to "s. 3.3" + re-ingest a clean source); §2.22 Canada apply is DEFERRED (blocked on this).

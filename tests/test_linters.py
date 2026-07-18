@@ -7599,5 +7599,59 @@ class StdlibOnlyImportsTests(unittest.TestCase):
         self.assertEqual(mod.scan(), [])
 
 
+class RepoGuardTests(unittest.TestCase):
+    """tools/repo-guard.sh (TODO 1.15a): a cross-repo write-safety wrapper that refuses a
+    repo-mutating command when the cwd's git-toplevel basename does not match the asserted
+    --repo, so a persisted `cd` into the wrong sibling repo cannot silently target the
+    wrong repo. On a match it execs the command (its exit code passes through)."""
+
+    GUARD = str(REPO_ROOT / "tools/repo-guard.sh")
+
+    def _init_repo(self, parent: str, name: str) -> Path:
+        import subprocess
+        d = Path(parent) / name
+        d.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=d, check=True)
+        return d
+
+    def test_match_runs_and_passes_exit_code(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            d = self._init_repo(td, "myrepo")
+            self.assertEqual(
+                subprocess.run(["bash", self.GUARD, "myrepo", "--", "bash", "-c", "exit 0"],
+                               cwd=d).returncode, 0)
+            # the guarded command's own exit code passes through unchanged
+            self.assertEqual(
+                subprocess.run(["bash", self.GUARD, "myrepo", "--", "bash", "-c", "exit 7"],
+                               cwd=d).returncode, 7)
+
+    def test_mismatch_refuses_without_running(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            d = self._init_repo(td, "myrepo")
+            # if the command ran it would create sentinel; it must NOT run.
+            sentinel = d / "SHOULD_NOT_EXIST"
+            r = subprocess.run(
+                ["bash", self.GUARD, "otherrepo", "--", "touch", str(sentinel)],
+                cwd=d, capture_output=True, text=True)
+            self.assertEqual(r.returncode, 3)
+            self.assertIn("REFUSED", r.stderr)
+            self.assertFalse(sentinel.exists())  # command did not run
+
+    def test_usage_errors_exit_2(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            d = self._init_repo(td, "myrepo")
+            self.assertEqual(  # missing '--' separator
+                subprocess.run(["bash", self.GUARD, "myrepo", "git", "status"],
+                               cwd=d, capture_output=True).returncode, 2)
+            self.assertEqual(  # no args at all
+                subprocess.run(["bash", self.GUARD], cwd=d, capture_output=True).returncode, 2)
+            self.assertEqual(  # separator but no command
+                subprocess.run(["bash", self.GUARD, "myrepo", "--"],
+                               cwd=d, capture_output=True).returncode, 2)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
