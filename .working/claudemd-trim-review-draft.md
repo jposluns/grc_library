@@ -1,6 +1,14 @@
 # CLAUDE.md sensitivity-trim review draft (TODO §1.19.12, Phase 5; MAINTAINER ACTION)
 
-**Status: LOCKED (maintainer-approved 2026-07-18, attended). Classification = broad-trim as drafted.**
+**Status: REVIEWED ONE-BY-ONE + maintainer-confirmed 2026-07-18 (attended, #1027). Classification FINAL.**
+The maintainer walked the whole worklist section-by-section (AskUserQuestion batches) and confirmed
+every verdict, with ONE change from the draft: **Date and timezone convention = KEEP whole** (was
+SPLIT). Two sections were added by the #1026 protected bundle and classified in the same review:
+**Boundaries = SPLIT** (item 11's cross-repo-write private-sibling/path specifics move; the rest
+stays) and **QA-activity completion standard = KEEP** (portable, pack-rule twin). Final tally:
+**32 sections, 2 MOVE / 17 KEEP / 13 SPLIT.** This is the FINAL input to the Phase-5 CLAUDE.md trim
+(the actual content move to `_private`, sequenced with §1.19.8; the operating CLAUDE.md stays public
+per §1.19.8, so only the MOVE + SPLIT-flagged content moves).
 The maintainer reviewed and approved this classification ("proceed and lock classifications
 first", 2026-07-18, attended-autonomous): the 2 MOVE / 15 KEEP / 13 SPLIT verdicts below are
 LOCKED as the input to the Phase-5 CLAUDE.md trim (the actual move to `_private`, sequenced
@@ -28,7 +36,7 @@ the verdicts below are the orchestrator's after checking each section, now maint
 - **Broad-trim lean applied** (maintainer choice): flag as move-worthy where genuinely
   operational.
 
-## Worklist (by section, file order; 30 sections classified: 2 MOVE / 15 KEEP / 13 SPLIT)
+## Worklist (by section, file order; maintainer-reviewed one-by-one 2026-07-18, attended; 32 sections: 2 MOVE / 17 KEEP / 13 SPLIT)
 
 | Section | Verdict | If SPLIT: the sensitive part to move |
 | --- | --- | --- |
@@ -36,7 +44,7 @@ the verdicts below are the orchestrator's after checking each section, now maint
 | PRIMORDIAL RULE / AIQT (+ user-level reconciliation note) | KEEP | |
 | Project / Why / Commands / Structure / Conventions | KEEP | |
 | Language convention / Testing | KEEP | |
-| Date and timezone convention | SPLIT | the maintainer-side note (America/Toronto wall-clock, local-today-lag) |
+| Date and timezone convention | KEEP | **maintainer-confirmed KEEP WHOLE 2026-07-18** (override of the draft SPLIT; the America/Toronto maintainer-side note stays public) |
 | PR workflow | SPLIT | the RM-10 seven-incident enumeration; the #866 collision; the #438/#439 momentum-bypass; the #445/#450 handoff-marker recurrence; the #495 rotation miss; the D5 eight-closure-form evolution log; the #847 next-prs drift note |
 | Session migration + close-out checklist | SPLIT (bullet-wise) | KEEP the portable disciplines (paired-surface completeness, count-staleness timing, bare-token and corpus-wide contradiction greps, preflight, new-pack-prose lint); MOVE the worker-brief coverage-pairing, session-metrics / credit-offload / sync-scratch bullets, concurrency-lease and session-handoff mechanics, and the incident refs (#443/#614/#594/#455/#458/#612/#619/#622/#628) |
 | Multi-session orchestration | SPLIT (lean MOVE) | keep the one-line partitionable-work pack-rule pointer; move the scratch exchange-channel mechanics, the claims-ledger / COVERAGE start-side check, the delivery-status-claim discipline, the 2026-07-09 recurrences, the runbook pointer |
@@ -44,14 +52,16 @@ the verdicts below are the orchestrator's after checking each section, now maint
 | `/matrix-fit` and `/claim-fit` cadences | KEEP | (optionally trim the trivial #394/#399 and #621/#630 provenance tails) |
 | Whole-project deep assessment (`/deep-assessment`) | SPLIT | the register + dated-file pointers, the hooks / #701 / #702 provenance, the 2026-07-08 coverage-obligation dated directive |
 | Reference-breadth cadence (`/reference-audit`) | SPLIT | the doc-state ledger pointer and the dated (2026-07-08) trust-tier decisions |
-| Publications screening (`/screen-publications`) | KEEP | (UNSURE, see below: confirm no private-register pointer in the body) |
+| Publications screening (`/screen-publications`) | KEEP | re-read #1025: no `_private` pointer, no dated directive; portable cadence (maintainer-confirmed) |
 | Reference-version currency | SPLIT | the 2026-07-17 ref-holds grep recurrence; the git-proxy-403 maintainer-setup detail + the third-party-issues pointer; the runbook pointer; the #505/#751 provenance |
 | Missing-reference-document SOP | SPLIT (small) | the DD-10 egress refs and the runbook section-6 pointer |
 | Attended-autonomous operating mode | SPLIT (lean MOVE) | keep the mode concept + stricter-is-safer + graceful-degradation principle; move the mode-exit priority ordering (with the overnight-pr pointer), the protected-backlog clearance (with the deferred-protected-changes pointer), the verifier-overrides / pending-decisions mechanics, the hook specifics, and the war-stories (2026-07-06 idle, 2026-07-17 r4 roughly-7-hour idle) |
 | Wind-down decision framework | SPLIT (lean MOVE) | keep the continue-is-default rule; move the "13 of 15" (2026-06-29) and 2026-07-09 calibrations, the hallucination / session-metrics ledger pointers, the #425 recurrence |
+| QA-activity completion standard (NEW, item 12, added #1026) | KEEP | portable governance discipline; has a pack-rule twin (`ai-assistant-workflow-disciplines`) an adopter inherits (maintainer-confirmed) |
 | Throughput pressure does not authorize QA abbreviation | SPLIT (small) | the "Sweep 22 surfaced four errors across 11 PRs" incident |
 | PR activity subscription discipline | SPLIT | keep the subscribe / fallback-timer / bounded-watch and background-task-check SOP; move the 2026-07-12 gh-CLI incident, the #582 stall, the dated directive tags |
-| Version-bump discipline / Boundaries | KEEP | |
+| Version-bump discipline | KEEP | |
+| Boundaries | SPLIT | **item 11's cross-repo-write specifics** (the private-sibling repo names + the `/home/jposluns/` path); KEEP the generic write-safety principle + the other boundaries (generated files, gates, secrets/PII, no-push-to-main, the force-push procedure) (maintainer-confirmed, reclassified from KEEP by item 11) |
 | Behavioral rule: clarify before acting | KEEP | |
 | Communication conventions | KEEP | (optionally trim the 2026-07-02 date tags) |
 | Security and governance requirements | SPLIT (small) | the private-file pointers embedded in the rule descriptions (hallucination-metrics, verifier-overrides, high-assurance register, worker-brief-template) |
