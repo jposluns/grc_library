@@ -11,13 +11,17 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.21: corrected non-existent ISO/IEC 27002:2022 sub-controls in the logging standard (2026-07-18, PR #1024)
+
+`security/standard-logging-and-monitoring.md`'s framework-alignment table cited three sub-controls that do not exist in flat-numbered ISO/IEC 27002:2022 (`§8.15.3`/`§8.15.5`/`§8.15.7`). Corrected to `§8.17` "Clock synchronization" (time-sync) and `§8.15` "Logging" (central collection/retention and access/protection, both subsections within 8.15), verified at the held standard by a skeptical verifier. Surfaced out-of-window by the Sweep-112 delivery-1 false-negative auditor (the sibling of the closed §1.17 W2 fix). (P1, machinery.)
+
 ### TODO §1.20: adopt-preflight-guard smoke test made adopter-portable (2026-07-18, PR #1023)
 
 `tests/test_linters.py`'s adopt-preflight smoke test hardcoded rc-3 (REFUSE), which failed on a genuine adopter clone where the guard correctly proceeds (rc 0). Rewrote it to assert the guard's rc is CONSISTENT with the live `detect-env` classification (rc 0 iff `adopter`, else rc 3), so `run-linter-regression` passes identically on maintainer, CI, and adopter clones. Restores the adopter-clone portability invariant. (P1, machinery.)
 
 ### deep-assessment r5 SEF-07 remap: CSA CCM SEF-02 -> SEF-07 on the incident-escalation SOP (2026-07-18, PR #1022)
 
-The r5 Medium-1 routed finding (pending-decisions morning-review item; maintainer chose SEF-07, applied as the fresh session's first fix). The incident-escalation SOP and its document-index register row cited `CSA CCM SEF-02` ("Service Management Policy and Procedures", the wrong control) for cloud incident escalation; both remapped to `SEF-07` "Incident Management and Response", verified at held CCM v4.1.0. Not previously a numbered TODO item; the five other corpus `SEF-02` carriers (matrix ITSM/SLM/incident-response rows + the monitoring alert-triage row) were verified correct or out-of-scope and left untouched.
+The r5 Medium-1 routed finding (pending-decisions morning-review item; maintainer chose SEF-07, applied as the fresh session's first fix). The incident-escalation SOP and its document-index register row cited `CSA CCM SEF-02` ("Service Management Policy and Procedures", the wrong control) for cloud incident escalation; both remapped to `SEF-07` "Incident Management and Response", verified at held CCM v4.1.0. Not previously a numbered TODO item; the five other corpus `SEF-02` carriers (three compliance-matrix rows, the incident-response procedure row, and the monitoring alert-triage row) were verified correct or out-of-scope and left untouched.
 
 ### TODO §3.100: re-ingested a clean Quebec Law 25 (P-39.1) source (2026-07-18, grc_library_ref #89)
 
