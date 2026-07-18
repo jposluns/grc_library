@@ -7653,5 +7653,99 @@ class RepoGuardTests(unittest.TestCase):
                                cwd=d, capture_output=True).returncode, 2)
 
 
+class CitationCurrencyCadenceTests(unittest.TestCase):
+    """tools/lint-citation-currency-cadence.py (gate 72, TODO 1.14 Layer A): reads the
+    canonical-citations register's `Last verified (UTC)` per row and WARNS (advisory,
+    always exit 0) when a source is past its per-trust-tier re-check window. Egress-free
+    date arithmetic. The tests monkeypatch CANONICAL_REGISTER (a temp register) and
+    _today_utc (a fixed date, for determinism), saving + restoring both."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/lint-citation-currency-cadence.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _run(self, mod, register_text: str, today):
+        """Write a temp register, pin today, run main(), return (rc, stdout)."""
+        import io
+        import contextlib
+        import datetime as _dt
+        old_reg = mod.CANONICAL_REGISTER
+        old_today = mod._today_utc
+        with tempfile.TemporaryDirectory() as td:
+            reg = Path(td) / "register.md"
+            reg.write_text(register_text, encoding="utf-8")
+            buf = io.StringIO()
+            try:
+                mod.CANONICAL_REGISTER = reg
+                mod._today_utc = lambda: _dt.date(*today)
+                with contextlib.redirect_stdout(buf):
+                    rc = mod.main()
+                return rc, buf.getvalue()
+            finally:
+                mod.CANONICAL_REGISTER = old_reg
+                mod._today_utc = old_today
+
+    _HEADER = (
+        "## ISO / IEC standards\n\n"
+        "| Standard ID | Current version | Publication date | Topic | "
+        "Superseded versions | Upstream check location | Last verified (UTC) |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+    )
+
+    def test_fresh_row_passes(self) -> None:
+        mod = self._load("_cadence_fresh")
+        reg = self._HEADER + (
+            "| ISO/IEC FRESH | 2022 | 2022-10 | x | - | http://x | verified 2026-07-10 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("all dated sources are within their re-check windows", out)
+        self.assertNotIn("WARN:", out)
+
+    def test_past_window_row_warns_but_exit_0(self) -> None:
+        mod = self._load("_cadence_stale")
+        reg = self._HEADER + (
+            "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)              # advisory: never blocks
+        self.assertIn("WARN:", out)
+        self.assertIn("ISO/IEC STALE", out)
+        self.assertIn("365-day", out)        # standards tier window in the message
+
+    def test_both_date_formats_detected(self) -> None:
+        # 'verified YYYY-MM-DD' and bare 'YYYY-MM-DD' both parse; both stale rows warn.
+        mod = self._load("_cadence_formats")
+        reg = self._HEADER + (
+            "| ISO/IEC VFORM | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+            "| ISO/IEC BARE | 2019 | 2019-01 | z | - | http://z | 2020-02-02 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("ISO/IEC VFORM", out)
+        self.assertIn("ISO/IEC BARE", out)
+
+    def test_live_register_is_within_windows(self) -> None:
+        # Guard-first: the live register must be CLEAN under the real today (green at
+        # merge). Because the gate is WARN-only (always rc 0), assert on the OUTPUT,
+        # not just the exit code: no WARN, and every sub-table tier-mapped (no note).
+        import io
+        import contextlib
+        mod = self._load("_cadence_head")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = mod.main()  # real CANONICAL_REGISTER, real today
+        out = buf.getvalue()
+        self.assertEqual(rc, 0)
+        self.assertIn("all dated sources are within their re-check windows", out)
+        self.assertNotIn("WARN:", out)
+        self.assertNotIn("using the", out)  # no unmapped-heading default note
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

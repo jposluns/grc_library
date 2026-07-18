@@ -167,6 +167,7 @@ run_gate "Nested-markdown-link audit"                     python3 tools/lint-nes
 run_gate "Positional backlog-token audit"                 python3 tools/lint-positional-backlog-tokens.py
 run_gate "Sibling-repo stub-guard audit"                  python3 tools/lint-sibling-placeholders.py
 run_gate "Stdlib-only import audit"                       python3 tools/lint-stdlib-only-imports.py
+run_gate "Citation-currency-cadence audit"                python3 tools/lint-citation-currency-cadence.py
 
 # ----------------------------------------------------------------------
 # Summary

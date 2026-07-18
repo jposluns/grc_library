@@ -239,6 +239,9 @@ jobs:
       - name: Stdlib-only import audit
         run: python3 tools/lint-stdlib-only-imports.py
 
+      - name: Citation-currency-cadence audit
+        run: python3 tools/lint-citation-currency-cadence.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
