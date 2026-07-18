@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.507, PR #1019
+
+Maintainer-authorized correction of a live Quebec Law 25 citation error (the HIGH morning-review escalation). The daytime maintainer directed "fix the HIGH quebec law issue first"; this is the corpus fix.
+
+### Fixed
+- [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md) lines 30 and 60: the Quebec Law 25 (CQLR c. P-39.1) privacy-impact-assessment duty was cited as "s. 23.3", which is WRONG (s. 23.3 does not exist in P-39.1; ss. 23/24 belong to the public-sector Act A-2.1). Corrected to "**s. 3.3**", matching the annex's own "s. N" style and the correct citation the other Canada documents already carry (the DPIA template, the privacy-impact procedure, and the document-index register all read "3.3 / §3.3"). Version 1.1.3 to 1.1.4, Date to 2026-07-18 (co-bumped in the body-change commit); the taxonomy, portal, and maturity-scorecard artefacts regenerated.
+
+### Root cause and evidence
+- The "23.3" came from PDF margin-note corruption in the held reference source (a stray "2"/"0" from the rotated "2021, c. 25" annotation prepended to "3.3."), shipped into the annex by PR #973 (2026-07-16). A pre-push skeptical verifier caught it overnight (2026-07-18); s. 3.3 is confirmed three ways: the held statute's own s. 3.4 body cross-references "section 3.3", the even-numbered header series is clean, and the offloaded validate-pr-1012 confirmed at upstream LégisQuébec (HTTP 200, zero occurrences of "23.3"). A corpus-wide grep confirmed these two annex lines were the only wrong carriers.
+
+### Changed
+- [`TODO.md`](../../TODO.md): §3.84 deleted (closed) and rotated to [`.working/DONE.md`](../DONE.md); the clean-source re-ingest stays open as §3.100.
+- [`.working/pending-decisions.md`](../pending-decisions.md): the HIGH morning-review Quebec entry marked RESOLVED (fix applied, PR #1019), original retained for the audit trail.
+- [`.working/session-state.md`](../session-state.md): Operating-mode overnight-unattended to daytime-unattended (maintainer-directed 2026-07-18 ~07:02 EDT).
+
+### QA batch (recursion-avoidance)
+- Batches PR #1018's `/validate-pr` (validate-pr-1018, offloaded worker-b, CLEAN) and `/retro` rows.
+
+### Verification
+- All 72 audit gates pass; changelog preflight clean; pre-push guard both runners green; a refute-briefed skeptical verifier on the diff. Library 2026.07.507, README 1.9.868.
+- Follow-up (next, this session): the maintainer uploaded a clean Quebec Law 25 to the reference base's ingest area; §3.100 will ingest it, superseded-archive the corrupted held file, and re-verify s. 3.3 against the now-clean held source (closing the "no clean held-source re-verification possible" caveat that made this fix maintainer-gated).
+
 ## 2026-07-18, Library Version 2026.07.506, PR #1018
 
 Close-out consolidation: rotate TODO §3.93 to DONE and batch PR #1017's QA (working-state only; no corpus change). §3.93 (stale-scratch-coordination-read recurrence-prevention) is now fully complete: parts (a) the sync-scratch-every-PR close-out line and (b) the `/resume` step-3 + `## Credit-offload mode` fetch-before-read mandate were already applied in the project CLAUDE.md (prior session), and part (c) shipped scratch-side (a `grc_library_scratch` PR: the credit-offload queue tool's `list-workers` / `list-pending` now best-effort fetch origin and read the shared `origin/main` queue and workers state via `git show` NON-MUTATINGLY, with a local-working-tree fallback; the field parser refactored into a text-core variant; only the two LIST commands changed).

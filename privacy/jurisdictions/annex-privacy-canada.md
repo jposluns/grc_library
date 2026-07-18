@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-07-16\
+**Version:** 1.1.4\
+**Date:** 2026-07-18\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -27,7 +27,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 - **Personal Information Protection and Electronic Documents Act (PIPEDA)**: S.C. 2000, c. 5. Federal private-sector privacy law governing collection, use, and disclosure of personal information in commercial activity. Schedule 1 incorporates the CSA Model Code as fair information principles.
 - **Consumer Privacy Protection Act (CPPA)**: Was Part 1 of Bill C-27 (Digital Charter Implementation Act, 2022), intended to replace PIPEDA. Bill C-27 lapsed when the Canadian Parliament was prorogued on 2025-01-06; the bill died on the order paper. CPPA is not in force and would require reintroduction in a future Parliament. PIPEDA remains the federal private-sector privacy law. Adopting entities should monitor for any reintroduction; the proposed CPPA framework included stronger consent requirements, rights to portability and disposal, privacy management programmes, and an independent Privacy Commissioner with order-making and penalty powers.
 - **Artificial Intelligence and Data Act (AIDA)**: Was Part 3 of Bill C-27. AIDA also lapsed with Bill C-27 at the January 2025 prorogation and would require reintroduction. The proposed framework would have regulated high-impact AI systems, requiring impact assessments, mitigation measures, transparency, and mandatory harm reporting.
-- **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects to acquire, develop, or overhaul an information system or electronic service delivery system involving personal information (s. 23.3); express consent for sensitive data; right to portability; right to be de-indexed; obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Extraterritorial application to organizations processing information about Quebec residents.
+- **Quebec Law 25**: Significantly amended Quebec's provincial privacy laws. Key provisions: mandatory PIAs for projects to acquire, develop, or overhaul an information system or electronic service delivery system involving personal information (s. 3.3); express consent for sensitive data; right to portability; right to be de-indexed; obligations for automated decision-making transparency; prompt notification to the Commission d'accès à l'information (CAI) of a confidentiality incident presenting a risk of serious injury (the Act's standard is "promptly"; it sets no fixed hour-count). Extraterritorial application to organizations processing information about Quebec residents.
 - **Regulatory authorities:** Office of the Privacy Commissioner of Canada (OPC) under PIPEDA; the order-making Privacy Commissioner that the lapsed CPPA proposed (not in force); Commission d'accès à l'information (CAI) for Quebec Law 25.
 
 ---
@@ -57,7 +57,7 @@ This annex defines privacy and AI regulatory requirements applicable to processi
 
 ### Under quebec law 25
 
-- **Privacy Impact Assessments (PIAs):** Required (Quebec Law 25 s. 23.3) for any project to acquire, develop, or overhaul an information system or electronic service delivery system involving the collection, use, communication, keeping, or destruction of personal information, before implementation. A separate PIA is required before communicating personal information outside Quebec (s. 17).
+- **Privacy Impact Assessments (PIAs):** Required (Quebec Law 25 s. 3.3) for any project to acquire, develop, or overhaul an information system or electronic service delivery system involving the collection, use, communication, keeping, or destruction of personal information, before implementation. A separate PIA is required before communicating personal information outside Quebec (s. 17).
 - **Automated decisions:** Organizations must inform individuals before or at the time of automated decisions and provide the right to request human review.
 - **Biometric data:** Organizations creating a biometric database must notify the CAI at least 60 days in advance.
 
