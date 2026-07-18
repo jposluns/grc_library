@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.526, PR #1038
+
+Wires the maintainer-alert watchdog channel into the orchestrator's operating discipline (maintainer-directed 2026-07-18). Assistant-guidance and working-state only; no corpus or website content changed.
+
+### Added
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) `## Credit-offload mode`: a "Maintainer-alert watchdog channel" bullet codifying the SOP. The maintainer-alert channel file (a scratch-repo out-of-band alert channel credit-offload workers append to, watched by the maintainer directly) is read at every task boundary. Attended mode: an open alert is PRIORITY (assess, fix what the orchestrator can, then at the next maintainer prompt inform plus ask via a choices-question whether to clear, the maintainer deciding). Overnight mode: fix what is safely fixable plus record for morning, no blocking prompt, no autonomous clear.
+
+### Changed
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md) step 3: the credit-offload coordination-plane read now also reads the maintainer-alert channel file and runs the maintainer-alert process (resume is a task boundary).
+- Cross-repo (pushed separately): the design-of-record mirror in the private companion repo (the credit-offload design-of-record, section "Maintainer alert channel (watchdog)", Version 1.3.3 to 1.3.5) and the scratch-side convention (the scratch maintainer-alert channel file's "How to read" section plus the scratch queue protocol readme) were updated to the same SOP; a stale scratch pointer to the old public working-state design-of-record path was corrected to the private-repo home. The three 2026-07-18 watchdog alerts (A, B, C) were assessed, advised to the maintainer, and cleared on maintainer authorization.
+
+### Verification
+- `tools/run_all_audits.sh` 72/72; pre-push guard green. Multi-surface consistency self-checked: CLAUDE.md, the resume command, the private-repo mirror, and the scratch convention describe the same SOP; no em-dashes or en-dashes; the private-repo reference is bare-name so gate 70 (sibling-repo stub-guard) stays clean.
+
+### Also carries (recursion-avoidance)
+PR #1037's QA batch: the validate-pr row (worker-b, offloaded) and the retro row.
+
 ## 2026-07-18, Library Version 2026.07.525, PR #1037
 
 Section 1.19.10 slice 2: the one-time tiered public-changelog migration, and the close of TODO section 1.19.10. The public root now keeps only a recency-tiered projection; the full per-PR record moves to the private companion repo as its durable source. Working-state and versions; no corpus or website content changed.

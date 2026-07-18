@@ -844,6 +844,35 @@ command). This section is the ORCHESTRATOR-side discipline.
   close-out line in `## Session migration and PR close-out checklist`; the mechanical backstop
   (the queue tool's `list-workers` / `list-pending` fetching origin before reporting) SHIPPED
   scratch-side 2026-07-18 (§3.93(c)).
+- **Maintainer-alert watchdog channel (priority in attended modes; the orchestrator fixes, then at
+  the next maintainer prompt informs and asks; the maintainer decides clearing).** Workers maintain
+  `MAINTAINER_ALERT.md` at the `grc_library_scratch` root: a standing, out-of-band alert channel the
+  maintainer watches directly, separate from the orchestrator-consumed `results/` deliveries. It is
+  the SECOND path, so a problem the orchestrator itself is the source of still reaches the maintainer
+  even when the orchestrator does not surface it. Workers APPEND `### ALERT` blocks (an
+  `_private`-blocker a task needed but the worker could not read, an orchestrator mistake that
+  impacts the worker, or anything else the maintainer should know). **Orchestrator SOP
+  (maintainer-directed 2026-07-18):** at each task boundary, after the §3.93 scratch fetch, read
+  `MAINTAINER_ALERT.md` for any OPEN alert (a `### ALERT` block with no `Resolved:` line).
+  - **In attended or attended-autonomous mode, an open alert is PRIORITY:** assess it before
+    starting the next task (a real issue outranks queued work) and FIX what the orchestrator can.
+    Then, at the NEXT maintainer prompt, proactively (even if that prompt is about something else),
+    INFORM the maintainer of what the alert was and what was fixed, ASK for any decision the fix
+    needs, and ASK via a choices-question (`AskUserQuestion`, to force a read-and-consider pause)
+    whether anything else should be done and whether to CLEAR the alert entry; batch multiple alerts
+    into one question. Clearing is the MAINTAINER'S decision, never autonomous: only once the
+    maintainer says to does the orchestrator clear (reset `## Status` to `ARMED, no active alerts`,
+    remove the block) and push scratch.
+  - **In overnight-unattended mode, do NOT force-prioritize and do NOT ask** (the
+    AskUserQuestion-unattended hook forbids a blocking prompt): FIX what is safely fixable (per the
+    QA-completion SOP: proceed unless risky, a risky fix documented not applied), RECORD the alert,
+    the fix, and the pending clear-decision in [`pending-decisions.md`](../.working/pending-decisions.md)
+    for morning review, and leave the alert UNCLEARED for the maintainer to review and decide (via
+    the choices-question) at the next attended boundary.
+  The scratch protocol (`grc_library_scratch:queue/README.md` section "The maintainer alert channel
+  (watchdog)" plus the `/credit-offload` worker command) and the design-of-record mirror
+  (`credit-offload-design` `## Maintainer alert channel (watchdog)`) describe the same channel; keep
+  them in sync.
 - **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
   order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
   `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`
