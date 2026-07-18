@@ -7463,5 +7463,59 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
             mod.lint_common.resolve_sibling = old_resolve
 
 
+class AdoptBootstrapRefTests(unittest.TestCase):
+    """tools/adopt-bootstrap-ref.py (TODO 1.19.7 part c): the manifest table parse +
+    the three-way acquisition categorization the /adopt skill drives. Read-only,
+    stdlib-only, adopter-portable (reads the committed manifest, no siblings)."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/adopt-bootstrap-ref.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    _FAKE = (
+        "## Overview\n\nsome prose, not a table.\n\n"
+        "## Standards (3: 2 free, 1 licensed)\n"
+        "| Title | Version / edition | Issuer | Upstream URL | Acquisition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| Free With URL | v1 | ISO | https://example.org/x | FREE |\n"
+        "| Free No URL |  | NIST |  | FREE |\n"
+        "| Licensed One | 2022 | IEEE |  | LICENSED |\n"
+        "## Legislation (1: 1 free, 0 licensed)\n"
+        "| Title | Version / edition | Issuer | Upstream URL | Acquisition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| A Statute |  | Canada | https://laws.example.ca/s | FREE |\n"
+    )
+
+    def test_parse_and_categorize(self) -> None:
+        mod = self._load("_adopt_parse")
+        entries = mod.parse_manifest(self._FAKE)
+        # 4 data rows parsed; the Overview prose + header/separator rows ignored.
+        self.assertEqual(len(entries), 4)
+        self.assertEqual(entries[0]["bucket"], "Standards")
+        self.assertEqual(entries[3]["bucket"], "Legislation")
+        plan = mod.categorize(entries)
+        self.assertEqual(len(plan["auto_fetchable"]), 2)   # Free With URL + A Statute
+        self.assertEqual(len(plan["free_manual"]), 1)      # Free No URL
+        self.assertEqual(len(plan["licensed_manual"]), 1)  # Licensed One
+        self.assertEqual(plan["auto_fetchable"][0]["title"], "Free With URL")
+
+    def test_render_carries_guardrail(self) -> None:
+        mod = self._load("_adopt_render")
+        plan = mod.categorize(mod.parse_manifest(self._FAKE))
+        text = mod._render_text(plan)
+        self.assertIn("NEVER into the in-repo .ref stub", text)      # copyright/stub guardrail
+        self.assertIn("NEVER redistribute LICENSED", text)
+        self.assertIn("4 trusted-bucket source(s)", text)
+
+    def test_missing_manifest_returns_2(self) -> None:
+        mod = self._load("_adopt_missing")
+        self.assertEqual(mod.main(["--manifest", "/nonexistent/manifest.md"]), 2)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

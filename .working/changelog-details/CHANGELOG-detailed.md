@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.495, PR #1007
+
+§1.19.7 (c) the `/adopt` `.ref` bootstrap, completing the `_ref`-integration umbrella (the last §1.19 Phase-1 item; parts (a)+(b) shipped in #1006, the `_ref`-required loud gate in #1005, the `_ref` `acquisition` field in `grc_library_ref` #88). Also closes §1.12 (subsumed) and §3.18 (maintainer-decided), and queues three follow-ups surfaced by the #1006 fix.
+
+### Added
+- [`tools/adopt-bootstrap-ref.py`](../../tools/adopt-bootstrap-ref.py): a stdlib-only, network-free, write-free planner. It reads the committed public [`docs/reference-acquisition-manifest.md`](../../docs/reference-acquisition-manifest.md) and categorizes the 632 trusted-bucket sources into **auto-fetchable** (FREE + an upstream URL), **free-manual** (FREE, no URL recorded), and **licensed-manual** (LICENSED); `--json` for the `/adopt` assistant to drive. It NEVER fetches, downloads, or writes (reads only bibliographic metadata), so the network + write side and the copyright boundary stay in the human-in-the-loop assistant layer. Adopter-portable: reads only the in-repo manifest, so it runs on a bare clone with no siblings. Live run: 8 auto-fetchable / 526 free-manual / 98 licensed-manual = 632.
+- `AdoptBootstrapRefTests` (3) in [`tests/test_linters.py`](../../tests/test_linters.py): manifest-table parse + three-way categorization; render carries the guardrail; a missing manifest returns exit 2.
+
+### Changed
+- [`dev-security/claude-rules/skills/adopt/SKILL.md`](../../dev-security/claude-rules/skills/adopt/SKILL.md) step 4 concretized: the own-siblings bootstrap now drives from the planner's categorized plan (WebFetch each auto-fetchable source INTO the adopter's EXTERNAL `grc_library_ref`, list the free-manual + licensed-manual for manual acquisition), with the copyright guardrail explicit (only FREE auto-fetched; LICENSED never redistributed; never the in-repo `.ref` stub). The Project-wiring bullet names the planner. Pack README [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) `1.62.0` to `1.62.1` (patch) + a `## Version history` row (D6).
+- [`TODO.md`](../../TODO.md): **§1.19.7 closed** (rotated to [`DONE.md`](../DONE.md)); **§1.12 closed** (part 2 done by D8, part 1 subsumed by §1.19.10's weekly collapse, maintainer-confirmed); **§3.18 closed** (maintainer decided publications stay excluded from `/reference-audit` until screened); added **§3.95** (stdlib-only import gate), **§3.96** (test-isolation `mock.patch` convention), **§3.97** (`grc_library_ref` `upstream_url` enrichment for FREE entries).
+
+### Verification
+- All 70 audit gates pass; the pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green. `AdoptBootstrapRefTests` 3/3. [`tools/lint-language.py`](../../tools/lint-language.py) clean on the new pack prose (run before first commit).
+- The planner is stdlib-only (`argparse`, `json`, `re`, `sys`, `pathlib`) and does not reach a sibling (it reads the committed in-repo manifest), so it needs no `check-portability` degradation entry; it runs green sibling-free.
+- **#1006 QA batch (recursion-avoidance) carried here:** the validate-pr-1006 SHIP row ([`.working/validate-pr/history.md`](../validate-pr/history.md)) and the retro-1006 row ([`.working/improvement-log.md`](../improvement-log.md)), plus the credit-offload-metrics validate-pr-1006 row. validate-pr-1006 was a CLEAN PASS (worker-b routine consume; a full 632-row classification cross-check, 0 mismatch).
+- A refute-briefed skeptical verifier ran pre-push on the planner + SKILL diff.
+
+### Notes
+- Most FREE trusted-bucket sources lack a recorded `upstream_url` (only 8 of 534, all legislation), so the auto-fetchable set is small; §3.97 tracks the `grc_library_ref` `upstream_url` enrichment that would grow it.
+
 ## 2026-07-17, Library Version 2026.07.494, PR #1006
 
 The §1.19.7 reference-acquisition manifest: the grc_library half of the `_ref`-integration umbrella (the `_ref` `acquisition` field landed in `grc_library_ref` PR #88). A generator produces a public bibliography of the corpus's citation-source reference base, so a fork can acquire what the corpus cites. Only (c) the `/adopt` `.ref` bootstrap remains in §1.19.7 (its own PR); §1.19.7 stays open.
