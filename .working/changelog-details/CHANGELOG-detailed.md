@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.517, PR #1029
+
+The layered fail-loud assurance for `grc_library_private`, and bringing `_private` under its own gate + CI (closes TODO §1.19.11). Guard-first: the assurance lands before the later §1.19.8 minimization makes `_private` load-bearing via the CLAUDE.md delegation directive. Working-state / tooling / hooks; no corpus or website content changed.
+
+**The concern (maintainer-directed 2026-07-18).** An AI "trying to be helpful" might ignore `_private` being inaccessible, or skip it and reconstruct its content from memory, instead of using it or failing loud. `_private` holds the maintainer orchestrator's operational state, so for the maintainer a missing `_private` is a broken setup to FIX (clone it), never to silently work around. Honest limit: machinery guarantees `_private` is present-or-fail-loud and makes skip-and-hallucinate a caught discipline failure, but cannot PROVE the AI internalized the content (evidence-discipline plus the verifier cover that residual).
+
+**The layers.**
+- `detect-env` emits a `private_availability` decision (mirroring `ref_availability`): maintainer + `_private` absent gives HALT (LOUD); `maintainer-fresh-machine` gives clone-first; `adopter` is graceful (offered a choice). A `--self-test` covers six cases.
+- `/resume` step 3 acts on the decision: HALT loud for the maintainer, clone-first on a fresh machine, graceful for an adopter.
+- A PreToolUse hook (`block-operational-without-private`) blocks Edit/Write when the origin is the maintainer repo AND `_private` is genuinely absent. It fails OPEN on any uncertainty (a hook bug must never brick the session) and leaves Read/Bash available so the clone remediation works. Registered on the Edit|Write matcher; six-case self-test.
+- The pre-push guard refuses a push (exit 4) on the maintainer's own clone when `_private` is absent (the Bash-write path the hook does not gate); identity-conditional, adopter and CI exempt.
+
+**Part 0: `_private` under its own protections (the §1.19.11 half, shipped `_private`-side).** `grc_library_private` gained a stdlib-only validate gate (no-secrets, house style, authored-doc link integrity with a frozen-moved-doc exemption, INDEX completeness), a CI workflow, a CLAUDE.md, a refreshed README, and the INDEX dispatcher. A skeptical verifier caught a REAL defect, five `-ise` stems that never fired (British inserts an "i" before "se"), plus an INDEX substring hole and secrets-coverage gaps; all fixed and re-verified (targets caught, zero false positives on always-British safe words).
+
+### Added
+- The PreToolUse Edit/Write hook `block-operational-without-private` (with a six-case self-test), registered in [`.claude/settings.json`](../../.claude/settings.json) on the Edit|Write matcher.
+- In [detect-env](../../tools/detect-env.py): a `private_availability_decision` plus a `--self-test`, and `grc_library_private` added to the probed siblings.
+- In `grc_library_private` (pushed `_private`-side): the INDEX dispatcher, a stdlib-only validate gate, its CI workflow, and a CLAUDE.md.
+
+### Changed
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 3 now acts on the `private_availability` decision.
+- [`tools/pre-push-guard.sh`](../../tools/pre-push-guard.sh): an identity-conditional `_private`-required refuse (exit 4) on the maintainer's own clone.
+- [`README.md`](../../README.md): version bump.
+- [`TODO.md`](../../TODO.md): §1.19.11 rotated to DONE (item deleted; the design-note reference de-sectioned to avoid an intra-doc-ref orphan).
+
+**PR #1028 QA batch (recursion-avoidance).** This PR carries #1028's per-PR QA:
+- [validate-pr history](../validate-pr/history.md): #1028 validate-pr row (OFFLOADED to worker-20260716-b, consumed under elevated QA, CLEAN 0 findings; worker-B delivery 1 this session, corroborated by the pre-merge adversarial verifiers).
+- [improvement log](../improvement-log.md): #1028 `/retro` row.
+
+### Verification
+- `run_all_audits` 72/72; the hook (7 cases), detect-env (6 cases), and `_private`-gate self-tests all green; the hook's live sanity check allows (session not bricked, `_private` present). The high-assurance nature (a session-tool-blocking hook plus operating-instruction wiring) was handled defensively: fail-open on any hook malfunction, deny only on confirmed maintainer-plus-`_private`-absent. A skeptical pre-push verifier traced every hook path and confirmed NO bricking risk (all uncertainty fails open; Read/Bash stay ungated for the clone remediation), and cleared the PR. One LOW hardening it flagged was applied: the maintainer-origin match (in both the hook and the pre-push guard) is boundary-anchored on a `/` or `:`, so a pathological fork owner ending in `jposluns` is not misread as the maintainer and wrongly blocked; an added self-test case covers it.
+
 ## 2026-07-18, Library Version 2026.07.516, PR #1028
 
 TODO §1.19.8 Phase-2 relocation: moves the living operational-state documents out of the public working-state tree into the `grc_library_private` companion repo, and repoints the references to them. A working-state / assistant-guidance PR; no corpus or website content changed. The `_private`-integration wiring (the resume provisioning and the advisory-tool rewiring) is deliberately DEFERRED (see below).
