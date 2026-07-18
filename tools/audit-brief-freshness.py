@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Advisory cross-repo freshness report for the staged worker briefs (TODO
-section 4.4 slice 3; design of record: .working/design-decisions.md
-"Worker-ready brief staging" and .working/multi-session-orchestration.md
+section 4.4 slice 3; design of record: the design-decisions record
+"Worker-ready brief staging" and the multi-session-orchestration runbook
 subsection 5.1).
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID, not an audit gate.

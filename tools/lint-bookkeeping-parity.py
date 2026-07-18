@@ -462,7 +462,7 @@ def worker_provenance_findings(detailed_text: str) -> list[str]:
     codification once the external-collaborator primitive (the scratch
     WORKER-ONBOARDING flow) and this marking convention both existed. See
     the "Bookkeeping-parity gate, pinned design" entry in
-    .working/design-decisions.md.
+    the design-decisions record.
     """
     findings: list[str] = []
     for match in WORKER_PROVENANCE_RE.finditer(detailed_text):

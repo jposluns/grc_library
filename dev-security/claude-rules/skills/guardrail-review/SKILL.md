@@ -11,7 +11,7 @@ derives_from: ../../governance/gate-discipline.md
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
 - Per-run record path: `.working/guardrail-reviews/YYYY-MM-DD-rN.md`, with a row appended to the review history beside it.
-- Failure-mode ledgers the gap lens reads: `.working/improvement-log.md` and `.working/hallucination-metrics.md`.
+- Failure-mode ledgers the gap lens reads: `.working/improvement-log.md` and the worker-hallucination-metrics ledger (in the consuming project's working state).
 - Mechanical baseline runner: `tools/run_all_audits.sh` (must exit 0 before the semantic review begins); the baseline run includes the git-history-aware gates 31 and 40, which misfire on a shallow clone.
 - Mechanical parity gates that must be green first: gates 35 (gate-name parity), 37 (claude-rules-sync), 39 (gate-count consistency), 41 (collection-enumeration), and 44 (paired-skill step-parity).
 - Cadence-currency backstop: gate 60 (guardrail-review cadence currency) compares the live machinery inventory (the gate, rule, skill, and command counts) against the newest history row's as-of counts, passing with a warning while the summed per-axis drift is 1 or 2 and failing the build once the drift reaches 3.

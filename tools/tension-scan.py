@@ -29,7 +29,7 @@ treat a clean run as "nothing detected", never "nothing rewritten".
 
 WHY AN AID AND NOT A GATE (the build-time census, 2026-07-02): every candidate
 status+hedge pair has legitimate hits on the live surfaces. A census over
-TODO.md and the six working ledgers found 91 block-level pair coincidences,
+TODO.md and the then-six working ledgers found 91 block-level pair coincidences,
 essentially all honest narrative (a retro row narrating "shipped X; pending Y",
 the handoff's soft-spots block mixing CONFIRMED with awaiting, and bullets that
 QUOTE the marker vocabulary, this aid's own backlog bullet among them). The
@@ -68,7 +68,6 @@ SCANNED_FILES = (
     ".working/DONE.md",
     ".working/improvement-log.md",
     ".working/validate-pr/history.md",
-    ".working/hallucination-metrics.md",
 )
 
 # Status-claim tokens: the block asserts a settled state.

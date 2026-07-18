@@ -111,7 +111,9 @@ and session metrics, the high-assurance register, the considerations ledgers, st
 and drafts, lives in the private companion repo `grc_library_private`, NOT in this public repo.
 **There is ONE place to start: read `grc_library_private/INDEX.md` and follow it.** The INDEX
 maps every operational concern to its file and states what to do with it, so this public repo
-does not enumerate `_private`'s internal structure. Elsewhere this file names those concerns by
+keeps its enumeration of `_private`'s internal structure minimal (this delegation directive
+replaces the scattered inline pointers; a few command steps still name the specific operational
+file they read). Elsewhere this file names those concerns by
 plain name ("the design-decisions record", "the credit-offload metrics ledger", "the
 orchestration runbook") and defers to the INDEX for the file.
 
@@ -129,7 +131,7 @@ orchestration runbook") and defers to the INDEX for the file.
 - **Adopter** (`detect-env` identity `adopter`): `_private` is legitimately absent (it is the
   maintainer's private store). You are OFFERED a choice, never blocked: point your own operational
   store at `../grc_library_private`, use the in-repo `.private` placeholder, or create your own
-  from the concerns the INDEX names. Nothing in `_private` is required to use the corpus or run
+  from the concerns this directive names above. Nothing in `_private` is required to use the corpus or run
   the public gates.
 
 **Read-evidence discipline.** Any claim made "per `_private`" (a design decision, a recorded
@@ -823,7 +825,7 @@ command). This section is the ORCHESTRATOR-side discipline.
   finishing, surface a short (a couple of lines) chat tally of the session's passes and estimated
   orchestrator credits conserved. Always label the figure an ESTIMATE (workers cannot read an exact
   in-session count) and carry the shift-not-reduce caveat. There is deliberately NO per-DONE-entry
-  line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics.md`
+  line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics`
   row. Design-of-record: `credit-offload-design`
   `## Metrics and reporting`.
 - **Orchestrator coordination-plane reads: fetch scratch FIRST (§3.93).** Every orchestrator

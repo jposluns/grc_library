@@ -10,7 +10,7 @@ derives_from: ../../governance/high-assurance-verification.md
 
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
-- Persistent register: `.working/high-assurance/register.md` in the consuming project's working state, one row per sensitive item (the item, which trigger conditions make it sensitive, the stages run and their outcomes, the status). Open rows (`pending` / `in-progress` / `deferred`) are surfaced at session resume by the `/resume` command alongside the other standing registers, so an item survives a session boundary.
+- Persistent register: the high-assurance register in the consuming project's working state, one row per sensitive item (the item, which trigger conditions make it sensitive, the stages run and their outcomes, the status). Open rows (`pending` / `in-progress` / `deferred`) are surfaced at session resume by the `/resume` command alongside the other standing registers, so an item survives a session boundary.
 - Motivating case: adding a control-framework column to the compliance matrix, where each cell carries a control code whose fit no existence gate can check.
 - Cadenced companion on matrix changes: the `/matrix-fit` semantic-fit audit (this harness at apply time, the cadence as the closing check).
 
