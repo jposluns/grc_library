@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### deep-assessment r5 SEF-07 remap: CSA CCM SEF-02 -> SEF-07 on the incident-escalation SOP (2026-07-18, PR #1022)
+
+The r5 Medium-1 routed finding (pending-decisions morning-review item; maintainer chose SEF-07, applied as the fresh session's first fix). The incident-escalation SOP and its document-index register row cited `CSA CCM SEF-02` ("Service Management Policy and Procedures", the wrong control) for cloud incident escalation; both remapped to `SEF-07` "Incident Management and Response", verified at held CCM v4.1.0. Not previously a numbered TODO item; the seven other corpus `SEF-02` carriers were verified correct or out-of-scope and left untouched.
+
 ### TODO §3.100: re-ingested a clean Quebec Law 25 (P-39.1) source (2026-07-18, grc_library_ref #89)
 
 Replaced the corrupted held Quebec Law 25 full-text extract (whose `pdftotext` margin-note corruption caused the §3.84 escalation and the #973 annex "s. 23.3" error). Re-extracted with pymupdf from a maintainer-supplied PDF (clean section headers; s. 3.3 verified against the statute's own s. 3.4 cross-reference); superseded-archived the prior source + corrupted extract, updated the catalogue + indexes, `_ref` validate.py green, and re-synced the worker `/tmp` copy. The held source is now trustworthy for Quebec Law 25 section citations.
