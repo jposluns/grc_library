@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.518, PR #1030
+
+Closes TODO §1.19.8: the `_private`-pointer minimization (the maintainer-approved hybrid), the third and final PR of the §1.19.8 close-out (after the relocation #1028 and the layered assurance #1029). Working-state / assistant-guidance / one spec reference; no other corpus or website content changed.
+
+**The design (maintainer-approved 2026-07-18).** From the `_private` minimization assessment: ONE CLAUDE.md delegation directive replaces the scattered inline `_private` pointers and points at the `_private` INDEX dispatcher (shipped #1029 Part 0). The directive states the identity behaviour (maintainer: read the INDEX, clone-if-absent-on-a-fresh-VM, fail loud; adopter: skip, redirect to the in-repo `.private` placeholder, or create their own) and the read-evidence discipline (a claim "per `_private`" must quote the source). The hybrid keeps the functional command reads explicit.
+
+**What changed.**
+- **The operating CLAUDE.md:** added the one delegation directive; the 19 inline `_private` path-pointers collapsed to bare concern-name code-spans (the reader goes via the directive + INDEX). Net `_private` path-pointers in CLAUDE.md: one (the directive's INDEX).
+- **The three rules-governance overlays + the audit-programme spec:** their four + one `_private` path-pointers stripped to bare concern-names.
+- **The three commands** (resume / retro / high-assurance): a one-line `_private` opener each (maintainer fail-loud / adopter choice); they KEEP their functional reads (index-routed), per the hybrid.
+- **TODO / `.working`:** Category-D pointers left as self-resolving per the assessment (out of the hybrid's scope).
+
+**Deterministic + verified.** The strip was a dry-run-validated scripted transform (24 code-spans), then a whole-repo bare-token re-grep across all file types confirmed the only remaining `_private` path-pointers are the one directive INDEX, the seven command functional reads, and the frozen `.working` + TODO Category-D set (the #1028 lesson: verify the transform, do not trust it).
+
+### Added
+- The operating CLAUDE.md: the delegation-directive section ("Operational state lives in grc_library_private").
+
+### Changed
+- The operating CLAUDE.md: 19 inline `_private` path-pointers collapsed to bare concern-names.
+- The three rules-governance overlays + [the audit-programme spec](../../governance/specification-audit-programme.md): five `_private` path-pointers stripped to bare concern-names (spec Version+Date co-bump to 1.17.13; taxonomy + scorecard regenerated).
+- The resume / retro / high-assurance commands: a one-line `_private` opener each.
+- [TODO.md](../../TODO.md): §1.19.8 rotated to DONE (item deleted; the `§1.19.8` cross-references de-sectioned to `1.19.8` to avoid intra-doc-ref orphans); §3.100 recreated (a section-rotation drift had dropped the Quebec-re-ingest row).
+
+**PR #1029 QA batch (recursion-avoidance).** This PR carries #1029's per-PR QA:
+- [validate-pr history](../validate-pr/history.md): #1029 validate-pr row (OFFLOADED to a worker; consumed under elevated QA).
+- [improvement log](../improvement-log.md): #1029 `/retro` row.
+
+### Verification
+- `run_all_audits` 72/72; the delegation directive + strip verified by a whole-repo bare-token re-grep (zero residual path-pointers beyond the directive INDEX, the kept command reads, and Category-D); a skeptical pre-push verifier ran on the diff.
+
 ## 2026-07-18, Library Version 2026.07.517, PR #1029
 
 The layered fail-loud assurance for `grc_library_private`, and bringing `_private` under its own gate + CI (closes TODO §1.19.11). Guard-first: the assurance lands before the later §1.19.8 minimization makes `_private` load-bearing via the CLAUDE.md delegation directive. Working-state / tooling / hooks; no corpus or website content changed.

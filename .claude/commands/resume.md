@@ -1,5 +1,7 @@
 Resume the previous session from the durable handoff record. This is the single command the maintainer sends to continue work in a fresh session.
 
+**`_private` (read first).** This command reads operational state in `grc_library_private` (via its INDEX; the CLAUDE.md `_private` delegation directive is the general rule). On the maintainer orchestrator, if `_private` is absent, FAIL LOUD, clone it (`git clone https://github.com/jposluns/grc_library_private.git ../grc_library_private`) or grant access, and do NOT reconstruct its content from memory (step 3 acts on detect-env's `private_availability`; the PreToolUse hook and pre-push guard enforce it). On an adopter clone `_private` is absent by design: redirect to the in-repo `.private` placeholder or create your own.
+
 Execute these steps in order:
 
 0. **Concurrency lease check (before reading the handoff or touching anything).** This is

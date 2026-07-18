@@ -258,8 +258,8 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- Worker-hallucination tracking artefact: `grc_library_private/hallucination-metrics.md`.
+- Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `.working/worker-brief-template.md`.
 - Verifier-override register: `.working/verifier-overrides.md` (surfaced at `/resume`).
 - Exchange channel and runbook: `grc_library_scratch` +
-  `grc_library_private/multi-session-orchestration.md`.
+  `multi-session-orchestration`.
