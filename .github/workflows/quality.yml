@@ -236,6 +236,9 @@ jobs:
       - name: Sibling-repo stub-guard audit
         run: python3 tools/lint-sibling-placeholders.py
 
+      - name: Stdlib-only import audit
+        run: python3 tools/lint-stdlib-only-imports.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py
