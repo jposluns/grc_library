@@ -1,6 +1,6 @@
 Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-security/claude-rules/skills/pr-retrospective/SKILL.md`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md). Slash-command entry point is `/retro`; the underlying skill name remains `pr-retrospective` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the post-merge retrospective per the six-step process the skill encodes:
 
-1. **Identify the PR and its inputs**: capture PR number, merge commit SHA, FR(s) closed (if any), the `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations), any apply-time worker corrections logged in [`.working/hallucination-metrics.md`](../../.working/hallucination-metrics.md) during the PR, and recently-shipped PRs in the same cluster (for pattern surfacing).
+1. **Identify the PR and its inputs**: capture PR number, merge commit SHA, FR(s) closed (if any), the `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations), any apply-time worker corrections logged in `grc_library_private/hallucination-metrics.md` during the PR, and recently-shipped PRs in the same cluster (for pattern surfacing).
 
 2. **Identify what went well**: one short observation (1-2 sentences). If nothing notable, record "Routine; no notable highlight."
 
