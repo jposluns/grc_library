@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.505, PR #1017
+
+TODO §3.92 part (b): a mechanical pre-flight adopter-clone guard for `/adopt` (tooling only). `/adopt` resets the machinery-core working-state to adopter baselines, which is destructive on the wrong clone; the dangerous direction was defended by convention (host-pinned origin match, step-1 operator confirmation, config short-circuit, git-revertability). This adds a mechanical gate on top.
+
+### Added
+- [`tools/adopt-preflight-guard.py`](../../tools/adopt-preflight-guard.py): a fail-safe helper that shells out to [`tools/detect-env.py`](../../tools/detect-env.py) (the single source of truth for operator classification), reads `identity.classification`, and exits 0 ONLY on `adopter`; any other outcome, a `maintainer` / `maintainer-fresh-machine` classification, an undetermined identity, a probe failure, or malformed probe output, exits 3 (REFUSE, so `/adopt`'s reset does not run). It makes no independent classification decision (the logic stays in one place). Exit 2 on an internal error (probe not locatable). Not an audit gate; not wired into CI.
+- [`tests/test_linters.py`](../../tests/test_linters.py) `AdoptPreflightGuardTests` (5): adopter -> 0; maintainer / fresh-machine / undetermined(None) -> 3 (the fail-safe); and a live smoke test that the real shell-out + parse classifies this maintainer clone non-adopter and REFUSES (exit 3). Decision tests monkeypatch the module-global `classify`.
+
+### Changed
+- [`TODO.md`](../../TODO.md) §3.92: part (b) tool-side SHIPPED annotation; the protected `/adopt` step-1 invocation staged (deferred item 14); part (c) remains, §3.92 stays open.
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 14 stages wiring the guard into the adopt SKILL + command step 1 (run the guard before the reset; a non-zero exit hard-stops `/adopt`), keeping the existing operator confirmation as defence in depth.
+
+### Verification
+- `python3 -m unittest tests.test_linters.AdoptPreflightGuardTests`: 5/5. The guard REFUSES (exit 3) on this maintainer clone (correct). All 72 gates pass; changelog preflight clean; pre-push guard both runners green; a refute-briefed skeptical verifier pre-push.
+- Batches PR #1016's `/validate-pr` (validate-pr-1016, offloaded) and `/retro` rows.
+
+### Discipline observation
+- Composes with #1016: the guard reuses the environment probe's classification (enhanced in #1016) rather than re-deriving it, so the maintainer-vs-adopter decision has one source of truth across the origin probe, the adopt-config flag, and this guard. Part-b tool-side ships now; the protected `/adopt` invocation stages, the same part-ships / invocation-stages pattern as §1.15a and §3.92(a).
+
 ## 2026-07-18, Library Version 2026.07.504, PR #1016
 
 TODO §3.92 part (a): mechanical adopt-config validity flag in the environment probe [`tools/detect-env.py`](../../tools/detect-env.py) (tooling only). The `/resume` adopter-path currently decides "already onboarded?" by an assistant file-presence check on the adopter onboarding config; the config is machine-consumed (`sibling_choice` drives the sibling model) but the decision was prose, not tool-driven. This adds the mechanical backstop the resume prose already anticipated.

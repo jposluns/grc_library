@@ -7801,5 +7801,66 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("using the", out)  # no unmapped-heading default note
 
 
+class AdoptPreflightGuardTests(unittest.TestCase):
+    """tools/adopt-preflight-guard.py (TODO 3.92b): a fail-safe pre-flight that lets
+    /adopt proceed ONLY on an `adopter` classification (from detect-env, the single
+    source of truth). Any other outcome (maintainer / fresh-machine / undetermined /
+    probe failure) REFUSES (exit 3) so /adopt's destructive reset does not run. The
+    decision tests monkeypatch the module-global `classify` (no real probe needed)."""
+
+    def _load(self, unique: str):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/adopt-preflight-guard.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _main_rc(self, mod):
+        import io
+        import contextlib
+        buf, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(err):
+            rc = mod.main([])
+        return rc, buf.getvalue() + err.getvalue()
+
+    def test_adopter_proceeds(self) -> None:
+        mod = self._load("_adopt_guard_ok")
+        mod.classify = lambda: "adopter"
+        rc, out = self._main_rc(mod)
+        self.assertEqual(rc, 0)
+        self.assertIn("OK", out)
+
+    def test_maintainer_refused(self) -> None:
+        mod = self._load("_adopt_guard_maint")
+        mod.classify = lambda: "maintainer"
+        rc, out = self._main_rc(mod)
+        self.assertEqual(rc, 3)
+        self.assertIn("REFUSED", out)
+        self.assertIn("maintainer", out)
+
+    def test_fresh_machine_refused(self) -> None:
+        mod = self._load("_adopt_guard_fresh")
+        mod.classify = lambda: "maintainer-fresh-machine"
+        rc, _ = self._main_rc(mod)
+        self.assertEqual(rc, 3)
+
+    def test_undetermined_refused_fail_safe(self) -> None:
+        # None (probe failed / no classification) must REFUSE, never proceed.
+        mod = self._load("_adopt_guard_none")
+        mod.classify = lambda: None
+        rc, out = self._main_rc(mod)
+        self.assertEqual(rc, 3)
+        self.assertIn("REFUSED", out)
+
+    def test_live_repo_refuses_on_maintainer_clone(self) -> None:
+        # Smoke test the real classify() shell-out + parse: on this maintainer repo
+        # it classifies non-adopter, so the guard REFUSES (exit 3).
+        mod = self._load("_adopt_guard_live")
+        rc, _ = self._main_rc(mod)
+        self.assertEqual(rc, 3)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

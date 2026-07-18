@@ -88,6 +88,12 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers). 
 - **Prepared content (apply at daytime):** in `.claude/commands/resume.md` step 3, change the adopter-path decision from the assistant-prose file-presence + "parse it (valid JSON with mode: adopter and a recognized sibling_choice)" check to reading detect-env's emitted flags: `adopt_config_present == false` on an adopter -> propose `/adopt`; `present && adopt_config_valid` -> proceed adopter-mode; `present && !valid` -> re-propose `/adopt` (malformed). Keep the same three outcomes; only the SOURCE of the present/valid facts moves from assistant-inference to tool-output. Drop the now-redundant parenthetical "(A mechanical adopt-config validity flag emitted by `detect-env.py` is a queued hardening, TODO §3.92)" since it has shipped.
 - **QA:** `lint-language.py` on the reworded prose pre-commit; per-PR `/validate-pr` + `/retro`; confirm the resume-path outcomes are unchanged (only the fact-source moved). Rotate §3.92(a) fully to DONE when this lands (part-a tool-side already shipped); §3.92 stays open for (b)/(c).
 
+### 14. [TODO §3.92b] Wire the /adopt pre-flight guard into the adopt skill + command step 1
+
+- **Why deferred (2026-07-18 overnight):** the guard tool shipped in #1017 (`tools/adopt-preflight-guard.py`); the INVOCATION is in the protected `.claude/` `/adopt` surfaces (the adopt SKILL step 1 and `.claude/commands/adopt.md` step 1).
+- **Prepared content (apply at daytime):** in the adopt SKILL step 1 (and the mirrored command step 1), add: before the working-state reset, RUN `python3 tools/adopt-preflight-guard.py`; it exits 0 only on an `adopter` classification and exits 3 (REFUSE) on maintainer / fresh-machine / undetermined, so a non-zero exit HARD-STOPS `/adopt` (do not proceed to the reset). This moves the maintainer-clone guard from the step-1 operator-confirmation convention to a mechanical gate (belt-and-braces on top of the host-pinned origin match + config short-circuit + git-revertability). Keep the existing operator confirmation too (defence in depth).
+- **QA:** `lint-language.py` on the reworded step-1 prose pre-commit; per-PR `/validate-pr` + `/retro`; confirm the SKILL and command step-1 stay in step-parity (gate 44). Rotate §3.92(b) fully to DONE when this lands (tool-side already shipped); §3.92 stays open for (c).
+
 ---
 
 _Empty of items = nothing deferred. Add an item whenever an overnight task turns out to need a
