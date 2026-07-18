@@ -11,7 +11,7 @@ derives_from: ../../governance/ai-assistant-workflow-disciplines.md
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
 - Improvement-log register: `.working/improvement-log.md` (the append-only per-PR retrospective register this skill writes; one row per merged PR).
-- Worker-hallucination metrics register: `.working/hallucination-metrics.md` (the apply-time worker-correction log consumed as retrospective input).
+- Worker-hallucination metrics register: the worker-hallucination-metrics ledger in the consuming project's working state (the apply-time worker-correction log consumed as retrospective input).
 - Worker-brief template: `.working/worker-brief-template.md` (the worker-side guard-rail carrier that pattern findings may extend).
 - Sibling per-PR validation-sweep history register: `.working/validate-pr/history.md` (whose reverse-chronological row convention the improvement-log register mirrors).
 

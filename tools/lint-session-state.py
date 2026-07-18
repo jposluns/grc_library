@@ -3,8 +3,8 @@
 
 Scans [`.working/session-state.md`](.working/session-state.md) and
 enforces the WELL-FORMEDNESS of the session-concurrency lease that the
-multi-session interlock relies on (design record:
-``.working/design-decisions.md``, "Session-concurrency safety"; the
+multi-session interlock relies on (design record: the design-decisions
+record, "Session-concurrency safety"; the
 `/resume` command's step 0 reads this file before anything else).
 
 The lease declares which orchestrator session, if any, currently holds
