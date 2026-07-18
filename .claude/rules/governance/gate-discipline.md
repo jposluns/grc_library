@@ -142,7 +142,7 @@ Some controls have a legitimate exception path. It is a separate, slower control
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- The removal ledger the footer names: `grc_library_private/claude-rules-considerations.md`
+- The removal ledger the footer names: `claude-rules-considerations`
   (this rule's why-section moved there in the GR-P2 two-layer condense, PR #726).
 - This project offers NO exception register: a failing gate means fix the artefact
   or descope the PR (the strict-mode stance in the project CLAUDE.md Boundaries).

@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.8: living-doc relocation to _private + reference minimization complete (2026-07-18, PR #1030)
+
+The Phase-2 core of the operational-state privatization, across three PRs: 19 living operational docs relocated to grc_library_private (#1028); the maintainer-required layered fail-loud assurance built (#1029); and the reference minimization here (#1030), ONE CLAUDE.md delegation directive pointing at grc_library_private/INDEX.md (maintainer: read / clone-if-absent / fail-loud; adopter: skip / redirect to .private / create own), with the ~20 inline CLAUDE.md pointers, the 4 rules-overlay pointers, and the spec pointer all collapsed to bare concern-names, plus a one-line _private opener on the 3 commands that read it (they keep their functional reads, index-routed, per the approved hybrid). TODO and .working Category-D pointers left as self-resolving per the minimization assessment. (P1, §1.19.x.)
+
 ### TODO §1.19.11: _private hygiene gate + conventions complete (2026-07-18, PR #1029)
 
 grc_library_private now has its own stdlib-only `validate` gate (no-secrets, house style, authored-doc link integrity, INDEX completeness) run in CI, plus a CLAUDE.md, a refreshed README, and the INDEX dispatcher. Shipped _private-side (Part 0); a skeptical verifier caught and fixed a real dead-`-ise`-stem defect in the gate. This grc_library PR carries the TODO rotation and the layered `_private`-required fail-loud assurance for the maintainer orchestrator (detect-env `private_availability` HALT + a PreToolUse Edit/Write hook + a pre-push-guard line). (P1, §1.19.x.)
