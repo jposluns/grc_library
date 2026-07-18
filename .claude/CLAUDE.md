@@ -618,23 +618,24 @@ is external. Two mechanisms:
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-week-model section is the authoritative description): the in-repo
      [`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md)
-     is intended to hold only the CURRENT week's entries, with completed weeks swept to the
-     `grc_library_scratch` archive as weekly Monday-dated files by
-     [`tools/sweep-working-records-to-scratch.py`](../tools/sweep-working-records-to-scratch.py)
-     (data-safe: `--emit-archive <scratch>/archive` to write the archives, then `--prune
-     --verify-archived <scratch>/archive` which refuses to remove anything not already
-     archived, emit-verify-then-prune). Running the sweep is an advisory close-out follow-up,
+     is intended to hold only the CURRENT week's entries, with completed weeks (and, per
+     §1.19.9, the aged roll-up ROWS of `validate-pr/history.md` and `improvement-log.md`)
+     swept to the `grc_library_private` archive as weekly Monday-dated files by
+     [`tools/sweep-working-records-to-private.py`](../tools/sweep-working-records-to-private.py)
+     (data-safe: `--emit-archive <private>/archive` to write the archives, then `--prune
+     --verify-archived <private>/archive` which refuses to remove or rewrite anything not
+     already archived, guarding each rewrite with a re-parse assertion, emit-verify-then-prune). Running the sweep is an advisory close-out follow-up,
      NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
      shape as the `/validate-pr` post-merge sweep and the `audit-brief-freshness.py` advisory
      tool, and the sweep removes tree content only (this
-     repo's git history and the scratch archive both retain the full trail, and the `.working/
+     repo's git history and the grc_library_private archive both retain the full trail, and the `.working/
      export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean
      regardless). Gate 59's mirror-header-parity cutoff is the dynamic floor `max(CUTOFF_PR,
      oldest in-repo mirror PR)`, so a swept (archive-only) entry is out of parity scope, not
      flagged missing. The write path is unchanged (new entries still prepend to the in-repo
      mirror). The initial completed-weeks sweep has already run, so the mirror holds the
      recent (current-week) window rather than the full history (older weeks live in the
-     `grc_library_scratch` archive and in git history); the standing action is the per-PR
+     `grc_library_private` archive and in git history); the standing action is the per-PR
      sweep of any newly-completed week at close-out. The compact root-entry format (`**YYYY-MM-DD | X.Y.Z | PR #N** -
      summary`, plain hyphen, no em/en dash) is ADOPTED as the standard go-forward root shape: the
      3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root

@@ -67,7 +67,7 @@ so no purely-content check can tell them apart. Parity is therefore
 asserted only for the entries the in-repo mirror still holds; historical
 parity moves to git history and to the sweep tool's own guarantees. The
 compensating controls: the sweep tool
-(``tools/sweep-working-records-to-scratch.py``) partitions
+(``tools/sweep-working-records-to-private.py``) partitions
 deterministically by entry DATE and re-parses the pruned mirror to
 confirm its entry set is EXACTLY the kept current-week set before it
 finishes, and git history retains every entry regardless.

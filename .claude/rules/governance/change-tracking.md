@@ -303,7 +303,7 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 - Detailed mirror: `.working/changelog-details/CHANGELOG-detailed.md` (current-week
   model; completed weeks sweep to the `grc_library_scratch` archive as weekly
   Monday-dated files).
-- Sweep tool: `tools/sweep-working-records-to-scratch.py` (emit, verify, then prune).
+- Sweep tool: `tools/sweep-working-records-to-private.py` (emit, verify, then prune).
 - Closed-work ledger: `.working/DONE.md`; backlog: `TODO.md`; overnight file:
   `.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
 - The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"
