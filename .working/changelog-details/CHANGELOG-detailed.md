@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.513, PR #1025
+
+Locks the TODO §1.19.12 CLAUDE.md sensitivity-trim classification (maintainer-approved, attended) and records the return to attended-autonomous mode. A working-state PR; no corpus or website content changed.
+
+**§1.19.12 classification LOCKED.** The maintainer reviewed and approved the sensitivity-trim classification ("proceed and lock classifications first", 2026-07-18, attended). The classification (30 CLAUDE.md sections: 2 MOVE / 15 KEEP / 13 SPLIT, broad-trim lean) is locked in [`claudemd-trim-review-draft.md`](../claudemd-trim-review-draft.md) as the input to the Phase-5 CLAUDE.md trim (the actual content move to `_private`, sequenced with the §1.19.8 relocation; the operating CLAUDE.md stays public, so only the MOVE/SPLIT-flagged content moves). The three strictness calls were resolved to the broad-trim-as-drafted lean: (1) provenance tails KEEP (not the stricter split-out; the maintainer may tighten at apply); (2) `/screen-publications` KEEP (re-read of the live body confirmed no `_private` pointer / no maintainer-machine / dated-directive content, only the portable screening cadence + a reference-base-register pointer + a PR-provenance tail); (3) the session-migration checklist applies bullet-wise, not as a block move. §1.19.12 stays OPEN until the Phase-5 trim is applied.
+
+**Mode.** The maintainer returned ~14:00Z and set attended-autonomous; the `Operating-mode` lease field was flipped from `daytime-unattended` (the field had gone stale while the maintainer was out, which had blocked `AskUserQuestion`), the lease heartbeat re-stamped, and the `Current-task` reconciled to the §1.19.x close-out plan.
+
+**One open decision logged.** A `/matrix-fit`-cadence finding from the SEF-07 batch: `operations/procedure-security-monitoring-and-alert-management.md:333` maps "Alert triage and response" to CSA CCM `SEF-02` (= "Service Management Policy and Procedures", the wrong control, same class as the #1022 SEF-07 fix). Recommended remap `SEF-02, SEF-03` -> `SEF-06` "Event Triage Processes" + `SEF-07` "Incident Management and Response"; NOT auto-applied (expert-review-facing semantic-fit call), logged in [`pending-decisions.md`](../pending-decisions.md) for the maintainer's disposition.
+
+### Changed
+- [`.working/session-state.md`](../session-state.md): `Operating-mode` `daytime-unattended` -> `attended-autonomous`; heartbeat re-stamped; `Current-task` reconciled to the §1.19.x close-out.
+- [`.working/claudemd-trim-review-draft.md`](../claudemd-trim-review-draft.md): status DRAFT -> LOCKED (maintainer-approved); decision points resolved.
+- [`TODO.md`](../../TODO.md): §1.19.12 annotated CLASSIFICATION LOCKED (stays open until the Phase-5 apply).
+- [`.working/pending-decisions.md`](../pending-decisions.md): logged the open `:333` SEF-02 control-fit decision.
+
+**PR #1024 QA batch (recursion-avoidance).** This PR carries #1024's per-PR QA:
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1024 validate-pr row.
+- [`.working/improvement-log.md`](../improvement-log.md): #1024 `/retro` row.
+
+### Verification
+- Working-state + version surfaces only; `run_all_audits.sh` green; per-PR `/validate-pr` + `/retro`. The §1.19.12 lock is a recorded maintainer approval, not a corpus change; the actual CLAUDE.md trim is Phase-5.
+
 ## 2026-07-18, Library Version 2026.07.512, PR #1024
 
 Closes TODO §1.21 (P1, machinery): three non-existent ISO/IEC 27002:2022 sub-controls in the logging-and-monitoring standard. A single-corpus-document citation-accuracy fix; no website content changed.
