@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/11910s1-changelog-projection
+**Active-session:** claude/11910s1b-projection-nopr-fix
 
 **Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-18T21:30:23Z
+**Last-heartbeat-UTC:** 2026-07-18T21:52:15Z
 
 **Current-task:** ACTIVE, 2026-07-18 resumed session (`/resume` from #1020; on the VM, gh-CLI, no GitHub MCP). Mode **attended-autonomous** (maintainer-set). Merged #1021-#1030 this session, closing §1.19.8 across #1028 (relocation) + #1029 (layered fail-loud assurance + `_private` gate/CI, closed §1.19.11) + #1030 (`_private`-pointer minimization). Then, maintainer-directed, OFFLOADED a DEEP-ASSESSMENT of the whole §1.19.8 change-set to worker-a (pinned to #1030's merge SHA); consumed under ELEVATED QA (all findings re-verified at source, 10 `_private`-content assumptions verified true), MAINTAINER-SIGNED-OFF: 7 low-severity findings (0 High). **#1031-#1033 MERGED** (§1.19.8 fully closed via #1031; **§1.19.9 COMPLETE** via the guard-first trio: #1032 PR A gate-50 per-register dynamic floor + #1033 PR B1 sweep-tool generalized/renamed `-to-private` + aged roll-up-row sweep). **#1034 MERGED (§1.19.9 fully closed). #1035 IN FLIGHT (branch `claude/11910s1-changelog-projection`):** §1.19.10 slice 1 = the tiered public-CHANGELOG projection SCAFFOLD tool (non-destructive; verifier CONFIRMED-CORRECT, the live root's 984 entries partition 179 current / 805 weekly / 0 monthly with 0 loss; the "reshape D8" proved unnecessary). Prior #1034: §1.19.9 PR B2 = the dated-archive MIGRATION RAN (maintainer-approved current-week window): 1217 aged roll-up rows + 189 completed-week CHANGELOG entries + 53 dated QA records emitted to the grc_library_private archive (pushed there, validate-clean) and pruned from grc_library; post-prune audit **72/72** (gate 50 floor + gate 59 cutoff absorb it); a dedicated data-loss verifier CONFIRMED row-by-row conservation (0 lost / duplicated across all surfaces). #1034 closes TODO §1.19.9 + carries #1033's QA. #1032's + #1033's validate-pr were OFFLOADED (consumed clean). **NEXT:** §1.19.10 slice 2 (the authored tiering migration: condense 805 weekly-tier entries into <=4-sentence-per-week paragraphs + move the full per-PR source to _private; the scaffold tool from slice 1 emits the structure + raw material) -> §1.19.12 apply (maintainer, 32 sections 2 MOVE/17 KEEP/13 SPLIT) -> §1.19.13 (history scrub, LAST, gated). §1.19.12/13 are MAINTAINER-GATED. **`pending-decisions.md`: none open.** **Standing:** present the per-priority TODO count table after every merged PR; sync scratch every PR before any credit-offload read (§3.93); explicit `cd /home/jposluns/<repo> &&` on cross-repo git; attended-autonomous mode is maintainer-set (changes only on their signal).
 

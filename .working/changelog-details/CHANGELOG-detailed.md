@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.524, PR #1036
+
+Section 1.19.10 slice 1b: a data-integrity fix to the slice-1 projection tool, prerequisite for the slice-2 migration. Tooling only; no corpus or website content changed.
+
+### Fixed
+- [`tools/build-public-changelog.py`](../../tools/build-public-changelog.py): the slice-1 `ENTRY_RE` required a `| PR #N` segment, so the oldest 34 root entries (2026-05-31 to 2026-06-19, the pre-PR-number era, form `**YYYY-MM-DD | VERSION** - summary`) were silently DROPPED from the projection. The `| PR #N` segment is now optional (`group(3)` is None for a no-PR entry); a no-PR entry buckets by date like any other, its scaffold bullet is version-tagged (`- vVERSION: ...`), and an all-no-PR week's header carries a version range (`(versions X to Y)`) instead of a PR range. Conservation now holds over ALL entries: the live root's 1019 entries project to 180 current + 839 weekly bullets = 1019, zero dropped (was 985 projected + 34 dropped). Self-test gains a no-PR case (parse, tiering, version-range header, version-tagged bullet, and a 6-in / 6-out conservation assertion).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 72/72; the tool's `--self-test` 3/3; the tool is still non-destructive (not run on the real root; the migration is slice 2). Stdlib-only (gate 71).
+- Pre-push skeptical verifier (refute-briefed, read-only shared tree): CONFIRMED-CORRECT on all six axes. Regex parses both forms and is adversarially safe (the `[^|]` version class means the PR number stays bound to the header even when a summary contains a literal `PR #` or a pipe); the old-vs-new parity check found the broadening is a strict superset (all 985 with-PR lines parse byte-identically, 0 old-only drops); full conservation on the real root is 1019 = 180 current + 839 bullets (805 PR-tagged + 34 version-tagged), each entry in exactly one tier, 0 drop / 0 dup.
+
+### Discipline observation
+The slice-1 verifier returned CONFIRMED-CORRECT but MISSED this drop because it defined its conservation universe as PR#-bearing lines only (984 = 179 + 805, true for that subclass but blind to the 34 no-PR entries). A conservation / no-loss check is only as complete as its universe definition; the true universe was all 1019 entries. The defect surfaced from EXAMINING the scaffold's actual weekly buckets before running the destructive slice-2 migration (the oldest bucket was week 06-15 / #38, with nothing for 05-31 to 06-14). Reinforces: define a conservation check's universe as the full entry set, not a regex-matched subclass; and examine a generated artefact's real output before a destructive migration consumes it.
+
+### Also carries (recursion-avoidance)
+PR #1035's QA batch: the validate-pr row and the retro row.
+
 ## 2026-07-18, Library Version 2026.07.523, PR #1035
 
 Section 1.19.10 slice 1 (non-destructive machinery): the tiered public-CHANGELOG projection scaffold tool. Tooling only; no corpus or website content changed.
