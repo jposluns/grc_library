@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.503, PR #1015
+
+Audit gate 72 (Citation-currency-cadence audit), TODO §1.14 Layer A (tooling; the spec is the only corpus doc touched, for its gate inventory). The canonical-citations register carries a `Last verified (UTC)` date per source (the SR-1 field: present but inert). This egress-free gate mechanizes it, warning when a source has drifted past its per-trust-tier re-check window, the TIME axis of currency, complementing gate 6 (version axis) and gate 5 (enumeration axis). Designed from the offloaded `seed-114` research seed (worker-a), re-authored by the orchestrator.
+
+### Added
+- [`tools/lint-citation-currency-cadence.py`](../../tools/lint-citation-currency-cadence.py) (gate 72): a table-aware register parser (handles the 7-column standard and 8-column AI-tooling schemas; `Last verified (UTC)` is the last cell in both), a dual date-format parser ("verified YYYY-MM-DD" and bare "YYYY-MM-DD"), a heading-to-trust-tier map over all 19 register sub-tables, and per-tier windows (legislation 180d, standards + frameworks 365d, datasets + tooling 90d). ADVISORY (WARN) mode: prints findings, always exits 0. Egress-free (pure date arithmetic; no network). 175 rows all within window at merge.
+- [`tests/test_linters.py`](../../tests/test_linters.py) `CitationCurrencyCadenceTests` (4): fresh-row-passes; past-window-row-warns-but-exit-0; both-date-formats-detected; live-register-within-windows (guard-first, green on HEAD). Monkeypatches `CANONICAL_REGISTER` and `_today_utc` (fixed date) with save/restore for determinism and isolation.
+
+### Changed
+- Four-surface wiring (gate 72): [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (§5 group-3 "Content drift defence" membership + clause, §6 inventory row 72, §6 detailed "Gate 72 is ..." paragraph). Spec Version 1.17.10 to 1.17.11 (body change); [`taxonomy.yml`](../../taxonomy.yml) + [`docs/portal.md`](../../docs/portal.md) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated (taxonomy first).
+- Gate-count ripple 71 to 72: [`TODO.md`](../../TODO.md) §3.89-adjacent parity line "71/71/71/71 as of gate 71" to "72/72/72/72 as of gate 72"; gate 39 (count consistency) green, and a proactive bare-token grep across all file types confirmed zero stale "71" gate-count residuals.
+- [`TODO.md`](../../TODO.md) §1.14: Layer A SHIPPED annotation; §1.14 stays open for Layer B (egress upstream sweep, deferred, DD-10).
+- [`.working/pending-decisions.md`](../pending-decisions.md): a PROCEEDED / stricter-safe-default morning-review entry logs the authorial choices (per-tier windows + WARN-vs-FAIL = WARN) for maintainer confirm-or-redirect.
+
+### Design decisions (logged for maintainer confirmation)
+- **WARN mode, deliberately (not a soft rollout).** The register's own version-currency-cadence note establishes that a hard gate would fail whenever egress is blocked (an environment condition). A staleness check inherits that: a row goes stale precisely because it could not be re-checked upstream, so blocking a merge on staleness would penalize the environment. Flipping any tier to FAIL is a one-line change once the maintainer confirms an egress-aware exemption.
+- **Per-tier windows are conservative stricter-safe defaults, dormant today** (all 175 rows verified within ~18 days, so none is near any window >= 90d); they only bite as rows age, by which point the maintainer's confirmation applies.
+- Scope: all 19 register sub-tables including the 8-column AI-tooling table (90d, fastest-moving). Layer B (upstream fetch) stays deferred: egress-required, a separate scheduled sweep, never this read-only lint CI.
+
+### Verification
+- All 72 audit gates pass (gate 39 count consistency confirms the 72-ripple; gate 35 four-surface parity 72/72/72/72; gate 64 §6 detailed-prose presence; gate 36 regression suite includes the new tests). Changelog preflight clean; pre-push guard both runners green; a refute-briefed skeptical verifier pre-push.
+- Batches PR #1014's `/validate-pr` (validate-pr-1014, offloaded worker-b, CLEAN) and `/retro` rows.
+
+### Discipline observation
+- Research-assistant discipline: the gate design was offloaded (`seed-114`, worker-a) and re-authored, not pasted; the seed's schema survey (174 rows, all `last_checked` populated, no cadence field) and guard-first analysis were independently re-verified against the live register (the gate found 175 rows, reconciling the seed's 174 by surfacing a 19th sub-table "Soft-law supervisory guidance" the seed's heading count missed, which the orchestrator then mapped explicitly).
+
 ## 2026-07-18, Library Version 2026.07.502, PR #1014
 
 Maintainer-requested overnight prep-drafts for the §1.19 operational-state privatization work (working-state only; no corpus change). The maintainer directed, at the overnight transition, that the §1.19.12/13 (and §1.18) drafts be prepared during the overnight run so the daytime apply is quick. This PR lands those drafts and stages the QA-completion codification.
