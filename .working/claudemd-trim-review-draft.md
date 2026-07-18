@@ -1,12 +1,19 @@
 # CLAUDE.md sensitivity-trim review draft (TODO §1.19.12, Phase 5; MAINTAINER ACTION)
 
-**Status: DRAFT discussion input for the maintainer's Phase-5 review. NOT an applied trim.**
-§1.19.12 is a maintainer action (the actual move to `_private` is Phase-5 apply work, held
-for attended). This worklist is the prepared input so the review is quick. Seeded by the
-offloaded `seed-119-12-claudemd-trimlist` research order (worker-20260716-b, 2026-07-18) and
-re-authored plus spot-checked against the live project CLAUDE.md structure by the
-orchestrator (research-assistant discipline: the seed is a hypothesis; the verdicts below are
-the orchestrator's after checking each section).
+**Status: LOCKED (maintainer-approved 2026-07-18, attended). Classification = broad-trim as drafted.**
+The maintainer reviewed and approved this classification ("proceed and lock classifications
+first", 2026-07-18, attended-autonomous): the 2 MOVE / 15 KEEP / 13 SPLIT verdicts below are
+LOCKED as the input to the Phase-5 CLAUDE.md trim (the actual move to `_private`, sequenced
+with §1.19.8's relocation work; operating `CLAUDE.md` stays public per §1.19.8, so the trim
+moves only the MOVE/SPLIT-flagged content). Decision points resolved (see below). The three
+strictness calls I did not take are resolved to the broad-trim-as-drafted lean; the maintainer
+can tighten (go stricter on provenance tails) at apply.
+
+Original prep note: §1.19.12 is a maintainer action; the worklist was the prepared input so the
+review was quick. Seeded by the offloaded `seed-119-12-claudemd-trimlist` research order
+(worker-20260716-b, 2026-07-18) and re-authored plus spot-checked against the live project
+CLAUDE.md structure by the orchestrator (research-assistant discipline: the seed is a hypothesis;
+the verdicts below are the orchestrator's after checking each section, now maintainer-approved).
 
 ## Rubric
 
@@ -49,16 +56,18 @@ the orchestrator's after checking each section).
 | Communication conventions | KEEP | (optionally trim the 2026-07-02 date tags) |
 | Security and governance requirements | SPLIT (small) | the private-file pointers embedded in the rule descriptions (hallucination-metrics, verifier-overrides, high-assurance register, worker-brief-template) |
 
-## Maintainer decision points (strictness calls the orchestrator did NOT take)
+## Maintainer decision points (RESOLVED 2026-07-18, attended)
 
 1. **Provenance tails** ("shipped in #NNN", "(maintainer-directed YYYY-MM-DD)") on otherwise-KEEP
-   cadence sections are harmless to an adopter but are dated internal-history breadcrumbs. A
-   strict broad-trim would SPLIT them out; left KEEP here because they narrate no incident.
-   The maintainer sets the strictness.
-2. **`/screen-publications`** body was scanned for private pointers but not fully re-read for
-   embedded dated directives; confirm KEEP or downgrade to SPLIT.
-3. **Session migration checklist** is bullet-by-bullet, not whole-section: re-author it
-   bullet-wise at apply, not a block move.
+   cadence sections: **RESOLVED = KEEP (broad-trim-as-drafted lean; NOT the stricter split-them-out
+   option).** They narrate no incident and are harmless to an adopter. The maintainer may tighten
+   to SPLIT at apply if desired; locked as KEEP for now.
+2. **`/screen-publications`**: **RESOLVED = KEEP.** Re-read of the live CLAUDE.md body confirms no
+   `_private` pointer and no maintainer/machine-specific or dated-directive content, only the
+   portable screening cadence + standing rules, a `publications/SCREENING.md` reference-base-register
+   pointer (adopter-relevant, not private), and a PR-provenance tail (KEEP per point 1).
+3. **Session migration checklist**: **RESOLVED = bullet-wise apply** (re-author bullet-by-bullet
+   per the row-34 split, not a whole-section block move).
 
 ## Net shape
 
