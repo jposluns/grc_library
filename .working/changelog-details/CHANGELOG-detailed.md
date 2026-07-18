@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.514, PR #1026
+
+Applies three staged protected-file changes from [`deferred-protected-changes.md`](../deferred-protected-changes.md) (maintainer-authorized on the VM, attended; the maintainer directed "protected bundle now, before §1.19.8"). CLAUDE.md, the `ai-assistant-workflow-disciplines` pack rule (both trees), and working-state; no corpus or website content changed.
+
+**Item 11 (closes TODO §1.15): cross-repo write-safety convention line.** Added a `## Boundaries` bullet to the operating CLAUDE.md: before every Write/Edit and every repo-mutating git command across the colocated repos (`grc_library` / `grc_library_ref` / `grc_library_scratch` / `grc_library_private`), confirm the target repo (`git rev-parse --show-toplevel` for git, or route through `tools/repo-guard.sh <repo> -- <cmd>`; the absolute-path prefix for Write/Edit) and prefix git sequences with `cd /home/jposluns/<repo> &&`. This is §1.15 part (b); part (a) (`tools/repo-guard.sh` + `RepoGuardTests`) shipped in #1013, so **§1.15 is now complete and rotated to DONE** (the P1 count drops to five machinery items).
+
+**Item 12: QA-activity completion standard.** Added a `## QA-activity completion standard` section to the operating CLAUDE.md (the five conditions for a QA activity to be COMPLETE: sanctioned formal shape; every finding terminally triaged, none dropped; worker positives re-verified at source; the history row recorded; deferred fixes documented; plus the sign-off condition for the heaviest tiers; and the standing "fixing QA issues outranks build/tooling/content" priority). The same standard, project-agnostically, was added to the ai-assistant-workflow-disciplines pack rule in BOTH trees (`dev-security/claude-rules/` and the `.claude/rules/` copy; verified byte-identical, gate 37; the language linter clean on the new pack prose before commit). Codifies the standing QA-completion discipline (the durable form previously only in the orchestrator memory `qa-findings-are-top-priority`).
+
+**Item 15: currency fix.** Reworded the two operating-CLAUDE.md lines that described the §3.93(c) scratch-queue auto-fetch backstop as "queued"/"is queued"; it shipped scratch-side 2026-07-18, so both now read as shipped (factual-staleness fix; CLAUDE.md is gate-exempt, so nothing was failing).
+
+**Assessment note (maintainer-directed).** Items 11 and 12 ADD content to CLAUDE.md, so the §1.19.12 sensitivity-trim classification (locked in #1025 over the prior 30 sections) will be RE-RUN over the updated CLAUDE.md to classify the two new sections (the cross-repo-write Boundaries bullet, which names the private siblings + the maintainer path, is a SPLIT candidate; the QA-completion-standard section is a portable KEEP candidate) before the one-by-one review.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the cross-repo write-safety Boundaries bullet (item 11) and the `## QA-activity completion standard` section (item 12); reworded the two §3.93(c) currency lines (item 15).
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) and its [`.claude/rules/` copy](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): added the project-agnostic `## QA-activity completion standard` section (byte-identical; gate 37).
+- [`TODO.md`](../../TODO.md): §1.15 deleted (rotated to DONE); P1 machinery-item count six -> five.
+
+**PR #1025 QA batch (recursion-avoidance) + its finding-fixes.** This PR carries #1025's per-PR QA (validate-pr + retro rows) AND fixes the four in-window findings #1025's validate-pr surfaced (1 warning + 3 notes, all working-state, no corpus/tool defect):
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1025 validate-pr row.
+- [`.working/improvement-log.md`](../improvement-log.md): #1025 `/retro` row.
+- [`.working/session-state.md`](../session-state.md): re-reconciled the `Current-task` line (W-1, the #619 append-not-reconcile: removed the stale "pending-decisions EMPTY", "§1.19.12 HELD", and "daytime-unattended" tail clauses that the #1025 front-only reconcile left); updated `Active-session` to this branch; re-stamped the heartbeat.
+- [`.working/pending-decisions.md`](../pending-decisions.md): marked `:333` RESOLVED (maintainer chose SEF-06 + SEF-07 via AskUserQuestion; apply pending in a dedicated PR), queue back to empty.
+- [`.working/changelog-details/CHANGELOG-detailed.md`](CHANGELOG-detailed.md): clarified the #1025 entry's "SEF-02" -> "SEF-02, SEF-03" imprecision (N-3).
+
+### Verification
+- the language linter clean on the new pack prose (before commit); the two pack copies byte-identical (gate 37); `run_all_audits.sh` green; a refute-briefed skeptical verifier on the diff (the one DEFECT-FOUND it raised, the not-yet-added #1025 QA rows, is resolved by adding them here; all 7 other targets clean); per-PR `/validate-pr` + `/retro`.
+
 ## 2026-07-18, Library Version 2026.07.513, PR #1025
 
 Locks the TODO §1.19.12 CLAUDE.md sensitivity-trim classification (maintainer-approved, attended) and records the return to attended-autonomous mode. A working-state PR; no corpus or website content changed.
@@ -14,7 +41,7 @@ Locks the TODO §1.19.12 CLAUDE.md sensitivity-trim classification (maintainer-a
 
 **Mode.** The maintainer returned ~14:00Z and set attended-autonomous; the `Operating-mode` lease field was flipped from `daytime-unattended` (the field had gone stale while the maintainer was out, which had blocked `AskUserQuestion`), the lease heartbeat re-stamped, and the `Current-task` reconciled to the §1.19.x close-out plan.
 
-**One open decision logged.** A `/matrix-fit`-cadence finding from the SEF-07 batch: `operations/procedure-security-monitoring-and-alert-management.md:333` maps "Alert triage and response" to CSA CCM `SEF-02` (= "Service Management Policy and Procedures", the wrong control, same class as the #1022 SEF-07 fix). Recommended remap `SEF-02, SEF-03` -> `SEF-06` "Event Triage Processes" + `SEF-07` "Incident Management and Response"; NOT auto-applied (expert-review-facing semantic-fit call), logged in [`pending-decisions.md`](../pending-decisions.md) for the maintainer's disposition.
+**One open decision logged.** A `/matrix-fit`-cadence finding from the SEF-07 batch: `operations/procedure-security-monitoring-and-alert-management.md:333` maps "Alert triage and response" to CSA CCM `SEF-02, SEF-03`, where `SEF-02` (= "Service Management Policy and Procedures") is the wrong control, same class as the #1022 SEF-07 fix. Recommended remap `SEF-02, SEF-03` -> `SEF-06` "Event Triage Processes" + `SEF-07` "Incident Management and Response"; NOT auto-applied (expert-review-facing semantic-fit call), logged in [`pending-decisions.md`](../pending-decisions.md) for the maintainer's disposition.
 
 ### Changed
 - [`.working/session-state.md`](../session-state.md): `Operating-mode` `daytime-unattended` -> `attended-autonomous`; heartbeat re-stamped; `Current-task` reconciled to the §1.19.x close-out.

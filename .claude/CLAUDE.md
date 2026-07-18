@@ -380,8 +380,9 @@ is external. Two mechanisms:
      until you fetch. Skipping this is the 2026-07-16 / 2026-07-17 stale-scratch-read
      recurrence (a wrong "workers stale / order unclaimed" report from an un-synced checkout
      while a worker had already delivered on `origin/main`). A per-tick fetch is likewise
-     mandatory inside any scratch poll loop. Mechanical backstop queued: the queue tool's
-     read subcommands auto-fetch origin (§3.93(c), a `grc_library_scratch` PR).
+     mandatory inside any scratch poll loop. Mechanical backstop SHIPPED scratch-side
+     (2026-07-18, §3.93(c)): the queue tool's `list-workers` / `list-pending` read
+     subcommands fetch origin and read `origin/main` non-mutatingly before reporting.
    - **If this is the first PR of a resumed session** (the `/resume` `/validate`
      close-out), the handoff was **pruned** per its `## Refresh and pruning discipline`:
      keep current + 1 prior in each per-session stack, delete older blocks and superseded
@@ -802,8 +803,8 @@ command). This section is the ORCHESTRATOR-side discipline.
   checkout (the 2026-07-16 / 2026-07-17 recurrence: a wrong worker-restart ask while a worker
   had already delivered on `origin/main`). The primary standing form is the **sync-scratch-every-PR**
   close-out line in `## Session migration and PR close-out checklist`; the mechanical backstop
-  (the queue tool's `list-workers` / `list-pending` auto-fetching origin) is queued as §3.93(c),
-  a `grc_library_scratch` PR.
+  (the queue tool's `list-workers` / `list-pending` fetching origin before reporting) SHIPPED
+  scratch-side 2026-07-18 (§3.93(c)).
 - **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
   order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
   `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`
@@ -1286,6 +1287,33 @@ boundary, so "do N more" is really "do one more, re-assess, repeat" and self-ter
 early if quality signals turn. If a degradation signal appears mid-run, the assistant
 winds down regardless of the option chosen, surfacing why.
 
+## QA-activity completion standard
+
+A QA activity (a `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
+`/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, or
+`/deep-assessment` pass) is COMPLETE only when all five hold:
+
+1. It ran in a sanctioned formal shape (never an abbreviated, spot, or memory-only
+   substitute, per `## Throughput pressure does not authorize QA abbreviation`).
+2. Every finding is triaged to a terminal disposition, fixed in-window OR routed to the
+   backlog / [`pending-decisions.md`](../.working/pending-decisions.md) with a severity
+   tier (and a morning-review flag for a risk item); none is dropped.
+3. Worker-delivered POSITIVES are re-verified at source before routing (a clean
+   zero-finding result is trusted on its proof-of-run, per the credit-offload consume
+   discipline).
+4. The history row is recorded (a zero-finding run still gets its row).
+5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not
+   silently left.
+
+The `/deep-assessment` and `/trust-recovery` tiers add one condition: they terminate only
+on explicit maintainer sign-off (an empty finding set is presented for sign-off, never
+self-declared done).
+
+Standing priority: fixing known QA issues outranks build, tooling, and content work.
+Complete the then-current task, then fix. The project-agnostic form ships in the
+[`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
+pack rule so an adopter inherits it.
+
 ## Throughput pressure does not authorize QA abbreviation
 
 When a long batch of PRs is in flight, when the session window feels tight, or when the
@@ -1424,6 +1452,14 @@ the last commit before push (bump library CalVer and the README Version field)?
   preserve the pre-rewrite ref under
   `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>`; re-run the
   version-monotonicity audit after the rewrite.
+- **Cross-repo write-safety (§1.15a).** Before every Write/Edit and every repo-mutating
+  git command across the colocated repos (`grc_library` / `grc_library_ref` /
+  `grc_library_scratch` / `grc_library_private`), confirm the target repo matches intent:
+  `git rev-parse --show-toplevel` for git (or route the command through
+  `tools/repo-guard.sh <repo> -- <cmd>`, which refuses on a mismatch), and the
+  absolute-path prefix for Write/Edit; prefix git sequences with an explicit
+  `cd /home/jposluns/<repo> &&`. The mechanical wrapper is `tools/repo-guard.sh` (§1.15a
+  part (a), shipped #1013); this line is the standing convention (part (b)).
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value (date,
