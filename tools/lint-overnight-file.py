@@ -93,7 +93,7 @@ def main() -> int:
             f"{status}. The overnight session has ended; the next-"
             f"morning processing PR must route the file's content into "
             f"the appropriate working-state ledgers "
-            f"(.working/design-decisions.md for design decisions, "
+            f"(the design-decisions record for design decisions, "
             f".working/DONE.md for closed work, TODO.md for queued "
             f"follow-ups) and reset this file to the stub form. See "
             f"dev-security/claude-rules/governance/change-tracking.md "

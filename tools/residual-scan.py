@@ -35,8 +35,8 @@ Behaviour:
     a .working activity directory, depth two, any year: frozen-state archives
     quoting findings verbatim; a deeper-nested dated file conservatively
     labels LIVE), or LEDGER (append-only history surfaces: CHANGELOG.md,
-    its detailed mirror, DONE.md, the improvement-log and hallucination-metrics
-    registers, and every per-activity history.md, where PRE-EXISTING entries legitimately
+    its detailed mirror, DONE.md, the improvement-log register,
+    and every per-activity history.md, where PRE-EXISTING entries legitimately
     quote old values; a hit in a line this PR ADDS is still live in substance).
     FROZEN-RECORD hits are suppressed unless --all is given; LEDGER hits are
     always shown because the tool cannot tell an old entry from a new one.
@@ -74,7 +74,6 @@ LEDGER_PATHS = (
     ".working/changelog-details/CHANGELOG-detailed.md",
     ".working/DONE.md",
     ".working/improvement-log.md",
-    ".working/hallucination-metrics.md",
 )
 
 

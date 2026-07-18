@@ -15,8 +15,8 @@ the declared target. When the target document is renumbered, such
 references silently go stale: the intra-document gate
 (``lint-intra-doc-refs.py``) deliberately filters cross-document context
 out, so this class was gate-blind (the #548 and #545 escaped-miss
-clusters that motivated this gate; design record in
-``.working/cross-file-section-ref-gate-design.md``).
+clusters that motivated this gate; design record in the
+cross-file-section-ref gate-design draft).
 
 This linter fires ONLY on the two high-confidence resolvable-target
 classes the 2026-07-02 corpus survey identified:

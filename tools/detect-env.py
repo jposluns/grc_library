@@ -129,7 +129,15 @@ def probe_siblings() -> dict:
     out = {}
     for name in SIBLINGS:
         path = REPO_ROOT.parent / name
-        entry: dict = {"readable": path.is_dir()}
+        # A present sibling must be NON-EMPTY: an empty ../grc_library_<name> (a partial or
+        # failed clone, or a bare mkdir stub) is not usable, and treating it as present would
+        # diverge from the PreToolUse hook and the pre-push guard, which both require non-empty
+        # (deep-assessment N2). OSError on a stat/iterdir treats it as absent (fail-safe).
+        try:
+            present = path.is_dir() and any(path.iterdir())
+        except OSError:
+            present = False
+        entry: dict = {"readable": present}
         if entry["readable"]:
             rc, _ = run(["git", "-C", str(path), "rev-parse", "HEAD"])
             entry["git_ok"] = rc == 0

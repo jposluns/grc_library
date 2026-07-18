@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §1.19.8 deep-assessment (maintainer-directed) findings cleared (2026-07-18, PR #1031)
+
+Not previously in TODO; a maintainer-directed follow-up. The §1.19.8-change-set deep-assessment (offloaded worker, pinned to #1030's merge SHA, consumed under elevated QA, maintainer-signed-off) surfaced 7 low-severity findings (0 High). All 7, plus 6 same-class stragglers a pre-push verifier and a class-width re-grep found (stale references to the relocated operational docs across tool constants/docstrings, three pack skills, two commands, and CLAUDE.md wording), are fixed here; the 10 flagged private-repo-content assumptions were verified true. (Maintainer-directed §1.19.x follow-up.)
+
 ### TODO §1.19.8: living-doc relocation to _private + reference minimization complete (2026-07-18, PR #1030)
 
 The Phase-2 core of the operational-state privatization, across three PRs: 19 living operational docs relocated to grc_library_private (#1028); the maintainer-required layered fail-loud assurance built (#1029); and the reference minimization here (#1030), ONE CLAUDE.md delegation directive pointing at grc_library_private/INDEX.md (maintainer: read / clone-if-absent / fail-loud; adopter: skip / redirect to .private / create own), with the ~20 inline CLAUDE.md pointers, the 4 rules-overlay pointers, and the spec pointer all collapsed to bare concern-names, plus a one-line _private opener on the 3 commands that read it (they keep their functional reads, index-routed, per the approved hybrid). TODO and .working Category-D pointers left as self-resolving per the minimization assessment. (P1, §1.19.x.)
