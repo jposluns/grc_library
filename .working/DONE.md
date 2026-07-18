@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.15: cross-repo write-safety guardrail complete (2026-07-18, PR #1026)
+
+Part (a) shipped in #1013 (`tools/repo-guard.sh`, a fail-loud `<repo> -- <cmd>` wrapper + `RepoGuardTests`); part (b), the standing project-CLAUDE.md convention line, landed here in the Boundaries section (confirm the target repo before every cross-repo Write/Edit or repo-mutating git command: `git rev-parse --show-toplevel` or route through `repo-guard.sh`; prefix git sequences with an explicit `cd /home/jposluns/<repo> &&`). Both parts of the two-part guardrail are now in place. (P1, guardrail.)
+
 ### TODO §1.21: corrected non-existent ISO/IEC 27002:2022 sub-controls in the logging standard (2026-07-18, PR #1024)
 
 `security/standard-logging-and-monitoring.md`'s framework-alignment table cited three sub-controls that do not exist in flat-numbered ISO/IEC 27002:2022 (`§8.15.3`/`§8.15.5`/`§8.15.7`). Corrected to `§8.17` "Clock synchronization" (time-sync) and `§8.15` "Logging" (central collection/retention and access/protection, both subsections within 8.15), verified at the held standard by a skeptical verifier. Surfaced out-of-window by the Sweep-112 delivery-1 false-negative auditor (the sibling of the closed §1.17 W2 fix). (P1, machinery.)
