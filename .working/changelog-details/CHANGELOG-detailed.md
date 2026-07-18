@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.504, PR #1016
+
+TODO §3.92 part (a): mechanical adopt-config validity flag in the environment probe [`tools/detect-env.py`](../../tools/detect-env.py) (tooling only). The `/resume` adopter-path currently decides "already onboarded?" by an assistant file-presence check on the adopter onboarding config; the config is machine-consumed (`sibling_choice` drives the sibling model) but the decision was prose, not tool-driven. This adds the mechanical backstop the resume prose already anticipated.
+
+### Added
+- [`tools/detect-env.py`](../../tools/detect-env.py) `_adopt_config_status()` + an `ADOPT_CONFIG` path constant and `VALID_SIBLING_CHOICES = ("own-siblings", "self-contained")`: parses the adopter onboarding config and returns `(present, valid)`, where valid requires parseable JSON with `mode == "adopter"` AND a recognized `sibling_choice` (the schema the adopt SKILL step 6 writes). `probe_identity` now emits `adopt_config_present` and `adopt_config_valid` in the identity block, and the human-readable output gains an Adopt-config line. **Additive: the origin/operator classification logic is untouched** (an unparseable / wrong-mode / bad-choice / non-object config is present-but-invalid; absent is `(False, None)`).
+- [`tests/test_linters.py`](../../tests/test_linters.py) 5 new `DetectEnvIdentityTests` methods: absent -> `(False, None)`; both valid `sibling_choice` values -> `(True, True)`; malformed JSON -> `(True, False)`; wrong/missing mode, bad/missing choice, and non-object -> `(True, False)`; and `probe_identity` emits both fields with classification unchanged. Monkeypatch `ADOPT_CONFIG` to a temp file, save/restore.
+
+### Changed
+- [`TODO.md`](../../TODO.md) §3.92: part (a) tool-side SHIPPED annotation; the protected resume-command consumer edit staged (deferred item 13); parts (b)/(c) remain, §3.92 stays open.
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): item 13 stages the resume-command step-3 rework to drive the adopter-path off the emitted flags (same three outcomes; only the fact-source moves from assistant-inference to tool-output), and drops the now-shipped "queued hardening TODO §3.92" parenthetical.
+
+### Verification
+- `python3 -m unittest tests.test_linters.DetectEnvIdentityTests`: 16/16 (11 existing + 5 new). `detect-env.py --json` emits the two fields, classification `maintainer` unchanged, rc 0. All 72 gates pass; changelog preflight clean; pre-push guard both runners green; a refute-briefed skeptical verifier pre-push.
+- Batches PR #1015's `/validate-pr` (validate-pr-1015, offloaded) and `/retro` rows.
+
+### Discipline observation
+- Additive, no-live-session-risk choice: the environment probe runs only at the next `/resume`, and the change adds fields without touching classification, so it carries no risk to the active session's coordination (unlike editing the in-session-used credit-offload queue tool). The resume consumer defers cleanly (staged), the same part-a-ships / part-b-stages pattern as §1.15a.
+
 ## 2026-07-18, Library Version 2026.07.503, PR #1015
 
 Audit gate 72 (Citation-currency-cadence audit), TODO §1.14 Layer A (tooling; the spec is the only corpus doc touched, for its gate inventory). The canonical-citations register carries a `Last verified (UTC)` date per source (the SR-1 field: present but inert). This egress-free gate mechanizes it, warning when a source has drifted past its per-trust-tier re-check window, the TIME axis of currency, complementing gate 6 (version axis) and gate 5 (enumeration axis). Designed from the offloaded `seed-114` research seed (worker-a), re-authored by the orchestrator.
