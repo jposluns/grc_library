@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.521, PR #1033
+
+Section 1.19.9 PR B1 (tool-only; the destructive initial migration RUN is PR B2): generalizes the working-records sweep tool so the dated-archive sweep can move aged roll-up rows to the private companion repo. Tooling and working-state only; no corpus or website content changed.
+
+### Changed
+- Renamed [`tools/sweep-working-records-to-private.py`](../../tools/sweep-working-records-to-private.py) (from the -to-scratch name) and repointed its destination convention from the scratch exchange repo to the private companion repo, matching where section 1.19.8 relocated the operational state.
+- Added an aged roll-up-ROW sweep for the two gate-50 registers (the validate-pr history and the improvement-log): a new `partition_rollup_rows` keeps the current ISO week's dated rows in-repo and sweeps older rows to the private archive, so gate 50's PR-A dynamic per-register floor scopes a swept-out PR out of scope rather than flagging it missing. The other history registers keep their rows in-repo (guardrail-reviews for the gate-60 newest-row safety; the rest have no dynamic cutoff prepared); their dated per-run files still sweep as before.
+- Data-safety strengthened for rows: `--emit-archive` writes per-register weekly roll-up-row archive files; `--prune` verifies every archived week-file is present and runs a per-register re-parse assertion (kept row count equals original minus swept, and the kept text re-partitions to zero further sweepable rows) alongside the existing mirror assertion, with ALL assertions before any write so a mismatch aborts with nothing changed.
+- Docstring rewritten; `--self-test` added (3 roll-up-row cases). References repointed in the backlog, the changelog-mirror-parity gate docstring, the change-tracking overlay, CLAUDE.md, and two working-state READMEs (a bare-token scratch-to-private pass fixed the destination-name tokens the tool-name repoint first missed); frozen audit-trail records keep the old tool name.
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 72/72; the sweep tool `--self-test` 3/3 and `--dry-run` rc 0; [`tools/run-linter-regression.py`](../../tools/run-linter-regression.py) clean. The tool is advisory (not wired into any gate).
+- Pre-push skeptical verifier (refute-briefed, read-only shared tree): the row-sweep machinery is CONFIRMED-CORRECT on every data-loss / corruption axis (the line-level partition preserves headers, separators, prose, and recent rows; each row is a single physical line; the re-parse assertions reconstruct the kept set; emit-verify-prune runs all assertions before any write). It also surfaced the two normal close-out gaps (the #1032 validate-pr row and this #1033 detailed entry, both now present) and the scratch-to-private prose-staleness in the changed READMEs and docstring (fixed).
+
+### Also carries (recursion-avoidance)
+PR #1032's QA batch: the validate-pr row (offloaded to worker-a, consumed under routine QA, CLEAN) and the retro row.
+
 ## 2026-07-18, Library Version 2026.07.520, PR #1032
 
 Section 1.19.9 PR A (guard-first): the bookkeeping-parity gate (gate 50) Check 1 gains a dynamic per-register floor, so the upcoming dated-archive sweep (PR B) can move AGED roll-up rows out of the in-repo history registers to the private companion repo without Check 1 flagging the swept PRs as missing their validate-pr / retro rows. Tooling and working-state only; no corpus or website content changed.
