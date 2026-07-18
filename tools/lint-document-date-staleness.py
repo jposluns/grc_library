@@ -161,6 +161,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
     {
         "docs/portal.md",
         "docs/maturity-scorecard.md",
+        "docs/reference-acquisition-manifest.md",
     }
 )
 

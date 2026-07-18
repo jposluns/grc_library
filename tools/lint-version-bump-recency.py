@@ -49,6 +49,7 @@ EXEMPT_FILES: frozenset[str] = frozenset(
         "taxonomy.yml",
         "docs/portal.md",
         "docs/maturity-scorecard.md",
+        "docs/reference-acquisition-manifest.md",
     }
 )
 

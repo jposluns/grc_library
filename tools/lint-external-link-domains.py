@@ -37,6 +37,10 @@ EXEMPT_FILES = {
     # Linter regression tests deliberately embed non-allowlisted
     # example URLs as test inputs.
     "test_linters.py",
+    # Generated bibliography (tools/build-reference-manifest.py): its upstream URLs
+    # are the diverse issuer domains of the reference base, not corpus prose links,
+    # so the allow-list does not apply (TODO 1.19.7).
+    "reference-acquisition-manifest.md",
 }
 
 URL_RE = re.compile(r"https?://([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})(?::\d+)?(?:/[^\s)\]]*)?")
