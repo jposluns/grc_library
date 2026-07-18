@@ -214,6 +214,20 @@ When the orchestrator dispatches a verifier or a validation subagent that SHARES
 
 ---
 
+## QA-activity completion standard
+
+A quality-assurance activity (a validation sweep, a per-change-scoped sweep, a semantic-fit or citation-precision audit, a reference-breadth or publications screen, a behavioural verify, a fresh-reader review, or a whole-project assessment pass) is COMPLETE only when all five hold:
+
+1. It ran in a sanctioned formal shape, never an abbreviated, spot-check, or memory-only substitute (per the throughput-pressure discipline and the anti-pattern below).
+2. Every finding is triaged to a terminal disposition: fixed in-window OR routed to the backlog or the decision queue with a severity tier (and a review flag for a risk item); none is dropped.
+3. Worker-delivered positive findings are re-verified at source before routing; a clean zero-finding result is trusted on its proof-of-run, per the apply-time and consume disciplines.
+4. The activity's history row is recorded; a zero-finding run still gets its row.
+5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not silently left.
+
+The heaviest tiers (a whole-project assessment, a trust-recovery suite) add one condition: they terminate only on the responsible authority's explicit sign-off, never self-declared done.
+
+Standing priority: fixing known QA issues outranks build, tooling, and content work; complete the then-current task, then fix.
+
 ## Prohibited anti-patterns
 
 Across all five disciplines:
