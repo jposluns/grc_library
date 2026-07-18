@@ -23,8 +23,10 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
 - Resume wiring: `.claude/commands/resume.md` proposes `/adopt` when the classifier
   says `adopter` and no adopt-config exists; once the config is present, resume
   proceeds in adopter-mode.
-- Reference-acquisition manifest (self-contained sibling model, enrichment): the public
-  bibliography `/adopt` can bootstrap a `.ref` from (TODO section 1.19.7).
+- Reference-acquisition manifest + bootstrap planner (sibling model, enrichment): the public
+  bibliography `/adopt` can bootstrap an EXTERNAL `.ref` from (`docs/reference-acquisition-manifest.md`),
+  and the planner `tools/adopt-bootstrap-ref.py` that categorizes it into auto-fetchable /
+  free-manual / licensed-manual (TODO section 1.19.7). Adopters substitute their own equivalents.
 
 An adopting project maps each bullet to its own classifier, config, placeholders,
 working-state, and resume flow; the procedure below refers to them generically.
@@ -128,11 +130,21 @@ malformed one.
 
 Apply the step-2 choice. For **own siblings**, record the adopter's sibling locations so the
 resolver and the resume step find them, and (for the reference base) optionally bootstrap the
-adopter's EXTERNAL `grc_library_ref` sibling from the reference-acquisition manifest: fetch
-the freely-and-legally-available sources INTO that external sibling repository, list the
-licensed or blocked ones for manual acquisition, and never redistribute licensed content. For
+adopter's EXTERNAL `grc_library_ref` sibling from the reference-acquisition manifest. The
+bootstrap planner `tools/adopt-bootstrap-ref.py` (portable procedure; adopters run their own
+equivalent) reads the committed public manifest and emits a categorized acquisition plan
+(`--json` for the assistant to drive): **auto-fetchable** (FREE and an upstream URL is
+recorded), **free-manual** (FREE but no URL recorded yet), and **licensed-manual** (LICENSED).
+Drive the bootstrap from that plan: WebFetch each **auto-fetchable** source INTO the adopter's
+EXTERNAL `grc_library_ref` sibling, and list the **free-manual** + **licensed-manual** entries
+for the adopter to acquire by hand (freely, or lawfully under the issuer's licence). The
+planner itself NEVER fetches, downloads, or writes: it reads only the manifest's bibliographic
+metadata, so the network + write side stays in the assistant layer where the human is in the
+loop, and the copyright boundary is explicit (only FREE sources are auto-fetched; LICENSED
+items are never redistributed). For
 **self-contained**, keep the in-repo placeholders as-is; the reference-acquisition manifest
-serves as a bibliography the adopter can use to build an external reference base later
+(and the same planner) serves as a bibliography the adopter can use to build an external
+reference base later
 (converting to the own-siblings model). In BOTH models the fetched reference text goes into
 an EXTERNAL sibling, NEVER into the in-repo `.ref` stub: the in-repo
 `.ref` / `.scratch` / `.private` always stay stub-only, so the stub-guard gate passes (a

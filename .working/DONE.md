@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.7 (part c) + §1.12 + §3.18 closures (2026-07-18, PR #1007)
+
+Closed **§1.19.7** (`_ref` integration umbrella), the last §1.19 Phase-1 item: part (c) shipped the `/adopt` `.ref` bootstrap, a new stdlib-only planner `tools/adopt-bootstrap-ref.py` that reads the committed public reference-acquisition manifest and categorizes it into auto-fetchable (FREE + URL) / free-manual / licensed-manual, plus the `/adopt` SKILL step-4 concretization (WebFetch the auto-fetchable set into the EXTERNAL sibling; planner never fetches/writes; copyright boundary in the human-in-the-loop layer) and pack README bump 1.62.1. Also closed **§1.12** (root-CHANGELOG entry-length remediation: part 2 was already done by D8, part 1 is subsumed by §1.19.10's weekly collapse, maintainer-confirmed) and **§3.18** (`/reference-audit` publications-bucket inclusion: maintainer decided publications stay excluded until `/screen-publications` clears them).
+
 ### TODO §1.17: deep-assessment r4 confirmed gate-blind citation-accuracy fixes (2026-07-17, PR #1001)
 
 Applied the four held-source-verified citation fixes the r4 deep-assessment (and Sweep 110) surfaced, all gate-blind because the existence gates validate the framework and code, not the cited value: W1 (`TLS_CHACHA20_POLY1305_SHA256` de-attributed from NIST SP 800-52 Rev. 2 §3.3.1, now noted as an RFC 8446 suite, in the API-security standard), N2 (the monitoring procedure's §12 table CSF 1.1 subcategory IDs remapped to CSF 2.0 with a maintainer-confirmed best-fit + category-level-fallback mapping), W2 (ISO/IEC 27002:2022 `8.15.3` -> `8.17` Clock synchronization), and the same-class S110-1 (`ID.AM-3` -> `ID.AM-02` in the SCA standard). Ships with the r4 Phase-8 maintainer sign-off; a refute-briefed skeptical verifier confirmed each fix at held source.
