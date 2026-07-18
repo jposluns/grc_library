@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.84: Quebec Law 25 PIA-section citation corrected to s. 3.3 (2026-07-18, PR #1019)
+
+Reverted the #973-shipped "s. 23.3" error in [`privacy/jurisdictions/annex-privacy-canada.md`](../privacy/jurisdictions/annex-privacy-canada.md) lines 30 and 60 to the confirmed-correct "s. 3.3" (maintainer-authorized). The held reference source's "23.3." header was PDF margin-note corruption; s. 3.3 is confirmed by the statute's own s. 3.4 cross-reference and upstream LégisQuébec. The clean-source re-ingest is tracked separately in §3.100.
+
 ### TODO §3.93: sync-scratch-every-PR + fetch-before-read coordination reads (2026-07-18, PR #1018 + grc_library_scratch)
 
 Closed §3.93 (recurrence-prevention for stale scratch coordination-plane reads). Parts (a) the sync-scratch-every-PR close-out line and (b) the `/resume` step-3 + `## Credit-offload mode` fetch-before-read mandate were already applied in CLAUDE.md; part (c) shipped scratch-side (`credit-offload-queue.py` `list-workers` / `list-pending` now best-effort fetch origin and read `origin/main` non-mutatingly, with a local fallback). Two stale CLAUDE.md "queued §3.93(c)" prose lines are staged for a daytime protected cleanup (deferred item 15).
