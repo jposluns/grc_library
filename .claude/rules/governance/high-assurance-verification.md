@@ -98,5 +98,5 @@ The rule expresses the same audit-trail-integrity principle as the rest of the p
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- The persistent register: `grc_library_private/high-assurance/register.md` (surfaced at
+- The persistent register: `high-assurance/register` (surfaced at
   `/resume` alongside the other standing registers).

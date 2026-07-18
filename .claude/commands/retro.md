@@ -1,5 +1,7 @@
 Invoke the `pr-retrospective` skill defined in this project's pack at [`dev-security/claude-rules/skills/pr-retrospective/SKILL.md`](../../dev-security/claude-rules/skills/pr-retrospective/SKILL.md). Slash-command entry point is `/retro`; the underlying skill name remains `pr-retrospective` (the descriptive name documents the workflow's purpose, the slash command is the ergonomic verb). Execute the post-merge retrospective per the six-step process the skill encodes:
 
+**`_private` (read first).** This command reads and appends the hallucination-metrics record in `grc_library_private` (via its INDEX; the CLAUDE.md `_private` delegation directive is the general rule). On the maintainer orchestrator, if `_private` is absent, FAIL LOUD, clone it or grant access, and do NOT reconstruct its content from memory. On an adopter clone `_private` is absent by design: redirect to the in-repo `.private` placeholder or create your own.
+
 1. **Identify the PR and its inputs**: capture PR number, merge commit SHA, FR(s) closed (if any), the `/validate-pr` findings just returned (0 findings, N findings with categories, or out-of-window observations), any apply-time worker corrections logged in `grc_library_private/hallucination-metrics.md` during the PR, and recently-shipped PRs in the same cluster (for pattern surfacing).
 
 2. **Identify what went well**: one short observation (1-2 sentences). If nothing notable, record "Routine; no notable highlight."
