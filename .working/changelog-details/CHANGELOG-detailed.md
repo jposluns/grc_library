@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.512, PR #1024
+
+Closes TODO §1.21 (P1, machinery): three non-existent ISO/IEC 27002:2022 sub-controls in the logging-and-monitoring standard. A single-corpus-document citation-accuracy fix; no website content changed.
+
+**The defect.** [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md)'s `## Framework alignment` control-mapping table (which claims ISO/IEC 27002:2022) cited `§8.15.3` (Time synchronization), `§8.15.5` (Central collection and retention), and `§8.15.7` (Access and protection). ISO/IEC 27002:2022 controls are FLAT, there is no `8.15.x` sub-numbering (held `8.15.3` returns 0 hits; the standard's table of contents lists only `8.15 Logging`, `8.16 Monitoring activities`, `8.17 Clock synchronization`).
+
+**The fix (verified at held source).** Time synchronization -> **§8.17** "Clock synchronization" (the held 8.15 guidance itself cross-references 8.17 for time-source synchronization). Central collection and retention -> **§8.15** "Logging", and Access and protection -> **§8.15** "Logging": in 27002:2022 log storage, retention, protection, and analysis are all subsections *within* the single 8.15 "Logging" control (the held text has a dedicated "Protection of logs" subsection and cross-references 5.28 for retention), so 8.15 is the correct primary control for both rows and no better-fitting control exists. The `§8.15` (Log management) and `§8.16` (Monitoring and alerting) rows were already correct and unchanged. Surfaced OUT-OF-WINDOW by the Sweep-112 delivery-1 false-negative auditor (routed to §1.21); it is the incomplete-cross-file-harmonization sibling of the §1.17 W2 `8.15.3`->`8.17` fix (#1001), which corrected the same error in the sibling [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md).
+
+### Changed
+- [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md): the three framework-alignment ISO/IEC 27002 cells corrected (`8.15.3`->`8.17`, `8.15.5`->`8.15`, `8.15.7`->`8.15`). Version `1.4.13` -> `1.4.14`, Date -> 2026-07-18.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the Version bump (portal.md byte-identical).
+
+**PR #1023 QA batch (recursion-avoidance).** This PR carries #1023's per-PR QA:
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1023 validate-pr row.
+- [`.working/improvement-log.md`](../improvement-log.md): #1023 `/retro` row.
+
+### Verification
+- A skeptical verifier confirmed all three corrections against the held ISO/IEC 27002:2022 text (`8.15.x` non-existent; `8.17` = Clock synchronization; both `-> 8.15` remaps correct with no better control), plus completeness (no residual sub-numbered ISO citation in the file) and bookkeeping (Version+Date co-bump, artefacts in sync). `run_all_audits.sh` green; per-PR `/validate-pr` + `/retro`.
+
 ## 2026-07-18, Library Version 2026.07.511, PR #1023
 
 Closes TODO §1.20 (P1, machinery): the `adopt-preflight-guard` live-smoke test was not adopter-portable. A tests-and-working-state PR; no corpus or website content changed.
