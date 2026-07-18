@@ -13,5 +13,5 @@ Layout, per the current-week `.working` model:
   anchor. Rewritten by `tools/audit-reference-breadth.py --update-state`; committed
   with the touching PR's QA batch. Never hand-edit a SHA.
 - `YYYY-MM-DD-<scope>.md` (dated per-run detail files): written when a run has
-  findings; swept to the scratch weekly archive by
-  `tools/sweep-working-records-to-scratch.py` under the current-week model.
+  findings; swept to the grc_library_private weekly archive by
+  `tools/sweep-working-records-to-private.py` under the current-week model.
