@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.502, PR #1014
+
+Maintainer-requested overnight prep-drafts for the §1.19 operational-state privatization work (working-state only; no corpus change). The maintainer directed, at the overnight transition, that the §1.19.12/13 (and §1.18) drafts be prepared during the overnight run so the daytime apply is quick. This PR lands those drafts and stages the QA-completion codification.
+
+### Added
+- [`.working/claudemd-trim-review-draft.md`](../claudemd-trim-review-draft.md) (§1.19.12, Phase 5 MAINTAINER ACTION): a sensitivity-classification worklist over CLAUDE.md's 30 sections (2 MOVE / 15 KEEP / 13 SPLIT, broad-trim lean), with the sensitive part named for each SPLIT and the maintainer strictness-decision points. Seeded by the offloaded `seed-119-12-claudemd-trimlist` research order (worker-20260716-b) and orchestrator-re-authored + spot-checked against the live CLAUDE.md structure (research-assistant discipline). A discussion input, NOT an applied trim.
+- [`.working/history-scrub-procedure-draft.md`](../history-scrub-procedure-draft.md) (§1.19.13, Phase 6 maintainer-gated): the force-push git-history-scrub procedure, with a precondition gate (§1.19.8/9 merged; no live path references; full clone), the worklist (= the §1.19.8 move-list), the artefact-and-branch-discipline steps (`git filter-repo --invert-paths`, `refs/preservation/`, version-monotonicity re-run, verify-purge), and a residual-risk note.
+- [`.working/change-impact-surface-map-draft.md`](../change-impact-surface-map-draft.md) (§1.18, first-pass scope): per-change-type surface maps (new gate / new pack rule / new skill / count change), the existing-partial-coverage fold-in (gates 35/39/37, D6), the D8 worked example, and open scoping questions for the maintainer.
+
+### Changed
+- [`.working/deferred-protected-changes.md`](../deferred-protected-changes.md): new item 12 stages the protected apply of the QA-activity completion standard (a `## QA-activity completion standard` CLAUDE.md subsection + the portable pack-rule half in `ai-assistant-workflow-disciplines`); the durable form already landed in the orchestrator memory.
+- [`TODO.md`](../../TODO.md) §1.19.12 / §1.19.13 / §1.18: each annotated with a PREP pointer to its draft (still held for attended apply).
+- [`.working/credit-offload-metrics.md`](../credit-offload-metrics.md): the `seed-119-12` research seed recorded as delivered + consumed (~70K, worker-b), and validate-pr-1013 (~110K, worker-b routine) added to the 2026-07-17b roll-up.
+
+### Verification
+- The pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green (71 gates); changelog preflight clean. Working-state + CHANGELOG + README + TODO only; no corpus, no `.web/`, no generated artefact.
+- Batches PR #1013's `/validate-pr` (validate-pr-1013, offloaded worker-b, CLEAN, 7 empirical repo-guard exit-path tests) and `/retro` rows.
+
+### Discipline observation
+- Credit-offload: the §1.19.12 trim-list was OFFLOADED as a research seed (worker-b, `seed-119-12`) and re-authored at apply per the research-assistant discipline (the worker's classification is a hypothesis; the orchestrator's verdicts are after checking each section). This is the intended research-stage-parallel / apply-stage-serial shape.
+- No protected file was edited: all four privatization payloads are `.working/` drafts or staging entries; the protected CLAUDE.md + pack applies (deferred items 11 and 12) remain for the daytime attended run.
+
 ## 2026-07-18, Library Version 2026.07.501, PR #1013
 
 Cross-repo write-safety guard, TODO §1.15a part (a) (tooling + working-state only; no corpus change). The maintainer-orchestrator works across colocated repos (`grc_library`, `grc_library_ref`, `grc_library_scratch`, `grc_library_private`) and the `Bash` tool persists a `cd` across calls, so a cwd-dependent repo-mutating git command can silently target the wrong repository (observed 2026-07-15: a `grc_library`-intended `git checkout main && git pull` ran in `grc_library_scratch`). This PR ships the mechanical half.
