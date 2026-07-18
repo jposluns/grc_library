@@ -52,6 +52,13 @@ SIBLINGS = ("grc_library_ref", "grc_library_scratch")
 # Used by the origin-identity probe (TODO section 1.19.5).
 MAINTAINER_ORIGIN_OWNER_REPO = "jposluns/grc_library"
 
+# The committed adopt-config marker (TODO section 3.92a). The /adopt run-once
+# onboarding writes it; the /resume adopter-path reads it to skip re-onboarding.
+# Its minimal schema (per the adopt SKILL step 6): mode == "adopter",
+# adopted_at (UTC date), sibling_choice in the set below, adopt_config_version.
+ADOPT_CONFIG = REPO_ROOT / ".claude" / "adopt-config.json"
+VALID_SIBLING_CHOICES = ("own-siblings", "self-contained")
+
 # Representative egress probes, one per source family the project's work waits
 # on. Reachability of the FAMILY is what the profile reports; a probe is a HEAD
 # request with a short timeout, and a 403 is reported as reachable-but-blocked
@@ -192,6 +199,31 @@ def _origin_is_maintainer(url: str | None) -> bool:
     return "/".join(segments).lower() == MAINTAINER_ORIGIN_OWNER_REPO.lower()
 
 
+def _adopt_config_status() -> tuple[bool, "bool | None"]:
+    """Return (present, valid) for ``.claude/adopt-config.json`` (TODO 3.92a).
+
+    ``valid`` is ``None`` when the file is absent. When present, ``valid`` is
+    True only for parseable JSON with ``mode == "adopter"`` AND a recognized
+    ``sibling_choice`` (the schema the adopt SKILL step 6 writes); an unparseable
+    file, a non-object, a wrong/absent ``mode``, or an out-of-set ``sibling_choice``
+    is present-but-invalid. This is the mechanical backstop for the /resume
+    adopter-path's malformed-config handling (previously assistant-prose only).
+    """
+    if not ADOPT_CONFIG.exists():
+        return (False, None)
+    try:
+        data = json.loads(ADOPT_CONFIG.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return (True, False)
+    if not isinstance(data, dict):
+        return (True, False)
+    valid = (
+        data.get("mode") == "adopter"
+        and data.get("sibling_choice") in VALID_SIBLING_CHOICES
+    )
+    return (True, bool(valid))
+
+
 def probe_identity(siblings: dict) -> dict:
     """Classify the operator by ORIGIN IDENTITY (TODO section 1.19.5).
 
@@ -214,11 +246,14 @@ def probe_identity(siblings: dict) -> dict:
         classification = "maintainer" if any_sibling else "maintainer-fresh-machine"
     else:
         classification = "adopter"
+    adopt_present, adopt_valid = _adopt_config_status()
     return {
         "origin_url": url,
         "origin_is_maintainer_repo": is_maint_origin,
         "any_sibling_readable": any_sibling,
         "classification": classification,
+        "adopt_config_present": adopt_present,
+        "adopt_config_valid": adopt_valid,
     }
 
 
@@ -388,6 +423,10 @@ def main(argv: list[str] | None = None) -> int:
           f"(origin={idn['origin_url']}, maintainer-repo="
           f"{idn['origin_is_maintainer_repo']}, sibling(s) readable="
           f"{idn['any_sibling_readable']})")
+    print(f"- Adopt-config: present={idn['adopt_config_present']}, "
+          f"valid={idn['adopt_config_valid']} "
+          f"(adopter-path: present+valid -> proceed adopter-mode; present+invalid "
+          f"-> re-propose /adopt; absent on an adopter -> propose /adopt)")
     for name, e in (profile.get("egress") or {}).items():
         print(f"- Egress {name}: {e['class']} (HTTP {e['status']})")
     print("\n## Decisions for the resume step\n")

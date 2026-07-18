@@ -82,6 +82,12 @@ items first to clear TODO count; the larger GR-P design track, item 6, defers). 
 - **Pack half (portable, same daytime PR):** add the same completion standard, project-agnostically, to the `ai-assistant-workflow-disciplines` pack rule's QA section (BOTH the `dev-security/claude-rules/` pack tree AND the `.claude/rules/` copy; gate 37 strips overlays before comparing), so an adopter inherits it. Run `lint-language.py` on the new pack prose BEFORE the first commit.
 - **QA:** `lint-language.py` on the new CLAUDE.md + pack prose pre-commit; per-PR `/validate-pr` + `/retro`; gate 37 pack-parity. NO TODO section-number yet (maintainer-directed standing task); open one at apply or fold into §1.18 (the change-impact surface-map, which already governs "a portable discipline a gate or convention mechanizes belongs in its pack rule").
 
+### 13. [TODO §3.92a] Drive the /resume adopter-path off the detect-env adopt-config flag
+
+- **Why deferred (2026-07-18 overnight):** the mechanical half shipped in #1016 (`tools/detect-env.py` now emits `adopt_config_present` / `adopt_config_valid`); the consumer edit is in the protected `.claude/commands/resume.md` (and, for parity, the adopt SKILL / command step 1).
+- **Prepared content (apply at daytime):** in `.claude/commands/resume.md` step 3, change the adopter-path decision from the assistant-prose file-presence + "parse it (valid JSON with mode: adopter and a recognized sibling_choice)" check to reading detect-env's emitted flags: `adopt_config_present == false` on an adopter -> propose `/adopt`; `present && adopt_config_valid` -> proceed adopter-mode; `present && !valid` -> re-propose `/adopt` (malformed). Keep the same three outcomes; only the SOURCE of the present/valid facts moves from assistant-inference to tool-output. Drop the now-redundant parenthetical "(A mechanical adopt-config validity flag emitted by `detect-env.py` is a queued hardening, TODO §3.92)" since it has shipped.
+- **QA:** `lint-language.py` on the reworded prose pre-commit; per-PR `/validate-pr` + `/retro`; confirm the resume-path outcomes are unchanged (only the fact-source moved). Rotate §3.92(a) fully to DONE when this lands (part-a tool-side already shipped); §3.92 stays open for (b)/(c).
+
 ---
 
 _Empty of items = nothing deferred. Add an item whenever an overnight task turns out to need a

@@ -7401,6 +7401,60 @@ class DetectEnvIdentityTests(unittest.TestCase):
         self.assertIn("HALT (LOUD)", msg)
         self.assertIn("undetermined", msg)
 
+    # adopt-config validity flag (TODO 3.92a): _adopt_config_status parses
+    # .claude/adopt-config.json and returns (present, valid); probe_identity emits
+    # both as adopt_config_present / adopt_config_valid. Tests monkeypatch the
+    # module-global ADOPT_CONFIG to a temp file, save/restore for isolation.
+    def _with_config(self, mod, contents):
+        """Point mod.ADOPT_CONFIG at a temp file (contents=None means absent), run
+        _adopt_config_status(), restore. Returns (present, valid)."""
+        old = mod.ADOPT_CONFIG
+        with tempfile.TemporaryDirectory() as td:
+            cfg = Path(td) / "adopt-config.json"
+            if contents is not None:
+                cfg.write_text(contents, encoding="utf-8")
+            try:
+                mod.ADOPT_CONFIG = cfg
+                return mod._adopt_config_status()
+            finally:
+                mod.ADOPT_CONFIG = old
+
+    def test_adopt_config_absent(self) -> None:
+        mod = self._load("_detect_env_cfg_absent")
+        self.assertEqual(self._with_config(mod, None), (False, None))
+
+    def test_adopt_config_valid(self) -> None:
+        mod = self._load("_detect_env_cfg_valid")
+        for choice in ("own-siblings", "self-contained"):
+            cfg = ('{"mode": "adopter", "adopted_at": "2026-07-18", '
+                   f'"sibling_choice": "{choice}", "adopt_config_version": 1}}')
+            self.assertEqual(self._with_config(mod, cfg), (True, True), choice)
+
+    def test_adopt_config_malformed_json_is_present_invalid(self) -> None:
+        mod = self._load("_detect_env_cfg_badjson")
+        self.assertEqual(self._with_config(mod, "{not valid json,,,"), (True, False))
+
+    def test_adopt_config_wrong_fields_is_present_invalid(self) -> None:
+        mod = self._load("_detect_env_cfg_wrong")
+        for bad in (
+            '{"mode": "maintainer", "sibling_choice": "own-siblings"}',   # wrong mode
+            '{"mode": "adopter", "sibling_choice": "whatever"}',          # bad choice
+            '{"mode": "adopter"}',                                        # missing choice
+            '{"sibling_choice": "self-contained"}',                       # missing mode
+            '["adopter", "own-siblings"]',                                # not an object
+        ):
+            self.assertEqual(self._with_config(mod, bad), (True, False), bad)
+
+    def test_probe_identity_emits_adopt_config_fields(self) -> None:
+        # The identity block carries the two new fields (additive; classification
+        # is unchanged). On the live repo the config is absent -> present False.
+        mod = self._load("_detect_env_cfg_emit")
+        mod._origin_url = lambda: "https://github.com/jposluns/grc_library.git"
+        out = mod.probe_identity({"grc_library_ref": {"readable": True}})
+        self.assertIn("adopt_config_present", out)
+        self.assertIn("adopt_config_valid", out)
+        self.assertEqual(out["classification"], "maintainer")  # unchanged
+
 
 class ReferenceManifestGeneratorTests(unittest.TestCase):
     """tools/build-reference-manifest.py (TODO 1.19.7): the render() output shape and
