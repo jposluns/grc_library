@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.9: dated-archive sweep to _private complete (2026-07-18, PRs #1032/#1033/#1034)
+
+The Phase-2 dated-archive privatization, across three guard-first PRs: gate 50 gained a per-register dynamic floor (#1032, mirroring gate 59) so swept rows are out-of-scope not missing; the working-records sweep tool was generalized + renamed to `-to-private.py` and given an aged roll-up-row sweep for the two gate-50 registers with re-parse-guarded emit-verify-prune (#1033); and the initial migration ran (#1034), moving 1,217 aged roll-up rows + 189 completed-week CHANGELOG entries + 53 dated QA records to the grc_library_private archive and pruning them from grc_library (current-week window, maintainer-approved), verified data-safe (row-by-row conservation, 0 lost) and gate-clean 72/72. (P1, §1.19.x.)
+
 ### §1.19.8 deep-assessment (maintainer-directed) findings cleared (2026-07-18, PR #1031)
 
 Not previously in TODO; a maintainer-directed follow-up. The §1.19.8-change-set deep-assessment (offloaded worker, pinned to #1030's merge SHA, consumed under elevated QA, maintainer-signed-off) surfaced 7 low-severity findings (0 High). All 7, plus 6 same-class stragglers a pre-push verifier and a class-width re-grep found (stale references to the relocated operational docs across tool constants/docstrings, three pack skills, two commands, and CLAUDE.md wording), are fixed here; the 10 flagged private-repo-content assumptions were verified true. (Maintainer-directed §1.19.x follow-up.)
