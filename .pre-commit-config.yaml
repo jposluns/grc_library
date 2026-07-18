@@ -513,3 +513,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-citation-currency-cadence
+        name: Citation-currency-cadence audit
+        entry: python3 tools/lint-citation-currency-cadence.py
+        language: system
+        pass_filenames: false
+        always_run: true
