@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.515, PR #1027
+
+Records the completed TODO §1.19.12 CLAUDE.md sensitivity-trim review (maintainer-confirmed, attended). A working-state PR; no corpus or website content changed.
+
+**The review.** The classification locked in #1025 (over the then-30 sections) was walked section-by-section with the maintainer (AskUserQuestion batches: the 2 MOVE + the lean-MOVE SPLITs, then the smaller SPLITs, then the KEEP group). Every verdict was confirmed, with **one change**: the "Date and timezone convention" section is **KEEP whole** (the maintainer chose to keep the maintainer-side America/Toronto note public), not the draft's SPLIT. The two sections the #1026 bundle added were classified in the same pass: **Boundaries -> SPLIT** (item 11's cross-repo-write private-sibling repo names + the `/home/jposluns/` path move; the generic write-safety principle and the other boundaries stay public) and **QA-activity completion standard -> KEEP** (portable, with a pack-rule twin). `/screen-publications` KEEP was confirmed (its body was re-read in #1025: no private pointer). **Final classification: 32 sections, 2 MOVE / 17 KEEP / 13 SPLIT.**
+
+**Status.** [`claudemd-trim-review-draft.md`](../claudemd-trim-review-draft.md) is now marked REVIEWED + maintainer-confirmed FINAL; it is the input to the Phase-5 CLAUDE.md trim (the content move to `_private`, sequenced with §1.19.8; the operating CLAUDE.md stays public, so only the MOVE + SPLIT-flagged content moves). §1.19.12 stays OPEN until that apply.
+
+### Changed
+- [`.working/claudemd-trim-review-draft.md`](../claudemd-trim-review-draft.md): status LOCKED -> REVIEWED-FINAL; Date/timezone SPLIT -> KEEP; split the "Version-bump / Boundaries" row (Version-bump KEEP, Boundaries SPLIT for item 11); added the QA-completion-standard KEEP row; resolved the /screen-publications note; tally 30 (2/15/13) -> 32 (2/17/13).
+- [`TODO.md`](../../TODO.md): §1.19.12 annotation LOCKED -> REVIEWED + maintainer-confirmed FINAL.
+
+**PR #1026 QA batch (recursion-avoidance).** This PR carries #1026's per-PR QA:
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1026 validate-pr row.
+- [`.working/improvement-log.md`](../improvement-log.md): #1026 `/retro` row.
+
+### Verification
+- The review outcome is a recorded maintainer confirmation, not a corpus change; `run_all_audits.sh` green; per-PR `/validate-pr` + `/retro`. The Phase-5 apply (the actual CLAUDE.md content move) is separate, sequenced with §1.19.8.
+
 ## 2026-07-18, Library Version 2026.07.514, PR #1026
 
 Applies three staged protected-file changes from [`deferred-protected-changes.md`](../deferred-protected-changes.md) (maintainer-authorized on the VM, attended; the maintainer directed "protected bundle now, before §1.19.8"). CLAUDE.md, the `ai-assistant-workflow-disciplines` pack rule (both trees), and working-state; no corpus or website content changed.
