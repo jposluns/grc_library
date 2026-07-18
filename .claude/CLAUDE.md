@@ -4,7 +4,7 @@
 > actionable rules, cut rationale/war-stories/duplication" directive (Option B). Every
 > rule and procedure step is retained; the removed rationale, war-stories, and provenance
 > are preserved verbatim with analysis in
-> [`.working/claude-md-considerations.md`](../.working/claude-md-considerations.md), which
+> `grc_library_private/claude-md-considerations.md`, which
 > is reviewed each `/retro` and the periodic hallucination-metrics pass so a removal can be
 > restored if its "evidence the removal was wrong" signal appears.
 
@@ -219,7 +219,7 @@ drive end-to-end on the maintainer's behalf:
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
    soft spots NOT asserted clean), the **green-at-`<sha>`** snapshot line, and the
-   [`.working/session-metrics.md`](../.working/session-metrics.md) row (these are the
+   `grc_library_private/session-metrics.md` row (these are the
    loop-break compensating control's cheap signals the next `/resume` `/validate`
    cross-checks against). The refresh commit batches into the next PR per
    recursion-avoidance. See `## Session migration and PR close-out checklist`.
@@ -347,7 +347,7 @@ is external. Two mechanisms:
      annotation) stay convention-guarded here, since D7 is version-tokens-only. At a
      session-closing handoff PR, the `## Asserted expectations` section, the
      green-at-`<sha>` snapshot line, and the
-     [`.working/session-metrics.md`](../.working/session-metrics.md) row are refreshed too
+     `grc_library_private/session-metrics.md` row are refreshed too
      (scoped to what this session actually verified; orchestrator main-loop tokens
      recorded as `not instrumented`, never fabricated; never placed in `CHANGELOG.md`).
    - **Worker-provenance marker** (the gate-50 check-3 convention): if this PR applied a
@@ -367,7 +367,7 @@ is external. Two mechanisms:
      interlock decision is
      `/resume` step 0's (60-minute staleness window, advisory HOLD, git cross-check of
      unmerged `origin/claude/*` siblings). Design record:
-     [`.working/design-decisions.md`](../.working/design-decisions.md), "Session-concurrency
+     `grc_library_private/design-decisions.md`, "Session-concurrency
      safety".
    - **Sync scratch every PR** (maintainer-directed 2026-07-17; the §3.93 recurrence-prevention).
      Before relying on any credit-offload / scratch state at close-out, `cd` to the
@@ -636,7 +636,7 @@ is external. Two mechanisms:
 For partitionable backlog work, the default first move is to fan out research workers
 per the research-assistant discipline, then apply their diffs serially through the
 validate-then-apply gate. The full model lives in the runbook
-[`.working/multi-session-orchestration.md`](../.working/multi-session-orchestration.md):
+`grc_library_private/multi-session-orchestration.md`:
 the two worker primitives (in-session `Agent` subagent fan-out, available now;
 separate-session external-collaborator workers, pending maintainer-provisioned
 least-privilege accounts that write to `grc_library_scratch` only), the Model-B
@@ -666,7 +666,7 @@ building). It fires not only at `/resume` (whose step-0 sibling-branch cross-che
 concurrency analogue) but whenever the queue is resumed mid-session and the next item is
 picked. The operational form (where to look, what an in-flight claim row versus a delivered
 inbox row means) is in the runbook
-[`.working/multi-session-orchestration.md`](../.working/multi-session-orchestration.md).
+`grc_library_private/multi-session-orchestration.md`.
 **This check is EXECUTED, not narrated.** Run
 `python3 tools/audit-delivery-status.py --item <backlog-id>` (e.g. `--item 3.13`, `--item
 FR-60`, `--item SR-3`) and PASTE its output before building any backlog item: a
@@ -702,7 +702,7 @@ the research/drafting seeds. Both are cleanly detachable from the author-apply-r
 critical path, so **credit-offload** moves them onto standing worker sessions on other accounts
 (the existing Mode-B research-worker model, generalized to the QA passes), on a polling work
 queue with a lease/fencing lifecycle. The design of record is
-[`.working/credit-offload-design.md`](../.working/credit-offload-design.md); the coordination
+`grc_library_private/credit-offload-design.md`; the coordination
 plane and the worker-side protocol live in `grc_library_scratch` (`queue/`, `results/`,
 `workers/`, the `tools/credit-offload-queue.py` helper, and the `/credit-offload` worker
 command). This section is the ORCHESTRATOR-side discipline.
@@ -775,12 +775,12 @@ command). This section is the ORCHESTRATOR-side discipline.
   guarantee detection; a worker fabricating an internally-consistent proof-of-run is a residual
   risk it reduces but cannot eliminate, which is why step 2 (independent re-derivation of
   mechanical facts) is load-bearing. See the design-of-record trust model in
-  [`.working/credit-offload-design.md`](../.working/credit-offload-design.md).
+  `grc_library_private/credit-offload-design.md`.
 - **Honest limitation.** Credit-offload SHIFTS cost across accounts; it does not reduce total
   spend, and the orchestrator still pays to verify positives and to run the pre-push verifier.
   The net saving is real only when the other accounts have spare capacity.
 - **Metrics tab (maintainer-directed 2026-07-16).** Maintain the running productivity/savings tab
-  [`.working/credit-offload-metrics.md`](../.working/credit-offload-metrics.md): append one row per
+  `grc_library_private/credit-offload-metrics.md`: append one row per
   offloaded delivery (order, kind, worker + model, the worker's best-effort estimated token spend as
   a conservative proxy for **estimated orchestrator credits conserved**, the consuming PR, notes) and
   keep the per-session roll-up current. At each MAJOR ACTIVITY, a worker delivering a result and a PR
@@ -788,7 +788,7 @@ command). This section is the ORCHESTRATOR-side discipline.
   orchestrator credits conserved. Always label the figure an ESTIMATE (workers cannot read an exact
   in-session count) and carry the shift-not-reduce caveat. There is deliberately NO per-DONE-entry
   line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics.md`
-  row. Design-of-record: [`.working/credit-offload-design.md`](../.working/credit-offload-design.md)
+  row. Design-of-record: `grc_library_private/credit-offload-design.md`
   `## Metrics and reporting`.
 - **Orchestrator coordination-plane reads: fetch scratch FIRST (§3.93).** Every orchestrator
   read of the scratch coordination plane, the `workers/` liveness registry
@@ -1032,7 +1032,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored layout and
   `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the index docs).
   The full workflow lives in the
-  [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6.
+  `grc_library_private/multi-session-orchestration.md` runbook §6.
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or
   egress is blocked per the DD-10 known issue), **pause and ask the maintainer.** On no
   response, apply the graceful-degradation default: defer the current item and move on to
@@ -1043,7 +1043,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   carry the upstream-confirmed current version, or the item waits.
 
 `grc_library_ref` writes go via PR (the local git proxy 403s direct pushes, per
-[`third-party-issues.md`](../.working/third-party-issues.md)), so the `grc_library_ref` half of any
+`grc_library_private/third-party-issues.md`), so the `grc_library_ref` half of any
 update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the P1 reference-currency residuals (§1.5 through §1.8) are all now closed.
 
 ## Missing-reference-document SOP (maintainer-directed 2026-07-12)
@@ -1058,7 +1058,7 @@ merely route it as a `source-not-held` finding. The standing procedure is:
    `grc_library_ref`** via the ingest workflow (drop in `ingest/`, dedupe, identify, route to
    the right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the
    indexes, run the ref gate; the full workflow is in the
-   [`multi-session-orchestration`](../.working/multi-session-orchestration.md) runbook §6 and
+   `grc_library_private/multi-session-orchestration.md` runbook §6 and
    `grc_library_ref` `CONTRIBUTING.md`). Then continue the task against the now-held source.
    (The `grc_library_ref` write is a cross-repo PR per the git-proxy constraint above.)
 3. **If the download fails** (egress-blocked per the DD-10 known issue, licensed or paywalled,
@@ -1128,12 +1128,12 @@ the work priority is fixed: (1) **overnight cleanup** first (route and reset
 what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3) then
 **tooling and protections** (gates, guardrails, machinery); (4) then **new work**. The
 ordering is standing; it is not re-asked at each mode exit. (Decision record:
-[`.working/design-decisions.md`](../.working/design-decisions.md).)
+`grc_library_private/design-decisions.md`.)
 
 **Overnight-to-daytime protected-backlog clearance (maintainer-directed 2026-07-05).** On
 switching from overnight to daytime or attended mode, first finish the then-current PR, then
 clear the deferred protected-file backlog staged in
-[`.working/deferred-protected-changes.md`](../.working/deferred-protected-changes.md) (the
+`grc_library_private/deferred-protected-changes.md` (the
 `.claude/` and `dev-security/claude-rules/` pack edits that overnight mode defers because
 they need maintainer authorization). During the overnight run, prepare those changes in
 advance by drafting their content into that file, so the daytime apply is quick (content
@@ -1200,8 +1200,8 @@ governs), one of many potential reasons but NEVER the SOLE reason (maintainer ca
 2026-07-09): it is weighed alongside other signals, and warrants OFFERING a handoff for the
 maintainer's choice (never an auto-handoff) in two named cases. (i) A very-long-run of *expected chained large PRs* ahead,
 especially where the project's OWN historical metrics (the
-[`hallucination-metrics.md`](../.working/hallucination-metrics.md) and
-[`session-metrics.md`](../.working/session-metrics.md) ledgers) show a measured quality
+`grc_library_private/hallucination-metrics.md` and
+`grc_library_private/session-metrics.md` ledgers) show a measured quality
 decline on comparable prior runs, a NAMED, externally-observable signal, not the
 un-instrumented "I feel degraded". (ii) Excessively-sensitive work whose integrity requires
 fresh context with no accumulated session history to skew it, the canonical case being the
@@ -1523,7 +1523,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   [`.working/verifier-overrides.md`](../.working/verifier-overrides.md), surfaced at the next
   attended boundary). This project tracks the
   apply-time-catch vs shipped-escape ratio in
-  [`.working/hallucination-metrics.md`](../.working/hallucination-metrics.md) and dispatches
+  `grc_library_private/hallucination-metrics.md` and dispatches
   workers from [`.working/worker-brief-template.md`](../.working/worker-brief-template.md).
 - `.claude/rules/governance/trust-recovery-escalation.md` — the escalation tier when
   discipline failures put a maintainer's confidence in a window of work in question: the
@@ -1546,7 +1546,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest
   on orchestrator in-context precision. The proactive counterpart to
   `trust-recovery-escalation`; its sensitive items persist across sessions in
-  [`.working/high-assurance/register.md`](../.working/high-assurance/register.md), surfaced
+  `grc_library_private/high-assurance/register.md`, surfaced
   at `/resume`.
 - `.claude/rules/governance/session-lifecycle.md` — the session-lifecycle and
   operating-modes discipline for multi-session work: a durable reconciled handoff record,
