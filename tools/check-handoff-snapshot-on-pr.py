@@ -50,7 +50,6 @@ Checked labels (label pattern -> live file and header field):
   - ``README `X.Y.Z```               -> README.md            **README Version:**
   - ``pack `X.Y.Z```                 -> dev-security/claude-rules/README.md **Version:**
   - ``audit-spec `X.Y.Z```           -> governance/specification-audit-programme.md **Version:**
-  - ``runbook `X.Y.Z```              -> .working/multi-session-orchestration.md **Version:**
   - ``guardrail-history `X.Y.Z```    -> .working/guardrail-reviews/history.md **Version:**
   - ``validate-pr history `X.Y.Z```  -> .working/validate-pr/history.md **Version:**
   - ``improvement-log `X.Y.Z```      -> .working/improvement-log.md **Version:**
@@ -106,12 +105,6 @@ SURFACES = [
         "audit-spec",
         re.compile(r"\baudit-spec `([0-9]+\.[0-9]+\.[0-9]+)`"),
         "governance/specification-audit-programme.md",
-        re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
-    ),
-    (
-        "runbook",
-        re.compile(r"\brunbook `([0-9]+\.[0-9]+\.[0-9]+)`"),
-        ".working/multi-session-orchestration.md",
         re.compile(r"^\*\*Version:\*\*\s+([0-9]+\.[0-9]+\.[0-9]+)", re.M),
     ),
     (
