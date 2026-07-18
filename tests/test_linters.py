@@ -5299,6 +5299,36 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(findings, [], f"allowlisted handoff must pass; got {findings}")
 
+    def test_dynamic_floor_swept_row_out_of_scope_genuine_miss_still_flags(self) -> None:
+        # Section 1.19.9 dynamic floor: the oldest surviving validate-pr row is
+        # #11, so the per-register floor is max(inception=10, 11) = 11. PR #10
+        # is below the floor (its row was swept to grc_library_private) -> out
+        # of scope, NOT flagged. PR #12 is above the floor with no row -> a
+        # genuine miss, still flagged. #13 is the max PR (batch-lag exempt).
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12, 13}, {11: "normal"}, {11},
+            inception=10, known_handoff=frozenset(),
+        )
+        joined = " ".join(findings)
+        self.assertIn("#12", joined, f"genuine miss above floor must flag; got {findings}")
+        self.assertNotIn("#10", joined,
+                         f"swept row below floor must be out of scope; got {findings}")
+
+    def test_dynamic_retro_floor_swept_retro_out_of_scope(self) -> None:
+        # Section 1.19.9 per-register floor: the oldest surviving retro row is
+        # #12 (retro floor 12) and the oldest surviving validate-pr row is #11
+        # (vp floor 11). PR #10 is below the vp floor (swept) and PR #11 has a
+        # validate-pr row but its retro row was swept (#11 < retro floor 12);
+        # neither is flagged. #12 (retro present) and #13 (max) are fine.
+        mod = self._load_module()
+        findings = mod.qa_cadence_findings(
+            {10, 11, 12, 13}, {11: "normal", 12: "normal"}, {12},
+            inception=10, known_handoff=frozenset(),
+        )
+        self.assertEqual(findings, [],
+                         f"swept rows below their register floors must be out of scope; got {findings}")
+
     def test_findings_cell_handoff_classification(self) -> None:
         # The parser classifies a SKIPPED-handoff Findings cell as 'handoff'
         # and a SUBSUMED cell as 'subsumption', from field 4. The
