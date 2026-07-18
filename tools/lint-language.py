@@ -83,7 +83,8 @@ INGESTION_SPEC = "specification-ingestion.md"
 # (they carry house-style prose), but the two generated artefacts there
 # (docs/portal.md, docs/maturity-scorecard.md) are produced by build-portal.py
 # and must not be hand-edited, so they are excluded from the scan.
-GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md"})
+GENERATED_DOCS = frozenset({"docs/portal.md", "docs/maturity-scorecard.md",
+                            "docs/reference-acquisition-manifest.md"})
 
 # The generators that emit adopter-facing prose into GENERATED_DOCS. Their
 # emitted-prose string literals are scanned for the three prose house-style
