@@ -19,6 +19,12 @@ The SEF-07 CSA CCM control-code remap (the deep-assessment r5 Medium-1 finding, 
 - [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md): the incident-escalation-matrix row's `CSA CCM SEF-02` -> `CSA CCM SEF-07`. Version `1.27.86` -> `1.27.87`, Date -> 2026-07-18.
 - [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the two Version bumps (portal.md byte-identical).
 
+**PR #1021 QA batch (recursion-avoidance) + its two remediation fixes.** This PR also carries #1021's per-PR QA and fixes the two in-window findings its `/validate-pr` surfaced:
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): #1021 validate-pr row (SHIP, 1 warning + 1 note, both fixed here); Version `1.2.782` -> `1.2.783`.
+- [`.working/improvement-log.md`](../improvement-log.md): #1021 `/retro` row; Version `1.0.716` -> `1.0.717`.
+- [`TODO.md`](../../TODO.md): fixed the stale P1 count prose (W-1) - "six open items" reworded to "six standing machinery/guardrail items alongside short-lived point-fix items (currently §1.20, §1.21)", so the enumeration is no longer contradicted by the uncounted §1.20/§1.21.
+- [`.working/session-handoff.md`](../session-handoff.md): marked the retained 2026-07-17 block's prune-note historical (N-1, #619 reconcile), since #1021 dropped the 2026-07-16c blocks it said to keep.
+
 ### Verification
 - The `SEF-07` title verified against the held CSA CCM v4.1.0 catalogue (`grc_library_ref/frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv:618`); `SEF-02` = "Service Management Policy and Procedures" (CSV:601) confirmed as the wrong control. `SEF-07` already exists in the gate-48 reference module, so gate 48 accepts it. A corpus-wide `SEF-02` grep confirmed no other incorrect carrier. Skeptical verifier + per-PR `/validate-pr` + `/retro`.
 
