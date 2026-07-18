@@ -6,7 +6,7 @@
 
 **Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-18T01:16:43Z
+**Last-heartbeat-UTC:** 2026-07-18T01:47:29Z
 
 **Current-task:** ACTIVE, **OVERNIGHT-UNATTENDED** (mode flipped 2026-07-18T01:16Z on the maintainer's explicit "Go"; VM, gh-CLI, no GitHub MCP). Lease on `claude/todo-1-19-7c-adopt-ref-bootstrap`; heartbeat re-stamped each PR close-out. **MERGED this session:** #1000-#1006 + grc_library_ref #88; **#1007 in flight** (§1.19.7(c) `/adopt` `.ref` bootstrap planner `tools/adopt-bootstrap-ref.py` + SKILL step-4 + pack 1.62.1; closes §1.19.7 = Phase-1 COMPLETE; also closes §1.12 subsumed + §3.18 decided; batches #1006 QA). **ALL maintainer-gated decisions pre-collected** before overnight (see `pending-decisions.md` `## 2026-07-17b overnight-transition batch`): the overnight QUEUE is in `next-prs.txt` `# then:` (codify QA-completion SOP -> §1.19.12/13/18 prep-drafts -> P1 protections §1.15a/§1.14-LayerA/gate-71/§3.90-91-92 -> decided content §1.16/§2.22/3.68-3.71/3.66/3.84/3.86/3.74 -> fill). **PARALLEL:** worker `deep-assessment-r5` dispatched (pinned a42a2a0b, priority 2) + `validate-pr-1006` consumed CLEAN. **Standing QA-completion SOP (maintainer-directed):** analyze QA results on arrival, fix non-risky in-window, DOCUMENT risky for morning review; fixing is highest-priority (finish current task, then fix). **HELD for attended tomorrow:** §1.19.8/9/10/11 + §1.19.12/13 APPLY (drafts only overnight). WORKERS both ROUTINE trust. Repo-safety: **sync scratch every PR** before any credit-offload read (§3.93); read `origin/main` via `git show`; explicit `cd /home/jposluns/<repo> &&` on cross-repo git; overnight OFF needs an EXPLICIT maintainer signal (never a timeout).
 

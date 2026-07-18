@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.496, PR #1008
+
+Records the **deep-assessment r5** offloaded read-only probe pass (worker `worker-20260716-a`, pinned `a42a2a0b` / #1006) and routes its findings (Phase 7). The clean phases: mechanical baseline 70/70 + 412 regression tests, blind-spot map 0, mutation probe 15/0/5/0 (disposable clone), four-surface parity 70/70/70/70, reference modules match held source, full-history secret scan + PII watermark clean, 809-row QA-ledger meta-audit honest. Finding set (orchestrator-re-verified at source): 2 confirmed corpus (1 Medium, 1 Low) + 5 Low informational/tracked/robustness; **no High**. Phase 8 HOLDS for maintainer sign-off.
+
+### Added
+- [`.working/deep-assessment/2026-07-18-r5.md`](../deep-assessment/2026-07-18-r5.md): the r5 per-run detail (findings, orchestrator source-re-verification, clean-surface proof-of-run).
+- [`TODO.md`](../../TODO.md) §3.98 (gate-61 `ValueError` guard, r5 Low-3) and §3.99 (parity-gate exclusion allow-lists + PR-only delta gates unguarded, r5 Low-4).
+
+### Changed
+- [`.working/deep-assessment/register.md`](../deep-assessment/register.md): r5 row added (Status in-progress, P7 routing this PR, P8 holds for sign-off) + the r5 per-run paragraph.
+- [`.working/pending-decisions.md`](../pending-decisions.md): a `## MORNING-REVIEW PENDING (2026-07-18 overnight run)` section carries the r5 sign-off hold and the Medium-1 CSA CCM SEF-02 remap decision (recommend SEF-07 "Incident Management and Response"; NOT applied unattended, a semantic-fit call on an expert-review-facing table).
+- [`TODO.md`](../../TODO.md) §1.16: noted the 3 additional COBIT carriers (APO02/07/11) + a DSS02 instance r5 confirmed (Low-1 folds in; the corpus-wide re-derive covers them, recount at build).
+
+### Verification
+- The two corpus findings re-verified at source by the orchestrator: SEF-02 corpus line verbatim at `security/sop-incident-escalation-matrix.md:97`; held SEF-02 title = "Service Management Policy and Procedures" (CCM CSV:601); gate count re-derived = 70. The worker's proof-of-run is genuine (path:line, disposable-clone mutation probe, SHA-reachability ladder), so the clean/zero-finding results are trusted (routine-consume + positives-re-verified).
+- **#1007 QA batch (recursion-avoidance) carried here:** the validate-pr-1007 SHIP row and the retro-1007 row.
+- Working-state only; no corpus, pack, tooling, or website content changed. Pre-push guard green.
+
 ## 2026-07-18, Library Version 2026.07.495, PR #1007
 
 §1.19.7 (c) the `/adopt` `.ref` bootstrap, completing the `_ref`-integration umbrella (the last §1.19 Phase-1 item; parts (a)+(b) shipped in #1006, the `_ref`-required loud gate in #1005, the `_ref` `acquisition` field in `grc_library_ref` #88). Also closes §1.12 (subsumed) and §3.18 (maintainer-decided), and queues three follow-ups surfaced by the #1006 fix.
