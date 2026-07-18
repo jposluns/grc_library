@@ -7854,12 +7854,22 @@ class AdoptPreflightGuardTests(unittest.TestCase):
         self.assertEqual(rc, 3)
         self.assertIn("REFUSED", out)
 
-    def test_live_repo_refuses_on_maintainer_clone(self) -> None:
-        # Smoke test the real classify() shell-out + parse: on this maintainer repo
-        # it classifies non-adopter, so the guard REFUSES (exit 3).
+    def test_live_repo_guard_consistent_with_classification(self) -> None:
+        # Smoke test the real classify() shell-out + parse. The guard's exit must be
+        # CONSISTENT with the live detect-env classification, which makes this test
+        # PORTABLE across clone types (TODO 1.20): rc 0 iff classify() == "adopter",
+        # else rc 3. A maintainer / fresh-machine / CI clone classifies non-adopter,
+        # so the guard REFUSES (rc 3); a genuine adopter clone classifies "adopter",
+        # so the guard PROCEEDS (rc 0); a failed / missing probe yields None, which is
+        # not "adopter", so the fail-safe REFUSE (rc 3) holds. The prior form hardcoded
+        # rc 3 and so failed on an actual adopter clone where rc 0 is correct.
         mod = self._load("_adopt_guard_live")
+        classification = mod.classify()
         rc, _ = self._main_rc(mod)
-        self.assertEqual(rc, 3)
+        if classification == "adopter":
+            self.assertEqual(rc, 0)
+        else:
+            self.assertEqual(rc, 3)
 
 
 if __name__ == "__main__":
