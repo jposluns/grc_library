@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.510, PR #1022
+
+The SEF-07 CSA CCM control-code remap (the deep-assessment r5 Medium-1 finding, maintainer-directed to `SEF-07` as the fresh-session first fix; pending-decisions morning-review item). A corpus citation correction.
+
+**The defect.** The incident-escalation SOP's `## Framework alignment` table cited `CSA CCM v4.1 | SEF-02: Incident Management`, and its row in the document-index register cited `CSA CCM SEF-02`. But held CSA CCM v4.1.0 (catalogue CSV:601) defines `SEF-02` as "Service Management Policy and Procedures", an IT-service-management control, not an incident-management one; the mislabel also invented the title "Incident Management". The correct control for a cloud-incident-escalation SOP is `SEF-07` "Incident Management and Response" (CSV:618: "Define, implement and evaluate processes, procedures and technical measures for timely and effective response to security incidents in accordance with incident categories and severity levels").
+
+**Scope discipline.** Corpus-wide grep found seven other `SEF-02` carriers; all were left untouched after verification: `compliance/matrix-grc-compliance-alignment.md:191,192` cite `SEF-02` for the IT-Service-Management framework and the Service-Level-Management standard (CORRECT, that is exactly what SEF-02 is); `security/procedure-security-incident-response.md:330` and `compliance/matrix-grc-compliance-alignment.md:147` cite `SEF-01, SEF-02, ...` in incident-management-policy contexts (SEF-02 defensible alongside SEF-01); the remaining carrier is a historical root-changelog entry. One separate candidate fit issue was noted for a future `/matrix-fit` pass, not fixed here (`operations/procedure-security-monitoring-and-alert-management.md:333` cites `SEF-02, SEF-03` for "Alert triage and response", where SEF-06 "Event Triage Processes" + SEF-07 would fit better); it is a distinct semantic-fit judgment, out of scope for this scoped r5 fix.
+
+### Changed
+- [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): `SEF-02: Incident Management` -> `SEF-07: Incident Management and Response` in the framework-alignment table. Version `1.2.6` -> `1.2.7`, Date -> 2026-07-18.
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md): the incident-escalation-matrix row's `CSA CCM SEF-02` -> `CSA CCM SEF-07`. Version `1.27.86` -> `1.27.87`, Date -> 2026-07-18.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md): regenerated for the two Version bumps (portal.md byte-identical).
+
+### Verification
+- The `SEF-07` title verified against the held CSA CCM v4.1.0 catalogue (`grc_library_ref/frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv:618`); `SEF-02` = "Service Management Policy and Procedures" (CSV:601) confirmed as the wrong control. `SEF-07` already exists in the gate-48 reference module, so gate 48 accepts it. A corpus-wide `SEF-02` grep confirmed no other incorrect carrier. Skeptical verifier + per-PR `/validate-pr` + `/retro`.
+
 ## 2026-07-18, Library Version 2026.07.509, PR #1021
 
 The Sweep 112 loop-break close-out and the first PR of the 2026-07-18 resumed session (`/resume` from #1020, on the VM, gh-CLI, daytime-unattended). Records the corpus-wide `/validate` that is the loop-break compensating control for session-closing handoff PR #1020 (which skipped its trailing `/validate-pr` + `/retro`). Working-state and version surfaces only; no corpus or website content changed.
