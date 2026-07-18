@@ -168,6 +168,15 @@ def main(argv: list[str] | None = None) -> int:
                     help="Include the software-tool / programme families (excluded by default).")
     args = ap.parse_args(argv)
 
+    # Adopter graceful-degradation (TODO 3.91): default ref-base (no --ref-base
+    # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter
+    # clone runs this maintainer-only advisory green rather than crashing. An explicit
+    # --ref-base that is bad still errors below (typo guard).
+    if args.ref_base == DEFAULT_REF_BASE and not (args.ref_base / "catalogue.yml").is_file():
+        print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
+              "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
+        return 0
+
     try:
         rows = parse_register(CANONICAL_REGISTER, args.include_tooling)
         titles = parse_catalogue_titles(args.ref_base.resolve())

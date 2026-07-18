@@ -95,6 +95,16 @@ def main(argv: list[str] | None = None) -> int:
                     help="Scan every --full-text.md in the reference base.")
     args = ap.parse_args(argv)
 
+    # Adopter graceful-degradation (TODO 3.91): no explicit --files and the default
+    # ref-base (no --ref-base override) with no grc_library_ref dir -> no-op exit 0, so
+    # a bare adopter clone runs this maintainer-only advisory green rather than crashing.
+    # An explicit --files or --ref-base still proceeds (and errors below on a bad path).
+    if (not args.files and args.ref_base == DEFAULT_REF_BASE
+            and not args.ref_base.is_dir()):
+        print("scan-publication-instruction-content: grc_library_ref not present; no-op "
+              "(publication-scan is a maintainer-only advisory, nothing to report).")
+        return 0
+
     try:
         if args.files:
             targets = list(args.files)

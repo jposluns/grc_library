@@ -8,18 +8,24 @@
 # three §1.19.2-scoped advisory tools (ref-holds, audit-brief-freshness,
 # audit-delivery-status) without a spurious error. The corpus' QA toolchain is
 # PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
-# private sibling repos. NOTE: further maintainer-cadence tools also reach
-# grc_library_ref (e.g. audit-claim-precision, audit-reference-breadth,
-# verify-reference-modules); wiring them for graceful degradation and adding them
-# to the advisory-tool loop below is tracked in TODO section 3.91.
+# private sibling repos. All six maintainer-cadence tools that also reach
+# grc_library_ref are now in the advisory-tool loop below (TODO section 3.91):
+# audit-reference-breadth, audit-reference-acquisition-gaps, and
+# scan-publication-instruction-content each raised on an absent reference base and were
+# fixed to a graceful no-op exit 0, while audit-claim-precision, verify-reference-modules,
+# and audit-register-currency already degraded (SKIP / advisory exit 0). SCOPE NOTE
+# (TODO section 3.90): this check exercises
+# the DEFAULT (relative) sibling-reach a bare adopter clone hits (a sibling absent
+# beside the clone); a tool reaching an ABSOLUTE sibling path (e.g. a worker's
+# /tmp/grc_library_ref) is out of this relative-clone model's scope and is covered by
+# the tool's own explicit-path handling, not by this loop.
 #
 # How it works: git-clones this repo's current HEAD into a fresh temp directory that
 # has NO sibling repos beside it, then (1) runs tools/run_all_audits.sh inside that
-# clone and asserts it passes, and (2) runs each sibling-reaching advisory tool
-# (ref-holds, audit-brief-freshness, audit-delivery-status) and asserts it degrades
-# to a graceful exit 0 (TODO 1.19.2), not an error. If any gate or advisory tool
-# reaches a sibling repo at runtime, the sibling is absent in the temp clone and the
-# tool fails, so this check fails LOUD.
+# clone and asserts it passes, and (2) runs each sibling-reaching advisory tool and
+# asserts it degrades to a graceful exit 0 (TODO 1.19.2), not an error. If any gate or
+# advisory tool reaches a sibling repo at runtime, the sibling is absent in the temp
+# clone and the tool fails, so this check fails LOUD.
 #
 # This is the LOCAL reproduction of what CI already does implicitly (a GitHub Actions
 # runner checks out grc_library alone, with no siblings), surfaced as an explicit,
@@ -72,7 +78,10 @@ rc=$?
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (TODO 1.19.2, 1.19.7) ..."
-for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py build-reference-manifest.py; do
+for tool in ref-holds.py audit-brief-freshness.py audit-delivery-status.py build-reference-manifest.py \
+            audit-reference-breadth.py audit-claim-precision.py verify-reference-modules.py \
+            audit-register-currency.py audit-reference-acquisition-gaps.py \
+            scan-publication-instruction-content.py; do
   if [ "$tool" = "ref-holds.py" ]; then
     ( cd "$CLONE" && python3 "tools/$tool" probe-query >/dev/null 2>&1 )
   else

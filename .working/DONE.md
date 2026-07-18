@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.91 (+ §3.90): sibling-reaching advisory-tool graceful degradation (2026-07-18, PR #1011)
+
+Closed §3.91: assessed all six maintainer-cadence tools that reach `grc_library_ref` and made the whole set adopter-portable. Three crashed on an absent reference base (`audit-reference-breadth`, `audit-reference-acquisition-gaps`, `scan-publication-instruction-content`) and were fixed to a graceful no-op exit 0 (default ref-base + absent -> no-op; explicit override still errors on a typo); the other three (`audit-claim-precision`, `verify-reference-modules`, `audit-register-currency`) already degraded. All six added to `check-portability.sh`'s degradation loop. Also closed §3.90 by documenting check-portability's relative-clone scope (an absolute-path sibling-reach is out of scope) in the script header.
+
 ### TODO §3.98: gate-61 external-path ValueError guard (2026-07-18, PR #1010)
 
 Closed §3.98 (a deep-assessment r5 Low-3 robustness nit): `tools/lint-cobit-iso31000-citations.py` guarded its findings-print `path.relative_to(REPO_ROOT)` with a `_display_path` helper that falls back to the absolute path for a target outside the repo, so a hand-invocation on an external file with a finding no longer raises `ValueError`. Cosmetic (never triggered in the runner/CI); + a regression test.
