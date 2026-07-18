@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.500, PR #1012
+
+Quebec Law 25 citation-accuracy escalation (working-state only; no corpus change). The §3.84 attempt to "correct" the Quebec Law 25 PIA citation "3.3" -> "23.3" was ABANDONED (not merged) when its pre-push skeptical verifier proved the premise INVERTED: **s. 3.3 is the correct in-force PIA-duty section**; "23.3" does not exist in P-39.1 (ss. 23/24 are the public-sector Act A-2.1). The held reference source's "23.3." header is PDF margin-note corruption (a stray digit from the rotated "2021, c. 25" annotation). Confirmed by the statute's own s. 3.4 cross-reference to "section 3.3", the clean alternating header series (3.2/3.4/3.6), and upstream CanLII. This fooled both the earlier orchestrator re-verification and the #973 worker QA.
+
+### Changed
+- [`.working/pending-decisions.md`](../pending-decisions.md): a HIGH/ESCALATION morning-review item records the finding, the SHIPPED "s. 23.3" error in [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md) lines 30 + 60 (from PR #973), the corrupted-source root cause, and the recommended maintainer-gated remediation (revert the annex to "s. 3.3" + re-ingest a clean source); §2.22 Canada apply is DEFERRED (blocked on this).
+- [`TODO.md`](../../TODO.md): §3.84 rewritten with the reversed premise (the 3 target docs correctly read "3.3" on main and are left as-is; the real error is the #973-shipped annex "23.3", maintainer-gated); new §3.100 to re-ingest a clean Quebec Law 25 P-39.1 source (the held PDF extract has margin-note-corrupted headers).
+
+### Verification
+- The correct section (3.3) was confirmed at the held statute's OWN running text (s. 3.4 body references "section 3.3"; the section after the PIA duty is header "3.4", not "23.4") plus the verifier's upstream CanLII check. The §3.84 corpus edits were reverted (the branch abandoned); `main`'s three §3.84 docs are unchanged at "3.3".
+- **#1011 QA batch (recursion-avoidance) carried here:** the validate-pr-1011 SHIP row + the retro-1011 row.
+- Working-state only; no corpus, pack, tooling, or website content changed. Pre-push guard green.
+
+### Discipline observation
+- A held PDF-extract header can be corrupted; two separate held-source verifications (the #973 worker + the orchestrator's own §3.84 re-verification) were fooled by reading the corrupted "23.3." header at face value. The catch came from the skeptical verifier cross-checking the statute's INTERNAL cross-references + the upstream source, not the extracted header. Lesson folded into §3.100 and the retro.
+
 ## 2026-07-18, Library Version 2026.07.499, PR #1011
 
 Sibling-reaching advisory-tool graceful degradation (TODO §3.91) + check-portability scope note (TODO §3.90). Assessed all six maintainer-cadence tools that reach `grc_library_ref` for adopter portability; three crashed on an absent reference base and were fixed, the other three already degraded.
