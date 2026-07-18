@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-18, Library Version 2026.07.499, PR #1011
+
+Sibling-reaching advisory-tool graceful degradation (TODO §3.91) + check-portability scope note (TODO §3.90). Assessed all six maintainer-cadence tools that reach `grc_library_ref` for adopter portability; three crashed on an absent reference base and were fixed, the other three already degraded.
+
+### Changed
+- Graceful no-op exit 0 on an absent DEFAULT reference base (adopter clone), added to [`tools/audit-reference-breadth.py`](../../tools/audit-reference-breadth.py), [`tools/audit-reference-acquisition-gaps.py`](../../tools/audit-reference-acquisition-gaps.py), and [`tools/scan-publication-instruction-content.py`](../../tools/scan-publication-instruction-content.py) (each previously raised `RuntimeError`). The guard fires only for the default ref-base with no override; an explicit `--ref-base`/`--files` still proceeds and errors on a typo (typo guard preserved). Already-graceful (unchanged): `audit-claim-precision`, `verify-reference-modules`, `audit-register-currency` (SKIP / advisory exit 0).
+- [`tools/check-portability.sh`](../../tools/check-portability.sh): all six tools added to the degradation loop; the header documents the relative-clone scope (§3.90: an absolute-path sibling-reach is out of this loop's scope, covered by each tool's own explicit-path handling).
+
+### Verification
+- All six tools confirmed to no-op exit 0 in a sibling-free clone and to proceed normally with `_ref` present (the fixed three re-verified both ways). `check-portability.sh` re-run post-commit. All 71 gates green; pre-push guard PASS.
+- Ground-truth-first: each tool was RUN sibling-free before editing (evidence, not inference); the §3.91 item's full six-tool enumeration was used, not the check-portability header's partial three-tool list.
+- **#1010 QA batch (recursion-avoidance) carried here:** the validate-pr-1010 SHIP row + the retro-1010 row.
+- Tooling only; no corpus, pack, or website content changed.
+
 ## 2026-07-18, Library Version 2026.07.498, PR #1010
 
 Gate 61 external-path robustness guard (TODO §3.98, deep-assessment r5 Low-3). A cosmetic-only nit: the findings-print loop of [`tools/lint-cobit-iso31000-citations.py`](../../tools/lint-cobit-iso31000-citations.py) called `path.relative_to(REPO_ROOT)` unguarded, which raises `ValueError` on a target outside the repo (a hand-invocation with a finding). Never triggered in the runner/CI (always repo-relative), but fixed for robustness.
