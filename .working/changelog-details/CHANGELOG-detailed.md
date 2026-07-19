@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.539, PR #1051
+
+The mandatory-offload guardrail: a primordial-tier orchestration rule + an operational section + a PreToolUse hook, after the orchestrator repeatedly self-ran offloadable `/validate-pr` passes while live workers sat idle (spending scarce, slow-to-renew orchestrator credits). Worker-drafted (worker-20260716-b), orchestrator-verified and applied.
+
+### Added
+- **CLAUDE.md primordial-tier rule** `## PRIMORDIAL RULE (orchestration): you are the orchestrator, orchestrate` (near the top, subordinate only to the AIQT tier): worker-level work goes to an available worker; the orchestrator does it itself only with explicit maintainer authorization or when no worker can. Carries the worker-level-vs-orchestration split.
+- **CLAUDE.md `## Mandatory worker offload` operational section:** the two-part hard rule (use a live worker, or alert the maintainer / get authorization when none is live), the offloadable set, the worker-elasticity corollary (workers are elastic, the orchestrator is the scarce singleton, so proactively request more), and the pre-push-verifier-to-workers decision (sequenced with the §3.87 transport).
+- **New PreToolUse hook** [`block-mandatory-offload.py`](../../.claude/hooks/block-mandatory-offload.py): on a Task/Agent dispatch, BLOCKS (exit 2) a self-run of an offloadable QA pass while at least one worker is live; WARNS on zero workers; override-first detection allows the critical-path pre-push / high-assurance verifiers; fail-open; stdlib-only; `--self-test` 9 cases. Wired on a `Task|Agent` PreToolUse matcher in [`settings.json`](../../.claude/settings.json); a self-test fixture added to [`tests/test_linters.py`](../../tests/test_linters.py).
+
+### Changed
+- **TODO §3.87** bumped to near-term (the transport is the throughput enabler under offload-everything) with the evolved `/home/grc/grc_working` per-model-family file-drop design, captured in the `_private` design-of-record.
+
+### Fixed
+- The PR #1050 in-window cosmetic note: the decision-guardrail parenthetical glossed 4 of the hook's 5 deferral markers; added the space-form `wind down`.
+
+### Verification
+- Hook `--self-test` 9/9 rc 0 (re-run at apply and after the fixes); the `__file__`-relative fallback path replaces the worker's placeholder (move-safe). The full audit suite (72 gates) green; pre-push guard run standalone.
+- **The pre-push skeptical verify of THIS diff was OFFLOADED to a worker (worker-20260716-a; the first live practice of the new mandatory-offload rule, and of the pre-push-verifier-to-workers decision) and CAUGHT a real defect the orchestrator missed, validating the approach.** It returned SHIP with 1 MEDIUM + 2 LOW, ALL FIXED in-window before merge (re-verified at source under elevated QA): F1 (MEDIUM) the two offloadable enumerations this PR added disagreed (the primordial-rule split listed `/full-qa` but omitted `verify`; the operational section listed `verify` but omitted `/full-qa`), harmonized both to the authoritative set (`verify` AND `/full-qa`); F2 (LOW) documented in the hook docstring that a bare `verify` is intentionally not mechanically detected (it is both the offloaded verify and the always-allowed pre-push verifier); F3 (LOW) dropped an unused `import time`.
+- The PR #1050 `/validate-pr` (self-run Subagent A) returned SHIP 0 material findings + 1 cosmetic note (fixed here); its history + retro rows batch into this PR.
+
+### Worker provenance
+- Candidate hook + rule text + wiring drafted by worker-20260716-b (its scratch inbox delivery), re-verified and re-authored by the orchestrator. Apply-time corrections: (1) the pre-push-verifier "open boundary question" reworded to the maintainer's DECISION (moves to workers, sequenced with the transport); (2) the placeholder fallback path replaced with a `__file__`-relative resolution.
+
 ## 2026-07-19, Library Version 2026.07.538, PR #1050
 
 Public tail of the credit-offload liveness bundle (whose scratch and `_private` halves landed separately: scratch PR #173 for the idle-liveness heartbeat plus the progress / session-start registry fields, and two `grc_library_private` direct pushes for the design-of-record and the elevated-QA-window change), plus the follow-ups the PR #1049 `/validate-pr` surfaced.
