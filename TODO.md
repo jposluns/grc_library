@@ -130,7 +130,7 @@ The maintainer added the CCPA statute version effective 2026-01-01 to `grc_libra
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.102.**
+**Next item number: 3.103.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -411,6 +411,10 @@ The held Quebec P-39.1 extract in `grc_library_ref` carries PDF margin-note corr
 ### 3.101 D7 handoff-snapshot check is a silent no-op on the current two-line handoff format (1.19.8 finding, 2026-07-18, S) `[machinery]`
 
 D7 (`check-handoff-snapshot-on-pr.py`) reads the first line carrying the `Current truth` marker and greps THAT line for labelled version tokens (library, pack, audit-spec, guardrail-history, improvement-log). But the current handoff format puts those tokens on a SEPARATE `Version snapshot (D7 validates these tokens)` sub-line, so `snapshot_line()` returns the marker line (which has no tokens) and D7 reports `0 labelled version token(s)` on every run, a silent no-op (confirmed empirically at the #1028 pre-push guard). The `Version snapshot` label's claim that D7 validates the tokens is therefore currently false; the manual reconcile-the-snapshot convention is the only live guard. Fix: make `snapshot_line()` (or a new helper) locate the `Version snapshot` sub-line under the first `Current truth` block, or scan that whole block for tokens; then confirm D7 fails on a deliberately-stale token and add a regression fixture. Discovered when #1028 touched the handoff and the guard's D7 passed with zero tokens checked.
+
+### 3.102 Pack-distribute the degradation-auto-handoff discipline (maintainer-directed 2026-07-19, S) `[machinery]`
+
+The project CLAUDE.md now codifies (in the `## No idle-stop in unattended mode` area) that a genuine named-degradation trigger in UNATTENDED mode must WIND DOWN PROPERLY, execute a session-closing handoff (green merge + full handoff refresh + lease release), NOT a bare mid-turn "pause", because the wind-down framework's surface-via-`AskUserQuestion` path is blocked in unattended mode, so a degradation signal there needs the automatic session-closing handoff instead. This is the project instantiation; the PORTABLE form belongs in the pack [`session-lifecycle.md`](dev-security/claude-rules/governance/session-lifecycle.md) rule (§4 wind-down / §5 closing handoff): add that on a degradation trigger the UNATTENDED path is the automatic session-closing handoff (the attended path stays surface-the-choice). Edit BOTH the pack body and the `.claude/rules/` overlay copy (gate 37 parity), bump the pack Version + its README version-history row, and keep the discipline description in sync. Motivated by the 2026-07-19 overnight run, where the assistant hit a repeated-command-composition degradation signal and PAUSED mid-turn instead of closing out, leaving the maintainer a harder resume (the maintainer flagged it: "if you had issues you should have wound down to make it easier for me to resume").
 
 ## Priority 4 — Adopter experience
 

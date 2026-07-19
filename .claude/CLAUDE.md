@@ -1236,6 +1236,24 @@ slips, or any defect the guard or verifier catches before it escapes, are the ve
 layer working, not a degradation signal. (Codified after the 2026-07-06 overnight run stopped
 to ask the maintainer which authorized P2 item to take, idling the run.)
 
+**On a genuine named-degradation trigger in unattended mode, WIND DOWN PROPERLY, do not
+"pause" mid-turn (maintainer-directed 2026-07-19).** When the stop condition is (a) above (a
+real, quotable degradation signal: repeated observable errors, a self-inconsistency, a defect
+the QA layer missed), the correct action is a full **session-closing handoff**, not a bare
+"I'll pause here": land the working state on `main` as a green, merged PR AND refresh the
+handoff record (`session-handoff.md` Next-actions + State-snapshot + Asserted-expectations,
+the green-at-`<sha>` line, the lease RELEASE), so the next `/resume` rebuilds cleanly from
+`main`. This requires NO `AskUserQuestion` (which the unattended hook blocks anyway): the
+session-closing handoff IS the conservative, reversible, no-regret action, so it is taken
+directly. The wind-down framework's "surface the choice via `AskUserQuestion`" path is the
+ATTENDED path; the UNATTENDED path on a degradation trigger is this automatic
+session-closing handoff. A bare mid-turn pause (an unmerged feature branch, state only
+half-recorded) is the FAILURE this codifies against: it leaves the maintainer a harder
+resume, the exact problem flagged on the 2026-07-19 overnight run (the assistant hit a
+repeated-command-composition degradation signal and paused instead of closing out). Rule of
+thumb: if you are about to write "I'm pausing / stopping here" in an unattended run, you are
+instead obligated to execute the session-closing handoff PR first.
+
 **Mechanical backstop (never a blocking prompt in unattended mode).** The session's mode is
 recorded in the `**Operating-mode:**` field of
 [`.working/session-state.md`](../.working/session-state.md) (gate-63-validated:
@@ -1534,7 +1552,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   `credit-offload-queue.py` from the `grc_library` cwd), naming the correct repo. It ALLOWS
   any command with an explicit `cd` (so the `cd /home/jposluns/<repo> &&` habit satisfies it),
   which is why a bare sibling-tool invocation relying on a persisted cwd is (fail-safely)
-  blocked, run scratch/`_ref`/`_private` tools with an explicit `cd` prefix.
+  blocked; run scratch/`_ref`/`_private` tools with an explicit `cd` prefix.
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value (date,
