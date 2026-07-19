@@ -6,12 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.530, PR #1042
+
+Adds the wrong-repo tool guardrail (TODO §1.22.1, maintainer-directed 2026-07-19) after the orchestrator ran the scratch-side credit-offload-queue helper from the `grc_library` cwd (a silent file-not-found from the wrong repo). Tooling, assistant-guidance, and working-state only; no corpus or website content changed.
+
+### Added
+- [`.claude/hooks/block-wrong-repo-tool.py`](../../.claude/hooks/block-wrong-repo-tool.py): a PreToolUse Bash hook that inspects the command, and for each `tools/<name>.(py|sh)` invoked at command position that is ABSENT in the project repo's tools dir but PRESENT in a sibling repo's, BLOCKS (exit 2) naming the correct repo. Allows any command containing an explicit `cd` (the author is managing cwd deliberately), a tool that exists locally, a tool absent everywhere (new-tool creation), and a filename mentioned only as an argument. Fail-open, adopter-safe (no-op if no sibling tools dirs). 8 inline self-tests, all pass.
+
+### Changed
+- [`.claude/settings.json`](../../.claude/settings.json): wired the hook as a second Bash PreToolUse hook (alongside the pipe-guard).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the read-side-companion note to the §1.15a cross-repo Boundaries bullet (run scratch / `_ref` / `_private` tools with an explicit `cd` prefix, which the hook allows).
+- [`TODO.md`](../../TODO.md): rotated §1.22.1 out (closed here, into DONE); refined §3.87 (the unix-socket transport) with the maintainer-directed 2026-07-19 assessment (worth building; the turn-based-session -> broker-daemon constraint; single `orchestrator.sock` client-server vs per-instance sockets; scratch reduced-not-eliminated for cross-VM + audit; shared read-only SHA-pinned worktrees vs an unsafe shared live repo; a phased build).
+
+### Also carries (recursion-avoidance)
+PR #1041's `/retro` row (in [`improvement-log.md`](../improvement-log.md)). PR #1041's `/validate-pr` row is OFFLOADED to worker-a (order `validate-pr-1041`, pinned to #1041's merge SHA) and is consumed into this PR at push time under elevated QA (worker-a's first QA delivery this session).
+
+### Discipline observation (self-inflicted, self-caught, no escape)
+While mid-build I ran `git fetch && git reset --hard origin/main` on this FEATURE BRANCH, applying the scratch-checkout-sync reflex (correct for the wipeable scratch checkout) to a feature branch with uncommitted work, which reverted the settings.json wiring (the untracked hook file survived; no commits were lost since the branch had none). Recovered by re-adding the wiring and committing the core immediately. Lesson: the `git reset --hard origin/main` sync pattern is ONLY for the scratch checkout; NEVER run it on a `grc_library` feature branch (it discards uncommitted work). This is the exact cross-context-command hazard the §1.15a / §1.22.1 guardrails address, ironically hit while building §1.22.1; recorded for the retro.
+
+### Verification
+- Hook `--self-test`: 8/8 pass. End-to-end: the exact slip (running the scratch-side credit-offload-queue helper from the `grc_library` cwd) BLOCKS naming the `grc_library_scratch` sibling; a local tool and a `cd`-prefixed command ALLOW. The hook fired correctly in production on a real scratch-tool invocation during this session.
+- `tools/run_all_audits.sh` + the pre-push guard green; the settings file parses as valid JSON.
+
 ## 2026-07-19, Library Version 2026.07.529, PR #1041
 
 Adds the answered-question guardrail (TODO section 1.22.6, maintainer-directed 2026-07-19) after the assistant re-asked the maintainer four content forks (section 3.68 vuln-SLA, section 3.69 MFA scope, section 3.70 asymmetric-key minimums, the standards-rendering item) whose decisions were already recorded in the pending-decisions queue. Assistant-guidance, tooling, and working-state only; no corpus or website content changed.
 
 ### Added
-- [`.claude/hooks/block-answered-question.py`](../../.claude/hooks/block-answered-question.py): a PreToolUse hook on `AskUserQuestion` that extracts a question's distinctive keys (section numbers written with the section glyph or the word "section", and coded backlog ids like `FR-205`), greps the decision stores (the pending-decisions queue, the private design-decisions record, and the DONE ledger), and BLOCKS (exit 2) the question when a key already appears, printing the matched store line. Fail-open on parse/read failure or absent stores (adopter-safe). 10 inline self-tests (`--self-test`), all pass.
+- [`.claude/hooks/block-answered-question.py`](../../.claude/hooks/block-answered-question.py): a PreToolUse hook on `AskUserQuestion` that extracts a question's distinctive keys (section numbers written with the section glyph or the word "section", and coded backlog ids like `FR-205`), greps the decision stores (the pending-decisions queue, the private design-decisions record, and the DONE ledger), and BLOCKS (exit 2) the question when a key already appears, printing the matched store line. Fail-open on parse/read failure or absent stores (adopter-safe). 12 inline self-tests (`--self-test`), all pass.
 - [`tools/decisions-search.py`](../../tools/decisions-search.py): the on-demand forcing-function search (a section number, a coded id, or a free-text phrase); the same executed-not-narrated pattern as the audit-delivery-status and ref-holds tools. Stdlib-only.
 
 ### Changed
@@ -22,7 +44,7 @@ Adds the answered-question guardrail (TODO section 1.22.6, maintainer-directed 2
 - [`.working/DONE.md`](../DONE.md): rotated section 1.22.6 in.
 
 ### Verification
-- Hook `--self-test`: 12/12 pass (2 added by the verifier fix). End-to-end: a `§3.69` question BLOCKS (exit 2, prints the recorded MFA decision); a novel key-free question ALLOWS (exit 0); a novel `SEF-07` control-code question ALLOWS (exit 0, the over-block fix); `FR-205` still BLOCKS (exit 2). `decisions-search.py 3.69` returns the two recorded lines (exit 0); `3.999` returns none (exit 1).
+- Hook `--self-test`: 12/12 pass (2 added by the verifier fix). End-to-end: a `§3.69` question BLOCKS (exit 2, prints the recorded MFA decision); a novel key-free question ALLOWS (exit 0); a novel `SEF-07` control-code question ALLOWS (exit 0, the over-block fix); `FR-205` still BLOCKS (exit 2). `decisions-search.py 3.69` returns the recorded decision lines (exit 0); `3.999` returns none (exit 1).
 - **Skeptical verifier (substantive/protective machinery) run pre-push: no push-blocking defect, but it surfaced a real over-block class, FIXED here.** The coded-id regex was `[A-Z]{1,4}-\d+`, which matched corpus control codes (`SEF-07`, `IAM-09`) and hyphen-numeric statute codes (`A-2.1`), so a genuinely novel security/privacy question mentioning one would be false-blocked. Tightened to the known backlog-id prefixes (`FR`/`SR`/`GR`/`DD`/`RB`/`FIT`/`FQ`/`GAP`/`P`); section-number detection covers the rest. Also documented the verifier's second residual (the live `AskUserQuestion` payload schema is unverified from here; if it nests questions differently the hook fail-opens to a no-op, so the CLAUDE.md discipline and the on-demand decisions-search tool are the load-bearing control and the hook is defence-in-depth).
 - `tools/run_all_audits.sh` and the pre-push guard green (the first guard run correctly FAILED on the gate-50 finding below, which this PR then fixed); the settings file parses as valid JSON.
 

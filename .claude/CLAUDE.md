@@ -1527,7 +1527,14 @@ the last commit before push (bump library CalVer and the README Version field)?
   `tools/repo-guard.sh <repo> -- <cmd>`, which refuses on a mismatch), and the
   absolute-path prefix for Write/Edit; prefix git sequences with an explicit
   `cd /home/jposluns/<repo> &&`. The mechanical wrapper is `tools/repo-guard.sh` (§1.15a
-  part (a), shipped #1013); this line is the standing convention (part (b)).
+  part (a), shipped #1013); this line is the standing convention (part (b)). The READ-side
+  companion is the [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) PreToolUse
+  Bash hook (§1.22.1, shipped #1042): it blocks a cwd-relative `tools/<x>` invocation absent
+  in the project repo but present in a sibling (e.g. running the scratch-side
+  `credit-offload-queue.py` from the `grc_library` cwd), naming the correct repo. It ALLOWS
+  any command with an explicit `cd` (so the `cd /home/jposluns/<repo> &&` habit satisfies it),
+  which is why a bare sibling-tool invocation relying on a persisted cwd is (fail-safely)
+  blocked, run scratch/`_ref`/`_private` tools with an explicit `cd` prefix.
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value (date,
