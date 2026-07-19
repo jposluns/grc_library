@@ -122,7 +122,7 @@ orchestration runbook") and defers to the INDEX for the file.
   stay available so the clone remediation works), and `tools/pre-push-guard.sh` refuses the push.
 - **Adopter** (`detect-env` identity `adopter`): `_private` is legitimately absent (it is the
   maintainer's private store). You are OFFERED a choice, never blocked: point your own operational
-  store at `../grc_library_private`, use the in-repo `.private` placeholder, or create your own
+  store at `../grc_library_private`, have `/adopt` create an in-repo `.private` stub, or create your own
   from the concerns this directive names above. Nothing in `_private` is required to use the corpus or run
   the public gates.
 

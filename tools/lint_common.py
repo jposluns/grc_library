@@ -69,11 +69,13 @@ DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
         "__pycache__",
         ".claude",
         ".working",
-        # In-repo sibling-repo placeholders (TODO section 1.19.3): stub dirs that
-        # stand in for the grc_library_ref / grc_library_scratch / grc_library_private
-        # siblings when they are absent (an adopter clone). Each holds only a README
-        # stub; the dedicated stub-guard gate (lint-sibling-placeholders.py) enforces
-        # that, so the content gates exempt them here.
+        # In-repo sibling-repo placeholder slots (TODO section 1.22.2): OPTIONAL
+        # stand-ins for the grc_library_ref / grc_library_scratch / grc_library_private
+        # siblings. They are NOT shipped by default (the maintainer runs the real
+        # siblings; an adopter opts into an in-repo stub via /adopt), so these are
+        # normally absent. Kept exempt so that IF an adopter materializes one (as a
+        # README-only stub, which the stub-guard gate lint-sibling-placeholders.py
+        # keeps payload-free, or as a functional checkout), the content gates skip it.
         ".ref",
         ".scratch",
         ".private",
@@ -92,14 +94,15 @@ _SIBLING_REPO_DIRS: dict[str, str] = {
 
 
 def sibling_placeholder_present(name: str) -> bool:
-    """Return True if the in-repo ``.<name>`` placeholder stub is present.
+    """Return True if an in-repo ``.<name>`` placeholder directory is present.
 
-    ``name`` is a short sibling name (``ref`` / ``scratch`` / ``private``).
-    A portable ``grc_library`` clone always ships the committed ``.<name>``
-    stub (the sibling-repo stub-guard gate keeps it a stub), so this being
-    True is the signal that a ``None`` from :func:`resolve_sibling` is the
-    EXPECTED portable-clone state (an advisory tool no-ops), not a broken
-    checkout. Raises ``ValueError`` on an unknown name.
+    ``name`` is a short sibling name (``ref`` / ``scratch`` / ``private``). The
+    in-repo ``.<name>`` slot is NOT shipped by default (the maintainer runs the
+    real siblings; an adopter may create an in-repo stub via ``/adopt``), so this
+    is normally False. When True (an adopter opted into the in-repo stub model), a
+    ``None`` from :func:`resolve_sibling` is the EXPECTED portable-clone state (an
+    advisory tool no-ops), not a broken checkout. Raises ``ValueError`` on an
+    unknown name.
     """
     if name not in _SIBLING_REPO_DIRS:
         raise ValueError(

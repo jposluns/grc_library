@@ -7139,13 +7139,17 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
 
 
 class SiblingPlaceholderTests(LinterTestCase):
-    """tools/lint-sibling-placeholders.py (gate 70)
+    """tools/lint-sibling-placeholders.py (gate 70), guard-if-present-as-stub.
 
-    The in-repo .ref/.scratch/.private sibling-repo placeholders must stay
-    stub-only: each dir exactly one README.md, whose first line is the
-    SIBLING-PLACEHOLDER marker, capped at 25 lines. Guards against reference,
-    worker-exchange, or private-operational payload leaking into the public
-    repo through the placeholders (TODO section 1.19.4).
+    The in-repo .ref/.scratch/.private slots are NOT shipped in the public repo
+    (the real siblings are separate repos; an adopter opts into an in-repo stub
+    only via /adopt). So the gate is guard-if-present-as-stub: an ABSENT slot is
+    OK; a slot DECLARED a stub (README.md whose first line is the
+    SIBLING-PLACEHOLDER marker) must stay stub-only (exactly one README.md,
+    capped at 25 lines, no payload); a slot present but NOT a declared stub (a
+    functional directory) is out of scope. Guards against reference,
+    worker-exchange, or private-operational payload leaking into an
+    adopter-created stub (TODO section 1.22.2).
     """
 
     GOOD_STUB = "<!-- SIBLING-PLACEHOLDER: ref -->\n# `.ref` placeholder\n\nStub.\n"
@@ -7154,8 +7158,8 @@ class SiblingPlaceholderTests(LinterTestCase):
         result = run_linter("tools/lint-sibling-placeholders.py")
         self.assertEqual(
             result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD; the "
-            f".ref/.scratch/.private placeholders should be well-formed stubs.\n"
+            f"linter exited {result.returncode} on HEAD; each .ref/.scratch/"
+            f".private slot should be absent, functional, or a well-formed stub.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
@@ -7183,11 +7187,12 @@ class SiblingPlaceholderTests(LinterTestCase):
         d = self._mk({"README.md": self.GOOD_STUB})
         self.assertEqual(mod.check_placeholder(d, "ref"), [])
 
-    def test_missing_dir_flagged(self) -> None:
+    def test_missing_dir_ok(self) -> None:
         mod = self._load_module()
         missing = Path(tempfile.mkdtemp()) / ".ref"  # deliberately not created
-        findings = mod.check_placeholder(missing, "ref")
-        self.assertTrue(any("missing" in f for f in findings), findings)
+        # Absent slot is fine (guard-if-present): the dirs are not shipped in the
+        # public repo; the maintainer runs real siblings, an adopter opts in via /adopt.
+        self.assertEqual(mod.check_placeholder(missing, "ref"), [])
 
     def test_extra_payload_file_flagged(self) -> None:
         mod = self._load_module()
@@ -7195,17 +7200,24 @@ class SiblingPlaceholderTests(LinterTestCase):
         findings = mod.check_placeholder(d, "ref")
         self.assertTrue(any("PAYLOAD.txt" in f for f in findings), findings)
 
-    def test_missing_marker_flagged(self) -> None:
+    def test_unmarked_readme_dir_skipped(self) -> None:
         mod = self._load_module()
+        # A README without the marker is NOT a declared stub -> out of scope (no finding).
         d = self._mk({"README.md": "# no marker here\n\nstub\n"})
-        findings = mod.check_placeholder(d, "ref")
-        self.assertTrue(any("marker" in f for f in findings), findings)
+        self.assertEqual(mod.check_placeholder(d, "ref"), [])
 
-    def test_wrong_marker_token_flagged(self) -> None:
+    def test_wrong_marker_token_skipped(self) -> None:
         mod = self._load_module()
+        # A README marked for a DIFFERENT slot is not THIS slot's declared stub -> out of scope.
         d = self._mk({"README.md": "<!-- SIBLING-PLACEHOLDER: scratch -->\nstub\n"})
-        findings = mod.check_placeholder(d, "ref")  # token mismatch vs the marker
-        self.assertTrue(any("marker" in f for f in findings), findings)
+        self.assertEqual(mod.check_placeholder(d, "ref"), [])
+
+    def test_functional_dir_skipped(self) -> None:
+        mod = self._load_module()
+        # An adopter's functional directory (real sibling content, no marked
+        # README) is the /adopt "functional directory" case: out of gate scope.
+        d = self._mk({"catalogue.yml": "items: []\n", "INDEX.md": "# real ref content\n"})
+        self.assertEqual(mod.check_placeholder(d, "ref"), [])
 
     def test_too_long_readme_flagged(self) -> None:
         mod = self._load_module()
@@ -7626,7 +7638,7 @@ class AdoptBootstrapRefTests(unittest.TestCase):
         mod = self._load("_adopt_render")
         plan = mod.categorize(mod.parse_manifest(self._FAKE))
         text = mod._render_text(plan)
-        self.assertIn("NEVER into the in-repo .ref stub", text)      # copyright/stub guardrail
+        self.assertIn("NEVER into an in-repo .ref STUB", text)       # copyright/stub guardrail
         self.assertIn("NEVER redistribute LICENSED", text)
         self.assertIn("4 trusted-bucket source(s)", text)
 

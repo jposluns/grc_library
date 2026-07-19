@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.22.2: root .directories cleanup, delete the sibling stubs + gate-70 guard-if-present (2026-07-19, PR #1047)
+Deleted the three in-repo `.ref/`, `.private/`, `.scratch/` placeholder stub directories from the public repo root (public-facing cleanup: they made the separate sibling repos look shipped), and changed gate 70 from must-exist to guard-if-present-as-stub (absent = OK; a present marked stub is shape-checked for payload creep; a present functional directory is out of scope). `/adopt` now creates the in-repo stubs on request instead of shipping them; reframed the gate-70 §5/§6 spec, the `SiblingPlaceholderTests` fixture (8 tests), `lint_common`, `detect-env`, the `/adopt` skill/command/bootstrap, and the CLAUDE.md adopter note to match. Confirmed `resolve_sibling` is read-only (never writes to a placeholder). The expanded scope of the original §1.22.2 (a README reword) per the maintainer's 2026-07-19 delete directive.
+
 ### Self-guard bundle: intent-vs-action hooks + degradation-watch guard (2026-07-19, PR #1045)
 Maintainer-directed (not previously in TODO): two PreToolUse hooks (a repeat-block loop-breaker that refuses a byte-identical resubmission of a just-blocked command, and a diagnosis circuit-breaker) + read-back / intent-is-not-action CLAUDE.md disciplines + an evidence-based degradation-watch log in the private companion repo (threshold: a session is not long or heavy unless a few hours AND at least one compaction). Guards against the 2026-07-19 substitute-intent-for-action slips (the seven-times-resubmit loop and the reflex session-length narrative). Also fixes 3 #1044-escape stale cross-file pointers.
 

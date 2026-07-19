@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.535, PR #1047
+
+Root `.directories` cleanup (TODO section 1.22.2, the maintainer's 2026-07-19 delete directive, which expanded the original README-reword scope). The three in-repo sibling placeholder stub directories are removed from the public repo root because the sibling repositories are SEPARATE repos beside this one at origin, not shipped inside it; the public root should not carry stub dirs that make them look shipped. No corpus content or website changed.
+
+### Removed
+- The three in-repo placeholder stub directories `.ref/`, `.private/`, `.scratch/` (each was a single marker-stamped README file). The real siblings (`grc_library_ref` / `grc_library_scratch` / `grc_library_private`) are separate repos; the maintainer runs them beside this clone, and an adopter opts into an in-repo stub via `/adopt` rather than receiving a shipped one.
+
+### Changed
+- [`tools/lint-sibling-placeholders.py`](../../tools/lint-sibling-placeholders.py) (gate 70) from must-exist to GUARD-IF-PRESENT-AS-STUB: an ABSENT slot is OK (no finding); a slot PRESENT and declaring itself a stub (a README file whose first line is the `<!-- SIBLING-PLACEHOLDER: <name> -->` marker) is still enforced stub-shape (exactly one README file, within 25 lines) so an adopter-created stub cannot grow into payload; a slot PRESENT but NOT a declared stub (a functional sibling checkout) is out of scope. The gate now passes trivially in the maintainer repo (all three absent) and is really a post-adoption payload-creep guard for an adopter on the in-repo stub model.
+- The gate-70 regression fixture [`tests/test_linters.py`](../../tests/test_linters.py) (`SiblingPlaceholderTests`, 8 tests): the missing-dir / missing-marker / wrong-token cases flip from flagged to OK-or-skipped, a functional-dir skip case is added, and the marked-stub payload-creep and over-length cases are retained.
+- The gate-70 §5 grouped-list and §6 detailed-prose in [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) reworded to guard-if-present-as-stub (Version 1.17.14).
+- [`/adopt`](../../.claude/commands/adopt.md) now CREATES the in-repo stubs on request (self-contained model) instead of keeping shipped ones, and offers a functional-in-repo-sibling option; reframed across the pack skill [`dev-security/claude-rules/skills/adopt/SKILL.md`](../../dev-security/claude-rules/skills/adopt/SKILL.md) (pack `1.62.3`), the command stub, and the bootstrap planner [`tools/adopt-bootstrap-ref.py`](../../tools/adopt-bootstrap-ref.py).
+- [`tools/lint_common.py`](../../tools/lint_common.py) `DEFAULT_EXEMPT_DIRS` comment + `sibling_placeholder_present` docstring (the slots are no longer always shipped, kept exempt so an adopter-materialized slot is still skipped by the content gates), [`tools/detect-env.py`](../../tools/detect-env.py) adopter messages, and the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) adopter note all reframed. `resolve_sibling` confirmed read-only (never writes to a placeholder), satisfying the original §1.22.2 confirmation.
+
+### Also carries (recursion-avoidance)
+The PR #1046 `/validate-pr` (CLEAN, 0 findings) history row and the PR #1046 `/retro` row (which captured the maintainer's PR-splitting calibration feedback as the lesson).
+
+### Verification
+- `tools/run_all_audits.sh` green (72/72; gate 70 passes with the slots absent, the `SiblingPlaceholderTests` fixture is 8/8, and the `AdoptBootstrapRefTests` guardrail assertion was updated to the reworded message). The pre-push guard (D1-D8 + the history-aware trio) green.
+
 ## 2026-07-19, Library Version 2026.07.534, PR #1046
 
 Lands the PR #1045 quality-assurance batch (recursion-avoidance) and two maintainer-requested backlog captures. Working-state and backlog only; no corpus or website content changed.
