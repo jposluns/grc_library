@@ -190,7 +190,7 @@ drive end-to-end on the maintainer's behalf:
    `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
    STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
    other pipe or truncating sink): a pipe masks the exit code so the dependent action
-   proceeds past a failure, the RM-10 failure shape. When long output must be tamed, use the fail-loud wrapper
+   proceeds past a failure. When long output must be tamed, use the fail-loud wrapper
    [`tools/tail-safe.sh`](../tools/tail-safe.sh) (preserves the exit code) or redirect to
    a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
    [`.claude/hooks/block-verification-pipes.py`](hooks/block-verification-pipes.py)
@@ -747,7 +747,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   version into `grc_library_ref`; keep the old but move its files, extracted text plus original, into
   `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored layout and
   `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the index docs).
- 
+
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or
   egress is blocked), **pause and ask the maintainer.** On no
   response, apply the graceful-degradation default: defer the current item and move on to
