@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.69: harmonize MFA scope across the three governing security docs to the type-anchored form (2026-07-19, PR #1053)
+Applied the maintainer's decided FR-205 MFA-scope harmonization to the type-anchored wording across the authentication standard (section 5), the IAM policy (clause 4.2.1), and the information-security policy (clause 4.3.2): MFA required for all user / interactive accounts and all remote access; non-interactive service accounts exempt where documented and approved; other exceptions case-by-case with compensating controls; phishing-resistant for privileged. The umbrella info-sec clause kept terse (the interactive type-anchor already scopes out service accounts; the exemption detail lives in the two governed docs). Worker-drafted (worker-20260716-a), orchestrator-verified at source.
+
 ### TODO §3.70: tighten the dev-security crypto tables to the P-384 / RSA-4096 floor (2026-07-19, PR #1052)
 Applied the maintainer's decision to tighten the two dev-security crypto guidance tables (developer-security-requirements, security-quick-reference) to match the encryption-policy floor: the asymmetric-encryption row drops the below-floor EC P-256 (now RSA-4096, EC P-384) and tightens the prohibited RSA threshold to under 4096. Worker-drafted, orchestrator-verified at source against the policy floor. The project-agnostic pack still lists P-256 as a generic NIST-approved baseline, an intentional corpus-stricter-than-pack layer difference routed to pending-decisions for confirm-or-redirect.
 
