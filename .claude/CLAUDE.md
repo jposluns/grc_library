@@ -1,13 +1,5 @@
 # CLAUDE.md
 
-> **Condense note (PR #441):** this file was condensed per the maintainer's "keep
-> actionable rules, cut rationale/war-stories/duplication" directive (Option B). Every
-> rule and procedure step is retained; the removed rationale, war-stories, and provenance
-> are preserved verbatim with analysis in
-> `claude-md-considerations`, which
-> is reviewed each `/retro` and the periodic hallucination-metrics pass so a removal can be
-> restored if its "evidence the removal was wrong" signal appears.
-
 ## PRIMORDIAL RULE: PROJECT INTEGRITY, THE AIQT PRINCIPLE (HIGHEST PRECEDENCE)
 
 This rule has the highest precedence in this project. It sits above every other section of this file and above the user-level / project-layer reconciliation note immediately below it: that note governs *which rule source wins* on a rule-source conflict; this rule governs *which optimization dimension wins* on an AIQT-tier / speed / cost conflict. The two are complementary, not competing.
@@ -192,25 +184,18 @@ drive end-to-end on the maintainer's behalf:
    flipping CI red after the fact. The two runners together cover every gate CI runs.
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
    enforces the pre-push runner (the same pattern as `preflight-changelog.py && git
-   commit`); an "intermediate" push that skips the guard is the momentum-bypass failure
-   the guard closes (improvement-log #438/#439).
+   commit`).
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
    <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
    `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
    STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
    other pipe or truncating sink): a pipe masks the exit code so the dependent action
-   proceeds past a failure, the RM-10 failure shape (seven pipe-masked incidents: #569,
-   #583, the #608 push, a fourth self-caught before the #615 push, a fifth display-only
-   pipe self-caught before the post-#618 branch push, a sixth post-commit
-   `run_all_audits | tail` with a pipe-masked exit capture, self-caught in the slice-3
-   build, and a seventh post-amend `run_all_audits | tail` self-caught and re-run
-   unpiped in the #628 build). When long output must be tamed, use the fail-loud wrapper
+   proceeds past a failure, the RM-10 failure shape. When long output must be tamed, use the fail-loud wrapper
    [`tools/tail-safe.sh`](../tools/tail-safe.sh) (preserves the exit code) or redirect to
    a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
    [`.claude/hooks/block-verification-pipes.py`](hooks/block-verification-pipes.py)
    refuses the named verification commands piped to truncating sinks (defence in depth,
-   not a substitute for the habit; incident seven ran unblocked in a worker-restarted
-   session, the hook-firing limitation later closed as a documented harness limitation in #677). Read the verification's own terminal
+   not a substitute for the habit). Read the verification's own terminal
    PASS/FAIL line before relying on any chain. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
@@ -228,12 +213,9 @@ drive end-to-end on the maintainer's behalf:
    dispatches, and any skeptical-verifier subagent, inspects version history READ-ONLY
    (`git show <sha>:<path>`, `git diff`, `git log`) and MUST NOT `git checkout` / `switch`
    / `reset` / `stash` on the shared working tree, because the orchestrator may be on a
-   concurrent feature branch (the #866 collision: a subagent's `git checkout` to judge the
-   merge commit switched the orchestrator's branch and mis-branched a commit onto local
-   `main`, caught fail-loud at PR-create and repaired). Brief every dispatched subagent
+   concurrent feature branch. Brief every dispatched subagent
    accordingly; a transient `tests/tmp/*` regression-suite FAIL or a gate-50 flag for a
-   not-yet-batched later PR's QA row is a concurrent-run artefact, not a defect. (The pack
-   half of this codification landed in the workflow-disciplines rule in #871.)
+   not-yet-batched later PR's QA row is a concurrent-run artefact, not a defect.
    Triage findings as in-window (hot-fix PR or include in next PR) or out-of-window
    (surface to maintainer with named options). **Handoff-PR exception (loop-break):** the
    session-closing handoff PR does NOT run a trailing `/validate-pr` or `/retro`; the
@@ -244,7 +226,7 @@ drive end-to-end on the maintainer's behalf:
    `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
    (leaving the Findings cell `n/a`) leaves the row undetected as a handoff: it passes
    while the PR is the highest-numbered (exempt as in-flight) but gate 50 flags it the
-   moment the next PR demotes it (the #445/#450 recurrence, fixed in #446/#451). Fuller
+   moment the next PR demotes it. Fuller
    prose may still go in the Summary cell. (See `## Session migration and PR close-out
    checklist` item 3.)
 5b. Invoke `/retro` to run the post-merge retrospective per the
@@ -279,7 +261,7 @@ drive end-to-end on the maintainer's behalf:
    sentence), and fit at least three items so the statusline gives a useful "what's next"
    glance. Put any longer detail or the further-out queue on a following `# then:` comment
    line, which the statusline does not surface.** A stale entry there
-   (an already-done item still shown as `next:`, the #847-era drift) is the signal that a PR
+   (an already-done item still shown as `next:`) is the signal that a PR
    shipped without refreshing it, so every PR touches `next-prs.txt` even when the queue is
    otherwise unchanged.
 7. TODO/DONE rotation discipline: when a PR closes a TODO item, the item is deleted from
@@ -294,24 +276,6 @@ drive end-to-end on the maintainer's behalf:
    is backlog-item-keyed, not FR/§-keyed**: a `FR-N` item, a numbered `§N.M` subsection,
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
    validation", a maintainer directive captured as a backlog line) all rotate the same way.
-   The #495 miss (a prose-named item closed without rotation, the old `FR-N`/`§`-keyed
-   reflex skipping it) is why this is spelled out; the D5 PR-time check now detects EIGHT
-   closure forms (three since the 2026-06-30 broadening, widened to six by #576, to
-   seven after the #607 miss, and to eight in #675 for the #637/#640 shapes): (1) the canonical section form
-   `clos... TODO §`; (2) the coded-id `XX-N CLOSED` marker (any two-to-four-letter
-   uppercase id, e.g. `FR-58 CLOSED` or `GR-13 CLOSED`, widened from the FR-only form by
-   GR-13 in #559); (3) the prose `clos... the ... item/directive` form, which also
-   matches the `TODO item` and `bullet(s)` nouns with a decimal-dot-tolerant clause run
-   (the #595 widening); (4) the section-name closure form (`section-N.M ...
-   closed/closure`, hyphenated); (5) the item-number closure form (`items N and M
-   closed`); (6) the rotation-assertion form (`rotated to the DONE ledger`, plus the
-   guarded short `rotated to DONE` with negations excluded, the #595 widening, plus a
-   markdown-linked DONE target for the #640 rotated-to-linked-path shape, added in #675);
-   (7) the space-separated `TODO section N.M ... closed/closure` form (case-insensitive,
-   forward-only window; the #607 lead's phrasing, which forms 1, 4, and 6 all missed);
-   and (8) the bare `TODO N.M ... closed/closure` form (a decimal section token with no
-   `section` word and no `§`, case-insensitive, forward-only; the #637 lead's phrasing
-   that forms 1 and 7 missed, added in #675).
 
 This is the project-specific routine that promotes "merge my own green PR" into the
 safe set per user-level Rule 8 point 1. Actions outside this routine (merging a PR
@@ -344,83 +308,12 @@ is external. Two mechanisms:
    - Every TODO item this PR closes is deleted from TODO and added to
      [`.working/DONE.md`](../.working/DONE.md) in the same diff. **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
-     numbered `§N.M`) is a TODO item that rotates the same way (the #495 miss; see
-     PR-workflow step 7).
-   - **Worker-brief coverage pairing** (the staged-brief sync, TODO section 4.4's
-     standing whole-backlog-coverage design): if this PR's diff changes `TODO.md`'s item
-     set (adds, closes, renumbers, or materially rescopes an item), the scratch coverage
-     sync is queued or done in the same close-out: each NEW item gets a staged brief or
-     an eligibility verdict in `grc_library_scratch`'s `research/COVERAGE.md`, each
-     consumed work-unit's seed directory is removed at DELIVERY time (the maintainer's
-     2026-07-04 delivery-time convention: the whole `research/<work-unit-id>/` directory
-     is deleted when the delivery merges scratch-side and the coverage row re-points at
-     the inbox delivery path, so a consumed seed is never mistaken for an open one; a
-     closed item with no delivery still drops its row at close), and a renumber
-     updates the affected rows' section anchors (the stable id is the durable key).
-     Briefs are a wipeable derived projection of TODO; TODO wins on any conflict. The
-     sync ships as a scratch PR. Advisory instrument (orchestrator-side, not a CI gate,
-     because neither repo's CI can see the other):
-     [`tools/audit-brief-freshness.py`](../tools/audit-brief-freshness.py) reports the
-     index's PRs-behind age, dead brief target paths, and dead coverage-row TODO
-     anchors.
+     numbered `§N.M`) is a TODO item that rotates the same way.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
      prose count of that collection was checked for staleness (prose counts are not
      gated). Counts are computed AFTER the verifier loop closes, from the suite run or
      the diff, never during drafting: a count written mid-draft goes stale inside its own
-     PR when a later verifier round changes the figure (the #612 timing rule).
-   - [`.working/session-handoff.md`](../.working/session-handoff.md) is refreshed, and the
-     refresh RECONCILES rather than appends: re-read the retained tail (the prior blocks'
-     queue statements and standing-SOP claims) for directives the new text supersedes and
-     mark them historical (the #619 line), and re-read the `Current truth` state-snapshot
-     line and reconcile EVERY value on it (merged-through, versions, "rides the next PR"
-     claims) to the state the current PR itself produces, since a snapshot refreshed in
-     the same diff that falsifies it is the append-not-reconcile shape that fired the
-     three-occurrence rule at #628 (#619, #622, #628). The version-token subset of this
-     reconcile is now mechanically backstopped by the D7 handoff-snapshot freshness
-     PR-time check ([`tools/check-handoff-snapshot-on-pr.py`](../tools/check-handoff-snapshot-on-pr.py)):
-     when a PR touches the handoff, D7 fails if any labelled version token on the
-     `Current truth` line disagrees with that surface's live header at the PR head, or
-     if a surface carries more than one token. The prose halves (the merged-through
-     number, the green-at-`<sha>`, the "in flight" branch name, the "rides the next PR"
-     annotation) stay convention-guarded here, since D7 is version-tokens-only. At a
-     session-closing handoff PR, the `## Asserted expectations` section, the
-     green-at-`<sha>` snapshot line, and the
-     `session-metrics` row are refreshed too
-     (scoped to what this session actually verified; orchestrator main-loop tokens
-     recorded as `not instrumented`, never fabricated; never placed in `CHANGELOG.md`).
-   - **Worker-provenance marker** (the gate-50 check-3 convention): if this PR applied a
-     scratch-inbox worker delivery, the detailed-mirror CHANGELOG entry carries a
-     `**Worker provenance:**` line naming the delivery path (normally
-     `inbox/<worker-id>/MANIFEST.md`). Gate 50 validates the marker's shape; whether an
-     application is MARKED at all is this checklist line's job (free prose, not
-     mechanizable), the same convention-level residual as the QA-abbreviation half.
-   - The **session-concurrency lease** [`.working/session-state.md`](../.working/session-state.md)
-     heartbeat is re-stamped (`date -u +%Y-%m-%dT%H:%M:%SZ`) in the same refresh batch, and
-     its `Current-task` / `Worker-dispatches` lines are updated if stale. Lifecycle:
-     ACQUIRE at `/resume` step 0 (branch name, `Status: active`, fresh heartbeat), REFRESH
-     at every PR close-out, optionally `Status: winding-down` while the session-closing
-     handoff PR is being assembled (gate 63 validates it as a live state; the `/resume`
-     step-0 interlock treats it like `active`), RELEASE in the session-closing handoff PR
-     (`Status: released`, `Active-session: none`). Gate 63 guards the file's shape; the
-     interlock decision is
-     `/resume` step 0's (60-minute staleness window, advisory HOLD, git cross-check of
-     unmerged `origin/claude/*` siblings). Design record:
-     `design-decisions`, "Session-concurrency
-     safety".
-   - **Sync scratch every PR** (maintainer-directed 2026-07-17; the §3.93 recurrence-prevention).
-     Before relying on any credit-offload / scratch state at close-out, `cd` to the
-     `grc_library_scratch` checkout and `git fetch origin && git reset --hard origin/main`
-     (or read via `git show origin/main:<path>`), **delivery pending or not**, so the
-     coordination plane (the `workers/` liveness registry, `queue/`, `results/`) is current at
-     every PR boundary. The local scratch checkout does NOT auto-sync, and the
-     `credit-offload-queue.py list-workers` / `list-pending` and `results/` reads operate on
-     that local checkout, so a worker delivery pushed to scratch `origin/main` is invisible
-     until you fetch. Skipping this is the 2026-07-16 / 2026-07-17 stale-scratch-read
-     recurrence (a wrong "workers stale / order unclaimed" report from an un-synced checkout
-     while a worker had already delivered on `origin/main`). A per-tick fetch is likewise
-     mandatory inside any scratch poll loop. Mechanical backstop SHIPPED scratch-side
-     (2026-07-18, §3.93(c)): the queue tool's `list-workers` / `list-pending` read
-     subcommands fetch origin and read `origin/main` non-mutatingly before reporting.
+     PR when a later verifier round changes the figure.
    - **If this is the first PR of a resumed session** (the `/resume` `/validate`
      close-out), the handoff was **pruned** per its `## Refresh and pruning discipline`:
      keep current + 1 prior in each per-session stack, delete older blocks and superseded
@@ -436,28 +329,19 @@ is external. Two mechanisms:
      multi-surface-incompleteness guard). For a **count, value, or term correction**, the
      contradiction grep is on the BARE token (`grep -nE '\b18\b'`), not a phrasing-specific
      string (`18 spot-scanned`): a phrasing-specific grep misses word-order variants of the
-     same stale value on other lines. (PR #443 corrected a count on two lines but its
-     phrasing-specific grep missed a third line whose word order differed; a bare-token
-     scan would have caught it. See the #443 row in
-     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md).) The same
+     same stale value on other lines. The same
      bare-token width applies to ENUMERATIONS, not only scalar counts: on a gate-list
      widening, grep both the comma form and the slash form of the old list (`48, 49, 54`
-     AND `48/49/54`), since an enumeration is a value that carries its own separators
-     (the #614 catch); and it applies to REFUTATION searches, not only correction greps:
+     AND `48/49/54`), since an enumeration is a value that carries its own separators; and it applies to REFUTATION searches, not only correction greps:
      when a verifier or the orchestrator hunts evidence AGAINST a claim, the hunt runs at
      bare-token width too, because a phrasing-specific refutation grep can fail to refute
-     a claim that is false in a differently-worded carrier (the #594 extension).
+     a claim that is false in a differently-worded carrier.
    - If the PR makes a **corpus-wide completion claim** (a token harmonization, rename, or
      reconcile asserted complete across the corpus), the completion-verification grep was run
      over the **full corpus file set, not the change's own input set**: an input-set grep
      confirms only that *what was touched* is clean, never that *the corpus* is clean, so it
      self-corroborates a file-discovery omission. This is the scope-width companion to the
-     bare-token line above (which fixes pattern-width). (PR #455's FR-44 `shall`->`must` sweep
-     asserted "0 normative shall remain" from a grep of its own enumerated 17-document input
-     set, missing an eligible Policy document that was never in the set; the next session's
-     corpus-wide `/validate` (Sweep 75) caught it and #458 fixed it. See the #458 rows in
-     [`.working/validate-pr/history.md`](../.working/validate-pr/history.md) and
-     [`.working/improvement-log.md`](../.working/improvement-log.md).)
+     bare-token line above (which fixes pattern-width).
    - `tools/preflight-changelog.py` was run **before the first commit** (as `python3
      tools/preflight-changelog.py && git commit ...`). It gates em/en dashes and unlinked
      path-shaped references in the *added* CHANGELOG lines, exiting non-zero so the `&&`
@@ -667,21 +551,9 @@ is external. Two mechanisms:
    `handoff-PR exception`) in its **Findings cell**, never a bare `n/a`: that cell is what
    `tools/lint-bookkeeping-parity.py` reads to classify the row as handoff-exempt, so a
    marker placed only in the Summary cell leaves the row flagged the moment the next PR
-   demotes it from highest-numbered (the #445/#450 recurrence; #450 followed the prior
-   wording that said "Summary cell", which this PR corrects).
+   demotes it from highest-numbered.
 
 ## Multi-session orchestration
-
-For partitionable backlog work, the default first move is to fan out research workers
-per the research-assistant discipline, then apply their diffs serially through the
-validate-then-apply gate. The full model lives in the runbook
-`multi-session-orchestration`:
-the two worker primitives (in-session `Agent` subagent fan-out, available now;
-separate-session external-collaborator workers, pending maintainer-provisioned
-least-privilege accounts that write to `grc_library_scratch` only), the Model-B
-eligibility checklist (what is and is not partitionable), the `grc_library_scratch`
-exchange channel and its inbox-not-bypass invariants, and the trust-split
-`grc_library_ref` reference base (`standards/` trusted, `publications/` screened).
 
 The serial-apply, CI-gating, per-PR `/validate-pr` + `/retro`, and validate-then-apply
 invariants are unchanged: parallelism lives only in the research stage, never in the
@@ -691,197 +563,6 @@ migrations, and the single-file FR-167 matrix are NOT partitionable and stay
 single-session. The project-agnostic form is the partitionable-work SOP in the
 [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
 pack rule (its §2).
-
-**Start-side worker-collision check (the complement to the close-out coverage-pairing
-line).** Before starting to build any backlog item, check the scratch `claims-ledger.md`
-and `research/COVERAGE.md` for an in-flight claim or a pending inbox delivery covering it:
-a claimed or delivered item is apply-work (validate-then-apply on the delivery), not
-build-work, so beginning to build it duplicates a worker's effort or collides with a
-pending delivery. Nothing else in the queueing flow makes a fresh session look at scratch
-before it picks up a TODO item, so this is the start-side of the same loop the close-out
-`Worker-brief coverage pairing` checklist line closes at the other end (that line syncs
-briefs and verdicts for the item set; this check consults claims and deliveries before
-building). It fires not only at `/resume` (whose step-0 sibling-branch cross-check is its
-concurrency analogue) but whenever the queue is resumed mid-session and the next item is
-picked. The operational form (where to look, what an in-flight claim row versus a delivered
-inbox row means) is in the runbook
-`multi-session-orchestration`.
-**This check is EXECUTED, not narrated.** Run
-`python3 tools/audit-delivery-status.py --item <backlog-id>` (e.g. `--item 3.13`, `--item
-FR-60`, `--item SR-3`) and PASTE its output before building any backlog item: a
-`DELIVERED ... (apply-work)` result means validate-then-apply on the named delivery, never a
-from-scratch build; a `no delivery ... (build-work)` result clears the build. A spoken
-conclusion ("no collision, build-work") not backed by the tool's same-turn output is a
-discipline failure (the 2026-07-09 recurrence: the check was asserted clear for TODO 3.13
-while a `positional-token-lint-313` delivery sat in the inbox and a from-scratch rebuild was
-begun; the tool makes the check evidence-producing so a narrated pass is no longer possible).
-
-**Delivery-status-claim discipline (evidence, not memory).** Any assertion about the
-delivery pipeline's state, that the backlog is applied / cleared / done, that a specific
-delivery is applied, or that an item is blocked / gated, MUST quote the same-turn output of
-`python3 tools/audit-delivery-status.py` (the full reconciliation: the PENDING / APPLIED /
-UNMAPPED buckets and the review-set count), never a mental model. The tool is advisory
-(cross-repo, un-gated, so nothing mechanical forces it); this discipline is the forcing
-function, and running it is a standing `/resume` step-3 action alongside
-`audit-brief-freshness.py`. A per-item blocking reason (egress-gated, source-gated,
-authorial, maintainer-schedule-gated) is recorded PER ITEM against the authoritative
-per-item verdict in the scratch `research/COVERAGE.md` and
-[`pending-decisions.md`](../.working/pending-decisions.md); it is NEVER generalized across
-items from one item's reason (the 2026-07-09 recurrence: about twenty applicable content
-deliveries were mislabeled "egress-gated" by generalizing FR-59's blocker, and the backlog
-was declared applied; the reconciliation report lists the review set that refutes such a
-claim). This is `evidence-grounded-completion` applied to the delivery pipeline: the status
-claim is composed FROM the tool's output, not from inference.
-
-## Credit-offload mode
-
-The orchestrator's usage credits are the scarce resource. The token-heavy passes it runs are
-of two kinds: the read-only analysis passes (the QA sweeps and the semantic-fit cadences) and
-the research/drafting seeds. Both are cleanly detachable from the author-apply-route-merge
-critical path, so **credit-offload** moves them onto standing worker sessions on other accounts
-(the existing Mode-B research-worker model, generalized to the QA passes), on a polling work
-queue with a lease/fencing lifecycle. The design of record is
-`credit-offload-design`; the coordination
-plane and the worker-side protocol live in `grc_library_scratch` (`queue/`, `results/`,
-`workers/`, the `tools/credit-offload-queue.py` helper, and the `/credit-offload` worker
-command). This section is the ORCHESTRATOR-side discipline.
-
-- **Offloadable (read-only, produces findings/drafts):** `/validate`, `/validate-pr`,
-  `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`,
-  `/fitness`, `/full-qa`, the read-only probe phases of `/deep-assessment`, AND research/draft
-  seeds. **Stays orchestrator-side:** authoring corpus prose, applying diffs, routing findings,
-  writing the audit-trail rows (a worker cannot write `grc_library`), merging, and the pre-push
-  skeptical verifier (it sits on the critical path before push, so offloading it adds a blocking
-  wait; kept orchestrator-side pending the periodic reassessment, TODO §3.81).
-- **Worker-availability gate (best-effort, never a QA skip).** Before an offloadable pass, read
-  the scratch `workers/` liveness registry (`python3 tools/credit-offload-queue.py
-  list-workers`). **>= 1 live worker:** enqueue the pass as a queue order pinned to an exact
-  `grc_library` SHA and consume its result at the next PR boundary. **0 live workers (or an
-  order goes stale unserved):** self-run the pass inline, exactly as before. Offload is pure
-  best-effort; the mandatory-QA discipline is UNCHANGED (an offloaded run is the full formal
-  pass, abbreviation is never authorized, and an unserved order falls back to a self-run).
-- **The blocking resume `/validate`.** The one pass the orchestrator WAITS on is the loop-break
-  corpus-wide `/validate` at `/resume` (step 6): when a worker is live it is enqueued as a
-  `blocking`, priority-0 order and the orchestrator polls the results plane for the delivery
-  before recording the sweep row; with 0 workers it self-runs. Every other offloadable pass
-  (per-PR `/validate-pr`, the semantic-fit cadences, research seeds) is NON-blocking, consumed
-  at the next PR boundary. **Wind-down pre-positioning (maintainer-directed 2026-07-16).** At
-  wind-down the orchestrator ALSO enqueues the corpus-wide `/validate` immediately, pinned to
-  the session-closing handoff PR's merge SHA, so a live worker can run it during the
-  between-session gap; the next `/resume` then checks the results plane FIRST and consumes a
-  delivered result (re-verifying positives per the consume discipline) instead of running the
-  sweep fresh, self-running or re-enqueuing only if the result is absent or stale. Strictly
-  better than enqueue-at-resume (it uses the idle gap), but best-effort: it pays off only when
-  a live worker's `grc_library` clone can fetch the handoff SHA, and `/resume` never records a
-  sweep row from a stale or absent result.
-- **Consume discipline (trust model).** A worker finding is a hypothesis until the orchestrator
-  confirms it: **re-verify every POSITIVE finding at source** before routing (cheap relative to
-  the sweep, so the net saving holds), and **trust a clean/zero-finding result** as inline
-  subagents are trusted (the result file carries the subagent returns as the proof-of-run). The
-  orchestrator, not the worker, writes the `grc_library` audit-trail rows
-  (`validate-sweeps/history.md`, `validate-pr/history.md`), because the worker cannot write
-  `grc_library`. There is no trusted-worker fast path; worker provenance never reduces the QA a
-  change receives.
-- **New-worker QA-trust tiers: ELEVATED then routine (maintainer-directed 2026-07-16).** The
-  routine consume discipline above (re-verify positives, trust clean-with-proof-of-run) applies
-  only AFTER a worker is trust-established. A worker's clean QA result is a trust assertion, and
-  trust is session-scoped and instance-scoped, so it is re-established each orchestrator session.
-  The window is keyed on **`(worker-id + model)`**: a model change (for example Opus 4.8 to
-  Fable 5) RE-TRIGGERS the elevated window for the same worker-id, because a different model has
-  different failure modes. It applies to **QA-kind deliveries only** (`/validate`, `/validate-pr`,
-  `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`,
-  `/full-qa`, read-only `/deep-assessment` phases), where "clean" is a trust assertion; research
-  and draft seeds already get full orchestrator re-authoring at apply (the research-assistant
-  discipline), so they are outside this window. For the first **2 to 3 QA-kind deliveries** from a
-  `(worker + model)` each session, apply **ELEVATED QA** before trusting the result:
-  1. **Proof-of-run genuineness:** the result must carry real subagent returns (pre-flight
-     counts, per-finding `path:line`, token spend); a bare "clean" with no proof-of-run is a RED
-     FLAG, not a pass.
-  2. **Independent re-derivation** of everything mechanically derivable (the pinned SHA and delta
-     scope, the counts, the gate results, the pre-flight numbers): re-run/re-count yourself and
-     confirm they match the worker's claims. This is the strongest guard, since mechanical facts
-     cannot be faked.
-  3. **Re-verify EVERY finding at source** (not just positives).
-  4. **A graduated adversarial auditor:** delivery 1 = a dedicated false-negative auditor subagent
-     (hunt for what the worker MISSED, and for sham/scope errors); deliveries 2 to 3 = the above
-     three steps without a separate auditor, escalating to a fresh auditor only on a red flag.
-  The **2 to 3 count is a floor, not a cap**: it means at least that many CLEAN elevated passes
-  before relaxing to routine. Any confirmed miss, sham, or scope error RESETS the window and is
-  ESCALATED to the maintainer, and the worker is treated as UNVALIDATED (self-run its passes,
-  trust no result) until re-established. Track the per-`(worker + model)` elevated-pass count for
-  the session in the session working-state (`session-state.md` Worker-dispatches); it resets each
-  session by construction. **Honest limitation:** elevated QA raises the bar but does not
-  guarantee detection; a worker fabricating an internally-consistent proof-of-run is a residual
-  risk it reduces but cannot eliminate, which is why step 2 (independent re-derivation of
-  mechanical facts) is load-bearing. See the design-of-record trust model in
-  `credit-offload-design`.
-- **Honest limitation.** Credit-offload SHIFTS cost across accounts; it does not reduce total
-  spend, and the orchestrator still pays to verify positives and to run the pre-push verifier.
-  The net saving is real only when the other accounts have spare capacity.
-- **Metrics tab (maintainer-directed 2026-07-16).** Maintain the running productivity/savings tab
-  `credit-offload-metrics`: append one row per
-  offloaded delivery (order, kind, worker + model, the worker's best-effort estimated token spend as
-  a conservative proxy for **estimated orchestrator credits conserved**, the consuming PR, notes) and
-  keep the per-session roll-up current. At each MAJOR ACTIVITY, a worker delivering a result and a PR
-  finishing, surface a short (a couple of lines) chat tally of the session's passes and estimated
-  orchestrator credits conserved. Always label the figure an ESTIMATE (workers cannot read an exact
-  in-session count) and carry the shift-not-reduce caveat. There is deliberately NO per-DONE-entry
-  line (maintainer choice). The session-closing handoff folds the roll-up into the `session-metrics`
-  row. Design-of-record: `credit-offload-design`
-  `## Metrics and reporting`.
-- **Orchestrator coordination-plane reads: fetch scratch FIRST (§3.93).** Every orchestrator
-  read of the scratch coordination plane, the `workers/` liveness registry
-  (`credit-offload-queue.py list-workers`), the `queue/` (`list-pending` or an order file),
-  and `results/`, is preceded by `cd <grc_library_scratch> && git fetch origin && git reset
-  --hard origin/main` (or is done via `git show origin/main:<path>`). The local scratch
-  checkout does NOT auto-sync, so a working-tree read after no fetch (or a bare fetch) reports
-  stale state: a worker delivery pushed to scratch `origin/main` is invisible until you fetch.
-  This governs the `/resume` step-3 credit-offload check, the availability gate above, any
-  consume, AND a per-tick fetch inside any poll loop. Never characterize worker / queue /
-  result state, "workers stale", "order unclaimed", "not delivered", from an un-synced
-  checkout (the 2026-07-16 / 2026-07-17 recurrence: a wrong worker-restart ask while a worker
-  had already delivered on `origin/main`). The primary standing form is the **sync-scratch-every-PR**
-  close-out line in `## Session migration and PR close-out checklist`; the mechanical backstop
-  (the queue tool's `list-workers` / `list-pending` fetching origin before reporting) SHIPPED
-  scratch-side 2026-07-18 (§3.93(c)).
-- **Maintainer-alert watchdog channel (priority in attended modes; the orchestrator fixes, then at
-  the next maintainer prompt informs and asks; the maintainer decides clearing).** Workers maintain
-  `MAINTAINER_ALERT.md` at the `grc_library_scratch` root: a standing, out-of-band alert channel the
-  maintainer watches directly, separate from the orchestrator-consumed `results/` deliveries. It is
-  the SECOND path, so a problem the orchestrator itself is the source of still reaches the maintainer
-  even when the orchestrator does not surface it. Workers APPEND `### ALERT` blocks (an
-  `_private`-blocker a task needed but the worker could not read, an orchestrator mistake that
-  impacts the worker, or anything else the maintainer should know). **Orchestrator SOP
-  (maintainer-directed 2026-07-18):** at each task boundary, after the §3.93 scratch fetch, read
-  `MAINTAINER_ALERT.md` for any OPEN alert (a `### ALERT` block with no `Resolved:` line).
-  - **In attended or attended-autonomous mode, an open alert is PRIORITY:** assess it before
-    starting the next task (a real issue outranks queued work) and FIX what the orchestrator can.
-    Then, at the NEXT maintainer prompt, proactively (even if that prompt is about something else),
-    INFORM the maintainer of what the alert was and what was fixed, ASK for any decision the fix
-    needs, and ASK via a choices-question (`AskUserQuestion`, to force a read-and-consider pause)
-    whether anything else should be done and whether to CLEAR the alert entry; batch multiple alerts
-    into one question. Clearing is the MAINTAINER'S decision, never autonomous: only once the
-    maintainer says to does the orchestrator clear (reset `## Status` to `ARMED, no active alerts`,
-    remove the block) and push scratch.
-  - **In overnight-unattended mode, do NOT force-prioritize and do NOT ask** (the
-    AskUserQuestion-unattended hook forbids a blocking prompt): FIX what is safely fixable (per the
-    QA-completion SOP: proceed unless risky, a risky fix documented not applied), RECORD the alert,
-    the fix, and the pending clear-decision in [`pending-decisions.md`](../.working/pending-decisions.md)
-    for morning review, and leave the alert UNCLEARED for the maintainer to review and decide (via
-    the choices-question) at the next attended boundary.
-  The scratch protocol (`grc_library_scratch:queue/README.md` section "The maintainer alert channel
-  (watchdog)" plus the `/credit-offload` worker command) and the design-of-record mirror
-  (`credit-offload-design` `## Maintainer alert channel (watchdog)`) describe the same channel; keep
-  them in sync.
-- **Worker read basis.** A worker reads `grc_library` and `grc_library_ref` READ-ONLY at the
-  order's pinned SHA via a local worktree cache; on this VM the maintainer maintains
-  `/tmp/grc_library_ref` as the worker's ref read copy, so **re-sync `/tmp/grc_library_ref`
-  (`rsync -av --delete`, not `-avn`) after any `grc_library_ref` update** or workers read stale
-  reference text.
-- **Command-count note.** The `/credit-offload` worker command lives in `grc_library_scratch`'s
-  `.claude/commands/`, NOT in `grc_library`, so it does NOT change the `grc_library` slash-command
-  count (which is 15 as of the §1.19.6 `/adopt` addition); this section adds no user-facing
-  count-bearing collection to `grc_library`.
 
 ## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
 
@@ -903,8 +584,7 @@ Run `/matrix-fit` on this cadence:
 
 It is NOT a gate and NOT a substitute for gates 48/49/54/58/61; it is the semantic layer on top
 of them (a row must pass the existence gates first). Findings are fixed in-window or routed
-under the normal triage; a zero-finding run still gets a history row. This cadence shipped
-across two PRs: the PR A advisory tool in #394 and the PR B skill in #399.
+under the normal triage; a zero-finding run still gets a history row.
 
 ## Normative-attribution claim-precision cadence (`/claim-fit`)
 
@@ -934,10 +614,7 @@ of them (a claim must pass the existence and currency gates first). An
 `informed-not-prescribed` finding is fixed by the attribution PHRASING, never the value (the
 value is often the corpus's own canonical choice); a `source-not-held` claim routes to the
 maintainer's source-drop queue, never adjudicated from memory. Findings are fixed in-window or
-routed under the normal triage; a zero-finding run still gets a history row. This cadence
-shipped across two PRs: the advisory tool
-[`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py) in #621 and the skill
-plus the adoption pass in #630.
+routed under the normal triage; a zero-finding run still gets a history row.
 
 ## Whole-project deep assessment (`/deep-assessment`)
 
@@ -960,23 +637,7 @@ maintainer-sign-off-as-the-only-terminal-state conventions.
 
 It is NOT cadenced and NOT self-invoked: it runs only on the maintainer's explicit invocation,
 and it terminates only on the maintainer's explicit sign-off (an empty finding set is presented
-for sign-off, never self-declared complete). A run spans sessions; its phase state lives in the
-durable register [`.working/deep-assessment/register.md`](../.working/deep-assessment/register.md),
-and the `/resume` step-7 surfacing of an `in-progress` run keeps a session boundary from
-silently truncating the pass. Per-run detail lives beside the register as dated files
-(`.working/deep-assessment/YYYY-MM-DD-rN.md`, the fitness-review filename convention); the
-register itself is non-dated and stays in-repo. This cadence shipped across two PRs: the two
-advisory gate-efficacy tools (`audit-gate-blindspots.py`, `audit-gate-mutation.py`) in #701 and
-the skill, command, register, and hooks in #702.
-
-**Coverage obligation (maintainer-directed 2026-07-08).** The skill is count-free and
-inventory-deriving: step 1 re-derives the live instrument inventory from the repo at run time,
-so the live inventory of quality machinery is the assessment's scope by construction, and any
-future quality-check process, tool, gate, skill, or check is included automatically with no
-edit to the skill. The obligation runs the other way too: adding a quality-check instrument
-carries the duty to keep `/deep-assessment` covering it (a new gate gains a mutation-probe
-variant, a new slash-command or skill joins the phase-3 invocation set, a new advisory tool
-joins the phase-3 aids).
+for sign-off, never self-declared complete).
 
 ## Reference-breadth cadence (`/reference-audit`)
 
@@ -999,22 +660,12 @@ Run `/reference-audit` on this cadence:
 1. **FULL mode as a `/deep-assessment` member** (the exhaustive both-directions pass),
    and ad-hoc when the maintainer wants the whole picture.
 2. **Per-touch mode on every substantive corpus-document PR**: run the tool in
-   `--docs` mode for the touched documents. The per-document state file
-   [`.working/reference-audit/doc-state.md`](../.working/reference-audit/doc-state.md)
-   delta-filters the candidate set to reference items added or updated since the
-   document's last audit, so the steady-state cost is near zero; the judge is
-   dispatched only on a non-empty candidate set, and `--update-state` refreshes the
-   anchor with the PR's QA batch.
+   `--docs` mode for the touched documents.
 3. **New-ingest mode after reference-base changes** (`--ref-since <sha>` or
    `--ref-items <substring>`): judge the corpus documents each changed item topically
    matches and does not cite.
 
-Trust tiers are load-bearing (maintainer decisions, 2026-07-08): standards,
-frameworks, legislation, and programs are authoritative (citation-grade improvements);
-templates are template-tier (content improvements, never normative citations); books
-are recommendation-tier only, never authoritative (corroborate against a trusted
-source before anything normative rests on a book-sourced suggestion); publications are
-excluded pending the publications-assessment process. It is NOT a gate and NOT a
+It is NOT a gate and NOT a
 substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; it is the breadth
 layer beside them. Findings are fixed in-window or routed under the normal triage; a
 zero-finding or empty-candidate run still gets a history row.
@@ -1081,10 +732,7 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
    `grc_library_ref/standards/`.) **A held / not-held claim is EXECUTED, not narrated:** run
    `python3 tools/ref-holds.py <query>` and quote its output (HELD with the path, or
    NOT-FOUND-IN-INDEX), never a partial filename grep. A `grep` may FIND a file, but its
-   ABSENCE from a partial/filtered grep never proves not-held (the 2026-07-17 recurrence: a
-   `grep -rlE '27002' ... | head -1` grabbed a vendor publication and wrongly concluded
-   ISO/IEC 27002:2022 was not held, when the index lists it plainly; `ref-holds.py "27002"`
-   returns HELD). This is the same executed-not-narrated forcing function as
+   ABSENCE from a partial/filtered grep never proves not-held. This is the same executed-not-narrated forcing function as
    `audit-delivery-status.py` for delivery-status claims, and the
    `evidence-grounded-completion` "inventory/absence claims require the index, not a partial
    look" corollary.
@@ -1099,20 +747,15 @@ dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
   version into `grc_library_ref`; keep the old but move its files, extracted text plus original, into
   `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored layout and
   `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the index docs).
-  The full workflow lives in the
-  `multi-session-orchestration` runbook §6.
+ 
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or
-  egress is blocked per the DD-10 known issue), **pause and ask the maintainer.** On no
+  egress is blocked), **pause and ask the maintainer.** On no
   response, apply the graceful-degradation default: defer the current item and move on to
   the next independent item (record it in
   [`pending-decisions.md`](../.working/pending-decisions.md)).
 - **Never write or rely on a superseded version unless the maintainer explicitly
   authorizes** working from the older one. A register row, a citation, or a mapping must
   carry the upstream-confirmed current version, or the item waits.
-
-`grc_library_ref` writes go via PR (the local git proxy 403s direct pushes, per
-`third-party-issues`), so the `grc_library_ref` half of any
-update is a separate cross-repo step. The version-currency register shipped in #505 (the full `needs-reconfirm` sweep ran in #751); the P1 reference-currency residuals (§1.5 through §1.8) are all now closed.
 
 ## Missing-reference-document SOP (maintainer-directed 2026-07-12)
 
@@ -1125,11 +768,9 @@ merely route it as a `source-not-held` finding. The standing procedure is:
 2. **Attempt to download it** from its authoritative / primary source and **ingest it into
    `grc_library_ref`** via the ingest workflow (drop in `ingest/`, dedupe, identify, route to
    the right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the
-   indexes, run the ref gate; the full workflow is in the
-   `multi-session-orchestration` runbook §6 and
-   `grc_library_ref` `CONTRIBUTING.md`). Then continue the task against the now-held source.
+   indexes, run the ref gate). Then continue the task against the now-held source.
    (The `grc_library_ref` write is a cross-repo PR per the git-proxy constraint above.)
-3. **If the download fails** (egress-blocked per the DD-10 known issue, licensed or paywalled,
+3. **If the download fails** (egress-blocked, licensed or paywalled,
    or otherwise unavailable), surface it to the maintainer with named options:
    - **(a)** the maintainer downloads or provides the document (the usual resolution when it is
      licensed or egress-blocked);
@@ -1189,36 +830,6 @@ each merge or decision. Its three standing rules:
    than guessing (the no-long-interval-check-ins clause in `## PR activity subscription
    discipline` forecloses idling on a deferred check-in).
 
-**Mode-exit priority ordering (maintainer-directed 2026-07-02).** When a session switches
-AWAY from overnight mode (to attended-autonomous, daytime-unattended, or fully-attended),
-the work priority is fixed: (1) **overnight cleanup** first (route and reset
-[`.working/overnight-pr.md`](../.working/overnight-pr.md), batch the pending QA rows, fix
-what the overnight window's sweeps surfaced); (2) then **fixing of issues**; (3) then
-**tooling and protections** (gates, guardrails, machinery); (4) then **new work**. The
-ordering is standing; it is not re-asked at each mode exit. (Decision record:
-`design-decisions`.)
-
-**Overnight-to-daytime protected-backlog clearance (maintainer-directed 2026-07-05).** On
-switching from overnight to daytime or attended mode, first finish the then-current PR, then
-clear the deferred protected-file backlog staged in
-`deferred-protected-changes` (the
-`.claude/` and `dev-security/claude-rules/` pack edits that overnight mode defers because
-they need maintainer authorization). During the overnight run, prepare those changes in
-advance by drafting their content into that file, so the daytime apply is quick (content
-ready, only the authorized apply plus per-PR QA remains).
-
-On `/resume` the assistant reads
-[`.working/pending-decisions.md`](../.working/pending-decisions.md) first, surfaces the
-still-pending entries (confirming "proceeded" stricter-safe defaults for redirect, asking
-"deferred-blocked" questions), and resolves those tasks before the next queued items. In the
-same step it reads [`.working/verifier-overrides.md`](../.working/verifier-overrides.md) and
-surfaces every `pending` verifier override for maintainer review: an override made in an
-unattended run (the orchestrator judged a skeptical-verifier finding a false positive and
-proceeded against it) is never silently closed; it is surfaced at the next attended boundary
-(end of the unattended run, return to attended mode, or at latest this resume) with the
-finding, the overruling reasoning, and the recorded revert path, and the maintainer, not the
-assistant, resolves it to `reviewed`.
-
 **No idle-stop in unattended mode.** In overnight or any unattended mode, never stop to ask
 which authorized item to do next, and never hold or idle on the grounds that remaining work
 is substantial, fiddly, higher-risk-this-deep-in-context, or that the clean low-risk queue is
@@ -1233,8 +844,7 @@ defer-and-skip to the next independent item), never a blocking question that idl
 until the maintainer wakes. Substantial or best-fresh-context work is done PR-by-PR with
 skeptical verifiers, never deferred to the maintainer in unattended mode. Two caught pre-push
 slips, or any defect the guard or verifier catches before it escapes, are the verification
-layer working, not a degradation signal. (Codified after the 2026-07-06 overnight run stopped
-to ask the maintainer which authorized P2 item to take, idling the run.)
+layer working, not a degradation signal.
 
 **On a genuine named-degradation trigger in unattended mode, WIND DOWN PROPERLY, do not
 "pause" mid-turn (maintainer-directed 2026-07-19).** When the stop condition is (a) above (a
@@ -1249,30 +859,14 @@ directly. The wind-down framework's "surface the choice via `AskUserQuestion`" p
 ATTENDED path; the UNATTENDED path on a degradation trigger is this automatic
 session-closing handoff. A bare mid-turn pause (an unmerged feature branch, state only
 half-recorded) is the FAILURE this codifies against: it leaves the maintainer a harder
-resume, the exact problem flagged on the 2026-07-19 overnight run (the assistant hit a
-repeated-command-composition degradation signal and paused instead of closing out). Rule of
+resume. Rule of
 thumb: if you are about to write "I'm pausing / stopping here" in an unattended run, you are
 instead obligated to execute the session-closing handoff PR first.
-
-**Mechanical backstop (never a blocking prompt in unattended mode).** The session's mode is
-recorded in the `**Operating-mode:**` field of
-[`.working/session-state.md`](../.working/session-state.md) (gate-63-validated:
-`fully-attended` / `attended-autonomous` / `overnight-unattended` / `daytime-unattended`), and a
-PreToolUse hook [`block-askuserquestion-unattended.py`](hooks/block-askuserquestion-unattended.py)
-BLOCKS an `AskUserQuestion` call when the recorded mode is unattended, so a blocking prompt cannot
-idle the run. When unattended, record the decision as pending
-([`pending-decisions.md`](../.working/pending-decisions.md) or the relevant register) and continue.
-Set the field to the true mode at each mode transition; a stale `attended-*` value defeats the hook
-(the hook is defence-in-depth, not a substitute for keeping the field current). Motivating
-recurrence: the 2026-07-17 r4 deep-assessment Phase-8 sign-off was posed as an `AskUserQuestion`
-during overnight mode and idled the run ~7 hours while the work it blocked was already unblocked.
 
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff
-is the right next step is USUALLY the wrong call: empirically, about 13 of the last 15 times
-the assistant proposed a handoff it was not the right decision (maintainer observation,
-2026-06-29). A handoff is warranted ONLY on evidence of issues (the trigger below). Session
+is the right next step is USUALLY the wrong call. A handoff is warranted ONLY on evidence of issues (the trigger below). Session
 length, context "heaviness", "this is getting long", and "a large / substantial /
 fresh-context-best series remaining" are NOT, by themselves, valid triggers; the assistant
 keeps working through them, sustaining quality with skeptical verifier subagents (see the
@@ -1282,12 +876,9 @@ begins, but that is a non-default SUGGESTION for the maintainer's choice, never 
 assistant's default, and absent the maintainer's decision the assistant continues. Session depth is a
 legitimate CONTRIBUTING factor to OFFERING a handoff as a non-default suggestion (that offer
 regime, just above, distinct from the evidence-triggered PROPOSAL the trigger section below
-governs), one of many potential reasons but NEVER the SOLE reason (maintainer calibration,
-2026-07-09): it is weighed alongside other signals, and warrants OFFERING a handoff for the
+governs), one of many potential reasons but NEVER the SOLE reason: it is weighed alongside other signals, and warrants OFFERING a handoff for the
 maintainer's choice (never an auto-handoff) in two named cases. (i) A very-long-run of *expected chained large PRs* ahead,
-especially where the project's OWN historical metrics (the
-`hallucination-metrics` and
-`session-metrics` ledgers) show a measured quality
+especially where the project's OWN historical metrics show a measured quality
 decline on comparable prior runs, a NAMED, externally-observable signal, not the
 un-instrumented "I feel degraded". (ii) Excessively-sensitive work whose integrity requires
 fresh context with no accumulated session history to skew it, the canonical case being the
@@ -1362,9 +953,7 @@ overnight mode unless the maintainer explicitly says so; if unsure, pause and as
 roughly-2-minute window fires with no answer, **MAINTAIN overnight mode** and re-ask the
 next time the maintainer messages. A session-closing handoff silently ends an overnight
 run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
-default above: it requires an explicit maintainer signal, never a timeout (the recurrence
-the maintainer flagged after the #425 wind-down default ended an overnight run while they
-were briefly up).
+default above: it requires an explicit maintainer signal, never a timeout.
 
 **The AIQT tier above Speed remains the tiebreaker, and B/C are bounded.** Choosing B or C does NOT
 relax any discipline: each additional PR still gets its full per-PR `/validate-pr` +
@@ -1385,8 +974,7 @@ A QA activity (a `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
    backlog / [`pending-decisions.md`](../.working/pending-decisions.md) with a severity
    tier (and a morning-review flag for a risk item); none is dropped.
 3. Worker-delivered POSITIVES are re-verified at source before routing (a clean
-   zero-finding result is trusted on its proof-of-run, per the credit-offload consume
-   discipline).
+   zero-finding result is trusted on its proof-of-run).
 4. The history row is recorded (a zero-finding run still gets its row).
 5. Any deferred (risk, authorial, or irreversible) fix is documented for review, not
    silently left.
@@ -1418,8 +1006,7 @@ rationale. Anything else is a discipline failure.
 
 The per-PR QA cadence IS the pace of the PR workflow. "I'll catch it on the next one" or
 "the validate at the end of the batch will cover this" is the failure mode this rule
-prevents (it is what failed when Sweep 22 surfaced four in-window errors across 11 PRs
-recorded as "abbreviated spot-check, 0 findings"). If the assistant feels pressure to
+prevents. If the assistant feels pressure to
 abbreviate, the right move is to surface the pressure to the maintainer in one sentence
 rather than act on it unilaterally. This is the
 [`clarify-before-acting`](rules/governance/clarify-before-acting.md) rule's application to
@@ -1448,14 +1035,10 @@ subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-compl
 **No-MCP (gh-CLI) sessions: use `gh pr checks --watch`, bounded and fail-loud, and DO NOT idle
 on it.** When the session has no GitHub MCP (`mcp__github__*` absent from the tool list, so the
 PR mechanism is the `gh` CLI), there is no `subscribe_pr_activity`. Two failure modes are
-FORBIDDEN, both observed 2026-07-12: (a) bare `sleep 60 && echo "check status"` fallback timers,
+FORBIDDEN: (a) bare `sleep 60 && echo "check status"` fallback timers,
 which pair with a subscription that does not exist and self-check nothing, so they sprawl into
 overlapping low-signal waits; and (b) a hand-rolled `until`/`sleep` loop keyed on an unverified
-check command, which spins SILENTLY FOREVER if the command errors. (The concrete incident: a
-loop used `gh pr checks <N> --json name,bucket`, but `--json` is UNSUPPORTED by `gh pr checks`
-in this gh version, so `s=""` every iteration, the `until` condition could never become true,
-and the loop ran 30-plus minutes producing nothing while the orchestrator idled on a completion
-notification that could never fire.) Instead use the purpose-built, self-bounding primitive
+check command, which spins SILENTLY FOREVER if the command errors. Instead use the purpose-built, self-bounding primitive
 `gh pr checks <N> --watch --interval 30`, run via `Bash` `run_in_background`, wrapped in a hard
 `timeout` and made fail-loud so it can NEVER be silent:
 `timeout 1200 gh pr checks <N> --watch --interval 30; echo "watch exited rc=$?"; gh pr checks <N>`.
@@ -1470,7 +1053,7 @@ loop on a check command whose flags you have not verified in THIS environment, a
 wait unbounded or silent. (The harness also blocks foreground `sleep N && <cmd>` chains, so the
 wait always runs via `run_in_background` or `Monitor`, never a foreground sleep.)
 
-**Background-task check SOP (maintainer-directed 2026-07-02).** The same 60-second
+**Background-task check SOP.** The same 60-second
 cadence governs EVERY background task (a subagent, a background command, an external
 wait), not only PR CI waits: check on every background task every 60 seconds until it
 completes, re-arming the timer at each firing. Past the task's typical duration, do not
@@ -1479,11 +1062,9 @@ keep waiting passively for a completion notification; actively probe the task (a
 a background agent can stop silently WITHOUT delivering its result, and the completion
 notification alone does not distinguish "still running" from "stalled". The stall tells:
 no report past the typical duration, a dangling worktree, or liveness signals that stop
-advancing. (Motivating incident: the #582 post-merge sweep agent stalled silently mid-run
-and was recovered only when the maintainer prompted an investigation and an
-orchestrator status probe followed.)
+advancing.
 
-**No long-interval check-ins (maintainer-directed 2026-07-04).** Never ask for, propose,
+**No long-interval check-ins.** Never ask for, propose,
 or schedule a long-interval self check-in (an hour-out `send_later`, a deferred "I'll
 check back later" of any shape), including when a harness or subscription boilerplate
 suggests one: the 60-second cadence above IS the check-in mechanism, applied until the
@@ -1538,21 +1119,10 @@ the last commit before push (bump library CalVer and the README Version field)?
   preserve the pre-rewrite ref under
   `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>`; re-run the
   version-monotonicity audit after the rewrite.
-- **Cross-repo write-safety (§1.15a).** Before every Write/Edit and every repo-mutating
-  git command across the colocated repos (`grc_library` / `grc_library_ref` /
-  `grc_library_scratch` / `grc_library_private`), confirm the target repo matches intent:
-  `git rev-parse --show-toplevel` for git (or route the command through
-  `tools/repo-guard.sh <repo> -- <cmd>`, which refuses on a mismatch), and the
-  absolute-path prefix for Write/Edit; prefix git sequences with an explicit
-  `cd /home/jposluns/<repo> &&`. The mechanical wrapper is `tools/repo-guard.sh` (§1.15a
-  part (a), shipped #1013); this line is the standing convention (part (b)). The READ-side
-  companion is the [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) PreToolUse
-  Bash hook (§1.22.1, shipped #1042): it blocks a cwd-relative `tools/<x>` invocation absent
-  in the project repo but present in a sibling (e.g. running the scratch-side
-  `credit-offload-queue.py` from the `grc_library` cwd), naming the correct repo. It ALLOWS
-  any command with an explicit `cd` (so the `cd /home/jposluns/<repo> &&` habit satisfies it),
-  which is why a bare sibling-tool invocation relying on a persisted cwd is (fail-safely)
-  blocked; run scratch/`_ref`/`_private` tools with an explicit `cd` prefix.
+- **Cross-repo write-safety.** Before every Write/Edit and every repo-mutating git
+  command across the colocated sibling repos, confirm the target repo matches intent:
+  `git rev-parse --show-toplevel` for git, and the absolute-path prefix for Write/Edit;
+  prefix git sequences with an explicit `cd <repo-root> &&`.
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value (date,
@@ -1627,13 +1197,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   not a sixth): no standing verifier for quick-fix / bookkeeping changes, one refute-briefed
   verifier subagent pre-push for substantive changes, the full high-assurance harness for
   sensitive changes; a verifier finding is validated then fixed-and-re-verified (three-iter
-  cap, then defer to maintainer review); overruling a verifier is never silent (logged with
-  the finding, the reasoning, and the revert path in
-  [`.working/verifier-overrides.md`](../.working/verifier-overrides.md), surfaced at the next
-  attended boundary). This project tracks the
-  apply-time-catch vs shipped-escape ratio in
-  `hallucination-metrics` and dispatches
-  workers from [`.working/worker-brief-template.md`](../.working/worker-brief-template.md).
+  cap, then defer to maintainer review); overruling a verifier is never silent.
 - `.claude/rules/governance/trust-recovery-escalation.md` — the escalation tier when
   discipline failures put a maintainer's confidence in a window of work in question: the
   two-skill suite (`/full-qa` forensic pass then `/fitness` persona pass, both via
@@ -1654,9 +1218,7 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   adversarial verifiers (false-negative and false-positive lenses), a programmatic invariant
   floor, and a deterministic scripted apply plus re-parse, so apply-correctness does not rest
   on orchestrator in-context precision. The proactive counterpart to
-  `trust-recovery-escalation`; its sensitive items persist across sessions in
-  `high-assurance/register`, surfaced
-  at `/resume`.
+  `trust-recovery-escalation`.
 - `.claude/rules/governance/session-lifecycle.md` — the session-lifecycle and
   operating-modes discipline for multi-session work: a durable reconciled handoff record,
   explicit operator-set operating modes (fully attended / attended-autonomous with green-CI
