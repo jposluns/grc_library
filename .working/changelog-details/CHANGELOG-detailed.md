@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.542, PR #1054
+
+Session-closing handoff for the 2026-07-19b resumed session (#1044-#1053).
+
+### Changed
+- **Sweep 115 pre-close validation:** the corpus-wide `/validate` (three-subagent A/B/C, offloaded to worker-20260716-b) over the #1044..#1053 deltas returned PASS, 0 error / 0 warning (72/72 gates, 443-test regression, taxonomy and portal in sync). Run THIS session, not deferred to the next `/resume`, because the gap is several days (maintainer-directed). Sweep row recorded in the validate-sweeps history.
+- **Handoff refreshed** with the closing block + next-session queue (the `/home/grc` migration + file-drop transport + §4.30 adopter-experience assessment) + a state snapshot; the **concurrency lease RELEASED**.
+
+### Fixed
+- Two Sweep-115 notes: N1 (a frozen validate-pr-history count nit `1261` to `1262`, parity with five other records) and N2 (the mandatory-offload hook's BLOCKED message repointed from the moved `## Credit-offload mode` section to the live public `## Mandatory worker offload` section). N3 (§3.70 pack-vs-corpus crypto divergence) is tracked in pending-decisions; N4 (`_private` coverage) is orchestrator-verified.
+
+### Verification
+- Per the loop-break, this handoff PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the pre-close **Sweep 115** (which ran this session and PASSED, 0/0), stronger than the usual next-session deferral. Carries the #1053 `/validate-pr` + `/retro` rows.
+- The daily-CHANGELOG-condensation for 2026-07-19 is DEFERRED to the next session's day-boundary condensation (a standing orchestrator step; see the close-out note): the interim un-condensed state is cosmetic and Sweep 115 confirmed zero underlying errors.
+
 ## 2026-07-19, Library Version 2026.07.541, PR #1053
 
 Harmonizes the MFA-scope wording across the three governing security documents to the decided type-anchored form (TODO §3.69 / FR-205), and opens the adopter-experience umbrella (§4.30). Worker-drafted (worker-20260716-a), orchestrator-verified at source.

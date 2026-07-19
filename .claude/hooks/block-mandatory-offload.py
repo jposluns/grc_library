@@ -87,7 +87,7 @@ OVERRIDE_MARKERS = (
 )
 
 # BLOCK-TRIGGER markers: the offloadable QA-pass skills (the mechanically-detectable set from the
-# `## Credit-offload mode` offloadable inventory). Kept specific (slash forms and hyphenated skill
+# `## Mandatory worker offload` offloadable inventory). Kept specific (slash forms and hyphenated skill
 # names) to minimize false positives on ordinary prose.
 BLOCK_MARKERS = (
     "validate-pr",
@@ -218,7 +218,7 @@ def decide(payload: dict, project_dir: str):
         "BLOCKED (mandatory-offload guardrail): this dispatch looks like an OFFLOADABLE pass and "
         f"{live} credit-offload worker(s) are LIVE. Do not self-run it and spend scarce "
         "orchestrator credits: ENQUEUE a credit-offload order (`python3 "
-        "../grc_library_scratch/tools/credit-offload-queue.py` per the `## Credit-offload mode` "
+        "../grc_library_scratch/tools/credit-offload-queue.py` per the `## Mandatory worker offload` "
         "discipline) and consume the delivered result. To self-run anyway, first record explicit "
         "maintainer authorization. If this is actually a critical-path verifier (pre-push / "
         "skeptical / high-assurance / adversarial), name that in the prompt so the override "
