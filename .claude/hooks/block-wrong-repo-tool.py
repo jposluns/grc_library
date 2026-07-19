@@ -142,6 +142,11 @@ def main(argv: list[str]) -> int:
     except Exception:
         return 0  # fail-open
     if block:
+        try:
+            from _hook_state import record_block
+            record_block(command, "wrong-repo")
+        except Exception:
+            pass
         print(reason, file=sys.stderr)
         return 2
     return 0

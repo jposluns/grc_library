@@ -9,9 +9,9 @@ to this corpus one at a time under validate-then-apply. Nothing mechanical asked
 "which delivered work-units map to a still-OPEN backlog item (unapplied) versus a
 CLOSED one (applied)?", so the orchestrator's spoken pipeline status was
 unverifiable. This tool answers that question from the record. It is the
-mechanical form of the ``## Multi-session orchestration`` start-side
+mechanical form of the start-side
 worker-collision check and the anti-recurrence backstop for the
-delivery-status-claim discipline in ``.claude/CLAUDE.md``: any "applied / done /
+delivery-status-claim discipline in ``grc_library_private/orchestrator-claude.md`` (group A2): any "applied / done /
 backlog-clear / blocked" assertion must quote THIS tool's same-turn output, and a
 per-item blocking reason is recorded per item (never generalized).
 

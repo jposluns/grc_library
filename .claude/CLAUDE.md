@@ -1148,6 +1148,15 @@ question when a key already appears in the decision stores, printing the matched
 defence-in-depth, not a substitute for the discipline (it keys on distinctive tokens, so a
 key-free novel decision still needs the manual search).
 
+## Self-verification: intent is not action
+
+Two disciplines layered on `evidence-grounded-completion`, closing the failure where the assistant substitutes what it MEANT to do for what it actually did.
+
+- **Read-back before every sibling-repo or previously-blocked command.** Before running a command that targets a sibling repo, or that a PreToolUse hook just blocked, READ the literal command string you are about to submit and confirm its key property in your reasoning (for a sibling-repo tool: an explicit `cd <repo-root> &&` prefix, or `git -C <path>`, or an absolute path). Do not rely on a persisted working directory. On a repeated identical hook-block, change the command STRUCTURE, never resubmit the same shape.
+- **Intent is not action: never narrate a change as made unless the artefact shows it.** Do not write "added the cd", "fixed it", "recorded it", or any done-claim unless the artefact you just wrote or ran actually reflects it. Editing a tool call's `description` field, or saying it in chat, is NOT editing the command string or the file. The immediate next action after describing a fix is to read or confirm the artefact reflects it (a `git status` / `git diff`, a re-read, the tool's own output). Before opening any PR, confirm `git status` is clean or intentionally staged (a targeted `git add <list>` can silently drop a file edited after it).
+
+The mechanical backstop is the [`block-repeated-tool-failure.py`](hooks/block-repeated-tool-failure.py) PreToolUse hook: it refuses a byte-identical resubmission of a just-blocked command, and after two consecutive same-class blocks requires a written diagnosis before any retry. Defence in depth, not a substitute for the read-back habit.
+
 ## Communication conventions
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.

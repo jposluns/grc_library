@@ -22,6 +22,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
+          },
+          {
+            "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-verification-pipes.py"
           },
           {
@@ -33,6 +37,10 @@
       {
         "matcher": "AskUserQuestion",
         "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
+          },
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-askuserquestion-unattended.py"
