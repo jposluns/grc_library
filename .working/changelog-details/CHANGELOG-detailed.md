@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.541, PR #1053
+
+Harmonizes the MFA-scope wording across the three governing security documents to the decided type-anchored form (TODO §3.69 / FR-205), and opens the adopter-experience umbrella (§4.30). Worker-drafted (worker-20260716-a), orchestrator-verified at source.
+
+### Changed
+- MFA scope harmonized to "all user (interactive) accounts and all remote access; non-interactive service accounts exempt where documented and approved; other exceptions case-by-case with compensating controls; phishing-resistant for privileged" across [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md) (section 5), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md) (clause 4.2.1), and [`security/policy-information-security.md`](../../security/policy-information-security.md) (clause 4.3.2). The umbrella info-sec clause was kept TERSE (the "interactive user" type-anchor already scopes out non-interactive service accounts, so the exemption detail lives in the IAM policy and the standard, not duplicated in the top-level policy). Per-doc Version + Date co-bumped (auth-standard 1.1.2, IAM 1.3.12, info-sec 1.3.17); taxonomy and scorecard regenerated.
+
+### Added
+- **TODO §4.30**, the adopter-experience umbrella: a Phase-1 assessment of every adopter-facing process from a clean public clone, a root `.adopt` kit (decision README + templates), and Phase-3 adaptation (move DONE + improvement-log to `_private`, adapt the gates that read them to a `resolve_sibling`-style location resolver, `/adopt` recreates them for adopters). Coordinates the existing adoption items (§4.1 / 4.5 / 4.6 / 4.9 / 4.29). Maintainer-directed.
+
+### Verification
+- Three target lines re-read at source (each matched the worker's quoted current wording); the decided wording confirmed against `pending-decisions`. IAM clause 4.3.2 (a separate SoD clause) confirmed untouched (no collision with info-sec 4.3.2). Full audit suite green expected at push; the skeptical verify is OFFLOADED to a worker.
+- The PR #1052 `/validate-pr` (offloaded to worker-a) returned ZERO material findings (1 INFO: a pre-existing `EC` vs `ECC` terminology nit, out of scope); its history and retro rows batch into this PR.
+
+### Worker provenance
+- Candidate diff drafted by worker-20260716-a (its scratch inbox delivery), re-verified at source and applied. Apply-time editorial choice: for the umbrella info-sec policy (edit 3) the orchestrator chose the terse summary altitude (the worker offered full-detail or summary; summary chosen to avoid duplicating the service-account exemption in the top-level policy).
+
 ## 2026-07-19, Library Version 2026.07.540, PR #1052
 
 Tightens the two dev-security crypto guidance tables to the encryption-policy floor (TODO §3.70, a FR-203 verifier follow-up). Worker-drafted (worker-20260716-b), orchestrator-verified at source.
