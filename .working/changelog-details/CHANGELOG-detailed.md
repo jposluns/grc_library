@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.529, PR #1041
+
+Adds the answered-question guardrail (TODO section 1.22.6, maintainer-directed 2026-07-19) after the assistant re-asked the maintainer four content forks (section 3.68 vuln-SLA, section 3.69 MFA scope, section 3.70 asymmetric-key minimums, the standards-rendering item) whose decisions were already recorded in the pending-decisions queue. Assistant-guidance, tooling, and working-state only; no corpus or website content changed.
+
+### Added
+- [`.claude/hooks/block-answered-question.py`](../../.claude/hooks/block-answered-question.py): a PreToolUse hook on `AskUserQuestion` that extracts a question's distinctive keys (section numbers written with the section glyph or the word "section", and coded backlog ids like `FR-205`), greps the decision stores (the pending-decisions queue, the private design-decisions record, and the DONE ledger), and BLOCKS (exit 2) the question when a key already appears, printing the matched store line. Fail-open on parse/read failure or absent stores (adopter-safe). 10 inline self-tests (`--self-test`), all pass.
+- [`tools/decisions-search.py`](../../tools/decisions-search.py): the on-demand forcing-function search (a section number, a coded id, or a free-text phrase); the same executed-not-narrated pattern as the audit-delivery-status and ref-holds tools. Stdlib-only.
+
+### Changed
+- [`.claude/settings.json`](../../.claude/settings.json): wired the new hook as a second `AskUserQuestion` PreToolUse hook (alongside the unattended guard).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added a "Search decisions before asking (the answered-question guardrail)" clause to the clarify-before-acting section.
+- [`TODO.md`](../../TODO.md): added section 1.22.6 (this guardrail, closed here and rotated to DONE) and section 1.22.7 (the maintainer-directed single "Maintainer or Egress Gated" no-priority section with numbered items, for overnight); section 1.22.7 revised per the maintainer's mid-build clarification (one combined section, each item numbered so the maintainer can reference "I did item N").
+- [`.working/pending-decisions.md`](../pending-decisions.md): recorded this session's Round-1 confirmations (section 1.14 confirmed-as-shipped, section 1.1 design-overnight, section 1.18 scope+D8-pilot-overnight) and noted the four content forks are already-recorded and confirmed for overnight execution.
+- [`.working/DONE.md`](../DONE.md): rotated section 1.22.6 in.
+
+### Verification
+- Hook `--self-test`: 12/12 pass (2 added by the verifier fix). End-to-end: a `§3.69` question BLOCKS (exit 2, prints the recorded MFA decision); a novel key-free question ALLOWS (exit 0); a novel `SEF-07` control-code question ALLOWS (exit 0, the over-block fix); `FR-205` still BLOCKS (exit 2). `decisions-search.py 3.69` returns the two recorded lines (exit 0); `3.999` returns none (exit 1).
+- **Skeptical verifier (substantive/protective machinery) run pre-push: no push-blocking defect, but it surfaced a real over-block class, FIXED here.** The coded-id regex was `[A-Z]{1,4}-\d+`, which matched corpus control codes (`SEF-07`, `IAM-09`) and hyphen-numeric statute codes (`A-2.1`), so a genuinely novel security/privacy question mentioning one would be false-blocked. Tightened to the known backlog-id prefixes (`FR`/`SR`/`GR`/`DD`/`RB`/`FIT`/`FQ`/`GAP`/`P`); section-number detection covers the rest. Also documented the verifier's second residual (the live `AskUserQuestion` payload schema is unverified from here; if it nests questions differently the hook fail-opens to a no-op, so the CLAUDE.md discipline and the on-demand decisions-search tool are the load-bearing control and the hook is defence-in-depth).
+- `tools/run_all_audits.sh` and the pre-push guard green (the first guard run correctly FAILED on the gate-50 finding below, which this PR then fixed); the settings file parses as valid JSON.
+
+### Also carries (recursion-avoidance)
+PR #1040's QA batch: the `/validate-pr` row (SELF-RUN formal Subagent A on the #1040 working-state diff) and the `/retro` row. **F1** from validate-pr-1040 (LOW-MED): #1040 added top-level P1 §1.22 but left the P1 "Next item number" counter at `1.22` (`TODO.md:27`); per the never-recycle convention the next P1 section would collide. Re-verified at source and FIXED here (counter -> `1.23`). The gate-50 pre-push guard independently caught the missing #1040 QA rows before push, which this batch supplies.
+
 ## 2026-07-19, Library Version 2026.07.528, PR #1040
 
 Resume close-out for the 2026-07-19 session (`/resume` from the session-closing handoff #1039; on the VM, gh-CLI, no GitHub MCP; STARTS attended-autonomous). Working-state and versions only; no corpus or website content changed.
