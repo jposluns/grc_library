@@ -1537,6 +1537,22 @@ in one sentence and ask before proceeding. Don't silently pick. The authoritativ
 lives in `.claude/rules/governance/clarify-before-acting.md` (the pack rule) and as Rule 9
 in `~/.claude/CLAUDE.md` (the user-level memory form).
 
+**Search decisions before asking (the answered-question guardrail, §1.22.6).** The
+compute-first gate applies with force to authorial/policy decisions: before surfacing ANY
+`AskUserQuestion` on a backlog fork or a maintainer-decision, run
+`python3 tools/decisions-search.py <section-or-id-or-phrase>` and READ its output; if a
+decision is recorded (in `.working/pending-decisions.md`, the `_private` design-decisions
+record, or `.working/DONE.md`), ACT on it, never re-ask. Re-asking a decided question
+wastes the maintainer's time and erodes trust (the 2026-07-19 recurrence: four content
+forks, §3.68/§3.69/§3.70 and the standards-rendering item, re-asked though all were
+recorded in `pending-decisions.md`). This is the executed-not-narrated forcing function,
+the same shape as `audit-delivery-status.py` and `ref-holds.py`. The mechanical backstop is
+the [`block-answered-question.py`](hooks/block-answered-question.py) PreToolUse hook, which
+extracts a question's distinctive keys (§-sections, coded ids like `FR-205`) and BLOCKS the
+question when a key already appears in the decision stores, printing the matched line;
+defence-in-depth, not a substitute for the discipline (it keys on distinctive tokens, so a
+key-free novel decision still needs the manual search).
+
 ## Communication conventions
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.

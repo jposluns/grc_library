@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.22.6: answered-question guardrail (2026-07-19, PR #1041)
+
+Built the mechanical guardrail against re-asking a maintainer a decision they already made: a PreToolUse hook (`block-answered-question.py`) that extracts an `AskUserQuestion`'s distinctive keys (backlog sections, coded ids) and BLOCKS the question when a key already appears in the decision stores, plus `tools/decisions-search.py` (the on-demand search) and a CLAUDE.md "search decisions before asking" discipline. Motivated by the 2026-07-19 recurrence (four content forks re-asked though all were recorded in `pending-decisions.md`).
+
 ### TODO §1.19.10: tiered public-changelog migration complete (2026-07-18, PR #1037)
 
 Migrated the public root CHANGELOG to the tiered model: the current ISO week keeps its per-PR entries verbatim, and each of the six older completed weeks collapses to one authored accomplishments paragraph (at most four sentences), with the full 1020-entry per-PR source preserved verbatim in the private companion repo as the durable source the projection derives from. Data-safe (current block byte-identical, row-by-row conservation verified; the six summaries re-authored from a worker research-seed draft against the source bullets). The recurring event-driven weekly-rollup wiring is carried forward as new item §1.19.10a.
