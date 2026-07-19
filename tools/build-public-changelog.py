@@ -109,11 +109,18 @@ def parse_entries(text: str) -> tuple[str, list[dict]]:
     return "\n".join(preamble), entries
 
 
-def tier_of(d: datetime.date, current_week: datetime.date,
+def tier_of(d: datetime.date, as_of: datetime.date, current_week: datetime.date,
             window_start: datetime.date) -> str:
-    """Return 'current', 'weekly', or 'monthly' for an entry date."""
-    if monday_of(d) >= current_week:
+    """Return 'current', 'daily', 'weekly', or 'monthly' for an entry date.
+
+    Daily model (TODO section 1.22.5): the CURRENT DAY (``as_of``) is kept per-PR
+    verbatim; each PREVIOUS DAY still within the current week collapses to ONE
+    daily summary paragraph; older weeks/months collapse as before. A previous
+    day is condensed once the next day begins (the day-boundary trigger)."""
+    if d == as_of:
         return "current"
+    if monday_of(d) >= current_week:
+        return "daily"
     if d >= window_start:
         return "weekly"
     return "monthly"
@@ -140,25 +147,41 @@ def _group_label(grp: list[dict]) -> str:
     return f"versions {grp[-1]['version']} to {grp[0]['version']}"
 
 
-def project(entries: list[dict], current_week: datetime.date,
-            window_start: datetime.date) -> str:
+def project(entries: list[dict], as_of: datetime.date,
+            current_week: datetime.date, window_start: datetime.date) -> str:
     """Return the tiered projection body (no preamble)."""
     current: list[dict] = []
+    daily: dict[datetime.date, list[dict]] = {}
     weekly: dict[datetime.date, list[dict]] = {}
     monthly: dict[str, list[dict]] = {}
     for e in entries:
-        t = tier_of(e["date"], current_week, window_start)
+        t = tier_of(e["date"], as_of, current_week, window_start)
         if t == "current":
             current.append(e)
+        elif t == "daily":
+            daily.setdefault(e["date"], []).append(e)
         elif t == "weekly":
             weekly.setdefault(monday_of(e["date"]), []).append(e)
         else:
             monthly.setdefault(e["date"].strftime("%Y-%m"), []).append(e)
 
     out: list[str] = []
-    # Current week: verbatim per-PR entries, newest-first (source order).
+    # Current day: verbatim per-PR entries, newest-first (source order).
     for e in current:
         out.append(e["raw"])
+        out.append("")
+    # Daily tier (previous days still in the current week): newest day first.
+    for day in sorted(daily, reverse=True):
+        grp = daily[day]
+        out.append(f"**{day.isoformat()} ({_group_label(grp)})**")
+        out.append("")
+        out.append(
+            f"<!-- TIER-SCAFFOLD: author an accomplishments summary of at most "
+            f"4 sentences for {day.isoformat()} ({len(grp)} entries); raw "
+            f"per-entry material below, delete after authoring. -->"
+        )
+        for e in grp:
+            out.append(f"- {_entry_tag(e)}: {e['summary']}")
         out.append("")
     # Weekly tier: newest week first.
     for wk in sorted(weekly, reverse=True):
@@ -189,11 +212,12 @@ def project(entries: list[dict], current_week: datetime.date,
     return "\n".join(out).rstrip() + "\n"
 
 
-def plan_counts(entries: list[dict], current_week: datetime.date,
+def plan_counts(entries: list[dict], as_of: datetime.date,
+                current_week: datetime.date,
                 window_start: datetime.date) -> dict[str, int]:
-    counts = {"current": 0, "weekly": 0, "monthly": 0}
+    counts = {"current": 0, "daily": 0, "weekly": 0, "monthly": 0}
     for e in entries:
-        counts[tier_of(e["date"], current_week, window_start)] += 1
+        counts[tier_of(e["date"], as_of, current_week, window_start)] += 1
     return counts
 
 
@@ -222,19 +246,24 @@ def self_test() -> int:
 
         def test_tiers(self):
             _, entries = self._entries()
-            cw = monday_of(datetime.date(2026, 7, 15))  # 2026-07-13
+            as_of = datetime.date(2026, 7, 15)
+            cw = monday_of(as_of)  # 2026-07-13
             ws = datetime.date(2026, 4, 15)  # ~3 months before as-of
-            counts = plan_counts(entries, cw, ws)
-            # 100/99 current week; 98/97 (wk 07-06) + the no-PR 05-04 -> weekly;
-            # 50 (March) -> monthly.
-            self.assertEqual(counts, {"current": 2, "weekly": 3, "monthly": 1})
+            counts = plan_counts(entries, as_of, cw, ws)
+            # 100 (07-15 == as_of) current-day; 99 (07-14, same week) -> daily;
+            # 98/97 (wk 07-06) + the no-PR 05-04 -> weekly; 50 (March) -> monthly.
+            self.assertEqual(
+                counts, {"current": 1, "daily": 1, "weekly": 3, "monthly": 1})
 
         def test_project_keeps_current_verbatim_and_scaffolds_rest(self):
             _, entries = self._entries()
-            cw = monday_of(datetime.date(2026, 7, 15))
+            as_of = datetime.date(2026, 7, 15)
+            cw = monday_of(as_of)
             ws = datetime.date(2026, 4, 15)
-            body = project(entries, cw, ws)
+            body = project(entries, as_of, cw, ws)
             self.assertIn("**2026-07-15 | 2026.07.9 | PR #100** - recent one.", body)
+            # A previous day still in the current week -> a daily summary paragraph.
+            self.assertIn("**2026-07-14 (PRs #99)**", body)
             self.assertIn("**Week of 2026-07-06 (PRs #97-#98)**", body)
             self.assertIn("**2026-03 (PRs #50)**", body)
             self.assertIn("TIER-SCAFFOLD", body)
@@ -282,17 +311,18 @@ def main(argv: list[str]) -> int:
     window_start = monday_of(as_of - datetime.timedelta(days=args.months * 30))
 
     preamble, entries = parse_entries(src.read_text(encoding="utf-8"))
-    counts = plan_counts(entries, current_week, window_start)
+    counts = plan_counts(entries, as_of, current_week, window_start)
     print(f"Source: {src} ({len(entries)} per-PR entries)")
-    print(f"Current week (verbatim): week of {current_week.isoformat()}")
+    print(f"Current day (verbatim per-PR): {as_of.isoformat()}")
     print(f"Weekly tier window start: {window_start.isoformat()} "
           f"(within {args.months} months)")
-    print(f"Tiers: {counts['current']} current per-PR, "
+    print(f"Tiers: {counts['current']} current-day per-PR, "
+          f"{counts['daily']} to daily paragraphs, "
           f"{counts['weekly']} to weekly paragraphs, "
           f"{counts['monthly']} to monthly paragraphs.")
 
     if args.emit:
-        body = project(entries, current_week, window_start)
+        body = project(entries, as_of, current_week, window_start)
         out = (preamble.rstrip() + "\n\n" + body) if preamble.strip() else body
         Path(args.emit).write_text(out, encoding="utf-8")
         print(f"Emitted tiered projection SCAFFOLD to {args.emit} "
