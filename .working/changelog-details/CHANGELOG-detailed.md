@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.537, PR #1049
+
+Ships the decision-guardrail self-guard (maintainer-designed 2026-07-19), against a recurring failure the maintainer named: the assistant DEFERS a queued or authorized item, or winds down / re-sequences / skips, on an un-instrumented internal-state justification (context weight, a long turn, too-risky-to-do-now, do-it-fresh-later) INSTEAD of doing the work or asking a specific question. Deferral-with-no-question is strictly worse than both valid moves: it stalls the work and hands the maintainer nothing to act on. Assistant-guidance, tooling, and working-state only; no corpus or website content changed.
+
+### Added
+- [`.claude/hooks/block-unjustified-decision.py`](../../.claude/hooks/block-unjustified-decision.py) (new PreToolUse hook on Edit and Write) and its wiring in [`.claude/settings.json`](../../.claude/settings.json). It fires only on a write to the private autonomous-decisions log and BLOCKS an added entry that lacks a `- **Classification:**` line, names a BLOCKED blocker-type outside the closed set (`maintainer-decision-unreachable` / `irreversible-needs-confirmation` / `failing-check` / `source-unavailable` / `maintainer-directed-hold`), or cites a forbidden internal-state justification. Fail-open; 9-case `--self-test` wired into the regression suite via [`tests/test_linters.py`](../../tests/test_linters.py). Proven in production: it blocked a doc-heavy first draft of the log and allowed the clean one.
+- A write-before-enact autonomous-decisions log in the private companion repo (indexed in the private INDEX; a `check_autonomous_decisions_log` gate added to the private validate tool mirrors the hook as the CI floor). Every SIGNIFICANT autonomous decision (disposing of a queued or authorized item, or changing the plan, not a routine step) is written there classified BEFORE it is enacted.
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a new `## Decision discipline: act, ask, or name a blocker (write-before-enact)` section codifying the ACT / ASK / BLOCKED rubric, the 'attended = ask, do not defer' rule, and the write-before-enact log discipline.
+### Also carries (recursion-avoidance)
+The PR #1048 `/validate-pr` history row + `/retro` row, and the in-window fix from that validate-pr: the [`tools/build-public-changelog.py`](../../tools/build-public-changelog.py) module docstring updated to describe the FOUR-tier daily model (it had been left at THREE tiers after the daily-tier change).
+### Verification
+- `tools/run_all_audits.sh` green (72/72; regression suite includes the new hook self-test); the private validate tool green (the log passes the new check); the hook self-test is 9/9. Pre-push guard (D1-D8 + history-aware trio) green.
+
 ## 2026-07-19, Library Version 2026.07.536, PR #1048
 
 Changes the public root CHANGELOG's current-week block to the DAILY model (TODO section 1.22.5, maintainer-directed, public-facing only). No corpus content or website changed.

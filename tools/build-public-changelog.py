@@ -4,15 +4,20 @@
 The tiered public-CHANGELOG model (maintainer-approved, locked at the #1020
 handoff): the public root ``CHANGELOG.md`` keeps only a recency-tiered
 projection, while the full per-PR record (the compact root entries and the
-detailed mirror) is the private source. Three tiers, by the entry date's ISO
-week relative to the run's "current week":
+detailed mirror) is the private source. FOUR tiers (TODO section 1.22.5 added the
+daily tier on top of the original three), by the entry date relative to the run's
+"current day" and "current week":
 
-  1. CURRENT WEEK: the per-PR compact entries are kept VERBATIM
+  1. CURRENT DAY: the per-PR compact entries are kept VERBATIM
      (``**YYYY-MM-DD | X.Y.Z | PR #N** - <summary>``).
-  2. OLDER, WITHIN 3 MONTHS: each completed ISO week (Monday-Sunday) collapses to
+  2. PREVIOUS DAYS STILL IN THE CURRENT WEEK: each day collapses to ONE daily
+     paragraph, headed ``**YYYY-MM-DD (PRs #FIRST-#LAST)**``, with a short
+     accomplishments summary (at most 4 sentences), condensed once the next day
+     begins (the day-boundary trigger).
+  3. OLDER, WITHIN 3 MONTHS: each completed ISO week (Monday-Sunday) collapses to
      ONE weekly paragraph, headed ``**Week of YYYY-MM-DD (PRs #FIRST-#LAST)**``,
      with a short accomplishments summary (the locked shape: at most 4 sentences).
-  3. OLDER THAN 3 MONTHS: each calendar month collapses to one monthly paragraph,
+  4. OLDER THAN 3 MONTHS: each calendar month collapses to one monthly paragraph,
      headed ``**YYYY-MM (PRs #FIRST-#LAST)**``.
 
 WHY A SCAFFOLD, NOT A FULL GENERATOR. A week can hold dozens of PRs; a faithful
@@ -32,10 +37,11 @@ It is a maintainer-side generator run when the tiering is refreshed.
 
 D8 INTERACTION. The PR-time length gate D8 (``check-changelog-length-on-pr.py``)
 and its advisory sibling (``audit-changelog-entry-length.py``) match ONLY the
-per-PR compact header ``**YYYY-MM-DD | X.Y.Z | PR #N** - ...``; a weekly
-(``**Week of ...**``) or monthly (``**YYYY-MM ...**``) paragraph header does NOT
-match, so those tiers are already out of D8's scope with no gate change. Only the
-CURRENT-WEEK per-PR tier is length-gated, which is the intended behaviour.
+per-PR compact header ``**YYYY-MM-DD | X.Y.Z | PR #N** - ...``; a daily
+(``**YYYY-MM-DD (PRs ...)**``), weekly (``**Week of ...**``), or monthly
+(``**YYYY-MM ...**``) paragraph header does NOT match, so those tiers are out of
+D8's scope with no gate change. Only the CURRENT-DAY per-PR tier is length-gated,
+which is the intended behaviour.
 
 Modes (mutually exclusive; default --dry-run):
     --dry-run     report the tiering plan (counts per tier); touch nothing.
@@ -47,8 +53,8 @@ Modes (mutually exclusive; default --dry-run):
 
 Options:
     --source PATH   the per-PR CHANGELOG source (default: CHANGELOG.md).
-    --as-of DATE    YYYY-MM-DD; its ISO week is the current week kept verbatim
-                    (default: today, UTC).
+    --as-of DATE    YYYY-MM-DD; that DAY is kept per-PR verbatim and earlier days
+                    in its ISO week collapse to daily paragraphs (default: today, UTC).
     --months N      the within-N-months weekly-tier window (default 3).
 
 Exit codes: 0 success; 2 usage error.

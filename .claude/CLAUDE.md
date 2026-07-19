@@ -1157,6 +1157,19 @@ Two disciplines layered on `evidence-grounded-completion`, closing the failure w
 
 The mechanical backstop is the [`block-repeated-tool-failure.py`](hooks/block-repeated-tool-failure.py) PreToolUse hook: it refuses a byte-identical resubmission of a just-blocked command, and after two consecutive same-class blocks requires a written diagnosis before any retry. Defence in depth, not a substitute for the read-back habit.
 
+## Decision discipline: act, ask, or name a blocker (write-before-enact)
+
+A recurring failure (maintainer-named 2026-07-19): the assistant DEFERS a queued or authorized item, or winds down / re-sequences / skips, on an un-instrumented internal-state justification ("heavy context", "long turn", "too risky to do now", "do it fresh later", felt sensitivity) INSTEAD of doing the work or asking. Deferral-with-no-question is strictly worse than both valid moves: it stalls the work AND hands the maintainer nothing to act on, while dressing avoidance up as prudence.
+
+**The rubric.** At any point the assistant is about to NOT do a queued or authorized item (or to change the plan), it classifies the reason as exactly one of, and there is no fourth:
+- **ACT**: there is no real blocker, so do it (the default, and the right answer far more often than the assistant's instinct suggests).
+- **ASK** a specific named question: the decision is genuinely the maintainer's; while the maintainer is reachable the assistant ASKS it, never records a defer instead.
+- **BLOCKED** by a NAMED, externally-observable blocker from the closed set: `maintainer-decision-unreachable`, `irreversible-needs-confirmation`, `failing-check`, `source-unavailable`, `maintainer-directed-hold`.
+
+Un-instrumented internal state is NEVER a valid basis for a hold (the `evidence-grounded-completion` un-observable-state corollary). "Attended, so ask, do not defer": in any attended mode, a maintainer-decision blocker is ASKED, not deferred.
+
+**Write-before-enact.** Every SIGNIFICANT autonomous decision (one that disposes of a queued or authorized item, or changes the plan, NOT a routine execution step) is written to `grc_library_private/autonomous-decisions-log.md` as a classified entry (a `- **Classification:**` line reading ACT / ASK / BLOCKED with a blocker-type) BEFORE it is enacted, so the classification is made at decision time rather than rationalized after. The mechanical backstop is the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) PreToolUse hook, which refuses a log write that lacks a classification, names a blocker-type outside the closed set, or cites a forbidden internal-state justification; a `_private` validate check gates the log's shape. Defence in depth, not a substitute for the rubric. The log file itself stays lean (entries only); this section is the discipline it references.
+
 ## Communication conventions
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.

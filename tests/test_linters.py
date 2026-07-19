@@ -1894,6 +1894,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
+    def test_block_unjustified_decision_hook_self_test(self) -> None:
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-unjustified-decision.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stderr)
+
     def test_tail_safe_wrapper_self_test(self) -> None:
         result = self._run_selftest(
             ["bash", str(REPO_ROOT / "tools" / "tail-safe.sh"), "--self-test"]
