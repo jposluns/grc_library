@@ -25,7 +25,8 @@ freshness check", the settled slice-1 design). This tool produces that report:
      (``§N.M``, or an ``SR-N`` id for the scratch-reference rows) is checked
      against a live ``### N.M `` / ``### SR-N `` heading in ``TODO.md``; a dead
      anchor means a TODO renumber or close landed without the paired coverage
-     sync (the close-out pairing line in .claude/CLAUDE.md is the convention
+     sync (the close-out pairing line in
+     ``grc_library_private/orchestrator-claude.md`` (group A3) is the convention
      this mechanizes a report for).
 
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the

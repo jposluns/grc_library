@@ -189,6 +189,11 @@ def main(argv: list[str]) -> int:
     except Exception:
         return 0  # fail-open on any unexpected error
     if block:
+        try:
+            from _hook_state import record_block, subject_from_payload
+            record_block(subject_from_payload(payload), "answered-question")
+        except Exception:
+            pass
         print(reason, file=sys.stderr)
         return 2
     return 0

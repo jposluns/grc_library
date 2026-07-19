@@ -85,6 +85,11 @@ def main() -> int:
         return 0  # fail-open on malformed payload (see docstring)
     if not isinstance(command, str) or not command_is_blocked(command):
         return 0
+    try:
+        from _hook_state import record_block
+        record_block(command, "verification-pipes")
+    except Exception:
+        pass
     sys.stderr.write(
         "BLOCKED (RM-10 guardrail): this command pipes a verification "
         "command into a truncating filter, which masks its exit code (the "

@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### Self-guard bundle: intent-vs-action hooks + degradation-watch guard (2026-07-19, PR #1045)
+Maintainer-directed (not previously in TODO): two PreToolUse hooks (a repeat-block loop-breaker that refuses a byte-identical resubmission of a just-blocked command, and a diagnosis circuit-breaker) + read-back / intent-is-not-action CLAUDE.md disciplines + an evidence-based degradation-watch log in the private companion repo (threshold: a session is not long or heavy unless a few hours AND at least one compaction). Guards against the 2026-07-19 substitute-intent-for-action slips (the seven-times-resubmit loop and the reflex session-length narrative). Also fixes 3 #1044-escape stale cross-file pointers.
+
 ### TODO §1.19.12: CLAUDE.md sensitivity-trim applied (2026-07-19, PR #1044)
 Applied the maintainer-confirmed §1.19.12 classification: moved the operational mechanics and war-stories out of the public `.claude/CLAUDE.md` (1699 -> 1262 lines) into `grc_library_private/orchestrator-claude.md` (a new private operational extension loaded every `/resume`) and the `claude-md-considerations.md` removal ledger; the portable governance spine an adopter fork inherits stays public. Worker-drafted deterministic apply, orchestrator-audited hunk-by-hunk and independently verified. Closes §1.19.12; only the maintainer-gated §1.19.13 history scrub remains in the §1.19 series.
 
