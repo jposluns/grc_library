@@ -1,6 +1,6 @@
 ---
 name: adopt
-description: Run-once onboarding for a fork that adopts this governance-corpus-plus-pack project. A maintainer's clone carries accumulated operational working-state (audit-trail registers, session handoff, a next-actions queue, per-document review anchors) that is meaningless to a fresh adopter; this skill resets that machinery-core working-state to clean adopter baselines, settles how the adopter will handle the absent sibling repositories (their own, or self-contained on the in-repo placeholders), strips maintainer-only operational residue, and records the adopter's choices in a committed adopt-config so the resume step proceeds in adopter-mode without re-asking. It runs ONLY on an adopter clone (a fork origin), never on the maintainer's own repo or a maintainer's fresh-machine clone, and only once (an existing adopt-config short-circuits it).
+description: Run-once onboarding for a fork that adopts this governance-corpus-plus-pack project. A maintainer's clone carries accumulated operational working-state (audit-trail registers, session handoff, a next-actions queue, per-document review anchors) that is meaningless to a fresh adopter; this skill resets that machinery-core working-state to clean adopter baselines, settles how the adopter will handle the absent sibling repositories (their own, or self-contained with in-repo stubs `/adopt` creates or functional in-repo siblings), strips maintainer-only operational residue, and records the adopter's choices in a committed adopt-config so the resume step proceeds in adopter-mode without re-asking. It runs ONLY on an adopter clone (a fork origin), never on the maintainer's own repo or a maintainer's fresh-machine clone, and only once (an existing adopt-config short-circuits it).
 derives_from: ../../governance/session-lifecycle.md
 ---
 
@@ -15,9 +15,10 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   by the git `origin` remote against `jposluns/grc_library` plus sibling presence).
 - Adopt-config: `.claude/adopt-config.json` (committed by the adopter; its presence
   marks the fork adopted and is what the resume step reads to skip re-onboarding).
-- Sibling placeholders: the in-repo `.ref` / `.scratch` / `.private` stubs that stand
-  in for `grc_library_ref` / `grc_library_scratch` / `grc_library_private` when a
-  sibling is absent (guarded by the sibling-repo stub-guard gate).
+- Sibling placeholders: the OPTIONAL in-repo `.ref` / `.scratch` / `.private` stubs that
+  `/adopt` can create to stand in for `grc_library_ref` / `grc_library_scratch` /
+  `grc_library_private` when a sibling is absent (not shipped by default; a present stub's
+  shape is guarded by the sibling-repo stub-guard gate, guard-if-present-as-stub).
 - Machinery-core working-state (the reset target): the gate-read `.working/` files
   that a maintainer's clone fills with operational history, enumerated in step 3.
 - Resume wiring: `.claude/commands/resume.md` proposes `/adopt` when the classifier
@@ -89,10 +90,10 @@ Ask the adopter how they will handle the three sibling repositories, and record 
 
 - **Own siblings**: the adopter maintains their own reference base, worker-exchange, and
   private-operational repositories beside the clone. `/adopt` points the resolver at them
-  (or leaves them to be cloned); the in-repo placeholders remain as the sibling-free
-  fallback.
-- **Self-contained**: the adopter runs on the clone alone, relying on the in-repo
-  placeholders and (for the reference base) the reference-acquisition manifest. Advisory
+  (or leaves them to be cloned); no in-repo placeholders are needed (they are not shipped).
+- **Self-contained**: the adopter runs on the clone alone; `/adopt` creates the in-repo
+  placeholder stubs they want (or they materialize functional in-repo siblings), and (for
+  the reference base) uses the reference-acquisition manifest. Advisory
   tools that reach a sibling degrade to a clean no-op; the corpus and gates run green
   regardless.
 
@@ -142,13 +143,17 @@ planner itself NEVER fetches, downloads, or writes: it reads only the manifest's
 metadata, so the network + write side stays in the assistant layer where the human is in the
 loop, and the copyright boundary is explicit (only FREE sources are auto-fetched; LICENSED
 items are never redistributed). For
-**self-contained**, keep the in-repo placeholders as-is; the reference-acquisition manifest
-(and the same planner) serves as a bibliography the adopter can use to build an external
-reference base later
-(converting to the own-siblings model). In BOTH models the fetched reference text goes into
-an EXTERNAL sibling, NEVER into the in-repo `.ref` stub: the in-repo
-`.ref` / `.scratch` / `.private` always stay stub-only, so the stub-guard gate passes (a
-fetch into the in-repo `.ref` would hard-fail that gate and break step 7's green sweep).
+**self-contained**, the in-repo placeholders are NOT shipped (TODO section 1.22.2 removed the
+committed stubs), so `/adopt` CREATES the ones the adopter wants: a README-only stub per slot
+whose first line is the `<!-- SIBLING-PLACEHOLDER: <name> -->` marker, which the stub-guard
+gate keeps payload-free. The reference-acquisition manifest (and the same planner) then serves
+as a bibliography the adopter can use to build an external reference base later (converting to
+the own-siblings model). Fetched reference text goes into an EXTERNAL sibling, NEVER into an
+in-repo `.ref` STUB: a payload-bearing declared stub hard-fails the stub-guard gate and breaks
+step 7's green sweep. An adopter who instead wants a FUNCTIONAL in-repo sibling (a real
+reference checkout at `.ref` rather than an external one) materializes a functional directory
+there, which is out of the stub-guard gate's scope (an unmarked, non-stub directory, so
+different guards or none apply).
 
 ### 5. Strip maintainer-only machinery
 
