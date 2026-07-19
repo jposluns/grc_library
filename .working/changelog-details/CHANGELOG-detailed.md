@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.528, PR #1040
+
+Resume close-out for the 2026-07-19 session (`/resume` from the session-closing handoff #1039; on the VM, gh-CLI, no GitHub MCP; STARTS attended-autonomous). Working-state and versions only; no corpus or website content changed.
+
+### Changed
+- [`session-handoff.md`](../session-handoff.md): recorded the Sweep 113 result in the Resume-cursor "Last validation sweep" line; added a current-session Next-actions block (the maintainer-directed privatization/guardrail-tightening block that outranks the queue) and a current-session State-snapshot block (live versions for the D7 gate); PRUNED per keep-current-plus-1-prior (deleted the four 2026-07-17 #992-#999 session blocks: the CLOSING + NEXT-SESSION Next-actions pair, the State-snapshot, and the Asserted-expectations sub-block); kept the #1021-#1039 and #1000-#1020 stacks.
+- [`session-state.md`](../session-state.md): ACQUIRED the concurrency lease (Active-session `claude/resume-sweep113-closeout`, Status active, fresh heartbeat); refreshed Current-task and Worker-dispatches for the fresh session (both workers Opus 4.8; worker-b at 1 clean elevated pass this session via Sweep 113; worker-a unvalidated this session).
+- [`validate-sweeps/history.md`](../validate-sweeps/history.md): prepended the Sweep 113 row (Version 2.0.113 to 2.0.114).
+- [`TODO.md`](../../TODO.md): added section 1.22 (the this-session privatization/guardrail block: the guardrail hook, the placeholder-README fix, the `.working` cycle-out mechanism, the cross-repo reference-existence advisory tool, the daily-tier changelog refinement). Recorded `.project-governance/` = KEEP (maintainer-confirmed after reviewing the design + gate-53-retirement cost).
+
+### Verification
+- Sweep 113 (loop-break `/validate` over #1021..#1039, offloaded to worker-b, pinned to #1039 `130540cc`) consumed under ELEVATED QA: proof-of-run genuine, mechanical facts independently re-derived (72/72, four-surface parity 312/310/269/39, counts 13/24/15/18, versions EXACT-MATCH), the two changed citation families independently re-greped clean, and a dedicated delivery-1 false-negative auditor returned CLEAN in-delta. 0/0/0/0; all #1021-#1038 asserted-clean surfaces corroborated, 0 contradicted. Loop-break control for #1039 PASSES.
+- `tools/run_all_audits.sh` 72/72; pre-push guard green.
+
+### Loop-break note
+Per the resume protocol this is the first PR of the resumed session; it is NOT the session-closing handoff, so it takes its own per-PR QA at the next boundary via recursion-avoidance. It carries no prior-PR QA batch because #1039 (the prior session's closing handoff) was itself loop-break-exempt and its compensating control (Sweep 113) is recorded here.
+
 ## 2026-07-19, Library Version 2026.07.527, PR #1039
 
 Session-closing handoff for the 2026-07-18b resumed session (merged #1021-#1038: the section 1.19.8/9/10 operational-state privatization Phase 2/3, plus the maintainer-alert watchdog SOP #1038). Refreshes [`session-handoff.md`](../session-handoff.md) with this session's Next-actions, State-snapshot, and Asserted-expectations blocks; refreshes the private-repo session-metrics row; releases the concurrency lease ([`session-state.md`](../session-state.md), Status released, Active-session none). Batches PR #1038's quality-assurance (validate-pr worker-b + retro). **Also fixes F1** (caught by validate-pr-1038's §1.19.x-extra-care review, MEDIUM sop-consistency, re-verified at source): [`.claude/commands/resume.md`](../../.claude/commands/resume.md) step 3 still directed the orchestrator to CLEAR assessed alerts autonomously, contradicting the maintainer-decides-clearing CLAUDE.md bullet and the scratch protocol (an inconsistency introduced when the SOP was refined and resume.md was not re-reconciled); reworded to "inform the maintainer and ask via a choices-question whether to clear, clearing only if the maintainer directs; overnight = fix-safe + record, no clear". The worker logged F1 to the scratch maintainer-alert channel out-of-band (the watchdog working as designed). Per the loop-break this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next session's corpus-wide Sweep 113 `/validate` (pre-positioned over the #1021..#1038 deltas, pinned to this merge SHA). Assistant-guidance, working-state, and versions only; no corpus or website content changed.
