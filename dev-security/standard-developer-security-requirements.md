@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-07-14\
+**Version:** 1.1.9\
+**Date:** 2026-07-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -146,7 +146,7 @@ Secret rotation must work without a code deployment. Hard-coded secrets that req
 | Use Case | Approved | Prohibited |
 | --- | --- | --- |
 | Symmetric encryption | AES-256-GCM | DES, 3DES, RC4, Blowfish |
-| Asymmetric encryption | RSA-4096, EC P-256/P-384 | RSA < 2048 |
+| Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA, DH < 2048 |
 | Hashing (integrity) | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Password hashing | Argon2id, bcrypt (cost ≥12) | MD5, SHA-256 (unsalted), plain text |

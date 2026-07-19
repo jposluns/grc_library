@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.9\
-**Date:** 2026-07-14\
+**Version:** 1.1.10\
+**Date:** 2026-07-19\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md)\
@@ -179,7 +179,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 | TLS for transit | TLS 1.3 (or stronger) | TLS 1.2, TLS 1.1, TLS 1.0, SSL anything |
 | Hashing for integrity | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Hashing passwords | Argon2id, bcrypt (cost ≥12) | SHA-256 (for passwords), MD5, plain storage |
-| Asymmetric encryption | RSA-4096, EC P-256/P-384 | RSA < 2048 |
+| Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA key exchange |
 | Signing certificates | SHA-256 RSA or ECDSA | SHA-1 |
 

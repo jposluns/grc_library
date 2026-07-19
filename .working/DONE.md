@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.70: tighten the dev-security crypto tables to the P-384 / RSA-4096 floor (2026-07-19, PR #1052)
+Applied the maintainer's decision to tighten the two dev-security crypto guidance tables (developer-security-requirements, security-quick-reference) to match the encryption-policy floor: the asymmetric-encryption row drops the below-floor EC P-256 (now RSA-4096, EC P-384) and tightens the prohibited RSA threshold to under 4096. Worker-drafted, orchestrator-verified at source against the policy floor. The project-agnostic pack still lists P-256 as a generic NIST-approved baseline, an intentional corpus-stricter-than-pack layer difference routed to pending-decisions for confirm-or-redirect.
+
 ### Decision-guardrail self-guard: act/ask/name-a-blocker + write-before-enact log (2026-07-19, PR #1049)
 Maintainer-designed (not previously in TODO): a CLAUDE.md decision-rubric (default ACT; ASK a specific question if the decision is the maintainer's; BLOCKED only with a named observable blocker from a closed set; un-instrumented internal state is never valid), a write-before-enact autonomous-decisions log in the private companion repo (every significant plan-disposing decision classified before it is enacted), a `block-unjustified-decision.py` PreToolUse hook, and a private validate check enforcing the log's form. Guards the deferral-with-no-question / un-instrumented-justification failure the maintainer named this session.
 

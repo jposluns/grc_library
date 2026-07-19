@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.540, PR #1052
+
+Tightens the two dev-security crypto guidance tables to the encryption-policy floor (TODO §3.70, a FR-203 verifier follow-up). Worker-drafted (worker-20260716-b), orchestrator-verified at source.
+
+### Changed
+- [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) and [`dev-security/standard-security-quick-reference.md`](../../dev-security/standard-security-quick-reference.md): the asymmetric-encryption row `RSA-4096, EC P-256/P-384 | RSA < 2048` becomes `RSA-4096, EC P-384 | RSA < 4096`, dropping the below-floor EC P-256 and tightening the prohibited RSA threshold to the RSA-4096 floor. Floor evidence: [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) (Version 1.3.11) states the asymmetric approved set as `RSA-4096, ECC P-384 or stronger`. Per-document Version + Date co-bumped (dev-req 1.1.9, quick-ref 1.1.10); taxonomy and scorecard regenerated.
+
+### Deferred / flagged
+- **Pack-layer divergence (a layer-policy call for the maintainer).** The project-agnostic pack under [`dev-security/claude-rules/`](../../dev-security/claude-rules/) still approves EC P-256 (its cryptography rule and pack CLAUDE.md). After this corpus tightening, the corpus standards (P-384 only) are intentionally STRICTER than the generic distributable pack (P-256/P-384 baseline, which is NIST-approved). Left as-is (out of §3.70's decided two-standards scope; a pack change is a pack-version bump). Recorded in `pending-decisions` for confirm-or-redirect: tighten the pack too, or keep the intentional layer difference.
+
+### Verification
+- Both target rows re-read at source (identical `RSA-4096, EC P-256/P-384 | RSA < 2048` at the quoted lines); the floor re-confirmed; a full-file P-256 grep on both touched files confirmed no other carrier. The full audit suite (72 gates) green expected at push; the skeptical verify is OFFLOADED to a worker.
+- The PR #1051 `/validate-pr` (offloaded to worker-a) returned SHIP with 1 LOW residual (the hook markers omit `verify`, an accepted by-design gap already documented in the hook docstring); its history and retro rows batch into this PR.
+
+### Worker provenance
+- Candidate diff drafted by worker-20260716-b (its scratch inbox delivery), re-verified at source and applied by the orchestrator. The worker's flagged secondary (tighten the prohibited RSA threshold to the RSA-4096 floor) was applied as stricter-safe; the pack-layer caveat it raised is routed for a maintainer confirm.
+
 ## 2026-07-19, Library Version 2026.07.539, PR #1051
 
 The mandatory-offload guardrail: a primordial-tier orchestration rule + an operational section + a PreToolUse hook, after the orchestrator repeatedly self-ran offloadable `/validate-pr` passes while live workers sat idle (spending scarce, slow-to-renew orchestrator credits). Worker-drafted (worker-20260716-b), orchestrator-verified and applied.
