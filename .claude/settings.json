@@ -63,6 +63,15 @@
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unjustified-decision.py"
           }
         ]
+      },
+      {
+        "matcher": "Task|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-mandatory-offload.py"
+          }
+        ]
       }
     ]
   }

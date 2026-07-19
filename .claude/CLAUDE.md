@@ -35,6 +35,38 @@ The project-agnostic distributable form ships as the pack governance rule [`gove
 
 ---
 
+## PRIMORDIAL RULE (orchestration): you are the orchestrator, orchestrate
+
+You are the orchestrator. You orchestrate. You do worker-level work yourself ONLY when the
+maintainer explicitly authorizes it, or when no worker can do it. If you think you should do
+something yourself that a worker could also do, do NOT: dispatch it to a worker.
+(Maintainer-directed 2026-07-19, elevated to primordial tier after the orchestrator repeatedly
+self-ran offloadable QA passes while live workers sat idle, spending scarce, slow-to-renew
+orchestrator credits.)
+
+**Why this is primordial.** A manager who does the managed team's work cannot do the things only
+the manager can do (deciding and sequencing, dispatching, verifying, authoring the final record,
+merging, talking to the maintainer), and idles the paid-for worker capacity, so the same money
+buys less work and the singleton orchestrator becomes the bottleneck. The orchestrator's usage
+credits are the scarce, slow-to-renew resource; worker credits are separate and elastic. Spending
+orchestrator credits on work a worker could have done is the specific waste this rule forecloses.
+
+**The split.**
+- **Worker-level (dispatch it):** research, drafting candidates, QA passes (`/validate`,
+  `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
+  `/full-qa`, `/fitness`, the read-only `/deep-assessment` phases), and analysis: anything that
+  produces a CANDIDATE the orchestrator then verifies and applies.
+- **Orchestration-only (do it yourself):** deciding and sequencing work, dispatching orders,
+  consuming and verifying worker deliveries, authoring final corpus prose, applying diffs to
+  `grc_library`, committing, merging, and interacting with the maintainer.
+
+The operational form is `## Mandatory worker offload` below; the mechanical backstop is the
+[`block-mandatory-offload.py`](hooks/block-mandatory-offload.py) PreToolUse hook. This rule is the
+primary control, and it is subordinate only to the AIQT tier above it (correctness and integrity
+are never traded for offloading; a worker's output is a hypothesis the orchestrator verifies).
+
+---
+
 User-level rules in `~/.claude/CLAUDE.md` govern the assistant's general behaviour
 (verification before assertion, evidence-grounded completion, action-before-explanation
 of inaction, clarify-before-acting on ambiguous choices). This file wins on
@@ -863,6 +895,53 @@ resume. Rule of
 thumb: if you are about to write "I'm pausing / stopping here" in an unattended run, you are
 instead obligated to execute the session-closing handoff PR first.
 
+## Mandatory worker offload (use available workers; never silently self-run)
+
+The operational form of the orchestration primordial rule near the top of this file. The two-part
+hard rule (maintainer-directed 2026-07-19):
+
+1. **If a worker CAN do it and a worker is available, USE THE WORKER.** Before self-running any
+   offloadable pass, read the scratch `workers/` liveness registry (`python3
+   ../grc_library_scratch/tools/credit-offload-queue.py list-workers`). If at least one worker is
+   live, ENQUEUE a credit-offload order pinned to an exact `grc_library` SHA and consume the
+   delivered result; do not self-run.
+2. **If NO worker is available and you are on a VM, ALERT the maintainer that the workers are
+   stalled, or obtain explicit authorization to proceed without workers.** Do not silently
+   self-run as though offload did not exist. Zero live workers is a condition to surface, not to
+   route around in silence.
+
+**Offloadable (dispatch to a worker):** `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
+`/reference-audit`, `/screen-publications`, `verify`, `/fitness`, the read-only `/deep-assessment`
+probe phases, and research / draft seeds. **Stays orchestrator-side (never offloaded):** authoring
+corpus prose, applying diffs, routing findings, writing audit-trail rows, merging, interacting with
+the maintainer, and (transitionally, see below) the PRE-PUSH skeptical verifier plus the
+high-assurance adversarial verifiers.
+
+**Pre-push verifier moves to workers (maintainer-directed 2026-07-19; DECIDED, sequenced with the
+transport).** The pre-push skeptical verifier was the one orchestrator-side QA exception (it is on
+the critical path, so offloading it adds a blocking wait). The maintainer decided it ALSO moves to
+a worker; the move lands WITH the local-VM file-drop / unix-socket transport ([`TODO.md`](../TODO.md)
+§3.87, bumped to near-term) that makes the offloaded verify sub-second instead of a slow git
+round-trip. Until that transport lands, the pre-push verifier stays orchestrator-side, and the
+`block-mandatory-offload.py` override allowlist treats it (and the high-assurance adversarial
+verifiers) as always-allowed, so the guardrail never blocks a legitimate critical-path verifier.
+
+**No-workers fallback.** With zero live workers (or an order that goes stale unserved), self-run the
+pass inline, AFTER alerting the maintainer or confirming authorization per rule 2. Offload is
+best-effort for AVAILABILITY, but the CHOICE to use an available worker is mandatory; the
+mandatory-QA discipline itself is unchanged (an offloaded run is the full formal pass, abbreviation
+is never authorized).
+
+**Worker-elasticity corollary (maintainer-directed 2026-07-19).** The ORCHESTRATOR is the scarce
+singleton; WORKERS ARE ELASTIC (the maintainer can spin up more). So when parallelizable work
+exceeds the live worker pool, PROACTIVELY tell the maintainer and request more workers, rather than
+quietly serializing work through too few. Under-requesting wastes the orchestrator's own scarce
+time on serialization the maintainer would gladly parallelize.
+
+The design of record is `grc_library_private/credit-offload-design.md`; the orchestrator-side
+operating discipline is `grc_library_private/orchestrator-claude.md` (`## Credit-offload mode`,
+group A1).
+
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff
@@ -1168,7 +1247,7 @@ A recurring failure (maintainer-named 2026-07-19): the assistant DEFERS a queued
 
 Un-instrumented internal state is NEVER a valid basis for a hold (the `evidence-grounded-completion` un-observable-state corollary). "Attended, so ask, do not defer": in any attended mode, a maintainer-decision blocker is ASKED, not deferred.
 
-**Write-before-enact.** Every SIGNIFICANT autonomous decision (one that disposes of a queued or authorized item, or changes the plan, NOT a routine execution step) is written to `grc_library_private/autonomous-decisions-log.md` as a classified entry (a `- **Classification:**` line reading ACT / ASK / BLOCKED with a blocker-type) BEFORE it is enacted, so the classification is made at decision time rather than rationalized after. The mechanical backstop is the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) PreToolUse hook, which refuses a log write that lacks a classification, names a blocker-type outside the closed set, or, in a deferral/hold entry (one carrying a defer/blocked/wind-down/skip marker), cites a forbidden internal-state justification; a `_private` validate check gates the log's shape. (The forbidden-phrase check is deliberately scoped to deferral entries, an internal-state word in an ACT entry is not a deferral justification; widening the deferral-marker set to catch synonym-phrased deferrals is TODO §3.103.) Defence in depth, not a substitute for the rubric. The log file itself stays lean (entries only); this section is the discipline it references.
+**Write-before-enact.** Every SIGNIFICANT autonomous decision (one that disposes of a queued or authorized item, or changes the plan, NOT a routine execution step) is written to `grc_library_private/autonomous-decisions-log.md` as a classified entry (a `- **Classification:**` line reading ACT / ASK / BLOCKED with a blocker-type) BEFORE it is enacted, so the classification is made at decision time rather than rationalized after. The mechanical backstop is the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) PreToolUse hook, which refuses a log write that lacks a classification, names a blocker-type outside the closed set, or, in a deferral/hold entry (one carrying a defer/blocked/wind down/wind-down/skip marker), cites a forbidden internal-state justification; a `_private` validate check gates the log's shape. (The forbidden-phrase check is deliberately scoped to deferral entries, an internal-state word in an ACT entry is not a deferral justification; widening the deferral-marker set to catch synonym-phrased deferrals is TODO §3.103.) Defence in depth, not a substitute for the rubric. The log file itself stays lean (entries only); this section is the discipline it references.
 
 ## Communication conventions
 
