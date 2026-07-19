@@ -6,7 +6,7 @@
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-19T15:13:56Z
+**Last-heartbeat-UTC:** 2026-07-19T16:08:21Z
 
 **Current-task:** 2026-07-19b resumed session (`/resume` from #1043; on the VM, gh-CLI, no GitHub MCP; ATTENDED, maintainer actively directing). Lease ACQUIRED. Sweep 114 loop-break `/validate` offloaded to worker-b, DELIVERED (PASS; F1 = TODO §1.22.6 rotation debris at `TODO.md:80`, fix at first close-out). Order LOCKED by maintainer: (1) **§1.19.12 CLAUDE.md sensitivity-trim** (move-map offloaded to worker-a; split destination = `grc_library_private/orchestrator-claude.md` LOADED at `/resume` + passive removal-ledger archive); (2) **self-guard bundle** (repeat-block hook + diagnosis circuit-breaker wired to an evidence-validated `grc_library_private/degradation-watch-log.md` + read-back + intent-vs-artefact disciplines); (3) **credit-offload bundle** (idle-heartbeat fix + clear alert 2026-07-19-a on merge + elevated-QA window ->1 + worker session-start-time reporting + orchestrator restart-advice); (4) **§1.22.2 stub-README fix**. First PR = the trim, carrying the resume close-out (this lease, handoff prune, Sweep 114 row, F1 fix).
 
