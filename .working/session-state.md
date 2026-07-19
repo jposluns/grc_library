@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/seed-369-mfa
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-19T21:20:24Z
+**Last-heartbeat-UTC:** 2026-07-19T21:49:53Z
 
 **Current-task:** 2026-07-19b resumed session (`/resume` from #1043; on the VM, gh-CLI, no GitHub MCP; ATTENDED, maintainer actively directing). Lease ACQUIRED. The maintainer-LOCKED order is now COMPLETE: (1) **§1.19.12 CLAUDE.md sensitivity-trim** = #1044; (2) **self-guard bundle** = #1045 (repeat-block hook) + #1049 (decision-guardrail: act/ask/name-a-blocker + write-before-enact log); (3) **credit-offload bundle** = this PR #1050 (public tail: §3.87 socket revision + §3.103) + scratch PR #173 (idle-liveness heartbeat + progress/session_start fields + alert 2026-07-19-a cleared) + two `grc_library_private` pushes (design-of-record + orchestrator-claude A1 restart-advice + **elevated-QA window -> 1 clean pass**); (4) **§1.22.2 stub-README fix** = #1047. NEXT (maintainer-directed 2026-07-19): the **decision-preload protocol** ("AI-only-works-when-watched" fix): after each merge scan the next 10 TODO items for needed decisions, queue to `pending-decisions.md`, and FLUSH via `AskUserQuestion` the moment the maintainer is present; codify as a CLAUDE.md standing section + a TODO item, and record the ~30-line screen limit. Then the 4 decided seeds, the P3 quick-win wave, and §1.22.3/4/7.
 
