@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.19.12: CLAUDE.md sensitivity-trim applied (2026-07-19, PR #1044)
+Applied the maintainer-confirmed §1.19.12 classification: moved the operational mechanics and war-stories out of the public `.claude/CLAUDE.md` (1699 -> 1262 lines) into `grc_library_private/orchestrator-claude.md` (a new private operational extension loaded every `/resume`) and the `claude-md-considerations.md` removal ledger; the portable governance spine an adopter fork inherits stays public. Worker-drafted deterministic apply, orchestrator-audited hunk-by-hunk and independently verified. Closes §1.19.12; only the maintainer-gated §1.19.13 history scrub remains in the §1.19 series.
+
 ### TODO §1.22.1: wrong-repo tool guardrail hook (2026-07-19, PR #1042)
 
 Built `block-wrong-repo-tool.py`, a PreToolUse Bash hook that blocks a cwd-relative `tools/<x>.(py|sh)` invocation absent in the project repo but present in a sibling repo (naming the correct repo), while allowing any command with an explicit `cd`. The read-side companion to `repo-guard.sh` (§1.15a write-side). Motivated by, and it immediately re-caught in production, the 2026-07-19 slip of running the scratch-side `credit-offload-queue.py` from the `grc_library` cwd.

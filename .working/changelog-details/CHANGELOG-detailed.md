@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.532, PR #1044
+
+Applies TODO section 1.19.12: the CLAUDE.md sensitivity-trim. Moves the operational mechanics and war-story content out of the public [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (1699 to 1262 lines) into the private companion repo, keeping every portable governance rule public. Also carries the Sweep 114 loop-break `/validate` close-out for the session-closing handoff PR #1043. Assistant-guidance, working-state, and versions only; no corpus or website content changed.
+
+### Added
+- A new private operational extension of CLAUDE.md ([`orchestrator-claude.md`](../../../grc_library_private/orchestrator-claude.md) in the private companion repo), loaded every `/resume` on the maintainer orchestrator only. It holds the operational mechanics and orchestrator disciplines trimmed from the public file, grouped A1 through A11 by source section (credit-offload, multi-session orchestration, session close-out bookkeeping, deep-assessment and reference operational detail, operating modes, wind-down metric pointers, cross-repo safety, private-store pointers). The private INDEX indexes it and `/resume` step 2 loads and follows it as if it were part of CLAUDE.md.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): trimmed 1699 to 1262 lines. The two MOVE-whole sections (the PR #441 condense note; the Credit-offload-mode section) and the SPLIT-flagged operational and war-story spans across 14 sections move to the private repo; every portable rule (the AIQT primordial rule, the PR-workflow steps, the anti-drift greps, version-bump discipline, Boundaries, the QA cadences, the QA-activity completion standard, clarify-before-acting, the security-rules index, the language/testing/date/communication conventions) stays public. Per the maintainer-confirmed classification (32 sections, 2 MOVE / 17 KEEP / 13 SPLIT). One dangling reference fixed (the QA-completion "consume discipline" pointer made self-contained), plus two verifier-flagged cosmetics (an orphaned RM-10 label, a stray whitespace line).
+- [`.claude/commands/resume.md`](../../.claude/commands/resume.md): step 2 now loads the private [`orchestrator-claude.md`](../../../grc_library_private/orchestrator-claude.md) as the operational extension (maintainer only; adopters have no private repo and skip it).
+- The private removal ledger ([`claude-md-considerations.md`](../../../grc_library_private/claude-md-considerations.md)) gains the section 1.19.12 archive block (33 entries, verbatim war-stories plus restore-signals, for the restore-watch cadence); the private INDEX indexes the new auto-loaded extension.
+- [`TODO.md`](../../TODO.md): section 1.19.12 closed and rotated to [`DONE.md`](../DONE.md) (only the maintainer-gated section 1.19.13 remains in the 1.19 series); the F1 rotation-debris line (section 1.22.6) deleted; three section-1.19.12 cross-references updated.
+
+### Discipline and method
+The apply was worker-drafted (worker-20260716-a produced a deterministic line-range apply script, the candidate files, and a re-parse proof) and orchestrator-AUDITED: the script was run on live source and cross-checked against the worker candidate (differing only at the one redacted watermark line), every removed rule-language line was adjudicated as a legitimate move (not a dropped rule), the extension's LOAD content was confirmed byte-verbatim against the removed spans, and the trim was independently verified by an in-session full-access adversarial verifier (CONFIRMED-CLEAN) plus an offloaded worker-b public-side QA.
+
+### Also carries (the Sweep 114 loop-break close-out for PR #1043)
+The Sweep 114 corpus-wide `/validate` over the #1040..#1043 deltas (offloaded to worker-20260716-b, consumed under elevated QA): PASS, one in-window warning F1 (TODO section 1.22.6 rotation debris, fixed here) plus three informational notes; all #1040 to #1042 asserted-clean surfaces corroborated, 0 contradicted. Recorded in [`validate-sweeps/history.md`](../validate-sweeps/history.md) (Sweep 114). This PR also prunes the session handoff (keep current plus one prior) and acquires the concurrency lease.
+
+**Worker provenance:** [`inbox/worker-20260716-a/apply-119-12-trim/MANIFEST.md`](../../../grc_library_scratch/inbox/worker-20260716-a/apply-119-12-trim/MANIFEST.md) (the apply-draft delivery this PR applied).
+
+### Verification
+- `tools/run_all_audits.sh` green (72/72) on the trimmed CLAUDE.md; the private repo [`tools/validate.py`](../../../grc_library_private/tools/validate.py) green (no secrets or PII, house-style clean, all internal links resolve, INDEX covers every operational doc). Two independent adversarial verifiers on the trim (in-session full-access, CONFIRMED-CLEAN; plus the offloaded worker-b public-side QA).
+
 ## 2026-07-19, Library Version 2026.07.531, PR #1043
 
 Session-closing handoff for the 2026-07-19 resumed session (an EARLY wind-down on a named-degradation signal, converted to a proper session-closing handoff, per the discipline this PR codifies). Assistant-guidance, working-state, and versions only; no corpus or website content changed.
