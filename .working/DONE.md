@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### Decision-guardrail self-guard: act/ask/name-a-blocker + write-before-enact log (2026-07-19, PR #1049)
+Maintainer-designed (not previously in TODO): a CLAUDE.md decision-rubric (default ACT; ASK a specific question if the decision is the maintainer's; BLOCKED only with a named observable blocker from a closed set; un-instrumented internal state is never valid), a write-before-enact autonomous-decisions log in the private companion repo (every significant plan-disposing decision classified before it is enacted), a `block-unjustified-decision.py` PreToolUse hook, and a private validate check enforcing the log's form. Guards the deferral-with-no-question / un-instrumented-justification failure the maintainer named this session.
+
 ### TODO §1.22.5: CHANGELOG daily-tier, condense the current-week days to daily summaries (2026-07-19, PR #1048)
 Changed the public root CHANGELOG's current-week block to the DAILY model (maintainer wanted it soon, public-facing only): the current day (2026-07-19) stays per-PR verbatim, the six previous days (07-13 to 07-18) each condense to one plain-language daily summary paragraph, and older weeks/months keep the existing weekly/monthly tiers. Condensed 183 per-PR root entries into the 6 summaries (worker-drafted, orchestrator-verified no-drop via a deterministic script) and pruned the matching detailed-mirror entries so gate-59 parity floors to #1039 (git history preserves the full detail; no private-archive write per the maintainer). Updated `tools/build-public-changelog.py` with the daily tier + day-boundary trigger (self-test green).
 
