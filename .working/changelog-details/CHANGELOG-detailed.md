@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.538, PR #1050
+
+Public tail of the credit-offload liveness bundle (whose scratch and `_private` halves landed separately: scratch PR #173 for the idle-liveness heartbeat plus the progress / session-start registry fields, and two `grc_library_private` direct pushes for the design-of-record and the elevated-QA-window change), plus the follow-ups the PR #1049 `/validate-pr` surfaced.
+
+### Added
+- **TODO §3.103** (widen the decision-log deferral-trigger keyword set): the [`block-unjustified-decision.py`](../../.claude/hooks/block-unjustified-decision.py) hook checks for a forbidden internal-state justification only when the added text also carries a narrow deferral keyword (`blocked` / `defer` / `wind down` / `wind-down` / `skip`), so a deferral phrased with a synonym escapes it. The item widens that set, and the mirrored `_DL_FORBIDDEN` check in the `_private` validate, to the common deferral synonyms while keeping the two in exact parity. Routed from the #1049 `/validate-pr` NOTE.
+
+### Changed
+- **TODO §3.87** (credit-offload local-VM exchange transport): added the **programmatic worker-restart** refinement (maintainer-directed 2026-07-19). Once the broker / socket control channel exists, the orchestrator can restart a wedged worker by driving it to `/clear` then `/credit-offload`, instead of the current mode-dependent restart-advice. This rests on an **asymmetric-trust rule**: the orchestrator may feed commands into a worker session, but a worker's output is always DATA the orchestrator validates, never a prompt or command it obeys, which bounds the blast radius of a confused or compromised worker.
+
+### Fixed
+- **CLAUDE.md decision-guardrail wording** (the #1049 `/validate-pr` in-window NOTE): the description of the [`block-unjustified-decision.py`](../../.claude/hooks/block-unjustified-decision.py) hook said it refuses a log write that "cites a forbidden internal-state justification" UNCONDITIONALLY, but the hook correctly scopes that check to deferral / hold entries (an internal-state word in an ACT entry is not a deferral justification). Reworded the line to describe the scoped behaviour and cross-referenced §3.103.
+
+### Verification
+- The PR #1049 `/validate-pr` (self-run refute-briefed Subagent A on squash `eb6a302d`) returned SHIP 0 error / 0 warning / 1 note; the note is fixed in-window here and its keyword-widening residual is queued as §3.103.
+- `_private` change (separate direct pushes, not in this diff): the elevated-QA trust window tightened from a 2-to-3 floor to **1 clean elevated pass** per `(worker + model)` per session (maintainer-directed), reset-on-miss unchanged; and a stale cross-reference (to the public CLAUDE.md, in the `_private` credit-offload design-of-record) repointed to the orchestrator-claude operational doc.
+- The full audit suite is green (all 72 gates) at push; the pre-push guard (D1-D8 plus the history-aware 45 / 40 / 31) was run standalone.
+
+### Worker provenance
+- None; orchestrator-authored. The scratch-side liveness code was unit-tested in isolation before scratch PR #173 merged.
+
 ## 2026-07-19, Library Version 2026.07.537, PR #1049
 
 Ships the decision-guardrail self-guard (maintainer-designed 2026-07-19), against a recurring failure the maintainer named: the assistant DEFERS a queued or authorized item, or winds down / re-sequences / skips, on an un-instrumented internal-state justification (context weight, a long turn, too-risky-to-do-now, do-it-fresh-later) INSTEAD of doing the work or asking a specific question. Deferral-with-no-question is strictly worse than both valid moves: it stalls the work and hands the maintainer nothing to act on. Assistant-guidance, tooling, and working-state only; no corpus or website content changed.
