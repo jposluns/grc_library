@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.531, PR #1043
+
+Session-closing handoff for the 2026-07-19 resumed session (an EARLY wind-down on a named-degradation signal, converted to a proper session-closing handoff, per the discipline this PR codifies). Assistant-guidance, working-state, and versions only; no corpus or website content changed.
+
+### Added / Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (`## No idle-stop in unattended mode` area): codifies the **degradation-auto-handoff discipline**, on a genuine named-degradation trigger in UNATTENDED mode, WIND DOWN PROPERLY (execute a session-closing handoff: green merge + full handoff refresh + lease release), do NOT "pause" mid-turn. The wind-down framework's surface-via-AskUserQuestion path is the ATTENDED path (and is blocked in unattended mode), so the unattended path on a degradation trigger is the automatic session-closing handoff. Also polished a comma-splice in the §1.15a wrong-repo-hook note (a validate-pr-1042 non-finding).
+- [`TODO.md`](../../TODO.md): added §3.102 (pack-distribute the degradation-auto-handoff discipline into the `session-lifecycle` pack rule, both trees).
+- [`session-handoff.md`](../session-handoff.md): refreshed for session close, the CLOSING block + NEXT SESSION queue (apply the 5 delivered research seeds first), the State-snapshot (green-at #1043), and this session's Asserted-expectations block.
+- [`session-state.md`](../session-state.md): RELEASED the concurrency lease (Status released, Active-session none, Operating-mode attended-autonomous for the next session); worker-a recorded UNVALIDATED (validate-pr-1041 miss).
+
+### Also carries (recursion-avoidance)
+PR #1042's QA batch: the `/validate-pr` row (SELF-RUN formal Subagent A, CLEAN 0/0/0) and the `/retro` row.
+
+### Wind-down record (honest)
+The trigger was a density of SELF-CAUGHT slips in one enormous un-reset marathon turn (a `git reset --hard origin/main` on a feature branch, the scratch-sync reflex misapplied; and 5 command-composition slips where the newly-built wrong-repo hook correctly blocked bare sibling-tool invocations that relied on a persisted cwd) plus this conversation's extreme length, NOT diffuse degradation, the slips were specific and fixable (lessons in the #1042 retro: always explicit-`cd` for sibling tools; never `reset --hard` a feature branch; edit the command string not just its description). The maintainer flagged (a) that hitting issues should have triggered a proper wind-down not a mid-turn pause (fixed by the codification above) and (b) that 3 PRs is atypically early for degradation (correct, the real residual was un-reset context length, so a fresh `/resume` is the clean insurance).
+
+### Loop-break note
+Per the session-closing-handoff exception this PR takes NO trailing `/validate-pr` + `/retro`; the compensating control is the next session's corpus-wide `/validate` over the #1040..#1043 deltas, cross-checked against the Asserted-expectations block.
+
+### Verification
+- `tools/run_all_audits.sh` + the pre-push guard green (72/72 + D-series).
+
 ## 2026-07-19, Library Version 2026.07.530, PR #1042
 
 Adds the wrong-repo tool guardrail (TODO §1.22.1, maintainer-directed 2026-07-19) after the orchestrator ran the scratch-side credit-offload-queue helper from the `grc_library` cwd (a silent file-not-found from the wrong repo). Tooling, assistant-guidance, and working-state only; no corpus or website content changed.
