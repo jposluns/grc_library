@@ -29,7 +29,7 @@ Execute these steps in order:
       lease: write `Active-session: <this branch>`, `Status: active`, and a fresh
       `date -u +%Y-%m-%dT%H:%M:%SZ` heartbeat (the write lands on `main` with the first
       PR; the stop-hook push makes the branch-local copy visible to the git cross-check
-      in the meantime). Refresh the heartbeat at each PR close-out, optionally set
+      in the meantime). **Also append a `session-start` row (`date -u +%Y-%m-%dT%H:%M:%SZ`) to `grc_library_private/degradation-watch-log.md`** (the degradation-validation evidence trail; see `orchestrator-claude.md` A12: the orchestrator reads and assesses that log against its threshold before ever asserting or implying session-length / heaviness / degradation). Refresh the heartbeat at each PR close-out, optionally set
       `Status: winding-down` while assembling the session-closing handoff PR (a live
       state to this interlock, treated like `active`; gate 63 validates all three
       values), and RELEASE (`Status: released`, `Active-session: none`) in the

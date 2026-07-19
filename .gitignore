@@ -30,3 +30,6 @@ __pycache__/
 
 # Local VM terminal-output mirror (Stop hook; never committed)
 claude-output.log
+
+# Machine-local self-guard hook state (block-history JSONL; never committed).
+.claude/hooks/.state/
