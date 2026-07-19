@@ -22,7 +22,8 @@ The mandatory-offload guardrail: a primordial-tier orchestration rule + an opera
 - The PR #1050 in-window cosmetic note: the decision-guardrail parenthetical glossed 4 of the hook's 5 deferral markers; added the space-form `wind down`.
 
 ### Verification
-- Hook `--self-test` 9/9 rc 0 (re-run at apply); the `__file__`-relative fallback path replaces the worker's placeholder (move-safe). The full audit suite (72 gates) green expected at push; pre-push guard run standalone. The pre-push skeptical verify of THIS diff is OFFLOADED to a worker (practicing the new rule).
+- Hook `--self-test` 9/9 rc 0 (re-run at apply and after the fixes); the `__file__`-relative fallback path replaces the worker's placeholder (move-safe). The full audit suite (72 gates) green; pre-push guard run standalone.
+- **The pre-push skeptical verify of THIS diff was OFFLOADED to a worker (worker-20260716-a; the first live practice of the new mandatory-offload rule, and of the pre-push-verifier-to-workers decision) and CAUGHT a real defect the orchestrator missed, validating the approach.** It returned SHIP with 1 MEDIUM + 2 LOW, ALL FIXED in-window before merge (re-verified at source under elevated QA): F1 (MEDIUM) the two offloadable enumerations this PR added disagreed (the primordial-rule split listed `/full-qa` but omitted `verify`; the operational section listed `verify` but omitted `/full-qa`), harmonized both to the authoritative set (`verify` AND `/full-qa`); F2 (LOW) documented in the hook docstring that a bare `verify` is intentionally not mechanically detected (it is both the offloaded verify and the always-allowed pre-push verifier); F3 (LOW) dropped an unused `import time`.
 - The PR #1050 `/validate-pr` (self-run Subagent A) returned SHIP 0 material findings + 1 cosmetic note (fixed here); its history + retro rows batch into this PR.
 
 ### Worker provenance

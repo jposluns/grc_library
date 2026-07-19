@@ -54,8 +54,8 @@ orchestrator credits on work a worker could have done is the specific waste this
 **The split.**
 - **Worker-level (dispatch it):** research, drafting candidates, QA passes (`/validate`,
   `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
-  `/full-qa`, `/fitness`, the read-only `/deep-assessment` phases), and analysis: anything that
-  produces a CANDIDATE the orchestrator then verifies and applies.
+  `verify`, `/full-qa`, `/fitness`, the read-only `/deep-assessment` phases), and analysis:
+  anything that produces a CANDIDATE the orchestrator then verifies and applies.
 - **Orchestration-only (do it yourself):** deciding and sequencing work, dispatching orders,
   consuming and verifying worker deliveries, authoring final corpus prose, applying diffs to
   `grc_library`, committing, merging, and interacting with the maintainer.
@@ -911,8 +911,8 @@ hard rule (maintainer-directed 2026-07-19):
    route around in silence.
 
 **Offloadable (dispatch to a worker):** `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`,
-`/reference-audit`, `/screen-publications`, `verify`, `/fitness`, the read-only `/deep-assessment`
-probe phases, and research / draft seeds. **Stays orchestrator-side (never offloaded):** authoring
+`/reference-audit`, `/screen-publications`, `verify`, `/full-qa`, `/fitness`, the read-only
+`/deep-assessment` probe phases, and research / draft seeds. **Stays orchestrator-side (never offloaded):** authoring
 corpus prose, applying diffs, routing findings, writing audit-trail rows, merging, interacting with
 the maintainer, and (transitionally, see below) the PRE-PUSH skeptical verifier plus the
 high-assurance adversarial verifiers.

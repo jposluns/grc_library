@@ -28,10 +28,12 @@ never be blocked), and only then a BLOCK-TRIGGER marker set (the offloadable QA-
 override-first order means a prompt that names both (for example "pre-push validate-pr-style
 review") is ALLOWED, biasing the residual error toward a false ALLOW (a missed offload, which the
 CLAUDE.md rule and the maintainer still catch) rather than a false BLOCK (stopping a legitimate
-critical-path verifier, which would be worse). Research / draft seeds are deliberately NOT
-mechanically detected here (too fuzzy to separate from legitimate orchestrator-side analysis
-without a high false-block rate); the CLAUDE.md rule covers them, this hook targets the
-mechanically-detectable QA passes that drove the failure.
+critical-path verifier, which would be worse). Research / draft seeds, AND a bare `verify` pass,
+are deliberately NOT mechanically detected here (too generic / fuzzy to separate from legitimate
+orchestrator-side analysis without a high false-block rate; `verify` in particular is both the
+offloaded verify pass AND the always-allowed pre-push verifier, so a bare-word marker cannot tell
+them apart); the CLAUDE.md rule covers them, this hook targets the mechanically-detectable QA
+passes that drove the failure.
 
 Severity: BLOCK (exit 2) by default, because the maintainer directed a HARD guardrail and a WARN
 is exactly the "auto-pilot ignores it" failure mode that let the orchestrator self-run
@@ -255,7 +257,6 @@ def main(argv: list) -> int:
 
 def _self_test() -> int:
     import tempfile
-    import time
     import unittest
 
     def payload(tool="Task", prompt="", desc="", project=None):
