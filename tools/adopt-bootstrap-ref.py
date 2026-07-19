@@ -19,7 +19,8 @@ it only READS the committed public manifest (bibliographic metadata: title, issu
 version, upstream URL, acquisition class) and prints a plan. The actual fetching is the
 `/adopt` assistant's job (WebFetch of the auto-fetchable list INTO the adopter's EXTERNAL
 `grc_library_ref` sibling), governed by two guardrails the skill enforces: never fetch
-into the in-repo `.ref` stub (it stays stub-only so the stub-guard gate passes), and
+into an in-repo `.ref` STUB (a payload-bearing declared stub hard-fails the stub-guard gate;
+a functional in-repo `.ref` is the adopter's own real sibling, out of the gate's scope), and
 never redistribute licensed content (only FREE sources are auto-fetched; LICENSED items
 are listed for the adopter to acquire lawfully). Keeping the tool network-free and
 write-free keeps it stdlib-only and side-effect-free, and keeps the copyright boundary
@@ -90,8 +91,8 @@ def categorize(entries: list[dict]) -> dict:
 
 _GUARDRAIL = (
     "GUARDRAILS (the /adopt skill enforces these): fetch the AUTO-FETCHABLE sources into "
-    "your EXTERNAL grc_library_ref sibling ONLY, NEVER into the in-repo .ref stub (it stays "
-    "stub-only so the stub-guard gate passes); NEVER redistribute LICENSED content, acquire "
+    "your EXTERNAL grc_library_ref sibling ONLY, NEVER into an in-repo .ref STUB (a "
+    "payload-bearing declared stub hard-fails the stub-guard gate); NEVER redistribute LICENSED content, acquire "
     "each licensed item lawfully under its issuer's terms."
 )
 

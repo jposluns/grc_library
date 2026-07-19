@@ -310,7 +310,7 @@ def private_availability_decision(classification: str, private_readable: bool) -
     for the maintainer a missing _private is a LOUD failure to fix (clone it),
     never a silent skip or a hallucinated-from-memory work-around. The graceful
     path is ADOPTER-ONLY: an adopter legitimately has no _private and is offered a
-    choice (redirect to the in-repo .private placeholder, or create their own).
+    choice (have /adopt create the in-repo .private stub, or point to their own store).
     Mirrors ref_availability_decision; the PreToolUse hook is the mechanical
     enforcement that this decision is not merely advisory.
     """
@@ -336,8 +336,8 @@ def private_availability_decision(classification: str, private_readable: bool) -
         return (
             "ok (adopter, _private absent as expected): _private is the "
             "maintainer's private operational store; an adopter is offered a "
-            "choice (point their own store at ../grc_library_private, use the "
-            "in-repo .private placeholder, or create their own). Nothing here is "
+            "choice (point their own store at ../grc_library_private, or have "
+            "/adopt create the in-repo .private stub). Nothing here is "
             "required to use the corpus or run the public gates.")
     return (
         f"HALT (LOUD): undetermined operator identity ({classification!r}) with "
