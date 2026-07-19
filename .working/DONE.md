@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.22.1: wrong-repo tool guardrail hook (2026-07-19, PR #1042)
+
+Built `block-wrong-repo-tool.py`, a PreToolUse Bash hook that blocks a cwd-relative `tools/<x>.(py|sh)` invocation absent in the project repo but present in a sibling repo (naming the correct repo), while allowing any command with an explicit `cd`. The read-side companion to `repo-guard.sh` (§1.15a write-side). Motivated by, and it immediately re-caught in production, the 2026-07-19 slip of running the scratch-side `credit-offload-queue.py` from the `grc_library` cwd.
+
 ### TODO §1.22.6: answered-question guardrail (2026-07-19, PR #1041)
 
 Built the mechanical guardrail against re-asking a maintainer a decision they already made: a PreToolUse hook (`block-answered-question.py`) that extracts an `AskUserQuestion`'s distinctive keys (backlog sections, coded ids) and BLOCKS the question when a key already appears in the decision stores, plus `tools/decisions-search.py` (the on-demand search) and a CLAUDE.md "search decisions before asking" discipline. Motivated by the 2026-07-19 recurrence (four content forks re-asked though all were recorded in `pending-decisions.md`).

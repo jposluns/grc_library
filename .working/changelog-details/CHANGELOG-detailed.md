@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-19, Library Version 2026.07.530, PR #1042
+
+Adds the wrong-repo tool guardrail (TODO §1.22.1, maintainer-directed 2026-07-19) after the orchestrator ran the scratch-side credit-offload-queue helper from the `grc_library` cwd (a silent file-not-found from the wrong repo). Tooling, assistant-guidance, and working-state only; no corpus or website content changed.
+
+### Added
+- [`.claude/hooks/block-wrong-repo-tool.py`](../../.claude/hooks/block-wrong-repo-tool.py): a PreToolUse Bash hook that inspects the command, and for each `tools/<name>.(py|sh)` invoked at command position that is ABSENT in the project repo's tools dir but PRESENT in a sibling repo's, BLOCKS (exit 2) naming the correct repo. Allows any command containing an explicit `cd` (the author is managing cwd deliberately), a tool that exists locally, a tool absent everywhere (new-tool creation), and a filename mentioned only as an argument. Fail-open, adopter-safe (no-op if no sibling tools dirs). 8 inline self-tests, all pass.
+
+### Changed
+- [`.claude/settings.json`](../../.claude/settings.json): wired the hook as a second Bash PreToolUse hook (alongside the pipe-guard).
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the read-side-companion note to the §1.15a cross-repo Boundaries bullet (run scratch / `_ref` / `_private` tools with an explicit `cd` prefix, which the hook allows).
+- [`TODO.md`](../../TODO.md): rotated §1.22.1 out (closed here, into DONE); refined §3.87 (the unix-socket transport) with the maintainer-directed 2026-07-19 assessment (worth building; the turn-based-session -> broker-daemon constraint; single `orchestrator.sock` client-server vs per-instance sockets; scratch reduced-not-eliminated for cross-VM + audit; shared read-only SHA-pinned worktrees vs an unsafe shared live repo; a phased build).
+
+### Also carries (recursion-avoidance)
+PR #1041's `/retro` row (in [`improvement-log.md`](../improvement-log.md)). PR #1041's `/validate-pr` row is OFFLOADED to worker-a (order `validate-pr-1041`, pinned to #1041's merge SHA) and is consumed into this PR at push time under elevated QA (worker-a's first QA delivery this session).
+
+### Discipline observation (self-inflicted, self-caught, no escape)
+While mid-build I ran `git fetch && git reset --hard origin/main` on this FEATURE BRANCH, applying the scratch-checkout-sync reflex (correct for the wipeable scratch checkout) to a feature branch with uncommitted work, which reverted the settings.json wiring (the untracked hook file survived; no commits were lost since the branch had none). Recovered by re-adding the wiring and committing the core immediately. Lesson: the `git reset --hard origin/main` sync pattern is ONLY for the scratch checkout; NEVER run it on a `grc_library` feature branch (it discards uncommitted work). This is the exact cross-context-command hazard the §1.15a / §1.22.1 guardrails address, ironically hit while building §1.22.1; recorded for the retro.
+
+### Verification
+- Hook `--self-test`: 8/8 pass. End-to-end: the exact slip (running the scratch-side credit-offload-queue helper from the `grc_library` cwd) BLOCKS naming the `grc_library_scratch` sibling; a local tool and a `cd`-prefixed command ALLOW. The hook fired correctly in production on a real scratch-tool invocation during this session.
+- `tools/run_all_audits.sh` + the pre-push guard green; the settings file parses as valid JSON.
+
 ## 2026-07-19, Library Version 2026.07.529, PR #1041
 
 Adds the answered-question guardrail (TODO section 1.22.6, maintainer-directed 2026-07-19) after the assistant re-asked the maintainer four content forks (section 3.68 vuln-SLA, section 3.69 MFA scope, section 3.70 asymmetric-key minimums, the standards-rendering item) whose decisions were already recorded in the pending-decisions queue. Assistant-guidance, tooling, and working-state only; no corpus or website content changed.
