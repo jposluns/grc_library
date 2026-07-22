@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -103,7 +103,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | UK GDPR | Adequacy | UK Government adequacy regulations: verify annually |
 | Canada PIPEDA | Contractual protection | DPA with contractual privacy obligations |
 | Quebec Law 25 | PIA + contract | Completed AFIPD (Privacy Impact Assessment for Cross-Border Transfer) |
-| LGPD (Brazil) | SCCs or contractual clauses | ANPD-recognized clauses or ANPD adequacy decision |
+| LGPD (Brazil) | SCCs or contractual clauses | ANPD-recognized clauses (Resolution CD/ANPD No. 19/2024) or ANPD adequacy decision (first issued in Resolution CD/ANPD No. 32/2026, recognizing the EU/EEA) |
 | PIPL (China) | Standard Contract | CAC Standard Contract for Cross-Border Transfer of Personal Information (filed) |
 
 ### Risk assessment

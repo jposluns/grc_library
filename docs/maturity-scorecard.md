@@ -243,14 +243,14 @@ _170 documents._
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.4 | 2026-07-14 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.5 | 2026-07-14 |
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.3 | 2026-07-02 |
-| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.14 | 2026-07-16 |
+| [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.15 | 2026-07-22 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.9 | 2026-07-16 |
 | [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.10 | 2026-07-16 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.3 | 2026-07-13 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-11 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-07-02 |
-| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-09 |
+| [privacy/jurisdictions/annex-privacy-latin-america.md](../privacy/jurisdictions/annex-privacy-latin-america.md) | Latin America Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-07-22 |
 | [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
@@ -265,7 +265,7 @@ _170 documents._
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.0.3 | 2026-07-02 |
 | [privacy/register-automated-decision-making.md](../privacy/register-automated-decision-making.md) | Automated Decision-Making and Profiling Register | Register | 1.0.7 | 2026-07-16 |
 | [privacy/register-cookie-and-tracker.md](../privacy/register-cookie-and-tracker.md) | Cookie and Tracker Register | Register | 1.0.6 | 2026-07-16 |
-| [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.6 | 2026-07-02 |
+| [privacy/register-cross-border-data-flow.md](../privacy/register-cross-border-data-flow.md) | Cross-Border Data Flow Register | Register | 1.0.7 | 2026-07-22 |
 | [privacy/standard-pseudonymization-and-anonymization.md](../privacy/standard-pseudonymization-and-anonymization.md) | Pseudonymization and Anonymization Standard | Standard | 1.0.7 | 2026-07-10 |
 | [privacy/template-breach-notification-regulator-register.md](../privacy/template-breach-notification-regulator-register.md) | Breach Notification Regulator Register Template | Template | 1.0.1 | 2026-07-02 |
 | [privacy/template-dpa-article-28.md](../privacy/template-dpa-article-28.md) | Data Processing Agreement Template (GDPR Article 28) | Template | 1.0.2 | 2026-07-13 |
