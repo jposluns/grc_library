@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.548, PR #1060
+
+RB-7 AI-security full-column integration (maintainer-decided full columns, not see-also): two newly-held AI-security frameworks, OWASP AI Exchange and SANS Critical AI Security Guidelines v1.4, engaged across five AI documents. Run through the high-assurance verification harness (research fan-out, then two independent adversarial verifiers, then a deterministic apply from an explicit verified map, then a re-parse).
+
+### Changed
+- **[`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)** (1.8.10 to 1.8.11): the section-36 framework-alignment matrix gains two columns (OWASP AI Exchange, SANS CAISG v1.4), one cell per control-area row. Two cells are N/A per the adversarial verifiers: "Unsafe code generation" (both frameworks; the OWASP LLM Top 10 column already carries LLM05, and neither new framework has a generated-code-security control) and "Overreliance" SANS (SANS names no overreliance control; its Human Oversight is a decision-authority control).
+- **[`ai/standard-ai-access-and-agent-permissions.md`](../../ai/standard-ai-access-and-agent-permissions.md)** (0.0.10 to 0.0.11): two framework rows (OWASP AI Exchange least model privilege; SANS Secure Agentic Systems and AI Autonomy Controls).
+- **[`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md)** (1.1.3 to 1.1.4): two framework rows (OWASP AI Exchange umbrella taxonomy; SANS scope-precise categories, not the over-generic ISMS anchor the verifier rejected).
+- **[`ai/guide-ai-security-technical-implementation.md`](../../ai/guide-ai-security-technical-implementation.md)** (1.3.4 to 1.3.5): an OWASP AI Exchange External-references bullet (the SANS bullet dropped as redundant per the false-positive verifier).
+- **[`ai/plan-ai-incident-response.md`](../../ai/plan-ai-incident-response.md)** (1.0.8 to 1.0.9): two framework rows (SANS Incident Response and Forensics for AI Systems as the primary AI-IR anchor; OWASP AI Exchange Monitor use as a secondary).
+- Taxonomy and maturity-scorecard regenerated for the Version bumps.
+
+### Verification (high-assurance harness)
+- Stage 1 research fan-out (`research-ha-aisec-mappings`, quoted every candidate at held source). Stage 3 two independent adversarial verifiers, blind to each other and to the research rationale: false-negative (`ha-aisec-verify-fn`, hunt misses) returned NO MATERIAL MISS with every N/A grounded (and caught a SANS "overreliance" homonym false-lead); false-positive (`ha-aisec-verify-fp`, hunt over-assignments) returned three OVER-ASSIGNED (all among the candidate's own flagged cells) plus one borderline, which drove the two N/A cells, the Table-3 anchor replacement, and the dropped Doc-4 SANS bullet. Stage 5 deterministic apply from the reconciled explicit map, then a re-parse cross-checking every applied cell against the map.
+- The new columns use control NAMES (OWASP AI Exchange, SANS CAISG have no short codes), so the existence-gate families (CSA/NIST/ISO/COBIT) and the `/matrix-fit` worklist tool do not apply; the two adversarial verifiers performed the semantic-fit role instead.
+- `run_all_audits.sh` 72/72 (lint-language OK); pre-push guard green; an offloaded pre-merge skeptical verify on the pushed SHA.
+- Batches PR #1059's `/validate-pr` + `/retro` rows.
+
 ## 2026-07-22, Library Version 2026.07.547, PR #1059
 
 RB-7 new-ingest reference-breadth (Canada cluster, findings C-1 and C-2): two newly-held Canadian government sources engaged as authoritative companion references. Offloaded research (`research-canada-breadth`) caught and corrected the original reference-audit's C-1 overstatement: the GC Guideline does NOT publish a Critical/High/Medium remediation-hours matrix (its timed table is scanning frequencies; remediation timing is qualitative), so the addition is grounded in the guideline's verified risk-based framing, not the "48h/14d/30d" figures the original finding claimed.
