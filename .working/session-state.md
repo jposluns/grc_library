@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep116-closeout
+**Active-session:** claude/rb7-close
 
 **Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-22T14:32:15Z
+**Last-heartbeat-UTC:** 2026-07-22T20:01:07Z
 
 **Current-task:** 2026-07-22 resumed session (`/resume` from #1055; on the VM, gh-CLI, no GitHub MCP; ATTENDED, maintainer actively directing). This session's assistant was a WORKER on `grc_library_ref` last session and is the ORCHESTRATOR now. Goal (maintainer-directed): assess the `_ref` ingest output (catalogue 696->727, +31 items, `_ref` main green at `3e63317`, ingest COMPLETE) and ensure all relevant newly-ingested contents have their corpus-related files updated to reference/cite as needed (TODO RB-7 + the FULL new-ingest set, maintainer-decided scope). First PR #1 = this resume close-out: the loop-break Sweep 116 `/validate` over the #1054..#1055 deltas (offloaded to worker-b), re-triage of the aged Sweep-3 follow-up at `validate-sweeps/history.md:L133` (default 30-day re-triage deadline lapsed during the multi-day gap, failing gate 43 + the FollowupAgeing regression test; NOT a corpus regression), the handoff prune, and this lease acquire. Maintainer decisions this session (recorded scratchpad `session-decisions-2026-07-22.md`): scope FULL; Wiz "Securing AI Agents 101" discard-candidate DELETE (`_ref`-side); Colombia RNBD -> maintainer-egress + clean that file of already-ingested rows; §3.70 crypto = TIGHTEN THE PACK too (parity PR).
 
