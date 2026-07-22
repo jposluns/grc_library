@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.10\
-**Date:** 2026-07-13\
+**Version:** 1.0.11\
+**Date:** 2026-07-22\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -70,7 +70,7 @@ This annex applies where an organization:
 | Regulation / Framework | Authority | Scope |
 |---|---|---|
 | **GLBA**: Gramm-Leach-Bliley Act Safeguards Rule (16 CFR Part 314) | FTC; federal banking regulators | Financial institutions; those significantly engaged in financial activities |
-| **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter |
+| **23 NYCRR 500**: NY DFS Cybersecurity Regulation | NY Department of Financial Services | Covered entities with NY DFS licence or charter; limited exemptions under 500.19(a) (fewer than 20 employees and independent contractors, or under USD 7.5M gross annual revenue in each of the last 3 fiscal years, or under USD 15M year-end total assets) |
 | **FFIEC IT Examination Handbook** | FFIEC | US banks and credit unions |
 | **FFIEC Cybersecurity Assessment Tool (CAT)** (retired 31 August 2025; the FFIEC suggests institutions may consider industry-developed resources such as the Cyber Risk Institute Cyber Profile and the CIS Critical Security Controls) | FFIEC | US depository institutions |
 | **Interagency safety-and-soundness, information-security, and third-party-risk expectations** | Office of the Comptroller of the Currency (OCC); Federal Reserve Board (FRB); Federal Deposit Insurance Corporation (FDIC) | Federally supervised banks and holding companies; technology risk, information security, and third-party risk |
@@ -155,7 +155,8 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 |---|---|---|
 | **CISO appointment** | Qualified CISO; annual report to Board | Role definition in security domain |
 | **Penetration testing** | Annual penetration test; bi-annual vulnerability assessment | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
-| **Multi-factor authentication** | MFA required for access to non-public information systems | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Multi-factor authentication** | MFA required for any individual accessing any information system, regardless of location, user type, or type of electronic information, effective 1 November 2025 (500.12; limited-exemption carve-out under 500.19(a)) | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
+| **Annual filings and reviews** | Annual Cybersecurity Compliance filing by April 15 (500.17(b)); written cybersecurity policy review and approval by April 29 (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing and review deadlines |
 | **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
 | **Incident notification** | Notice to NYDFS within 72 hours of determining a Cybersecurity Event occurred | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
 | **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../../security/policy-information-security.md): verify coverage of all 15 areas |
@@ -191,7 +192,7 @@ For organizations subject to AML obligations (banks, money service businesses, c
 |---|---|---|
 | **Customer Due Diligence (CDD)** | Verify customer identity; assess business purpose; identify beneficial owners | Supplement: CDD procedure |
 | **Enhanced Due Diligence (EDD)** | Enhanced measures for high-risk customers, PEPs, high-risk countries | Supplement: EDD procedure |
-| **Transaction Monitoring** | Monitor transactions for suspicious activity | Supplement: Transaction monitoring programme |
+| **Transaction Monitoring** | Monitor transactions for suspicious activity; NY DFS 3 NYCRR Part 504.3 requires a reasonably designed transaction-monitoring and OFAC-filtering program | Supplement: Transaction monitoring programme |
 | **Suspicious Activity Reporting (SAR)** | File SARs with FINTRAC / FinCEN / NCA within prescribed timelines | Supplement: SAR filing procedure |
 | **Record Retention** | AML records retained for 5 to 7 years depending on jurisdiction | [`governance/register-data-retention-schedule.md`](../../governance/register-data-retention-schedule.md): verify AML retention periods |
 | **Staff Training** | AML training for all relevant staff | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md): ensure that AML training is included |
@@ -208,7 +209,7 @@ The following controls are required by financial services regulations but are no
 | Important Business Services register | UK FCA/PRA PS21/3 | Create Important Business Services register and impact tolerance documentation |
 | TLPT (Threat-Led Penetration Testing) protocol | DORA Art 26; CBEST (UK) | Create TLPT governance procedure |
 | DORA third-party ICT provider contract register | DORA Art 28 | Supplement supplier register with DORA-specific fields |
-| AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017 | Create AML programme documents |
+| AML / CFT policy, CDD, EDD, SAR procedures | FATF; BSA; AMLD6; MLRs 2017; NY DFS 3 NYCRR Part 504 (504.3 transaction-monitoring and OFAC-filtering program; 504.4 annual board resolution or senior-officer compliance finding by April 15) | Create AML programme documents |
 | GLBA Safeguards Rule annual report | GLBA | Create annual GLBA compliance attestation procedure |
 | PCI DSS targeted risk analysis procedure | PCI DSS v4.0.1 Req 12.3 | Create PCI DSS risk analysis procedure |
 | SOX IT General Controls documentation | SOX Section 404; PCAOB AS 2201 | Create ITGC documentation framework |
