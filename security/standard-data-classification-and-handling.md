@@ -2,8 +2,8 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.6\
-**Date:** 2026-07-11\
+**Version:** 1.4.7\
+**Date:** 2026-07-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -147,6 +147,8 @@ Where the organization participates in a sector programme that imposes additiona
 | Trade data (BASC) | N/A | N/A | N/A | BASC v6, ISO 28000 |
 
 This standard also aligns with ISO/IEC 27040:2024 (Storage security) for the secure storage, retention, and sanitization of classified data at rest.
+
+For cloud-hosted data, **CCCS ITSP.50.103 (Security Categorization of Cloud-Based Services)** provides an injury-based security-categorization methodology that bridges this standard's sensitivity classification to cloud control-profile selection. It defines security categorization as "the process of identifying the potential injuries that could result from compromises to business" processes and information, and makes categorization "fundamental" because it "provides the basis for selecting the appropriate cloud capabilities, security control profile". ITSP.50.103 "applies to both private and public-sector organizations", so it is usable as a categorization-to-control-profile bridge alongside this standard's classification model rather than as a public-sector-only instrument.
 
 
 
