@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.8\
-**Date:** 2026-07-14\
+**Version:** 1.0.9\
+**Date:** 2026-07-22\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -201,6 +201,8 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 | ISO/IEC 42001:2023 | §9, §10 | AI management system performance and improvement |
 | EU AI Act | Articles 15, 17, 26 | Security, quality management, deployer obligations |
 | ISO/IEC 27035-3 | Information security incident response | Underlying IR practice |
+| SANS CAISG v1.4 | Incident Response and Forensics for AI Systems | AI-specific audit-trail capture across the stack and a model-integrity baseline for IR evidence and detection |
+| OWASP AI Exchange | Monitor use | AI-specific monitoring and log traceability supporting incident reconstruction and evidence preservation |
 
 ---
 

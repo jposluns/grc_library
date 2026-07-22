@@ -2,8 +2,8 @@
 
 **Document Title:** AI Access and Agent Permissions Standard\
 **Document Type:** Standard\
-**Version:** 0.0.10\
-**Date:** 2026-07-17\
+**Version:** 0.0.11\
+**Date:** 2026-07-22\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/register-mcp-server.md`](register-mcp-server.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -261,6 +261,8 @@ Retrieval-augmented generation and other context-injection patterns:
 | CSA AICM v1.1.0 | AIS-11 Agents Security Boundaries | Agent security-boundary enforcement |
 | CSA AICM v1.1.0 | AIS-13 AI Sandboxing | Isolated tool and plugin execution; lateral-movement limitation |
 | Canada TBS Guide on the Use of Agentic AI (comparator) | Bounded autonomy (labelled activity-permission levels such as read-only or draft-only; tight, explicit tool, data, and scope limits; designated accountable agent owners) and recoverability (agents pausable and returnable to a safe state; all agent actions logged where the agent cannot alter them) | Canadian public-sector agentic-AI guidance; advisory, not binding on an external adopter |
+| OWASP AI Exchange | Least model privilege | Least-privilege scoping of the actions and data an agent can reach; task-based minimization; sandboxing to bound blast radius |
+| SANS CAISG v1.4 | Secure Agentic Systems and AI Autonomy Controls (focused functionality) | Defined function scope, execution isolation, and allowlist-gated function calls for agent tool access |
 
 ---
 
