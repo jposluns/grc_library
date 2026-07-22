@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.551, PR #1063
+
+RB-7 held-but-uncited-breadth residual (the two items RB-7 named that were held before the 2026-07 ingest, so the `--ref-since` worklist did not surface them). Offloaded research (`research-rb7-heldbreadth`) corrected the RB-7 premise on both.
+
+### Changed
+- **[`ai/register-ai-risk.md`](../../ai/register-ai-risk.md)** (1.0.7 to 1.0.8): a draft-watch see-also row in the Framework-alignment list for **NIST IR 8596 (Cyber AI Profile), Initial Preliminary Draft** (a CSF 2.0-organized AI security profile, three focus areas Secure/Defend/Thwart), clearly labelled DRAFT-WATCH and to be re-pointed to a normative citation on finalization.
+- Taxonomy and maturity-scorecard regenerated for the Version bump.
+
+### Findings / decisions
+- **NIST IR 8596:** RB-7 named the AI-asset-taxonomy doc as the target, but IR 8596 is a cybersecurity-framework profile (not an asset taxonomy), so the AI system register ([`ai/template-ai-system-register.md`](../../ai/template-ai-system-register.md)) is not the fit; the AI risk register's framework-alignment list is. It is a DRAFT (IPRD, `authoritative: false`), so it is added as a draft-watch see-also only, never a normative anchor.
+- **OWASP Agentic Top 10:** RB-7 recorded it as held and citable, but the ref base holds only an untrusted publication (the AIUC-1 crosswalk, `trust: untrusted`) that reproduces the taxonomy, not the authoritative OWASP framework. Per the trust model a normative citation cannot rest on it. Maintainer decision (2026-07-22): route the authoritative OWASP Top 10 for Agentic Applications to the maintainer-egress-acquisition queue (the RB-7-four model) and cite it once acquired; not cited now.
+
+### Verification
+- Held-source located via the `grc_library_ref` catalogue and INDEX (not an assumed path) and re-verified; the offloaded pre-merge skeptical verify runs on the pushed SHA.
+- `run_all_audits.sh` 72/72; pre-push guard green. Batches PR #1062's `/validate-pr` + `/retro` rows.
+
 ## 2026-07-22, Library Version 2026.07.550, PR #1062
 
 RB-7 new-ingest reference-breadth (NY DFS financial-services cluster, findings N-1, N-2, N-3): three newly-held NY DFS / NY financial-services sources engaged in the financial-services sector annex.
