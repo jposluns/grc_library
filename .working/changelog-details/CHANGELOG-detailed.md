@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.547, PR #1059
+
+RB-7 new-ingest reference-breadth (Canada cluster, findings C-1 and C-2): two newly-held Canadian government sources engaged as authoritative companion references. Offloaded research (`research-canada-breadth`) caught and corrected the original reference-audit's C-1 overstatement: the GC Guideline does NOT publish a Critical/High/Medium remediation-hours matrix (its timed table is scanning frequencies; remediation timing is qualitative), so the addition is grounded in the guideline's verified risk-based framing, not the "48h/14d/30d" figures the original finding claimed.
+
+### Changed
+- **[`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md)** (1.3.6 to 1.3.7): a companion-reference note in the Framework-alignment section citing the Government of Canada TBS Guideline on Vulnerability Management, grounded in its verified text (VM-program scope; "timelines for vulnerability remediation should be defined based on risk"; risk acceptance "must include an expiry date that is less than 12 months from when it is issued"), as a risk-based structural parallel, not a numeric SLA equivalence.
+- **[`security/standard-data-classification-and-handling.md`](../../security/standard-data-classification-and-handling.md)** (1.4.6 to 1.4.7): a companion-reference note citing CCCS ITSP.50.103 as an injury-based security-categorization methodology ("applies to both private and public-sector organizations") bridging this standard's classification to cloud control-profile selection.
+- Taxonomy and maturity-scorecard regenerated for the Version bumps.
+
+### Verification
+- Held-source re-verified via offloaded research (`research-canada-breadth`, which corrected C-1) and the offloaded pre-push skeptical verifier: the GC VM Guideline quotes at their cited lines and the ITSP.50.103 private-and-public applicability, injury-based categorization definition, and control-profile-selection basis.
+- `run_all_audits.sh` 72/72; pre-push guard green.
+- Batches PR #1058's `/validate-pr` + `/retro` rows per recursion-avoidance.
+
 ## 2026-07-22, Library Version 2026.07.546, PR #1058
 
 Citation-accuracy fix from the RB-7 new-ingest reference-audit (Google SAIF existing-citation verification, OVERREACH verdict): two developer-security README reference entries described SAIF's coverage as including an "execution" lifecycle stage, which the now-held SAIF source does not support.
