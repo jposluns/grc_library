@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.10\
-**Date:** 2026-07-12\
+**Version:** 1.8.11\
+**Date:** 2026-07-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md)\
@@ -761,17 +761,17 @@ This section governs autonomous and semi-autonomous production action. It does n
 
 ## 36. Framework alignment
 
-| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF |
-| --- | --- | --- | --- | --- |
-| Prompt injection | LLM01 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 |
-| Supply chain | LLM03 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 |
-| Sensitive data disclosure | LLM02 | N/A | DSP-17, IAM-16 | MAP 1.6 |
-| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 |
-| Unsafe code generation | LLM05 | N/A | AIS-10, AIS-05 | MAP 1.1 |
-| Excessive agency | LLM06 | N/A | IAM-18, IAM-05 | MANAGE 1.3 |
-| Overreliance | LLM09 Misinformation | N/A | GRC-15, GRC-13 | MANAGE 4.1 |
-| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0029, AML.T0034 | I&S-02, I&S-09 | N/A |
-| Hallucination/output validation | LLM09 Misinformation | N/A | AIS-10, LOG-16 | MAP 3.5 |
+| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Prompt injection | LLM01 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling |
+| Supply chain | LLM03 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management |
+| Sensitive data disclosure | LLM02 | N/A | DSP-17, IAM-16 | MAP 1.6 | Sensitive output handling | Data minimization and obfuscation |
+| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 | Least model privilege | Limit model behavior |
+| Unsafe code generation | LLM05 | N/A | AIS-10, AIS-05 | MAP 1.1 | N/A | N/A |
+| Excessive agency | LLM06 | N/A | IAM-18, IAM-05 | MANAGE 1.3 | Least model privilege | Limit model behavior (focused functionality) |
+| Overreliance | LLM09 Misinformation | N/A | GRC-15, GRC-13 | MANAGE 4.1 | AI transparency | N/A |
+| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0029, AML.T0034 | I&S-02, I&S-09 | N/A | DoS input validation, limit resources | Model I/O handling (rate limit) |
+| Hallucination/output validation | LLM09 Misinformation | N/A | AIS-10, LOG-16 | MAP 3.5 | Oversight, continuous validation | Model I/O handling (output validation, RAG grounding) |
 
 
 
