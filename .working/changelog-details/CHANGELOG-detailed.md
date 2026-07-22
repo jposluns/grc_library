@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.549, PR #1061
+
+RB-7 new-ingest reference-breadth (Latin-American privacy cluster, findings L-2 and L-3): two newly-held citation-grade legislation sources engaged in their secondary carriers.
+
+### Changed
+- **[`privacy/register-cross-border-data-flow.md`](../../privacy/register-cross-border-data-flow.md)** (1.0.6 to 1.0.7): the LGPD transfer-mechanism row now names the live instances, Resolution CD/ANPD No. 19/2024 (SCCs) and the first ANPD adequacy decision Resolution CD/ANPD No. 32/2026 (EU/EEA).
+- **[`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md)** (1.0.14 to 1.0.15): the Brazil row's cross-border-mechanism cell adds "EU/EEA adequacy (Resolution 32/2026)" alongside the existing ANPD SCCs (Resolution 19/2024).
+- **[`privacy/jurisdictions/annex-privacy-latin-america.md`](../../privacy/jurisdictions/annex-privacy-latin-america.md)** (1.0.4 to 1.0.5): the Colombia applicable-laws entry now cites the implementing regulation Decreto Unico Reglamentario 1074 de 2015, Capitulo 25 (international transfer and transmission rules, Seccion 5 art. 2.2.2.25.5.1; the Binding Corporate Rules / Normas Corporativas Vinculantes route art. 2.2.2.25.7), and the Colombia transfer-mechanism row adds the Binding Corporate Rules route.
+- Taxonomy and maturity-scorecard regenerated for the Version bumps.
+
+### Verification
+- Held-source re-verified via offloaded research (`research-latam-breadth`, quoting the Brazil Resolution 32/2026 Article 1 and Sole Paragraph and the Colombia Decreto 1074/2015 Seccion 5 and BCR articles) and the offloaded pre-merge skeptical verify.
+- `run_all_audits.sh` 72/72; pre-push guard green. Batches PR #1060's `/validate-pr` + `/retro` rows.
+
 ## 2026-07-22, Library Version 2026.07.548, PR #1060
 
 RB-7 AI-security full-column integration (maintainer-decided full columns, not see-also): two newly-held AI-security frameworks, OWASP AI Exchange and SANS Critical AI Security Guidelines v1.4, engaged across five AI documents. Run through the high-assurance verification harness (research fan-out, then two independent adversarial verifiers, then a deterministic apply from an explicit verified map, then a re-parse).
