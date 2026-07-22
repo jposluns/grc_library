@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.552, PR #1064
+
+Pack-layer parity for the §3.70 crypto tightening (maintainer decision 2026-07-22: after the corpus dev-security crypto tables were tightened to P-384 / RSA-4096 in #1052, tighten the distributable pack too rather than leave it approving a below-floor curve). Resolves the pending-decisions §3.70 entry.
+
+### Changed
+- **[`dev-security/claude-rules/core/cryptography.md`](../../dev-security/claude-rules/core/cryptography.md)**: the Asymmetric-encryption row changed from "RSA-4096, EC P-256, EC P-384 / RSA < 2048, EC P-192" to "RSA-4096, EC P-384 / RSA < 4096, EC P-256, EC P-192" (EC P-256 moved from approved to prohibited; RSA floor raised to 4096), matching the corpus §3.70 floor.
+- **[`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md)**: the Asymmetric crypto-table row changed from "RSA-4096, EC P-256/P-384 / RSA < 2048" to "RSA-4096, EC P-384 / RSA < 4096".
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack Version 1.62.4 to 1.62.5 with a matching Version-history row.
+- **[`pending-decisions.md`](../pending-decisions.md)**: the §3.70 pack-divergence entry marked RESOLVED.
+
+### Scope note
+- Only the Asymmetric-ENCRYPTION rows were tightened (the corpus §3.70 change's scope). The Digital-signatures and TLS-certificate rows (ECDSA P-256/P-384) are unchanged: P-256 for ECDSA signatures and certificates is standard-acceptable and out of the §3.70 asymmetric-encryption scope.
+- No corpus document changed; the pack cryptography rule is not `.claude/rules`-mirrored (gate 37), so no mirror edit; the pack files are not taxonomy-tracked, so no generated-artefact regen.
+
+### Verification
+- `run_all_audits.sh` 72/72; pre-push guard green; an offloaded pre-merge skeptical verify on the pushed SHA. Batches PR #1063's `/validate-pr` + `/retro` rows.
+
 ## 2026-07-22, Library Version 2026.07.551, PR #1063
 
 RB-7 held-but-uncited-breadth residual (the two items RB-7 named that were held before the 2026-07 ingest, so the `--ref-since` worklist did not surface them). Offloaded research (`research-rb7-heldbreadth`) corrected the RB-7 premise on both.

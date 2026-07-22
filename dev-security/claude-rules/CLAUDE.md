@@ -51,7 +51,7 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 | Purpose | Correct Choice | Prohibited |
 | --- | --- | --- |
 | Symmetric encryption | AES-256-GCM | DES, 3DES, RC4, Blowfish |
-| Asymmetric | RSA-4096, EC P-256/P-384 | RSA < 2048 |
+| Asymmetric | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
 | Password hashing | Argon2id (preferred), bcrypt (cost ≥12) | MD5, SHA-anything (for passwords), plain storage |
