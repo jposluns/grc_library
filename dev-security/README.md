@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.5\
-**Date:** 2026-07-03\
+**Version:** 1.4.6\
+**Date:** 2026-07-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -128,7 +128,7 @@ This domain draws on and references the following external projects. These refer
 - **MITRE ATLAS**: Adversarial threat landscape for AI systems; attack technique taxonomy for AI-specific threats: `https://atlas.mitre.org/`
 - **NIST AI RMF**: AI risk management framework covering Govern, Map, Measure, and Manage functions: `https://www.nist.gov/itl/ai-risk-management-framework`
 - **NIST SP 800-218A**: Generative AI Profile augmenting SSDF with AI model development practices: `https://csrc.nist.gov/pubs/sp/800/218/a/final`
-- **Google SAIF**: Secure AI Framework for secure development, deployment, execution, and monitoring: `https://saif.google/`
+- **Google SAIF**: Secure AI Framework for secure development, deployment, and monitoring: `https://saif.google/`
 - **TikiTribe**: Open-source rule sets for AI coding assistants; covers AI, agent, MCP, and RAG security; aligns to OWASP LLM Top 10, OWASP MCP Top 10, MITRE ATLAS, and NIST AI RMF: `https://github.com/TikiTribe/claude-secure-coding-rules`
 
 ### AI coding assistant rule repositories
