@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-07-11\
+**Version:** 1.0.8\
+**Date:** 2026-07-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -110,6 +110,7 @@ The register is updated within 5 business days of any:
 | ISO/IEC 23894:2023 | Annex A risk-management objectives (11, including A.5 Environmental impact and A.10 Safety) | Risk-category coverage |
 | NIST IR 8312 | Four principles of explainable AI | Explainability category |
 | NIST SP 1270 | Systemic, statistical, and human bias | Bias category |
+| NIST IR 8596 (Cyber AI Profile), Initial Preliminary Draft (DRAFT-WATCH) | CSF 2.0-organized profile; three focus areas (Secure, Defend, Thwart) | Emerging NIST AI-security profile; draft-watch see-also only, re-point to a normative citation on finalization |
 | ISO/IEC TR 24027:2021 | Clause 7 fairness metrics; sources of unwanted bias | Bias category |
 | ISO 31000:2018 | Risk Management Guidelines | Enterprise risk register methodology |
 
