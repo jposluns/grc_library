@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.62.3\
-**Date:** 2026-07-19\
+**Version:** 1.62.4\
+**Date:** 2026-07-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](../standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../standard-devops-security-requirements.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../guideline-ai-coding-assistant-security.md), [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md)\
@@ -463,7 +463,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 **Google Secure AI Framework (SAIF)**
 - URL: `https://saif.google/`
-- Coverage: Secure development, deployment, execution, and monitoring for AI systems; mitigates model stealing, data poisoning, prompt injection, and information extraction
+- Coverage: Secure development, deployment, and monitoring for AI systems; mitigates model stealing, data poisoning, prompt injection, and information extraction
 - Direct application: [`ai/ai-security.md`](ai/ai-security.md), [`ai/agent-security.md`](ai/agent-security.md)
 
 **CIS Benchmarks**
@@ -491,6 +491,7 @@ These rule files draw on and are aligned to the following external projects and 
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.62.4 | 2026.07.546 | 2026-07-22 | Citation-accuracy fix (patch; no new rule or skill): the pack README's Google SAIF reference entry described SAIF's coverage as "secure development, deployment, execution, and monitoring", but the held SAIF source (`grc_library_ref`, verified at ref `3e63317`) frames SAIF as "six core elements" across a software-development lifecycle (development, deployment, monitoring) with no "execution" lifecycle stage ("execute"/"execution" appears in the held text only for agent actions and attacks, never as a SAIF phase). The SAIF Coverage line drops "execution" to match the source. Surfaced by the parent library's RB-7 new-ingest reference-audit (Google SAIF existing-citation verification, OVERREACH verdict). Pack `1.62.3` to `1.62.4` (patch; no new rule or skill). |
 | 1.62.3 | 2026.07.535 | 2026-07-19 | `/adopt` sibling-placeholder handling reframed for the parent library's root `.directories` cleanup (patch; no new rule or skill): the parent removed the committed in-repo `.ref`/`.scratch`/`.private` placeholder stub directories from its public root (they made the separate sibling repositories look shipped), so the [`adopt`](skills/adopt/SKILL.md) skill's step 2 and step 4 (and the term definitions) now describe the stubs as an adopter OPT-IN that `/adopt` creates on request (a README-only marker stub the stub-guard gate keeps payload-free), or a FUNCTIONAL in-repo sibling the adopter materializes (out of the stub-guard gate's scope), rather than shipped placeholders kept as-is. The parent's stub-guard gate becomes guard-if-present-as-stub. Parent TODO 1.22.2. Pack `1.62.2` to `1.62.3` (patch; no new rule or skill). |
 | 1.62.2 | 2026.07.519 | 2026-07-18 | Pack-skill portability fix (patch; no new rule or skill): three skills' "Project wiring" sections named the parent library's old `.working/` paths for operational docs the parent has since relocated to its private companion repo, so a reader following the skill was sent to a path that no longer exists there. [`skills/high-assurance-verification/SKILL.md`](skills/high-assurance-verification/SKILL.md), [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md), and [`skills/pr-retrospective/SKILL.md`](skills/pr-retrospective/SKILL.md) now name the relocated register/ledger by portable role (no hard `.working/` path, and no leak of the parent's private-repo path into the distributable pack), while keeping each section's concrete in-repo paths for the docs that did NOT move. Surfaced by the parent library's §1.19.8-change-set deep-assessment (finding W2). Pack `1.62.1` to `1.62.2` (patch; no new rule or skill). |
 | 1.62.1 | 2026.07.495 | 2026-07-18 | `/adopt` `.ref`-bootstrap step concretized (patch; no new rule or skill): the [`adopt`](skills/adopt/SKILL.md) skill's step 4 now drives the external-`grc_library_ref` bootstrap from a categorized acquisition plan produced by the parent library's new portable planner (`tools/adopt-bootstrap-ref.py`; adopters run their own equivalent), which reads the committed public reference-acquisition manifest and splits it into **auto-fetchable** (FREE + upstream URL), **free-manual** (FREE, no URL recorded), and **licensed-manual** (LICENSED). The assistant WebFetches the auto-fetchable set into the EXTERNAL sibling and lists the rest for manual acquisition; the planner itself never fetches or writes (reads only bibliographic metadata), keeping the network/write side and the copyright boundary in the human-in-the-loop assistant layer. Completes TODO 1.19.7 (`_ref` integration) part (c). Pack `1.62.0` to `1.62.1` (patch; no new rule or skill). |

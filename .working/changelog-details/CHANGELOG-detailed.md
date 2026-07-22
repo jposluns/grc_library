@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.546, PR #1058
+
+Citation-accuracy fix from the RB-7 new-ingest reference-audit (Google SAIF existing-citation verification, OVERREACH verdict): two developer-security README reference entries described SAIF's coverage as including an "execution" lifecycle stage, which the now-held SAIF source does not support.
+
+### Changed
+- **[`dev-security/README.md`](../../dev-security/README.md)** (1.4.5 to 1.4.6): the Google SAIF reference line dropped "execution" from "secure development, deployment, execution, and monitoring".
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)** (pack 1.62.3 to 1.62.4, a patch with no new rule or skill): the SAIF Coverage line dropped "execution"; a Version-history row records the patch.
+
+### Verification
+- Re-verified at the held source (the six Google SAIF full-text files in the reference base at ref `3e63317`): SAIF describes "six core elements" across a software-development lifecycle (development, deployment, monitoring); "execute" and "execution" appear only for agent actions and attacks (prompt injection, remote code execution), never as a SAIF lifecycle stage. The sibling reference line in the AI-coding-assistant guideline (which already read "development, deployment, and monitoring") was already accurate and is unchanged; the TikiTribe-coverage SAIF mentions are third-party-scoped and unchanged.
+- Corpus-wide grep confirmed exactly two carriers of the overreach phrase, both fixed; no generated-artefact regen was needed (the README Version is not taxonomy-tracked); `run_all_audits.sh` 72/72; a refute-briefed skeptical verifier ran pre-push.
+
 ## 2026-07-22, Library Version 2026.07.545, PR #1057
 
 Corpus accuracy fix from the RB-7 new-ingest reference-audit (finding L-1): the Brazil privacy annex stated the ANPD had not yet issued adequacy decisions, which the newly-held Resolution CD/ANPD No. 32 of 26 January 2026 (the ANPD's first adequacy decision, recognizing the European Union) disproves.
