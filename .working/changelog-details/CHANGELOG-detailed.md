@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.545, PR #1057
+
+Corpus accuracy fix from the RB-7 new-ingest reference-audit (finding L-1): the Brazil privacy annex stated the ANPD had not yet issued adequacy decisions, which the newly-held Resolution CD/ANPD No. 32 of 26 January 2026 (the ANPD's first adequacy decision, recognizing the European Union) disproves.
+
+### Changed
+- **[`privacy/jurisdictions/annex-privacy-brazil.md`](../../privacy/jurisdictions/annex-privacy-brazil.md)** (1.1.6 to 1.1.7): the Cross-border transfer-mechanisms Adequacy item replaced "As of 2025, the ANPD has not yet issued adequacy decisions" with the ANPD's first adequacy decision (Resolution CD/ANPD No. 32 of 26 January 2026, recognizing the EU: all EU Member States, the three EFTA states in the EEA, and EU institutions; subject to reassessment within four years); the standard-contractual-clauses paragraph reworded so SCCs remain primary for destinations not covered by an adequacy decision, with the new adequacy route as the alternative for the EU and EFTA/EEA.
+- The taxonomy, portal, and maturity-scorecard artefacts were regenerated for the Version bump.
+
+### Verification
+- Re-verified at the held source (the Brazil ANPD Resolution No. 32 of 26 January 2026 full-text in the reference base at ref `3e63317`): Article 1 recognizes the EU as providing an adequate level of protection under the LGPD; the Sole Paragraph extends it to the EU Member States, the EFTA/EEA states (Iceland, Liechtenstein, Norway), and EU institutions; Paragraph 1 sets a four-year reassessment. The item is catalogued in the reference base.
+- `run_all_audits.sh` 72/72 standalone; both generator `--check` runs in sync; the pre-push guard green; a refute-briefed skeptical verifier ran pre-push.
+
 ## 2026-07-22, Library Version 2026.07.544, PR #1056
 
 Resume close-out for the 2026-07-22 session (the orchestrator's prior session ingested +31 reference items into `grc_library_ref`, catalogue 696 to 727; this session assesses corpus use/cite of them per TODO RB-7). This is the first PR of the resumed session: it runs the loop-break Sweep 116 corpus-wide `/validate`, clears the one aged-follow-up gate artefact, prunes the handoff, and re-acquires the lease.

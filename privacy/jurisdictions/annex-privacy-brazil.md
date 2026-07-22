@@ -2,8 +2,8 @@
 
 **Document Title:** Brazil Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.6\
-**Date:** 2026-07-13\
+**Version:** 1.1.7\
+**Date:** 2026-07-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -49,13 +49,13 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 International transfers of personal data from Brazil are permitted only when (LGPD Articles 33 to 36):
 
-1. **Adequacy:** Transfer to a country with adequate protection as determined by the ANPD. As of 2025, the ANPD has not yet issued adequacy decisions.
+1. **Adequacy:** Transfer to a country or international organization the ANPD recognizes as providing an adequate level of protection (LGPD Article 33, item I). The ANPD issued its first adequacy decision in Resolution CD/ANPD No. 32 of 26 January 2026, recognizing the European Union (extending to all EU Member States, the three European Free Trade Association states in the European Economic Area (Iceland, Liechtenstein, Norway), and the institutions, bodies, and agencies of the European Union); the decision is subject to reassessment within four years.
 2. **Standard Contractual Clauses:** Transfer subject to ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2024, of 23 August 2024, the International Data Transfer Regulation).
 3. **Binding Corporate Rules:** Intra-group transfers subject to BCRs approved by the ANPD.
 4. **Regulatory cooperation:** Transfer to countries where cooperation agreements exist between the ANPD and the foreign data protection authority.
 5. **Derogations (Article 33, II):** Transfers with explicit consent, necessary for contract performance, to protect life, for public health, or for fulfilment of legal obligation.
 
-ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2024) are the primary mechanism for routine international transfers from Brazil until adequacy decisions are issued. (Resolution CD/ANPD No. 19/2024, of 23 August 2024, was verified against the ANPD's official international-data-transfer publication on 2026-07-07; the earlier "No. 19/2023" designation was a year error, corrected here.)
+ANPD-approved standard contractual clauses (Resolution CD/ANPD No. 19/2024) remain the primary mechanism for routine international transfers to destinations not covered by an adequacy decision; the first adequacy decision (Resolution CD/ANPD No. 32 of 26 January 2026, recognizing the European Union and the EFTA states in the European Economic Area) provides an alternative route for transfers to those recognized destinations. (Resolution CD/ANPD No. 19/2024, of 23 August 2024, was verified against the ANPD's official international-data-transfer publication on 2026-07-07; the earlier "No. 19/2023" designation was a year error, corrected here.)
 
 ---
 
