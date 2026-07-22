@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.550, PR #1062
+
+RB-7 new-ingest reference-breadth (NY DFS financial-services cluster, findings N-1, N-2, N-3): three newly-held NY DFS / NY financial-services sources engaged in the financial-services sector annex.
+
+### Changed
+- **[`compliance/financial-services/annex-financial-services-sector-requirements.md`](../../compliance/financial-services/annex-financial-services-sector-requirements.md)** (1.0.10 to 1.0.11):
+  - **N-1** (3 NYCRR Part 504): the AML/CFT Transaction-Monitoring row and the AML-gap row now cite Part 504 (504.3 reasonably-designed transaction-monitoring and OFAC-filtering program; 504.4 annual board resolution or senior-officer compliance finding by April 15).
+  - **N-2** (23 NYCRR 500.19 + Part 500 deadlines): the 23 NYCRR 500 scope row adds the 500.19(a) limited-exemption thresholds (fewer than 20 employees and independent contractors, or under USD 7.5M gross annual revenue in each of the last 3 fiscal years, or under USD 15M year-end total assets); a new requirement-table row adds the annual filing (by April 15, 500.17(b)) and policy review (by April 29, 500.3) deadlines.
+  - **N-3** (500.12 amended MFA): the MFA row is updated from the narrower prior scope to the amended 500.12 universal-MFA requirement (any individual accessing any information system, regardless of location, user type, or information type, effective 1 November 2025, with the 500.19(a) limited-exemption carve-out), aligning with the corpus-wide MFA-scope harmonization from #1053.
+- Taxonomy and maturity-scorecard regenerated for the Version bump.
+
+### Verification
+- Held-source re-verified via offloaded research (`research-nydfs-breadth`, every value confirmed verbatim: the 20-employee / USD 7.5M / USD 15M thresholds, the April 15 and April 29 dates, the 504.4 April 15 finding, the 1 November 2025 MFA scope) and the offloaded pre-merge skeptical verify.
+- `run_all_audits.sh` 72/72; pre-push guard green. Batches PR #1061's `/validate-pr` + `/retro` rows.
+
 ## 2026-07-22, Library Version 2026.07.549, PR #1061
 
 RB-7 new-ingest reference-breadth (Latin-American privacy cluster, findings L-2 and L-3): two newly-held citation-grade legislation sources engaged in their secondary carriers.
