@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.554, PR #1066
+
+Session-closing handoff for the 2026-07-22 resumed session (`/resume` from #1055; merged #1056-#1065 plus `_ref` #100). Working-state only; no corpus or website content changed. Per the handoff-PR exception (loop-break), this PR skips its own trailing `/validate-pr` + `/retro`; the compensating control is the next `/resume`'s corpus-wide `/validate` over the #1056..#1066 deltas, cross-checked against this session's asserted-expectations.
+
+### Changed
+- **[`.working/session-handoff.md`](../session-handoff.md)**: prepended this session's Next-actions (CLOSING + NEXT SESSION), State snapshot (SESSION-CLOSING at #1066), and Asserted-expectations blocks (the closing session adds; the next `/resume` prunes to keep-current-plus-one-prior).
+- **[`.working/session-state.md`](../session-state.md)**: lease RELEASED (`Status: released`, `Active-session: none`, heartbeat refreshed).
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)**: #1065 `/validate-pr` row (CLEAN 0/0/0, offloaded worker-b) batched, plus the #1066 handoff-PR-exemption row (`SKIPPED (handoff-PR exception)` in the Findings cell, gate-50-recognized). Version 1.2.823 to 1.2.825.
+- **[`.working/improvement-log.md`](../improvement-log.md)**: #1065 `/retro` row batched (the order-status `new`-vs-`pending` intent-is-not-action lesson). Version 1.0.756 to 1.0.757.
+- **[`.working/next-prs.txt`](../next-prs.txt)**: cycled forward to the next session's queue (resume `/validate`, then the §3.87 wiring post-migration, then the RB-7 egress residuals).
+
+### Session summary (durable record; see CHANGELOG root entries #1056-#1065 for detail)
+- RB-7 reference-citation track: #1057-#1063 (corpus use/cite of the four maintainer-acquired AI-security frameworks), #1064 (§3.70 pack crypto parity), #1065 (RB-7 close). `_ref` PR #100 merged (Wiz "Securing AI Agents 101" discard-candidate delete; catalogue 727 to 726, `_ref` HEAD `8126580`).
+- Started + checkpointed the §3.87 same-VM file-drop transport build: the transport core module (a new file-drop transport tool in `grc_library_scratch`, committed `b1f7ef4`, end-to-end tested) and the maintainer-run migration runbook (in `grc_library_private`) are ready; the wiring resumes next session after the maintainer's `/home/grc` migration (maintainer's checkpoint choice).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 72 gates pass. [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean. Pre-push guard green. Handoff-PR exception: no trailing `/validate-pr`/`/retro`; the next `/resume` corpus-wide `/validate` is the compensating control.
+
 ## 2026-07-22, Library Version 2026.07.553, PR #1065
 
 RB-7 reference-acquisition track close-out. RB-7 (maintainer-directed 2026-07-19, from the aidefensematrix.com gap analysis) acquired four AI-security frameworks the maintainer fetched, ingested them into `grc_library_ref`, and applied their corpus use/cite across PRs #1057-#1063 (with the §3.70 pack crypto parity tighten #1064 landed alongside). This PR closes the track: the backlog rotation, the reference-audit pass record, and the batched #1064 QA rows. Working-state only; no corpus or website content changed.
