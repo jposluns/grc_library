@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-22, Library Version 2026.07.553, PR #1065
+
+RB-7 reference-acquisition track close-out. RB-7 (maintainer-directed 2026-07-19, from the aidefensematrix.com gap analysis) acquired four AI-security frameworks the maintainer fetched, ingested them into `grc_library_ref`, and applied their corpus use/cite across PRs #1057-#1063 (with the §3.70 pack crypto parity tighten #1064 landed alongside). This PR closes the track: the backlog rotation, the reference-audit pass record, and the batched #1064 QA rows. Working-state only; no corpus or website content changed.
+
+### Changed
+- **[`TODO.md`](../../TODO.md)**: the completed RB-7 acquire-and-assess block replaced by a compact RB-7-residual bullet naming the two egress-gated follow-ups (the authoritative OWASP Top 10 for Agentic Applications source; Colombia RNBD Decreto 886/2014), both on the `grc_library_private` maintainer-egress queue.
+- **[`.working/reference-audit/history.md`](../reference-audit/history.md)**: a new-ingest + held-item run row for the RB-7 pass (Version 1.0.2 to 1.0.3), linking the per-run detail file; records the two premise corrections the offloaded re-verify caught before apply (the fabricated GC VM 48h/14d/30d matrix kept ABSENT; OWASP Agentic held only as an untrusted AIUC-1 crosswalk, routed to egress, no body cite) and the high-assurance harness's demonstrable improvement on #1060.
+- **[`.working/reference-audit/doc-state.md`](../reference-audit/doc-state.md)**: per-document reference-audit state refreshed (via `tools/audit-reference-breadth.py --update-state`) for the 13 touched corpus documents at `grc_library_ref` HEAD `8126580`.
+- **[`.working/validate-pr/history.md`](../validate-pr/history.md)**: #1064 `/validate-pr` row (CLEAN PASS, 0 findings, 72/72; offloaded worker-b, byte-identical at HEAD) batched per recursion-avoidance (Version 1.2.822 to 1.2.823).
+- **[`.working/improvement-log.md`](../improvement-log.md)**: #1064 `/retro` row batched (Version 1.0.755 to 1.0.756).
+
+### Added
+- **[`.working/reference-audit/2026-07-22-rb7-aidefensematrix.md`](../reference-audit/2026-07-22-rb7-aidefensematrix.md)**: per-run detail file for the RB-7 reference-breadth pass (worklist, judge, finding-to-PR mapping, residuals).
+
+### Added (done ledger)
+- **[`.working/DONE.md`](../DONE.md)**: RB-7 close entry (PRs #1057-#1064), naming the four acquired frameworks, the seven applying PRs, the two egress-gated residuals, and the `_ref` #100 Wiz delete.
+
+### Cross-repo (companion, not in this PR's diff)
+- **`grc_library_ref` PR #100** (merged, HEAD `8126580`): deleted the discard-candidate publication Wiz "Securing AI Agents 101" (full-text, OCR-extracted originals, catalogue entry, SCREENING.md row); catalogue 727 to 726; indexes regenerated; the reference-base validate check passed.
+- **`grc_library_private`**: the maintainer-egress-requests register updated (four RB-7 frameworks + Brazil/Colombia legislation moved to Fulfilled; OWASP Agentic authoritative source + Colombia RNBD Decreto 886/2014 added as new pending requests).
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 72 gates pass. [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean. Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green. Working-state / bookkeeping change; the paired root + detailed CHANGELOG entries and the library CalVer / README Version single-bump are the only version surfaces (no corpus document body touched, so no per-document Version/Date bumps).
+
 ## 2026-07-22, Library Version 2026.07.552, PR #1064
 
 Pack-layer parity for the §3.70 crypto tightening (maintainer decision 2026-07-22: after the corpus dev-security crypto tables were tightened to P-384 / RSA-4096 in #1052, tighten the distributable pack too rather than leave it approving a below-floor curve). Resolves the pending-decisions §3.70 entry.
