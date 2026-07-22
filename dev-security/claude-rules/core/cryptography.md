@@ -7,7 +7,7 @@
 | Purpose | Required Algorithm | Prohibited |
 | --- | --- | --- |
 | Symmetric encryption | AES-256-GCM (authenticated) | DES, 3DES, RC4, Blowfish, AES-ECB |
-| Asymmetric encryption | RSA-4096, EC P-256, EC P-384 | RSA < 2048, EC P-192 |
+| Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096, EC P-256, EC P-192 |
 | Key exchange | ECDHE, DHE (DH group ≥ 2048 bits) | Static RSA, DH < 2048 |
 | Password hashing | Argon2id (preferred), bcrypt (cost ≥ 12) | MD5, SHA-1, SHA-256 (unsalted), SHA-512 (unsalted) |
 | Integrity hashing | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
