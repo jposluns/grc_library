@@ -58,7 +58,7 @@ What changes is the *shape* of the entry, not its existence. Two shapes are sanc
 
 1. **Substantive entry** (default): the full date-and-version header, structured Keep a Changelog sections, file references as markdown links, the "why", and verification evidence. This is what items 1-7 in `## What a CHANGELOG entry must contain` describe. Use this for any PR that ships, modifies, or removes adopter-facing content; changes observable behaviour; or carries a discipline lesson a future maintainer would benefit from.
 2. **Terse entry** (one-liner): the date-and-version header followed by a single sentence describing what was accomplished. No structured sections, no file links, no verification block. Use this for ancillary changes whose substantive scope is small:
-   - Internal tooling or AI-assistant guidance changes invisible to adopters (changes under `.claude/`, working-state-only edits under `.working/`).
+   - Internal tooling or AI-assistant guidance changes invisible to adopters (changes under `.claude/`, or working-state-only edits under a working-state directory the project designates).
    - Pure refactors with no behavioural change and no surface-area change.
    - Typo fixes in non-citable strings (a typo in a private internal variable name is a candidate; a typo in a normative requirement statement that other documents cite is not).
 

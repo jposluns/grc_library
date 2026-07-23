@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.588, PR #1102
+
+Closes the Task-1 pack reconciliation, backlog item 3.104, by landing its remaining parts in both pack trees under gate-37 lockstep. GAP-2 already shipped as the fourteenth rule in #1101; this PR lands GAP-1 (a clause), F1 (a genericization), and part (d) (the portable pack-parity-coupling clause), and declines F2 with reasoning. The item's FUTURE pack-doc tail (blocked on P1 items 1.14/1.18) was migrated to those items and is covered standing by the new coupling convention, so 3.104 closes.
+
+### Added
+- [`dev-security/claude-rules/governance/validate-inference-before-action.md`](../../dev-security/claude-rules/governance/validate-inference-before-action.md) (GAP-1): a `## The repeated-failure circuit-breaker` section. When the same action has failed the same way two or more times, the premise that the next attempt will differ is itself unvalidated (this rule's cascade in its most acute form), so before any retry, write a concrete mechanism diagnosis (what failed, the exact fix, how this attempt differs byte-for-byte), and never attribute the loop to session length or degradation without a named, externally-observable signal. Plus one framework-alignment row. Byte-identical in the `.claude/rules/` mirror; the project hook and degradation-watch-log wiring go in the mirror's PROJECT-OVERLAY only.
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) (part d): a `## Pack-parity coupling` section stating the portable discipline (a project that publishes and dogfoods a pack keeps the two in step: convention at PR close-out, a periodic review as catch-net, a hard gate deferred). Byte-identical mirror; the project instantiation pointer goes in the mirror's PROJECT-OVERLAY.
+
+### Changed
+- [`dev-security/claude-rules/governance/change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) (F1): the terse-entry example's `.working/` literal genericized to "a working-state directory the project designates" (both trees).
+- Pack [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) Version 1.63.0 to 1.63.1 (patch; no new rule or skill) plus a version-history row.
+- [`TODO.md`](../../TODO.md): item 3.104 deleted (closed); item 4.31's two `3.104` dependency references reworded to "completed 2026-07-23"; item 1.14 gains the migrated pack-doc-obligation pointer.
+- Batched PR #1101's validation and retrospective rows, and the offloaded `guardrails-1101` cadence-review row.
+
+### Declined (surface-counterproductive-instructions)
+- F2 (the `adopt` SKILL owner-handle to a placeholder): examined at source and declined. The handle sits in a section titled "the parent library's instantiation" whose stated convention is "concrete names"; every other bullet uses a real name, and the handle is already public in every GitHub URL in the repo. Genericizing only it would break the section's convention and remove a real example. The delivering research flagged F2 optional and "not a defect if kept literal". Surfaced for maintainer redirect.
+
+### Why
+Item 3.104 brings the published pack to parity with the disciplines the project actually adopts; the repeated-failure circuit-breaker and the pack-parity-coupling discipline were both in project use (a hook and a CLAUDE.md section respectively) but absent from the distributable pack, so an adopter inherited neither.
+
+### Verification
+- New pack prose linted pre-commit (language + fences on the changed rule pairs, clean); gate 37 parity green (18 copies in sync).
+- Full pre-push guard (73 gates + PR-time delta checks) green; a skeptical pre-push verifier run on the diff.
+- #1101's offloaded `/validate-pr` (CLEAN PASS, 0 blocking, worker-b) and the offloaded `guardrails-1101` cadence review consumed and their rows recorded.
+
 ## 2026-07-23, Library Version 2026.07.587, PR #1101
 
 Adds the fourteenth governance pack rule, [`decision-classification-before-enacting`](../../dev-security/claude-rules/governance/decision-classification-before-enacting.md), and wires it across every rule-enumeration and web surface plus the byte-identical local mirror. This is the GAP-2 portion of the Task-1 pack reconciliation (backlog item 3.104); GAP-1, the F1/F2 genericization, and the portable pack-parity-coupling clause remain for a second PR, so 3.104 stays open. A machinery addition, so the guardrail-review cadence auto-prompts (gate 60 drift = 1, below its threshold of 3, so it warns rather than blocks the merge); the `/guardrails` review is offloaded to a worker against merged `main` and its history row batches into the next PR, the same post-merge pattern the offloaded `/validate-pr` rows follow.

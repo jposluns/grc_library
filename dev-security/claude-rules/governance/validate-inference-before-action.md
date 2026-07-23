@@ -48,6 +48,14 @@ The validation must be a concrete observation, not another inference. "I assume 
 
 ---
 
+## The repeated-failure circuit-breaker
+
+When the same action has been blocked or has failed in the same way two or more times in a row, the premise that the next attempt will fare differently is itself unvalidated, and retrying on it is this rule's cascade in its most acute form: a retry loop. Before any further attempt, stop and write a concrete mechanism diagnosis: (1) what literally failed, the exact error or block, quoted; (2) the exact fix the failure calls for; and (3) how this attempt differs, byte for byte, from the blocked one. A retry whose command or input is byte-identical to the blocked one is the same attempt, not a new one, and it fails the same way. A common mechanism is editing the description of an action while leaving the action itself unchanged.
+
+Do not attribute the loop to session length, context depth, or degradation as a first move: those are un-observable states (see [`evidence-grounded-completion`](evidence-grounded-completion.md), "Un-observable state is never assertable"), never a valid diagnosis. Diagnose the mechanism. If, after diagnosing the mechanism, a degradation hypothesis is still to be raised, it must rest on a named, externally-observable signal (a compaction event, a quoted self-inconsistency, a failing check), recorded and assessed, not asserted.
+
+---
+
 ## Tool-specific guidance for AI coding assistants
 
 ### Inference triggers in drafts
@@ -99,5 +107,6 @@ Any other "we can skip the validation because..." is the failure mode the rule e
 | Validated premise before action | RV.1, RV.2 | GRC-05, LOG-02 | A.5.36, A.8.15 | V1.1, V14.1 |
 | Cascade prevention discipline | PO.5 | GRC-04 | A.5.4 | V1.1 |
 | Audit trail of validations | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
+| Diagnosis before retry after repeated failure | RV.1, RV.2 | GRC-05 | A.5.36 | V14.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every action driven by a premise must be traceable to a validation of the premise. The cost of an unvalidated premise compounds; the cost of one extra tool call does not.
