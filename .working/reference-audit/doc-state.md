@@ -20,6 +20,7 @@ commit the refresh with the touching PR's QA batch.
 | `privacy/annex-privacy-jurisdiction-index.md` | 8126580 | 2026-07-23 |
 | `privacy/jurisdictions/annex-privacy-brazil.md` | 8126580 | 2026-07-23 |
 | `privacy/jurisdictions/annex-privacy-latin-america.md` | 8126580 | 2026-07-23 |
+| `privacy/jurisdictions/annex-privacy-united-states.md` | 924a32e | 2026-07-23 |
 | `privacy/register-cross-border-data-flow.md` | 8126580 | 2026-07-23 |
 | `security/policy-encryption-and-key-management.md` | 924a32e | 2026-07-23 |
 | `security/procedure-vulnerability-management.md` | 8126580 | 2026-07-23 |

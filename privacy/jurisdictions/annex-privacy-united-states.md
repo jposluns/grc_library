@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.4\
-**Date:** 2026-07-17\
+**Version:** 1.2.5\
+**Date:** 2026-07-23\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -55,7 +55,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 - **ADMT (final; 11 CCR Article 11, sections 7200 to 7222, effective 2026-01-01, compliance no later than 2027-01-01).** For automated decision-making technology used to make a *significant decision* (defined in section 7001 as one resulting in the provision or denial of financial or lending services, housing, education enrollment or opportunities, employment or independent contracting opportunities or compensation, or healthcare services), a business must provide a pre-use notice (section 7220), honour a right to opt out of ADMT (section 7221), and honour a right to access ADMT (section 7222). A business may rely on a human-appeal exception in place of the opt-out where it offers a method to appeal the decision to a human reviewer who has authority to overturn it (section 7221(b)(1)).
 - **Risk assessments (final; Article 10, sections 7150 to 7157).** A business must conduct a risk assessment *before initiating* processing that presents a significant risk to consumers' privacy, as enumerated in section 7150(b): selling or sharing personal information, processing sensitive personal information, using ADMT for a significant decision, and certain profiling.
-- **Cybersecurity audits (final; Article 9, sections 7120 to 7124).** Distinct from the risk assessment, and on a different trigger: a threshold-based, periodic audit required of a business that meets the section 7120 thresholds (the section 7120(b) trigger is met if a business either derives 50 percent or more of its annual revenue from selling or sharing personal information, or has annual gross revenue over USD 25 million and processed either the personal information of 250,000 or more consumers or households or the sensitive personal information of 50,000 or more consumers), with first audits phased by annual gross revenue (by 2028-04-01 for businesses whose 2026 revenue exceeded USD 100 million, 2029-04-01 for businesses whose 2027 revenue was USD 50 to 100 million, and 2030-04-01 for businesses whose 2028 revenue was under USD 50 million).
+- **Cybersecurity audits (final; Article 9, sections 7120 to 7124).** Distinct from the risk assessment, and on a different trigger: a threshold-based, periodic audit required of a business that meets the section 7120 thresholds (the section 7120(b) trigger is met if a business either derives 50 percent or more of its annual revenue from selling or sharing personal information, or has annual gross revenue over USD 25 million (the Civil Code section 1798.140(d)(1)(A) threshold, as periodically adjusted for inflation) and processed either the personal information of 250,000 or more consumers or households or the sensitive personal information of 50,000 or more consumers), with first audits phased by annual gross revenue (by 2028-04-01 for businesses whose 2026 revenue exceeded USD 100 million, 2029-04-01 for businesses whose 2027 revenue was USD 50 to 100 million, and 2030-04-01 for businesses whose 2028 revenue was under USD 50 million).
 
 ### NIST AI RMF (voluntary; broadly adopted in US enterprise practice as of 2026)
 
