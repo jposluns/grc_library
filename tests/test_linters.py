@@ -7953,5 +7953,47 @@ class AdoptPreflightGuardTests(unittest.TestCase):
             self.assertEqual(rc, 3)
 
 
+class CobitTitleTextTests(LinterTestCase):
+    """tools/lint-cobit-title-text.py (gate 73, TODO 1.16)
+
+    COBIT 2019 objective title-text canonicity: where a corpus document
+    pairs an objective code with a title, the title must be the canonical
+    COBIT 2019 objective title (the past-participle ``Managed`` / ``Ensured``
+    form). A code cited with no title, or beside a crosswalk cell, is allowed.
+    """
+
+    SCRIPT = "tools/lint-cobit-title-text.py"
+
+    def test_imperative_manage_title_flagged(self) -> None:
+        # A DETECT case: the imperative "Manage" verb where the canonical
+        # COBIT 2019 title is the past participle "Managed" (validate-pr-987 N1).
+        fixture = self.make_fixture(
+            "cobit_title_bad.md",
+            "# Fixture\n\n"
+            "| Framework | Objective | Relevance |\n"
+            "| --- | --- | --- |\n"
+            "| COBIT 2019 | DSS05: Manage Security Services | x |\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "DSS05")
+
+    def test_canonical_titles_and_untitled_codes_clean(self) -> None:
+        # A CLEAN case: canonical titles (both a Managed and an Ensured form)
+        # and a bare code with no title (allowed) must all pass.
+        fixture = self.make_fixture(
+            "cobit_title_ok.md",
+            "# Fixture\n\n"
+            "| Framework | Objective | Relevance |\n"
+            "| --- | --- | --- |\n"
+            "| COBIT 2019 | DSS05: Managed Security Services | x |\n"
+            "| COBIT 2019 | EDM03 Ensured Risk Optimization | y |\n"
+            "\nThe control maps to APO12 for enterprise risk (code cited alone).\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(
+            result.returncode, 0, result.stdout + "\n" + result.stderr
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -2,8 +2,8 @@
 
 **Document Title:** IT Financial Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-14\
+**Version:** 1.0.5\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-capacity-and-performance-management.md`](standard-capacity-and-performance-management.md), [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](../governance/procedure-grc-programme-management-and-annual-review.md)\
@@ -224,7 +224,7 @@ Each category has a documented definition and an owner.
 | FinOps Foundation | FinOps framework | Cloud financial operations |
 | ITIL 4 | Service financial management | Service management |
 | ISO/IEC 20000-1 | §8.4.1 Budgeting and accounting for services | Budgeting and accounting for services |
-| COBIT 2019 | APO06 Manage budget and costs | Governance of enterprise IT |
+| COBIT 2019 | APO06 Managed Budget and Costs | Governance of enterprise IT |
 | ISO/IEC 27001:2022 | A.5.13 Labelling of information, A.5.14 Information transfer (tangentially) | Tagging discipline |
 | ISO 14001 | Environmental management | Sustainability cross-walk |
 | GAAP and IFRS | Capitalization and depreciation of software and infrastructure | Accounting |

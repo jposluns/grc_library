@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-07-14\
+**Version:** 1.0.7\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -92,8 +92,8 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | ISO/IEC 20000-1:2018 | Service management system requirements (Part 1) | ITSM framework compliance |
 | ISO/IEC TS 20000-11:2021 | Guidance on the relationship between ISO/IEC 20000-1 and service management frameworks: ITIL | Informative: bridges the Part-1 requirements and the ITIL 4 process model this framework adopts |
 | ITIL 4 | Foundation, Practices, and Guiding Principles | Service management process model |
-| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident and request management |
-| COBIT 2019 | DSS03: Manage Problems | Problem management |
+| COBIT 2019 | DSS02: Managed Service Requests and Incidents | Incident and request management |
+| COBIT 2019 | DSS03: Managed Problems | Problem management |
 | EU NIS 2 Directive | Incident Reporting and Business Continuity | Cybersecurity incident notification |
 | CSA CCM v4.1 | SEF and GRC Domains | Service and governance controls |
 | NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling integration |

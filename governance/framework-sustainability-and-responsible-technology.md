@@ -2,8 +2,8 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework\
 **Document Type:** Framework\
-**Version:** 1.2.3\
-**Date:** 2026-07-02\
+**Version:** 1.2.4\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -94,7 +94,7 @@ Reporting aligns with GRI Standards, TCFD recommendations, and ISO 50001 formats
 | OECD Digital Security Framework | Resilient and sustainable digital infrastructure | Digital security sustainability |
 | UN SDGs | Sustainable Development Goals | Strategic sustainability alignment |
 | GPAI Model Governance Playbook | AI sustainability and ethics | Responsible AI development |
-| COBIT 2019 | APO02: Manage Strategy | Sustainable technology strategy |
+| COBIT 2019 | APO02: Managed Strategy | Sustainable technology strategy |
 | CSA AICM v1.1 | GRC-10, GRC-11, GRC-12: AI Impact Assessment; Bias and Fairness Assessment; Ethics Committee | Responsible AI governance |
 
 ---

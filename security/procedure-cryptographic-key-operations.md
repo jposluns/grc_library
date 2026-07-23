@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -165,7 +165,7 @@ Dual control is required for all key generation, export, and destruction operati
 | ISO/IEC 27002:2022 | §8.24 to §8.28: Cryptographic Controls | Key operation controls |
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
-| COBIT 2019 | DSS05: Manage Security Services | Security service operations |
+| COBIT 2019 | DSS05: Managed Security Services | Security service operations |
 | CSA CCM v4.1 | CEK-01 through CEK-04 | Cloud key management operations |
 
 ---
