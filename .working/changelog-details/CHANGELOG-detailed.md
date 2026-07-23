@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.559, PR #1071
+
+Adds the no-priority "Maintainer or Egress Gated" registry section to [`TODO.md`](../../TODO.md) per §1.22.7, so the run has one unambiguous place for everything the assistant cannot clear alone (and never claims "done all I could" while maintainer-actionable items remain). Working-state/backlog bookkeeping; no corpus, gate, or behaviour change.
+
+### Changed
+- **[`TODO.md`](../../TODO.md)**: appended the "## Maintainer or Egress Gated" section, 47 `MEG-NN` reference-numbered items across four gate groups (Group 1 maintainer-download/source-gated; Group 2 egress-blocked; Group 3 maintainer-decision; Group 4 maintainer-sign-off, LAST by design), each cross-referencing its priority-section item and, for downloads, the recorded source lead. The section flags the **§2.22 status drift** (the egress-queue Fulfilled record indicates the 16 Canada.ca sources were ingested in `_ref` #87 and the currency half discharged, so §2.22's "DEFERRED-BLOCKED" may be stale, reconcile when worked) and the **egress re-test candidates** (MEG-02 MiCA via EUR-Lex, MEG-07 ISO, MEG-20 ISO/IEC 5259, since iso-org + nist-csrc now respond HTTP 200 where earlier sessions saw 403; re-test and clear rather than park). The §1.22.7 backlog bullet was rotated to [`DONE.md`](../DONE.md).
+- Batched PR #1070's `/validate-pr` (CLEAN) + `/retro` rows. Library 2026.07.558 to 2026.07.559.
+
+### Discipline observation (worker `_private` readability)
+- The offloaded enumeration worker reported it could read `grc_library_private` this session (a maintainer-provisioned clone in the worker's home dir); it read the egress queue read-only and wrote nothing. The §1.19 design intent (`_private` is orchestrator-only; the worker-brief template is locked to scratch) is unchanged, but a worker holding a readable `_private` clone is a deviation from that trust boundary, surfaced to the maintainer for awareness.
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) all gates pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean; pre-push guard green. The MEG enumeration was offloaded (worker-b) and spot-verified by the orchestrator against the live TODO before authoring.
+
 ## 2026-07-23, Library Version 2026.07.558, PR #1070
 
 Extends the `.working` cycle-out sweep tool per TODO §1.22.3 (the tool build; the initial destructive sweep and the destructive DONE/pending-decisions entry sweeps are deliberately deferred). Conservative-by-default: the only new destructive path (the one-off-dir sweep) rides the existing emit-verify-prune sequence, and the broader-surface DONE/pending sweeps are surfaced read-only. Tooling only; no corpus, gate, or behaviour change.
