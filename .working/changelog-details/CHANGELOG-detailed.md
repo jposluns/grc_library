@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.557, PR #1069
+
+Cites the now-held authoritative **OWASP Top 10 for Agentic Applications 2026** in the corpus, correcting the RB-7 residual where the corpus could not cite the framework because only the untrusted AIUC-1 crosswalk was held. The authoritative framework was ingested into `grc_library_ref` separately (`grc_library_ref` PR #101, `frameworks/OWASP/`); its upstream currency was confirmed this turn (Version 2026, released December 2025, current on genai.owasp.org; ASI01-ASI10 roster verified). Corpus content change (two documents); no behaviour or control-requirement change.
+
+### Changed
+- **[`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)**: upgraded the OWASP agentic row from "OWASP Agentic AI Top 10" (URL wrongly pointing at the `agentic-ai-threats-and-mitigations` T-code guide) to the authoritative "OWASP Top 10 for Agentic Applications" (URL `genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/`, description adds ASI01-ASI10, Last-verified 2026-07-23). Version 1.5.38 to 1.5.39.
+- **[`ai/register-ai-risk.md`](../../ai/register-ai-risk.md)**: added an OWASP Top 10 for Agentic Applications (2026) framework-alignment row (Reference ASI01-ASI10; relevance = the agentic-AI risk taxonomy), mirroring the #1063 NIST IR 8596 row precedent. Version 1.0.8 to 1.0.9.
+- **[`taxonomy.yml`](../../taxonomy.yml)**, **[`docs/portal.md`](../../docs/portal.md)**, **[`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)**: regenerated (the two Version bumps).
+- **[`TODO.md`](../../TODO.md)**: the RB-7 residual's OWASP-Agentic item marked RESOLVED, with the fuller per-control ASI mapping in [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) (a §36 matrix column + §6 crosswalk, incl. the ASI08/09/10 no-clean-TC-home decision) tracked as a `/matrix-fit`-class follow-up; Colombia RNBD remains egress-gated.
+- **`grc_library_ref` (PR #101, separate)**: ingested the authoritative OWASP Top 10 for Agentic Applications 2026 into `frameworks/OWASP/` (extract + catalogue + index regen + gate green); `last_checked` to be backfilled to 2026-07-23 now that currency is confirmed.
+- **`grc_library_private` (pushed separately)**: the OWASP Agentic item in the maintainer-egress-requests queue moved to Fulfilled.
+
+### Verification
+- Upstream currency confirmed via WebSearch on genai.owasp.org (Top 10 for Agentic Applications 2026, released December 2025, current; ASI01-ASI10 roster matches the held extract). The ASI roster and the register URL were verified against the authoritative source.
+- A pre-push skeptical verifier reviewed the diff (citation accuracy, URL correctness, gate-safety of the ASI tokens). [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) all gates pass; [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean; pre-push guard green.
+
 ## 2026-07-23, Library Version 2026.07.556, PR #1068
 
 Resume close-out for the 2026-07-23 overnight session (`/resume` from the #1066 handoff, with #1067 merged first per its NEXT block). This is the first PR of the resumed session: the loop-break `/validate` compensating control for the #1067 session-closing handoff, plus the lease acquire, the handoff prune, and the fix of the two notes the sweep surfaced. Working-state only; no corpus or website content changed. (This PR is NOT itself a session-closing handoff, so it takes the normal per-PR `/validate-pr` + `/retro`, batched into the next PR.)
