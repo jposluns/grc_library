@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-sweep119-closeout
 
-**Status:** released
+**Status:** active
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-23T20:56:00Z
+**Last-heartbeat-UTC:** 2026-07-23T21:10:29Z
 
-**Current-task:** 2026-07-23 resumed session (`/resume` from the #1066 handoff; #1067 merged FIRST per its NEXT block, `main` now at #1067). On the VM, gh-CLI, no GitHub MCP. Opened ATTENDED (maintainer directing: resync repos, batch overnight decisions), then the maintainer set OVERNIGHT/unattended (~01:34Z "Go into overnight mode now") and went to sleep. At resume the GitHub credential was dead (401 on push / gh / sibling fetches); the maintainer added a new token and access was restored (all three siblings resynced; `/tmp/grc_library_ref` re-synced to `8126580` for the workers). **PLAN (maintainer-directed this session):** the INDEPENDENT TOOLING QUEUE (§1.22.3 `.working` cycle-out tool -> §1.22.4 cross-repo reference-existence tool -> §1.22.7 TODO Maintainer-or-Egress-Gated section -> §3.102 pack-distribute degradation-auto-handoff -> §1.16 COBIT guard-first), THEN clear as many P1/P3 QUICK-WIN items as possible to reduce the TODO count. **New content WAITS** (the new-`_ref`-ingest citation work is captured in §3.42 / RB-7 residual / §2.22 / §2.23, all deferred). Offload maximally (do not exhaust orchestrator credits); egress-blocked items go to `_private/maintainer-egress-requests.md`. First PR #0 = this resume close-out: Sweep 118 loop-break `/validate` (offloaded to a worker, over the #1067 delta), handoff prune, lease acquire, inbox-delivery cleanup (maintainer-directed).
+**Current-task:** 2026-07-23b resumed session (`/resume` from the #1105 session-closing handoff; `main` at #1105 `7803d388`, 73/73). On the VM, gh-CLI, no GitHub MCP. Opened ATTENDED (maintainer sent `/resume`). Both workers live Opus 4.8; mandatory-offload active. First PR = this resume close-out: Sweep 119 loop-break `/validate` (OFFLOADED to a live worker, over the #1068..#1104 deltas, base #1067 `3ceb0c54`), handoff prune (keep current + 1 prior), lease acquire. Then the maintainer-directed queue per the #1105 NEXT block: §1.18 PR-2 (the FP-safe pack-README rule-scope-table gate, guard-first), the 1.1 discussion-vs-execution gate DESIGN (author + bring to maintainer, do NOT auto-build), the P2 2.19 Singapore + 2.17 California annexes (research delivered), then P2 by severity + P3. OPEN maintainer alert 2026-07-23-a (LOW, SHA-pinning practice) to surface + ask about clearing; OPEN pending decision OWASP §36 ASI08/09/10.
 
 **Worker-dispatches:** BOTH live Opus 4.8 (the maintainer spun up the second this session): `worker-20260716-a` (role any) + `worker-20260716-b` (role qa). worker-a claimed the blocking prio-0 `sweep-118-validate`; background research orders queued for worker-b: `research-1223-working-cycleout` (§1.22.3 seed, prio 2), `research-inbox-delivery-triage` (prio 2), `research-p1p3-quickclear-survey` (prio 3). Both workers' session-scoped elevated-QA windows RE-ESTABLISH this fresh session, so first deliveries are consumed under full ELEVATED QA. Fetch scratch `origin/main` before every coordination-plane read (§3.93); prefer `git -C <scratch>` (or an absolute script path) for sibling tools/git.
 
