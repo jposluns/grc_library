@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.572, PR #1084
+
+Closes TODO §3.34 (detailed-mirror link-resolution), remaining half: a full-mirror in-repo link-resolution scan in the CHANGELOG pre-flight aid. A single-tool machinery change plus tests; no gate-parity surfaces (the aid is not a CI gate). Offloaded draft (worker-a), skeptical verifier pre-push (one LOW finding fixed in-window).
+
+### Added
+- **[`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)**: a full-mirror link-resolution pass (`unresolved_links_in_mirror`) that scans EVERY in-repo relative markdown link in the whole [`CHANGELOG-detailed.md`](CHANGELOG-detailed.md) (this file), not only the links on added lines, and fails (exit 1, blocking the pre-commit chain) on any dangling target with its line number. It reuses the PR #934 added-line resolver (`unresolved_link_targets`, identical exclusion set: external `http(s)`/`mailto:`/anchor, cross-repo, and code-span-illustrative links) via a new backward-compatible `root` parameter, so there is no divergent reimplementation. It runs unconditionally (the mirror is clean at 0 of 142 links, so default-on adds no noise). Known limitation documented in-code: it does not track fenced-code-block state, only single-backtick code spans (0 fenced-block links in the mirror today).
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: a `PreflightChangelogMirrorTests` class (2 tests: a dangling-link detect case that also asserts the reported line number, and a resolving-plus-external-plus-illustrative clean case), auto-discovered by the regression runner, isolated via the function's explicit `root` parameter (no module-global monkeypatch, per the Global-state isolation convention).
+
+### Why
+The PR #934 half caught a NEW dangling link on an added line before commit; a link that goes dangling later by a move of its TARGET (source line unchanged) was invisible to it, and the mirror lives under `.working/` (gate-exempt), so no CI gate scans it. This closes that residual. The historical-dangling half of §3.34 (a 2026-07-10 census of about 23 dangling links) is moot: those entries were swept out by the current-week sweep, and the current mirror measures 0 dangling.
+
+### Verification
+- Regression suite 450 tests OK, including the 2 new tests (confirmed to execute, not skipped, run standalone). The pre-flight aid self-runs exit 0 on the clean mirror; the new scan re-flags none of the currently-resolving links. Gate 71 (stdlib-only) clean; the change adds no import.
+- No gate-parity surfaces: the pre-flight aid is not a numbered gate (absent from the audit runner, the CI workflow, the four-surface gate registration, and the audit-programme gate table), so the parity gates are untouched.
+- A skeptical pre-push verifier (refute-briefed, read-only on the shared tree) checked backward-compat (the sole existing caller is preserved by the default parameter), the main-function ordering (full-mirror findings counted before the empty-findings short-circuit), false positives (0 of 142) and false negatives (a constructed dangling link is flagged), test non-vacuity (the pair catches both over-flag and under-flag), and surface completeness (the no-gate-parity claim holds). It confirmed no correctness defect.
+
+### Fixed (verifier LOW finding, in-window)
+- The verifier found that a newly-added dangling link IN the mirror would be reported twice (once by the added-line resolution sub-check, once by the full-mirror pass), inflating the printed count by one for a single underlying defect (cosmetic, non-blocking). Fixed at the source: the added-line resolution sub-check now skips the mirror file (`path != DETAILED_MIRROR_REL`), because the full-mirror pass already covers the entire mirror (added and pre-existing lines); the root CHANGELOG resolution is still checked by the added-line pass. Coverage is preserved (strictly stronger for the mirror) with no double-report.
+
+### Discipline observation
+Offloaded draft (worker-a, pinned to main tip). One divergence the worker flagged and the orchestrator confirmed: the order said to template the test on an existing pre-flight fixture, but the tool had NO existing tests, so the worker added a new class on the tool-test module-load pattern. The one skeptical-verifier LOW finding was validated and fixed in-window (above), not deferred. Batches PR #1083's `/validate-pr` (CLEAN PASS) plus `/retro` rows. Library 2026.07.571 to 2026.07.572.
+
 ## 2026-07-23, Library Version 2026.07.571, PR #1083
 
 Adds a source-grounded CPI-adjustment caveat to the CCPA $25M threshold per TODO §3.86. A single-carrier, single-document precision addition; the base figure is unchanged (no value-change).
