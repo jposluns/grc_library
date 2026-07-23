@@ -228,6 +228,14 @@ The heaviest tiers (a whole-project assessment, a trust-recovery suite) add one 
 
 Standing priority: fixing known QA issues outranks build, tooling, and content work; complete the then-current task, then fix.
 
+## Pack-parity coupling (adopt a discipline, keep the pack in sync)
+
+A project that both PUBLISHES a governance pack and dogfoods it (adopts the pack's disciplines for its own work) must keep the two in step, or the published pack drifts behind the practice it is meant to distribute. The coupling has three layers:
+
+- **Convention (at PR close-out).** When a PR adds or changes a PORTABLE guard rail, discipline, rule, or skill (one an adopter would want), add or update the matching pack rule or skill in the SAME PR; if it must be deferred, record a tracked follow-up. When the thing is PROJECT-ONLY operational machinery (session-specific wiring, a private operational store, exchange-channel mechanics), it is NOT pack material: annotate it explicitly as project-only in the change record rather than forcing a pack entry. Portable-versus-project-only is the judgement this convention turns on.
+- **Catch-net (cadence).** A periodic pack-parity review compares the project's adopted disciplines, hooks, and rules against pack coverage and routes any drift, catching what the per-PR convention missed.
+- **Deferred (a hard gate).** A mechanical every-guard-rail-has-a-pack-counterpart gate is false-positive-prone (the portable-versus-project-only call needs an allow-list that itself drifts), so it is deferred behind a time-bounded review of whether the convention plus cadence suffice, not built reflexively.
+
 ## Prohibited anti-patterns
 
 Across all five disciplines:
@@ -263,3 +271,7 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - Verifier-override register: `.working/verifier-overrides.md` (surfaced at `/resume`).
 - Exchange channel and runbook: `grc_library_scratch` +
   `multi-session-orchestration`.
+- Pack-parity coupling instantiation: the CLAUDE.md `## Pack-parity coupling`
+  section (convention now at PR close-out; a periodic pack-parity review as the
+  catch-net; the hard every-guard-rail-has-a-pack-counterpart gate deferred to a
+  time-bounded follow-up, TF-2).
