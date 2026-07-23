@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.35: path-resolution fixture rail for path-enumerating gates (2026-07-23, PR #1078)
+Added guard rail 15 to `.working/worker-brief-template.md`: a new gate or check whose config enumerates live repo paths (a SURFACES-style table of a file path plus a per-path parse expectation) ships a regression fixture asserting every configured path EXISTS and its parse target matches, so a renamed/misspelled/relocated configured path fails in the fixture rather than mis-resolving later in CI (the F6 confabulated-live-path class; precedent D7's `test_surfaces_table_paths_resolve_in_real_repo`, caught at PR #634). Offloaded draft (worker-a), which correctly read the actual §3.35 TODO block and corrected the order's mis-framing (it is CONFIGURED-PATHS-EXIST, not link-resolution-coverage).
+
 ### TODO §3.96: test-isolation convention (2026-07-23, PR #1077)
 Added a `## Global-state isolation` section to `tests/README.md` codifying that a test which patches a shared or module-level global (env var, module attribute, `sys.argv`, class attribute, monkeypatched function) must restore it deterministically via `unittest.mock.patch` or a `try/finally`, since the regression suite runs every linter in one interpreter (the prevention #1006's `resolve_sibling`-leak bug motivated). Offloaded draft (worker-a); its full-suite survey found zero live leaks (the `_origin_url`/`classify` detect-env tests are convention-nonconforming but currently safe via fresh per-test module loads, surfaced as optional hygiene, not fixed).
 
