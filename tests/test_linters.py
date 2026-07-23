@@ -8115,5 +8115,54 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
             self.assertEqual(mod.unresolved_links_in_mirror(root=root), [])
 
 
+class AuditGateParityExclusionGuardTests(unittest.TestCase):
+    """tools/lint-audit-gate-parity.py (gate 35) additive TODO-3.99 guards over
+    the exclusion allow-lists and the D1-D8 delta gates. The guards read the real
+    repo surfaces via an explicit ``root`` and take ``spec_scripts`` as a
+    parameter, so the tests run against the live config without monkeypatching a
+    module global (the Global-state isolation convention)."""
+
+    def _load(self, unique):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/lint-audit-gate-parity.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_guards_clean_on_real_repo(self):
+        # The live config is correct today, so the additive guards find nothing.
+        mod = self._load("_agp_clean")
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(REPO_ROOT / mod.SPEC_PATH)
+        }
+        self.assertEqual(
+            mod.verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts), []
+        )
+
+    def test_guard_detects_real_gate_masked_by_delta_exclusion(self):
+        # Non-vacuity: if a delta-gate exclusion's script were also a §6 gate
+        # (a real gate mistakenly masked), the guard must FAIL. Simulated by
+        # injecting a delta-gate step's script into the spec-scripts set.
+        mod = self._load("_agp_detect")
+        wf_lines = (REPO_ROOT / mod.WORKFLOW_PATH).read_text(
+            encoding="utf-8"
+        ).splitlines()
+        # a real delta-gate step name and its script (the first excluded member)
+        name = sorted(mod.WORKFLOW_DELTA_GATE_STEPS)[0]
+        delta_script = mod._wf_step_script(wf_lines, name)
+        self.assertIsNotNone(delta_script, "test setup: delta step has a script")
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(REPO_ROOT / mod.SPEC_PATH)
+        } | {delta_script}  # pretend the delta script is a §6 gate
+        findings = mod.verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts)
+        self.assertTrue(
+            any("masked from parity" in f for f in findings), findings
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
