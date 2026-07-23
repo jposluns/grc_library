@@ -105,6 +105,9 @@ FILE_EXTENSIONS = (
     ".txt",
     ".cff",
     ".toml",
+    ".html",
+    ".css",
+    ".js",
 )
 TOP_LEVEL_FILES = {
     "README.md",

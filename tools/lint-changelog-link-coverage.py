@@ -49,6 +49,9 @@ FILE_EXTENSIONS = (
     ".txt",
     ".cff",
     ".toml",
+    ".html",
+    ".css",
+    ".js",
 )
 
 # Top-level filenames or dotfiles that may appear without directory prefix
