@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-07-14\
+**Version:** 1.0.7\
+**Date:** 2026-07-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -116,7 +116,7 @@ Where an operational dependency prevents patching within the required SLA, for e
 | --- | --- |
 | **Approval authority** | CISO approval required for all exceptions. CIO co-approval required for Critical and Emergency exceptions. |
 | **Documentation** | Business justification; risk assessment; compensating controls implemented; target remediation date. |
-| **Maximum deferral** | 30 days for Critical and High; 90 days for Medium; 180 days for Low. |
+| **Maximum deferral** | Per the exception maximums in [`procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 6 (the single source of truth): 30 days for Critical and High; 90 days for Medium; 180 days for Low. |
 | **Compensating controls** | Required for all Critical and High deferrals. Examples: network isolation, WAF rule, egress restriction, enhanced monitoring. |
 | **Register** | All exceptions logged in the Exception Register with status and review dates tracked. |
 | **Review** | Open exceptions reviewed monthly by IT Operations and the CISO. Extended deferrals beyond maximum duration require CIO escalation. |
