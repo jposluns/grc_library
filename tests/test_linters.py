@@ -8164,5 +8164,64 @@ class AuditGateParityExclusionGuardTests(unittest.TestCase):
         )
 
 
+class BacklogActionabilityTests(unittest.TestCase):
+    """tools/audit-backlog-actionability.py: enumerate every open TODO item and
+    flag the ones with no recognized blocker token as presumed-actionable."""
+
+    def _load(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_backlog_actionability", REPO_ROOT / "tools/audit-backlog-actionability.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    FIXTURE = (
+        "## Priority 1 - x\n"
+        "### 1.1 An egress item (egress-gated)\nBody.\n"
+        "### 1.2 A source item\nBlocked on ref ingestion of the held file.\n"
+        "### 1.3 A plain actionable item\nJust do it, no blocker.\n"
+        "## Priority 3 - y\n"
+        "### 3.1 A maintainer item (maintainer-gated)\nAwaiting the call.\n"
+        "### 3.2 An in-progress item\nStatus: IN PROGRESS, slice 2 landing.\n"
+        "### SR-1 A standing tracker\nStanding tracker; stays open by design.\n"
+        "### 3.9 A second plain item\nActionable now.\n"
+        "## Maintainer or Egress Gated\n"
+        "| MEG-01 | §1.1 | an index row, NOT an item heading |\n"
+    )
+
+    def test_enumeration_and_classification(self):
+        mod = self._load()
+        rows, blocked, actionable = mod.build_report(self.FIXTURE)
+        ids = [r[0] for r in rows]
+        # 7 item headings; the MEG table row and the ## section headers excluded.
+        self.assertEqual(ids, ["1.1", "1.2", "1.3", "3.1", "3.2", "SR-1", "3.9"])
+        self.assertEqual((blocked, actionable), (5, 2))
+        by_id = {r[0]: r[2] for r in rows}
+        self.assertEqual(by_id["1.1"], ["egress"])
+        self.assertEqual(by_id["1.2"], ["source"])
+        self.assertEqual(by_id["3.1"], ["maintainer-decision"])
+        self.assertEqual(by_id["3.2"], ["in-progress"])
+        self.assertEqual(by_id["SR-1"], ["standing"])
+        # the two token-free items are presumed-actionable (empty class list)
+        self.assertEqual(by_id["1.3"], [])
+        self.assertEqual(by_id["3.9"], [])
+
+    def test_maintainer_confirmed_is_not_a_blocker(self):
+        # A "maintainer-confirmed <date>" provenance stamp is NOT awaiting a
+        # decision, so it must NOT be classified maintainer-decision.
+        mod = self._load()
+        rows, _, _ = mod.build_report(
+            "### 2.15 A confirmed item (maintainer-confirmed 2026-07-15, M)\nGo.\n")
+        self.assertEqual(rows[0][2], [])  # presumed-actionable, not blocked
+
+    def test_bare_standing_prose_is_not_a_blocker(self):
+        # "standing" in incidental prose must not false-block.
+        mod = self._load()
+        rows, _, _ = mod.build_report(
+            "### 4.5 Reference-base spec\nThe tedious part of standing up a base.\n")
+        self.assertEqual(rows[0][2], [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
