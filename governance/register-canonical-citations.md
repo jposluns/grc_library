@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.38\
-**Date:** 2026-07-16\
+**Version:** 1.5.39\
+**Date:** 2026-07-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -217,7 +217,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | OWASP Top 10 | 2025 | 2025-11 | Top 10 web application security risks (Eighth edition; new categories include "Software Supply Chain Failures" evolving from "Vulnerable and Outdated Components"; A02 "Security Misconfiguration" moved up from #5 in 2021 to #2 in 2025) | 2021, 2017 | https://owasp.org/www-project-top-ten/ | 2026-06-30 |
 | OWASP LLM Top 10 | 2025 | 2025 | Top 10 LLM application risks | 2023 | https://genai.owasp.org/llm-top-10/ | 2026-06-30 |
-| OWASP Agentic AI Top 10 | 2026 | 2026 | Top 10 risks for agentic AI systems | - | https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/ | 2026-06-30 |
+| OWASP Top 10 for Agentic Applications | 2026 | 2026 | Top 10 risks for agentic AI systems (ASI01-ASI10) | - | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | 2026-07-23 |
 | OWASP MCP Top 10 | 2025 | 2025 | Security risks for Model Context Protocol integrations | - | https://owasp.org/www-project-mcp-top-10/ | 2026-06-30 |
 | OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/www-project-application-security-verification-standard/ | 2026-06-30 |
 | OWASP SAMM | 2.0 | 2020 | Software Assurance Maturity Model | 1.5 | https://owaspsamm.org/ | 2026-06-30 |
