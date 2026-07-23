@@ -2,8 +2,8 @@
 
 **Document Title:** Security Disciplinary Process Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -144,7 +144,7 @@ Security violations are classified by severity:
 | ISO/IEC 27001:2022 | Annex A.6.4: Disciplinary Process | Security disciplinary requirements |
 | ISO/IEC 27002:2022 | §6.4: Disciplinary Process | Disciplinary process controls |
 | NIST SP 800-53 | PS-8: Personnel Sanctions | Personnel security sanctions |
-| COBIT 2019 | DSS05: Manage Security Services | Security personnel controls |
+| COBIT 2019 | DSS05: Managed Security Services | Security personnel controls |
 
 ---
 

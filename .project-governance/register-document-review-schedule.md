@@ -2,8 +2,8 @@
 
 **Document Title:** Document Review Schedule Register\
 **Document Type:** Register\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-07-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-library-quality-and-review-cadence.md`](../governance/procedure-library-quality-and-review-cadence.md), [`governance/template-document-review-record.md`](../governance/template-document-review-record.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md)\
@@ -177,7 +177,7 @@ The fragment above is illustrative; the actual schedule is produced by tooling.
 | --- | --- | --- |
 | ISO 9001:2015 | §7.5.2 Creating and updating; §7.5.3 Control of documented information | Quality management |
 | ISO/IEC 27001:2022 | A.5.36 Compliance with policies; A.5.37 Documented operating procedures | Information security cross-walk |
-| COBIT 2019 | APO01 Manage the I&T management framework | Governance of enterprise IT |
+| COBIT 2019 | APO01 Managed I&T Management Framework | Governance of enterprise IT |
 | ITIL 4 | Continual improvement | Service management |
 | ISO 30301 | Management systems for records | Records discipline |
 | ISO/IEC 42001:2023 | §7.5 Documented information; §9 Performance evaluation | AI management system cross-walk |

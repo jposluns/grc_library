@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Improvement Register Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-23\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md)\
@@ -139,7 +139,7 @@ Improvement actions arising from audit observations (non-nonconformity) are reco
 | ISO/IEC 27001:2022 | §10.2: Continual Improvement | Security management improvement |
 | ISO/IEC 42001:2023 | §10: Improvement | AI governance improvement |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance improvement |
-| COBIT 2019 | APO11: Manage Quality | Quality improvement management |
+| COBIT 2019 | APO11: Managed Quality | Quality improvement management |
 
 ---
 

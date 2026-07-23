@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.5\
-**Date:** 2026-07-10\
+**Version:** 1.0.6\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -125,7 +125,7 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key generation, rotation, and destruction |
 | NIST SP 800-208 | PQC Transition Planning | Post-quantum algorithm migration |
 | NIST FIPS 203 / 204 | ML-KEM and ML-DSA Standards | PQC algorithm selection |
-| COBIT 2019 | DSS05: Manage Security Services | Security service controls |
+| COBIT 2019 | DSS05: Managed Security Services | Security service controls |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
 | CSA CCM v4.1 | DSP-02: Data Security / Protection | Data encryption requirements |
 | BASC International Standard v6 | Trade and Customs Encryption Integrity | Trade system key management |

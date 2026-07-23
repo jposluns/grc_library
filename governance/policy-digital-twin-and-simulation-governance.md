@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Twin and Simulation Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.6\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -100,7 +100,7 @@ Digital twin systems are reviewed annually by the system owner to confirm: conti
 | ISO/IEC 27001:2022 | Annex A | Security controls for digital twins |
 | ISO 23247 | Digital Twin Framework for Manufacturing | Digital twin reference architecture |
 | NIST SP 800-82r3 | OT security guidelines | OT-connected digital twin security |
-| COBIT 2019 | APO14: Manage Data | Data governance for digital twins |
+| COBIT 2019 | APO14: Managed Data | Data governance for digital twins |
 
 ---
 

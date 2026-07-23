@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.16: COBIT objective title normalization + title-text gate (2026-07-23, PR #1074)
+Added gate 73 (`tools/lint-cobit-title-text.py`), a precision-first COBIT 2019 objective title-text audit that validates each code-plus-title carrier against the canonical `COBIT_OBJECTIVES` titles (complementing gate 61's code-existence check), landed GUARD-FIRST: the gate + its four-surface wiring + regression fixture shipped together with the one-time backfill of 41 non-canonical imperative "Manage X" titles to the canonical past-participle "Managed/Ensured X" form across 32 corpus documents (each Version+Date co-bumped, taxonomy/scorecard regenerated). The 72->73 gate-count migration and the guardrail-review r12 cadence reset (0 genuine findings) ride in the same PR. The authoritative recount was 41/32 (the gate caught 2 carriers the manual re-derive missed), above the TODO's 35/28 estimate.
+
 ### TODO §3.102: pack-distribute the degradation-auto-handoff discipline (2026-07-23, PR #1073)
 Distributed the unattended-degradation auto-handoff discipline into the `session-lifecycle` pack rule (both trees): section 4 gains the project-agnostic rule that in an UNATTENDED mode an evidence-triggered close is EXECUTED as the section-5 closing handoff (green merge + reconciled handoff record + lease release) directly, not surfaced as a question and not taken as a bare mid-turn pause, plus a matching prohibited-anti-pattern bullet; project file/command wiring kept in the `.claude/` PROJECT-OVERLAY. Pack 1.62.5→1.62.6 (patch; no new rule).
 

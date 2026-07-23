@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.12\
-**Date:** 2026-07-11\
+**Version:** 1.1.13\
+**Date:** 2026-07-23\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
@@ -68,7 +68,7 @@ The following table maps the enterprise risk management control areas to externa
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.5 Monitoring | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
 | AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AIS domain | EU AI Act; Treasury Board Directive on Automated Decision-Making (Canada; AIDA lapsed) | Not applicable |
 | Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.2 Context and third-party data | Organizational context | Govern | APO10 Managed Vendors | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |
-| Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organizational resilience context | Manage | DSS04 Manage Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
+| Business continuity and resilience | Clause 5.2 Leadership | Not applicable | Organizational resilience context | Manage | DSS04 Managed Continuity | BCR domain | Local continuity regulations | WCO SAFE equivalence |
 | Exception and acceptance | Clause 6.5 Risk treatment, acceptance option (ISO 31000:2018) | Clause 6.4 Acceptance criteria | Risk response acceptance | Govern | APO12.06 Respond to risk | GRC domain | Documented approvals and durations | WCO SAFE equivalence |
 
 ---
