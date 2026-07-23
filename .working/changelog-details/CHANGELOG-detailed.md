@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.578, PR #1090
+
+Guardrail layers 3-4, completing the anti-false-completeness stack (layer 1 the enumeration tool in #1088, layer 2 the count-match hook in #1089). No corpus or gate change; a rule-prose addition (both trees) plus a CLAUDE.md convention plus the pack version bump.
+
+### Added
+- **[evidence-grounded-completion.md](../../dev-security/claude-rules/governance/evidence-grounded-completion.md)** (pack) and its **[.claude mirror](../../.claude/rules/governance/evidence-grounded-completion.md)** (identical, gate-37 lockstep): two new bullets in the un-observable-state / inventory section: (a) a set-completeness claim that a decision rests on ("all / every / none X remain", "everything is blocked", "the queue is exhausted") is a completion-class claim requiring the full enumeration through the collection's index or tool, never a partial look, with each member dispositioned and the enumeration SHOWN; and (b) asymmetric skepticism, a claim licensing LESS work (stop / hold / defer / wind-down) must clear a HIGHER evidence bar than one licensing more, because a false "nothing left to do" both deceives and halts productivity, so on partial evidence the default is to continue. Plus a matching prohibited-anti-pattern bullet.
+- **[CLAUDE.md](../../.claude/CLAUDE.md)**: a new "Backlog-status characterization is the audit tool's output" section (the project instantiation), requiring any blocked / exhausted / held characterization (chat, next-prs, handoff) to be the `audit-backlog-actionability` tool's output, and specifying that a persistent blocked-enumeration record is operational state written to `grc_library_private`, never the public tree (the public repo carries only the on-demand tool).
+
+### Changed
+- **[README.md](../../dev-security/claude-rules/README.md)** (pack): Version 1.62.6 to 1.62.7 plus the paired version-history row (patch; no new rule or skill).
+
+### Why
+The evidence-grounded-completion rule ALREADY forbade the failure (its inventory-from-a-partial-look corollary) yet was violated while loaded, so layers 1-2 made the control MECHANICAL (a tool plus a hook) and layers 3-4 SHARPEN the rule into two explicitly-named principles, so the next violation has an unambiguous named rule to have obeyed. The `_private`-placement clause (maintainer-directed) keeps the blocked-analysis, which is operational state, out of the public tree.
+
+### Verification
+- Gate 37 (claude-rules sync) confirms the pack and mirror additions are byte-identical (parity holds); `lint-language` and `lint-unbalanced-fences` run on the explicit `.claude/` paths (exempt from the default walk) confirm the added lines are dash-free and the fences balanced (the 24 language findings that surfaced are all pre-existing CLAUDE.md em-dashes, gate-exempt, not introduced here). No gate-count / four-surface / governance-rule-count change (no new rule; the count stays 13). The pre-push guard (full suite plus PR-time checks) passes. Layers 3-4 are additive documentation, so a thorough orchestrator self-review (parity, house style, no duplication, accurate tool and hook references) stood in for a separate verifier subagent; the full skeptical verifier ran on the behaviour-gating hook in #1089.
+
+### Discipline observation
+Offloaded draft seed (worker-a); the orchestrator authored the final rule prose (research-assistant discipline), augmented the CLAUDE.md convention with the maintainer's `_private`-placement directive, and confirmed the gate-37 parity. Completes the four-layer guardrail. Batches PR #1089's `/validate-pr` plus `/retro` rows. Library 2026.07.577 to 2026.07.578.
+
 ## 2026-07-23, Library Version 2026.07.577, PR #1089
 
 Guardrail layer 2 (the mechanical teeth): extends the write-before-enact decision-log hook to block a false-completeness-justified hold. No corpus or gate change; a hook + test change.
