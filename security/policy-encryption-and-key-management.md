@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.11\
-**Date:** 2026-07-10\
+**Version:** 1.3.12\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -39,7 +39,7 @@ Defines mandatory encryption and cryptographic key management requirements. Ensu
 | CISO | Owns encryption controls, defines key management processes, and ensures that compliance monitoring is performed. |
 | IT Operations / Security Engineering | Ensures that all cryptographic implementation procedures and key-management runbooks are maintained for traceability and lifecycle verification. |
 | Application Owners / Developers | Ensure that encryption requirements are applied within systems and APIs. |
-| Compliance / GRC Manager | Monitors adherence and maintains evidence for audit and certification. |
+| Compliance / GRC Programme Manager | Monitors adherence and maintains evidence for audit and certification. |
 | AI Governance Council (AIGC) | Oversees encryption of AI datasets, model artifacts, and explainability data. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer who verifies trade-data encryption and customs-communication security for organizations participating in BASC) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
@@ -161,7 +161,7 @@ Model explainability files (e.g., SHAP/LIME outputs) must be encrypted and acces
 | Continuous encryption compliance monitoring via SIEM and KMS dashboards | Ongoing | CISO / IT Operations |
 | Encryption compliance audit | Quarterly | CISO and Compliance Manager |
 | Sector-programme audit of programme-specific encryption (for example, customs data and cargo communications encryption under BASC where the organization participates) | At the cadence stated by the relevant sector annex | Sector-conditional role per the annex; see [`compliance/`](../compliance/) |
-| Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Manager |
+| Findings and remediation actions logged in CAPA Register | Per finding | Compliance / GRC Programme Manager |
 
 ---
 
