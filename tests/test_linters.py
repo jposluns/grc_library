@@ -1698,10 +1698,16 @@ class HandoffSnapshotOnPrTests(DeltaGateRepoTestCase):
 
     @staticmethod
     def _handoff(line):
+        # Reproduces the real handoff layout (TODO 3.89 / 3.101): a token-less
+        # "Current truth" header line FIRST, then a dedicated, token-bearing
+        # "Version snapshot (D7 validates these tokens)" sub-line. The gate must
+        # SKIP the header (no tokens) and locate the version line; the old marker
+        # "Current truth" located the token-less header and validated nothing.
         return (
             "# Session handoff\n\n"
             "## State snapshot\n\n"
-            f"- **Current truth (verify against live files at /resume)**: {line}\n"
+            "- **Current truth (verify against live files at /resume)**:\n"
+            f"  - **Version snapshot (D7 validates these tokens):** {line}\n"
         )
 
     def test_matching_tokens_pass(self) -> None:
@@ -1813,10 +1819,43 @@ class HandoffSnapshotOnPrTests(DeltaGateRepoTestCase):
             result = self._run_gate(self.SCRIPT, tmp, base_sha)
             self.assertEqual(
                 result.returncode, 1,
-                f"D7 should FAIL on a missing Current-truth line.\nstdout:\n"
+                f"D7 should FAIL on a missing snapshot line.\nstdout:\n"
                 f"{result.stdout}\nstderr:\n{result.stderr}",
             )
-            self.assertIn("no 'Current truth'", result.stderr.replace('"', "'"))
+            self.assertIn(
+                "no 'Version snapshot (D7 validates these tokens)'",
+                result.stderr.replace('"', "'"),
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_tokenless_snapshot_line_fails_non_vacuously(self) -> None:
+        # The exact TODO 3.89 / 3.101 defect the fix closes: a located snapshot
+        # line that carries NO version token must FAIL (the non-vacuity guard),
+        # not pass silently having validated nothing. Here the marker line is
+        # present but token-free.
+        tmp, base_sha, shutil = self._build_repo(
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: self._handoff("library `2026.07.1`, README `1.0.0`."),
+            },
+            {
+                self.README: self._readme("2026.07.1", "1.0.0"),
+                self.HANDOFF: (
+                    "# Session handoff\n\n## State snapshot\n\n"
+                    "- **Version snapshot (D7 validates these tokens):** "
+                    "see the live files.\n"
+                ),
+            },
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+            self.assertEqual(
+                result.returncode, 1,
+                f"D7 should FAIL non-vacuously on a token-less snapshot line."
+                f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+            )
+            self.assertIn("non-vacuity", result.stderr)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

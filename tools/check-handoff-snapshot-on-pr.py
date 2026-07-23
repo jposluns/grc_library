@@ -33,11 +33,14 @@ skipped (the line is prose, not a form); a label present with its named
 live file missing fails loud; a touched handoff with no Current-truth
 line fails loud (malformed working state).
 
-Two known parse fragilities, accepted at build time (2026-07-04 verifier
-notes): the snapshot line is located as the FIRST line containing the
-marker text, so an earlier prose mention of "Current truth" in the
-handoff would silently redirect the parse to a non-token line (labels
-would be skipped, not failed); and the ``README`` label matches any
+The snapshot line is located as the FIRST line containing the marker
+``Version snapshot (D7 validates these tokens)`` (a dedicated, token-bearing
+marker the handoff author sets for D7). An earlier "Current truth" header
+marker located a token-less header line, so the check passed vacuously and
+validated nothing (TODO 3.89 / 3.101, fixed 2026-07-23); the non-vacuity guard
+in ``validate_snapshot_tokens`` now FAILS a located line that carries no
+recognized token, so a future layout drift fails loud instead of passing
+silently. One remaining parse note: the ``README`` label matches any
 "README" immediately followed by a backtick token, so a snapshot
 phrasing like ``pack README `x.y.z``` would compare the pack version
 against the root README's header and false-fail. Keep the marker text
@@ -133,7 +136,15 @@ SURFACES = [
     ),
 ]
 
-CURRENT_TRUTH_MARKER = "Current truth"
+# The snapshot line is the one the handoff author dedicates to D7 by an explicit
+# marker. It changed once (a "Current truth" header bullet, which carries NO
+# version tokens, used to be matched; the tokens moved to a dedicated
+# "Version snapshot (D7 validates these tokens)" sub-line, so the old marker
+# located a token-less line and the check passed vacuously, TODO 3.89 / 3.101).
+# The marker below matches the token-bearing line; the non-vacuity guard in
+# validate_snapshot_tokens fails loudly if a future layout drift ever again
+# locates a line with no recognized token, so this class cannot silently recur.
+SNAPSHOT_MARKER = "Version snapshot (D7 validates these tokens)"
 
 
 def run_git(args):
@@ -156,12 +167,69 @@ def blob(ref, path):
 
 
 def snapshot_line(handoff_text):
-    """Return the Current-truth snapshot line (the first line carrying
-    the marker), or None."""
+    """Return the version-snapshot line (the first line carrying the marker),
+    or None."""
     for line in handoff_text.splitlines():
-        if CURRENT_TRUTH_MARKER in line:
+        if SNAPSHOT_MARKER in line:
             return line
     return None
+
+
+def validate_snapshot_tokens(line, live_texts):
+    """Pure core: validate every labelled version token on the snapshot ``line``
+    against the corresponding live header in ``live_texts`` (a dict mapping each
+    SURFACES live_path to its text, or None if absent at the PR head).
+
+    Returns ``(checked, failures)``. ``checked`` is the number of tokens actually
+    compared against a live header; ``failures`` is the human-readable list. A
+    snapshot line that carries NO recognized token yields ``checked == 0`` and a
+    non-vacuity failure (the guard against the TODO 3.89 / 3.101 vacuous-pass
+    class), so the caller never reports OK on a line the check did not truly
+    validate. Kept git-free so it is unit-testable via --self-test.
+    """
+    failures = []
+    checked = 0
+    for label, token_re, live_path, header_re in SURFACES:
+        tokens = token_re.findall(line)
+        if not tokens:
+            continue
+        if len(tokens) > 1:
+            failures.append(
+                f"duplicate token: label '{label}' appears {len(tokens)} "
+                f"times on the snapshot line ({', '.join(tokens)}); a "
+                "reconciled line carries each surface once"
+            )
+            continue
+        token = tokens[0]
+        live = live_texts.get(live_path)
+        if live is None:
+            failures.append(
+                f"unresolvable label: '{label}' quotes `{token}` but "
+                f"{live_path} is absent at the PR head"
+            )
+            continue
+        m = header_re.search(live)
+        if m is None:
+            failures.append(
+                f"unresolvable label: '{label}' quotes `{token}` but "
+                f"{live_path} carries no parsable header version field"
+            )
+            continue
+        live_value = m.group(1)
+        checked += 1
+        if token != live_value:
+            failures.append(
+                f"stale token: '{label}' quotes `{token}` but {live_path} "
+                f"at the PR head carries `{live_value}`"
+            )
+    if checked == 0 and not failures:
+        failures.append(
+            "non-vacuity: the located snapshot line carries no recognized "
+            "version token, so D7 would validate nothing (the snapshot layout "
+            "or the marker drifted). Quote at least one labelled token "
+            "(library / README / pack / ...) on the snapshot line."
+        )
+    return checked, failures
 
 
 def main():
@@ -201,47 +269,18 @@ def main():
     if line is None:
         print(
             f"D7 FAIL: {HANDOFF} is in this PR's diff but carries no "
-            f"'{CURRENT_TRUTH_MARKER}' snapshot line (malformed working "
+            f"'{SNAPSHOT_MARKER}' snapshot line (malformed working "
             "state).",
             file=sys.stderr,
         )
         return 1
 
-    failures = []
-    checked = 0
-    for label, token_re, live_path, header_re in SURFACES:
-        tokens = token_re.findall(line)
-        if not tokens:
-            continue
-        if len(tokens) > 1:
-            failures.append(
-                f"duplicate token: label '{label}' appears {len(tokens)} "
-                f"times on the snapshot line ({', '.join(tokens)}); a "
-                "reconciled line carries each surface once"
-            )
-            continue
-        token = tokens[0]
-        live = blob(head_ref, live_path)
-        if live is None:
-            failures.append(
-                f"unresolvable label: '{label}' quotes `{token}` but "
-                f"{live_path} is absent at the PR head"
-            )
-            continue
-        m = header_re.search(live)
-        if m is None:
-            failures.append(
-                f"unresolvable label: '{label}' quotes `{token}` but "
-                f"{live_path} carries no parsable header version field"
-            )
-            continue
-        live_value = m.group(1)
-        checked += 1
-        if token != live_value:
-            failures.append(
-                f"stale token: '{label}' quotes `{token}` but {live_path} "
-                f"at the PR head carries `{live_value}`"
-            )
+    # Resolve each distinct live file once, then validate via the pure core.
+    live_texts = {}
+    for _label, _token_re, live_path, _header_re in SURFACES:
+        if live_path not in live_texts:
+            live_texts[live_path] = blob(head_ref, live_path)
+    checked, failures = validate_snapshot_tokens(line, live_texts)
 
     if failures:
         print(

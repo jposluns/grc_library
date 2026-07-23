@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.564, PR #1076
+
+Fixes the D7 handoff-snapshot pre-commit check per TODO §3.89 + §3.101 (a duplicate pair, closed together). Tooling only; a PR-time delta check (`check-*-on-pr.py`), not one of the 73 numbered `run_all_audits.sh` gates, so no gate-count or four-surface ripple.
+
+### Fixed
+- **[`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py)**: the D7 check had gone INERT on the current [`.working/session-handoff.md`](../session-handoff.md) layout. It located its snapshot line by the marker `Current truth`, but the version tokens had moved to a dedicated `Version snapshot (D7 validates these tokens)` sub-line, leaving `Current truth` on a token-less header bullet; the token loop then found zero tokens and printed a VACUOUS pass, so a stale snapshot would have passed. The marker now targets the dedicated token line. A **non-vacuity guard** (a refactored, git-free `validate_snapshot_tokens` core) now fails loud if a located snapshot line ever again carries no recognized token, so this silent-inert class cannot recur even if the layout drifts.
+- **[`tests/test_linters.py`](../../tests/test_linters.py)** (`HandoffSnapshotOnPrTests`): the `_handoff` fixture helper now reproduces the real two-line production layout (a token-less `Current truth` header, then the `Version snapshot` token sub-line), which both fixes the four tests that encoded the stale single-line layout and regresses the bug; the missing-line assertion updated to the new marker; and a new `test_tokenless_snapshot_line_fails_non_vacuously` proves the guard (a token-less marker line must FAIL, not pass). 7 D7 tests pass.
+- **[`tools/lint-changelog-link-coverage.py`](../../tools/lint-changelog-link-coverage.py)** (rider, closing the #1075 `/validate-pr` W1): the module docstring's recognized-extension enumeration was widened to `(.md, .py, .yaml, .yml, .json, .txt, .cff, .toml, .html, .css, .js)` to match the `FILE_EXTENSIONS` tuple #1075 widened. #1075 named the docstring a §3.77 paired surface but updated only the tuple and the fixture; its post-merge `validate-pr` caught the stale enumeration (documentation drift, no behavioural impact), fixed here in the batch that records that warning.
+
+### Verification
+- The 7 `HandoffSnapshotOnPrTests` pass (including the new non-vacuity test); the full linter-regression suite passes; all 73 audit gates pass; `ast.parse` clean and stdlib-only (gate 71). Apply-time check confirmed the current handoff carries the `Version snapshot (D7 validates these tokens)` marker (so the new marker choice is live and correct), and the candidate diff applied clean over the intervening [`tests/test_linters.py`](../../tests/test_linters.py) edits from #1074/#1075.
+- Verified directly by the orchestrator (a tool + fixture machinery fix; the worker ran the full 444-test suite pre-delivery); proportionate to the change weight, no standing skeptical-verifier subagent.
+
+### Discipline observation
+Offloaded candidate (worker-a), applied by the orchestrator via `git apply`. Batched PR #1075's `/validate-pr` plus `/retro` rows. Library 2026.07.563 to 2026.07.564.
+
 ## 2026-07-23, Library Version 2026.07.563, PR #1075
 
 Teaches the CHANGELOG link gates to recognize web-template file types per TODO §3.77. Tooling only; a detection-logic widening of an existing gate (no new gate, no four-surface / count ripple).

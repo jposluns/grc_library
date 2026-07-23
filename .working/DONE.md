@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.89 + §3.101 (duplicate pair): D7 handoff-snapshot check made non-vacuous (2026-07-23, PR #1076)
+The D7 delta check `tools/check-handoff-snapshot-on-pr.py` had gone inert on the current `.working/session-handoff.md` layout: its `"Current truth"` marker located a token-less header bullet after the version tokens moved to a dedicated `"Version snapshot (D7 validates these tokens)"` sub-line, so it validated nothing and would pass a stale snapshot. Fixed: the marker now targets the token line, a non-vacuity guard fails loud if a located line ever again carries no token, and the `tests/test_linters.py` fixtures were corrected to the real two-line layout (which regresses the bug) plus a new token-less-line test (7 D7 tests pass). Both §3.89 and §3.101 described this one defect; closed together. Offloaded draft (worker-a).
+
 ### TODO §3.77: CHANGELOG link gates recognize web-template file types (2026-07-23, PR #1075)
 Widened the `FILE_EXTENSIONS` tuple in both `tools/lint-changelog-link-coverage.py` (the gate) and `tools/preflight-changelog.py` (its pre-commit aid) to add `.html`/`.css`/`.js`, so a bare backtick web-template path in a CHANGELOG line is now link-required, plus a regression fixture (a detect case + a linked-clean case). FP-safe detection widening (no gate-count/four-surface ripple); the live CHANGELOG re-scan was already clean, so no accompanying edits. Offloaded draft (worker-b).
 

@@ -13,7 +13,7 @@ A reference qualifies as a file path if it:
 - contains at least one of: a directory separator (/), or matches a known
   top-level filename pattern (README.md, CHANGELOG.md, NOTICE.md, etc.)
 - ends with a recognized file extension (.md, .py, .yaml, .yml, .json,
-  .txt, .cff, .toml)
+  .txt, .cff, .toml, .html, .css, .js)
 
 A reference is correctly linked if it appears as: [`path`](path) or
 [`path`](resolved-path) with the bracketed code-formatted path matching
