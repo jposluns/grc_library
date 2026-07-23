@@ -27,9 +27,12 @@ Every logged entry must carry a ``**Classification:**`` line naming exactly one 
                 ``failing-check`` / ``source-unavailable`` / ``maintainer-directed-hold``.
 
 The hook BLOCKS a write to the log when: an added entry has no ``**Classification:**`` line;
-a ``BLOCKED`` entry names a blocker-type OUTSIDE the closed set; or a ``BLOCKED`` entry cites a
-FORBIDDEN un-instrumented justification phrase (the self-justifying language the failure uses).
-Everything else is allowed. A write to any OTHER file is out of scope (allowed).
+a ``BLOCKED`` entry names a blocker-type OUTSIDE the closed set; a ``BLOCKED`` entry cites a
+FORBIDDEN un-instrumented justification phrase (the self-justifying language the failure uses);
+or a hold/defer entry justified by a backlog SET-COMPLETENESS / exhaustion claim ("everything is
+blocked", "queue drained") carries no fresh full-audit proof (a ``backlog-audit: <N> items
+enumerated`` token whose ``<N>`` matches the live ``TODO.md`` open-item count). Everything else
+is allowed. A write to any OTHER file is out of scope (allowed).
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds
 stderr back to the model. Fail-OPEN on any parse/state error: this is a discipline guardrail,
@@ -41,8 +44,10 @@ Self-test: ``python3 .claude/hooks/block-unjustified-decision.py --self-test``.
 """
 
 import json
+import os
 import re
 import sys
+from pathlib import Path
 
 LOG_BASENAME = "autonomous-decisions-log.md"
 
@@ -78,6 +83,58 @@ VALID_BLOCKERS = (
 
 _CLASSIFICATION_RE = re.compile(r"\*\*Classification:\*\*\s*(.+)", re.IGNORECASE)
 
+# Deferral / hold / wind-down markers (hoisted from decide() so both the existing
+# forbidden-justification check and the new backlog-exhaustion check reference the
+# SAME set rather than duplicating it, per TODO gr-actionability).
+DEFERRAL_MARKERS = (
+    "blocked", "defer", "wind down", "wind-down", "skip",
+    "hold off", "postpone", "punt", "back-burner", "sit on",
+    "leave for later", "do it later", "push to", "park it",
+)
+
+# A set-completeness / backlog-exhaustion claim (the false "everything is blocked,
+# so hold" language used to justify STOPPING unattended). Case-insensitive.
+SET_COMPLETENESS_RE = re.compile(
+    r"all .{0,30}(blocked|actionable|items)"
+    r"|every .{0,20}(item|remaining)"
+    r"|no .{0,25}(remaining|actionable|clean).{0,15}(item|work|task)"
+    r"|queue .{0,15}(exhausted|drained|empty)"
+    r"|everything .{0,15}(blocked|held)"
+    r"|nothing .{0,15}(actionable|left|to do)"
+    r"|clean .{0,15}quick.?clears? .{0,15}(exhausted|drained|done)",
+    re.IGNORECASE,
+)
+
+# The fresh-audit proof token the entry must carry: `backlog-audit: <N> items enumerated`.
+AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
+
+# Item-heading regex for counting live TODO.md OPEN backlog items. PARITY POINT:
+# this is ALIGNED to (byte-identical id alternation of) the companion audit tool
+# `tools/audit-backlog-actionability.py` ITEM_HEADING_RE, so the two count the same
+# set: an id is `N.M` / `N.M.K` / an alphanumeric sub-id (`1.19.10a`) or a coded id
+# (`SR-1` / `RB-R6` / `GR-GAP-1`). `## Priority N` section headers and the
+# Maintainer-or-Egress-Gated index table rows are NOT items. A test in
+# tests/test_linters.py asserts this count equals the tool's on the live TODO, so
+# the pair cannot silently drift.
+ITEM_HEADING_RE = re.compile(
+    r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
+)
+
+
+def _todo_item_count(project_dir: str | None) -> int | None:
+    """Count open backlog items (ITEM_HEADING_RE) in the live TODO.md under
+    ``project_dir``. Returns None if the root or file cannot be resolved (the new
+    count-equality check then fails open; presence of the audit token is still
+    required). Never raises."""
+    try:
+        root = Path(project_dir) if project_dir else Path(__file__).resolve().parents[2]
+        todo = root / "TODO.md"
+        if not todo.is_file():
+            return None
+        return len(ITEM_HEADING_RE.findall(todo.read_text(encoding="utf-8")))
+    except Exception:
+        return None
+
 
 def _added_text(payload: dict) -> str:
     """The text this Edit/Write ADDS: Write -> content; Edit -> new_string. '' on any error."""
@@ -101,8 +158,10 @@ def _targets_log(payload: dict) -> bool:
         return False
 
 
-def decide(added: str):
-    """Return (block, reason) for the text added to the decisions log. Pure."""
+def decide(added: str, todo_count: "int | None" = None):
+    """Return (block, reason) for the text added to the decisions log. Pure
+    (``todo_count`` is the live TODO.md open-item count, or None if unresolved).
+    """
     if not isinstance(added, str) or not added.strip():
         return False, ""  # empty add: nothing to validate
     classifications = _CLASSIFICATION_RE.findall(added)
@@ -133,16 +192,44 @@ def decide(added: str):
             )
     # A BLOCKED / defer / wind-down entry must not cite an un-instrumented justification.
     low = added.lower()
-    if any(k in low for k in (
-        "blocked", "defer", "wind down", "wind-down", "skip",
-        "hold off", "postpone", "punt", "back-burner", "sit on",
-        "leave for later", "do it later", "push to", "park it",
-    )):
+    has_deferral_marker = any(k in low for k in DEFERRAL_MARKERS)
+    if has_deferral_marker:
         hits = [p for p in FORBIDDEN if p in low]
         if hits:
             problems.append(
                 f"the entry cites un-instrumented justification(s) {hits}, which are never a "
                 f"valid basis for deferring/holding. Name a real observable blocker or ACT/ASK."
+            )
+    # Backlog-exhaustion guard (TODO gr-actionability, layer 2): a hold/wind-down entry
+    # justified by a SET-COMPLETENESS / exhaustion claim ("everything is blocked",
+    # "queue drained") must carry proof of a FRESH FULL backlog audit whose item count
+    # matches the live TODO.md. FP-safe: it gates on the entry being a DECLARED HOLD, i.e.
+    # a `Classification: BLOCKED` (per the write-before-enact rubric a hold/defer/wind-down
+    # is classified BLOCKED with a named blocker), NOT on the loose deferral-marker
+    # substring, so a legitimate ACT/ASK entry, even one reviewing "all 92 items" or noting
+    # "none is blocked", is NOT blocked (that positive backlog review is exactly what this
+    # control exists to encourage); and a BLOCKED entry for a SPECIFIC named blocker with no
+    # set-completeness claim is unaffected (SET_COMPLETENESS_RE does not match).
+    blocked_classification = any(
+        c.strip().upper().startswith("BLOCKED") for c in classifications
+    )
+    if blocked_classification and SET_COMPLETENESS_RE.search(added):
+        m = AUDIT_TOKEN_RE.search(added)
+        if not m:
+            problems.append(
+                "the entry claims the backlog is exhausted / everything is blocked to "
+                "justify a hold, but carries no fresh-audit proof. Run "
+                "`tools/audit-backlog-actionability.py`, enumerate every open item, and "
+                "embed `backlog-audit: <N> items enumerated` where <N> is the live "
+                "TODO.md open-item count. A set-completeness claim without a complete "
+                "fresh enumeration is the failure this guard prevents."
+            )
+        elif todo_count is not None and int(m.group(1)) != todo_count:
+            problems.append(
+                f"the backlog-exhaustion claim cites `backlog-audit: {m.group(1)} items "
+                f"enumerated`, but the live TODO.md has {todo_count} open item(s); the "
+                f"audit is stale or incomplete. Re-run the full enumeration and match the "
+                f"live count before holding."
             )
     if problems:
         return True, (
@@ -166,7 +253,13 @@ def main(argv: list) -> int:
     try:
         if not _targets_log(payload):
             return 0  # a write to any other file is out of scope
-        block, reason = decide(_added_text(payload))
+        workspace = payload.get("workspace") or {}
+        project_dir = (
+            workspace.get("project_dir")
+            or os.environ.get("CLAUDE_PROJECT_DIR")
+            or None  # _todo_item_count falls back to this file's repo root
+        )
+        block, reason = decide(_added_text(payload), _todo_item_count(project_dir))
     except Exception:
         return 0  # fail-open on any unexpected error
     if block:
@@ -225,6 +318,62 @@ def _self_test() -> int:
 
         def test_empty_add_allowed(self):
             self.assertFalse(decide("")[0])
+
+        def test_exhaustion_claim_without_audit_blocked(self):
+            # A hold justified by "everything is blocked" with no fresh-audit token.
+            b, r = decide(
+                "- **Classification:** BLOCKED: maintainer-directed-hold\n"
+                "- winding down: every remaining item is blocked, so hold here")
+            self.assertTrue(b)
+            self.assertIn("fresh-audit", r)
+
+        def test_exhaustion_claim_with_matching_audit_allowed(self):
+            # Same claim, but with a fresh-audit token matching the live count.
+            self.assertFalse(decide(
+                "- **Classification:** BLOCKED: maintainer-directed-hold\n"
+                "- winding down: every remaining item is blocked\n"
+                "- backlog-audit: 5 items enumerated",
+                todo_count=5)[0])
+
+        def test_exhaustion_claim_with_wrong_count_blocked(self):
+            b, r = decide(
+                "- **Classification:** BLOCKED: maintainer-directed-hold\n"
+                "- winding down: nothing left to do\n"
+                "- backlog-audit: 3 items enumerated",
+                todo_count=5)
+            self.assertTrue(b)
+            self.assertIn("stale or incomplete", r)
+
+        def test_specific_blocker_defer_without_set_claim_allowed(self):
+            # FP-safety: a defer entry citing a SPECIFIC named blocker, with no
+            # set-completeness claim, is NOT blocked by the exhaustion guard.
+            self.assertFalse(decide(
+                "- **Classification:** BLOCKED: maintainer-directed-hold\n"
+                "- deferring this one item pending the maintainer's call on the scope",
+                todo_count=5)[0])
+
+        def test_act_entry_with_set_language_not_blocked(self):
+            # FP-guard (pre-push verifier finding, gr-actionability L2): a legitimate
+            # ACT entry that reviews the whole backlog ("all N items", "none is
+            # blocked") must NOT be blocked. The exhaustion guard gates on a BLOCKED
+            # classification, not on the loose "blocked" substring, so this positive
+            # review (exactly what the control exists to encourage) passes.
+            self.assertFalse(decide(
+                "- **Classification:** ACT\n"
+                "- reviewed all 92 open items; none is blocked; proceeding with P1",
+                todo_count=92)[0])
+            self.assertFalse(decide(
+                "- **Classification:** ACT\n"
+                "- not deferring anything: every remaining item is actionable, doing them now",
+                todo_count=92)[0])
+
+        def test_ask_entry_with_set_language_not_blocked(self):
+            # FP-guard: an ASK entry with set-completeness language and the word
+            # "blocked" in the question is not a hold, so it is not blocked.
+            self.assertFalse(decide(
+                "- **Classification:** ASK: which blocked item to escalate first?\n"
+                "- every remaining item needs a maintainer call",
+                todo_count=92)[0])
 
         def test_added_text_reads_new_string(self):
             p = {"tool_input": {"file_path": "/x/autonomous-decisions-log.md",
