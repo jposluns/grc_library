@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.565, PR #1077
+
+Codifies a test-isolation convention per TODO §3.96. Documentation only (a new section in [`tests/README.md`](../../tests/README.md), which is not a versioned corpus document); no gate, no code change, no version-surface ripple.
+
+### Added
+- **[`tests/README.md`](../../tests/README.md)**: a new `## Global-state isolation` section (after `## Fixture isolation`). It states that because [`run-linter-regression.py`](../../tools/run-linter-regression.py) drives every linter in ONE Python interpreter, a test patching a shared or module-level global (an environment variable, a module attribute, `sys.argv`, a class attribute, or a monkeypatched function) must restore it deterministically, via `unittest.mock.patch` (context-manager or decorator form) or a `try/finally` save-and-restore, or the mutation leaks into a sibling test later in the same process. It explicitly warns against relying on a discarded per-test module instance for isolation (fragile: a later shared/cached-import refactor silently reintroduces the leak). This codifies the prevention the #1006 `resolve_sibling` monkeypatch-without-restore leak motivated.
+
+### Verification
+- All 73 audit gates pass (documentation add; no behavioural change). The offloaded survey of the full [`tests/test_linters.py`](../../tests/test_linters.py) suite found ZERO live isolation leaks: every shared/process-global patch already restores via `try/finally`. It surfaced two convention-nonconforming-but-currently-safe patch sites (the `_origin_url` / `classify` detect-env tests, safe today via fresh per-test module loads) as optional hygiene, deliberately NOT fixed here to keep the change a disjoint documentation add.
+- Verified directly by the orchestrator (a documentation-only convention add); no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded candidate (worker-a), applied by the orchestrator. Batched PR #1076's `/validate-pr` plus `/retro` rows. Library 2026.07.564 to 2026.07.565.
+
 ## 2026-07-23, Library Version 2026.07.564, PR #1076
 
 Fixes the D7 handoff-snapshot pre-commit check per TODO §3.89 + §3.101 (a duplicate pair, closed together). Tooling only; a PR-time delta check (`check-*-on-pr.py`), not one of the 73 numbered `run_all_audits.sh` gates, so no gate-count or four-surface ripple.

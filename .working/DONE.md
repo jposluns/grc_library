@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.96: test-isolation convention (2026-07-23, PR #1077)
+Added a `## Global-state isolation` section to `tests/README.md` codifying that a test which patches a shared or module-level global (env var, module attribute, `sys.argv`, class attribute, monkeypatched function) must restore it deterministically via `unittest.mock.patch` or a `try/finally`, since the regression suite runs every linter in one interpreter (the prevention #1006's `resolve_sibling`-leak bug motivated). Offloaded draft (worker-a); its full-suite survey found zero live leaks (the `_origin_url`/`classify` detect-env tests are convention-nonconforming but currently safe via fresh per-test module loads, surfaced as optional hygiene, not fixed).
+
 ### TODO §3.89 + §3.101 (duplicate pair): D7 handoff-snapshot check made non-vacuous (2026-07-23, PR #1076)
 The D7 delta check `tools/check-handoff-snapshot-on-pr.py` had gone inert on the current `.working/session-handoff.md` layout: its `"Current truth"` marker located a token-less header bullet after the version tokens moved to a dedicated `"Version snapshot (D7 validates these tokens)"` sub-line, so it validated nothing and would pass a stale snapshot. Fixed: the marker now targets the token line, a non-vacuity guard fails loud if a located line ever again carries no token, and the `tests/test_linters.py` fixtures were corrected to the real two-line layout (which regresses the bug) plus a new token-less-line test (7 D7 tests pass). Both §3.89 and §3.101 described this one defect; closed together. Offloaded draft (worker-a).
 
