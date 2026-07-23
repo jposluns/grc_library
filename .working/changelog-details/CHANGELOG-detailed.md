@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.570, PR #1082
+
+Canonicalizes the "GRC Manager" role title to "GRC Programme Manager" corpus-wide per TODO §3.71 (a Tier-2, single-session, corpus-wide rename). The canonical role is the one in [`governance/register-role-authority.md`](../../governance/register-role-authority.md); no "GRC Manager" role exists.
+
+### Changed
+- **60 role-title occurrences across 5 corpus documents** renamed from "GRC Manager" to "GRC Programme Manager": [`compliance/procedure-audit-planning.md`](../../compliance/procedure-audit-planning.md) (25), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md) (30, including the two section headings §2.3 and §7.2), [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) (2), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md) (1), and [`supply-chain/procedure-supplier-audit.md`](../../supply-chain/procedure-supplier-audit.md) (2). Compound forms (`CAE/GRC Programme Manager`, `Compliance and GRC Programme Manager`, the possessive, the plural) and the two headings were all handled. Each document's `Version` and `Date` were co-bumped and [`taxonomy.yml`](../../taxonomy.yml) + [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated. Out of the FR-210 internal-audit scope (that standard was already canonical since #906/#907), so routed and done as this sweep.
+
+### Verification
+- Applied deterministically: an ordered `str.replace` (plural, then title-case, then lowercase-heading form) across the 5 files, count-verified at exactly 60 (25/30/2/1/2, matching the offloaded census) with zero residual in those files; a full-corpus grep confirms zero in-scope residual (only frozen `.working/` QA records and the now-deleted TODO block retained the historical string). All 73 audit gates pass.
+- The two renamed CAPA headings (§2.3, §7.2) break no anchor: a repo-wide grep found no `#grc-manager-*` inbound links, and the in-doc references use section NUMBERS (unchanged).
+- A substantive-tier skeptical verifier (refute-briefed) read every changed line: all 60 substitutions read naturally with no double-substitution, the distinct `Compliance Manager` and `Trade Compliance Manager` roles were correctly left untouched, and the count reconciliation is exact (60 removed = 60 added). Verdict SHIP, 0 findings. The per-touch reference-breadth check was run on the 5 docs (candidates were pre-existing topic-match breadth suggestions orthogonal to a role-title rename; no citation action) and the doc-state refreshed.
+
+### Discipline observation
+Offloaded census + substitution rules (worker-a, pinned to the current main tip, per the worker-brief `### Corpus-wide rename PR` override); a corpus-wide rename is single-session-apply (not partitioned across workers), so the orchestrator applied the deterministic substitution serially and re-verified. Batched PR #1081's `/validate-pr` plus `/retro` rows. Library 2026.07.569 to 2026.07.570.
+
 ## 2026-07-23, Library Version 2026.07.569, PR #1081
 
 Widens the decision-log deferral-trigger keyword set per TODO §3.103. Machinery (a hook + its cross-repo mirror + a self-test + a stale-pointer fix); no corpus, gate, or version-corpus-doc change. Cross-repo, orchestrator-only (workers cannot read or write `_private`).

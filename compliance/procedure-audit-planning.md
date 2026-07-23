@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
-**Date:** 2026-07-03\
+**Version:** 1.0.5\
+**Date:** 2026-07-23\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -38,13 +38,13 @@
 
 This procedure operationalizes the Internal Audit Standard (compliance/standard-internal-audit.md) by defining the specific steps, responsibilities, templates, and timelines required to plan, prepare, execute, and report on individual internal audits and the overall annual audit programme.
 
-It provides practical guidance to the GRC Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2018 §6.2 to 6.4.
+It provides practical guidance to the GRC Programme Manager, audit team members, and auditees on what to do at each stage of the audit lifecycle, ensuring consistency, completeness, and alignment with ISO 19011:2018 §6.2 to 6.4.
 
 ### 1.2 Scope
 
 This procedure applies to all internal audits conducted under the GRC programme, across all domains defined in the Internal Audit Standard. It applies to:
 
-- GRC Managers and Chief Audit Executives responsible for audit programme management;
+- GRC Programme Managers and Chief Audit Executives responsible for audit programme management;
 - Lead auditors and audit team members responsible for individual audit engagements;
 - Domain owners and process owners acting as auditees;
 - Any external auditors or peer reviewers engaged to supplement the internal audit function.
@@ -57,7 +57,7 @@ This procedure does not govern external certification audits or regulatory inspe
 
 ### 2.1 Audit programme responsibility
 
-The **GRC Manager / Chief Audit Executive (CAE)** is accountable for:
+The **GRC Programme Manager / Chief Audit Executive (CAE)** is accountable for:
 
 - Developing, maintaining, and executing the Annual Audit Plan;
 - Assigning audit team members to individual engagements;
@@ -67,7 +67,7 @@ The **GRC Manager / Chief Audit Executive (CAE)** is accountable for:
 
 ### 2.2 Audit team composition
 
-For each individual audit, the CAE/GRC Manager appoints:
+For each individual audit, the CAE/GRC Programme Manager appoints:
 
 | Role | Responsibilities |
 |------|-----------------|
@@ -80,7 +80,7 @@ Minimum team size: one lead auditor. For Critical-scope or cross-domain audits, 
 
 ### 2.3 Auditor independence verification
 
-Before commencing each audit engagement, the CAE/GRC Manager must confirm that each assigned auditor:
+Before commencing each audit engagement, the CAE/GRC Programme Manager must confirm that each assigned auditor:
 
 - Does not hold direct operational responsibility for any area, process, or control within the audit scope;
 - Has disclosed any personal relationships with auditee staff that could reasonably affect objectivity;
@@ -94,7 +94,7 @@ Independence verification is documented in the audit planning record for each en
 
 ### 3.1 Risk-based prioritization
 
-The Annual Audit Plan is developed using a risk-based approach. The CAE/GRC Manager, in collaboration with the CISO and domain owners, assesses:
+The Annual Audit Plan is developed using a risk-based approach. The CAE/GRC Programme Manager, in collaboration with the CISO and domain owners, assesses:
 
 a. **Enterprise Risk Register linkage:** Domains and processes associated with high-rated or critical risks in the Enterprise Risk Register are prioritized for more frequent audit coverage. The risk rating used is the current residual risk score, not the inherent risk.
 
@@ -151,7 +151,7 @@ The Annual Audit Plan is maintained as a structured document or register contain
 
 ### 3.5 Mid-year review
 
-The CAE/GRC Manager reviews and updates the Annual Audit Plan at mid-year (no later than 31 July). The mid-year review considers:
+The CAE/GRC Programme Manager reviews and updates the Annual Audit Plan at mid-year (no later than 31 July). The mid-year review considers:
 
 - Changes in organizational risk profile;
 - Material incidents or control failures that may trigger unplanned audits;
@@ -166,7 +166,7 @@ Material changes to the plan resulting from the mid-year review are reported to 
 
 ### 4.1 Define audit scope and objectives
 
-The lead auditor, in consultation with the CAE/GRC Manager and the auditee, formally defines:
+The lead auditor, in consultation with the CAE/GRC Programme Manager and the auditee, formally defines:
 
 - **Audit objectives:** What the audit is intended to determine (e.g., "Determine whether access control procedures for privileged accounts conform to the Access Control Standard and are operating effectively");
 - **Audit scope:** The specific processes, systems, organizational units, locations, and time period to be covered;
@@ -189,7 +189,7 @@ Audit criteria are documented in the audit programme (see Section 5) with a refe
 
 ### 4.3 Resource and assign audit team
 
-The CAE/GRC Manager:
+The CAE/GRC Programme Manager:
 
 a. Reviews the scope and estimates the effort required for planning, fieldwork, and reporting;
 
@@ -213,7 +213,7 @@ The lead auditor issues formal written notification to the auditee(s) **at least
 - Proposed date and format for the opening meeting;
 - Contact details for questions or scheduling coordination.
 
-For unplanned audits triggered by a material incident or control failure, the 10-business-day notification period may be reduced with the approval of the CAE/GRC Manager and notification to the ERC.
+For unplanned audits triggered by a material incident or control failure, the 10-business-day notification period may be reduced with the approval of the CAE/GRC Programme Manager and notification to the ERC.
 
 ### 4.5 Request and review pre-audit documentation package
 
@@ -244,7 +244,7 @@ The lead auditor develops the detailed **audit programme** before fieldwork comm
 - Includes an evidence checklist to track collection status during fieldwork;
 - Assigns audit team members to specific programme items.
 
-The audit programme is reviewed and approved by the CAE/GRC Manager before fieldwork commences. Refer to Section 5 for the standard audit programme template.
+The audit programme is reviewed and approved by the CAE/GRC Programme Manager before fieldwork commences. Refer to Section 5 for the standard audit programme template.
 
 ---
 
@@ -324,7 +324,7 @@ During fieldwork, the lead auditor:
 
 - Maintains regular communication with the auditee contact to coordinate access and resolve queries promptly;
 - Notifies the auditee immediately if fieldwork uncovers a potential Critical finding, so that the auditee is not blindsided at the closing meeting;
-- Escalates to the CAE/GRC Manager if access is obstructed or cooperation is insufficient;
+- Escalates to the CAE/GRC Programme Manager if access is obstructed or cooperation is insufficient;
 - Documents all material communications in the working papers.
 
 ### 7.3 Closing meeting
@@ -357,28 +357,28 @@ The auditee has **5 business days** from receipt of draft findings to provide:
 - A proposed corrective action with an assigned owner and target completion date; or
 - A factual dispute (supported by evidence) for the lead auditor's consideration.
 
-If the auditee requires additional time, an extension of up to 3 business days may be granted by the lead auditor with documented justification. Extensions beyond 8 total business days require CAE/GRC Manager approval.
+If the auditee requires additional time, an extension of up to 3 business days may be granted by the lead auditor with documented justification. Extensions beyond 8 total business days require CAE/GRC Programme Manager approval.
 
 Where a management response is not received within the response window, the lead auditor proceeds to final report with a notation that no management response was provided.
 
 ### 8.3 Final report issuance
 
-The lead auditor prepares and the CAE/GRC Manager reviews and approves the final audit report. The report is issued within **10 business days of fieldwork completion** (this target is inclusive of the management response window, meaning the lead auditor must issue the draft promptly to allow time for responses).
+The lead auditor prepares and the CAE/GRC Programme Manager reviews and approves the final audit report. The report is issued within **10 business days of fieldwork completion** (this target is inclusive of the management response window, meaning the lead auditor must issue the draft promptly to allow time for responses).
 
-Where the management response window causes the 10-business-day target to be infeasible, the CAE/GRC Manager may extend the target to 15 business days, documented with rationale.
+Where the management response window causes the 10-business-day target to be infeasible, the CAE/GRC Programme Manager may extend the target to 15 business days, documented with rationale.
 
 **Final report distribution:**
 
 | Recipient | Reason |
 |-----------|--------|
 | Auditee and domain owner | Primary stakeholders with remediation responsibility |
-| CAE / GRC Manager | Programme oversight and register update |
+| CAE / GRC Programme Manager | Programme oversight and register update |
 | CISO | For audits covering security or privacy domains |
 | ERC | Summary included in next quarterly reporting cycle; full report for Critical findings immediately |
 
 ### 8.4 Audit register update
 
-Upon final report issuance, the CAE/GRC Manager updates the audit register with:
+Upon final report issuance, the CAE/GRC Programme Manager updates the audit register with:
 
 - Final finding count by classification;
 - Management response summary;
@@ -394,8 +394,8 @@ Upon final report issuance, the CAE/GRC Manager updates the audit register with:
 
 When a Critical finding is identified during fieldwork:
 
-1. The lead auditor notifies the CAE/GRC Manager immediately, on the same business day;
-2. The CAE/GRC Manager notifies the **CISO and CIO verbally or in writing on the same day**;
+1. The lead auditor notifies the CAE/GRC Programme Manager immediately, on the same business day;
+2. The CAE/GRC Programme Manager notifies the **CISO and CIO verbally or in writing on the same day**;
 3. A written summary (may be brief and preliminary) is provided to the CISO and CIO within **1 business day**;
 4. A formal escalation report is submitted to the **ERC within 2 business days**, whether or not the annual ERC reporting cycle is due.
 
@@ -406,9 +406,9 @@ The escalation report includes: finding description, domain, risk assessment, im
 If the audit team encounters material obstruction to access (e.g., refusal to provide documentation, unavailability of key personnel beyond reasonable rescheduling), the lead auditor:
 
 1. Documents the obstruction in writing;
-2. Escalates to the CAE/GRC Manager within 1 business day;
-3. The CAE/GRC Manager escalates to the CISO or relevant domain executive if access is not restored within 2 business days;
-4. If access remains obstructed, the audit report notes the limitation and the CAE/GRC Manager reports the situation to the ERC.
+2. Escalates to the CAE/GRC Programme Manager within 1 business day;
+3. The CAE/GRC Programme Manager escalates to the CISO or relevant domain executive if access is not restored within 2 business days;
+4. If access remains obstructed, the audit report notes the limitation and the CAE/GRC Programme Manager reports the situation to the ERC.
 
 ### 9.3 Overdue remediation
 
@@ -424,7 +424,7 @@ Overdue remediation tracking is maintained in the audit register. Items that are
 
 ### 10.1 Audit register
 
-The CAE/GRC Manager maintains a centralized audit register covering all planned and completed audit engagements. The register includes, for each engagement:
+The CAE/GRC Programme Manager maintains a centralized audit register covering all planned and completed audit engagements. The register includes, for each engagement:
 
 | Field | Description |
 |-------|-------------|
@@ -448,7 +448,7 @@ All audit working papers, evidence artefacts, draft findings, management respons
 
 Retention applies regardless of whether the audit produced findings. Working papers for audits with no findings are retained for the same period.
 
-Evidence is stored in the designated secure audit evidence repository. Access is restricted to the audit team, CAE/GRC Manager, and authorized senior leadership. Access by external parties (e.g., regulatory inspectors, certification body auditors) requires approval from the CAE/GRC Manager and, where sensitive, the CISO.
+Evidence is stored in the designated secure audit evidence repository. Access is restricted to the audit team, CAE/GRC Programme Manager, and authorized senior leadership. Access by external parties (e.g., regulatory inspectors, certification body auditors) requires approval from the CAE/GRC Programme Manager and, where sensitive, the CISO.
 
 After the 7-year retention period, records are disposed of in accordance with the organization's data retention and disposal policy.
 

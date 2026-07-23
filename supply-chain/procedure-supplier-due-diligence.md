@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.10\
-**Date:** 2026-07-10\
+**Version:** 1.1.11\
+**Date:** 2026-07-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -40,7 +40,7 @@ This procedure is aligned with ISO/IEC 27036-2, COBIT 2019 APO10, and CSA CCM v4
 | Chief Information Officer | Approves the supplier due diligence framework and ensures that integration with risk management processes is maintained. |
 | Chief Information Security Officer | Evaluates the information security and privacy posture of potential and existing suppliers. |
 | Procurement Director | Administers supplier assessments, manages onboarding processes, and ensures that contract compliance is maintained. |
-| Compliance and GRC Manager | Oversees due diligence documentation, evidence collection, and audit readiness. |
+| Compliance and GRC Programme Manager | Oversees due diligence documentation, evidence collection, and audit readiness. |
 | Legal Counsel | Verifies contractual and regulatory compliance, including data protection and trade law clauses. |
 | Sustainability Officer | Reviews environmental and social responsibility disclosures submitted by suppliers. |
 | AI Governance Council | Reviews AI-enabled vendors for ethical, transparency, security, and regulatory compliance. |
