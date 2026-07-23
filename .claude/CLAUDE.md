@@ -947,6 +947,40 @@ The design of record is `grc_library_private/credit-offload-design.md`; the orch
 operating discipline is `grc_library_private/orchestrator-claude.md` (`## Credit-offload mode`,
 group A1).
 
+## Worker-saturation checkpoint (keep the elastic workers fed)
+
+The mandatory-offload rule above forecloses SELF-RUNNING offloadable work while workers are live.
+A distinct failure it does not catch is the orchestrator letting the pending queue DRAIN TO ZERO
+while workers sit idle: nobody is being made to self-run, but the elastic worker capacity is
+wasted because no research/QA is queued for it (the 2026-07-23 miss the maintainer caught, a
+worker idle "for a while" between orders). The fix is an OBSERVABLE plus a narrow checkpoint, not
+another blanket rule.
+
+- **The observable (L1).** [`tools/audit-worker-saturation.py`](../tools/audit-worker-saturation.py)
+  reads the scratch worker registry plus the pending/claimed queue and returns a verdict:
+  `NO-WORKERS` (nothing to offload to), `SATURATED` (outstanding orders >= live workers), or
+  `IDLE-CAPACITY` (live workers > outstanding orders, so at least one live worker has nothing to
+  claim). It is advisory (exit 0 always), stdlib-only, no-op when the scratch checkout is absent,
+  the same cross-repo shape as `audit-delivery-status.py` / `audit-brief-freshness.py`. Its
+  `--oneline` form is surfaced continuously in the console statusline beside `next:`, so idle
+  capacity is always in view.
+- **The checkpoint (L2).** At each of these boundaries (NOT every micro-step): the start of a
+  task, PR close-out / next-PR selection, and before self-running any substantial pass, read the
+  saturation verdict (run the tool, or read the statusline). If it reports `IDLE-CAPACITY` AND
+  there is offloadable work that can be queued now (research or draft seeds for upcoming backlog
+  items, a QA pass), FAN OUT to fill the idle capacity BEFORE proceeding. A worker-state claim
+  ("workers are busy", "nothing to offload") must be the tool's output, never a felt sense (the
+  `evidence-grounded-completion` measured-not-inferred discipline; the same forcing function as
+  `audit-delivery-status.py` and `ref-holds.py`). This composes with the worker-elasticity
+  corollary above: if the queue-able work exceeds the live pool, ask the maintainer for more
+  workers rather than serializing.
+
+Scope note: the tool ships with a `--self-test` fixture set (the `block-unjustified-decision.py`
+pattern) wired into the linter-regression suite, asserting it flags `IDLE-CAPACITY` and never
+flags `SATURATED` / `NO-WORKERS` / a healthy queue, so the signal is false-positive-free before it
+is relied on. A heavier L3 (a non-blocking saturation warning inside `block-mandatory-offload.py`)
+is DEFERRED pending a one-month review of L1+L2 (TODO time-bounded follow-up TF-1).
+
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff
