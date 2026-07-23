@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.574, PR #1086
+
+Working-state consolidation: surfaces the decision-blocked cluster and batches #1085's QA rows. No corpus, tool, or gate change.
+
+### Changed
+- **[pending-decisions.md](../pending-decisions.md)**: a new dated block pre-loads the three items that block further backlog progress on a maintainer decision, each with named options (recommended first): OWASP §36 ASI08/09/10 threat-class treatment (cite-only vs new TC classes), §3.19 cross-repo worker-provenance link convention (plain-text vs keep-as-is), and §3.32 count-vs-enumeration advisory close-confirm. Formalized here (beyond the next-prs catalogue) so the decisions-search guardrail indexes them and the resume step surfaces them for a batch answer.
+- **[next-prs.txt](../next-prs.txt)**: refreshed to the post-#1085 queue state (the session-handoff full refresh is deferred to the eventual session-closing handoff; next-prs carries the live forward-state mid-session).
+
+### Why
+The clean quick-clears the maintainer prioritized are drained (20 PRs, #1066-#1085). The remaining substantial items are M/L-effort, fresh-session-flagged, decision-blocked, or fleet-risky; the three decision-blocked ones are the highest-leverage to surface, since one maintainer answer each unblocks a downstream item. Surfacing (not guessing) an authorial decision is the clarify-before-acting discipline under unattended conditions.
+
+### Verification
+- No corpus, tool, or gate change; the pre-push guard (full audit suite plus PR-time checks) passes. The two touched files are gate-exempt working-state; the dash and bookkeeping-parity checks pass. Batches #1085's /validate-pr (CLEAN PASS) plus /retro rows.
+
+### Discipline observation
+This PR does not close a TODO item; it is a decision-queue consolidation. Library 2026.07.573 to 2026.07.574.
+
 ## 2026-07-23, Library Version 2026.07.573, PR #1085
 
 Bookkeeping rotation closing TODO §3.22. No corpus, tool-logic, or gate change; a pure close-out.
