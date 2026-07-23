@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.573, PR #1085
+
+Bookkeeping rotation closing TODO §3.22. No corpus, tool-logic, or gate change; a pure close-out.
+
+### Changed
+- **TODO §3.22 to DONE**: the D7-handoff-snapshot-defeated defect §3.22 tracked (D7 located version tokens on the token-less `Current truth` marker line, so it validated 0 tokens and passed trivially) was RESOLVED by the #1075/#1076 D7 work that closed the same defect keyed as §3.89/§3.101. [`tools/check-handoff-snapshot-on-pr.py`](../../tools/check-handoff-snapshot-on-pr.py) now locates the dedicated `Version snapshot (D7 validates these tokens)` sub-line and FAILS non-vacuously on a token-less line (`validate_snapshot_tokens`); `HandoffSnapshotOnPrTests` covers the stale-token and token-less cases on the new marker. §3.22's deferred "protected part" (a CLAUDE.md D7 convention-guard note) was MOOT: no such note exists in the file.
+- **[`tests/test_linters.py`](../../tests/test_linters.py)**: reworded a comment that cited the RECYCLED section number `TODO 3.22` (a former §3.22 = the PCI DSS v4.0.1 currency migration, PR #649) to cite the stable PR #649 instead, so the recycled-number reference no longer collides with the D7 §3.22 being closed. Comment-only; no logic change.
+- **Private deferred-protected-changes register**: item 8 (the §3.22 fix) marked landed in #1075/#1076, with the moot-protected-part note.
+
+### Verification
+- Regression suite green (no logic change; the reworded comment and the rotation affect no test). The D7 fix itself was verified in #1075/#1076 (`test_stale_token_fails`, `test_tokenless_snapshot_line_fails_non_vacuously`). A whole-repo `§3.22` grep confirms the only live citers were the TODO block (deleted) and the test comment (reworded); the remaining references are frozen working-state history records (exempt from the orphan-cleanup guard).
+
+### Discipline observation
+A recycled-section-number cleanup: §3.22 has been reused across several items (PCI DSS in #649, then others, now the D7 item), so closing it required de-ambiguating a lineage comment that pointed at a FORMER §3.22. Cited the stable PR number, which is not recycled. Batches PR #1084's `/validate-pr` plus `/retro` rows. Library 2026.07.572 to 2026.07.573.
+
 ## 2026-07-23, Library Version 2026.07.572, PR #1084
 
 Closes TODO §3.34 (detailed-mirror link-resolution), remaining half: a full-mirror in-repo link-resolution scan in the CHANGELOG pre-flight aid. A single-tool machinery change plus tests; no gate-parity surfaces (the aid is not a CI gate). Offloaded draft (worker-a), skeptical verifier pre-push (one LOW finding fixed in-window).

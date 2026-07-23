@@ -495,10 +495,11 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertLinterFails(result, "2013")
 
     def test_superseded_pci_dss_v_prefixed_flagged(self) -> None:
-        # TODO 3.22 half (b): the separator group (":", "(", whitespace) missed
-        # a "v"-prefixed superseded label, so "PCI DSS v4.0" (4.0 is superseded
-        # by 4.0.1 in the canonical register) never fired. The widened "v?"
-        # must now flag it.
+        # PR #649 (PCI DSS v4.0.1 currency migration) widened the separator group
+        # (":", "(", whitespace) to also accept a "v"-prefixed superseded label,
+        # so "PCI DSS v4.0" (4.0 is superseded by 4.0.1 in the canonical register),
+        # which previously never fired, now does. (Cited by stable PR number, not a
+        # recycled TODO section number.)
         fixture = self.make_fixture(
             "standard-pci-v-prefixed-superseded.md",
             VALID_METADATA
