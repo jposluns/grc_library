@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.586, PR #1100
+
+Authors the two maintainer-confirmed Priority-2 umbrella series (and the associated P4 and Task-1 backlog items) into [TODO.md](../../TODO.md). Recording/authoring only: no corpus document, gate, pack rule, or version-bearing artefact changed; nothing is executed. Uses the series-consolidation redirect-stub pattern (from #1099) to fold three existing P2 items into series children without reassigning any number.
+
+### Added (TODO.md)
+- **Series A umbrella 2.25** (Governance traceability and coverage expansion) with an in-execution-order member list, delivering independently of OSCAL.
+- **2.25.1** (consolidated from 2.24): author the flow-modelling framework AND graduate it to a generated relationship model + a new regeneration gate; the cap-lift is a maintainer decision-gate. 2.24's full scope moved here.
+- **2.25.2** (consolidates 2.15): international AI-governance authority coverage (OECD, UNESCO, G7 Hiroshima, Council of Europe Convention), with 2.15's landing-page standards-to-source linking as the surfacing step; CoE status `[VERIFY]`.
+- **2.25.3** (consolidates 2.22): Canadian public-sector authority coverage (the 49 federal Canada.ca sources, CANADA-PRIORITY and the DEFERRED-BLOCKED-on-currency status carried forward) plus the provincial FOI/privacy gap (FIPPA/MFIPPA/FOIP).
+- **2.25.4** (AI assurance and evaluation content, deps 3.14/3.15/3.63) and **2.25.5** (governance-maturity measurement model, dep 2.25.1).
+- **Series B umbrella 2.26** (OSCAL machine-readable representation, Markdown-as-source-of-truth, OSCAL generated and non-authoritative) with **2.26.1** (adopt-decision + model-scope lock, maintainer-gated) through **2.26.5** (profiles and crosswalks, dep 2.25.1 + gate 5); OSCAL version `[VERIFY]`.
+- **4.31** (publish the pack as a standalone methodology, deps 3.104 + 3.47 + 3.56 + 1.18).
+- **3.104** (Task-1 pack reconciliation): the enumeration confirmed the pack is mechanically clean, so NO P1 correction; Task 1 is this P3 item, add GAP-1 (repeated-failure circuit-breaker) + GAP-2 (write-before-enact rubric + closed blocker vocabulary) + the F1/F2 genericization + the portable pack-parity-coupling clause, both trees under gate-37; 1.14/1.18 pack-docs are noted future dependencies. Blocks 4.31.
+
+### Changed (TODO.md)
+- **2.24, 2.15, 2.22 converted to one-line redirect stubs** (moved to 2.25.1 / 2.25.2 / 2.25.3 respectively), per the #1099 redirect-stub convention; each closes when its target closes.
+- Counters: P2 `Next item number` 2.25 to 2.27 (both umbrellas consumed); P3 3.104 to 3.105; P4 4.31 to 4.32.
+- Reference sweep: the four live citers of §2.15 / §2.22 (in the 1.14, 1.22.9, 3.75 items and the MEG-05 index row) repointed to 2.25.2 / 2.25.3, the stubs backstopping any missed reference.
+
+### Why
+- The maintainer-confirmed planning prompt (2026-07-23) directs authoring the two series, the publication item, and the Task-1 items as backlog now, executed later in a defined order (P1 and P3 first, then Series A, then Series B). Authoring is not executing; nothing here runs. Series B depends on Series A; both are maintainer-gated at their decision points (the 2.25.1 cap-lift, the 2.26.1 OSCAL go/no-go).
+
+### Verification
+- The new P2 headings (2.25, 2.25.1 to 2.25.5, 2.26, 2.26.1 to 2.26.5) are present and in order; the three stubs are one-line forward redirects; the reference sweep left the stubs as the backstop for any missed citer (the remaining `2.15` / `2.22`-shaped matches elsewhere are false matches: version strings `1.2.15`, a tool-list `5.2.15`).
+- Pre-push guard (gate 45 TODO staleness, the cross-file section-reference gates, plus the full suite) green.
+
+### Bookkeeping
+- Batches PR #1099's validation and retrospective rows.
+- Not a TODO closure (stubs close with their targets); maintainer-directed authoring. Recorded in DONE.
+- Library CalVer 2026.07.585 to 2026.07.586; README Version 1.9.946 to 1.9.947.
+
 ## 2026-07-23, Library Version 2026.07.585, PR #1099
 
 Records two maintainer-confirmed conventions (2026-07-23 planning dialogue) ahead of the Priority-2 umbrella-series authoring that depends on them. Recording/convention only; no corpus document, gate, or pack-rule change.
