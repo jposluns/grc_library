@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.556, PR #1068
+
+Resume close-out for the 2026-07-23 overnight session (`/resume` from the #1066 handoff, with #1067 merged first per its NEXT block). This is the first PR of the resumed session: the loop-break `/validate` compensating control for the #1067 session-closing handoff, plus the lease acquire, the handoff prune, and the fix of the two notes the sweep surfaced. Working-state only; no corpus or website content changed. (This PR is NOT itself a session-closing handoff, so it takes the normal per-PR `/validate-pr` + `/retro`, batched into the next PR.)
+
+### Changed
+- **[`.working/session-state.md`](../session-state.md)**: lease ACQUIRED for this session (`Active-session: claude/resume-sweep118-closeout`, `Status: active`, `Operating-mode: overnight-unattended`, fresh heartbeat); Current-task and Worker-dispatches refreshed for the 2026-07-23 overnight run (both workers live Opus 4.8).
+- **[`.working/validate-sweeps/history.md`](../validate-sweeps/history.md)**: added the Sweep 118 iter 1 row (PASS, 0 error / 0 warning / 2 note; loop-break control for #1067). Version 2.0.118 to 2.0.119, Date to 2026-07-23 (its newest-row date).
+- **[`.working/session-handoff.md`](../session-handoff.md)**: advanced the resume cursor to Sweep 118, and pruned the Next-actions stack to keep-current-plus-one-prior (deleted the 2026-07-19b/c #1054/#1055 CLOSING + NEXT blocks; Sweep 118 note N-A1). The State-snapshot and Asserted-expectations stacks were already at two blocks.
+- **[`README.md`](../../README.md)**: library CalVer `2026.07.555` to `2026.07.556`, README Version `1.9.916` to `1.9.917`, Date co-bumped to 2026-07-23 (the routine per-PR version-surface bump). Note: the `validate-pr` history file is NOT touched this PR; the Sweep 118 note N-A2 against it was re-examined as a false positive (see below).
+- **[`.working/next-prs.txt`](../next-prs.txt)**: refreshed the statusline and the `# then:` projection for the #1068 close-out and the overnight tooling queue.
+- **`grc_library_private` (pushed separately)**: appended the 2026-07-23 session-start row to the `grc_library_private` degradation-watch log.
+- **`grc_library_scratch` (coordination plane, pushed separately)**: enqueued and consumed `sweep-118-validate` (worker-a); enqueued the background `research-1223-working-cycleout`, `research-inbox-delivery-triage`, and `research-p1p3-quickclear-survey` orders for the overnight tooling + quick-clear work.
+
+### Sweep 118 (loop-break compensating control for #1067)
+- Full A/B/C `/validate` over the **#1067** delta (base #1066 `f9906bec`, head #1067 `3ceb0c54`), OFFLOADED to worker-20260716-a (Opus 4.8) as blocking prio-0 `sweep-118-validate`, consumed under ELEVATED QA (worker-a delivery 1 this fresh session). **PASS, 0 error / 0 warning / 2 note.** The #1067 delta is bookkeeping-only (8 files, `.working`/CHANGELOG/README; no corpus-domain document). Mechanical baseline 72/72 at the pinned SHA; counts 72/13/24/15/18; four-surface parity 72; gate 54 CSF-clean (336 docs); generated artefacts in sync; 443-test regression rc 0.
+- Both notes are C-class `.working/` bookkeeping (gate-exempt; no corpus/gate/adopter impact), re-verified by the orchestrator at source. N-A1 (handoff Next-actions retained three CLOSING blocks vs the stated keep-current-plus-one-prior) was a real over-retention, FIXED this close-out (the 2026-07-19b/c blocks deleted). N-A2 (a [`validate-pr/history.md`](../validate-pr/history.md) header-date "outlier") was re-examined and found to be a FALSE POSITIVE: the file's `2026-07-23` Date is the correct Version-Date co-bump date (delta gate D4) for its #1067 bump, not an error, so the file is left unchanged. Asserted-expectations (the #1056-#1065 block) all CORROBORATED, 0 contradicted. **Loop-break control for #1067 PASSES.**
+
+### Verification
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 72 gates pass. [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) clean. Pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) green.
+
 ## 2026-07-22, Library Version 2026.07.555, PR #1067
 
 Resume close-out AND session-closing handoff for the 2026-07-22b resumed session (`/resume` from the #1066 session-closing handoff). The session ran this single PR (the loop-break `/validate` compensating control, the handoff prune, the maintainer-authorized watchdog-alert clear) and then WOUND DOWN at the maintainer's direction, because branch protection requires a `gh pr merge --admin` permission the harness auto-mode classifier blocked (self-granting the permission was likewise blocked). The maintainer will grant the permission and merge this PR next session. Because #1067 is therefore this session's session-closing handoff PR, it takes the handoff-PR exception (skips its own trailing `/validate-pr` + `/retro`; the next `/resume` corpus-wide `/validate` is the compensating control). Working-state only; no corpus or website content changed.
