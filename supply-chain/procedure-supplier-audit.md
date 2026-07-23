@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
-**Date:** 2026-07-10\
+**Version:** 1.0.13\
+**Date:** 2026-07-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -39,7 +39,7 @@ It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-0
 | Chief Information Officer | Provides executive oversight of the supplier audit programme and approves the annual audit plan. |
 | Chief Information Security Officer | Defines audit scope for information security, privacy, and AI risk controls. |
 | Procurement Director | Coordinates audit logistics, schedules audits with suppliers, and ensures that supplier cooperation is obtained. |
-| Compliance and GRC Manager | Maintains the Supplier Audit Register, records audit evidence, and reports programme performance metrics. |
+| Compliance and GRC Programme Manager | Maintains the Supplier Audit Register, records audit evidence, and reports programme performance metrics. |
 | Legal Counsel | Verifies adherence to contractual obligations, data protection law, trade regulations, and BASC requirements. |
 | AI Governance Council | Reviews audit findings involving AI-enabled services or AI system vendors. |
 | Enterprise Risk Committee | Reviews audit results, identifies systemic supplier risks, and approves remediation strategies. |
@@ -61,7 +61,7 @@ It is aligned with ISO/IEC 27036-4:2016, COBIT 2019 APO10.05, CSA CCM v4.1 STA-0
 
 ### Step 1: Audit planning and scoping
 
-The Compliance and GRC Manager must maintain the Supplier Audit Register, recording for each supplier:
+The Compliance and GRC Programme Manager must maintain the Supplier Audit Register, recording for each supplier:
 
 - Supplier name and primary contact role.
 - Geographic region and operational jurisdiction.

@@ -2,8 +2,8 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
-**Date:** 2026-07-03\
+**Version:** 1.0.11\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -61,7 +61,7 @@ This procedure applies to nonconformities and improvement opportunities identifi
 | Self-assessments | Control gaps identified by domain owners through self-assessment activities |
 | Control monitoring failures | Automated or manual monitoring that identifies a control as failed or ineffective |
 
-This procedure applies to all personnel who identify, own, or are involved in resolving nonconformities, and to the GRC Manager and CISO who oversee the CAPA programme.
+This procedure applies to all personnel who identify, own, or are involved in resolving nonconformities, and to the GRC Programme Manager and CISO who oversee the CAPA programme.
 
 ---
 
@@ -83,12 +83,12 @@ Each **domain owner** (e.g., the head of operations, IT manager, privacy officer
 - Accepting or contesting the classification of findings within their domain;
 - Assigning a corrective action owner for each CAPA within their domain;
 - Ensuring corrective actions are resourced, planned, and implemented within the agreed target dates;
-- Providing evidence of corrective action completion to the GRC Manager for verification;
+- Providing evidence of corrective action completion to the GRC Programme Manager for verification;
 - Escalating resource constraints or implementation obstacles to the CISO promptly.
 
-### 2.3 GRC manager responsibilities
+### 2.3 GRC Programme Manager responsibilities
 
-The **GRC Manager** is responsible for:
+The **GRC Programme Manager** is responsible for:
 
 - Maintaining the CAPA register and ensuring it is accurate and current;
 - Assigning CAPA IDs and recording new entries within 2 business days of receiving a finding or nonconformity report;
@@ -117,7 +117,7 @@ Any individual across the organization may raise a nonconformity or improvement 
 
 ### 3.2 Minimum required fields
 
-Every nonconformity record must include the following minimum information at the time of submission. The GRC Manager will work with the submitter to complete any missing fields within 2 business days:
+Every nonconformity record must include the following minimum information at the time of submission. The GRC Programme Manager will work with the submitter to complete any missing fields within 2 business days:
 
 | Field | Description |
 |-------|-------------|
@@ -126,13 +126,13 @@ Every nonconformity record must include the following minimum information at the
 | Source | The mechanism through which the nonconformity was identified (see Section 1.2 table) |
 | Description | A clear, factual statement of what the nonconformity is, including the applicable requirement or criterion it fails to meet |
 | Root Cause Category | Preliminary categorization of the likely root cause (e.g., process gap, people/training, technology failure, third-party failure, governance gap): to be refined through root cause analysis |
-| Risk Level | Preliminary classification per Section 5; to be confirmed by the GRC Manager and domain owner |
+| Risk Level | Preliminary classification per Section 5; to be confirmed by the GRC Programme Manager and domain owner |
 | Owner | The individual responsible for implementing the corrective action |
 | Target Date | The date by which corrective action is to be completed, aligned to the classification timelines in Section 5 |
 
 ### 3.3 CAPA ID assignment
 
-The GRC Manager assigns a unique CAPA ID to each record upon entry into the CAPA register. The CAPA ID format is: **CAPA-[YYYY]-[NNN]** (e.g., CAPA-2026-001). The CAPA ID is communicated to the submitter and the domain owner within 2 business days.
+The GRC Programme Manager assigns a unique CAPA ID to each record upon entry into the CAPA register. The CAPA ID format is: **CAPA-[YYYY]-[NNN]** (e.g., CAPA-2026-001). The CAPA ID is communicated to the submitter and the domain owner within 2 business days.
 
 ---
 
@@ -154,7 +154,7 @@ The chosen methodology and its outputs must be documented in the CAPA record. Th
 
 #### 4.1.1 Root cause statement quality checklist
 
-A root cause statement is acceptable only if it meets every criterion below. The GRC Manager applies this checklist during verification (Section 7.2) and rejects statements that do not pass; rejected statements are returned to the owner for revision and do not stop the CAPA closure clock.
+A root cause statement is acceptable only if it meets every criterion below. The GRC Programme Manager applies this checklist during verification (Section 7.2) and rejects statements that do not pass; rejected statements are returned to the owner for revision and do not stop the CAPA closure clock.
 
 | Criterion | What it requires | What it excludes |
 |-----------|------------------|------------------|
@@ -162,11 +162,11 @@ A root cause statement is acceptable only if it meets every criterion below. The
 | **Causal** | States the mechanism that produced the failure: what condition existed, or was missing, that allowed the nonconformity to occur and to go undetected | Restatements of the symptom (e.g., "the control was not performed because it was not performed"); bare attributions of fault to an individual without identifying the systemic condition |
 | **Actionable** | Identifies what would need to change for the cause to be removed: a procedure to amend, a system to configure, a role to assign, a monitoring control to add | Statements that imply no specific change (e.g., "more attention needed", "should be more careful"); statements whose only implied action is "do the existing thing better" |
 | **Bounded** | Identifies the scope of the cause: whether it affects a single instance, a class of instances within one domain, or multiple domains | Vague universals (e.g., "cultural issue", "organization-wide gap") asserted without evidence of the scope |
-| **Evidence-anchored** | References the evidence on which the cause statement rests: the audit finding, the incident report, the log excerpt, the interview note | Cause statements that cannot be traced back to an artefact the GRC Manager can review |
+| **Evidence-anchored** | References the evidence on which the cause statement rests: the audit finding, the incident report, the log excerpt, the interview note | Cause statements that cannot be traced back to an artefact the GRC Programme Manager can review |
 
 The root cause category taxonomy in Section 4.3 is used for pattern analysis aggregation; it is **not** a substitute for the per-statement checklist above. A statement that names only a category (e.g., "Process gap") fails the Specific criterion regardless of whether the category itself is accurate.
 
-The root cause analysis for Critical findings must be completed and submitted to the GRC Manager within **5 business days** of CAPA opening. For High findings, within **10 business days**.
+The root cause analysis for Critical findings must be completed and submitted to the GRC Programme Manager within **5 business days** of CAPA opening. For High findings, within **10 business days**.
 
 ### 4.2 Moderate and low findings
 
@@ -201,7 +201,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 | Requirement | Timeframe |
 |-------------|-----------|
 | Notification to CISO and CIO | Within **24 hours** of identification |
-| Documented remediation plan submitted to GRC Manager | Within **5 business days** of CAPA opening |
+| Documented remediation plan submitted to GRC Programme Manager | Within **5 business days** of CAPA opening |
 | Interim compensating control (if full remediation cannot be achieved within 30 days) | Implemented within **10 business days** |
 | Full remediation / closure target | **30 days** |
 | Formal root cause analysis completed | Within **5 business days** of CAPA opening |
@@ -216,7 +216,7 @@ CAPA classification aligns to the finding classification scheme defined in the I
 | Requirement | Timeframe |
 |-------------|-----------|
 | Notification to CISO (for security/privacy domains) | Within **1 business day** |
-| Documented remediation plan submitted to GRC Manager | Within **10 business days** of CAPA opening |
+| Documented remediation plan submitted to GRC Programme Manager | Within **10 business days** of CAPA opening |
 | Full remediation / closure target | **60 days** |
 | Formal root cause analysis completed | Within **10 business days** of CAPA opening |
 
@@ -274,8 +274,8 @@ Reliance on interim controls does not close the CAPA. The CAPA remains open unti
 Target date changes must be approved by:
 
 - **Critical:** CISO approval; notification to ERC;
-- **High:** GRC Manager approval; noted in quarterly ERC report;
-- **Moderate / Low:** GRC Manager approval; recorded in register.
+- **High:** GRC Programme Manager approval; noted in quarterly ERC report;
+- **Moderate / Low:** GRC Programme Manager approval; recorded in register.
 
 Target date changes must be accompanied by a documented justification and a new realistic completion date. Repeated extensions are flagged in the pattern analysis (see Section 9.2).
 
@@ -285,7 +285,7 @@ Approval authority for an extension does not, on its own, authorize an unbounded
 
 | Extension number | Required approving authority | Additional requirement |
 |------------------|------------------------------|------------------------|
-| **1st extension** | Per §6.3 (CISO for Critical; GRC Manager for High / Moderate / Low) | Documented justification and revised target date |
+| **1st extension** | Per §6.3 (CISO for Critical; GRC Programme Manager for High / Moderate / Low) | Documented justification and revised target date |
 | **2nd extension** | Enterprise Risk Committee (ERC) review and approval | A written remediation-feasibility memo from the CAPA owner; an interim compensating control is mandatory for Critical and High findings if one is not already in place |
 | **3rd extension** | Board Risk Committee (or, where the organization has no Board Risk Committee, the highest governance body to which the ERC reports) review and approval | A written root-cause-revalidation memo (was the original root cause correct? has scope changed?) and an explicit determination by the Board Risk Committee that the residual risk of continued non-closure is acceptable; the Board Risk Committee may also require descope, acceptance, or transfer of the underlying risk in lieu of further extension |
 | **4th extension or beyond** | Not permitted under this procedure | The CAPA must be closed (with the residual gap formally accepted as a risk under the Risk Management Policy), descoped (with the underlying requirement re-scoped or waived through documented exception), or replaced by a fresh CAPA reflecting the revised scope. A 4th extension may not be granted by any authority. |
@@ -308,22 +308,22 @@ The corrective action owner is responsible for:
 
 - Implementing all actions in the corrective action plan by the agreed target dates;
 - Collecting and preserving evidence of implementation as actions are completed;
-- Proactively communicating progress to the GRC Manager at agreed intervals (at minimum, monthly for Critical and High CAPAs);
-- Notifying the GRC Manager promptly if any obstacle is encountered that may cause a target date to be missed.
+- Proactively communicating progress to the GRC Programme Manager at agreed intervals (at minimum, monthly for Critical and High CAPAs);
+- Notifying the GRC Programme Manager promptly if any obstacle is encountered that may cause a target date to be missed.
 
-### 7.2 GRC manager verification
+### 7.2 GRC Programme Manager verification
 
-The GRC Manager verifies that corrective actions have been implemented and are effective before marking a CAPA as closed. Verification must include:
+The GRC Programme Manager verifies that corrective actions have been implemented and are effective before marking a CAPA as closed. Verification must include:
 
 - Review of evidence provided by the owner (e.g., updated procedure versions, training completion records, configuration change evidence, testing results);
 - Comparison against the corrective action plan to confirm all actions have been completed;
 - For Critical and High CAPAs: confirmation that the control now operates as intended, not merely that an action was taken.
 
-The GRC Manager documents the verification findings in the CAPA record, including the date of verification and the evidence reviewed.
+The GRC Programme Manager documents the verification findings in the CAPA record, including the date of verification and the evidence reviewed.
 
 ### 7.3 Re-audit trigger
 
-For **Critical and High CAPAs** where the verification review raises doubt about the effectiveness of the corrective action, the GRC Manager may request a targeted re-audit of the affected control. The re-audit is conducted in accordance with the Audit Planning Procedure (compliance/procedure-audit-planning.md) and is scoped specifically to the control or controls addressed by the CAPA.
+For **Critical and High CAPAs** where the verification review raises doubt about the effectiveness of the corrective action, the GRC Programme Manager may request a targeted re-audit of the affected control. The re-audit is conducted in accordance with the Audit Planning Procedure (compliance/procedure-audit-planning.md) and is scoped specifically to the control or controls addressed by the CAPA.
 
 Re-audit findings are recorded as a new audit engagement in the audit register and any resulting findings generate new CAPA records.
 
@@ -332,7 +332,7 @@ Re-audit findings are recorded as a new audit engagement in the audit register a
 A CAPA is marked as **Closed** in the register when:
 
 - All corrective actions in the plan have been implemented;
-- The GRC Manager has verified implementation and effectiveness;
+- The GRC Programme Manager has verified implementation and effectiveness;
 - Closure evidence is documented and retained in the CAPA record;
 - For CAPAs linked to an internal audit finding: the corresponding finding in the audit register is also marked as closed.
 
@@ -340,7 +340,7 @@ CAPAs are not closed until verification is complete. The domain owner's assertio
 
 ### 7.5 Post-implementation effectiveness validation
 
-Closure verification (§7.2) confirms that corrective actions were implemented and that the control operates as intended at the point of closure. In addition, the effectiveness of each CAPA is independently validated by Internal Audit or Compliance within **90 days of implementation**, consistent with the Compliance and Audit Management Policy (compliance/policy-compliance-and-audit-management.md §4.4.3). This post-implementation validation confirms that the corrective action remains effective in sustained operation, not only at the moment of closure, and is distinct from the GRC Manager's closure verification. Where the validation finds that the corrective action has not held, the original CAPA is re-opened or a new CAPA is raised, and the recurrence is captured in the annual pattern analysis (§9.2).
+Closure verification (§7.2) confirms that corrective actions were implemented and that the control operates as intended at the point of closure. In addition, the effectiveness of each CAPA is independently validated by Internal Audit or Compliance within **90 days of implementation**, consistent with the Compliance and Audit Management Policy (compliance/policy-compliance-and-audit-management.md §4.4.3). This post-implementation validation confirms that the corrective action remains effective in sustained operation, not only at the moment of closure, and is distinct from the GRC Programme Manager's closure verification. Where the validation finds that the corrective action has not held, the original CAPA is re-opened or a new CAPA is raised, and the recurrence is captured in the annual pattern analysis (§9.2).
 
 ---
 
@@ -348,7 +348,7 @@ Closure verification (§7.2) confirms that corrective actions were implemented a
 
 ### 8.1 Register structure
 
-The GRC Manager maintains a centralized CAPA register. Each record contains the following fields:
+The GRC Programme Manager maintains a centralized CAPA register. Each record contains the following fields:
 
 | Field | Description |
 |-------|-------------|
@@ -365,14 +365,14 @@ The GRC Manager maintains a centralized CAPA register. Each record contains the 
 | **Status** | Open / In Progress / Pending Verification / Closed |
 | **Closure Date** | Date verified as closed; blank if not yet closed |
 | **Closure Evidence** | Reference to evidence artefacts reviewed during verification |
-| **Verified By** | Name or role of the GRC Manager or reviewer who performed closure verification |
+| **Verified By** | Name or role of the GRC Programme Manager or reviewer who performed closure verification |
 
 ### 8.2 Register maintenance
 
 The CAPA register is:
 
-- Updated by the GRC Manager within 2 business days of any status change;
-- Reviewed in full by the GRC Manager at least monthly to identify items approaching or exceeding target dates;
+- Updated by the GRC Programme Manager within 2 business days of any status change;
+- Reviewed in full by the GRC Programme Manager at least monthly to identify items approaching or exceeding target dates;
 - Shared with the CISO for review at least monthly;
 - Included (in summary form) in the quarterly ERC report.
 
@@ -386,8 +386,8 @@ An item is considered **overdue** when its target date has passed and closure ha
 
 | Threshold | Action |
 |-----------|--------|
-| Target date reached with no closure | GRC Manager notifies the domain owner and requests updated status and revised target date within 2 business days |
-| 5 business days past target date | GRC Manager escalates to the CISO (for security/privacy domains) or relevant domain executive |
+| Target date reached with no closure | GRC Programme Manager notifies the domain owner and requests updated status and revised target date within 2 business days |
+| 5 business days past target date | GRC Programme Manager escalates to the CISO (for security/privacy domains) or relevant domain executive |
 | 10 business days past target date | CISO/domain executive escalates to the ERC; item reported as overdue in the next ERC cycle (or immediately for Critical) |
 | Repeated extensions or sustained non-closure | Triggers the extension ceiling and escalation pathway in Section 6.3.1: a 2nd extension requires ERC review and approval; a 3rd extension requires Board Risk Committee review and approval; a 4th extension is not permitted, and the CAPA must be closed, descoped, or re-baselined |
 
@@ -395,7 +395,7 @@ Overdue Moderate and Low CAPAs are reported in the quarterly ERC status report b
 
 ### 9.2 Pattern analysis
 
-The GRC Manager conducts an **annual pattern analysis** of CAPA data to identify:
+The GRC Programme Manager conducts an **annual pattern analysis** of CAPA data to identify:
 
 - Domains or control areas with recurring nonconformities across multiple audit cycles or sources;
 - Root cause categories that appear repeatedly, suggesting systemic programme weaknesses;
