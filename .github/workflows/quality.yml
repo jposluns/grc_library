@@ -245,6 +245,9 @@ jobs:
       - name: COBIT objective title-text audit
         run: python3 tools/lint-cobit-title-text.py
 
+      - name: Rule-scope-table completeness audit
+        run: python3 tools/lint-rule-scope-table.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

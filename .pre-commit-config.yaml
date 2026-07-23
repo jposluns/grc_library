@@ -525,3 +525,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-rule-scope-table
+        name: Rule-scope-table completeness audit
+        entry: python3 tools/lint-rule-scope-table.py
+        language: system
+        pass_filenames: false
+        always_run: true

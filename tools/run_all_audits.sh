@@ -169,6 +169,7 @@ run_gate "Sibling-repo stub-guard audit"                  python3 tools/lint-sib
 run_gate "Stdlib-only import audit"                       python3 tools/lint-stdlib-only-imports.py
 run_gate "Citation-currency-cadence audit"                python3 tools/lint-citation-currency-cadence.py
 run_gate "COBIT objective title-text audit"               python3 tools/lint-cobit-title-text.py
+run_gate "Rule-scope-table completeness audit"            python3 tools/lint-rule-scope-table.py
 
 # ----------------------------------------------------------------------
 # Summary
