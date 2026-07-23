@@ -176,8 +176,9 @@ def unlinked_refs_in_line(line: str) -> list[str]:
 # The detailed mirror lives under `.working/` (gate-exempt), so the corpus
 # broken-link gate does not scan it; a dangling relative link there is otherwise
 # ungated. This check verifies that each IN-REPO relative markdown-link target
-# an added line introduces resolves to an existing file. Excluded (per TODO
-# 3.19 and by construction): external `http(s)`/`mailto:`/anchor targets;
+# an added line introduces resolves to an existing file. Excluded (by
+# construction, consistent with the worker-provenance plain-text convention):
+# external `http(s)`/`mailto:`/anchor targets;
 # cross-repo / out-of-repo targets (a sibling repo such as `grc_library_ref` /
 # `grc_library_scratch`, or an `inbox/` worker-provenance path, or any target
 # that resolves outside this repo); and links inside a code span (an
