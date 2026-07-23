@@ -386,10 +386,6 @@ The four-surface parity gate reconciles all surfaces (73/73/73/73 as of gate 73)
 
 The held Quebec P-39.1 extract in `grc_library_ref` carries PDF margin-note corruption in its odd-numbered section headers (the source of the "s. 23.3" vs correct "s. 3.3" PIA-citation error that shipped in #973 and was corrected in #1018/#1019). The citation is now correct, but the underlying held source should be re-ingested from a clean primary source (LegisQuebec) so a future citation cannot re-derive from the corrupted extract. Cross-repo (`_ref` write via PR). Opened in #1012's escalation; recreated here after a section-rotation drift had dropped its TODO row (surfaced during the 1.19.8 close-out).
 
-### 3.103 Widen the decision-log deferral-trigger keyword set (#1049 validate-pr NOTE, 2026-07-19, XS) `[machinery]`
-
-The [`block-unjustified-decision.py`](.claude/hooks/block-unjustified-decision.py) hook checks for a forbidden internal-state justification ONLY when the added log text also contains a deferral/hold keyword from a narrow set (`blocked` / `defer` / `wind down` / `wind-down` / `skip`). The scoping is correct (an internal-state phrase only matters as a justification FOR a deferral, not in an ACT entry, per the #1049 validate-pr auditor NOTE), but the trigger SET is narrow: a deferral phrased with a synonym outside the set (`hold off`, `postpone`, `punt`, `park`, `back-burner`, `sit on`, `leave for later`, `do it later`, `push to`) would not trip the forbidden-phrase check, so an internal-state-justified deferral phrased around the five keywords escapes the gate. Widen the deferral-trigger keyword set (and correspondingly the mirrored `_DL_FORBIDDEN` gate in `grc_library_private/tools/validate.py`, keeping the two in exact parity per their shared contract) to cover the common deferral synonyms; add a hook self-test case for a synonym-phrased deferral carrying a forbidden phrase. Cross-repo (public hook + `_private` validate check); XS; keep the two in lock-step (the parity is the point).
-
 ## Priority 4 — Adopter experience
 
 **Next item number: 4.31.**
