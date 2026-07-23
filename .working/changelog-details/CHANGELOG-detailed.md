@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.563, PR #1075
+
+Teaches the CHANGELOG link gates to recognize web-template file types per TODO §3.77. Tooling only; a detection-logic widening of an existing gate (no new gate, no four-surface / count ripple).
+
+### Changed
+- **[`tools/lint-changelog-link-coverage.py`](../../tools/lint-changelog-link-coverage.py)** (the gate) and **[`tools/preflight-changelog.py`](../../tools/preflight-changelog.py)** (its pre-commit aid): `.html`, `.css`, and `.js` added to the shared `FILE_EXTENSIONS` tuple, kept in step across both files (the aid's tuple is mirrored from the gate's). A bare backtick web-template path (for example an `.html` template under the `.web/templates/` directory) in a CHANGELOG line is now recognized as path-shaped and therefore link-required, closing the gap where a website PR's template reference could ship unlinked (the #950 `/validate-pr` catch, fixed by hand in #951).
+- A regression fixture in [`tests/test_linters.py`](../../tests/test_linters.py) (`ChangelogLinkCoverageTests`): a detect case (an unlinked `.html` path fails) and a clean case (a linked `.html` path passes).
+
+### Verification
+- The two new fixtures pass; the full linter-regression suite and all 73 audit gates pass. The widened gate run against the live root [`CHANGELOG.md`](../../CHANGELOG.md) returns clean (the re-scan the worker candidate confirmed: zero `.html`/`.css`/`.js` tokens in the root changelog or the detailed mirror, so no reference is newly flagged and no accompanying changelog edit was needed).
+- Verified directly by the orchestrator (a 3-line FP-safe symmetric tuple widening with the worker's empirical sandbox proof); no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded candidate (worker-b), applied by the orchestrator: the two tool edits plus the fixture, no CHANGELOG edit needed. Both `FILE_EXTENSIONS` tuples changed together (the aid mirrors the gate; applying only one would drift the aid from the gate). Batched PR #1074's `/validate-pr` plus `/retro` rows. Library 2026.07.562 to 2026.07.563.
+
 ## 2026-07-23, Library Version 2026.07.562, PR #1074
 
 Adds gate 73 (COBIT objective title-text) per TODO §1.16 and normalizes the corpus to the canonical COBIT 2019 objective titles, guard-first (the gate and its backfill land together so the corpus is clean when the gate goes live). Maintainer-confirmed 2026-07-17: normalize to the past-participle form; the imperative is not a house paraphrase.

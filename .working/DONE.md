@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.77: CHANGELOG link gates recognize web-template file types (2026-07-23, PR #1075)
+Widened the `FILE_EXTENSIONS` tuple in both `tools/lint-changelog-link-coverage.py` (the gate) and `tools/preflight-changelog.py` (its pre-commit aid) to add `.html`/`.css`/`.js`, so a bare backtick web-template path in a CHANGELOG line is now link-required, plus a regression fixture (a detect case + a linked-clean case). FP-safe detection widening (no gate-count/four-surface ripple); the live CHANGELOG re-scan was already clean, so no accompanying edits. Offloaded draft (worker-b).
+
 ### TODO §1.16: COBIT objective title normalization + title-text gate (2026-07-23, PR #1074)
 Added gate 73 (`tools/lint-cobit-title-text.py`), a precision-first COBIT 2019 objective title-text audit that validates each code-plus-title carrier against the canonical `COBIT_OBJECTIVES` titles (complementing gate 61's code-existence check), landed GUARD-FIRST: the gate + its four-surface wiring + regression fixture shipped together with the one-time backfill of 41 non-canonical imperative "Manage X" titles to the canonical past-participle "Managed/Ensured X" form across 32 corpus documents (each Version+Date co-bumped, taxonomy/scorecard regenerated). The 72->73 gate-count migration and the guardrail-review r12 cadence reset (0 genuine findings) ride in the same PR. The authoritative recount was 41/32 (the gate caught 2 carriers the manual re-derive missed), above the TODO's 35/28 estimate.
 
