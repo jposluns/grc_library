@@ -3139,6 +3139,33 @@ class ChangelogLinkCoverageTests(LinterTestCase):
         result = run_linter("tools/lint-changelog-link-coverage.py", fixture)
         self.assertLinterFails(result, "unlinked-file-ref")
 
+    def test_unlinked_html_reference_flagged(self) -> None:
+        # TODO section 3.77: a bare web-template path (.html/.css/.js) must be
+        # link-required once FILE_EXTENSIONS is widened.
+        fixture = self.make_fixture(
+            "fake-changelog-web.md",
+            (
+                "# Changelog\n\n"
+                "## Phase test\n\n"
+                "Ships `docs/site/index.html` without a link.\n"
+            ),
+        )
+        result = run_linter("tools/lint-changelog-link-coverage.py", fixture)
+        self.assertLinterFails(result, "unlinked-file-ref")
+
+    def test_linked_html_reference_clean(self) -> None:
+        # A linked web-template path passes (the clean counterpart).
+        fixture = self.make_fixture(
+            "fake-changelog-web-ok.md",
+            (
+                "# Changelog\n\n"
+                "## Phase test\n\n"
+                "Ships [`docs/site/index.html`](docs/site/index.html) as a link.\n"
+            ),
+        )
+        result = run_linter("tools/lint-changelog-link-coverage.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + "\n" + result.stderr)
+
 
 class ReviewCadenceTests(LinterTestCase):
     """tools/check-review-cadence.py
