@@ -8223,5 +8223,34 @@ class BacklogActionabilityTests(unittest.TestCase):
         self.assertEqual(rows[0][2], [])
 
 
+class HookToolItemCountParityTests(unittest.TestCase):
+    """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)
+    and the audit tool's (audit-backlog-actionability.py) must count the SAME open-item
+    set: guardrail layers 1 and 2 are a coordinated pair, and if they drift the hook's
+    count-equality check becomes meaningless. Asserts they agree on the live TODO.md, so
+    a regex divergence is caught mechanically rather than silently."""
+
+    def _load(self, name, rel):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(name, REPO_ROOT / rel)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_hook_and_tool_count_agree_on_live_todo(self):
+        todo = REPO_ROOT / "TODO.md"
+        if not todo.is_file():
+            self.skipTest("no TODO.md (portable clone)")
+        hook = self._load("_hook_parity", ".claude/hooks/block-unjustified-decision.py")
+        tool = self._load("_tool_parity", "tools/audit-backlog-actionability.py")
+        hook_n = hook._todo_item_count(str(REPO_ROOT))
+        rows, _, _ = tool.build_report(todo.read_text(encoding="utf-8"))
+        self.assertEqual(
+            hook_n, len(rows),
+            f"hook count {hook_n} != tool count {len(rows)}: the two ITEM_HEADING_RE "
+            f"have drifted; re-align them (guardrail layers 1 and 2 are a pair).")
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
