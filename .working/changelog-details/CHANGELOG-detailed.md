@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.579, PR #1091
+
+Closes TODO §3.39 (a decided item) and records a maintainer decision. No corpus or gate change.
+
+### Added
+- **[dependabot.yml](../../.github/dependabot.yml)** (new): a Dependabot config for the `github-actions` ecosystem (weekly, `open-pull-requests-limit: 5`), so the two SHA-pinned actions in the CI workflow (checkout, setup-python) get low-noise auto-update PRs that refresh the pinned SHA and its `# vN` comment together, closing the R9 (#767) stale-pin gap. Decided in pending-decisions ("ADD the config"). CI automation only, not a corpus document (no metadata, no Version/Date, no taxonomy regen, no gate, no four-surface implication).
+
+### Changed
+- **TODO §3.39 to DONE**, and the stale `MEG-34` Maintainer-or-Egress-Gated index row (which pointed at §3.39 as a pending maintainer-decision) removed, since the decision is now made.
+- **[pending-decisions.md](../pending-decisions.md)**: records the maintainer's TODO-restructure decision, option B (the §3.47 provenance-strip: keep TODO one public file, strip the internal date / PR / sweep / maintainer-directed provenance, keep the actionable content and the blocker reasons), NOT the full public/`_private` split (A / C); the next-prs queue stays public for consistency. Recorded so the question is not re-asked (decisions-search indexed).
+
+### Why
+§3.39 closes the R9 SHA-pin stale-drift gap with the maintainer's decided mechanism. The B-decision keeps the guardrail-tool coupling and the paired-surface sync burden at zero (one public file), which is why B was recommended over the full split.
+
+### Verification
+- No corpus / gate / version-surface change beyond the routine library bump; the Dependabot config is not scanned by any corpus gate; the pre-push guard (full suite plus PR-time checks) passes. A quick-fix / bookkeeping-tier PR (a decided config plus a rotation plus a decision record), so no standing verifier. Batches PR #1090's `/validate-pr` (CLEAN, closing the guardrail cluster) plus `/retro` rows.
+
+### Discipline observation
+Offloaded draft (worker-a). §3.47 (the TODO provenance-strip that B chose) remains a careful attended single-file item in the backlog. Library 2026.07.578 to 2026.07.579.
+
 ## 2026-07-23, Library Version 2026.07.578, PR #1090
 
 Guardrail layers 3-4, completing the anti-false-completeness stack (layer 1 the enumeration tool in #1088, layer 2 the count-match hook in #1089). No corpus or gate change; a rule-prose addition (both trees) plus a CLAUDE.md convention plus the pack version bump.

@@ -194,10 +194,6 @@ The detailed-CHANGELOG `**Worker provenance:**` lines link the scratch-side mani
 
 Work the 13 `pending` EDPB / WP29 rows in the reference base's `publications/SCREENING.md` register through `/screen-publications` (per-item screen: provenance + integrity, the instruction-content scan, corroboration of load-bearing claims against held texts), flipping each to `screened` (or `quarantined` / `discard-candidate`), recorded as `grc_library_ref` PRs through the ref validation gate. Partitionable worker research (apply through validate-then-apply). Cross-references §3.18 (the inclusion decision follows this wave).
 
-### 3.39 Dependabot refresh-companion for the SHA-pinned CI actions (R9 follow-on, maintainer decision, XS)
-
-R9 (#767) SHA-pinned the two GitHub actions in [`.github/workflows/quality.yml`](.github/workflows/quality.yml) (`actions/checkout`, `actions/setup-python`) to exact commits with `# v4` / `# v5` comments. SHA-pins do not auto-update, so without a refresh mechanism they go stale and miss upstream security patches. Decide the refresh approach: add a `.github/dependabot.yml` for the `github-actions` ecosystem (weekly/monthly; keeps the SHA-pins current with low-noise PRs on a two-action docs repo) OR accept manual periodic bumps. Maintainer-owned because it adds repo automation (Dependabot PRs). Low urgency (the lint CI is read-only, `permissions: contents: read`, so the stale-pin blast radius is small). Surfaced building R9 2026-07-10.
-
 ### 3.31 `/reference-audit` per-touch staleness backstop (r6 guardrails, M, M; DEFERRED)
 
 The gate-50-analogue for the per-touch reference-breadth obligation the [`.claude/CLAUDE.md`](.claude/CLAUDE.md) close-out checklist added (a corpus-body-touching PR runs the per-touch tool and refreshes [`.working/reference-audit/doc-state.md`](.working/reference-audit/doc-state.md)). Nothing detects a body-touching PR that omits the per-touch run or the state refresh (the class gate 50 backstops for `/validate-pr` rows). Proposed: a PR-time delta check (a Dn) failing when a PR's diff touches a corpus-domain `.md` body without a matching `doc-state.md` row update or a recorded empty-set note. **DEFERRED (maintainer 2026-07-08) until AFTER the first FULL `/reference-audit` run** establishes the `doc-state.md` delta-anchor baseline (building the hard D8 gate before the baseline exists would fire on the next corpus-body PR). Sequencing: first FULL `/reference-audit` run (populates `doc-state.md`), THEN build this D8. Convention-guarded meanwhile.
@@ -614,7 +610,6 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 | MEG-31 | §3.3 | Removal-ledger review cadence (standing). |
 | MEG-32 | §3.6 | Register-ageing advisory (needs a classifier / register-format decision). |
 | MEG-33 | §3.7 | Expiry-tail batch review (maintainer dispositions). |
-| MEG-34 | §3.39 | Dependabot refresh-companion (repo automation; maintainer-owned). |
 | MEG-35 | §3.54 | `doc_type` back-fill in `_ref` (explicitly NOT automated; ~20 questions + iterated sign-off). |
 | MEG-36 | §3.62 (G1) | Branch-to-main edit-guard hook (build or keep convention). |
 | MEG-37 | §3.66 | DA-ASVS generic ASVS citations (per-row decision; dual-tree + gate-37). |
