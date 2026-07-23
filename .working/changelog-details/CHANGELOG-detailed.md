@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+**Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
+
+## 2026-07-23, Library Version 2026.07.589, PR #1103
+
+Closes two maintainer-decided P3 backlog items, both batch-answered at the Task-1-complete boundary (each took the recommended option). Working-state and pack-tooling bookkeeping only; no corpus, gate, or rule change.
+
+### Changed
+- This detailed-mirror file's header (item 3.19): records the worker-provenance convention, a reference to a scratch-side worker result or manifest is written as plain backticked `repo:path` text, never a cross-repo markdown link (which resolves only against a fresh sibling checkout at `main` and is un-gate-checkable).
+- [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) (item 3.19): the link-resolution-exclusion comment's stale "per TODO 3.19" pointer reworded to the decided convention, since the item is now closed.
+- [`TODO.md`](../../TODO.md): items 3.19 and 3.32 deleted (closed); [`pending-decisions.md`](../pending-decisions.md) resolves both entries and corrects its blocked-count from three to one.
+
+### Why
+- Item 3.19: the fragile cross-repo worker-provenance link had no live instances left (the current-week detailed-mirror model swept the old ones and current practice already used plain text), so the decision fixes the durable convention and clears the stale tool-docstring pointer.
+- Item 3.32: the mechanical count-vs-enumeration advisory was built and full-history-census-vetoed (63 candidates, zero true positives, not FP-separable) and discarded; the maintainer confirmed the close, so the corpus rests on the existing recount discipline.
+
+### Verification
+- Repo-wide grep for live `3.19` / `3.32` citers (excluding frozen `.working/` plus CHANGELOG history): the only live hit was the [`tools/preflight-changelog.py`](../../tools/preflight-changelog.py) docstring pointer, now reworded; the README `1.53.19` hit is a version-number substring, not a section reference.
+- Full pre-push guard green; a bookkeeping-tier change, so no standing skeptical verifier (per the tiered verification standard).
+- PR #1102's offloaded `/validate-pr` (CLEAN PASS, 0 blocking, worker-b) consumed and its row recorded.
+
 ## 2026-07-23, Library Version 2026.07.588, PR #1102
 
 Closes the Task-1 pack reconciliation, backlog item 3.104, by landing its remaining parts in both pack trees under gate-37 lockstep. GAP-2 already shipped as the fourteenth rule in #1101; this PR lands GAP-1 (a clause), F1 (a genericization), and part (d) (the portable pack-parity-coupling clause), and declines F2 with reasoning. The item's FUTURE pack-doc tail (blocked on P1 items 1.14/1.18) was migrated to those items and is covered standing by the new coupling convention, so 3.104 closes.
