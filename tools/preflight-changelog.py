@@ -25,6 +25,13 @@ additions to the root [`CHANGELOG.md`] or its detailed mirror
     ``http(s)``/``mailto:``/anchor targets, and code-span-illustrative links
     are excluded; resolution is relative to the source file's own directory.
 
+In addition to the added-line checks above, a FULL-MIRROR link-resolution pass
+(TODO 3.34 remaining half) scans EVERY in-repo relative markdown link in the
+whole detailed mirror (not only added lines), reusing the identical resolution
+and exclusion rules, and fails on any dangling target with its line number. This
+catches a link that went dangling by a later move of its TARGET, which the
+added-line pass (source line unchanged) cannot see. It runs unconditionally.
+
 This is a developer AID, not a new audit gate. The authoritative gates
 (D3, gate 51, the link-coverage gate) remain and run in CI and
 ``run_all_audits.sh`` / ``run-pr-time-checks.sh``; this aid only moves their
@@ -180,12 +187,17 @@ MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 CROSS_REPO_MARKERS = ("grc_library_ref", "grc_library_scratch", "/inbox/")
 
 
-def unresolved_link_targets(source_rel_path: str, line: str) -> list[str]:
+def unresolved_link_targets(
+    source_rel_path: str, line: str, root: Path = REPO_ROOT
+) -> list[str]:
     """Return in-repo relative markdown-link targets on ``line`` that do NOT
-    resolve to an existing file (see the block comment above for exclusions)."""
+    resolve to an existing file (see the block comment above for exclusions).
+    ``root`` is the repository root (default ``REPO_ROOT``); it is a parameter so
+    the full-mirror scan (TODO 3.34) can reuse this identical resolution against
+    a test root without a divergent reimplementation."""
     findings: list[str] = []
     stripped = CODE_SPAN_RE.sub("", line)  # drop code-span-illustrative links
-    source_dir = (REPO_ROOT / source_rel_path).parent
+    source_dir = (root / source_rel_path).parent
     for match in MD_LINK_RE.finditer(stripped):
         base = match.group(1).split("#", 1)[0].strip()
         if not base or base.startswith(("http://", "https://", "mailto:")):
@@ -194,11 +206,44 @@ def unresolved_link_targets(source_rel_path: str, line: str) -> list[str]:
             continue
         resolved = (source_dir / base).resolve()
         try:
-            resolved.relative_to(REPO_ROOT)
+            resolved.relative_to(root)
         except ValueError:
             continue  # resolves outside this repo: treated as cross-repo
         if not resolved.exists():
             findings.append(base)
+    return findings
+
+
+# --- Full-mirror link-resolution scan (TODO 3.34 remaining half) ---
+# The added-line check above catches a NEW dangling link before commit, but a
+# link that went dangling by a later move of its TARGET (the source line
+# unchanged) is invisible to it. This full-mirror pass scans EVERY in-repo
+# relative markdown link in the whole detailed mirror, reusing the identical
+# resolution + exclusion rules of unresolved_link_targets line-by-line. It runs
+# unconditionally (the mirror is currently clean at 0 dangling of 142 links, so
+# default-on adds no noise; the tradeoff is that it re-reads the whole mirror
+# each run, negligible for a single file). Known limitation inherited from the
+# per-line resolver: a link inside a FENCED code block is not skipped (the
+# resolver only strips single-backtick code spans); there are 0 fenced-block
+# links in the mirror today, so no false positive arises. If a future
+# fenced-block illustrative link appears, add ```-fence tracking here.
+DETAILED_MIRROR_REL = ".working/changelog-details/CHANGELOG-detailed.md"
+
+
+def unresolved_links_in_mirror(root: Path = REPO_ROOT) -> list[tuple[int, str, str]]:
+    """Every in-repo relative markdown-link target in the WHOLE detailed mirror
+    that does NOT resolve. Returns ``(line_no, target, line_text)`` per dangling
+    link. Reuses ``unresolved_link_targets`` (same rules); takes ``root`` so it is
+    unit-testable against a temp mirror. Returns [] if the mirror is absent."""
+    mirror = root / DETAILED_MIRROR_REL
+    if not mirror.is_file():
+        return []
+    findings: list[tuple[int, str, str]] = []
+    for lineno, line in enumerate(
+        mirror.read_text(encoding="utf-8").splitlines(), start=1
+    ):
+        for target in unresolved_link_targets(DETAILED_MIRROR_REL, line, root=root):
+            findings.append((lineno, target, line.strip()))
     return findings
 
 
@@ -251,10 +296,26 @@ def main(argv: list[str]) -> int:
             findings.append((path, "em/en dash in prose", text.strip()))
         for ref in unlinked_refs_in_line(text):
             findings.append((path, f"unlinked file reference `{ref}`", text.strip()))
-        for tgt in unresolved_link_targets(path, text):
-            findings.append(
-                (path, f"dangling markdown-link target `{tgt}`", text.strip())
+        # Resolution on the ROOT changelog only: the detailed mirror is covered
+        # in full by the full-mirror pass below (which also catches a link that
+        # went dangling by a later move of its target), so resolving the mirror
+        # here too would double-report a newly-added mirror dangling link.
+        if path != DETAILED_MIRROR_REL:
+            for tgt in unresolved_link_targets(path, text):
+                findings.append(
+                    (path, f"dangling markdown-link target `{tgt}`", text.strip())
+                )
+
+    # Full-mirror scan (TODO 3.34 remaining half): catch a link that went
+    # dangling by a later move of its target, which the added-line pass misses.
+    for lineno, tgt, evidence in unresolved_links_in_mirror():
+        findings.append(
+            (
+                DETAILED_MIRROR_REL,
+                f"dangling markdown-link target `{tgt}` (full-mirror scan, line {lineno})",
+                evidence,
             )
+        )
 
     if not findings:
         scope = "staged" if args.staged else "working-tree"

@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.34: detailed-mirror full-link-resolution scan (2026-07-23, PR #1084)
+Closed §3.34's remaining half: `tools/preflight-changelog.py` now runs an always-on full-mirror in-repo link-RESOLUTION scan over the whole `.working/changelog-details/CHANGELOG-detailed.md` (not only added lines), reusing the #934 added-line resolver via a backward-compatible `root` parameter, so a link that goes dangling by a later move of its TARGET is caught pre-commit. The historical-dangling half was moot (the mirror measured 0/142 dangling, the ~23 from the 2026-07-10 census having been swept out by the current-week sweep). Two new tests (detect + clean); no gate-parity surfaces (preflight is a pre-commit aid, not a CI gate). Offloaded draft (worker-a); skeptical verifier pre-push.
+
 ### TODO §3.86: CCPA $25M dollar-threshold CPI-adjustment caveat (2026-07-23, PR #1083)
 Added a source-grounded "as periodically adjusted for inflation" caveat to the single corpus CCPA $25M carrier (`privacy/jurisdictions/annex-privacy-united-states.md`, the §7120(b) cybersecurity-audit trigger), scoped to the $25M MONETARY threshold ONLY, per Cal. Civ. Code §1798.199.95(d)(1), which CPI-adjusts the monetary thresholds (incl. §1798.140(d)(1)(A)) but NOT the 250,000/50,000 record counts (both verified at the held statute lines 256/902 and the CPPA reg §7120(b)). Offloaded source-grounded census (worker-a) found exactly one carrier, not the broad sweep the item anticipated; the Canada (CAD) and Switzerland (CHF) dollar figures were correctly excluded (different regimes). Base figure unchanged; the caveat adds precision only. Skeptical verifier SHIP (held-source confirmed).
 
