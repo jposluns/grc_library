@@ -10,5 +10,5 @@
 # includes `.working/` and full git history; true clone/history cleanliness is
 # a separate history-rewrite step. Adopters may also simply delete `.working/`
 # after cloning (the fork convention documented in the root CHANGELOG preamble
-# and the change-tracking governance rule). See TODO 3.19.
+# and the change-tracking governance rule).
 .working/ export-ignore

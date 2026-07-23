@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-23, Library Version 2026.07.590, PR #1104
+
+Ships PR-1 of 2 for the change-impact surface map (TODO §1.18; scope and the two-PR split maintainer-signed-off 2026-07-23). This is the convention/doc half; PR-2 is the FP-safe pack-README rule-scope-table gate, built guard-first. Offloaded draft-seed (worker-b, `research-1.18-pr1-changeimpact`); the orchestrator re-verified every inventoried surface at source (the pack-page dual-occurrence, the website count surfaces, the gate-64 coverage) and authored the final prose and integration.
+
+### Added
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a `## Change-impact surface map` section, a table of change-types A (gate) / B (pack rule) / C (skill) / D (count) each splitting GATED surfaces (naming the covering gate: 35, 37, 39, 41, 44, 64, D6), drift-prone FREE-PROSE surfaces, and the WEBSITE surface; plus a change-impact-completeness close-out bullet in the PR close-out checklist that makes the `grclibrary.ai` website a first-class paired surface, identified early and updated in the SAME PR (decision Q2), with the pack-page dual-occurrence (each rule and skill linked twice, the sidenav AND a body list entry) called out as the most error-prone detail.
+- [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md) (both trees): a root-entry length-ceiling clause, the D8 pilot, generalizing the project's D8 CHANGELOG-length gate into the portable discipline (the root summary carries a length ceiling; detail belongs in the detailed mirror or git history, not spilled into the scannable root file).
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the audit-gate-completeness close-out bullet reconciled, its stale "no parity gate inspects the §6 detailed-prose" claim corrected (gate 64 now covers the §6 detailed-prose presence; the §5 grouped-list and the per-gate narrative remain the ungated residuals) and linked as the type-A row of the new map.
+- [`.gitattributes`](../../.gitattributes): dropped a stale `See TODO 3.19` pointer (the #1103 validate-pr LOW finding; §3.19 is closed and the clone-cleanliness convention's real home, the CHANGELOG preamble plus the change-tracking rule, is already named in the same sentence).
+- Pack README `Version` 1.63.1 to 1.63.2 (D6, patch) plus a version-history row.
+- Batched PR #1103's validation (PASS plus one LOW, fixed in-window here) and retrospective rows.
+
+### Why and decisions
+Scope signed off by the maintainer 2026-07-23: mechanize FP-safely and iterate (Q1); the website is a first-class surface identified early and updated concurrently, the gap flagged as significant (Q2); cross-reference the existing gates rather than subsume them (Q3=C); a two-PR split. PR-1 is the convention, the doc map, and the D8 pilot; PR-2 is the first FP-safe gate (the pack-README rule-scope table, which just demonstrably drifted, the 14th rule's row is missing, and is ungated by gate 41).
+
+### Verification
+- Gate 37 parity green (change-tracking both trees byte-identical above the overlay marker); language and fences clean on the new prose (the 25 language findings in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) are pre-existing em-dashes in gate-exempt sections, not this PR's additions); the load-bearing "no gate-count on the website" negative re-verified by grep.
+- Full pre-push guard green; a skeptical pre-push verifier run on the diff.
+- PR #1103's offloaded `/validate-pr` (PASS, one LOW fixed in-window) consumed; its row recorded.
+
 ## 2026-07-23, Library Version 2026.07.589, PR #1103
 
 Closes two maintainer-decided P3 backlog items, both batch-answered at the Task-1-complete boundary (each took the recommended option). Working-state and pack-tooling bookkeeping only; no corpus, gate, or rule change.
