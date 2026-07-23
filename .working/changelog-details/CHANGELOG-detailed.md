@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.569, PR #1081
+
+Widens the decision-log deferral-trigger keyword set per TODO §3.103. Machinery (a hook + its cross-repo mirror + a self-test + a stale-pointer fix); no corpus, gate, or version-corpus-doc change. Cross-repo, orchestrator-only (workers cannot read or write `_private`).
+
+### Changed
+- **[`.claude/hooks/block-unjustified-decision.py`](../../.claude/hooks/block-unjustified-decision.py)**: the deferral/hold keyword tuple that gates the forbidden-internal-state-justification check was widened from the original five (`blocked`, `defer`, `wind down`, `wind-down`, `skip`) to also cover the common synonyms (`hold off`, `postpone`, `punt`, `back-burner`, `sit on`, `leave for later`, `do it later`, `push to`, `park it`), so a deferral phrased around the original five no longer escapes the forbidden-phrase check (the #1049 validate-pr NOTE). `park it` (not bare `park`) is used to avoid a substring false match; the check is double-gated (a keyword AND a forbidden phrase must both be present), so the false-positive surface is minimal. A new `test_synonym_deferral_with_forbidden_blocked` self-test proves a synonym-phrased deferral carrying a forbidden phrase is caught (10 hook self-tests pass).
+- The mirrored `_private` decisions-log validate check (`grc_library_private`, direct-pushed separately) was widened to the IDENTICAL tuple, keeping the two in exact parity per their shared contract.
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)** `## Decision discipline`: the paragraph's stale forward pointer ("widening the deferral-marker set ... is TODO §3.103") was removed and replaced with a done-state description, and the old five-marker enumeration was updated to name the widened set with synonym examples (the §N-orphan cross-file cleanup for closing §3.103).
+
+### Verification
+- All 73 audit gates pass; the hook self-test suite passes 10/10 (including the new synonym case); `ast.parse` clean on both edited Python files; the `_private` validate run reports `validation OK`. Both the hook and the `_private` mirror carry the byte-identical widened tuple (parity confirmed). Per the #1080 discipline, the language and unbalanced-fence audits were run on the edited [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) (fences balanced; the added lines carry no new language findings).
+- Verified directly by the orchestrator (a small mechanical keyword-set widening kept in cross-repo parity); no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded investigation would not help here (the `_private` half is orchestrator-only), so the whole change is orchestrator-authored. The `_private` half was pushed directly to its repo in lock-step; a brief inter-repo parity skew during the grc_library PR window is harmless (both are independent defence-in-depth checks, neither depends on the other at runtime). Batched PR #1080's `/validate-pr` plus `/retro` rows. Library 2026.07.568 to 2026.07.569.
+
 ## 2026-07-23, Library Version 2026.07.568, PR #1080
 
 Closes the gate-66 (Unbalanced-fence audit) default-population shape gap per TODO §3.11. Documentation only (a close-out checklist clause in the project governance file); no gate-code, gate-count, or four-surface change.
