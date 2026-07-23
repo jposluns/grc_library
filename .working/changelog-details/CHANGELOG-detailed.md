@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.587, PR #1101
+
+Adds the fourteenth governance pack rule, [`decision-classification-before-enacting`](../../dev-security/claude-rules/governance/decision-classification-before-enacting.md), and wires it across every rule-enumeration and web surface plus the byte-identical local mirror. This is the GAP-2 portion of the Task-1 pack reconciliation (backlog item 3.104); GAP-1, the F1/F2 genericization, and the portable pack-parity-coupling clause remain for a second PR, so 3.104 stays open. A machinery addition, so the guardrail-review cadence auto-prompts (gate 60 drift = 1, below its threshold of 3, so it warns rather than blocks the merge); the `/guardrails` review is offloaded to a worker against merged `main` and its history row batches into the next PR, the same post-merge pattern the offloaded `/validate-pr` rows follow.
+
+### Added
+- [`dev-security/claude-rules/governance/decision-classification-before-enacting.md`](../../dev-security/claude-rules/governance/decision-classification-before-enacting.md): the new standalone pack rule. Every point where authorized work is about to NOT happen is classified as exactly one of ACT (the default, do it), ASK (a specific named question while the maintainer is reachable), or BLOCKED (by a named, externally-observable blocker from a closed set: `maintainer-decision-unreachable`, `irreversible-needs-confirmation`, `failing-check`, `source-unavailable`, `maintainer-directed-hold`); the classification is written to the decision log BEFORE the decision is enacted. Un-instrumented internal state is never a valid basis for a hold.
+- [`.claude/rules/governance/decision-classification-before-enacting.md`](../../.claude/rules/governance/decision-classification-before-enacting.md): the local mirror, byte-identical to the pack source plus one trailing PROJECT-OVERLAY block naming the project wiring (the decision log, the [`block-unjustified-decision.py`](../../.claude/hooks/block-unjustified-decision.py) hook, and [`tools/audit-backlog-actionability.py`](../../tools/audit-backlog-actionability.py)).
+- A provenance entry for the rule in [`dev-security/claude-rules/rule-provenance.md`](../../dev-security/claude-rules/rule-provenance.md).
+
+### Changed
+- Enumeration surfaces updated to list the fourteenth rule (gate 41 checks three of them): the [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) directory tree, the pack [`dev-security/claude-rules/CLAUDE.md`](../../dev-security/claude-rules/CLAUDE.md) governance list and rollout narrative, and the project [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) security-and-governance index.
+- [`tools/lint-claude-rules-sync.py`](../../tools/lint-claude-rules-sync.py) MIRROR_MAP gains the new pair (gate 37).
+- [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py) docstring: "thirteen" to "fourteen" governance rules.
+- Pack [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) Version 1.62.7 to 1.63.0 (minor; new rule) plus a version-history row.
+- Web surfaces: the pack and landing templates' rule count "13" to "14", and the pack page's sidenav and section-03 rule list gain the new entry.
+- Stale rule-count carriers corrected: the [`TODO.md`](../../TODO.md) §480 skill-distillation-source count ("thirteen" to "fourteen") and a test-comment canonical count in the linter regression suite.
+- Batched PR #1100's post-merge validation and retrospective rows.
+
+### Why
+The write-before-enact rubric and the closed, externally-observable blocker vocabulary had accreted across three existing rules (`action-before-explanation-of-inaction`, `clarify-before-acting`, `evidence-grounded-completion`) and the project hooks, but were owned in full by none. A recurring failure the maintainer named directly (deferring authorized work on un-instrumented internal-state grounds instead of acting or asking) is best foreclosed by one rule that names the discipline. The maintainer chose a new standalone rule over folding the clause into an existing rule, on the principle that adjusting content is never a justification for a sub-optimal home.
+
+### Verification
+- New pack prose linted before first commit: [`tools/lint-language.py`](../../tools/lint-language.py) and [`tools/lint-unbalanced-fences.py`](../../tools/lint-unbalanced-fences.py) on the explicit new-rule and edited-prose paths, both clean.
+- Gate 37 (claude-rules-sync) green standalone: 18 local copies in sync, every local file mapped; pack and mirror byte-identical above the overlay marker.
+- The full pre-push guard (`run_all_audits.sh` plus the PR-time delta checks) and a skeptical pre-push verifier were run before push; the verifier found three GAP-1 forward-reference leaks plus one fabricated version-history clause, all validated at source, fixed, and re-verified clean. The auto-prompted `/guardrails` cadence review is offloaded post-merge with its row batched into the next PR.
+
 ## 2026-07-23, Library Version 2026.07.586, PR #1100
 
 Authors the two maintainer-confirmed Priority-2 umbrella series (and the associated P4 and Task-1 backlog items) into [TODO.md](../../TODO.md). Recording/authoring only: no corpus document, gate, pack rule, or version-bearing artefact changed; nothing is executed. Uses the series-consolidation redirect-stub pattern (from #1099) to fold three existing P2 items into series children without reassigning any number.
