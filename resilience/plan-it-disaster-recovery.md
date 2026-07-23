@@ -2,8 +2,8 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.3.4\
-**Date:** 2026-07-02\
+**Version:** 1.3.5\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/plan-business-continuity-and-crisis-management.md`](plan-business-continuity-and-crisis-management.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -136,7 +136,7 @@ A ransomware incident resulted in approximately a 30-day recovery window. Key le
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 22301:2019 | Business Continuity Management Systems | DR governance and testing |
-| COBIT 2019 | DSS04: Manage Continuity | IT continuity management |
+| COBIT 2019 | DSS04: Managed Continuity | IT continuity management |
 | NIST SP 800-34r1 | Contingency Planning Guide for Federal Information Systems | DR plan structure |
 | CSA CCM v4.1 | BCR-01 through BCR-07: Business Continuity and Resilience | Cloud resilience controls |
 

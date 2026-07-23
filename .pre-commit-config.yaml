@@ -519,3 +519,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-cobit-title-text
+        name: COBIT objective title-text audit
+        entry: python3 tools/lint-cobit-title-text.py
+        language: system
+        pass_filenames: false
+        always_run: true

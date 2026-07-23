@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-07-17\
+**Version:** 1.0.6\
+**Date:** 2026-07-23\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -301,14 +301,14 @@ Applies to any AI or ML system in production. See [`ai/standard-ai-security-and-
 
 | COBIT Process | Description | Status | Lead Role | Notes |
 | --- | --- | --- | --- | --- |
-| APO01 | Managed IT Management Framework | | | |
+| APO01 | Managed I&T Management Framework | | | |
 | APO06 | Managed Budget and Costs | | | |
 | APO12 | Managed Risk | | | |
 | APO13 | Managed Security | | | |
 | APO14 | Managed Data | | | |
 | BAI03 | Managed Solutions Identification and Build | | | |
 | BAI06 | Managed IT Changes | | | |
-| BAI07 | Managed IT Change Acceptance | | | |
+| BAI07 | Managed IT Change Acceptance and Transitioning | | | |
 | BAI09 | Managed Assets | | | |
 | DSS02 | Managed Service Requests and Incidents | | | |
 | DSS04 | Managed Continuity | | | |

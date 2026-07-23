@@ -168,6 +168,7 @@ run_gate "Positional backlog-token audit"                 python3 tools/lint-pos
 run_gate "Sibling-repo stub-guard audit"                  python3 tools/lint-sibling-placeholders.py
 run_gate "Stdlib-only import audit"                       python3 tools/lint-stdlib-only-imports.py
 run_gate "Citation-currency-cadence audit"                python3 tools/lint-citation-currency-cadence.py
+run_gate "COBIT objective title-text audit"               python3 tools/lint-cobit-title-text.py
 
 # ----------------------------------------------------------------------
 # Summary

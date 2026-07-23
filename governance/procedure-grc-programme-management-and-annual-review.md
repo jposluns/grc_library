@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Programme Management and Annual Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-07-07\
+**Version:** 1.0.9\
+**Date:** 2026-07-23\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`dev-security/register-compliance-controls-and-gap-register.md`](../dev-security/register-compliance-controls-and-gap-register.md)\
@@ -20,7 +20,7 @@
 
 This procedure governs the annual GRC programme management cycle. It defines how the GRC library is reviewed, updated, version-controlled, reported on, and presented to the Enterprise Risk Committee (ERC). It establishes the cadence and accountability framework for annual governance reviews, quarterly reporting, policy owner attestation, control testing scheduling, risk treatment status updates, and ERC reporting.
 
-This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27001:2022 §9.3 (Management review), ISO 31000:2018 §6.6 (Monitoring and review), and COBIT 2019 APO01 (Managed IT Management Framework).
+This procedure aligns to ISO 37301:2021 §9 (Performance evaluation), ISO/IEC 27001:2022 §9.3 (Management review), ISO 31000:2018 §6.6 (Monitoring and review), and COBIT 2019 APO01 (Managed I&T Management Framework).
 
 ---
 
@@ -332,7 +332,7 @@ Each quarterly report must include the following:
 | ISO/IEC 27001:2022 | §10.2 Continual improvement | CAPA process integration; triggered reviews; version control |
 | ISO 31000:2018 | §6.6 Monitoring and review | Risk register quarterly review; risk treatment status updates; residual risk acceptance |
 | ISO 31000:2018 | §6.5 Risk treatment | Treatment plan tracking and risk owner accountability |
-| COBIT 2019 | APO01 Managed IT Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
+| COBIT 2019 | APO01 Managed I&T Management Framework | Programme management governance, roles and responsibilities, document lifecycle |
 | COBIT 2019 | APO12 Managed Risk | Risk treatment status updates; ERC reporting; quarterly risk register reviews |
 | COBIT 2019 | APO14 Managed Data | Records retention requirements for attestation and deprovisioning evidence |
 | NIST CSF 2.0 | GV.OC (Organizational Context) | ERC governance reporting and programme scorecard |

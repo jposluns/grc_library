@@ -2,8 +2,8 @@
 
 **Document Title:** IT Security Operations Register\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/register-asset-inventory.md`](register-asset-inventory.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -144,7 +144,7 @@ Records any active "do not modify" or restricted-change constraints on productio
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | §9.1: Monitoring, Measurement, Analysis and Evaluation | Operational security monitoring |
 | NIST SP 800-53 | CA-7: Continuous Monitoring | Continuous operational assurance |
-| COBIT 2019 | DSS05: Manage Security Services | Security operations governance |
+| COBIT 2019 | DSS05: Managed Security Services | Security operations governance |
 | CSA CCM v4.1 | SEF: Security Engineering and Development | Cloud security operations |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.7\
-**Date:** 2026-07-18\
+**Version:** 1.2.8\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
@@ -93,7 +93,7 @@ Any incident where escalation did not occur within the required timeline must be
 | --- | --- | --- |
 | ISO/IEC 27035:2023 | Information Security Incident Management | Incident classification and escalation |
 | NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Escalation and notification guidance |
-| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident management governance |
+| COBIT 2019 | DSS02: Managed Service Requests and Incidents | Incident management governance |
 | CSA CCM v4.1 | SEF-07: Incident Management and Response | Cloud incident escalation |
 
 ---

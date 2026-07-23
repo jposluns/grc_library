@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.9\
-**Date:** 2026-07-14\
+**Version:** 1.0.10\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -160,8 +160,8 @@ It incorporates forward-looking controls for AI-generated code verification and 
 | ISO/IEC 27002:2022 | Application security controls | Secure coding and testing controls |
 | NIST SSDF | Secure Software Development Framework | Secure development lifecycle |
 | OWASP ASVS v5 | Application Security Verification Standard | Secure coding requirements |
-| COBIT 2019 | BAI03: Manage Solutions Identification and Build | Solution design and build |
-| COBIT 2019 | BAI07: Manage Change Acceptance and Transitioning | Release and deployment controls |
+| COBIT 2019 | BAI03: Managed Solutions Identification and Build | Solution design and build |
+| COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Release and deployment controls |
 | CSA CCM v4.1 | SEF: Software Engineering and Development | Software engineering and security controls |
 | EU AI Act | Annex IV | AI-generated code governance |
 

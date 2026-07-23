@@ -2,8 +2,8 @@
 
 **Document Title:** Architecture Review Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-23\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/standard-technology-radar.md`](standard-technology-radar.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -208,7 +208,7 @@ A block can only be issued for substantive reasons recorded in writing; the prop
 | OWASP SAMM | Design; Architecture Assessment | Software assurance maturity |
 | ISO/IEC 27001:2022 | A.5.8 Information security in project management | Information security cross-walk |
 | NIST CSF 2.0 | Govern function | Risk integration |
-| COBIT 2019 | APO03 Manage enterprise architecture | Governance of enterprise IT |
+| COBIT 2019 | APO03 Managed Enterprise Architecture | Governance of enterprise IT |
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.17\
-**Date:** 2026-07-10\
+**Version:** 1.4.18\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -179,7 +179,7 @@ Annual audits verify:
 |---|---|
 | ISO 15489:2016 | Records Management |
 | ISO/IEC 27701:2025 | Data Retention and Deletion (privacy information management system; section numbering changed in 2025 standalone revision) |
-| COBIT 2019 DSS01 | Manage Operations |
+| COBIT 2019 DSS01 | Managed Operations |
 | CSA CCM v4.1 DSP-16 | Data Retention and Deletion |
 | CSA CCM v4.1 DSP-02 | Secure Disposal |
 | ISO/IEC 42001:2023 §9 | AI Recordkeeping and Traceability |

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.17\
-**Date:** 2026-07-05\
+**Version:** 1.0.18\
+**Date:** 2026-07-23\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md)\
@@ -159,7 +159,7 @@ Records reaching the end of their retention period are destroyed per the Records
 | ISO/IEC 27001:2022 | Annex A.5.33: Protection of Records | Records protection and retention |
 | ISO/IEC 27002:2022 | §5.33 to 5.34 | Records management controls |
 | BASC International Standard v6 | Chapter 3: Document Retention | Trade record retention |
-| COBIT 2019 | APO14: Manage Data | Data governance and retention |
+| COBIT 2019 | APO14: Managed Data | Data governance and retention |
 
 ---
 

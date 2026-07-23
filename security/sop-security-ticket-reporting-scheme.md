@@ -2,8 +2,8 @@
 
 **Document Title:** Security Ticket Reporting Scheme\
 **Document Type:** SOP\
-**Version:** 1.1.2\
-**Date:** 2026-07-02\
+**Version:** 1.1.3\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Security Officer\
 **Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -92,7 +92,7 @@ The ticket must link to:
 | --- | --- | --- |
 | ISO/IEC 27035:2023 | Information Security Incident Management | Incident recording and reporting |
 | NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident documentation standards |
-| COBIT 2019 | DSS02: Manage Service Requests and Incidents | Incident tracking and reporting |
+| COBIT 2019 | DSS02: Managed Service Requests and Incidents | Incident tracking and reporting |
 
 ---
 

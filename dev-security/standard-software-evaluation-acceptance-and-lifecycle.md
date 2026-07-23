@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.6\
-**Date:** 2026-07-14\
+**Version:** 1.0.7\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -138,9 +138,9 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 | ISO/IEC 27001:2022 | Information Security Management | Security controls for software |
 | ISO/IEC 27002:2022 | Operations and Vulnerability Management | Software security controls |
 | ISO/IEC 25010 | System and Software Quality Models | Quality evaluation criteria |
-| COBIT 2019 | BAI03: Manage Solutions Identification and Build | Software evaluation and approval |
-| COBIT 2019 | BAI07: Manage Change Acceptance and Transitioning | Deployment and acceptance |
-| COBIT 2019 | BAI09: Manage Assets | Software asset management |
+| COBIT 2019 | BAI03: Managed Solutions Identification and Build | Software evaluation and approval |
+| COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Deployment and acceptance |
+| COBIT 2019 | BAI09: Managed Assets | Software asset management |
 | COBIT 2019 | DSS05 / DSS06 | Security and operational controls |
 | NIST SP 800-53 | SA, CM, SI Control Families | Software assurance controls |
 | CSA CCM v4.1 | AIS, SEF, TVM Domains | Cloud software security evaluation |
