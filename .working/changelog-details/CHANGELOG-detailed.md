@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
-## 2026-07-23, Library Version 2026.07.580, PR #1092
+## 2026-07-23, Library Version 2026.07.580, PR #1094
 
 Closes TODO §3.78 (maintainer-flagged P3 priority, 2026-07-15). Website template only; no corpus, gate, or version-bearing-document change.
 

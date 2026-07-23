@@ -11,7 +11,7 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
-### TODO §3.78: Website links each skill to its SKILL.md, not the bare directory (2026-07-23, PR #1092)
+### TODO §3.78: Website links each skill to its SKILL.md, not the bare directory (2026-07-23, PR #1094)
 On the public site's governance-pack page, the 23 skill links pointed at each skill's DIRECTORY (a bare listing); each now targets the skill's `SKILL.md` file directly, so a reader lands on the skill text. Website template only (`.web/templates/pack.html`); the 2 pack-root `/tree/` links are intentionally untouched, all 23 `SKILL.md` targets confirmed to exist, `.web/build.py --check` clean. Maintainer-flagged P3 priority (2026-07-15).
 
 ### TODO §3.39: Dependabot for the SHA-pinned CI actions (2026-07-23, PR #1091)
