@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.577, PR #1089
+
+Guardrail layer 2 (the mechanical teeth): extends the write-before-enact decision-log hook to block a false-completeness-justified hold. No corpus or gate change; a hook + test change.
+
+### Changed
+- **[block-unjustified-decision.py](../../.claude/hooks/block-unjustified-decision.py)**: a hold/defer/wind-down decision-log entry whose justification carries a SET-COMPLETENESS / backlog-exhaustion claim (`every remaining item is blocked`, `queue drained`, `nothing left to do`) is now REFUSED unless it embeds `backlog-audit: <N> items enumerated` where `<N>` equals the live TODO.md open-item count. FP-safe: the new check fires ONLY when a set-completeness claim AND a deferral marker co-occur, so a normal ACT entry, or a defer entry citing a specific named blocker with no set-claim, is unaffected. The existing deferral-marker tuple was hoisted to a module constant `DEFERRAL_MARKERS` (no membership change), and the hook's item-count regex is aligned byte-for-byte to the layer-1 tool's canonical id set. The hook fails open on any error (a discipline guardrail, never a hard block on a parse failure).
+- **[test_linters.py](../../tests/test_linters.py)**: `HookToolItemCountParityTests` asserts the hook's and the tool's TODO item counts agree on the live TODO (drift-proofing: a regex divergence fails the test); the hook's own `--self-test` grew to 16 cases (4 exhaustion-claim cases plus 2 false-positive-guard cases from the verifier finding below).
+
+### Why
+Layer 1 (the enumeration tool) makes the full list VISIBLE; layer 2 makes the false claim BLOCKING: a "hold because everything is blocked" decision cannot be logged without a fresh full-audit token matching the live count. The hook is the mechanical teeth precisely because the prose rules (already present and loaded) were violated.
+
+### Verification
+- Hook `--self-test` 16 OK; the parity test confirms the hook count equals the tool count equals 92 on the live TODO; full regression suite 456 OK. The private validate tool's marker-set parity is confirmed unaffected (its deferral-marker tuple is byte-identical to the hook's 14 members, confirmed by reading it; no `_private` edit needed).
+- A full skeptical pre-push verifier (refute-briefed, read-only) FOUND one Medium false-positive and it was FIXED in-window: the guard originally keyed on the loose deferral-marker substring (which matches "blocked" even inside "none is blocked") without checking the entry was a hold, so it would over-block a legitimate `ACT` entry reviewing "all 92 open items; none is blocked; proceeding" (the exact positive backlog review the control exists to encourage). The fix gates the guard on a `Classification: BLOCKED` (a declared hold); the 3 previously-blocked ACT/ASK inputs now pass and the block / allow / wrong-count paths are preserved, locked by 2 new FP-guard self-test cases. All other verifier vectors were clean (hoist preservation, fail-open contract, repo-root resolution, the parity drift-guard).
+- Honest limitation: the hook enforces the count-MATCH, not that the audit was actually run; the tool plus the layer-3 discipline are the real control, and the count-match token is the forcing function.
+
+### Discipline observation
+Offloaded draft (worker-a); the orchestrator aligned the item-count regex to the layer-1 tool (the worker used a placeholder count of 90 because the tool did not exist at its pin SHA; the aligned count is 92), confirmed the `_private` parity by reading it, and added the drift-proof parity test. Batches PR #1088's `/validate-pr` (CLEAN) plus `/retro` rows. Library 2026.07.576 to 2026.07.577.
+
 ## 2026-07-23, Library Version 2026.07.576, PR #1088
 
 Guardrail layer 1 (of a full stack) against the false set-completeness-claim failure mode: an advisory backlog-actionability enumerator. No corpus or gate change; a new advisory tool + its test + a session-state mode flip.
