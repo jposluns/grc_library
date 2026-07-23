@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep117-closeout
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-22T21:04:32Z
+**Last-heartbeat-UTC:** 2026-07-23T01:03:24Z
 
-**Current-task:** 2026-07-22b resumed session (`/resume` from the #1066 session-closing handoff; on the VM, gh-CLI, no GitHub MCP; ATTENDED, maintainer actively directing). First PR = this resume close-out: the loop-break Sweep 117 `/validate` over the #1056..#1066 deltas (base #1055 `501d77a2`, head #1066 `f9906bec`; OFFLOADED to worker-b, CLEAN PASS 0 error / 0 warning / 0 note / 0 novel, loop-break control for #1066 PASSES), the handoff prune (keep current + 1 prior), the MAINTAINER_ALERT 2026-07-22-a clear (maintainer-authorized, done scratch-side), and this lease acquire. Maintainer decisions this session: next track = the INDEPENDENT TOOLING QUEUE (§1.22.3 `.working` cycle-out tool -> §1.22.4 cross-repo reference-existence tool -> §1.22.7 TODO Maintainer-or-Egress-Gated section -> §3.102 pack-distribute degradation-auto-handoff -> §1.16 COBIT title normalization guard-first); the §3.87 home-VM file-drop transport big-build WAITS for the maintainer's sudo `/home/grc` migration; alert 2026-07-22-a CLEARED.
+**Current-task:** 2026-07-22b resumed session (`/resume` from the #1066 session-closing handoff; on the VM, gh-CLI, no GitHub MCP; ATTENDED, maintainer directing). This session ran ONE PR, the resume close-out #1067 (the loop-break Sweep 117 `/validate` over #1056..#1066, OFFLOADED to worker-b, CLEAN PASS 0/0/0/0, loop-break control for #1066 PASSES; the handoff prune; the MAINTAINER_ALERT 2026-07-22-a clear, maintainer-authorized, done scratch-side), then WOUND DOWN at the maintainer's direction because branch protection needs a `gh pr merge --admin` permission the harness classifier blocked (the maintainer will grant it and merge #1067 next session). Lease RELEASED here so that when #1067 merges, `main` lands clean-released. **NEXT SESSION: MERGE #1067 FIRST (it is this close-out; do NOT re-run Sweep 117 over #1056..#1066), then start the INDEPENDENT TOOLING QUEUE** (§1.22.3 `.working` cycle-out tool -> §1.22.4 cross-repo reference-existence tool -> §1.22.7 TODO Maintainer-or-Egress-Gated section -> §3.102 pack-distribute degradation-auto-handoff -> §1.16 COBIT guard-first). The §3.87 home-VM file-drop transport big-build WAITS for the maintainer's sudo `/home/grc` migration.
 
 **Worker-dispatches:** `worker-20260716-b` (role qa, VM, Opus 4.8) LIVE (heartbeat 2026-07-22T20:56:46Z at the Sweep 117 delivery); `worker-20260716-a` STALE (last_seen 2026-07-19). ONE live worker, so the offloadable passes run serially through worker-b; request a second worker if parallelism is needed. worker-b's session-scoped elevated-QA window RE-ESTABLISHES this fresh session, so its first delivery this session (the Sweep 117 `/validate`) was consumed under full ELEVATED QA (independent orchestrator corroboration of the diff scope, the crypto-tighten, and the VM-timeframe probe all matched the CLEAN verdict). Fetch scratch `origin/main` before every coordination-plane read (§3.93); prefer `git -C <scratch>` (or an absolute script path) for sibling tools/git.
 
