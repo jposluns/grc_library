@@ -133,7 +133,11 @@ def decide(added: str):
             )
     # A BLOCKED / defer / wind-down entry must not cite an un-instrumented justification.
     low = added.lower()
-    if any(k in low for k in ("blocked", "defer", "wind down", "wind-down", "skip")):
+    if any(k in low for k in (
+        "blocked", "defer", "wind down", "wind-down", "skip",
+        "hold off", "postpone", "punt", "back-burner", "sit on",
+        "leave for later", "do it later", "push to", "park it",
+    )):
         hits = [p for p in FORBIDDEN if p in low]
         if hits:
             problems.append(
@@ -206,6 +210,16 @@ def _self_test() -> int:
             b, r = decide(
                 "- **Classification:** BLOCKED: irreversible-needs-confirmation\n"
                 "- deferring because the context is heavy and it is risky to do now")
+            self.assertTrue(b)
+            self.assertIn("un-instrumented", r)
+
+        def test_synonym_deferral_with_forbidden_blocked(self):
+            # TODO 3.103: a deferral phrased with a SYNONYM outside the original
+            # five keywords (here "postpone") that carries a forbidden
+            # internal-state justification must still be caught by the widened set.
+            b, r = decide(
+                "- **Classification:** BLOCKED: irreversible-needs-confirmation\n"
+                "- postpone this one because the context is heavy right now")
             self.assertTrue(b)
             self.assertIn("un-instrumented", r)
 
