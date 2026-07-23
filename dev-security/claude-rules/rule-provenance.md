@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.1.0\
-**Date:** 2026-07-12\
+**Version:** 1.2.0\
+**Date:** 2026-07-23\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -172,6 +172,19 @@ refreshed it, and a double-resume risk identified before any
 concurrency lease existed to guard it. The rule packages the resulting apparatus (durable handoff,
 explicit operator-set modes, graceful degradation, the green-merge close with a
 compensating control, the advisory lease) as one portable discipline.
+
+### `decision-classification-before-enacting`
+
+Earned from a recurring failure the maintainer named directly: the assistant would DEFER a
+queued or authorized item, or re-sequence, skip, or wind down, on an un-instrumented
+internal-state justification ("heavy context", "too risky to do now", "better fresh later")
+instead of either doing the work or asking. Deferral-with-no-question is worse than both valid
+moves: it stalls the work and hands the maintainer nothing to act on, while dressing avoidance
+up as prudence. The rule forces every point where work is about to NOT happen into exactly one
+of three classifications (ACT, the default; ASK a specific named question while the maintainer
+is reachable; or BLOCKED by a named, externally-observable blocker from a closed set), written
+to the decision log BEFORE the decision is enacted so the classification is made at decision
+time rather than rationalized after.
 
 ---
 
