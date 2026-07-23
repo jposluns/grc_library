@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-23, Library Version 2026.07.592, PR #1106
+
+Resume close-out for the 2026-07-23b session (`/resume` from the #1105 session-closing handoff; ATTENDED-autonomous). Working-state, backlog, and version only; no corpus, gate, or pack change. Consumes the loop-break Sweep 119 `/validate` (the compensating control for handoff PR #1105's skipped trailing `/validate-pr`), prunes the session handoff, acquires the concurrency lease, records one maintainer decision, and clears the scratch maintainer alert. The prior merged PR (#1105) is the handoff, exempt from producing its own QA rows, so this PR batches none.
+
+### Added
+- [`.working/validate-sweeps/history.md`](../validate-sweeps/history.md): the Sweep 119 row (file Version 2.0.119 to 2.0.120). Loop-break corpus-wide `/validate` over the #1068..#1104 deltas (base #1067 `3ceb0c54`, head #1104 `b5c08643`, 104 files / 41 corpus documents), OFFLOADED to worker-20260716-b as blocking prio-0 `sweep-119-validate` pinned the #1104 `main` SHA (per the SHA-pinning practice adopted after alert 2026-07-23-a). CLEAN PASS, 0 error / 0 warning / 0 note. Mechanical baseline 73/73 (orchestrator-re-run at HEAD, matches); counts 73/14/24/15/18; four-surface parity 73; 457-test regression rc 0. The one subagent MEDIUM (supplier Tier-1 High=90d) re-verified as the maintainer-decided value (pending-decisions §3.68b) and dismissed. All #1101-#1104 asserted-clean surfaces corroborated, 0 contradicted. Loop-break control for #1105 PASSES.
+- [`TODO.md`](../../TODO.md): new Priority-2 item 2.27 (OWASP Agentic ASI01-ASI10 integration into the agentic-security standard), recording the maintainer's 2026-07-23b decision of option (b), add new threat-class entries for ASI08/09/10 (over the recommended cite-only); the build is content, now unblocked but deferred. P2 next-item marker 2.27 to 2.28.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): pruned to keep-current-plus-one-prior (deleted the 2026-07-22 #1066 Next-actions blocks, the 2026-07-19b/c #1055 State snapshot, and the 2026-07-19 #1040-#1042 Asserted-expectations block, each durably recorded elsewhere); the Resume cursor advanced to Sweep 119. Migrate-before-delete confirmed (§3.87 / RB-7-egress / deferred tracks in TODO + `_private`; the `:333` SEF apply in [`pending-decisions.md`](../pending-decisions.md); historical assertions in the Sweep history + CHANGELOG).
+- [`.working/session-state.md`](../session-state.md): concurrency lease ACQUIRED for this session (`Active-session: claude/resume-sweep119-closeout`, `Status: active`, fresh heartbeat).
+- [`.working/pending-decisions.md`](../pending-decisions.md): the OWASP §36 ASI08/09/10 pending decision marked RESOLVED (option b).
+- [`.working/next-prs.txt`](../next-prs.txt): refreshed to the post-Sweep-119 queue (§1.18 PR-2, the §1.1 gate design, P3 quick-clears).
+- `grc_library_scratch:MAINTAINER_ALERT.md`: alert 2026-07-23-a (LOW, sha-pinning) cleared on maintainer authorization; the pinning practice (pin offloaded orders to the squash-merge / `main` SHA, never the PR branch-head) is adopted.
+
+### Verification
+- `tools/run_all_audits.sh`: 73/73 at HEAD (independently confirms the Sweep 119 baseline); the pre-push guard (`run_all_audits.sh` + `run-pr-time-checks.sh`) runs green before push.
+- No corpus document body touched, so no per-document Version/Date bump; only the two per-PR version surfaces move: library CalVer 2026.07.591 to 2026.07.592 and README Version 1.9.952 to 1.9.953.
+
+### Why
+Handoff PR #1105 skipped its trailing `/validate-pr` per the standing loop-break exception; this resume's corpus-wide Sweep 119 `/validate` is the stronger compensating control, and it PASSED clean, clearing the boundary. The prune keeps the handoff a fast single resume point. The OWASP decision was the one open pending item; recording it as backlog item 2.27 keeps the unblocked build discoverable in the forward queue.
+
 ## 2026-07-23, Library Version 2026.07.591, PR #1105
 
 Session-closing handoff (working-state + version only; no corpus, gate, or pack change). Refreshes [`session-handoff.md`](../session-handoff.md) with the 2026-07-23 session's CLOSING + NEXT-SESSION blocks, the #1105 State-snapshot (verified counts gate 73 / rules 14 / skills 24 / commands 15 / Document-types 18; green-at the #1104 merge `b5c08643`), and the Asserted-expectations block (this session's clean surfaces plus the KNOWN-OPEN missing 14th-rule pack-README scope-table row that §1.18 PR-2 fixes guard-first). Releases the concurrency lease in [`session-state.md`](../session-state.md). Batches PR #1104's offloaded `/validate-pr` (CLEAN) and `/retro` rows. Per the standing handoff-PR exception (the loop-break), this PR runs no trailing `/validate-pr` or `/retro` of its own; the compensating control is the next `/resume`'s corpus-wide Sweep 119 `/validate` over the #1068..#1104 deltas, cross-checked against the Asserted-expectations. The session-close and the evidence-triggered wind-down (recurring guard-caught command-precision slips over a ~19h session with a compaction) are logged in the `grc_library_private` degradation-watch log.
