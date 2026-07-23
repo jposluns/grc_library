@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.576, PR #1088
+
+Guardrail layer 1 (of a full stack) against the false set-completeness-claim failure mode: an advisory backlog-actionability enumerator. No corpus or gate change; a new advisory tool + its test + a session-state mode flip.
+
+### Added
+- **[audit-backlog-actionability.py](../../tools/audit-backlog-actionability.py)**: enumerates EVERY open TODO item (every `### <id>` heading, id `N.M` / `N.M.K` / an alphanumeric sub-id like `1.19.10a` / a coded id like `SR-1`; the `## Priority` section headers and the Maintainer-or-Egress-Gated index table rows are correctly excluded) and, per item, reports whether its own block text carries a recognized BLOCKER signal from a CLOSED named set (egress / source / maintainer-decision / deferred / in-progress / fresh-session / standing). An item with no blocker token surfaces as `PRESUMED-ACTIONABLE (needs disposition)`. Advisory: exit 0 always, stdlib-only, portable-clone-tolerant, NOT a gate (no four-surface wiring; gate count stays 73). Recall-oriented by design (it surfaces candidates; the orchestrator judges each), stated as an honest limitation in the docstring. Live run at this SHA: 92 open items, 43 with a blocker signal, 49 presumed-actionable.
+- **[test_linters.py](../../tests/test_linters.py)**: `BacklogActionabilityTests` (3 tests: full enumeration + per-class classification + index-row exclusion; a `maintainer-confirmed` provenance stamp is NOT a blocker; a bare mid-sentence "standing" is NOT a blocker).
+
+### Changed
+- **[session-state.md](../session-state.md)**: Operating-mode overnight-unattended to attended-autonomous (maintainer signal), heartbeat re-stamped.
+
+### Why
+The corrective control for a confirmed failure: a false "every remaining backlog item is blocked" set-completeness claim was made from a PARTIAL review and used to justify stopping unattended, when many actionable items remained (including maintainer-prioritized and already-decided ones). The tool makes that claim-class impossible to assert without confronting the full enumeration. Layers 2-4 (the decision-log hook block, the evidence-grounded-completion rule codification, the CLAUDE.md convention) follow in the next PRs.
+
+### Verification
+- The orchestrator re-ran the tool on the live TODO (confirmed 92 / 43 / 49), spot-checked the 49-item presumed-actionable list, ratified the worker's two FP-safety narrowings (a `maintainer-confirmed` provenance stamp is actionable, not awaiting-decision; a bare `standing` over-matches incidental prose), and caught + fixed a minor id-parse quirk (the alphanumeric sub-id `1.19.10a`). The 3 new tests pass; the full regression suite is 455 tests OK; stdlib-only (no new import). Advisory + additive + self-verified, so a thorough orchestrator self-review stood in for a separate verifier subagent here; the full skeptical verifier is reserved for the sensitive decision-log hook in the next PR.
+
+### Discipline observation
+Offloaded draft (worker-b). Ironically the sibling rule-draft order tripped scratch CI on a bare `ensure` in its own params; fixed, and the order-file pre-push scratch-validate discipline was codified in the offload runbook. Batches PR #1087's `/validate-pr` (CLEAN) plus `/retro` rows. Library 2026.07.575 to 2026.07.576.
+
 ## 2026-07-23, Library Version 2026.07.575, PR #1087
 
 Closes TODO §3.99 by ADDITIVELY hardening gate 35 (the four-surface audit-gate parity gate). No new gate, no gate-count bump; the change adds guards to gate 35's existing job.
