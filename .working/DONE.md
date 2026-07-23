@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.23: new-jurisdiction/sector-annex discoverability checklist (2026-07-23, PR #1079)
+Added a `### New jurisdiction / sector annex PR` per-PR-class override block to `.working/worker-brief-template.md` enumerating the full discoverability surface set a new annex must touch (document-index register + domain README, decision-tree §5.1/§3.3/FAQ §7, register-coverage-gaps §2.5, glossary, generated taxonomy/portal/scorecard, plus matrix/crosswalk and Related-Documents extras), so a new annex is not merged listed only in its own file (the multi-surface-incompleteness class caught at deep-assessment Sweep 92: #733 HIPAA and #743 EU AI Act left sibling surfaces stale). Offloaded draft (worker-a); decision-tree section numbers verified live at apply.
+
 ### TODO §3.35: path-resolution fixture rail for path-enumerating gates (2026-07-23, PR #1078)
 Added guard rail 15 to `.working/worker-brief-template.md`: a new gate or check whose config enumerates live repo paths (a SURFACES-style table of a file path plus a per-path parse expectation) ships a regression fixture asserting every configured path EXISTS and its parse target matches, so a renamed/misspelled/relocated configured path fails in the fixture rather than mis-resolving later in CI (the F6 confabulated-live-path class; precedent D7's `test_surfaces_table_paths_resolve_in_real_repo`, caught at PR #634). Offloaded draft (worker-a), which correctly read the actual §3.35 TODO block and corrected the order's mis-framing (it is CONFIGURED-PATHS-EXIST, not link-resolution-coverage).
 
