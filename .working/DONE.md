@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §1.22.4: cross-repo reference-existence advisory tool (2026-07-23, PR #1072)
+Built `tools/audit-cross-repo-references.py`: an advisory (non-gate) tool scanning references across all trees/file types and classifying each in-repo-exists / in-repo-missing (dangling) / cross-repo pointer (`_ref`/`_scratch`/`_private`, flagging over-exposure) / ambiguous, reusing gate 3's resolver + `lint_common`'s `resolve_sibling` (no-op + exit 0 on sibling-absent, portable-clone-safe), stdlib-only, 5 self-tests. Offloaded draft (worker-b) + independent adversarial verify (worker-a, SHIP, all 5 concerns refuted); two optional future refinements (inline-code-span parity with gate 3; a `tests/tmp/` allow-list) noted, not required.
+
 ### TODO §1.22.7: single "Maintainer or Egress Gated" TODO section (2026-07-23, PR #1071)
 Added the no-priority "## Maintainer or Egress Gated" registry at the end of TODO.md: 47 MEG-NN reference-numbered items across four gate groups (maintainer-download/source-gated, egress-blocked, maintainer-decision, maintainer-sign-off), so the run never claims "done all I could" while maintainer-actionable items remain. Enumeration offloaded (worker-b) against the full TODO + the `_private` egress queue; the section flags the §2.22 currency drift (may be dischargeable per `_ref` #87) and the MiCA/ISO/5259 egress re-test candidates (iso-org/nist-csrc now HTTP 200).
 
