@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.566, PR #1078
+
+Adds a worker-brief guard rail for path-enumerating gates per TODO §3.35. Documentation only (a [`.working/worker-brief-template.md`](../worker-brief-template.md) rail); no gate, no code change, no version-surface ripple.
+
+### Added
+- **[`.working/worker-brief-template.md`](../worker-brief-template.md)**: guard rail 15 (appended to `## Guard rails (verify before submitting)`). A new gate or check whose configuration enumerates live repo paths (a `SURFACES`-style table of a file path plus the header or field the gate reads from it) ships a regression fixture that asserts every configured path EXISTS in the real repo and that its parse target matches that file, so a renamed, misspelled, or relocated configured path fails in the fixture rather than silently mis-resolving on the next triggering PR in CI. Precedent: the D7 handoff-snapshot check's `test_surfaces_table_paths_resolve_in_real_repo`. Closes the F6 confabulated-live-path class (caught at PR #634: a gate's config named a live path that did not exist, so the gate mis-resolved and failed its own PR).
+
+### Verification
+- All 73 audit gates pass (documentation add; no behavioural change), including gate 51 (`.working/` prose-hygiene) on the new rail.
+- Verified directly by the orchestrator; no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded candidate (worker-a). Apply-time correction (research-assistant discipline): the dispatch order mis-framed §3.35 as link-resolution-coverage; the worker read the ACTUAL §3.35 TODO block and corrected it to the CONFIGURED-PATHS-EXIST (F6) intent, which the orchestrator verified against [`TODO.md`](../../TODO.md) before applying. The worker also flagged (not silently) that the order's pinned `grc_library_sha` was the pre-squash PR branch-head (unreachable after the squash-merge), and ran against the content-equivalent `main` tip; the pin-to-squash-merge/main-SHA lesson is recorded in the §3.35 retro. Batched PR #1077's `/validate-pr` plus `/retro` rows. Library 2026.07.565 to 2026.07.566.
+
 ## 2026-07-23, Library Version 2026.07.565, PR #1077
 
 Codifies a test-isolation convention per TODO §3.96. Documentation only (a new section in [`tests/README.md`](../../tests/README.md), which is not a versioned corpus document); no gate, no code change, no version-surface ripple.
