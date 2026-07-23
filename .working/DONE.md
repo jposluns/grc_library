@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### Numbering redirect-stub pattern + pack-parity coupling conventions (2026-07-23, PR #1099)
+Two maintainer-confirmed conventions ahead of the P2-series authoring: (1) the TODO permanent-numbering rule now documents the series-consolidation redirect-stub pattern (an item consolidated into a series keeps its original number as a one-line forward redirect while content moves to the new series child; both close together; no number is reassigned), the maintainer's reconciliation of in-order series with never-break-references; (2) a CLAUDE.md `## Pack-parity coupling` section keeps the published pack in sync with adopted practice (convention now, periodic review as catch-net, hard gate deferred to TF-2). Not a TODO closure; convention authoring.
+
 ### Worker-saturation guard rail: L1 observable + L2 checkpoint (2026-07-23, PR #1098)
 Added an advisory tool `tools/audit-worker-saturation.py` (stdlib-only, always exit 0, not a gate) that reports whether the credit-offload workers are SATURATED or have IDLE-CAPACITY (live workers with nothing to claim), surfaced in the console statusline and read at task/PR boundaries per a new CLAUDE.md `## Worker-saturation checkpoint`, with a regression self-test in gate 36. Fixes the silent-drain failure the maintainer caught (workers idle with nothing queued, which the mandatory-offload rule does not catch). Also added the TODO `## Time-bounded follow-ups` section with TF-1 (review the guard after ~1 month, decide on the deferred L3 hook-warning), and `/resume` now surfaces due follow-ups. Maintainer-directed (option B: L1+L2 now, L3 deferred); not previously in TODO.
 

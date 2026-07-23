@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.585, PR #1099
+
+Records two maintainer-confirmed conventions (2026-07-23 planning dialogue) ahead of the Priority-2 umbrella-series authoring that depends on them. Recording/convention only; no corpus document, gate, or pack-rule change.
+
+### Changed
+- **[TODO.md](../../TODO.md) permanent-numbering rule** (the "How items are numbered" paragraph and the paired standing-conventions bullet): documents the **series-consolidation redirect-stub** pattern. When an item's content is consolidated into a series, the original number `A.B` is neither reassigned nor deleted: the content moves to a new series child `X.Y.Z`, and a one-line forward REDIRECT STUB is left at `A.B` (`moved to X.Y.Z; content lives there; closes when X.Y.Z closes`). This preserves the never-reassign guarantee (`A.B` still resolves, now as a forwarder, so any reference the same-PR sweep misses lands on the stub) while letting a series read in execution order. The stub holds no content (single source at `X.Y.Z`, no dual-copy drift); the obvious live references are still swept in the same change; the stub and `X.Y.Z` rotate to DONE together. It is the forward-pointing successor to the discontinued backward `(was X.Y)` breadcrumb, for the consolidation case only.
+- **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**: new `## Pack-parity coupling` section. The published `dev-security/claude-rules/` pack drifted behind adopted practice (the 2026-07-23 reconciliation); this couples the two. Convention (now): a PR that adds/changes a PORTABLE guard rail adds/updates the matching pack rule/skill in the same PR, or tracks a follow-up; project-only operational machinery is annotated as not-pack-material. Catch-net: a periodic pack-parity review. Deferred: a hard every-guard-rail-has-a-pack-counterpart gate (false-positive-prone; the portable-vs-project-only call needs a drifting allow-list), held behind a one-month review.
+- **[TODO.md](../../TODO.md) time-bounded follow-ups**: adds **TF-2** (review the pack-parity coupling after 2026-08-23, decide on the hard gate); counter to TF-3.
+
+### Why
+- The two Priority-2 umbrella series (authored next) consolidate several existing items into ordered series children, so the numbering rule needs the redirect-stub pattern in place first (it was the maintainer's chosen reconciliation of "in-order series" with "never break references"). The pack-parity coupling is the durable fix that stops the pack drifting behind practice again, the drift that motivated the Task-1 reconciliation.
+
+### Verification
+- The language lint and the unbalanced-fence lint both run clean on the new CLAUDE.md prose (the file's pre-existing em-dashes are in `.claude/`, gate-exempt, and out of scope here).
+- No pack-rule file changed (the portable form of the coupling lands with the Task-1 pack reconciliation); no gate, taxonomy, or version-bearing corpus document touched.
+
+### Bookkeeping
+- Batches PR #1098's post-merge validation row and retrospective row.
+- Not a TODO closure; convention authoring. Recorded in DONE.
+- Library CalVer 2026.07.584 to 2026.07.585; README Version 1.9.945 to 1.9.946.
+
 ## 2026-07-23, Library Version 2026.07.584, PR #1098
 
 Adds the worker-saturation guard rail (maintainer-directed 2026-07-23, option B: build L1+L2 now, defer L3). This is the structural fix for the failure the maintainer caught this session, the orchestrator letting the credit-offload pending queue drain to zero while live workers sat idle. No corpus document changes.

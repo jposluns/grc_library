@@ -981,6 +981,33 @@ flags `SATURATED` / `NO-WORKERS` / a healthy queue, so the signal is false-posit
 is relied on. A heavier L3 (a non-blocking saturation warning inside `block-mandatory-offload.py`)
 is DEFERRED pending a one-month review of L1+L2 (TODO time-bounded follow-up TF-1).
 
+## Pack-parity coupling (adopt a guard rail, keep the pack in sync)
+
+The published `dev-security/claude-rules/` pack is meant to stay at parity with the disciplines
+the project actually adopts for its own use. It drifted (the 2026-07-23 reconciliation found the
+pack behind practice); this coupling prevents the recurrence. Three layers, the same mechanical
+plus sharpened-rule shape as the other guard rails:
+
+- **Convention (now, at PR close-out).** When a PR adds or changes a PORTABLE guard rail,
+  discipline, rule, or skill (one an adopter would want), add or update the matching pack
+  rule/skill in the SAME PR; if it must be deferred, record a tracked follow-up. When the thing is
+  PROJECT-ONLY operational machinery (the credit-offload / scratch-exchange mechanics, the
+  `_private` operational store, session-specific wiring, the worker-saturation tool's scratch
+  coupling), it is NOT pack material: annotate it explicitly as project-only in the change record,
+  do not force a pack entry. Portable-vs-project-only is the judgement this convention turns on.
+- **Catch-net (cadence).** A periodic pack-parity review compares the project's adopted
+  disciplines, hooks, and rules against pack coverage and routes any drift, the review that would
+  have caught the 2026-07-23 gap earlier.
+- **Deferred (a hard gate).** A mechanical every-guard-rail-has-a-pack-counterpart gate is
+  false-positive-prone (the portable-vs-project-only call needs an allow-list that itself drifts),
+  so it is deferred behind a time-bounded review of whether the convention plus cadence suffice,
+  not built now.
+
+The PORTABLE form of this coupling ships in the pack's
+[`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) rule
+(so an adopter extending the pack inherits the keep-in-sync discipline); that pack-side clause
+lands with the Task-1 pack reconciliation.
+
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff
