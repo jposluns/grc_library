@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.571, PR #1083
+
+Adds a source-grounded CPI-adjustment caveat to the CCPA $25M threshold per TODO §3.86. A single-carrier, single-document precision addition; the base figure is unchanged (no value-change).
+
+### Changed
+- **[`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md)**: the CCPA cybersecurity-audit-trigger sentence (section 7120(b)) had "annual gross revenue over USD 25 million and processed either the personal information of 250,000 ... or the sensitive personal information of 50,000 ...". A caveat is inserted after "USD 25 million": "(the Civil Code section 1798.140(d)(1)(A) threshold, as periodically adjusted for inflation)". Version 1.2.4 to 1.2.5, Date co-bumped; taxonomy + scorecard regenerated (portal carries no per-document version, so it was unchanged, `--check` clean).
+
+### Verification
+- Source-grounded at the HELD CCPA statute in `grc_library_ref` (re-read by the orchestrator, not only the worker): section 1798.140(d)(1)(A) states the $25,000,000 threshold "as adjusted pursuant to subdivision (d) of Section 1798.199.95", and section 1798.199.95(d)(1) has the CA Privacy Protection Agency adjust the MONETARY thresholds (including that one) for the Consumer Price Index. The caveat is therefore accurate and correctly SCOPED to the $25M monetary figure only: the record-count triggers (250,000 / 50,000) and the section 7121 phase-in bands are NOT in the statute's CPI-adjusted list and did NOT receive the caveat.
+- A substantive-tier skeptical verifier (refute-briefed, read the held statute + CPPA regulation) returned SHIP, 0 findings: caveat accuracy, monetary-only scoping, the section-7120(b)-references-1798.140(d)(1)(A) cite, natural reading, version bump, no collateral, and completeness (the sole corpus carrier; the Canada CAD and Switzerland CHF figures correctly not caveated). All 73 audit gates pass. Per-touch reference-breadth recorded (candidates orthogonal to the caveat; no citation action).
+
+### Discipline observation
+Offloaded source-grounded census (worker-a, pinned to main tip). Two apply-relevant corrections the worker surfaced and the orchestrator confirmed: the dispatch order mis-cited the adjustment authority (it is section 1798.199.95(d)(1), not the order's section 1798.185(a)(5); the TODO block had it right), and the census found exactly ONE carrier rather than the broad multi-carrier sweep the item anticipated (only the monetary $25M is CPI-adjusted, and it appears in one place). Batched PR #1082's `/validate-pr` plus `/retro` rows. Library 2026.07.570 to 2026.07.571.
+
 ## 2026-07-23, Library Version 2026.07.570, PR #1082
 
 Canonicalizes the "GRC Manager" role title to "GRC Programme Manager" corpus-wide per TODO §3.71 (a Tier-2, single-session, corpus-wide rename). The canonical role is the one in [`governance/register-role-authority.md`](../../governance/register-role-authority.md); no "GRC Manager" role exists.
