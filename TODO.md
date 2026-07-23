@@ -72,7 +72,6 @@ The git-history purge of the moved operational docs (worklist = the 1.19.8 move-
 A cohesive block the maintainer surfaced at the 2026-07-19 `/resume`, tightening the §1.19 privatization and adding cross-repo guardrails.
 - **1.22.3 `.working` cycle-out to `_private` (generalize + policy).** **TOOL-BUILD SHIPPED (#1070):** [`tools/sweep-working-records-to-private.py`](tools/sweep-working-records-to-private.py) generalized with the one-off completed-directory sweep (`ONEOFF_DIRS` allow-list, never auto-detected; seeded `pack-hygiene-acceptance`/`pack-hygiene-fragments`, swept whole inside the existing emit-verify-prune sequence after all re-parse assertions) plus a read-only `--staleness-report` (advisory counts of aged `DONE.md` + resolved-and-aged `pending-decisions.md` entries), with the one-off verify-before-prune extracted to the self-tested `oneoff_missing_from_archive` helper (7 self-tests; offloaded draft + independent adversarial verify, SHIP-WITH-FIXES, the one required fix applied). **REMAINING:** (a) run the INITIAL destructive sweep as a **dedicated cleanup-PR** (`--dry-run` shows a large aged backlog, 1 detailed entry + ~46 dated record files + ~383 roll-up rows + 2 one-off dirs, i.e. the per-PR sweep cadence has lapsed; emit-to-`_private` + verify-archived + prune); (b) **ENABLE the destructive `DONE.md` aged-entry + `pending-decisions.md` resolved-tail sweeps**, gated on a maintainer `DONE` cutoff-width decision + a `DONE` `effective_floor` (gates 50/57 have none) + the conservative resolved-AND-aged entry-boundary predicate (tighten `RESOLVED_MARKER` to an anchored status token + add an embedded-open-sub-item guard, per `verify-1223-draft`); (c) codify the session-boundary dedicated-cleanup-PR policy (NOT on-touch coupling; maintainer-decided 2026-07-19). Keep live load-bearing files public (handoff, state, next-prs, current-window gate-50 rows, current-window changelog-details).
 - **1.22.4 Cross-repo reference-existence advisory tool (maintainer-chosen 2026-07-19).** A NEW advisory tool (worker-run, reuses gate 3's path resolver + `lint_common` discovery) that scans every reference/pointer/filename in every file across ALL trees + file types and classifies each: in-repo-exists / in-repo-missing (dangling) / cross-repo pointer (`_ref`/`_scratch`/`_private`/`grc_library_private`, flag intended-minimal vs over-exposure) / ambiguous path-string. Returns only actionable items to the orchestrator. NOT a gate (advisory, spans gate-exempt trees). Shares its engine with 1.22.3's staleness reporter.
-- **1.22.7 TODO restructure: single "Maintainer or Egress Gated" section (maintainer-directed 2026-07-19; H, S-M).** Add ONE NO-PRIORITY section at the END of `TODO.md`, "## Maintainer or Egress Gated" (a section number of its own), holding every item the assistant CANNOT clear alone: those needing a maintainer action (authorization, a decision, a sign-off) AND those needing a download the assistant cannot fetch itself (egress-gated collapses in, since a download IS a maintainer action). Purpose: make "what the assistant cannot do alone" unambiguous, so it never again claims "done all I could" while actionable items remain. **Each item carries its own reference number** so the maintainer can say "I did item N" when they action it. An egress item also carries the download LINK. Migrate the currently-blocked items in (§1.19.13, §3.16 history-collapse, FR-70 sources, the Canada.ca/Brazil/ISO downloads, §1.14 Layer B, §2.23, §3.55, etc.). **Egress forcing function:** an item is listed ONLY after the assistant CONFIRMS it cannot fetch the source itself (per the missing-reference SOP). Detect-env now shows iso-org + nist-csrc reachable (HTTP 200) where earlier sessions saw 403s, so re-test egress and CLEAR the fetchable items into `_ref/ingest` (a `_ref` PR) rather than parking them, guarding against the mislabel-as-blocked failure (the 2026-07-09 ~20-items-wrongly-egress-gated recurrence).
 - **1.22.8 Chat text-pacing / read-pause convention (maintainer-directed 2026-07-19; DISCUSS TOMORROW; maintainer-gated).** Recurring problem the maintainer flagged: assistant chat scrolls past too fast to read ("you scrolled text so fast i didn't see anything else"), so answers are missed. The maintainer's existing mitigations are the AskUserQuestion multiple-choice UI (per memory) and the IMPORTANT: marker. Design a durable text-pacing convention so a maintainer-facing answer is readable before the next output scrolls it away (candidates: a pause/acknowledgement gate after answering a maintainer question; shorter chunked messages; a "press to continue" affordance; surfacing key points via AskUserQuestion so they hold on screen). Needs the maintainer's input on the preferred mechanism, so DISCUSS at the next attended boundary before building.
 - **1.22.9 Canada.ca AI/privacy-suite egress URLs (maintainer-directed 2026-07-19; overnight action).** Add the DIRECT download URLs for the Canada.ca AI-governance + privacy suite (the §2.22 sources: TBS Directive on ADM, AIA tool, the AI guides, Guiding Principles, FASTER, GC AI Register, the Voluntary Code; Privacy Act, OPC Fair Information Principles, OPC retention/disposal, the Breach of Security Safeguards Regulations, the TBS Policy on Privacy Protection) to the `_private` maintainer-egress-requests list, since canada.ca is WAF-blocked for automated fetch. Verify each URL (do NOT fabricate; use WebSearch to confirm the canonical canada.ca path, mark any unconfirmed for the maintainer). The maintainer downloads them into `grc_library_ref/ingest/`, then §2.22 proceeds. This is the concrete seed for the §1.22.7 egress-gated section's Canada rows.
 
@@ -622,3 +621,76 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 - Design decisions belong in `grc_library_private/design-decisions.md`, not TODO.
 - This file is the source of truth for what's queued; conversation history is not.
 - Fitness-review backlogs remain the authoritative per-finding evidence source; this file is the action-organized view.
+
+---
+
+## Maintainer or Egress Gated
+
+**No-priority registry (TODO §1.22.7).** Every open item the assistant CANNOT clear alone: it needs a **maintainer action** (a download the assistant cannot fetch, a design or value decision, or an explicit sign-off) OR an **egress-enabled run** the assistant lacks from this VM. Purpose: make "what the assistant cannot do alone" unambiguous, so the run never claims "done all I could" while actionable items remain. Each carries a stable **MEG-NN** reference number so the maintainer can say "I did MEG-14"; egress/download rows carry the source lead where one is recorded (never fabricated). Items also live in their priority sections above; this is the cross-referencing index, not a move. Download rows already in the `grc_library_private` maintainer-egress queue are marked (the queue holds the authoritative fetch list; this section indexes, does not duplicate). **Egress re-test forcing function:** `detect-env` now shows iso-org + nist-csrc reachable (HTTP 200) where earlier sessions saw 403, so the flagged re-test candidates (MEG-02 MiCA via EUR-Lex, MEG-07 ISO, MEG-20 ISO/IEC 5259) must be egress-re-tested and CLEARED into `_ref/ingest` rather than parked (guarding the 2026-07-09 wrongly-egress-gated recurrence); they are candidates, not confirmed-blocked, until the re-test runs.
+
+### Group 1: maintainer-download / source-gated (fetch a source the assistant cannot get)
+
+| Ref | Item | What the maintainer fetches / source lead |
+|---|---|---|
+| MEG-01 | §2.3 (FR-70) | NYDFS BitLicense (23 NYCRR Part 200), crypto-asset domain. Landing `dfs.ny.gov/virtual_currency_businesses`; full text WestLaw-gated (403). [in egress queue] |
+| MEG-02 | §2.3 (FR-70) | MiCA (EU Reg 2023/1114). Freely available on EUR-Lex; **RE-TEST egress + clear to `_ref/ingest`** (not queued). |
+| MEG-03 | RB-7 (i) | OWASP Top 10 for Agentic Applications authoritative source. **FULFILLED 2026-07-23** (ingested `_ref` #101, cited #1069); kept for the record. [was in egress queue] |
+| MEG-04 | RB-7 (ii) | Colombia RNBD, Decreto 886 de 2014. `funcionpublica.gov.co` WAF-blocked. [in egress queue] |
+| MEG-05 | §2.22 | Canada.ca 49-source utilization. **STATUS DRIFT:** the egress-queue Fulfilled record says the 16 sources were ingested (`_ref` #87) and the currency half discharged; reconcile §2.22's "DEFERRED-BLOCKED" status (may be dischargeable). [in egress queue] |
+| MEG-06 | §1.22 (item 1.22.9) | Add the direct canada.ca AI/privacy-suite download URLs to the `_private` egress list (verify each canonical path, no fabrication). [partial leads recorded] |
+| MEG-07 | RB-R6 | Source-not-held acquisition (ISO paywalled/403 historically). Maintainer runs via a research agent; **RE-TEST** iso-org (now 200). |
+| MEG-08 | §2.1 (FR-59) | Privacy annex deepening: ~18 source-gated country annexes await maintainer source drops. |
+| MEG-09 | §2.21 | Further AI-jurisdiction annexes, deferred pending held sources. |
+| MEG-10 | §5.4 | Healthcare country regulator overlays: source-gated except EU MDR/IVDR (held). |
+| MEG-11 | §5.7 | Public-sector country/regulator overlays: source-gated. |
+| MEG-12 | §5.8 | Privacy jurisdiction gaps (Argentina PDPA 2025, Saudi PDPL): source-gated. |
+| MEG-13 | §5.9 | AI jurisdiction overlays (Canada AIDA, UK, NYC bias-audit, China, Korea): source-gated. |
+| MEG-14 | §6.2 | Quantum-crypto readiness: the regime half is source-gated (no held PQC standard); build schedule-gated. |
+| MEG-15 | AI Strategy FPS | Complete re-download of the AI Strategy for the Federal Public Service 2025-2027 full text (LOW; currency, not a content gap). [in egress queue] |
+
+### Group 2: egress-blocked (an egress-enabled run the assistant lacks; not a single download)
+
+| Ref | Item | Note |
+|---|---|---|
+| MEG-16 | §1.14 Layer B | External-source currency upstream sweep (Layer A shipped as gate 72). Needs a network-enabled runner (DD-10). |
+| MEG-17 | §3.2 | Authoritative-standards register + designation gate: per-standard primary-source verification. |
+| MEG-18 | §3.9 (GR-GAP-1) | Require-registration citation-currency gate: register-row population from upstream + the 29134:2017-vs-:2023 resolution. |
+| MEG-19 | SR-1 | `last_checked` backfill: honest backfill needs a per-document upstream currency check. |
+| MEG-20 | §3.42 | New-ingest reference-breadth over ISO/IEC 5259 + Canadian AI-gov sources. **RE-TEST** (5259 may now be fetchable). |
+| MEG-21 | §3.97 | `_ref` `upstream_url` enrichment for FREE entries (egress-heavy; a `_ref` PR; partitionable). |
+| MEG-22 | §3.100 | Re-ingest a clean Quebec P-39.1 source into `_ref` (cross-repo; clean-source download). |
+| MEG-23 | §3.55 | `_ref` bulk-ingest of the ~64 staged `ingest/` files (cross-repo; per-doc currency the egress-facing part). |
+| MEG-24 | §2.17 | California CCPA/ADMT annex: `[VERIFY]` the ADMT dates upstream at apply (source HELD). |
+| MEG-25 | §2.18 | South Korea AI Basic Act annex: `[VERIFY]` the phased dates upstream at apply (source HELD). |
+| MEG-26 | §2.23 (statute half) | CCPA STATUTE-currency review once `ingest/ccpa_statute_eff_20260101.pdf` is ingested to `--full-text.md`. |
+| MEG-27 | §2.20 | Ref-side `last_checked` sweep for the 6 new EU/CA AI sources (cross-repo). |
+
+### Group 3: maintainer-decision (a design/policy/value choice; no download)
+
+| Ref | Item | Note |
+|---|---|---|
+| MEG-28 | §1.1 | Discussion-vs-execution mode gate (pick the shape; design + hook). |
+| MEG-29 | §1.18 | Change-impact surface map + enforcement (significant scoping; maintainer revision expected). |
+| MEG-30 | §1.22 (item 1.22.8) | Chat text-pacing convention (an AskUserQuestion continue-gate was captured in `_private`; discuss). |
+| MEG-31 | §3.3 | Removal-ledger review cadence (standing). |
+| MEG-32 | §3.6 | Register-ageing advisory (needs a classifier / register-format decision). |
+| MEG-33 | §3.7 | Expiry-tail batch review (maintainer dispositions). |
+| MEG-34 | §3.39 | Dependabot refresh-companion (repo automation; maintainer-owned). |
+| MEG-35 | §3.54 | `doc_type` back-fill in `_ref` (explicitly NOT automated; ~20 questions + iterated sign-off). |
+| MEG-36 | §3.62 (G1) | Branch-to-main edit-guard hook (build or keep convention). |
+| MEG-37 | §3.66 | DA-ASVS generic ASVS citations (per-row decision; dual-tree + gate-37). |
+| MEG-38 | §3.68 | Vuln-remediation-SLA divergent-value carriers (maintainer value judgment; do not guess). |
+| MEG-39 | §3.74 | Standards-reference-format standardization (maintainer preference review). |
+| MEG-40 | §3.94 | Landing-page sidebar overflow (lower-priority website call; footer-mitigated). |
+| MEG-41 | §4.9 | Pack public-distribution packaging model (escaping links, stubs, private-base dependency, command-name verify). |
+| MEG-42 | §7.2 (FR-104) | Per-regulation context (Priority 7, awaiting maintainer decision). |
+| MEG-43 | §7.3 (FR-130) | Portal reorder (Priority 7, awaiting maintainer decision). |
+| MEG-44 | §3.80/3.81/3.82/3.83/3.88 | Credit-offload design thread: several maintainer-flagged design rows (cross-repo scratch/design; split per row when worked). |
+
+### Group 4: maintainer-sign-off (irreversible / protected-branch; explicit authorization; LAST by design)
+
+| Ref | Item | Note |
+|---|---|---|
+| MEG-45 | §1.19.13 | History scrub (Phase 6): git-history purge + force-push; MAINTAINER-GATED and LAST (prep drafted in `_private`). |
+| MEG-46 | §3.16 | CHANGELOG history-collapse residual: a protected-branch history rewrite (optional; maintainer-gated). |
+| MEG-47 | §7.1 | Ruleset `non_fast_forward` (force-push) rule: a maintainer-owned GitHub setting (low-priority hardening). |
