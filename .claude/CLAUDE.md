@@ -315,6 +315,34 @@ the maintainer did not author, force-pushing a protected branch, deleting a bran
 the assistant did not create) require explicit confirmation under the
 confirm-before-destructive-action discipline.
 
+## Change-impact surface map (when you change X, update all of these)
+
+TODO §1.18. A gate/rule/skill/count change touches more surfaces than the mechanical parity
+gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
+rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
+shipped without the change-tracking discipline prose). This map is the "when you change X,
+update ALL of these" reference the close-out checklist's change-impact bullet points at. It
+CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
+re-implement them, TODO §1.18 decision Q3=C); it adds the free-prose and website columns those
+gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
+`.web/templates/` sources) is a FIRST-CLASS paired surface: its updates are identified early
+and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
+land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
+iteratively (decision Q1); the first, the pack-README rule-scope table, is §1.18 PR-2.
+
+| Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
+| --- | --- | --- | --- |
+| **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
+| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the three enumeration surfaces (gate 41); pack README `Version` + version-history row (D6) | the pack README "Rule files and their scope" table (§1.18 PR-2 gates this); the `rule-provenance.md` register; CLAUDE.md rule-index and count prose | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
+| **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the three it checks for rules); pack README `Version` + version-history row (D6); paired-skill step-parity (gate 44, when a paired command exists) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
+| **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |
+
+The single most error-prone website detail: each rule and skill is linked TWICE in `pack.html`
+(the Rules/Skills sidenav AND a body `<li>` entry), so a change that updates one and misses the
+other is the likely drift; the close-out bullet says "two places" explicitly. The gated column
+names the authority gate for each surface so this map never silently duplicates or contradicts
+a gate; when a gate's coverage changes, its row here is updated in the same PR.
+
 ## Session migration and PR close-out checklist
 
 Long sessions degrade (context dilution, lossy compaction, state drift, error
@@ -444,15 +472,29 @@ is external. Two mechanisms:
      runner, the pre-commit config, and the
      [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md)
      §6 inventory table) are the gated half; the recurring misses are the FREE-PROSE
-     surfaces no parity gate inspects: the §6 *detailed-prose* enumeration (the `Gate N is
-     a ...` description plus the `Gate N is appended ...` sentence every gate carries), the
-     §5 grouped-list, and, when the detection logic changes, the §6 narrative for that gate,
-     plus the module docstring and the regression fixture. Gate 35 checks the §6 table and
-     gate 39 counts its rows; neither reads the §6 detailed-prose paragraph or the per-gate
-     narrative, so those slip (Sweep 77 found gate 57's detailed-prose pair absent after the
-     gate shipped in #468; Sweep 38 found gate 48's §6 narrative stale after its logic
-     changed in #308 and #309). A PR-only delta check Dn also needs its step name added to
-     `WORKFLOW_DELTA_GATE_STEPS`.
+     surfaces the parity gates do not check for accuracy: the §5 grouped-list, the per-gate
+     §6 narrative when the detection logic changes, the module docstring, and the regression
+     fixture (the §6 *detailed-prose* presence pair, the `Gate N is a ...` description plus
+     the `Gate N is appended ...` sentence, is now covered by gate 64, so it no longer
+     silently slips, though its ACCURACY stays sweep-and-review territory). Gate 35 checks
+     the §6 table, gate 39 counts its rows, and gate 64 checks the §6 detailed-prose
+     presence; none reads the §5 grouped-list or the per-gate narrative, so those slip (Sweep
+     77 found gate 57's detailed-prose pair absent after #468, the seam gate 64 was later
+     built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
+     #308 and #309). A PR-only delta check Dn also needs its step name added to
+     `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
+     surface map` above; see it for the B/C/D change types and the website surface.
+   - **Change-impact completeness across all surfaces** (TODO §1.18; the generalization of
+     the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
+     count change in the PR, run the `## Change-impact surface map` above for that change type
+     and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
+     is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/`) prose
+     to update EARLY and apply it in the SAME PR. A rule or skill is linked TWICE in
+     `pack.html` (the sidenav AND a body `<li>`), so confirm BOTH; a rule- or skill-COUNT
+     change touches the three count surfaces (`pack.html` meta-description, `pack.html` body
+     count, `landing.html` pack CTA); a gate change touches NO website surface. The map names
+     the covering gate for each gated surface, so this bullet is the free-prose-plus-website
+     half the gates do not enforce.
    - **Full-file-grep and parallel-case re-verification for prose corrections** (the
      prose-fact completeness guard): when a PR corrects a fact, a count, an overstatement,
      or a stale claim, or rewrites a clause that enumerates parallel cases, grep the FULL
