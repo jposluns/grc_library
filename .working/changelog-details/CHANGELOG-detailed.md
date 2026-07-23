@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.561, PR #1073
+
+Distributes the unattended-degradation auto-handoff discipline into the [`session-lifecycle`](../../dev-security/claude-rules/governance/session-lifecycle.md) governance pack rule per TODO §3.102 (the project instantiation already lives in the project CLAUDE.md; this ships the portable form). Pack-rule prose only; no corpus, gate, or behaviour change.
+
+### Changed
+- **[`dev-security/claude-rules/governance/session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md)** and its **[`.claude/rules/governance/session-lifecycle.md`](../../.claude/rules/governance/session-lifecycle.md)** mirror (byte-identical body, gate 37): section 4 (wind-down) gains a paragraph specifying that in an UNATTENDED mode an evidence-triggered close is EXECUTED as the section-5 closing handoff (land working state as a green merge, reconcile the durable handoff record, release the lease) directly, because that handoff is itself the conservative, reversible, no-regret action, and is NOT a bare mid-turn pause that strands unmerged working state and a half-written record. A matching `## Prohibited anti-patterns` bullet is added.
+- **[`.claude/rules/governance/session-lifecycle.md`](../../.claude/rules/governance/session-lifecycle.md)** PROJECT-OVERLAY block: adds the project instantiation (the closing handoff takes no `AskUserQuestion`; the concrete close is a green merged PR + a refreshed [`session-handoff.md`](../session-handoff.md) + the [`session-state.md`](../session-state.md) lease RELEASE), kept local-only per the overlay convention.
+- **[`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md)**: pack Version 1.62.5 to 1.62.6 plus a `## Version history` row (patch; no new rule or skill; gate 41 rule-count stays 13).
+- **[`TODO.md`](../../TODO.md)**: §3.102 rotated to [`DONE.md`](../DONE.md).
+- Batched PR #1072's `/validate-pr` (CLEAN) plus `/retro` rows. Library 2026.07.560 to 2026.07.561.
+
+### Verification
+- Pre-push guard green (`run_all_audits.sh` 72 gates plus `run-pr-time-checks.sh` D1-D8), including gate 37 (pack-sync body parity) and gate 41 (rule-count parity, 13 unchanged).
+- Substantive-tier skeptical verifier (orchestrator-side, refute-briefed) on the pack-prose diff: core change SHIP (body parity byte-identical across both trees, no project-token leak into the pack body, source-faithful, house style clean, rule count 13 unchanged). Two LOW cosmetic nits fixed pre-push (em-dashes in the [`next-prs.txt`](../next-prs.txt) `# then:` line; the pack README `Date` co-bump), both in gate-exempt surfaces.
+
 ## 2026-07-23, Library Version 2026.07.560, PR #1072
 
 Adds the cross-repo reference-existence advisory tool per TODO §1.22.4 (the second half of the §1.22.3/§1.22.4 shared-engine pair). Tooling only; advisory (never fails CI); no corpus, gate, or behaviour change.
