@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.580, PR #1094
+
+Closes TODO §3.78 (maintainer-flagged P3 priority, 2026-07-15). Website template only; no corpus, gate, or version-bearing-document change.
+
+### Changed
+- **[.web/templates/pack.html](../../.web/templates/pack.html)**: the governance-pack page's skill list linked each of the 23 skills to its DIRECTORY (a bare GitHub tree listing); each link now targets the skill's SKILL.md file directly (the per-skill blob URL ending in that skill's SKILL.md), so a reader lands on the skill text rather than a directory listing. The retarget was a scoped substitution over the single-skill tree-link form; the 2 pack-ROOT links (which point at the pack tree, not a single skill) are intentionally left as tree links.
+
+### Why
+- The maintainer flagged (2026-07-15) that a skill link landing on a bare directory listing is a worse reader experience than landing on the skill file. Each skill directory holds only its SKILL.md, so the file is the meaningful target.
+
+### Verification
+- **Scoped substitution, then residual check**: 46 skill-directory link occurrences retargeted (each of the 23 skills appears twice on the page); 0 residual single-skill tree-form links remain; the 2 pack-root tree links are untouched (confirmed by count).
+- **Every target exists**: all 23 distinct per-skill SKILL.md files confirmed present under the pack's skills directory (0 missing).
+- **Render**: the web-generator check pass (`build.py --check`) exits 0 (corpus parses, every page renders, 35 pages).
+- Website generator/template only; no corpus document, so no taxonomy / portal / scorecard regeneration, no per-document Version or Date, no gate scans it.
+
+### Bookkeeping
+- Batches PR #1091's post-merge validation row (the validate-pr history register, CLEAN PASS) and retrospective row (the improvement-log register); register versions to 1.2.850 / 1.0.781.
+- TODO §3.78 rotated to DONE; the sibling `§3.78` cross-reference in the §3.79 priority note dropped (orphan cleanup).
+- Library CalVer 2026.07.579 to 2026.07.580; README Version 1.9.940 to 1.9.941.
+
 ## 2026-07-23, Library Version 2026.07.579, PR #1091
 
 Closes TODO §3.39 (a decided item) and records a maintainer decision. No corpus or gate change.
