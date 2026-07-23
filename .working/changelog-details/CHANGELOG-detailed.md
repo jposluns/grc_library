@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.558, PR #1070
+
+Extends the `.working` cycle-out sweep tool per TODO §1.22.3 (the tool build; the initial destructive sweep and the destructive DONE/pending-decisions entry sweeps are deliberately deferred). Conservative-by-default: the only new destructive path (the one-off-dir sweep) rides the existing emit-verify-prune sequence, and the broader-surface DONE/pending sweeps are surfaced read-only. Tooling only; no corpus, gate, or behaviour change.
+
+### Changed
+- **[`tools/sweep-working-records-to-private.py`](../../tools/sweep-working-records-to-private.py)**: (1) added the one-off completed-directory sweep, an explicit orchestrator-maintained `ONEOFF_DIRS` allow-list (never auto-detected; seeded `pack-hygiene-acceptance`, `pack-hygiene-fragments`, both grep-confirmed to have no audit-gate reader), swept WHOLE into `archive/oneoff-dirs/<name>/` on `--emit-archive` and removed on `--prune` after every re-parse assertion; (2) added the read-only `--staleness-report` mode (advisory counts of aged DONE-ledger entries and resolved-and-aged pending-decisions entries whose DESTRUCTIVE sweep is NOT enabled, pending a maintainer cutoff + a DONE `effective_floor` + the conservative pending-decisions predicate); (3) extracted the one-off verify-before-prune into the self-tested `oneoff_missing_from_archive` helper (the verify's one required fix), so the only new destructive path's data-safety guard is locked under `--self-test` (now 7 self-tests).
+- **[`TODO.md`](../../TODO.md)**: §1.22.3 marked tool-build-shipped, with the initial destructive sweep (a dedicated cleanup-PR), the DONE/pending destructive-sweep enablement (maintainer-gated), and the policy codification tracked as the remaining follow-ups.
+- Batched PR #1069's `/validate-pr` (CLEAN) + `/retro` rows. Library 2026.07.557 to 2026.07.558.
+
+### Discipline observation (offload + verify)
+- The implementation was OFFLOADED as a candidate diff (worker-a) and independently adversarially verified (worker-b, verdict SHIP-WITH-FIXES) before the orchestrator applied it. The orchestrator applied the candidate deterministically (`git apply`), re-read the full applied diff, applied the one required fix (the self-tested helper), and re-ran `--self-test` (7/7) + `--dry-run` + `--staleness-report`. The two deferred destructive sweeps are recorded with their gating conditions so a future session does not enable them without the maintainer decision.
+
+### Verification
+- `--self-test` 7/7 OK; `--dry-run` and `--staleness-report` exercised against the live tree. [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) all gates pass; pre-push guard green.
+
 ## 2026-07-23, Library Version 2026.07.557, PR #1069
 
 Cites the now-held authoritative **OWASP Top 10 for Agentic Applications 2026** in the corpus, correcting the RB-7 residual where the corpus could not cite the framework because only the untrusted AIUC-1 crosswalk was held. The authoritative framework was ingested into `grc_library_ref` separately (`grc_library_ref` PR #101, `frameworks/OWASP/`); its upstream currency was confirmed this turn (Version 2026, released December 2025, current on genai.owasp.org; ASI01-ASI10 roster verified). Corpus content change (two documents); no behaviour or control-requirement change.
