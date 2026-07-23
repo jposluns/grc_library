@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.584, PR #1098
+
+Adds the worker-saturation guard rail (maintainer-directed 2026-07-23, option B: build L1+L2 now, defer L3). This is the structural fix for the failure the maintainer caught this session, the orchestrator letting the credit-offload pending queue drain to zero while live workers sat idle. No corpus document changes.
+
+### Added
+- **[tools/audit-worker-saturation.py](../../tools/audit-worker-saturation.py)** (new, advisory): reads the scratch worker registry and queue and reports a verdict, `NO-WORKERS` / `SATURATED` (outstanding orders >= live workers) / `IDLE-CAPACITY` (live workers > outstanding orders, so at least one live worker has nothing to claim). Stdlib-only, always exits 0 (advisory, never a gate; deliberately named `audit-*` so the four-surface gate-parity machinery does not auto-discover it), no-op when the scratch checkout is absent. The liveness definition (`STALE_MINUTES=20`, the field regex, the timestamp handling, the `status == active and age <= STALE_MINUTES` test) is mirrored verbatim from the scratch credit-offload queue helper so the two never disagree on who is live. Has `--oneline` (statusline form) and `--self-test` modes. Worker-drafted, orchestrator-verified line-for-line before applying (the two `lint_common` helpers confirmed exported; the liveness constants confirmed verbatim against the source).
+- **[TODO.md](../../TODO.md) `## Time-bounded follow-ups` section** (new): the home for date-gated non-urgent revisits, with item **TF-1** (review the L1+L2 guard after 2026-08-23, decide on the deferred L3 hook-warning). Each entry carries a `Not-before` date, what to evaluate, and the originating PR.
+
+### Changed
+- **[.claude/CLAUDE.md](../../.claude/CLAUDE.md)**: new `## Worker-saturation checkpoint` section (the L2 discipline), read the saturation verdict at task-start / PR-boundary / before self-running a substantial pass, and fan out on `IDLE-CAPACITY` if offloadable work can be queued; a worker-state claim must be the tool's output, not a felt sense.
+- **[.claude/settings.json](../../.claude/settings.json)**: the console statusline now appends the saturation `--oneline` form after the `next:` line (guarded, so it shows only when the scratch checkout is present).
+- **[.claude/commands/resume.md](../../.claude/commands/resume.md)**: step 4 now reads the `## Time-bounded follow-ups` section and surfaces any entry whose `Not-before` date has passed.
+- **[tests/test_linters.py](../../tests/test_linters.py)**: a new `WorkerSaturationToolTests` runs the tool's `--self-test` in the regression suite (gate 36), the false-positive validation, so the verdict logic stays green (flags `IDLE-CAPACITY`, never flags `SATURATED` / `NO-WORKERS` / a healthy queue).
+
+### Why
+- The maintainer observed a worker idle "for a while" with nothing queued, a silent drain that the mandatory-offload rule (which forecloses self-running offloadable work) does not catch, because the failure is inaction, not a wrong action. A PreToolUse hook cannot intercept a non-action, so the fix is an OBSERVABLE (L1, always in view) plus a narrow boundary checkpoint (L2). The heavier L3 (a non-blocking saturation warning inside the mandatory-offload hook) is deferred behind a one-month review (TF-1), because its portable-vs-project-only judgement is false-positive-prone and the observable is expected to carry most of the value.
+
+### Verification
+- The tool's `--self-test` passes 12/12 (8 verdict cases including both boundary and NO-WORKERS-precedence guards, plus 4 liveness-parse guards); `py_compile` clean; a live in-repo run correctly reported `[IDLE-CAPACITY] 2 live / 0 pending`, matching the fleet state at the moment.
+- The regression test `WorkerSaturationToolTests.test_worker_saturation_self_test_passes` passes under `unittest tests.test_linters`.
+- The settings file re-parsed as valid JSON after the statusline edit.
+- Advisory tool, not a gate: no four-surface parity wiring, no gate-count change (73); the stdlib-only import audit (gate 71) covers it via the full-suite guard run.
+
+### Bookkeeping
+- Batches PR #1097's post-merge validation row (the validate-pr history register) and retrospective row (the improvement-log register); the registers carry those rows at versions 1.2.854 / 1.0.785 (this PR adds no register rows of its own; its own validate-pr batches into the next PR).
+- Not a TODO closure; maintainer-directed guard rail. Recorded in DONE.
+- Library CalVer 2026.07.583 to 2026.07.584; README Version 1.9.944 to 1.9.945.
+
 ## 2026-07-23, Library Version 2026.07.583, PR #1097
 
 Closes TODO §3.68 (the routed divergent-value vuln-SLA carriers; the #912 clear-conversions half closed earlier). Applies the maintainer's four per-carrier decisions (recorded in pending-decisions, 3.68a to 3.68d) against the single source of truth (SoT), [security/procedure-vulnerability-management.md](../../security/procedure-vulnerability-management.md). The worker-delivered research was verified line-for-line against the live files before authoring.

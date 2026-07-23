@@ -485,6 +485,18 @@ Portal reorder not pursued (README stays at decision-tree item 1; dropped-decisi
 
 ---
 
+## Time-bounded follow-ups
+
+Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the Priority sections); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/resume` reads this section and surfaces any entry whose Not-before date has passed, so a due follow-up is not silently forgotten. When a follow-up is acted on (or decided against), rotate it to [`DONE.md`](.working/DONE.md) like any other closed item.
+
+**Next item number: TF-2.**
+
+### TF-1 Review the worker-saturation guard rail (L1+L2), decide on L3 (2026-07-23, PR #1098)
+
+**Not-before: 2026-08-23.** Evaluate how the L1 statusline observable plus the L2 boundary checkpoint performed over roughly one month: did idle-worker episodes drop, were there false IDLE-CAPACITY signals or missed ones, did the checkpoint change behaviour at task-start and PR boundaries? Then decide whether to build L3 (the non-blocking saturation warning in [`block-mandatory-offload.py`](.claude/hooks/block-mandatory-offload.py)) or leave L1+L2 as sufficient. Originating decision: the maintainer chose option B (build L1+L2 now, defer L3 pending this review), 2026-07-23.
+
+---
+
 ## Reference-base work (`grc_library_ref`)
 
 Validated defects / standing work in the reference repo. The one remaining OPEN in-repo item (SR-1) ships as a `grc_library_ref` PR via `gh`.
