@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.567, PR #1079
+
+Adds a new-jurisdiction/sector-annex discoverability override to the worker brief per TODO §3.23. Documentation only (a [`.working/worker-brief-template.md`](../worker-brief-template.md) override block); no gate, no code change.
+
+### Added
+- **[`.working/worker-brief-template.md`](../worker-brief-template.md)**: a new `### New jurisdiction / sector annex PR` block in `## Overrides per PR class`. For a new-annex PR, the worker's research must enumerate, beyond the annex body, the FULL discoverability surface set: the document-index register and domain README listing; the decision-tree surfaces the annex routes into (§5.1, §3.3, FAQ §7 in [`docs/decision-tree.md`](../../docs/decision-tree.md), all three verified present at apply); the register-coverage-gaps §2.5 entry; the glossary entry for new acronyms; the generated taxonomy/portal/maturity-scorecard; plus completeness extras (matrix/crosswalk rows, Related-Documents cross-links) marked as beyond the §3.23 block's explicit list. Closes the multi-surface-incompleteness class from deep-assessment Sweep 92 (the #733 US HIPAA and #743 EU AI Act annexes wired primary surfaces but left the decision-tree FAQ §7, decision-tree §3.3, and register-coverage-gaps §2.5 stale).
+- The worker-brief-template `Version` co-bumped 1.4.6 to 1.4.7 with `Date` (D2/D4).
+
+### Verification
+- All 73 audit gates pass (documentation add). The three decision-tree section numbers the override cites (§5.1 "AI", §3.3 "healthcare", §7 FAQ) were verified present in the live [`docs/decision-tree.md`](../../docs/decision-tree.md) before applying.
+- Verified directly by the orchestrator; no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded candidate (worker-a), pinned to the current main tip (the pin-to-main lesson from #1078, applied). The order's framing matched the actual §3.23 TODO block this time (worker confirmed). Batched PR #1078's `/validate-pr` plus `/retro` rows. Library 2026.07.566 to 2026.07.567.
+
 ## 2026-07-23, Library Version 2026.07.566, PR #1078
 
 Adds a worker-brief guard rail for path-enumerating gates per TODO §3.35. Documentation only (a [`.working/worker-brief-template.md`](../worker-brief-template.md) rail); no gate, no code change, no version-surface ripple.

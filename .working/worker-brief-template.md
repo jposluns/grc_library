@@ -1,6 +1,6 @@
 # Worker Brief Template
 
-**Version:** 1.4.6\
+**Version:** 1.4.7\
 **Date:** 2026-07-23\
 **License:** CC BY-SA 4.0
 
@@ -134,6 +134,16 @@ Your research (candidate framework mappings for a domain's documents) must produ
 (Caught at PR #275: worker-proposed `IPY-02`/`DSP-10` corrected at apply-time; a wrong control mapping in an adopter-facing matrix is NOT gate-caught, so apply-time verification of every cell is mandatory.)
 
 After the batch merges, the orchestrator runs `/matrix-fit` over the batch's worklist (the cadenced semantic-fit audit, the [`matrix-fit`](../dev-security/claude-rules/skills/matrix-fit/SKILL.md) skill) to catch any valid-but-wrong control code the existence gates 48/49/54/58/61 pass; this is an orchestrator cadence step (per `.claude/CLAUDE.md` `## Compliance-matrix semantic-fit cadence`), not a worker task. The worker's job is still to validate fit at authoring time per DO rail 9; `/matrix-fit` is the post-batch backstop.
+
+### New jurisdiction / sector annex PR
+Your research (for a new jurisdiction annex, for example a country privacy-law annex, or a new sector annex) must enumerate, in ADDITION to the annex body, the FULL discoverability surface set the annex must touch, so it is not merged listed only in its own file (the recurring multi-surface-incompleteness class):
+- The document-index register and the domain README listing (the annex's row and link).
+- The decision-tree surfaces the annex must route into: §5.1, §3.3, and the FAQ §7 (`docs/decision-tree.md`).
+- The register-coverage-gaps §2.5 entry (`governance/register-coverage-gaps.md`), updated for the gap the annex closes or narrows.
+- The glossary (`governance/register-glossary.md`) entry for every new acronym or term the annex introduces.
+- The generated taxonomy, portal, and maturity-scorecard (regenerated so the new document appears on every surface).
+- (Completeness extras, beyond the §3.23 block's explicit list: any matrix or crosswalk row that should carry the new annex, and the Related-Documents cross-links in sibling documents that should point to it.)
+(Caught at deep-assessment Sweep 92: the #733 US HIPAA and #743 EU AI Act annexes wired their primary surfaces but left the decision-tree FAQ §7, decision-tree §3.3, and register-coverage-gaps §2.5 stale.)
 ```
 
 ---
