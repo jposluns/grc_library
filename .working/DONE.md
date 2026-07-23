@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.102: pack-distribute the degradation-auto-handoff discipline (2026-07-23, PR #1073)
+Distributed the unattended-degradation auto-handoff discipline into the `session-lifecycle` pack rule (both trees): section 4 gains the project-agnostic rule that in an UNATTENDED mode an evidence-triggered close is EXECUTED as the section-5 closing handoff (green merge + reconciled handoff record + lease release) directly, not surfaced as a question and not taken as a bare mid-turn pause, plus a matching prohibited-anti-pattern bullet; project file/command wiring kept in the `.claude/` PROJECT-OVERLAY. Pack 1.62.5→1.62.6 (patch; no new rule).
+
 ### TODO §1.22.4: cross-repo reference-existence advisory tool (2026-07-23, PR #1072)
 Built `tools/audit-cross-repo-references.py`: an advisory (non-gate) tool scanning references across all trees/file types and classifying each in-repo-exists / in-repo-missing (dangling) / cross-repo pointer (`_ref`/`_scratch`/`_private`, flagging over-exposure) / ambiguous, reusing gate 3's resolver + `lint_common`'s `resolve_sibling` (no-op + exit 0 on sibling-absent, portable-clone-safe), stdlib-only, 5 self-tests. Offloaded draft (worker-b) + independent adversarial verify (worker-a, SHIP, all 5 concerns refuted); two optional future refinements (inline-code-span parity with gate 3; a `tests/tmp/` allow-list) noted, not required.
 

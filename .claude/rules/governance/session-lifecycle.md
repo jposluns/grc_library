@@ -38,6 +38,8 @@ The default at every point is to continue working. The ONLY valid trigger for pr
 
 When a close IS evidence-triggered, it is surfaced, never taken silently: the justification in objective signals, a tractability read on the pending queue, and named options with the conservative close first. A no-answer timeout resolves to the conservative close, never to pushing on; and in an unattended mode the mode's own conflict rules govern instead. Choosing to continue never relaxes any discipline: the degradation read re-runs at each unit boundary, and the run self-terminates early if signals appear.
 
+In an unattended mode there is no operator to surface the choice to, so an evidence-triggered close is EXECUTED, not offered: the assistant performs the closing handoff of the next section (land the working state on the shared branch as a green merge, reconcile the durable handoff record, release the lease) directly, because that handoff is itself the conservative, reversible, no-regret action and needs no confirming question. It is not a bare mid-turn pause. A "stopping here" that leaves the working state unmerged on a side branch and the handoff record only half-written is the failure this guards against: it hands the next session a harder resume than the clean shared-branch state a proper close leaves. Rule of thumb for an unattended run: being about to stop is an obligation to execute the closing handoff first, not a licence to pause.
+
 ## 5. The closing handoff: a session's last act is a green merge
 
 A session ends by landing its working state on the protected branch as a green, merged change, so the next session rebuilds from the shared branch rather than from an unmerged local state. The closing change refreshes the handoff record (including what this session mechanically verified, scoped to what it touched, and known soft spots NOT asserted clean) and records its own QA exemption explicitly where the project's cadence grants one.
@@ -54,6 +56,7 @@ Where two sessions could hold the shared state surfaces at once, a lease file on
 
 - **Winding down on felt degradation or work shape.** No instrument, no trigger; continue, with verification sustaining quality.
 - **Idling in an unattended mode** because the remaining work is substantial, fiddly, or awaiting a preference. The standing priorities answer "what next"; the graceful-degradation paths answer "what about this decision".
+- **Pausing mid-turn on a real degradation trigger in an unattended run** instead of executing the closing handoff. When the trigger is genuine, the response is a green merge plus a reconciled handoff record, not a "stopping here" that strands working state on an unmerged branch and leaves the record half-written for the next session to untangle.
 - **Ending an unattended mode on a timeout**, or reading operator silence as a mode change.
 - **A timeout auto-executing the destructive option.** The reversibility gate has no exceptions.
 - **Appending to the handoff instead of reconciling it**, or asserting clean surfaces the session never verified (an unfounded clean claim turns the next session's ordinary findings into spurious miss signals).
@@ -89,3 +92,9 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 - Pending decisions: `.working/pending-decisions.md`; the timer default and the
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.
+- Unattended-degradation auto-handoff (section 4): operationalized in the project
+  CLAUDE.md `## No idle-stop in unattended mode` and wind-down sections. The closing
+  handoff is executed directly and takes no `AskUserQuestion` (the unattended hook
+  blocks it anyway); the concrete close is a green merged PR plus a refreshed
+  `.working/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
+  green-at-`<sha>`) and the `.working/session-state.md` lease RELEASE.
