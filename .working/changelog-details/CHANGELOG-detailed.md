@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.575, PR #1087
+
+Closes TODO §3.99 by ADDITIVELY hardening gate 35 (the four-surface audit-gate parity gate). No new gate, no gate-count bump; the change adds guards to gate 35's existing job.
+
+### Added
+- **[lint-audit-gate-parity.py](../../tools/lint-audit-gate-parity.py)**: `verify_exclusion_and_delta_guards(root, spec_scripts)`, appended to `main()`'s findings (it never mutates the existing four-surface row-parity result). It closes two latent gaps §3.99 identified: (i) the three exclusion allow-lists (`WORKFLOW_SETUP_STEPS`, `WORKFLOW_DELTA_GATE_STEPS`, `PRECOMMIT_NON_GATE_HOOKS`) were themselves unguarded, so a real gate mistakenly dropped into an exclusion set was silently masked from parity; each member is now cross-checked against a positive signal that it is genuinely not a corpus gate (a setup step invokes no gate script; a delta-gate step's script is not a §6-inventory script; a non-gate pre-commit hook carries no `--check`, the discriminator that separates the write-mode regen hook from the `--check` §6 gates that share the taxonomy/portal builders). (ii) The 8 PR-only D1-D8 delta gates lived only in the workflow with no cross-surface parity; each numbered delta gate in the PR-time runner is now confirmed to map to a workflow delta-gate step of the same script, with the numbers contiguous D1..D8. Portable-clone-tolerant (skips the delta check if the PR-time runner is absent).
+- **[test_linters.py](../../tests/test_linters.py)**: `AuditGateParityExclusionGuardTests` (2 tests: a clean case pinning 0 findings on the live config, and a non-vacuous detect case that injects a delta-gate script into the §6-scripts set and asserts the guard reports "masked from parity"). Auto-discovered; isolated via the function's explicit `root` / `spec_scripts` parameters (no module-global monkeypatch).
+
+### Changed
+- **[specification-audit-programme.md](../../governance/specification-audit-programme.md)**: gate 35's §6 detailed-prose description gains a clause describing the additive exclusion/delta guards (per the audit-gate-change-completeness discipline, a gate's §6 narrative is updated when its detection logic changes). Version 1.17.15 to 1.17.16; taxonomy and scorecard regenerated.
+
+### Why
+Gate 35 guarantees the four parity surfaces stay in lock-step, but its own exclusion allow-lists and the PR-only delta gates were blind spots (deep-assessment r5 Low-4): no current defect, but a real gate mis-added to an exclusion set would be masked. The guards are additive and FP-free against the current config (0 findings; gate 35 still reports "parity confirmed for 73 gates"), so they are dormant until a real drift occurs.
+
+### Verification
+- Gate 35 standalone: 0 additive findings, "parity confirmed for 73 gates across all four surfaces". The full regression suite is 452 tests OK (including the 2 new tests, confirmed non-vacuous). The change adds no import (stdlib-only). No gate-count / four-surface / §5-list change (gate 35 keeps its name and script). A skeptical pre-push verifier (refute-briefed, read-only) checked no-weakening, FP-free-today, the `--check` discriminator, the D1-D8 mapping, the workflow-step script windowing, test non-vacuity, and surface completeness.
+
+### Discipline observation
+Offloaded draft (worker-a, pinned to main tip); the orchestrator re-read the gate-35 source and re-verified the diff plus the FP-free result before apply. The worker correctly recommended EXTENDING gate 35 over a new gate (avoiding the gate-count ripple). Batches PR #1086's /validate-pr (CLEAN) plus /retro rows. Library 2026.07.574 to 2026.07.575.
+
 ## 2026-07-23, Library Version 2026.07.574, PR #1086
 
 Working-state consolidation: surfaces the decision-blocked cluster and batches #1085's QA rows. No corpus, tool, or gate change.

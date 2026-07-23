@@ -19,6 +19,16 @@ programme's CI-parity guarantee in specification-audit-programme.md
 section 3 principle 5 is broken. This linter detects that drift
 deterministically.
 
+In addition to the four-surface row parity, this gate ADDITIVELY guards the
+three exclusion allow-lists and the PR-only D1-D8 delta gates (TODO 3.99): each
+exclusion member is cross-checked against a positive signal that it is genuinely
+not a corpus gate (a setup step invokes no gate script; a delta-gate step's
+script is not a §6-inventory script; a non-gate pre-commit hook carries no
+`--check`), so a real gate mistakenly added to an exclusion set fails rather than
+being masked; and each D-numbered delta gate in the PR-time runner is confirmed
+to map to a workflow delta-gate step of the same script, with the D-numbers
+contiguous D1..D8. See ``verify_exclusion_and_delta_guards``.
+
 Comparison: the spec inventory table is the canonical source of truth.
 The other three surfaces are validated against it. For each row of the
 inventory, this linter confirms that:
@@ -61,6 +71,9 @@ SPEC_PATH = "governance/specification-audit-programme.md"
 WORKFLOW_PATH = ".github/workflows/quality.yml"
 RUNNER_PATH = "tools/run_all_audits.sh"
 PRECOMMIT_PATH = ".pre-commit-config.yaml"
+# The PR-time runner where the D1-D8 delta gates are actually invoked (the
+# positive-signal surface for the delta-gate parity guard, TODO 3.99).
+PRTIME_PATH = "tools/run-pr-time-checks.sh"
 
 # Workflow steps that are setup, not audit gates. These names are
 # excluded from the workflow's audit-gate list before comparison.
@@ -273,6 +286,158 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str]]:
     return entries
 
 
+# --- Additive hardening of the exclusion allow-lists + the D1-D8 delta gates
+# (TODO 3.99). These guards ADD to the parity audit; they do not weaken the
+# name/script row-parity above. Gap (i): the three exclusion allow-lists are
+# themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
+# would be silently masked from parity. Each guard cross-checks every exclusion
+# member against a POSITIVE signal that it is genuinely NOT a corpus gate:
+#   - WORKFLOW_SETUP_STEPS: the named step exists in the workflow and invokes no
+#     `python3 tools/X.py` gate script (it is a `uses:` action step).
+#   - WORKFLOW_DELTA_GATE_STEPS: the named step exists and its script is NOT one
+#     of the §6-inventory gate scripts (it is a delta / informational script).
+#   - PRECOMMIT_NON_GATE_HOOKS: the named hook exists and its entry is a write /
+#     regeneration invocation (no `--check`), not a verification gate. (The regen
+#     hook runs `build-taxonomy.py`/`build-portal.py` in write mode; the §6 gates
+#     run the SAME scripts WITH `--check`, so the `--check` flag is the
+#     discriminator, not the script name.)
+# Gap (ii): the 8 PR-only delta gates (D1-D8) live only in the workflow with no
+# cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
+# PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
+# same script, and that the D-numbers are contiguous D1..D8.
+WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
+PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
+PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
+RUN_CHECK_DN_RE = re.compile(r'^\s*run_check\s+"D(\d+)\s+(.+?)"')
+
+
+def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
+    """The first `python3 tools/X.py` script under the workflow step ``name``
+    (None if the step invokes no such script, i.e. a setup/uses step)."""
+    for i, line in enumerate(wf_lines):
+        m = WF_NAME_RE.match(line)
+        if m and m.group(1) == name:
+            for j in range(i + 1, min(i + 14, len(wf_lines))):
+                if WF_NAME_RE.match(wf_lines[j]):
+                    break
+                sm = SCRIPT_RE.search(wf_lines[j])
+                if sm:
+                    return sm.group(1)
+            return None
+    return None
+
+
+def verify_exclusion_and_delta_guards(
+    root: Path, spec_scripts: set[str]
+) -> list[str]:
+    """Additive TODO-3.99 guards over the exclusion allow-lists and the D1-D8
+    delta gates. Returns a (possibly empty) list of findings. Never mutates the
+    row-parity result; the caller appends these to its findings."""
+    findings: list[str] = []
+    wf_lines = (root / WORKFLOW_PATH).read_text(encoding="utf-8").splitlines()
+    wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
+    pc_lines = (root / PRECOMMIT_PATH).read_text(encoding="utf-8").splitlines()
+    prtime = (root / PRTIME_PATH)
+    prtime_lines = (
+        prtime.read_text(encoding="utf-8").splitlines() if prtime.is_file() else []
+    )
+
+    # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
+    for name in sorted(WORKFLOW_SETUP_STEPS):
+        if name not in wf_names:
+            findings.append(
+                f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} is not a "
+                f"step in {WORKFLOW_PATH} (stale exclusion?)"
+            )
+            continue
+        scr = _wf_step_script(wf_lines, name)
+        if scr is not None:
+            findings.append(
+                f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} invokes "
+                f"gate script {scr!r}; a setup step must not run a gate. If this "
+                f"is a real gate, remove it from the exclusion set."
+            )
+
+    # (i) WORKFLOW_DELTA_GATE_STEPS: must exist and NOT be a §6-inventory gate.
+    for name in sorted(WORKFLOW_DELTA_GATE_STEPS):
+        if name not in wf_names:
+            findings.append(
+                f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} is "
+                f"not a step in {WORKFLOW_PATH} (stale exclusion?)"
+            )
+            continue
+        scr = _wf_step_script(wf_lines, name)
+        if scr is not None and scr in spec_scripts:
+            findings.append(
+                f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} runs "
+                f"{scr!r}, which IS a §6-inventory gate script; a real gate is "
+                f"masked from parity by this exclusion."
+            )
+
+    # (i) PRECOMMIT_NON_GATE_HOOKS: must exist and be a non-gate (no --check).
+    pc_entries: dict[str, str] = {}
+    pending: str | None = None
+    for line in pc_lines:
+        mn = PC_NAME_RE.match(line)
+        if mn:
+            pending = mn.group(1)
+            continue
+        me = PC_ENTRY_RE.match(line)
+        if me and pending is not None:
+            pc_entries[pending] = me.group(1)
+            pending = None
+    for name in sorted(PRECOMMIT_NON_GATE_HOOKS):
+        if name not in pc_entries:
+            findings.append(
+                f"exclusion guard: PRECOMMIT_NON_GATE_HOOKS member {name!r} is not "
+                f"a hook in {PRECOMMIT_PATH} (stale exclusion?)"
+            )
+            continue
+        if "--check" in pc_entries[name]:
+            findings.append(
+                f"exclusion guard: PRECOMMIT_NON_GATE_HOOKS member {name!r} entry "
+                f"carries --check ({pc_entries[name]!r}); a --check invocation is a "
+                f"verification gate, not a regeneration hook."
+            )
+
+    # (ii) D1-D8 delta-gate parity across the workflow and the PR-time runner.
+    dmap: dict[int, tuple[str, str | None]] = {}
+    for i, line in enumerate(prtime_lines):
+        m = RUN_CHECK_DN_RE.match(line)
+        if not m:
+            continue
+        num, nm = int(m.group(1)), m.group(2)
+        scr = None
+        for j in range(i, min(i + 3, len(prtime_lines))):
+            sm = SCRIPT_RE.search(prtime_lines[j])
+            if sm:
+                scr = sm.group(1)
+                break
+        dmap[num] = (nm, scr)
+    if prtime_lines:  # only if the runner is present (portable-clone tolerant)
+        nums = sorted(dmap)
+        if nums != list(range(1, 9)):
+            findings.append(
+                f"delta-gate guard: D-numbers in {PRTIME_PATH} are {nums}, not the "
+                f"contiguous D1..D8 set (a delta gate was added, removed, or "
+                f"misnumbered without updating the parity surfaces)."
+            )
+        for num, (nm, scr) in sorted(dmap.items()):
+            if nm not in WORKFLOW_DELTA_GATE_STEPS:
+                findings.append(
+                    f"delta-gate guard: D{num} {nm!r} in {PRTIME_PATH} has no "
+                    f"matching WORKFLOW_DELTA_GATE_STEPS entry in {WORKFLOW_PATH}."
+                )
+                continue
+            wf_scr = _wf_step_script(wf_lines, nm)
+            if wf_scr != scr:
+                findings.append(
+                    f"delta-gate guard: D{num} {nm!r} script drift: "
+                    f"{PRTIME_PATH} = {scr!r}; {WORKFLOW_PATH} = {wf_scr!r}."
+                )
+    return findings
+
+
 def main(argv: list[str]) -> int:
     global REPO_ROOT
     parser = argparse.ArgumentParser(
@@ -378,6 +543,11 @@ def main(argv: list[str]) -> int:
                 f"spec({SPEC_PATH}:{spec_line}) = {spec_script!r}; "
                 f"pre-commit({PRECOMMIT_PATH}:{pc_line}) = {pc_script!r}"
             )
+
+    # Additive TODO-3.99 guards: cross-check the exclusion allow-lists against a
+    # positive signal, and check the D1-D8 delta gates' cross-surface parity.
+    spec_scripts = {script for (_, _, _, script) in spec}
+    findings.extend(verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts))
 
     if findings:
         for finding in findings:
