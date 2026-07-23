@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### CI-action pin refresh: checkout v7.0.1, setup-python v7.0.0 (2026-07-23, PR #1096)
+Refreshed the two pinned CI GitHub-action SHAs across the three workflows (`actions/checkout` v4.3.1 to v7.0.1, `actions/setup-python` v5.6.0 to v7.0.0), each comment updated. Both SHAs verified against the upstream repos as the current latest releases; major bumps run green in CI. The disciplined form of the refresh Dependabot #1092/#1093 proposed (they lacked a CHANGELOG entry and #1093 left a stale comment); those two bot PRs closed as superseded. Not previously in TODO; maintainer-directed ("review, proceed if quality confirmed").
+
 ### Site skills list: add `adopt` (23 to 24 skills) (2026-07-23, PR #1095)
 Added the `adopt` skill (the run-once fork-onboarding command) to the public site's governance-pack skills list, correcting a count drift (the pack ships 24; the site listed 23). adopt now appears in the sidebar nav and a new "Fork onboarding" purpose-group, and the four "23 skills" count carriers (section-04 header, meta description, template comment, landing CTA) were updated to 24. Not previously in TODO; surfaced during #1094 as the adopt-gap and resolved by the maintainer's AskUserQuestion answer ("add adopt, make it 24").
 

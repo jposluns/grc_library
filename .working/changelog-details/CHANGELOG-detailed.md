@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.582, PR #1096
+
+Refreshes the pinned SHAs of the two CI GitHub actions (maintainer-directed, 2026-07-23: review the Dependabot PRs and proceed if quality is confirmed). CI-automation only; no corpus, gate, or version-bearing-document change.
+
+### Changed
+- **[.github/workflows/quality.yml](../../.github/workflows/quality.yml)**, **[.github/workflows/nightly-sweep.yml](../../.github/workflows/nightly-sweep.yml)**, **[.github/workflows/web-generator-health.yml](../../.github/workflows/web-generator-health.yml)**: the `actions/checkout` pin moves from the v4.3.1 SHA (`34e11487...`, comment `# v4`) to the v7.0.1 SHA (`3d3c42e5...`, comment `# v7.0.1`), and the `actions/setup-python` pin moves from the v5.6.0 SHA (`a26af69b...`, comment `# v5`) to the v7.0.0 SHA (`5fda3b95...`, comment `# v7.0.0`). Six pins in total (each action once per workflow); each comment updated to the new version.
+
+### Why
+- The [.github/dependabot.yml](../../.github/dependabot.yml) added in PR #1091 opened its first two auto-update PRs (Dependabot #1092 setup-python, #1093 checkout). Neither could merge cleanly: both failed the D1 CHANGELOG-on-PR gate (Dependabot writes no CHANGELOG entry), and #1093 left a stale `# v4` comment on a line pinning v7.0.1. Rather than `--admin`-override a real discipline gate, the refresh is applied as this disciplined PR (correct comments, CHANGELOG entry, pre-push guard), and the two Dependabot PRs are closed as superseded.
+
+### Verification
+- **SHA legitimacy (supply chain)**: each new SHA was resolved against the upstream action repository via the authenticated GitHub API. `actions/checkout` `3d3c42e5aac5ba805825da76410c181273ba90b1` resolves to tags `v7` and `v7.0.1` (the repo's current latest release); `actions/setup-python` `5fda3b95a4ea91299a34e894583c3862153e4b97` resolves to tags `v7` and `v7.0.0` (current latest release).
+- **Major-version compatibility**: the v4->v7 (checkout) and v5->v7 (setup-python) bumps ran green in the Dependabot PRs' own `Web generator health` CI job (which exercises both actions); the only failing check on those PRs was the content-level D1 gate, not the action execution.
+- **Residual**: 0 occurrences of the old checkout/setup-python SHAs remain in any workflow file; the six new pins carry the correct version comment.
+- CI automation only; not a corpus document, so no taxonomy / portal / scorecard regeneration, no per-document Version or Date, no corpus gate scans these workflows.
+
+### Bookkeeping
+- Batches PR #1095's post-merge validation row (the validate-pr history register) and retrospective row (the improvement-log register); register versions to 1.2.852 / 1.0.783.
+- Not previously in TODO; maintainer-directed CI-hygiene item. Recorded in DONE; supersedes Dependabot PRs #1092/#1093 (closed).
+- Library CalVer 2026.07.581 to 2026.07.582; README Version 1.9.942 to 1.9.943.
+
 ## 2026-07-23, Library Version 2026.07.581, PR #1095
 
 Adds the `adopt` skill to the public site's governance-pack skills list (maintainer-directed via AskUserQuestion, 2026-07-23: "add adopt, make it 24"). Website templates only; no corpus, gate, or version-bearing-document change.
