@@ -354,7 +354,12 @@ is external. Two mechanisms:
    - If the PR adds or edits **new pack prose** (a SKILL, a rule, a slash command, or new
      prose in the pack README/CLAUDE.md), `tools/lint-language.py` was run on it **before
      the first commit** (new-pack-prose drafting recurrently reintroduces em-dashes and
-     British `-ise`).
+     British `-ise`); and because that `lint-language.py` run's fence-aware scan of a
+     `.claude/` file can be silently truncated by an unbalanced fence that gate 66
+     (`tools/lint-unbalanced-fences.py`) never sees in its default walk (which exempts
+     `.claude/`), `tools/lint-unbalanced-fences.py` was run on the SAME explicit paths (it
+     accepts explicit path arguments), so an unbalanced fence in that prose is caught
+     rather than silently suppressing the language scan's tail.
    - If the PR changed a **convention, count, routing rule, or gate-wiring that is
      restated across surfaces**, the OLD phrasing was grepped across the full changed file
      AND every sibling surface, with zero hits confirmed before commit (the

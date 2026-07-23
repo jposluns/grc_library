@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.568, PR #1080
+
+Closes the gate-66 (Unbalanced-fence audit) default-population shape gap per TODO §3.11. Documentation only (a close-out checklist clause in the project governance file); no gate-code, gate-count, or four-surface change.
+
+### Added
+- **[`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)**: a clause appended to the existing new-pack-prose close-out checklist bullet (the `## Session migration and PR close-out checklist` section). Gate 66, the Unbalanced-fence audit [`tools/lint-unbalanced-fences.py`](../../tools/lint-unbalanced-fences.py), fails any scanned markdown file that ends inside an open fenced code block, but its DEFAULT walk exempts the `.claude/` tree (via the shared `DEFAULT_EXEMPT_DIRS`), while the mandated new-pack-prose language audit [`tools/lint-language.py`](../../tools/lint-language.py) scans `.claude/` files via explicit paths; so an unbalanced fence in a `.claude/` file could silently truncate the language audit's tail while the unbalanced-fence audit's default walk never sees the file. The new clause requires running the unbalanced-fence audit on the SAME explicit paths (it accepts explicit path arguments), catching the unbalanced fence rather than letting it suppress the language audit. This is exactly the paired usage the tool's own module docstring already prescribes.
+
+### Verification
+- All 73 audit gates pass (documentation add; the `.claude/` tree is exempt from the corpus gates). Applying the very discipline this clause documents: the language audit and the unbalanced-fence audit were both run on the edited governance file; the unbalanced-fence audit is clean (balanced), and the added six lines introduced zero new language findings (the file's pre-existing, ungated `.claude/`-exempt dashes are unchanged and out of scope).
+- Chose the conservative option (b) of the two §3.11 named (a close-out checklist clause), NOT option (a) (widening the audit's default walk, a gate-code change): the gap is specific to the files the language audit scans explicitly, so pairing the two audits on that same invocation is the tightest fit and avoids a permanent default-scope divergence from the shared exempt-dirs convention.
+- Verified directly by the orchestrator; no standing skeptical-verifier subagent, proportionate to the change weight.
+
+### Discipline observation
+Offloaded investigation+draft (worker-a), pinned to the current main tip. The worker identified gate 66 exactly (spec §6 line 147), confirmed the concern against the tool's docstring, and recommended option (b); the orchestrator verified gate 66's identity and applied the clause to the protected governance file. Recycled-number note: the closed wind-down-SOP §3.11 (PR #523) is a distinct item. Batched PR #1079's `/validate-pr` plus `/retro` rows. Library 2026.07.567 to 2026.07.568.
+
 ## 2026-07-23, Library Version 2026.07.567, PR #1079
 
 Adds a new-jurisdiction/sector-annex discoverability override to the worker brief per TODO §3.23. Documentation only (a [`.working/worker-brief-template.md`](../worker-brief-template.md) override block); no gate, no code change.

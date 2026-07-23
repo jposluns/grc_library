@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.11: gate-66 default-population shape call (2026-07-23, PR #1080)
+Closed the gate-66 (Unbalanced-fence audit, `tools/lint-unbalanced-fences.py`) default-population gap by the conservative option: appended a clause to the new-pack-prose close-out checklist bullet in `.claude/CLAUDE.md` requiring `tools/lint-unbalanced-fences.py` to run on the SAME explicit `.claude/` paths as the mandated `lint-language.py` new-pack-prose run, so an unbalanced fence in a `.claude/` file (which gate 66's default walk exempts) is caught rather than silently truncating the language scan's tail. Offloaded investigation+draft (worker-a) confirmed gate 66's identity and that the tool's own docstring already prescribes this; a latent-gap closure (zero current findings), no gate-code change. (Recycled number: the closed wind-down-SOP §3.11 from PR #523 is distinct.)
+
 ### TODO §3.23: new-jurisdiction/sector-annex discoverability checklist (2026-07-23, PR #1079)
 Added a `### New jurisdiction / sector annex PR` per-PR-class override block to `.working/worker-brief-template.md` enumerating the full discoverability surface set a new annex must touch (document-index register + domain README, decision-tree §5.1/§3.3/FAQ §7, register-coverage-gaps §2.5, glossary, generated taxonomy/portal/scorecard, plus matrix/crosswalk and Related-Documents extras), so a new annex is not merged listed only in its own file (the multi-surface-incompleteness class caught at deep-assessment Sweep 92: #733 HIPAA and #743 EU AI Act left sibling surfaces stale). Offloaded draft (worker-a); decision-tree section numbers verified live at apply.
 
