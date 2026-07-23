@@ -8324,6 +8324,23 @@ class RuleScopeTableTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("governance/ghost.md", result.stdout)
 
+    def test_indented_row_is_keyed(self):
+        # F1 hardening: an indented table row must key consistently with the
+        # strip-based region terminator; a complete table whose sole row carries
+        # leading whitespace PASSes rather than over-strictly false-FAILing MISSING.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "governance").mkdir(parents=True)
+            (root / "governance" / "foo.md").write_text("# rule\n", encoding="utf-8")
+            (root / "README.md").write_text(
+                "# Pack\n\n## Rule files and their scope\n\n"
+                "| File | When to Use |\n| --- | --- |\n"
+                "  | [`governance/foo.md`](governance/foo.md) | indented row |\n"
+                "\n---\n", encoding="utf-8")
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0,
+                         f"indented row should key (not false-FAIL).\n{result.stdout}")
+
     def test_row_named_only_in_history_and_tree_still_flagged(self):
         # FP-guard: the version-history table and the directory tree both name
         # governance/bar.md, but the scope table omits it; the gate parses only

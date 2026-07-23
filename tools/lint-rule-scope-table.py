@@ -14,7 +14,9 @@ This gate closes that surface. It compares the table's rows to the on-disk rule
 files and flags a MISSING row (a rule file with no row) or an EXTRA row (a row
 whose target is not a rule file under the category subdirs).
 
-Scope and precision (precision-first, false-positive-free by construction):
+Scope and precision (precision-first: the gate never false-PASSES a real
+missing or extra row; a malformed table may over-strictly false-FAIL, which is
+the safe direction and does not occur on the well-formed live table):
 
   * It reads ONLY the "Rule files and their scope" table region: from the exact
     heading line ``## Rule files and their scope``, through the
@@ -65,7 +67,9 @@ DEFAULT_ROOT = REPO_ROOT / "dev-security" / "claude-rules"
 SCOPE_HEADING = "## Rule files and their scope"
 TABLE_HEADER_RE = re.compile(r"^\|\s*File\s*\|\s*When to Use\s*\|\s*$")
 # First-cell backticked link only: matches the File column, never a When-to-Use link.
-ROW_LINK_RE = re.compile(r"^\|\s*\[`([^`]+)`\]")
+# Leading whitespace is tolerated so an indented row keys consistently with the
+# `.strip()`-based region terminator below (no over-strict false-FAIL on an indented row).
+ROW_LINK_RE = re.compile(r"^\s*\|\s*\[`([^`]+)`\]")
 
 
 def _is_separator(line: str) -> bool:

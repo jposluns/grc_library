@@ -23,6 +23,7 @@ Ships §1.18 PR-2 (the change-impact surface map's first FP-safe gate): a new ga
 
 ### Verification
 - `tools/run_all_audits.sh`: all 74 audit gates pass. Gate 74 is green; gate 35 four-surface parity, gate 39 count (now 74), gate 64 detailed-prose presence, and gate 36 regression (including the new `RuleScopeTableTests`) all pass. The gate was empirically confirmed to report exactly one MISSING against the live README before the row was added, and green after.
+- A pre-push skeptical verifier (offloaded to worker-b, refute-briefed against all seven targets with constructed breaking inputs) returned SHIP with one LOW: the gate docstring's "false-positive-free by construction" was an overclaim, because an indented table row was not keyed (the row regex anchored `^\|` on the raw line while the region terminator used `.strip()`), an over-strict false-FAIL and never a false-PASS. Both were applied here: the row regex now tolerates leading whitespace (`^\s*\|`), the docstring is reworded to the accurate "never false-PASSES a real missing or extra row", and a `test_indented_row_is_keyed` fixture proves the fix.
 - Library CalVer 2026.07.592 to 2026.07.593; README Version 1.9.953 to 1.9.954; audit-programme spec Version 1.17.16 to 1.17.17 (its body gained the gate-74 §5/§6 entries).
 
 ### Why
