@@ -8251,6 +8251,24 @@ class HookToolItemCountParityTests(unittest.TestCase):
             f"have drifted; re-align them (guardrail layers 1 and 2 are a pair).")
 
 
+class WorkerSaturationToolTests(unittest.TestCase):
+    """The advisory ``tools/audit-worker-saturation.py`` tool's own ``--self-test``,
+    wired into the regression suite so its verdict logic (IDLE-CAPACITY / SATURATED
+    / NO-WORKERS) and its false-positive guards stay green. This is the L1 observable
+    of the worker-saturation guard rail (maintainer-directed 2026-07-23): the tool
+    must flag IDLE-CAPACITY and must never flag SATURATED, NO-WORKERS, or a healthy
+    queue. The tool is advisory (never a gate), so its correctness is protected here
+    rather than by the four-surface gate-parity machinery."""
+
+    def test_worker_saturation_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-worker-saturation.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-worker-saturation.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("passed", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
