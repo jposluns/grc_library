@@ -8061,5 +8061,58 @@ class CobitTitleTextTests(LinterTestCase):
         )
 
 
+class PreflightChangelogMirrorTests(unittest.TestCase):
+    """tools/preflight-changelog.py full-mirror link-resolution scan (TODO 3.34
+    remaining half): a dangling in-repo relative markdown link ANYWHERE in the
+    whole detailed mirror is flagged (not only on added lines), reusing the
+    added-line resolver. Uses the function's explicit ``root`` parameter so the
+    test is isolated without monkeypatching a module global (the Global-state
+    isolation convention in tests/README.md)."""
+
+    def _load(self, unique):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/preflight-changelog.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _write_mirror(self, root, body):
+        d = root / ".working" / "changelog-details"
+        d.mkdir(parents=True)
+        (d / "CHANGELOG-detailed.md").write_text(body, encoding="utf-8")
+        return d
+
+    def test_dangling_in_mirror_flagged(self):
+        # A link whose in-repo target does not exist is flagged, with its line no.
+        mod = self._load("_pcl_dangling")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._write_mirror(
+                root, "# Detailed\n\nSee [gone](nope-missing.md) for detail.\n"
+            )
+            findings = mod.unresolved_links_in_mirror(root=root)
+            self.assertTrue(
+                any("nope-missing.md" in tgt for _, tgt, _ in findings),
+                findings,
+            )
+            self.assertEqual(findings[0][0], 3)  # line number reported
+
+    def test_resolving_mirror_clean(self):
+        # A resolving in-repo link, an external link, and a code-span-illustrative
+        # link are all clean (the same exclusion set as the added-line check).
+        mod = self._load("_pcl_clean")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            d = self._write_mirror(
+                root,
+                "# Detailed\n\nSee [real](real.md), an [ext](https://example.com), "
+                "and an illustrative `[t](url)` span.\n",
+            )
+            (d / "real.md").write_text("x", encoding="utf-8")
+            self.assertEqual(mod.unresolved_links_in_mirror(root=root), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
