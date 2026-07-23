@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.560, PR #1072
+
+Adds the cross-repo reference-existence advisory tool per TODO §1.22.4 (the second half of the §1.22.3/§1.22.4 shared-engine pair). Tooling only; advisory (never fails CI); no corpus, gate, or behaviour change.
+
+### Changed
+- **[`tools/audit-cross-repo-references.py`](../../tools/audit-cross-repo-references.py)** (new): scans references/pointers/filenames across all trees and file types and classifies each as **in-repo-exists**, **in-repo-missing (dangling)**, **cross-repo pointer** (`_ref`/`_scratch`/`_private`/`grc_library_private`, flagging possible over-exposure of the private siblings), or **ambiguous**. Reuses the existing machinery, NOT a reimplementation: gate 3's link resolver, `lint_common`'s `resolve_sibling`/`sibling_placeholder_present` (the §1.19.2 portable-clone helpers), and the §1.22.3 entry-iteration seam. ADVISORY only (never exits non-zero to fail CI, spans gate-exempt trees), stdlib-only (gate 71), and NO-OPs + exits 0 on sibling-absence (the sibling-absent path emits "existence not verified" notes rather than raising, confirmed against a sibling-free worktree). 5 `--self-test` cases (in-repo-exists, dangling, cross-repo pointer, sibling-absent no-op, resolver reuse).
+- **[`TODO.md`](../../TODO.md)**: §1.22.4 rotated to [`DONE.md`](../DONE.md).
+- Batched PR #1071's `/validate-pr` (CLEAN) + `/retro` rows. Library 2026.07.559 to 2026.07.560.
+
+### Discipline observation (offload + verify)
+- The tool was OFFLOADED as a candidate diff (worker-b) and independently adversarially verified (worker-a, verdict SHIP, all five concerns refuted: advisory, sibling-absent no-op, stdlib-only, classification correctness, resolver-reuse-without-drift). The orchestrator applied it deterministically (`git apply`), re-read the full file, and re-ran `--self-test` (5/5) + a live sample. Two optional future refinements the verifier noted (inline-code-span parity with gate 3; a `tests/tmp/` allow-list) are recorded, not required to ship.
+
+### Verification
+- `--self-test` 5/5 OK; a live advisory run exercised (classifies the `_private` pointers as review-over-exposure, exit 0). [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) all gates pass; pre-push guard green.
+
 ## 2026-07-23, Library Version 2026.07.559, PR #1071
 
 Adds the no-priority "Maintainer or Egress Gated" registry section to [`TODO.md`](../../TODO.md) per §1.22.7, so the run has one unambiguous place for everything the assistant cannot clear alone (and never claims "done all I could" while maintainer-actionable items remain). Working-state/backlog bookkeeping; no corpus, gate, or behaviour change.
