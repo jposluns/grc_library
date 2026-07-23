@@ -67,6 +67,22 @@ crashed test were to remain in the directory, the main
 the only window for contamination is during a single-test crash
 without `tearDown` — and the next `setUpModule` removes the file.
 
+## Global-state isolation
+
+The regression suite runs every linter in ONE Python interpreter
+(`run-linter-regression.py` imports and drives them in-process), so a test
+that patches a shared or module-level global (an environment variable, a
+module attribute, `sys.argv`, a class attribute, or a monkeypatched function)
+must restore it deterministically, or the mutation leaks into a sibling test
+that runs later in the same process. Use one of the two sanctioned
+mechanisms: `unittest.mock.patch` (in its context-manager or decorator form,
+which restores the original on exit and on exception), or an explicit
+`try/finally` that saves the prior value before the patch and restores it in
+the `finally`. Restore even when the patched module was loaded fresh for the
+test: relying on a discarded per-test module instance for isolation is
+fragile, since a later change to a shared or cached import would silently
+reintroduce the leak.
+
 ## Coverage
 
 Each linter has its own `LinterTestCase` subclass (e.g. `LanguageLinterTests`,
