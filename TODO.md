@@ -72,7 +72,7 @@ A cohesive block the maintainer surfaced at the 2026-07-19 `/resume`, tightening
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.27.**
+**Next item number: 2.28.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -247,6 +247,10 @@ Express the existing ISO, NIST, CSA, and COBIT alignment tables as OSCAL profile
 **Depends on:** 2.25.1 (Series A relationship model) and 2.26.4.
 
 **Blocks:** none (terminal).
+
+### 2.27 OWASP Top 10 for Agentic Applications (ASI01-ASI10) integration into the agentic-security standard (maintainer-decided 2026-07-23b, M, M) `[content]`
+
+The fuller OWASP-Agentic integration into [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md): a §36 alignment-matrix ASI01-ASI10 column mapped per Control Area, plus a §6 threat-class crosswalk. **Maintainer decision 2026-07-23b (RB-7(ii) follow-up): option (b), ADD NEW THREAT-CLASS ENTRIES for ASI08 / ASI09 / ASI10** (expand the §6 threat-class taxonomy) rather than cite-only. The verified ASI-to-threat-class crosswalk is banked in the scratch `research-owasp-agentic-ingest-cite` delivery (re-verify at the held OWASP source at apply). Expert-review-facing corpus standard, so it warrants a skeptical verifier at apply (the high-assurance harness if the scale/sensitivity trigger is met). Now UNBLOCKED by the decision; recorded in [`pending-decisions.md`](.working/pending-decisions.md).
 
 ## Priority 3 — Clean up and tooling
 
