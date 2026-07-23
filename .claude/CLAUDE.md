@@ -1405,6 +1405,15 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   wind-down, session-migration/close-out, and concurrency-lease sections plus the `/resume`
   interlock; those sections remain here as the project-specific operationalization (concrete
   files, the timer value, the mode-exit ordering).
+- `.claude/rules/governance/decision-classification-before-enacting.md` — before enacting a
+  significant autonomous decision (one that disposes of a queued/authorized item or bends the
+  plan: a defer, re-sequence, wind-down, skip, or authorial choice), classify it ACT / ASK /
+  BLOCKED and write the classification before enacting it; a BLOCKED classification names a
+  blocker-type from a closed, externally-observable set, and un-instrumented internal state
+  (heaviness, felt degradation, "do it fresh later") is never a valid hold. Project
+  instantiation: the `## Decision discipline: act, ask, or name a blocker (write-before-enact)`
+  and `## Backlog-status characterization is the audit tool's output` sections, the
+  `block-unjustified-decision.py` hook, and `grc_library_private/autonomous-decisions-log.md`.
 
 The `dev-security/claude-rules/README.md` is the authoritative pack version history and
 future-work signalling; pack changes are tracked through the library's CHANGELOG and
