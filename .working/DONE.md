@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### TODO §3.68 (full close): vuln-remediation-SLA divergent-value carriers (2026-07-23, PR #1097)
+Applied the maintainer's four per-carrier decisions against the vuln-management SoT: (3.68a) tightened the pentest-standard remediation table High 30 to 14 days and Medium 60 to 30 days to align with the SoT; (3.68b) tightened the Tier-1 critical-supplier patch bar 30 to 7 days (Tier-1 high stays 90, Tier-2 unchanged); (3.68c) tightened the SoT section-6 exception maximums to patch-management's stricter values (High to 30, Med to 90, added Low 180) and had patch-management cite the SoT instead of restating them; (3.68d) confirmed the BASC KPI register already consistent, left as-is. Closes §3.68 (the #912 clear-conversions half closed earlier); MEG-38 index row removed. Decisions from pending-decisions; worker research verified line-for-line before authoring.
+
 ### CI-action pin refresh: checkout v7.0.1, setup-python v7.0.0 (2026-07-23, PR #1096)
 Refreshed the two pinned CI GitHub-action SHAs across the three workflows (`actions/checkout` v4.3.1 to v7.0.1, `actions/setup-python` v5.6.0 to v7.0.0), each comment updated. Both SHAs verified against the upstream repos as the current latest releases; major bumps run green in CI. The disciplined form of the refresh Dependabot #1092/#1093 proposed (they lacked a CHANGELOG entry and #1093 left a stale comment); those two bot PRs closed as superseded. Not previously in TODO; maintainer-directed ("review, proceed if quality confirmed").
 

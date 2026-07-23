@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.583, PR #1097
+
+Closes TODO §3.68 (the routed divergent-value vuln-SLA carriers; the #912 clear-conversions half closed earlier). Applies the maintainer's four per-carrier decisions (recorded in pending-decisions, 3.68a to 3.68d) against the single source of truth (SoT), [security/procedure-vulnerability-management.md](../../security/procedure-vulnerability-management.md). The worker-delivered research was verified line-for-line against the live files before authoring.
+
+### Changed
+- **3.68a [security/standard-penetration-testing-and-red-team.md](../../security/standard-penetration-testing-and-red-team.md)** (section 7 remediation table): High "Within 30 days" to "Within 14 days", Medium "Within 60 days or next maintenance window" to "Within 30 days or next maintenance window", so the values align with the SoT section-2 SLAs (High 14, Med 30). Critical (Within 7 days) and Low/Informational are unchanged per the decision. Version 1.0.2 to 1.0.3.
+- **3.68b [supply-chain/standard-supplier-security-and-privacy-assurance.md](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)** (section 3.1, Tier-1 critical suppliers): "critical patches within 30 days" to "within 7 days" (matching the internal Critical KPI); the "high within 90 days" clause is unchanged (Tier-1 high stays 90d per the decision), and Tier-2 (section 3.2, critical within 60 days) is unchanged (a deliberately looser supplier-facing contractual floor). Version 1.1.8 to 1.1.9.
+- **3.68c** the exception-maximum reconciliation. **[security/procedure-vulnerability-management.md](../../security/procedure-vulnerability-management.md)** (SoT, section 6 "Maximum duration"): tightened from "30 days for Critical; 90 days for High; 180 days for Medium." to "30 days for Critical; 30 days for High; 90 days for Medium; 180 days for Low." (the stricter patch-management values, plus the previously-absent Low tier). Version 1.3.7 to 1.3.8. **[operations/procedure-patch-management.md](../../operations/procedure-patch-management.md)** (section 4 "Maximum deferral"): now cites the SoT section 6 (with a markdown link) as the single source of truth for the exception maximums rather than restating them; the stated values are identical to the tightened SoT, so citing makes the SoT the single owner and prevents drift (the same pattern the doc already uses at its section-1 deployment-timeline note). Version 1.0.6 to 1.0.7.
+- **3.68d [compliance/logistics/register-basc-it-compliance-kpis.md](../../compliance/logistics/register-basc-it-compliance-kpis.md)**: LEFT AS-IS. Its Critical-within-7-days and High-within-14-days KPI targets are already consistent with the SoT; the decision was to leave the register unchanged, so it is not in the diff.
+
+### Why
+- §3.68 tracked the divergent-value carriers of the vuln-remediation SLA that needed a maintainer judgment call (not mechanical conversion). The maintainer decided each carrier; this PR applies those decisions. The stricter-safe direction was chosen where a tightening aligned a carrier to the SoT (3.68a, 3.68b, 3.68c), and the one already-aligned carrier (3.68d) was left untouched.
+- The 3.68a alignment claim (the pentest doc's "align with those established in the Vulnerability Management Procedure"): after the High/Med value tighten it reads true for the graded severities the pentest table lists. Two residual simplifications remain and are NOT changed, because the maintainer's decision was option (a) value-tighten, explicitly chosen over option (b) reword-the-prose: (i) the pentest table carries a single Critical clock (7 days) rather than the SoT's accelerated 24h/72h tiers for actively-exploited / PoC criticals; (ii) the pentest Low row is "risk acceptance or next scheduled release cycle" versus the SoT Low of 90 days. These are pre-existing simplifications of the pentest-findings model, surfaced for maintainer awareness, not defects introduced here.
+
+### Verification
+- Worker research (delivered to the scratch exchange as the research-vuln-sla-368 result) verified line-for-line against the live files before authoring: every quoted line, line number, and current Version confirmed.
+- A refute-briefed skeptical verifier (read-only-git) judged the corpus diff.
+- No stranded cross-reference: a corpus-wide grep confirmed no other document enumerates the SoT section-6 exception maximums, so adding the Low tier strands nothing; and no other carrier of the old pentest / supplier values exists.
+- Generated artefacts regenerated in order (taxonomy first, then scorecard); the generated portal file correctly unchanged (no portal-visible field moved).
+
+### Bookkeeping
+- §3.68 rotated TODO to DONE; the stale `MEG-38` Maintainer-or-Egress-Gated index row (which pointed at §3.68) removed.
+- Batches PR #1096's post-merge validation row (the validate-pr history register) and retrospective row (the improvement-log register); register versions to 1.2.853 / 1.0.784.
+- Library CalVer 2026.07.582 to 2026.07.583.
+
 ## 2026-07-23, Library Version 2026.07.582, PR #1096
 
 Refreshes the pinned SHAs of the two CI GitHub actions (maintainer-directed, 2026-07-23: review the Dependabot PRs and proceed if quality is confirmed). CI-automation only; no corpus, gate, or version-bearing-document change.

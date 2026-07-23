@@ -2,8 +2,8 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-07-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -92,8 +92,8 @@ Remediation timelines for penetration test findings align with those established
 | Finding Severity | Required Remediation Timeline |
 | --- | --- |
 | **Critical** | Within 7 days |
-| **High** | Within 30 days |
-| **Medium** | Within 60 days or next maintenance window |
+| **High** | Within 14 days |
+| **Medium** | Within 30 days or next maintenance window |
 | **Low / Informational** | Risk acceptance or next scheduled release cycle |
 
 Unresolved Critical and High findings beyond their required timelines are escalated to the CIO and logged in the Risk Register with a documented remediation plan.

@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.8\
-**Date:** 2026-07-05\
+**Version:** 1.1.9\
+**Date:** 2026-07-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -42,7 +42,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 |---|---|---|
 | Information security management system (ISMS) | ISO/IEC 27001:2022 or equivalent: certification or documented equivalent | Current ISO/IEC 27001 certificate; or detailed control inventory with independent attestation |
 | Access control: least privilege, MFA for remote access | Documented access control policy and procedures | Policy documentation; MFA configuration attestation |
-| Vulnerability management: critical patches within 30 days, high within 90 days | Documented patch management procedure | Patch management records; vulnerability scan summary |
+| Vulnerability management: critical patches within 7 days, high within 90 days | Documented patch management procedure | Patch management records; vulnerability scan summary |
 | Incident response capability: 24-hour detection target; documented escalation | Documented IRP with notification timelines | IRP document; evidence of testing |
 | Security incident notification to the organization | Within 24 hours of confirmed incident affecting organization data or services | Contractual notification obligation; test notification record |
 | Penetration testing | Annual external penetration test by qualified provider | Pen test report or letter of attestation (last 12 months) |
