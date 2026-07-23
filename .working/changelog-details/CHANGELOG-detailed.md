@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 The dual-entry convention was introduced in PR #125 (2026-06-21). Historical entries before that date follow the original single-file convention (the root entry was complete; this mirror preserves that pre-split state verbatim from the moment of the split).
 
+## 2026-07-23, Library Version 2026.07.581, PR #1095
+
+Adds the `adopt` skill to the public site's governance-pack skills list (maintainer-directed via AskUserQuestion, 2026-07-23: "add adopt, make it 24"). Website templates only; no corpus, gate, or version-bearing-document change.
+
+### Changed
+- **[.web/templates/pack.html](../../.web/templates/pack.html)**: the site listed 23 skills, but the pack ships 24; `adopt` (the run-once fork-onboarding command, `derives_from` session-lifecycle) was omitted. Adds adopt in both skill blocks: the left-nav sidebar Skills list (after `skill-authoring-discipline`), and a new `Fork onboarding` purpose-group in the main section-04 chips (adopt fits none of the four existing purpose-labels, so a plain new purpose-group, styled identically to the others, is the accurate placement under the page's "grouped by purpose" model). Bumps the section-04 header "The skills (23)." to "(24).", the page meta-description "23 skills" to "24 skills", and the sidebar-CSS comment "13 rules + 23 skills" to "24".
+- **[.web/templates/landing.html](../../.web/templates/landing.html)**: the pack call-to-action "13 rules and 23 skills" bumped to "24 skills".
+
+### Why
+- The maintainer chose (via AskUserQuestion) to list adopt for completeness: the page should reflect all 24 distributable pack skills. The count "23" was a drift, the pack has held 24 since the adopt skill landed (pack 1.62.0, #998); the canonical count elsewhere (pack README, guardrail-review inventories) is already 24.
+- Placement note surfaced for maintainer redirect: the maintainer declined the "visually set apart" option, so adopt is added plainly; but adopt genuinely fits none of the four existing purpose-groups, so shoehorning it under a wrong label would misdescribe it. A plain new "Fork onboarding" purpose-group (identical styling to the other four) keeps the "grouped by purpose" integrity without the italic/note set-apart treatment that was declined.
+
+### Verification
+- **Count**: 24 distinct skills now linked (6 + 4 + 3 + 10 + 1 groups); adopt appears exactly twice (sidebar + section-04), matching the two-block pattern; header reads "The skills (24).".
+- **No residual 23**: 0 `23 skills` / `skills (23)` / `13 rules and 23` carriers remain in `.web/templates/` (the only residuals are in the gitignored `.web/dist/` build output, regenerated at deploy).
+- **Render**: the web-generator check pass (`build.py --check`) exits 0 (35 pages).
+- Website templates only; no corpus document, so no taxonomy / portal / scorecard regeneration, no per-document Version or Date, no gate scans these templates.
+
+### Bookkeeping
+- Batches PR #1094's post-merge validation row (the validate-pr history register) and retrospective row (the improvement-log register); register versions to 1.2.851 / 1.0.782.
+- Not previously in TODO; surfaced during PR #1094 as the adopt-gap and resolved by the maintainer's AskUserQuestion answer. Recorded in DONE as a maintainer-directed item.
+- Library CalVer 2026.07.580 to 2026.07.581; README Version 1.9.941 to 1.9.942.
+
 ## 2026-07-23, Library Version 2026.07.580, PR #1094
 
 Closes TODO §3.78 (maintainer-flagged P3 priority, 2026-07-15). Website template only; no corpus, gate, or version-bearing-document change.
