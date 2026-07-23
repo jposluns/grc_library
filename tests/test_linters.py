@@ -8270,5 +8270,95 @@ class WorkerSaturationToolTests(unittest.TestCase):
         self.assertIn("passed", result.stdout)
 
 
+class RuleScopeTableTests(LinterTestCase):
+    """tools/lint-rule-scope-table.py (gate 74)"""
+
+    SCRIPT = "tools/lint-rule-scope-table.py"
+
+    def _build_root(self, root, rows, disk, extra_sections=""):
+        """Write <root>/README.md with a scope table listing `rows`, create the
+        on-disk rule files `disk` (each '<category>/<file>.md'), and append any
+        `extra_sections` (a version-history table or a directory tree) after the
+        table so the FP-guard fixture can prove they are ignored."""
+        table = "## Rule files and their scope\n\n| File | When to Use |\n| --- | --- |\n"
+        for r in rows:
+            table += f"| [`{r}`]({r}) | when-to-use text |\n"
+        (root / "README.md").write_text(
+            "# Pack\n\n" + table + "\n---\n" + extra_sections, encoding="utf-8")
+        for f in disk:
+            p = root / f
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text("# rule\n", encoding="utf-8")
+
+    def test_runs_clean_on_corpus_at_head(self):
+        # After the missing row lands (guard-first pairing), the real table
+        # lists every on-disk rule file and the gate passes.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(result.returncode, 0,
+                         f"gate exited {result.returncode} on HEAD.\n"
+                         f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_missing_row_flagged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._build_root(root, ["governance/foo.md"],
+                             ["governance/foo.md", "governance/bar.md"])
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("governance/bar.md", result.stdout)
+
+    def test_complete_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._build_root(root, ["governance/foo.md", "core/secrets.md"],
+                             ["governance/foo.md", "core/secrets.md"])
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_extra_row_flagged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._build_root(root, ["governance/foo.md", "governance/ghost.md"],
+                             ["governance/foo.md"])
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("governance/ghost.md", result.stdout)
+
+    def test_indented_row_is_keyed(self):
+        # F1 hardening: an indented table row must key consistently with the
+        # strip-based region terminator; a complete table whose sole row carries
+        # leading whitespace PASSes rather than over-strictly false-FAILing MISSING.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "governance").mkdir(parents=True)
+            (root / "governance" / "foo.md").write_text("# rule\n", encoding="utf-8")
+            (root / "README.md").write_text(
+                "# Pack\n\n## Rule files and their scope\n\n"
+                "| File | When to Use |\n| --- | --- |\n"
+                "  | [`governance/foo.md`](governance/foo.md) | indented row |\n"
+                "\n---\n", encoding="utf-8")
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 0,
+                         f"indented row should key (not false-FAIL).\n{result.stdout}")
+
+    def test_row_named_only_in_history_and_tree_still_flagged(self):
+        # FP-guard: the version-history table and the directory tree both name
+        # governance/bar.md, but the scope table omits it; the gate parses only
+        # the scope-table region, so bar.md is still MISSING.
+        version_history = (
+            "\n## Version history\n\n| Pack | Library | Date | Notable change |\n"
+            "| --- | --- | --- | --- |\n"
+            "| 1.0.1 | x | y | Added [`governance/bar.md`](governance/bar.md) |\n")
+        tree = "\n## Pack scope\n\n```\ngovernance/\n  foo.md desc\n  bar.md desc\n```\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._build_root(root, ["governance/foo.md"],
+                             ["governance/foo.md", "governance/bar.md"],
+                             extra_sections=version_history + tree)
+            result = run_linter(self.SCRIPT, "--root", str(root))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("governance/bar.md", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
