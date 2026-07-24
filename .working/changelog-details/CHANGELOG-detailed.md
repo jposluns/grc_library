@@ -8,6 +8,22 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.627, PR #1141
+
+De-duplicates the CCPA ADMT coverage (§3.105): consolidates the ADMT limb into a single canonical home (the California AI annex) and narrows the privacy annex to a pointer, mirroring the pattern the privacy annex already uses for the Colorado AI statute. Migrate-before-narrow, so no obligation detail is ever absent from both annexes.
+
+### Changed
+- [`ai/jurisdictions/annex-ai-us-california.md`](../../ai/jurisdictions/annex-ai-us-california.md) (Version 0.0.1 to 0.0.2): migrated the one privacy-annex-only detail into this annex first (the section-7001 significant-decision enumerated categories, appended to the scope section), so no content is lost on narrowing; updated the Purpose and Relationship notes to record this as the single canonical ADMT home.
+- [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) (Version 1.2.5 to 1.2.6, Date to 2026-07-24): narrowed the ADMT bullet in the "AI and privacy obligations" section to a brief privacy-context summary (the rights and dates) plus a pointer to the California AI annex for the full per-regime detail. The CCPA risk-assessment (Article 10) and cybersecurity-audit (Article 9) bullets stay (privacy-domain obligations).
+- Regenerated the taxonomy and maturity-scorecard generated artefacts for the two version bumps.
+- [`TODO.md`](../../TODO.md): closed §3.105.
+
+### Verification
+- The edit-plan was offloaded research, re-verified line-by-line against the live annexes before applying (the section-7001 enumerated categories confirmed present only in the privacy annex, migrated first). The Colorado pointer at the privacy annex's line 48 was the exact template mirrored. No held-source gap (the CCPA regulations are held and both annexes already cite them); the version-sensitive compliance date and categories carry the existing reconfirm-upstream caveat. A refute-briefed skeptical verifier confirmed no content lost (the section-7001 categories migrated byte-for-byte), the pointer mirrors the Colorado pattern, both annexes are internally consistent, and §3.105 is cleanly closed. Pre-push guard green. Canadian English, no em/en dashes.
+
+### Batched
+- PR #1140 `/validate-pr` (offloaded, PASS) plus `/retro` rows (validate-pr history 1.2.895 to 1.2.896; improvement-log 1.0.826 to 1.0.827).
+
 ## 2026-07-24, Library Version 2026.07.626, PR #1140
 
 Runs the §1.22.3 initial working-tree-to-`_private` sweep as a dedicated cleanup-PR (part a; working-state housekeeping, no corpus content change). Data-safe emit-verify-prune: the swept content was written to the `grc_library_private` archive and verified present there before anything was pruned from `.working`, and git history retains everything regardless.
