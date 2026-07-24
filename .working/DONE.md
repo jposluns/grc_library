@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.62 Branch-to-main edit-guard hook built (2026-07-24, PR #1134)
+
+Built the G1 branch-to-main edit guard the r10 guardrail review routed (maintainer-decided BUILD): a PreToolUse Edit|Write hook (`block-branch-to-main-edit.py`) that blocks an edit to a `grc_library` file while the repo is on `main`, allowing sibling-repo files (scratch/private/ref are push-direct on their own main), feature branches, and detached HEAD, so the FP-safety envelope is tight. Wired into `settings.json` with a 7-case `--self-test` gated by `tests/test_linters.py`. Closed §3.62 (G1 its only open item; G2/G4 stay tracked at §3.38/§3.31) and removed the MEG-36 decision row.
+
 ### §3.108 ASVS specific-code migration closed as already-satisfied (2026-07-24, PR #1130)
 
 Closed as already-satisfied: the offloaded research-3108 pass verified, and the orchestrator spot-confirmed against the held ASVS 5.0.0 requirements CSV, that every specific ASVS code in the non-governance pack rules (input-validation.md, secrets.md) is ALREADY a correct 5.0.0 citation with a matching held section title (V1.2 Injection Prevention, V2.2 Input Validation, V5.2 File Upload, V6.5 MFA, V11.3 Encryption Algorithms, V12.1 TLS, V13.3 Secret Management); cicd-gates.md carries no ASVS code. No 4.0 residual to migrate, so no migration PR. Created and closed the same session (surfaced during the §3.66 reconcile as a suspected residual; the research dissolved it).

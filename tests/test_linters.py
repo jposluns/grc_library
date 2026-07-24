@@ -1975,6 +1975,22 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
+    def test_block_branch_to_main_edit_hook_self_test(self) -> None:
+        # The branch-to-main edit guard (TODO §3.62 G1): blocks Edit/Write to a
+        # grc_library file while HEAD is on main; allows sibling-repo files and
+        # feature branches. Its 7-case --self-test gates the FP-safety envelope.
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-branch-to-main-edit.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stderr)
+
     def test_tail_safe_wrapper_self_test(self) -> None:
         result = self._run_selftest(
             ["bash", str(REPO_ROOT / "tools" / "tail-safe.sh"), "--self-test"]
