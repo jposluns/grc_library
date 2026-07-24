@@ -74,7 +74,7 @@ Privacy jurisdiction annexes are too shallow for operational sufficiency; deepen
 
 ### 2.3 Crypto-asset / blockchain governance domain (FR-70, H[critical], XL)
 
-New domain for crypto-asset / blockchain governance: digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense (MiCA / NYDFS BitLicense not held; source-gated). (Cross-references P6.x for domain-level shaping.)
+New domain for crypto-asset / blockchain governance: digital-asset custody, staking, smart-contract risk, blockchain platform vetting. Regulatory references: DORA, MiCA, NYDFS BitLicense (DORA and MiCA (Regulation (EU) 2023/1114) are HELD; only NYDFS BitLicense (23 NYCRR Part 200) is not held, tracked as MEG-01 in the egress queue, WestLaw-gated). (Cross-references P6.x for domain-level shaping.)
 
 ### 2.15 Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (Series A) (maintainer-confirmed 2026-07-15, M, S-M)
 
@@ -574,7 +574,9 @@ As of 2026-07-05, 5 of 240 `grc_library_ref` `catalogue.yml` items carry a `last
 
 ### RB-R6 source-not-held acquisition (deep-assessment r1 R6, maintainer research-agent, S)
 
-Sources cited in the corpus but not held in `grc_library_ref`, so their attributions cannot be adjudicated against held text. The maintainer runs this via a research agent that presents download URLs of the PDFs to fetch and ingest (the assistant cannot download them: iso.org is 403 from the VM and ISO standards are paywalled). Sources to acquire:
+Sources cited in the corpus but not held in `grc_library_ref`, so their attributions cannot be adjudicated against held text. The maintainer runs this via a research agent that presents download URLs of the PDFs to fetch and ingest (the assistant cannot download them: iso.org is 403 from the VM and ISO standards are paywalled).
+
+**Comprehensive not-held list compiled 2026-07-24 (RB-R6 research):** the full deduplicated not-held-but-cited set, each verdict `ref-holds.py`-executed, is seeded into the maintainer-egress-requests store with authoritative upstream URLs: 6 Tier-1 load-bearing sources (ISO 37301, ISO 19011, NYC Admin Code sections 20-870 to 20-874, Illinois BIPA, India DPDPA, IMO MSC-FAL.1/Circ.3) plus a Tier-2 register-level set. It SUPERSEDES the 3-example list below. Reconciliation of that older list: ISO 9001 §9.3 was reworded to the safe "planned intervals" framing (#758) so it is no longer an attributed-value dependency, and DORA is now held, so neither remains a Tier-1 acquire; ISO 37301 carries over. Acquisition itself remains maintainer-action (egress-gated). Original examples (retained for their per-citation locators):
 
 - **ISO 37301** (Compliance management systems), Clauses 4-10 — cited at [`compliance/policy-compliance-and-audit-management.md:44`](compliance/policy-compliance-and-audit-management.md) ("Clauses 5 to 10"). Upstream: iso.org/standard/75080.html (paywalled).
 - **ISO 9001** (Quality management systems) §9.3 — cited at [`governance/framework-governance-performance-and-improvement.md:55`](governance/framework-governance-performance-and-improvement.md). Upstream: iso.org/standard/62085.html (paywalled).
