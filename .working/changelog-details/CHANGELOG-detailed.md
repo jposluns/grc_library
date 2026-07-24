@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.616, PR #1130
+
+Working-state bookkeeping (terse; no corpus, gate, or pack change). Closes two backlog items to DONE and records four maintainer decisions.
+
+### Changed
+- [`TODO.md`](../../TODO.md): §3.108 deleted (ASVS specific-code migration, closed as already-satisfied, the offloaded research-3108 pass, orchestrator-spot-confirmed against the held ASVS 5.0.0 CSV, found every specific ASVS code in the non-governance pack rules is already a correct 5.0.0 citation with a matching held title, so there is no 4.0 residual); §3.36 deleted (improvement-log cycle-to-scratch, closed as superseded per the 2026-07-24 maintainer decision, the current-week sweep already covers it). Both created-and-closed lifecycles recorded in DONE.
+- [`.working/DONE.md`](../../.working/DONE.md): §3.108 and §3.36 close entries added.
+- [`.working/pending-decisions.md`](../../.working/pending-decisions.md): the four 2026-07-24 maintainer decisions recorded as a resolved batch (ASVS chapter-V15 no-home convention, enacted #1128; arXiv ingest-screen-see-also, screening done, ingest and see-also pending; §3.36 close, done; ETSI EN 304 223 + TR 104 128 register addition, pending).
+
+### Batched
+- PR #1129 `/validate-pr` (offloaded) + `/retro` rows.
+
 ## 2026-07-24, Library Version 2026.07.615, PR #1129
 
 Deepens the corpus post-quantum cryptography guidance (TODO §6.2), authored from the `research-pqc-fips-fetch-build` pass and re-verified against the held FIPS full-text at apply. The research established the anti-false-premise core: FIPS 203/204/205 are ALREADY held in grc_library_ref and confirmed current (2024-08-13 final editions, verified upstream this session), and PQC is already engaged in three documents, so this is a targeted DEEPENING, not a new build, and NO grc_library_ref ingest was warranted.
