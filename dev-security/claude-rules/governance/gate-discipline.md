@@ -129,10 +129,10 @@ Some controls have a legitimate exception path. It is a separate, slower control
 
 | Requirement | OWASP ASVS | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- | --- |
-| No bypass of security gates | V14.2 | PO.5, PW.7 | CEK-10 to 21, CCC-04 | A.8.28 |
-| Documented exceptions to controls | V1.1 | PO.5 | GRC-04 | A.5.4 |
-| Gate-effectiveness review | V14.1 | RV.1 | GRC-05 | A.5.36 |
-| Change-management for control modifications | V1.1 | PO.5 | CCC-01 to 03 | A.5.4 |
+| No bypass of security gates | V15 | PO.5, PW.7 | CEK-10 to 21, CCC-04 | A.8.28 |
+| Documented exceptions to controls | V15.1 | PO.5 | GRC-04 | A.5.4 |
+| Gate-effectiveness review | V15.1 | RV.1 | GRC-05 | A.5.36 |
+| Change-management for control modifications | V15.1 | PO.5 | CCC-01 to 03 | A.5.4 |
 
 ---
 

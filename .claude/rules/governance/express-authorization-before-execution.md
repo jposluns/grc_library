@@ -58,7 +58,7 @@ The trigger is the absence of an express, work-naming go at the moment execution
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Execution begins only on an express, work-naming authorization | PO.5 | GRC-04, IAM-09 | A.5.15, A.5.18 | V1.1 |
-| Conditional authorization not treated as a standing grant | PO.5, RV.2 | GRC-04 | A.5.18 | V1.1 |
+| Execution begins only on an express, work-naming authorization | PO.5 | GRC-04, IAM-09 | A.5.15, A.5.18 | V8.2 |
+| Conditional authorization not treated as a standing grant | PO.5, RV.2 | GRC-04 | A.5.18 | V8.2 |
 
 The rule expresses the authorization-boundary principle the rest of the pack applies elsewhere, at the execution-intake boundary: work that mutates a shared artefact or acts outward must be traceable to an express authorization that named it, not to a discussion the assistant elevated into a mandate.

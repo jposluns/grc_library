@@ -71,7 +71,7 @@ If none of these holds and the draft still contains an inaction explanation, the
 
 ## See Also
 
-- Canonical rule [`governance/action-before-explanation-of-inaction.md`](../../governance/action-before-explanation-of-inaction.md): framework alignment (NIST SSDF RV.1 / RV.2 / PO.5; CSA CCM GRC-04 / GRC-05 / LOG-02; ISO 27001 Annex A.5.4 / A.5.18 / A.5.36 / A.8.15; OWASP ASVS V1.1 / V14.1), exception-handling protocol, and the discussion of why an AI coding assistant is the dominant target of this discipline.
+- Canonical rule [`governance/action-before-explanation-of-inaction.md`](../../governance/action-before-explanation-of-inaction.md): framework alignment (NIST SSDF RV.1 / RV.2 / PO.5; CSA CCM GRC-04 / GRC-05 / LOG-02; ISO 27001 Annex A.5.4 / A.5.18 / A.5.36 / A.8.15; OWASP ASVS V15.1 / V16.2), exception-handling protocol, and the discussion of why an AI coding assistant is the dominant target of this discipline.
 - Related skill [`clarify-before-acting`](../clarify-before-acting/SKILL.md): handles decision doubt. This skill handles execution doubt. When trigger words appear with an authorial or ambiguous choice in scope, the clarify skill takes precedence.
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): handles state assertions about artefacts the actor has not read. This skill handles state assertions about external actions the actor has not attempted. Together they cover the two main inference-vs-evidence failure modes.
 - Related skill [`gate-discipline-diagnose`](../gate-discipline-diagnose/SKILL.md): handles gate failures. When a gate fails, fix the artefact rather than narrate why the gate cannot proceed.
