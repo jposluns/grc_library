@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.1 Base-unverified ISO/IEC designation reconcile (2026-07-24, PR #1126)
+
+Reconciled the 11 base-unverified ISO/IEC standard designations the #663 sweep left in a mixed bare/`ISO/IEC` state. The `research-3001` pass verified each against iso.org catalogue titles + the held base; this PR applied the fixes: 5 bare-to-ISO/IEC corrections (ISO/IEC 27033, 27034 x2, 25010, 30134 across the document-index register, the secure-development policy, and the ESG guideline), `ISO 12207` -> `ISO/IEC/IEEE 12207:2026` (maintainer-confirmed current edition, 2 spots), and ISO 23247 confirmed correct-as-bare (sole-ISO TC 184, retired from the candidate set). 27559/29184/20889/5259/38505 were already clean. The durable register+gate stays open as §3.2 (the ISO-27001 family-name carve-out migrated there). 12207:2026 is not held in `_ref`, so it was added to the `_private` maintainer-egress-requests.
+
 ### §3.20 Publications screening wave (2026-07-24, PR #1123 / grc_library_ref #102)
 
 Screened the single remaining `pending` publication, Article 29 WP260 rev.01 (GDPR transparency guidelines, EDPB-endorsed), through `/screen-publications`: provenance clean, instruction-content scan clean (0 candidates, orchestrator-re-run at apply), GDPR Articles 12-14 interpretive frame corroborated against the held GDPR primary; verdict `screened`, applied in grc_library_ref #102. The TODO's "~13 pending EDPB/WP29 rows" estimate was stale (prior waves cleared the rest); the register is now 34 screened / 0 pending, closing the wave.
