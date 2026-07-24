@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.107 US-state AI-law coverage: Texas TRAIGA + Illinois HB 3773 in §7.5 (2026-07-24, PR #1116)
+
+Reference-audit-routed (surfaced by the #1115 breadth cadence as a section-breadth gap in `ai/policy-ai-compliance.md` §7.5): added a Texas TRAIGA bullet (HB 149, Business and Commerce Code Chapters 551 to 552, prohibited-use focus, AG-exclusive enforcement, effective 1 Jan 2026) and an Illinois HB 3773 bullet (PA 103-0804 amending the Human Rights Act, AI-in-employment civil-rights violation plus notice duty, effective 1 Jan 2026), each with a crosswalk row, plus their canonical-citations register rows. Held/upstream-verified; a refute-briefed skeptical verifier cleared the citations.
+
 ### §2.27 OWASP Top 10 for Agentic Applications integration (2026-07-24, PRs #1113-#1114)
 
 Integrated the OWASP Top 10 for Agentic Applications (2026) into `ai/standard-ai-and-agentic-development-security.md` (maintainer-decided option-b). PR-1 (#1113) added three new §6 threat classes, TC-17 Cascading Agentic Failures (ASI08), TC-18 Human-Agent Trust Exploitation (ASI09), and TC-19 Rogue Agents (ASI10), the three ASI risks with no existing single-TC home. PR-2 (#1114) added the §36 alignment-matrix `OWASP Agentic Top 10 (ASI)` column and the full ASI01-ASI10 crosswalk note, the column derived under the full high-assurance harness (two independent adversarial lenses over the held source, reconciled conservatively, deterministic re-parse). Held-source-verified throughout.
