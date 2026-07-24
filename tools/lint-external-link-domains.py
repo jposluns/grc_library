@@ -51,6 +51,7 @@ ALLOW_LIST = {
     # Standards publishers
     "iso.org", "iec.ch", "nist.gov", "csrc.nist.gov", "nvlpubs.nist.gov",
     "ieee.org", "standards.ieee.org",
+    "etsi.org", "www.etsi.org",
     "ashrae.org", "nfpa.org", "cencenelec.eu", "cen.eu", "cenelec.eu",
     "ietf.org", "rfc-editor.org", "datatracker.ietf.org",
     "w3.org", "oasis-open.org",

@@ -511,7 +511,7 @@ Existing privacy domain covers 26 country annexes. Known gaps or stale entries: 
 
 ### 5.9 AI jurisdiction overlays (was 5.8)
 
-The `ai/jurisdictions/` subdirectory and its first two annexes (EU AI Act #743, Colorado #749) shipped under the former FR-62. Remaining candidates, source-gated pending maintainer drops: Canada AIDA; UK AI policy framework; NYC bias audit law; China generative AI rules; Korea AI framework.
+The `ai/jurisdictions/` subdirectory and its first annexes (EU AI Act #743, Colorado #749) shipped under the former FR-62. Remaining candidates, source-gated pending maintainer drops: UK AI policy framework; NYC bias audit law; China generative AI rules; Korea AI framework. (Canada AIDA is STRUCK, not an open gap: `ai/jurisdictions/annex-ai-canada.md` covers Canadian federal AI governance and correctly treats AIDA as lapsed, re-confirmed dead upstream 2026-07-24 by the research-canada-aida-status pass. Follow-up: that pass flagged that the "NYC bias audit law" candidate may also already be covered by a shipped annex, so a §5.9 candidate-list reconciliation against the current `ai/jurisdictions/` annexes is a small pending item before treating any remaining candidate as a genuine gap.)
 
 ---
 
