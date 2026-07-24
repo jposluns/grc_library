@@ -8,6 +8,18 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.626, PR #1140
+
+Runs the §1.22.3 initial working-tree-to-`_private` sweep as a dedicated cleanup-PR (part a; working-state housekeeping, no corpus content change). Data-safe emit-verify-prune: the swept content was written to the `grc_library_private` archive and verified present there before anything was pruned from `.working`, and git history retains everything regardless.
+
+### Changed
+- Ran `tools/sweep-working-records-to-private.py --as-of 2026-07-13 --emit-archive <private>/archive`, then `--prune --verify-archived <private>/archive`. At the maintainer's decided cutoff (keep the current plus one prior ISO week), all dated records and the roll-up rows in the two ledgers fall inside that window and stay in-repo; only the two completed one-off working dirs (`pack-hygiene-acceptance`, `pack-hygiene-fragments`) swept whole to the archive (18 files removed from `.working/`).
+- Delinked the now-swept acceptance-file references: three TODO links (in the §3.56a and §4.9 items) and the working-tree README inventory row became plain text noting the archive (the detail lives in the `_private` archive plus git history).
+- [`TODO.md`](../../TODO.md) §1.22.3: marked part (a) DONE; parts (b) the DONE/pending-decisions destructive-sweep enablement (a deferred tool-build per `verify-1223-draft`, needing a DONE effective-floor plus a tightened resolved-and-aged predicate plus self-tests) and (c) the session-boundary cleanup-PR policy codification remain open.
+
+### Verification
+- The prune ran only after `--verify-archived` confirmed every swept artefact is present in the `grc_library_private` archive (the tool refuses to remove anything not archived), and the detailed-mirror rewrite passed its re-parse assertion. The two swept dirs are gate-exempt `.working/` content; no corpus document, gate, rule, or skill changed. Pre-push guard green. Working-state housekeeping, so no per-doc bump or taxonomy regen.
+
 ## 2026-07-24, Library Version 2026.07.625, PR #1139
 
 Ships §3.56a guard 2 as gate 77 (the gate-name-citation inventory audit), the LAST of the three §3.56a pack-hygiene mechanizations; §3.56a part (a) is now complete. Gate 77 catches a silent gate renumber that would leave a `gate N (name)` citation pointing its number at a different gate.
