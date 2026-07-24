@@ -8,6 +8,26 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.607, PR #1121
+
+Website-to-corpus link-integrity enforcement (TODO §3.75 parts 1+2), plus the due r14 guardrail-review cadence reset. Authored from an offloaded, scratch-copy-verified code draft (the worker refined the design: the manifest is a COMMITTED generated artefact, not an ephemeral `dist/` byproduct a gate cannot resolve); the orchestrator re-read every line, ran the build and gate empirically, and wired all surfaces.
+
+### Added
+- [`tools/lint-web-corpus-links.py`](../../tools/lint-web-corpus-links.py) (new gate 75, "Web-to-corpus link-target integrity audit"): reads the committed [`.web/corpus-link-manifest.md`](../../.web/corpus-link-manifest.md) and verifies every corpus-relative target resolves to a file inside the repository. Egress-free (fetches no URL); flags a target that does not exist or resolves outside the repo. Catches a corpus document renamed or deleted without the website being regenerated. Carries a `--self-test` (resolve passes, missing fails, escape fails).
+- [`.web/corpus-link-manifest.md`](../../.web/corpus-link-manifest.md) (new committed generated artefact): every corpus/GitHub target the site links, its website location, and its link text, re-derived from the taxonomy-driven per-domain and per-type pages and the curated llms.txt map.
+
+### Changed
+- [`.web/build.py`](../../.web/build.py): a `render_corpus_link_manifest` builds the manifest from the shared page-render sources (drift-proof) plus a new `CURATED_CORPUS_LINKS` constant that PARALLELS the 10 corpus links `render_llms_txt` emits inline (verified matching against source; the two are hand-kept in sync, a follow-up should bind them, tracked under §3.75); `main()` writes it to the committed path and `--check` fails on drift, the taxonomy/portal-drift pattern.
+- Gate 75 wired across the four surfaces: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) (§5 grouped-list number-set and clause, §6 inventory row 75, §6 detailed prose; spec 1.17.17 to 1.17.18). Regression fixture `WebCorpusLinkTests` added to [`tests/test_linters.py`](../../tests/test_linters.py) (gate 36). [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the spec version bump.
+
+### Verification
+- **Empirical, guard-first:** `py_compile` clean; the gate `--self-test` passes; the [`.web/build.py`](../../.web/build.py) build emits the 638-row manifest; the gate resolves it GREEN; the generator `--check` is clean (no drift); a deliberately-broken manifest row makes the gate FAIL (exit 1); rebuild restores green. The `WebCorpusLinkTests` fixture passes 3/3. The full 75-gate suite passes.
+- **A refute-briefed skeptical verifier** probed the data-safety-adjacent behaviour (the gate resolves repo-internal targets only, no URL fetch; the manifest re-derivation cannot drift; the escape guard).
+- **r14 guardrail review (gate-60 cadence):** adding gate 75 tipped the machinery drift to 3 (gate 74 #1107, rule 15 #1108, gate 75), so the due periodic structural-integrity review ran (OFFLOADED, worker-b) over main at 74 gates: ZERO findings across overlap/gap/drift, no machinery-change proposal. Its history row (inventory token 74 gates / 15 rules / 24 skills / 15 commands) resets the gate-60 window; with gate 75 live the drift is +1, below the threshold.
+
+### Scope
+- §3.75 is NARROWED, not closed: parts 1+2 (manifest + gate) shipped; part 3 (resolve-by-id via a stable doc-id in every document's metadata block) is a corpus-wide metadata-model change, deferred (it is also the base doc-id §2.26.2 depends on). The manifest keys on the corpus path, so a future doc-id column is an additive migration.
+
 ## 2026-07-24, Library Version 2026.07.606, PR #1120
 
 Ships the recurring weekly root-condensation wiring for TODO §1.19.10a (the one-time tiered migration, the projection generator, and the private full-per-PR source shipped in #1037; this is the recurring half). Authored from an offloaded code draft, re-verified line-by-line against the two existing tools and the private full-source format the worker could not read.

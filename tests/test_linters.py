@@ -8360,5 +8360,39 @@ class RuleScopeTableTests(LinterTestCase):
         self.assertIn("governance/bar.md", result.stdout)
 
 
+class WebCorpusLinkTests(LinterTestCase):
+    """tools/lint-web-corpus-links.py (gate 75)"""
+
+    _HEADER = (
+        "# Web-to-corpus link manifest\n\n"
+        "| Corpus target | Website location | Link text |\n"
+        "| --- | --- | --- |\n"
+    )
+
+    def test_resolving_target_passes(self) -> None:
+        fixture = self.make_fixture(
+            "web-corpus-manifest-ok.md",
+            self._HEADER + "| taxonomy.yml | llms.txt | taxonomy.yml |\n",
+        )
+        result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
+        self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+
+    def test_missing_target_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "web-corpus-manifest-missing.md",
+            self._HEADER + "| ai/does-not-exist-xyz.md | /ai/ | Missing |\n",
+        )
+        result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
+        self.assertLinterFails(result, "does not exist")
+
+    def test_escaped_target_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "web-corpus-manifest-escape.md",
+            self._HEADER + "| ../../../etc/passwd | /ai/ | Escaped |\n",
+        )
+        result = run_linter("tools/lint-web-corpus-links.py", "--manifest", fixture)
+        self.assertLinterFails(result, "resolves outside repo")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
