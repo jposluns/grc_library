@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §1.18 change-impact surface map CLOSED (2026-07-24, PR #1109)
+Closed TODO §1.18 on the maintainer's decision to close rather than iterate: the two core deliverables are shipped, the documented change-impact surface map plus close-out checklist (#1104) and the first FP-safe mechanization, gate 74 rule-scope-table completeness (#1107). Further FP-safe gates on other ungated map surfaces (the spec §5 grouped-list, per-gate narratives) are new items if ever wanted, not a §1.18 residual.
+
 ### §1.1 discussion-vs-execution gate shipped as the fifteenth pack rule (2026-07-24, PR #1108)
 Closed TODO §1.1 (a recurring failure class the maintainer named): added the fifteenth governance pack rule `express-authorization-before-execution` (both trees byte-identical), the mirror of the 14th rule, holding the assistant in discussion mode until an express, work-naming GO and treating a conditional or sequenced GO as authorizing only its first step. Maintainer-decided as a new rule over an amendment, convention-first, with a mechanical GO-ledger hook deferred; wired across all enumeration / web / provenance surfaces (14 rules to 15; pack 1.64.0), the project CLAUDE.md gate section, and a worker-brief DO rail. Built from an offloaded draft, re-verified at source, and shipped guard-first with a pre-push skeptical verifier.
 
