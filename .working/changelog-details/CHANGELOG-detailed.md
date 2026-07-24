@@ -8,6 +8,27 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.631, PR #1145
+
+Standalone-pack packaging model (TODO section 4.9, item e; closes section 4.9). Makes the [`dev-security/claude-rules/`](../../dev-security/claude-rules/README.md) pack cleanly distributable as a standalone bundle. Offloaded candidate diff (worker), verified and applied deterministically by the orchestrator.
+
+### Changed
+
+- Rewrote the 104 relative markdown links in the pack tree that resolve OUTSIDE the pack root (into the parent audit toolchain, corpus cross-references, the project rules-and-commands tree, and the parent CHANGELOG) to bare code-span mentions per the section 1.19 convention, keeping the descriptive text and dropping the broken relative target, so a pack dragged into another project carries no dangling relative links. Applied by a deterministic unwrap script (a re-run confirms 0 escaping links remain); two per-link normalizations (a navigation prefix stripped from one code span; a slash-command phrase kept verbatim). Distribution across the ten touched files: the pack README (86), the six mobile-language rule files (12 total), the vetting log (3), the pack CLAUDE (2), and the OWASP core rule (1).
+- Corrected the pack README What-are-these-files paragraph: dropped the nonexistent add-files Claude Code command in favour of the at-mention and the add-dir CLI flag.
+
+### Added
+
+- A Parent-repo dependencies section to the pack README documenting the three things the pack references that live in the parent grc_library repository and do not travel with a standalone bundle: the audit toolchain (the parent-repo gate scripts), the project slash commands (parent project commands and skills, not Claude Code built-ins), and the private reference-base dependency (the citation and control-code cadences need a held reference base an adopter builds or runs in a structure-only mode).
+
+### Verification
+
+- Deterministic scripted apply plus re-parse (the high-assurance apply pattern): the unwrap script found exactly 104 escaping links across ten files (matching the offloaded candidate's independently re-derived count and per-file distribution), applied them, and a re-run confirmed 0 remain; 121 internal pack links preserved. Gate 37 (claude-rules-sync byte-parity) clean, confirming no mirrored rule file was touched (no gate-37 pair needed). Gate 3 (broken links) clean. Pre-push guard green (77 gates plus D1 to D8 plus 45/40/31). Canadian English, no em/en dashes.
+
+### Batched
+
+- #1144 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 1.2.899 to 1.2.900) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md), 1.0.830 to 1.0.831), both CLEAN PASS, 0 findings.
+
 ## 2026-07-24, Library Version 2026.07.630, PR #1144
 
 Red-team cross-ref completing the arXiv sandbox-escape see-also disposition (maintainer-decided 2026-07-24: keep the section 32 note AND add a section 22/23 cross-ref).
