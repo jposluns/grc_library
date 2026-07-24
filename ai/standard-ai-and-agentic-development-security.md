@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.13\
+**Version:** 1.8.14\
 **Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -346,6 +346,8 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 **MCP-SEC-09:** Tool descriptions that change between sessions (rug-pull pattern: the server publishes one description at registration time and a different description on subsequent calls) must be detected. The agent runtime cryptographically pins the description hash at registration time and rejects any divergence on subsequent calls.
 
 **MCP-SEC-10:** Tool-name shadowing across MCP servers must be detected. Where two MCP servers in the same agent session expose tools with the same name, the agent runtime rejects the configuration; resolution requires explicit naming or namespacing.
+
+**Framework anchors.** These controls align with the OWASP MCP Top 10 (2025): MCP-SEC-01 (organization-controlled servers only, with third-party review before integration) anchors MCP09 (Shadow MCP Servers); MCP-SEC-02, MCP-SEC-08, MCP-SEC-09, and MCP-SEC-10, together with the TC-09 tool-poisoning threat, anchor MCP03 (Tool Poisoning, whose held prevention set is signed schemas and manifests verified before use, content-addressable hash validation, and an immutable version-controlled registry); MCP-SEC-03 (client authentication) anchors MCP07 (Insufficient Authentication and Authorization); MCP-SEC-04 (per-tool RBAC) and MCP-SEC-07 (minimum tools per session) anchor MCP02 (Privilege Escalation via Scope Creep); MCP-SEC-05 (tool-result sanitization) anchors MCP06 (Intent Flow Subversion); and MCP-SEC-06 (SIEM logging of tool invocations and context changes) anchors MCP08 (Lack of Audit and Telemetry). MCP04 (Software Supply Chain Attacks and Dependency Tampering) is additionally engaged by MCP-SEC-01's third-party review and MCP-SEC-02's signed manifests, and more fully by the standard's supply-chain controls (the SUPPLY-SEC requirements); MCP10 (Context Injection and Over-Sharing) is engaged partly by MCP-SEC-05 and MCP-SEC-07, with its confidentiality face in the standard's session-scoped context-isolation controls. The two categories with no §12 anchor are addressed outside this section: MCP01 (Token Mismanagement and Secret Exposure) by the credential controls (TC-07, INFRA-SEC-07, INFRA-SEC-08, and the principle that secrets never enter inference context), and MCP05 (Command Injection and Execution) by the execution controls (TC-05, crosswalked to OWASP ASI05, and the AGENT-SEC-14 sandbox).
 
 ---
 

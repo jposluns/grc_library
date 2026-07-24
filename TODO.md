@@ -238,13 +238,21 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.106.**
+**Next item number: 3.108.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
 ### 3.105 De-duplicate the CCPA ADMT coverage across the AI and privacy annexes (maintainer decision, L, S) `[content]`
 
 Surfaced 2026-07-24 by the #1112 California AI annex verifier: the CCPA ADMT limb (11 CCR Article 11, sections 7200 to 7222) is now documented in BOTH [`ai/jurisdictions/annex-ai-us-california.md`](ai/jurisdictions/annex-ai-us-california.md) (the AI-governance view) AND [`privacy/jurisdictions/annex-privacy-united-states.md`](privacy/jurisdictions/annex-privacy-united-states.md) (its "AI and privacy obligations" section, in detail: the pre-use notice, opt-out, access, the 7221(b)(1) human-appeal exception, and the 7001 significant-decision definition). The two overlap on the section numbers, dates, and the definition; #1112 made the AI annex's cross-references accurate (acknowledging the overlap) but did NOT consolidate. **Maintainer decision:** consolidate the ADMT obligation detail into a single canonical annex, following the pattern the privacy annex already uses for the Colorado AI statute (narrow the privacy annex's ADMT bullet to a pointer to the AI annex), OR keep both cross-referenced. The privacy-annex edit removes established content, so it is authorial and was not made unilaterally overnight.
+
+### 3.106 Anchor the agentic-security standard's red-team sections to the held OWASP GenAI Red Teaming Guide (L, S) `[content]`
+
+Surfaced 2026-07-24 by the `/reference-audit` breadth cadence (a LOW-to-MODERATE held-but-unused candidate): `ai/standard-ai-and-agentic-development-security.md` §22 (adversarial testing) and §23 (red team) specify PyRIT and multi-turn methodology and carry a "Framework anchors" line citing NIST SP 800-218A / ETSI / NIST AI 100-2e2025, but do not anchor the held OWASP GenAI Red Teaming Guide v1.0 (a red-teaming methodology source directly on-point). A generic "OWASP GenAI Security Project" reference already exists in §22 (ADTEST-SEC-01), so the orchestrator's judgement is whether the specific Guide adds enough over the generic project reference to warrant a see-also anchor. Confirm the source is held + registered before authoring; a corroborative see-also, not a normative anchor.
+
+### 3.107 US-state AI-law coverage in the AI policy standard: add Texas TRAIGA and Illinois HB3773 (M, S) `[content]`
+
+Surfaced 2026-07-24 by the `/reference-audit` breadth cadence (a LOW section-breadth observation): `ai/policy-ai-compliance.md` §7.5 (United States: state and municipal AI laws) lists Colorado (SB24-205, SB26-189), NYC Local Law 144, and California CCPA ADMT, but the reference base ALSO holds two other topically-on-point US-state AI laws it does not engage: `US-TX-TRAIGA-HB149-2025` (Texas Responsible AI Governance Act, a comprehensive state AI-governance statute) and `US-IL-HB3773-PA-103-0804` (Illinois, AI in employment decisions, parallel in subject to the NYC AEDT entry). Whether §7.5 should grow to include them is a section-breadth decision; if yes, add a bullet per law (mirroring the existing entries, held-source-verified, upstream currency confirmed for the effective dates). Held primary for both.
 
 ### 3.1 Base-unverified ISO/IEC designation debt tracker (L, S)
 
