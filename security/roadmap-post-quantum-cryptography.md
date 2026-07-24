@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.3\
-**Date:** 2026-07-02\
+**Version:** 1.1.4\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -42,9 +42,23 @@ The organization will adopt NIST-standardized post-quantum algorithms:
 | --- | --- | --- |
 | **ML-KEM (formerly CRYSTALS-Kyber)** | FIPS 203 (August 2024) | Key encapsulation / key exchange |
 | **ML-DSA (formerly CRYSTALS-Dilithium)** | FIPS 204 (August 2024) | Digital signatures |
-| **SPHINCS+ (SLH-DSA)** | FIPS 205 (2024) | Digital signatures (stateless hash-based; backup algorithm) |
+| **SLH-DSA (formerly SPHINCS+)** | FIPS 205 (August 2024) | Digital signatures (stateless hash-based; conservative hash-only alternative to ML-DSA) |
 
 Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) are required during the transition period to protect against both classical and quantum threats simultaneously. The "ML-KEM" / "ML-DSA" names are the official NIST FIPS 203 / FIPS 204 (August 2024) designations; the older "Kyber" / "Dilithium" names from the NIST PQC competition remain in common informal use.
+
+### Parameter sets and NIST security categories
+
+Each standardized algorithm defines parameter sets keyed to a NIST post-quantum security category. Categories 1, 3, and 5 correspond to the difficulty of an exhaustive key search against AES-128, AES-192, and AES-256 respectively; a higher category is more conservative, at a cost in key size, signature size, and performance. The organization adopts **category 3 as the interoperability baseline** and selects category 5 for long-lived (post-2030 confidentiality) or high-assurance contexts.
+
+| Algorithm | Parameter sets by security category | Baseline selection |
+| --- | --- | --- |
+| ML-KEM (FIPS 203) | ML-KEM-512 (category 1), ML-KEM-768 (category 3), ML-KEM-1024 (category 5) | ML-KEM-768 |
+| ML-DSA (FIPS 204) | ML-DSA-44 (category 2; reduced to category 1 only when an approved RBG below 192 bits of security is used), ML-DSA-65 (category 3), ML-DSA-87 (category 5) | ML-DSA-65 |
+| SLH-DSA (FIPS 205) | SLH-DSA-SHA2 and SLH-DSA-SHAKE at the 128-bit (category 1), 192-bit (category 3), and 256-bit (category 5) strengths, each in a small-signature (s) and fast-signing (f) variant | category 3, variant per signing profile |
+
+Parameter-set names and category assignments are drawn from FIPS 203, FIPS 204, and FIPS 205 (SLH-DSA parameter sets and their categories are specified in FIPS 205 Section 11); the tables above are illustrative selection guidance for adopters, not a reproduction of the standards' normative bodies.
+
+**Choosing between ML-DSA and SLH-DSA.** ML-DSA is the default signature algorithm for general use: it produces smaller signatures and signs and verifies faster. SLH-DSA is preferred where a conservative, hash-only security assumption is required: its security rests solely on the underlying hash function, with no lattice assumption, which suits long-lived or high-assurance signatures (for example firmware and root-of-trust signing) where the larger signature size and slower signing are acceptable. Within SLH-DSA, the small-signature (s) variant minimizes signature size at a cost in signing speed, and the fast-signing (f) variant makes the opposite trade.
 
 ---
 
@@ -118,6 +132,19 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) ar
 - Remove classical algorithm components from hybrid schemes where standards and interoperability allow.
 - Transition to pure PQC for newly issued certificates and keys.
 - Maintain hybrid interoperability for external communications as long as required.
+
+---
+
+## Crypto-agility
+
+The transition above is possible only if cryptographic primitives are treated as configuration, not as hardcoded implementation choices. The durable lesson of the PQC migration, beyond the specific algorithms, is that the next algorithm change (a parameter-set bump, a primitive found weak, the eventual pure-PQC cutover) must be a configuration rotation rather than a re-architecture. The organization therefore requires that:
+
+- **Algorithm identifiers, parameter sets, and key sizes are externalized as configuration**, negotiated or versioned, never compiled in as the sole supported option.
+- **A crypto-agility inventory records every point where an algorithm is pinned** (protocol negotiation defaults, certificate profiles, HSM firmware, and embedded or long-lived firmware images), maintained alongside the Phase 1 cryptographic asset inventory.
+- **Systems support algorithm negotiation and graceful fallback** across the hybrid transition, so that a migrated peer and a not-yet-migrated peer still interoperate.
+- **Rotation is exercised, not assumed**: the ability to change a cryptographic primitive without redeploying application code is validated in testing, as Phase 3 requires for PQC hybrid deployment.
+
+Pinning points that cannot be rotated by configuration (typically long-lived firmware and hardware roots of trust) are the highest-priority migration targets, because they cannot be corrected later by a configuration change.
 
 ---
 

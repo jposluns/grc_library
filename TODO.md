@@ -238,7 +238,7 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.108.**
+**Next item number: 3.109.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -535,7 +535,7 @@ Customer Identity (CIAM) governance, workforce identity governance, identity fed
 
 ### 6.2 Quantum cryptography readiness deepening (L) (was 6.3)
 
-The phase-level PQC roadmap exists but not detailed implementation content. Pending: a PQC migration playbook, crypto-agility patterns, post-quantum-ready CA/PKI. Corpus-internal scoping DELIVERED (`inbox/worker-20260703-a/quantum-pqc-readiness-scoping/`); the regime half is source-gated (no PQC standard held) and the BUILD schedule-gated.
+The phase-level PQC roadmap exists. #1129 delivered the core content deepening (verified against the now-held FIPS full-text): NIST parameter-set to security-category mappings (ML-KEM / ML-DSA / SLH-DSA) with a category-3 interoperability baseline, a crypto-agility section (primitives as configuration, not hardcoded), ML-DSA-vs-SLH-DSA selection guidance, and the FIPS-205 citation currency, echoed in the encryption-policy PQC row and the crypto pack rule. The former source-gate is CLEARED: FIPS 203/204/205 are held in grc_library_ref and were confirmed current in #1129 (2024-08-13 finals, verified upstream). RESIDUAL (still L, now build-ready since the source-gate cleared): a dedicated PQC migration playbook (step-level how-to beyond the roadmap's phase plan) and post-quantum-ready CA/PKI implementation content. Corpus-internal scoping DELIVERED (`inbox/worker-20260703-a/quantum-pqc-readiness-scoping/`).
 
 ### 6.3 Cross-framework matrix expansion (L) (was 6.4)
 
@@ -665,7 +665,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 | MEG-11 | §5.7 | Public-sector country/regulator overlays: source-gated. |
 | MEG-12 | §5.8 | Privacy jurisdiction gaps (Argentina PDPA 2025, Saudi PDPL): source-gated. |
 | MEG-13 | §5.9 | AI jurisdiction overlays (Canada AIDA, UK, NYC bias-audit, China, Korea): source-gated. |
-| MEG-14 | §6.2 | Quantum-crypto readiness: the regime half is source-gated (no held PQC standard); build schedule-gated. |
+| MEG-14 | §6.2 | Quantum-crypto readiness: source-gate CLEARED in #1129 (FIPS 203/204/205 held + confirmed current); core deepening shipped; residual is a PQC migration playbook + PQC-ready CA/PKI (build-ready). |
 | MEG-15 | AI Strategy FPS | Complete re-download of the AI Strategy for the Federal Public Service 2025-2027 full text (LOW; currency, not a content gap). [in egress queue] |
 
 ### Group 2: egress-blocked (an egress-enabled run the assistant lacks; not a single download)

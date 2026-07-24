@@ -102,8 +102,9 @@ Use a cryptographically secure random number generator for all security-relevant
 Current public-key cryptography (RSA, ECDSA, ECDH) is vulnerable to cryptographically relevant quantum computers. Organizations should:
 - Inventory all systems using public-key cryptography
 - Prioritize migration for long-lived data and long-lived certificates
-- Monitor NIST post-quantum cryptography standardization (ML-KEM, ML-DSA, SLH-DSA)
+- Adopt the finalized NIST post-quantum standards (ML-KEM / FIPS 203, ML-DSA / FIPS 204, SLH-DSA / FIPS 205, all August 2024), selecting a parameter set by required NIST security category (category 3, ML-KEM-768 / ML-DSA-65, is a common interoperability baseline; category 5 for long-lived or high-assurance data)
 - Plan for hybrid classical/post-quantum schemes during migration
+- Treat cryptographic primitives as configuration, not hardcoded, so a future algorithm or parameter-set change is a configuration rotation rather than a re-architecture (crypto-agility)
 
 This is a planning requirement, not an immediate implementation requirement, except for systems with data sensitivity requiring 10+ year protection.
 
