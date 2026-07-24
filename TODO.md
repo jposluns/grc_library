@@ -164,7 +164,7 @@ Canadian authority coverage. Consolidates 2.22 (a redirect stub is left there): 
 
 New `ai/` content for model evaluation, assurance arguments and safety cases, and post-deployment monitoring, using the held reference maps as inputs. Enterprise-assurance scope (assuring a deployed system), not frontier-risk. Ships as Markdown now. Confirm the reference sources are held before authoring.
 
-**Depends on:** 3.14 (P3, ETSI Securing-AI map) and 3.63 (P3, ETSI TR 104 128); references them as inputs. (The MITRE ATLAS 2026.06 map input, former 3.15, is complete: the corpus ATLAS citations were verified current against held 2026.06 and the one LLM02 fit finding applied, PR #1119.)
+**Depends on:** 3.14 (P3, ETSI Securing-AI map); references it as an input. (The ETSI TR 104 128 input, former 3.63, is complete: the held informative TR is engaged as a see-also across the `ai/` domain, the secondary see-also added to the AI security-and-risk standard's alignment table in PR #1122. The MITRE ATLAS 2026.06 map input, former 3.15, is complete: the corpus ATLAS citations were verified current against held 2026.06 and the one LLM02 fit finding applied, PR #1119.)
 
 **Blocks:** none.
 
@@ -358,14 +358,6 @@ The `/guardrails` pass of record for `/deep-assessment` r3 (run r10) routed main
 - **Already-tracked (cross-referenced, no new item):** G2 count-gate idiom-coverage broadening is the standing #272/#465 maintainer expire-versus-pursue call (the low-FP digit-idiom half is routable, the free-prose word-form half is convention). G4 per-touch reference-breadth mechanical staleness backstop is the openly-queued backstop already noted in `.claude/CLAUDE.md` (convention-guarded with the mechanical backstop a queued item).
 
 Detail: [`.working/guardrail-reviews/2026-07-13-r10.md`](.working/guardrail-reviews/2026-07-13-r10.md). These feed the r3 finding set; disposition is the maintainer's at r3 sign-off.
-
-### 3.63 Reference-breadth FULL routed findings (deep-assessment r3 Phase-3 `/reference-audit`; surfaced 2026-07-13, S) `[reference-audit]`
-
-The first recorded `/reference-audit` FULL both-directions run (deep-assessment r3 Phase-3; detail [`.working/reference-audit/2026-07-13-full.md`](.working/reference-audit/2026-07-13-full.md)) surfaced two genuine findings; both are resolved except one residual, and the resolved work is rotated to [`DONE.md`](.working/DONE.md) (RB-FFIEC-CAT fixed stricter-safe in #899, the FFIEC-CAT-sunset currency correction; the RB-ETSI primary see-also added in #907). **Remaining:**
-
-- **RB-ETSI-104128 secondary see-also (Low, held-but-unused breadth).** ETSI TR 104 128 (Securing AI: implementation guidance for the baseline cyber security requirements for AI, V1.1.1 2025-05) is held and pairs with the normative ETSI EN 304 223 the corpus anchors to across the `ai/` domain; #907 added the primary corroborative see-also in [`ai/guide-ai-security-technical-implementation.md`](ai/guide-ai-security-technical-implementation.md). **Remaining:** the secondary see-also in [`ai/standard-ai-security-and-risk.md`](ai/standard-ai-security-and-risk.md)'s alignment table (a corpus-body add). Informative-tier TR, so a see-also engagement, NOT a normative anchor (normative claims stay on EN 304 223).
-
-Not new items: ISO/IEC 5259-5:2025 (a genuine held-but-uncited governance-framework part, refined into §3.42, which already tracks it); RB-6(e) AICPA-TSC held-edition (confirmed NO-CORPUS-VALUE-AT-RISK by the SOC judge enumerating every corpus TSC citation at the edition-stable criteria/CC-group level, so the source-acquisition item stands as fidelity-tracking only). Two worklist-tool miscounts recorded (10 not 11 FFIEC booklets; CPS 230 2 not 3 cites), not corpus defects.
 
 ### 3.66 DA-ASVS Class 2: generic governance-rule ASVS citations (maintainer-decided pass, deferred from the r3 DA-ASVS remap #902, M)
 

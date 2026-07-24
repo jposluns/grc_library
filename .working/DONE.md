@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.63 Reference-breadth FULL routed findings: RB-ETSI-104128 secondary see-also (2026-07-24, PR #1122)
+
+Added the informative ETSI TR 104 128 V1.1.1 (2025-05) implementation-guide see-also row to the §7 Framework-alignment table of `ai/standard-ai-security-and-risk.md`, corroborating the normative ETSI EN 304 223 provisions already mapped there (a see-also, not an additional obligation; normative weight stays on EN 304 223). Held-source-verified informative tier; no canonical-citations register row (the normative parent EN 304 223 is likewise inline-cited without one). This was §3.63's last remaining item, so it fully closes §3.63 (RB-FFIEC-CAT fixed in #899, RB-ETSI primary see-also in #907).
+
 ### §3.15 MITRE ATLAS 2026.06 alignment/currency map + #654 LLM02 re-map (2026-07-24, PR #1119)
 
 Verified the corpus adversarial-AI ATLAS citations current against the held ATLAS 2026.06 (upstream confirmed v2026.06 is the current release; no live stale/renamed/deprecated identifiers, the #635 and pack-1.54.4 re-maps hold), and applied the one actionable finding, the #654 verifier note: re-mapped the four OWASP LLM02 sensitive-disclosure rows across the pack `dev-security/claude-rules/ai/` rules (ai-security x2, agent-security, rag-security) from AML.T0024 (Exfiltration via AI Inference API, the narrower training-data inference-API technique) to AML.T0057 (LLM Data Leakage), whose held 2026.06 scope (prompt-induced leakage from training data, connected data sources, and other users) is the direct LLM02 match. Caught a worker over-claim (no `.claude/rules/ai/` mirror exists, so 4 edits not 8). Closes §3.15.
@@ -300,9 +304,9 @@ The public landing site is built and live on Cloudflare Pages at grclibrary.ai, 
 
 The reference-breadth new-ingest apply over the 63 2026-07-12 ref sources landed across #866-#883: the High EDPB-privacy cluster (4/2019 #866, 05/2020 #867, 01/2022 #868, 9/2022 #869, 07/2022 #873) plus the version-sensitive rows AICPA TSP 100 (#876), EU 2021/915 (#877), ANPD 18/2024 (#878), SOR/2018-64 (#879), EDPB 28/2024 (#880), NIS2 2024/2690 (#881), EDPB 8/2022 (#882), and the Brazil Resolution 4/2023 follow-up (#883), each verified verbatim against the held source, upstream-currency-confirmed this turn, refute-verified, and each with a canonical-citations register row. Split out per the 2026-07-15 numbering hygiene: §3.57 stays open only for the deferred matrix TSC-column mapping (a `/matrix-fit` single-file sensitive change).
 
-### TODO §3.63 (both routed findings resolved; item stays open for the RB-ETSI secondary see-also): reference-breadth FULL routed findings (2026-07-15)
+### TODO §3.63 (both routed findings resolved; secondary RB-ETSI see-also since added in #1122, fully closing §3.63): reference-breadth FULL routed findings (2026-07-15)
 
-The two genuine findings from the first `/reference-audit` FULL run (deep-assessment r3 Phase-3) are resolved: RB-FFIEC-CAT (the FFIEC sunset the Cybersecurity Assessment Tool 31 Aug 2025; the financial-services annex row corrected stricter-safe in #899) and the primary half of RB-ETSI-104128 (the ETSI TR 104 128 corroborative see-also added to the AI security technical-implementation guide in #907). Split out per numbering hygiene: §3.63 stays open only for the secondary RB-ETSI see-also in the AI security-and-risk standard's alignment table.
+The two genuine findings from the first `/reference-audit` FULL run (deep-assessment r3 Phase-3) are resolved: RB-FFIEC-CAT (the FFIEC sunset the Cybersecurity Assessment Tool 31 Aug 2025; the financial-services annex row corrected stricter-safe in #899) and the primary half of RB-ETSI-104128 (the ETSI TR 104 128 corroborative see-also added to the AI security technical-implementation guide in #907). Split out per numbering hygiene: §3.63 stayed open only for the secondary RB-ETSI see-also in the AI security-and-risk standard's alignment table, since added in #1122 (which fully closes §3.63).
 
 ### TODO §3.68 (clear conversions complete; item stays open for the routed divergent carriers): vuln-remediation-SLA single-source-of-truth (2026-07-15)
 

@@ -8,6 +8,25 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.608, PR #1122
+
+ETSI TR 104 128 secondary see-also (TODO §3.63, its last remaining item, so this closes §3.63). Authored from an offloaded, held-source-verified research draft; the orchestrator re-read the held TR and the target table, confirmed the informative trust tier and the TS-to-EN baseline relationship at the held catalogue note, and applied the single row.
+
+### Added
+- [`ai/standard-ai-security-and-risk.md`](../../ai/standard-ai-security-and-risk.md) (§7 Framework alignment): one see-also row citing the held ETSI TR 104 128 V1.1.1 (2025-05), "Securing Artificial Intelligence (SAI): Implementation guidance for the baseline cyber security requirements for AI", the informative ETSI Technical Report that helps stakeholders meet the ETSI Securing-AI baseline. Framed as informative see-also (its Reference cell reads "Informative implementation guidance (see-also, not a normative provision)"), corroborating the five normative ETSI EN 304 223 V2.1.1 provisions the table already maps (Sections 4.1, 4.5, 4.8, 4.9, 4.11), not an additional obligation. Doc Version 1.1.4 to 1.1.5, Date 2026-07-24.
+
+### Changed
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the document version bump.
+
+### Verification
+- **Held-source-grounded.** The held TR (in `grc_library_ref`) records its trust tier as informative ("prefer a formal standard or law for normative claims"), so it is cited as a see-also, never a normative anchor; normative weight stays on EN 304 223. The TR names its baseline as ETSI TS 104 223; the held catalogue note (maintainer-confirmed) records TS 104 223 V1.1.1 as the predecessor Technical Specification of the adopted European Standard EN 304 223 V2.1.1, the form §7 cites, so the see-also corroborates the same ETSI Securing-AI baseline. The see-also does not assert the TR cites "EN 304 223" verbatim.
+- **No canonical-citations register row.** A case-insensitive grep of [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) for "etsi" returns zero; the normative parent EN 304 223 is inline-cited in §7 without a register row, so the informative companion follows the same pattern. The ETSI-family register-breadth (register EN 304 223 first, then the TR) is a discretionary editorial call routed to the maintainer in [`.working/pending-decisions.md`](../../.working/pending-decisions.md), not a defect.
+- **A refute-briefed skeptical verifier** probed the citation accuracy (informative-versus-normative framing, the TS-to-EN relationship, the version and date, and no over-assertion of the TR's baseline form).
+- The full 75-gate suite passes; batched PR #1121's `/validate-pr` (CLEAN PASS) and `/retro` rows.
+
+### Scope
+- Closes §3.63 (its last remaining item; RB-FFIEC-CAT fixed #899, RB-ETSI primary see-also #907). §2.25.4's depends-on line reworded (the former 3.63 input is complete). §3.63 rotated to DONE.
+
 ## 2026-07-24, Library Version 2026.07.607, PR #1121
 
 Website-to-corpus link-integrity enforcement (TODO §3.75 parts 1+2), plus the due r14 guardrail-review cadence reset. Authored from an offloaded, scratch-copy-verified code draft (the worker refined the design: the manifest is a COMMITTED generated artefact, not an ephemeral `dist/` byproduct a gate cannot resolve); the orchestrator re-read every line, ran the build and gate empirically, and wired all surfaces.
