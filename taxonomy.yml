@@ -49,7 +49,7 @@ documents:
   domain: "ai"
   type: "Policy"
   title: "AI Compliance Policy"
-  version: "1.0.14"
+  version: "1.0.15"
   date: "2026-07-24"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

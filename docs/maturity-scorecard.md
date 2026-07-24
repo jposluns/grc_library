@@ -171,7 +171,7 @@ _170 documents._
 | [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.2 | 2026-07-15 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.2 | 2026-07-11 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.9 | 2026-07-22 |
-| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.14 | 2026-07-24 |
+| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.15 | 2026-07-24 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.8 | 2026-07-11 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.5 | 2026-07-23 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.5 | 2026-07-11 |
