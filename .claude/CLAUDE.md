@@ -317,18 +317,19 @@ confirm-before-destructive-action discipline.
 
 ## Change-impact surface map (when you change X, update all of these)
 
-TODO §1.18. A gate/rule/skill/count change touches more surfaces than the mechanical parity
+(Map origin: TODO §1.18, closed 2026-07-24; the map below is now a permanent close-out
+discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
 gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
 rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
 shipped without the change-tracking discipline prose). This map is the "when you change X,
 update ALL of these" reference the close-out checklist's change-impact bullet points at. It
 CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
-re-implement them, TODO §1.18 decision Q3=C); it adds the free-prose and website columns those
+re-implement them, per the §1.18 decision Q3=C); it adds the free-prose and website columns those
 gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
 `.web/templates/` sources) is a FIRST-CLASS paired surface: its updates are identified early
 and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
 land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
-iteratively (decision Q1); the first, the pack-README rule-scope table, is §1.18 PR-2.
+iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the former §1.18 PR-2).
 
 | Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
 | --- | --- | --- | --- |
@@ -484,7 +485,7 @@ is external. Two mechanisms:
      #308 and #309). A PR-only delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
      surface map` above; see it for the B/C/D change types and the website surface.
-   - **Change-impact completeness across all surfaces** (TODO §1.18; the generalization of
+   - **Change-impact completeness across all surfaces** (originated in §1.18; the generalization of
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
      count change in the PR, run the `## Change-impact surface map` above for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE

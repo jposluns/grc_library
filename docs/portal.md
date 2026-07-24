@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.0\
-**Date:** 2026-07-23\
+**Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -532,6 +532,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [New York City Automated Employment Decision Tool Regulatory Requirements](../ai/jurisdictions/annex-ai-us-new-york-city.md) (maturity: Draft)
 - [Public Sector GRC Requirements Annex](../compliance/public-sector/annex-public-sector-requirements.md) (maturity: Draft)
 - [SOX IT General Controls Annex](../compliance/financial-services/annex-sox-itgc.md) (maturity: Draft)
+- [Singapore Model AI Governance Framework for Generative AI](../ai/jurisdictions/annex-ai-singapore.md) (maturity: Draft)
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
