@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.12\
-**Date:** 2026-07-23\
+**Version:** 1.3.13\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -90,7 +90,7 @@ Retired or expired keys destroyed using cryptographic erase (per NIST SP 800-88)
 | Asymmetric encryption | RSA-4096, ECC P-384 or stronger |
 | Hashing | SHA-512, BLAKE2b |
 | Password-based encryption | Argon2id (preferred) at minimum m=19456 (19 MiB), t=2, p=1; or PBKDF2-HMAC-SHA256 at minimum 600,000 iterations (PBKDF2-HMAC-SHA512 at minimum 220,000), per the OWASP Password Storage Cheat Sheet |
-| Post-quantum cryptography | ML-KEM (formerly CRYSTALS-Kyber; NIST FIPS 203, August 2024) for key encapsulation; ML-DSA (formerly CRYSTALS-Dilithium; NIST FIPS 204, August 2024) for digital signatures; hybrid key exchange (ECC + PQC) during migration |
+| Post-quantum cryptography | ML-KEM (formerly CRYSTALS-Kyber; NIST FIPS 203, August 2024) for key encapsulation and ML-DSA (formerly CRYSTALS-Dilithium; NIST FIPS 204, August 2024) for digital signatures, at NIST security category 3 as the baseline (ML-KEM-768, ML-DSA-65) and category 5 (ML-KEM-1024, ML-DSA-87) for long-lived or high-assurance data; SLH-DSA (NIST FIPS 205, August 2024) where a conservative hash-only signature assumption is required; hybrid key exchange (ECC + PQC) during migration. See the [Post-Quantum Cryptography Readiness Roadmap](roadmap-post-quantum-cryptography.md) for parameter-set selection and crypto-agility |
 
 ---
 
