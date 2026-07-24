@@ -102,7 +102,7 @@ If the RAG system serves multiple tenants or user groups:
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
 | Indirect prompt injection | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
-| Sensitive disclosure via retrieval | LLM02 | AML.T0024 | DSP-05 | Measure 2.7 |
+| Sensitive disclosure via retrieval | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Retrieval authorization | LLM06, LLM08 | AML.T0053 | IAM-04 | Manage 1.3 |
 | Training/corpus poisoning | LLM03, LLM04 | AML.T0020 | DSP-05 | Govern 1.7 |
 | Data retention | LLM02 | N/A | DSP-07 | Manage 2.2 |

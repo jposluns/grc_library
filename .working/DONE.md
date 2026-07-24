@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.15 MITRE ATLAS 2026.06 alignment/currency map + #654 LLM02 re-map (2026-07-24, PR #1119)
+
+Verified the corpus adversarial-AI ATLAS citations current against the held ATLAS 2026.06 (upstream confirmed v2026.06 is the current release; no live stale/renamed/deprecated identifiers, the #635 and pack-1.54.4 re-maps hold), and applied the one actionable finding, the #654 verifier note: re-mapped the four OWASP LLM02 sensitive-disclosure rows across the pack `dev-security/claude-rules/ai/` rules (ai-security x2, agent-security, rag-security) from AML.T0024 (Exfiltration via AI Inference API, the narrower training-data inference-API technique) to AML.T0057 (LLM Data Leakage), whose held 2026.06 scope (prompt-induced leakage from training data, connected data sources, and other users) is the direct LLM02 match. Caught a worker over-claim (no `.claude/rules/ai/` mirror exists, so 4 edits not 8). Closes §3.15.
+
 ### §3.106 OWASP GenAI Red Teaming Guide anchored in the agentic-security standard's §23 (2026-07-24, PR #1117)
 
 Reference-audit-routed (the #1115 breadth cadence's LOW candidate): after confirming the held OWASP GenAI Red Teaming Guide v1.0 (held but unregistered) adds real, on-point methodology over the existing generic OWASP GenAI Security Project reference, added a corroborative see-also "Framework anchors" line to §23 (red team) of `ai/standard-ai-and-agentic-development-security.md` mapping the Guide's phased blueprint (model, implementation, system, runtime / human and agentic phases) and its agentic/RAG tooling onto REDTEAM-SEC-02, and registered the Guide in `register-canonical-citations.md`. §22 left as-is (its generic reference plus framework-anchor line suffice). Corroborative, not normative; worker-drafted phase names corrected at source (the fourth phase is "Runtime / Human & Agentic", not "runtime or business").
