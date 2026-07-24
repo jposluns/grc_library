@@ -11,6 +11,14 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.108 ASVS specific-code migration closed as already-satisfied (2026-07-24, PR #1130)
+
+Closed as already-satisfied: the offloaded research-3108 pass verified, and the orchestrator spot-confirmed against the held ASVS 5.0.0 requirements CSV, that every specific ASVS code in the non-governance pack rules (input-validation.md, secrets.md) is ALREADY a correct 5.0.0 citation with a matching held section title (V1.2 Injection Prevention, V2.2 Input Validation, V5.2 File Upload, V6.5 MFA, V11.3 Encryption Algorithms, V12.1 TLS, V13.3 Secret Management); cicd-gates.md carries no ASVS code. No 4.0 residual to migrate, so no migration PR. Created and closed the same session (surfaced during the §3.66 reconcile as a suspected residual; the research dissolved it).
+
+### §3.36 Improvement-log cycle-to-scratch closed as superseded (2026-07-24, PR #1130)
+
+Closed as superseded (maintainer decision 2026-07-24): the existing sweep-working-records-to-private.py already row-sweeps the improvement-log to the private archive under the current-week model, so §3.36's separate cursor-aware tool would create two conflicting sweep mechanisms. Accepted that un-mined rows may be swept to the private archive before the TODO-mining pass reads them; the mining pass reads the private archive when needed.
+
 ### §3.66 Generic governance-rule ASVS citations remapped to 5.0.0 (2026-07-24, PR #1128)
 
 Remapped every generic OWASP ASVS 4.0-era citation (V1.1/V14.1/V14.2) in the framework-alignment tables of all 11 governance-pack rules, the 3 SKILL restatements, and the threat-modelling standard to ASVS 5.0.0, held-title-verified. Applied under the high-assurance harness (two independent adversarial verifiers plus a deterministic dual-tree apply): the false-negative lens caught a systematic V16.4 "Log Protection" gap on 3 durable-record rows and one missing in-scope row; the false-positive lens confirmed the V8.2 / V15.4 / V15.2 signal assignments and flagged the 3 no-clean-home gate/build-integrity rows to chapter-level V15. The banked research map was found incomplete (2 rules + 1 row missed) and reconciled against live main. The specific-code migration in the non-governance pack rules split out as §3.108.
