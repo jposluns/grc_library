@@ -80,10 +80,6 @@ New domain for crypto-asset / blockchain governance: digital-asset custody, stak
 
 **Moved to 2.25.2** (Series A, international AI-governance authority coverage), which absorbs this landing-page standards-to-source linking as its surfacing step. The content lives there. This is a forward redirect stub; it closes when 2.25.2 closes.
 
-### 2.17 AI jurisdiction annex: California CCPA / ADMT (H, M)
-
-New `ai/jurisdictions/annex-ai-us-california.md` plus a policy US-state row for California's CCPA automated-decision-making-technology (ADMT) regulation (binding). `[VERIFY]` the ADMT effective / compliance dates upstream at apply (egress-gated). A government-facing binding annex, so it warrants the high-assurance harness. Re-homed from the retired AI-domain-delta umbrella (Workstream A.6).
-
 ### 2.18 AI jurisdiction annex: South Korea AI Basic Act (H, M)
 
 New jurisdiction annex for the South Korea AI Basic Act (held primary). `[VERIFY]` the phased effective dates upstream at apply (the catalogue records effective 22 Jan 2026; egress-gated). A government-facing annex, high-assurance harness. Re-homed from the retired AI-domain-delta umbrella (Workstream B.1).
@@ -246,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.105.**
+**Next item number: 3.106.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.105 De-duplicate the CCPA ADMT coverage across the AI and privacy annexes (maintainer decision, L, S) `[content]`
+
+Surfaced 2026-07-24 by the #1112 California AI annex verifier: the CCPA ADMT limb (11 CCR Article 11, sections 7200 to 7222) is now documented in BOTH [`ai/jurisdictions/annex-ai-us-california.md`](ai/jurisdictions/annex-ai-us-california.md) (the AI-governance view) AND [`privacy/jurisdictions/annex-privacy-united-states.md`](privacy/jurisdictions/annex-privacy-united-states.md) (its "AI and privacy obligations" section, in detail: the pre-use notice, opt-out, access, the 7221(b)(1) human-appeal exception, and the 7001 significant-decision definition). The two overlap on the section numbers, dates, and the definition; #1112 made the AI annex's cross-references accurate (acknowledging the overlap) but did NOT consolidate. **Maintainer decision:** consolidate the ADMT obligation detail into a single canonical annex, following the pattern the privacy annex already uses for the Colorado AI statute (narrow the privacy annex's ADMT bullet to a pointer to the AI annex), OR keep both cross-referenced. The privacy-annex edit removes established content, so it is authorial and was not made unilaterally overnight.
 
 ### 3.1 Base-unverified ISO/IEC designation debt tracker (L, S)
 
@@ -395,7 +395,7 @@ Keep every link from the public site to a corpus document (or its GitHub source)
 
 ### 3.79 For-AI page: give corpus coverage to the "named, not yet covered" instruments, then sync the page (maintainer-flagged 2026-07-15, M-L; corpus-first, NOT independent)
 
-**Maintainer priority within P3 (2026-07-15): prioritized ahead of the other P3 items.** The For-AI page ([`.web/templates/for-ai.html`](.web/templates/for-ai.html)) hand-lists instruments under "Named, not yet given dedicated coverage" (US Texas TRAIGA, Illinois HB 3773, California CCPA ADMT, South Korea AI Basic Act, Singapore Model AI Governance Framework, Malaysia guidelines, the UK approach, the African Union AI Strategy; ISO/IEC 8183, 12792, 5338; NIST SP 1270, NIST IR 8312). Give each the appropriate corpus treatment (a dedicated annex/doc, or a citation where a dedicated doc is not warranted), then MOVE it on the page from "Named, not yet covered" to a "Documented in [doc]" entry. **Dependency (maintainer question, 2026-07-15): corpus-first, then a web-page sync; the two are NOT independent** (the page's coverage claim must reflect corpus reality, so the corpus doc/citation lands before the page moves the item). Much of the jurisdiction set is already tracked (§2.17 California CCPA/ADMT, §2.18 South Korea AI Basic Act, §2.19 Singapore, §2.21 UK/Malaysia/Australia/US-federal/Texas/Illinois); several ISO/NIST items are already CITED in corpus docs (e.g. NIST IR 8312) but lack dedicated coverage. So this is the coverage-SYNC umbrella over those: as each coverage item lands, sync the For-AI page's lists, and review the lists for completeness/currency against the corpus. Also decide whether the For-AI instrument lists should stay hand-authored or be generated from the corpus (generation would keep the "documented" entries drift-free; ties to §3.75).
+**Maintainer priority within P3 (2026-07-15): prioritized ahead of the other P3 items.** The For-AI page ([`.web/templates/for-ai.html`](.web/templates/for-ai.html)) hand-lists instruments under "Named, not yet given dedicated coverage" (US Texas TRAIGA, Illinois HB 3773, California CCPA ADMT, South Korea AI Basic Act, Singapore Model AI Governance Framework, Malaysia guidelines, the UK approach, the African Union AI Strategy; ISO/IEC 8183, 12792, 5338; NIST SP 1270, NIST IR 8312). Give each the appropriate corpus treatment (a dedicated annex/doc, or a citation where a dedicated doc is not warranted), then MOVE it on the page from "Named, not yet covered" to a "Documented in [doc]" entry. **Dependency (maintainer question, 2026-07-15): corpus-first, then a web-page sync; the two are NOT independent** (the page's coverage claim must reflect corpus reality, so the corpus doc/citation lands before the page moves the item). Much of the jurisdiction set is already covered or tracked (California CCPA/ADMT and Singapore shipped as `ai/jurisdictions/` annexes on 2026-07-24; §2.18 South Korea AI Basic Act and §2.21 UK/Malaysia/Australia/US-federal/Texas/Illinois still tracked); several ISO/NIST items are already CITED in corpus docs (e.g. NIST IR 8312) but lack dedicated coverage. So this is the coverage-SYNC umbrella over those: as each coverage item lands, sync the For-AI page's lists, and review the lists for completeness/currency against the corpus. Also decide whether the For-AI instrument lists should stay hand-authored or be generated from the corpus (generation would keep the "documented" entries drift-free; ties to §3.75).
 
 ### 3.80 Credit-offload: multi-worker QA + research queue (maintainer-co-designed 2026-07-15, L, XL; cross-repo)
 
@@ -708,7 +708,6 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 | MEG-21 | §3.97 | `_ref` `upstream_url` enrichment for FREE entries (egress-heavy; a `_ref` PR; partitionable). |
 | MEG-22 | §3.100 | Re-ingest a clean Quebec P-39.1 source into `_ref` (cross-repo; clean-source download). |
 | MEG-23 | §3.55 | `_ref` bulk-ingest of the ~64 staged `ingest/` files (cross-repo; per-doc currency the egress-facing part). |
-| MEG-24 | §2.17 | California CCPA/ADMT annex: `[VERIFY]` the ADMT dates upstream at apply (source HELD). |
 | MEG-25 | §2.18 | South Korea AI Basic Act annex: `[VERIFY]` the phased dates upstream at apply (source HELD). |
 | MEG-26 | §2.23 (statute half) | CCPA STATUTE-currency review once `ingest/ccpa_statute_eff_20260101.pdf` is ingested to `--full-text.md`. |
 | MEG-27 | §2.20 | Ref-side `last_checked` sweep for the 6 new EU/CA AI sources (cross-repo). |

@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.88\
+**Version:** 1.27.89\
 **Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -200,6 +200,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Annex | Canada AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md) | Chief Information Security Officer | Annual | TBS Directive on ADM, OSFI E-23, Ontario EDSTA, ISED Voluntary Code, CAN/DGSI 101, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Australia AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md) | Chief Information Security Officer | Annual | Privacy Act 1988 APP 1.7 to 1.9, National AI Plan 2025, Voluntary AI Safety Standard, AI Ethics Principles, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Singapore Model AI Governance Framework for Generative AI | [`ai/jurisdictions/annex-ai-singapore.md`](../ai/jurisdictions/annex-ai-singapore.md) | Chief Information Security Officer | Annual | Singapore Model AI Governance Framework for Generative AI, NIST AI RMF, ISO/IEC 42001 | template |
+| AI | Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) | Chief Information Security Officer | Annual | CCPA/CPRA (Cal. Civ. Code 1798.100 et seq.), CPPA CCPA Regulations 11 CCR Div 6 Ch 1 Art 11 (ADMT), NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | AI Governance Approver | 6 to 12 months | ISO/IEC 42001, EU AI Act Chapter IX, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
 | AI | Checklist | AI Algorithmic Compliance Checklist | [`ai/checklist-ai-algorithmic-compliance.md`](../ai/checklist-ai-algorithmic-compliance.md) | AI Governance Approver | 6 to 12 months | EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, ISO/IEC 42001 | template |
 | Dev Security | Standard | Developer Security Requirements Standard | [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md) | Security Architecture Maintainer | Annual | OWASP Top 10, ISO/IEC 27001 Annex A.8.25 to 28, NIST SP 800-218 | template |
