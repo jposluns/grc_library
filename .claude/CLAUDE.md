@@ -1079,6 +1079,22 @@ is the same failure the `clarify-before-acting` and `action-before-explanation-o
 rules forbid: narrating an inaction (the handoff) as if forced, without surfacing the
 capability assessment that would let the maintainer redirect.
 
+**The compaction-gate on pacing and continue-vs-fresh questions (maintainer-directed
+2026-07-24).** Absent evidence of degradation, the assistant does NOT ask the maintainer
+"what should I do now" or "should we do this fresh / hand off", and does NOT surface a
+continue-vs-fresh, checkpoint, or sequencing choice, UNLESS both hold: (a) there is a
+justifiable reason, AND (b) the session has passed its SECOND conversation compaction.
+Before the second compaction, with no degradation evidence, "what now" is already answered
+by the GO'd queue and the standing priority ordering, so the assistant proceeds on the
+highest-priority authorized item without asking. This gate sits ON TOP OF the offer-regime
+and its two contributing-factor OFFER cases below (a very-long-run-ahead; sensitive
+work benefiting from fresh context): those OFFERS are themselves suppressed until the
+second-compaction-plus-justifiable-reason threshold is met when no degradation signal is
+present. A named, externally-observable degradation signal remains an always-valid trigger
+regardless of the compaction count. (The compaction count is the observed count the
+assistant increments as each session-continuation summary arrives; see the `_private`
+per-session compaction tally in the wind-down/handoff discipline.)
+
 **The trigger.** Whenever the assistant concludes a session-closing handoff is the right
 next step, it does NOT act silently. It surfaces the decision (via `AskUserQuestion`) with
 all three of:

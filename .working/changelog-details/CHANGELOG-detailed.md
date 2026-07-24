@@ -8,6 +8,14 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.613, PR #1127
+
+`.claude/`-only, terse. Codifies a wind-down "compaction-gate": absent degradation evidence, the assistant does not ask "what now" or "continue vs fresh" and does not surface a handoff, checkpoint, or sequencing choice unless (a) a justifiable reason exists AND (b) the session has passed its second conversation compaction; before that, "what now" is answered by the GO'd queue plus the standing priority ordering. Maintainer-directed 2026-07-24 after one continue-vs-fresh sequencing question was asked with the queue already GO'd.
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): added the compaction-gate paragraph to the `## Wind-down decision framework` section, sitting on top of the offer-regime (it suppresses the very-long-run-ahead and sensitive-fresh-context OFFER cases until the second-compaction threshold is met, degradation evidence excepted).
+- Local memory note `no-session-swap-absent-degradation` updated with the same gate (not a repo file).
+
 ## 2026-07-24, Library Version 2026.07.612, PR #1126
 
 Closes §3.1 (the #663 base-unverified ISO/IEC designation-debt tracker) by reconciling all 11 candidate standards to their verified issuing-body designation. Authored from the `research-3001` designation-verification pass (worker-a, read-only), re-verified at apply against ISO's catalogue titles and the held base; the ISO 12207 edition was confirmed by the maintainer upstream.
