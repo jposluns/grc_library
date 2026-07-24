@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §2.19 Singapore Model AI Governance Framework for GenAI annex (2026-07-24, PR #1110)
+
+Shipped `ai/jurisdictions/annex-ai-singapore.md`, a new AI-governance jurisdiction annex for Singapore's voluntary Model AI Governance Framework for Generative AI (IMDA / AI Verify Foundation, 30 May 2024): its nine dimensions, an explicit voluntary framing that contrasts the binding EU and Colorado annexes, and a NIST AI RMF + ISO/IEC 42001:2023 crosswalk verified against the held standard. Authored from a worker draft under the content high-assurance flow (held-source re-verification plus a refute-briefed skeptical verifier that cleared it with no defects).
+
 ### §1.18 change-impact surface map CLOSED (2026-07-24, PR #1109)
 Closed TODO §1.18 on the maintainer's decision to close rather than iterate: the two core deliverables are shipped, the documented change-impact surface map plus close-out checklist (#1104) and the first FP-safe mechanization, gate 74 rule-scope-table completeness (#1107). Further FP-safe gates on other ungated map surfaces (the spec §5 grouped-list, per-gate narratives) are new items if ever wanted, not a §1.18 residual.
 

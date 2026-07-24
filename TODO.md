@@ -64,7 +64,7 @@ A cohesive block the maintainer surfaced at the 2026-07-19 `/resume`, tightening
 
 ## Priority 2 — Fill significant gaps
 
-**Next item number: 2.28.**
+**Next item number: 2.29.**
 
 Deepening thin-but-present content to operational sufficiency, and the significant missing capabilities.
 
@@ -87,10 +87,6 @@ New `ai/jurisdictions/annex-ai-us-california.md` plus a policy US-state row for 
 ### 2.18 AI jurisdiction annex: South Korea AI Basic Act (H, M)
 
 New jurisdiction annex for the South Korea AI Basic Act (held primary). `[VERIFY]` the phased effective dates upstream at apply (the catalogue records effective 22 Jan 2026; egress-gated). A government-facing annex, high-assurance harness. Re-homed from the retired AI-domain-delta umbrella (Workstream B.1).
-
-### 2.19 AI jurisdiction annex: Singapore Model AI Governance Framework for GenAI (M, M)
-
-New jurisdiction annex for the Singapore Model AI Governance Framework for Generative AI (held primary). Re-homed from the retired AI-domain-delta umbrella (Workstream B.2).
 
 ### 2.20 Ref-side `last_checked` sweep for the 6 new EU / CA AI sources (M, S; cross-repo)
 
@@ -243,6 +239,10 @@ Express the existing ISO, NIST, CSA, and COBIT alignment tables as OSCAL profile
 ### 2.27 OWASP Top 10 for Agentic Applications (ASI01-ASI10) integration into the agentic-security standard (maintainer-decided 2026-07-23b, M, M) `[content]`
 
 The fuller OWASP-Agentic integration into [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md): a §36 alignment-matrix ASI01-ASI10 column mapped per Control Area, plus a §6 threat-class crosswalk. **Maintainer decision 2026-07-23b (RB-7(ii) follow-up): option (b), ADD NEW THREAT-CLASS ENTRIES for ASI08 / ASI09 / ASI10** (expand the §6 threat-class taxonomy) rather than cite-only. The verified ASI-to-threat-class crosswalk is banked in the scratch `research-owasp-agentic-ingest-cite` delivery (re-verify at the held OWASP source at apply). Expert-review-facing corpus standard, so it warrants a skeptical verifier at apply (the high-assurance harness if the scale/sensitivity trigger is met). Now UNBLOCKED by the decision; recorded in [`pending-decisions.md`](.working/pending-decisions.md).
+
+### 2.28 AI jurisdiction annex + ref ingest: Singapore Model AI Governance Framework for Agentic AI (M, M) `[content]`
+
+Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the AI Verify Foundation released a separate, newer Model AI Governance Framework for Agentic AI (unveiled January 2026), a DISTINCT framework rather than a new edition of the GenAI Framework, so §2.19's citation stands. Follow-up: ingest the Agentic AI MGF into `grc_library_ref` as a held primary (confirm currency upstream at ingest), then add a companion jurisdiction annex or fold it into [`ai/standard-ai-and-agentic-development-security.md`](ai/standard-ai-and-agentic-development-security.md), per the maintainer's scope call.
 
 ## Priority 3 — Clean up and tooling
 
@@ -505,7 +505,7 @@ The umbrella for a clean, great adopter experience from a public clone, and for 
 
 Publish the `dev-security/claude-rules` pack as a citable, CC BY-SA methodology or reference model: the failure-mode provenance, the enforcement mechanism, the results. Adopter-experience work, hence Priority 4, separate from the P2 series and independent of the OSCAL machinery.
 
-**Depends on:** the Task-1 pack reconciliation (completed 2026-07-23, so the published pack is current), 3.47 (P3, strip internal working-provenance for adoptability), 3.56 (P3), and 1.18 (P1, make the disciplines project-agnostic).
+**Depends on:** the Task-1 pack reconciliation (completed 2026-07-23, so the published pack is current), 3.47 (P3, strip internal working-provenance for adoptability), 3.56 (P3), and 1.19 (P1, operational-state privatization and adopter-clone portability, the adoptability work that makes the pack project-agnostic).
 
 **Blocks:** none.
 
