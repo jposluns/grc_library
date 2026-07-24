@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.14\
+**Version:** 1.8.15\
 **Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -568,6 +568,8 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 **REDTEAM-SEC-03:** Critical and High red team findings block production deployment until remediated and verified.
 
 **REDTEAM-SEC-04:** Red team tooling must include PyRIT for automated multi-turn attack simulation. Manual testing by a qualified practitioner is required in addition.
+
+**Framework anchors.** The red-team methodology is corroborated by the OWASP GenAI Red Teaming Guide v1.0 (January 2025), whose phased GenAI red-process blueprint (its model, implementation, system, and runtime / human and agentic evaluation phases, each carrying a per-phase checklist) and its agentic and RAG-specific red-team tooling map onto the multi-turn, tool-abuse, RAG-poisoning, context-contamination, and agent-chain scope of REDTEAM-SEC-02. This is a corroborative see-also, not a normative source: a normative red-team obligation rests on the AI Adversarial Test Reference and the NIST AI 100-2e2025 taxonomy cited in Section 22.
 
 ---
 
