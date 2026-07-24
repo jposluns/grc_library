@@ -8448,6 +8448,30 @@ class SkillInternalRefsTests(LinterTestCase):
         self.assertIn("OK", result.stderr)
 
 
+class GateCitationInventoryTests(LinterTestCase):
+    """tools/lint-gate-citation-inventory.py (gate 77)"""
+
+    SCRIPT = "tools/lint-gate-citation-inventory.py"
+
+    def test_runs_clean_on_corpus_at_head(self):
+        # Guard-first: the census found zero live name-drift, so every genuine
+        # gate-name citation matches its §6 canonical name.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(result.returncode, 0,
+                         f"gate exited {result.returncode} on HEAD.\n"
+                         f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_self_test_passes(self):
+        # The linter's 9-case --self-test exercises the match/mismatch/renumber
+        # cases and every FP exclusion (article-open role-gloss, gate-digit
+        # cross-ref, bare-number list, token-overlap style tolerance).
+        result = run_linter(self.SCRIPT, "--self-test")
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}"
+                         f"\nstderr:\n{result.stderr}")
+        self.assertIn("OK", result.stderr)
+
+
 class WebCorpusLinkTests(LinterTestCase):
     """tools/lint-web-corpus-links.py (gate 75)"""
 

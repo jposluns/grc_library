@@ -172,6 +172,7 @@ run_gate "COBIT objective title-text audit"               python3 tools/lint-cob
 run_gate "Rule-scope-table completeness audit"            python3 tools/lint-rule-scope-table.py
 run_gate "Web-to-corpus link-target integrity audit"      python3 tools/lint-web-corpus-links.py
 run_gate "Skill-body internal-reference audit"            python3 tools/lint-skill-internal-refs.py
+run_gate "Gate-name-citation inventory audit"             python3 tools/lint-gate-citation-inventory.py
 
 # ----------------------------------------------------------------------
 # Summary

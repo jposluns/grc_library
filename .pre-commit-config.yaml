@@ -543,3 +543,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-gate-citation-inventory
+        name: Gate-name-citation inventory audit
+        entry: python3 tools/lint-gate-citation-inventory.py
+        language: system
+        pass_filenames: false
+        always_run: true

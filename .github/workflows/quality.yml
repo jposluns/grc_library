@@ -251,6 +251,8 @@ jobs:
         run: python3 tools/lint-web-corpus-links.py
       - name: Skill-body internal-reference audit
         run: python3 tools/lint-skill-internal-refs.py
+      - name: Gate-name-citation inventory audit
+        run: python3 tools/lint-gate-citation-inventory.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
