@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### RB-R6 not-held-but-cited source list compiled + stale MiCA flag corrected (2026-07-24, PR #1143)
+
+Compiled the deduplicated list of external normative sources the corpus cites but `grc_library_ref` does not hold (each verdict `ref-holds.py`-executed) and seeded it into the `grc_library_private` maintainer egress store: 6 Tier-1 load-bearing sources (ISO 37301, ISO 19011, NYC Admin Code LL144 sections, Illinois BIPA, India DPDPA, IMO MSC-FAL.1/Circ.3) plus a Tier-2 register-level set. Corrected a stale TODO §2.3 flag that listed MiCA as not held (MiCA and DORA are held; only NYDFS BitLicense remains not held). RB-R6 the acquisition item stays open (egress-gated maintainer-action), now pointed at the comprehensive seed.
+
 ### arXiv container sandbox-escape paper ingested, screened, corpus see-also (2026-07-24, PR #1142; ref PR #103)
 
 Closed the round-A decision (ii) on the maintainer-dropped arXiv preprint "Quantifying Frontier LLM Capabilities for Container Sandbox Escape" (SandboxEscapeBench, arXiv:2603.02277v2). Ingested it into `grc_library_ref` `publications/` at SCREENING status `screened` (ref PR #103: instruction-content scan re-run clean at apply, provenance clean, load-bearing claims corroborated against NIST SP 800-190 / OWASP Top 10 for Agentic Applications 2026 / MITRE ATLAS 2026.06, v2 confirmed current upstream at arXiv), then added one corroborative, informative see-also in `ai/standard-ai-and-agentic-development-security.md` section 32 (Sandbox and isolation, after SANDBOX-SEC-04) citing the benchmark by name and arXiv id as untrusted-tier support for the SANDBOX-SEC baseline, never a normative preprint cite. Screening research offloaded; ingest + see-also orchestrator-applied and verified.

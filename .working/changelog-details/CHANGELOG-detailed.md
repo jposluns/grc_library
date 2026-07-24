@@ -8,6 +8,26 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.629, PR #1143
+
+RB-R6 not-held-source-list bookkeeping (item g, part 2). Working-state only; no corpus content change.
+
+### Changed
+
+- [`TODO.md`](../../TODO.md): (a) corrected a stale section 2.3 crypto-domain flag that listed MiCA as not held. MiCA (Regulation (EU) 2023/1114) and DORA are held (confirmed via [`tools/ref-holds.py`](../../tools/ref-holds.py) against the reference-base index), and only NYDFS BitLicense (23 NYCRR Part 200) remains genuinely not held (the same check returns NOT-FOUND-IN-INDEX; tracked as MEG-01, WestLaw-gated). (b) Added a note to the RB-R6 acquisition item recording that the comprehensive deduplicated not-held-but-cited source list is now compiled into the maintainer egress store (6 Tier-1 load-bearing sources plus a Tier-2 register-level set), superseding the item's older 3-example list; ISO 9001 section 9.3 was reworded to "planned intervals" (#758) so it is no longer load-bearing, and DORA is now held, so neither remains a Tier-1 acquire. The acquisition itself remains maintainer-action (egress-gated).
+
+### Added
+
+- Reference-base egress seed (in `grc_library_private`, not this repo): the RB-R6 not-held source list with authoritative upstream URLs, each verdict executed via [`tools/ref-holds.py`](../../tools/ref-holds.py), was added to the maintainer-egress-requests store as the acquisition seed. Anti-false-premise finding recorded: MiCA, NYDFS Part 500, DORA, ISO/IEC 23894, and China PIPL are already held, so the genuinely not-held load-bearing set is only 6 Tier-1 sources.
+
+### Verification
+
+- Pre-push guard green ([`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) 77 gates then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) D1 to D8 plus 45/40/31). Held/not-held claims executed via [`tools/ref-holds.py`](../../tools/ref-holds.py) (not inferred). Corpus-wide grep confirmed no other stale "MiCA not held" carrier (bare-token, both window orders, all file types). Canadian English, no em/en dashes, versions monotonic. No versioned corpus document body changed (TODO is a backlog file, so no per-document Version or Date bump and no taxonomy regeneration).
+
+### Batched
+
+- #1142 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md)) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)), offloaded to worker-b: the arXiv sandbox-escape corpus see-also post-merge sweep.
+
 ## 2026-07-24, Library Version 2026.07.628, PR #1142
 
 Corroborative see-also for the newly screened container sandbox-escape benchmark preprint: part 2 of the arXiv sandbox-escape disposition (round-A decision ii). The paired reference-base ingest is ref PR #103.
