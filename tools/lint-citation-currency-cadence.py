@@ -72,6 +72,7 @@ HEADING_TIER = {
     "ISO / IEC standards": "standards",
     "NIST publications": "standards",
     "IEEE standards": "standards",
+    "ETSI standards": "standards",
     "EU regulations and directives": "legislation",
     "North-American regulations and frameworks": "legislation",
     "Asia-Pacific regulations and frameworks": "legislation",

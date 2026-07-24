@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.42\
+**Version:** 1.5.43\
 **Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -109,6 +109,13 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | IEEE 2883 | 2022 | 2022-08 | IEEE Standard for Sanitizing Storage (the Clear / Purge / Destruct sanitization categories and per-technology technique requirements; the technique standard NIST SP 800-88 Rev. 2 now defers to) | - | https://standards.ieee.org/ieee/2883/10277/ | verified 2026-06-30 |
+
+## ETSI standards
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| ETSI EN 304 223 | V2.1.1 | 2025-12 | Securing Artificial Intelligence (SAI): baseline cyber security requirements for AI models and systems (13 principles across five lifecycle phases: secure design, development, deployment, maintenance, end of life; the European Norm evolution of the TS 104 223 baseline; the first global EN for AI cyber security) | V2.0.0 (2025-09 draft); TS 104 223 V1.1.1 (2025-04, predecessor Technical Specification) | https://www.etsi.org/deliver/etsi_en/304200_304299/304223/ | verified 2026-07-24 |
+| ETSI TR 104 128 | V1.1.1 | 2025-05 | Securing Artificial Intelligence (SAI): guide to cyber security for AI models and systems (informative implementation guide to the SAI baseline TS 104 223, carried forward into EN 304 223; AI-lifecycle scenarios and examples for the full supply chain) | - | https://www.etsi.org/deliver/etsi_tr/104100_104199/104128/ | verified 2026-07-24 |
 
 ## EU regulations and directives
 
