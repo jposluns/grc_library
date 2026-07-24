@@ -1,14 +1,14 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep119-closeout
+**Active-session:** claude/overnight-setup-1109
 
 **Status:** active
 
-**Operating-mode:** attended-autonomous
+**Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-23T21:10:29Z
+**Last-heartbeat-UTC:** 2026-07-24T00:37:00Z
 
-**Current-task:** 2026-07-23b resumed session (`/resume` from the #1105 session-closing handoff; `main` at #1105 `7803d388`, 73/73). On the VM, gh-CLI, no GitHub MCP. Opened ATTENDED (maintainer sent `/resume`). Both workers live Opus 4.8; mandatory-offload active. First PR = this resume close-out: Sweep 119 loop-break `/validate` (OFFLOADED to a live worker, over the #1068..#1104 deltas, base #1067 `3ceb0c54`), handoff prune (keep current + 1 prior), lease acquire. Then the maintainer-directed queue per the #1105 NEXT block: §1.18 PR-2 (the FP-safe pack-README rule-scope-table gate, guard-first), the 1.1 discussion-vs-execution gate DESIGN (author + bring to maintainer, do NOT auto-build), the P2 2.19 Singapore + 2.17 California annexes (research delivered), then P2 by severity + P3. OPEN maintainer alert 2026-07-23-a (LOW, SHA-pinning practice) to surface + ask about clearing; OPEN pending decision OWASP §36 ASI08/09/10.
+**Current-task:** 2026-07-23b resumed session, now OVERNIGHT/unattended (the maintainer switched to overnight ~00:30Z 2026-07-24 and authorized the full overnight run; do not stop until they wake). On the VM, gh-CLI, no GitHub MCP. Both workers live Opus 4.8; MANDATORY-OFFLOAD active (offload every draft / research / QA pass to conserve orchestrator credits). SHIPPED this session: #1106 (resume close-out, Sweep 119 CLEAN), #1107 (§1.18 PR-2 gate 74 rule-scope-table completeness), #1108 (§1.1 the fifteenth pack rule `express-authorization-before-execution`). CURRENT PR #1109 = overnight setup (§1.18 close + the F1 date-breadcrumb fix + the overnight-authorizations record + this mode change + the #1108 QA rows). OVERNIGHT AUTHORIZATIONS (full block at `pending-decisions.md` top): all P3 (quick-clears + machinery) + the P2 AI annexes (Singapore 2.19, California 2.17) + the OWASP-Agentic 2.27 build are authorized; content mode = build-with-verifier / high-assurance-and-merge-on-green; §1.18 = close; no idle-stop, re-assess ALL of TODO for not-hard-blocked items if the queue drains; overnight ends ONLY on an explicit maintainer signal. QUEUE next: P3 quick-clears (3.94 / 3.60 / 3.38 / 3.13 / 3.47) -> broader P3 -> P2 annexes -> OWASP build. The Singapore 2.19 annex draft is already offloaded.
 
 **Worker-dispatches:** BOTH live Opus 4.8 (the maintainer spun up the second this session): `worker-20260716-a` (role any) + `worker-20260716-b` (role qa). worker-a claimed the blocking prio-0 `sweep-118-validate`; background research orders queued for worker-b: `research-1223-working-cycleout` (§1.22.3 seed, prio 2), `research-inbox-delivery-triage` (prio 2), `research-p1p3-quickclear-survey` (prio 3). Both workers' session-scoped elevated-QA windows RE-ESTABLISH this fresh session, so first deliveries are consumed under full ELEVATED QA. Fetch scratch `origin/main` before every coordination-plane read (§3.93); prefer `git -C <scratch>` (or an absolute script path) for sibling tools/git.
 
