@@ -8,6 +8,26 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.630, PR #1144
+
+Red-team cross-ref completing the arXiv sandbox-escape see-also disposition (maintainer-decided 2026-07-24: keep the section 32 note AND add a section 22/23 cross-ref).
+
+### Added
+
+- A light informative note in [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) after the section 23 (Red team) framework-anchors paragraph, pointing to the section 32 SandboxEscapeBench benchmark (arXiv:2603.02277v2) for the agentic sandbox-escape dimension of the REDTEAM-SEC-02 tool-abuse and agent-chain scope. Corroborative and informative only, not a normative source; it reuses the same screened-preprint framing (figures verified at the source) as the primary section 32 note, which is unchanged and remains the primary placement.
+
+### Changed
+
+- Bumped [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) Version 1.8.16 to 1.8.17 (Date 2026-07-24); regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Verification
+
+- Language lint clean on the touched doc ([`tools/lint-language.py`](../../tools/lint-language.py)); the cross-ref citation (SandboxEscapeBench, arXiv:2603.02277v2) matches the verified section 32 citation; corroborative and informative framing, no em/en dashes, Canadian English. Pre-push guard green (77 gates plus D1 to D8 plus 45/40/31). Per-touch reference-breadth 0 candidates. Self-verified as proportionate for a 4-sentence cross-ref reusing #1142's verifier-cleared citation.
+
+### Batched
+
+- #1143 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md)) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)), offloaded to worker-b.
+
 ## 2026-07-24, Library Version 2026.07.629, PR #1143
 
 RB-R6 not-held-source-list bookkeeping (item g, part 2). Working-state only; no corpus content change.
