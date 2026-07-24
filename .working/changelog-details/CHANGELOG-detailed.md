@@ -8,6 +8,23 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.595, PR #1109
+
+Overnight-run setup and bookkeeping (working-state and backlog only; no corpus, gate, or pack change). At the switch to overnight / unattended mode, records the maintainer's authorizations, closes the change-impact-map backlog item, and reconciles a trivial date breadcrumb.
+
+### Changed
+- [`TODO.md`](../../TODO.md): closed §1.18 (the change-impact surface map + enforcement) on the maintainer's decision to close rather than iterate, its two core deliverables shipped (the surface map in #1104 and gate 74 in #1107); the P1 intro now lists two standing machinery items (§1.14, §1.19). Fixed the §1.1 closure breadcrumb (the pre-merge verifier's trivial F1: "closed 2026-07-23" reconciled to "closed 2026-07-24", the merge and DONE date). Added the §1.18 DONE entry.
+- [`.working/pending-decisions.md`](../pending-decisions.md): recorded the overnight-run authorizations (all P3 plus the P2 AI annexes plus the OWASP-Agentic build authorized; expert / government-facing content built with a verifier or the high-assurance harness and merged on green; no idle-stop; re-assess all of TODO for not-hard-blocked items if the queue drains; overnight ends only on an explicit maintainer signal), for durability across a mid-session compaction.
+- [`.working/session-state.md`](../session-state.md): Operating-mode attended-autonomous to overnight-unattended (gate 63).
+- Batched PR #1108's offloaded `/validate-pr` and `/retro` rows.
+
+### Verification
+- `tools/run_all_audits.sh`: all 74 gates pass; the pre-push guard runs green before push.
+- Library CalVer 2026.07.594 to 2026.07.595; README Version 1.9.955 to 1.9.956.
+
+### Why
+The switch to overnight / unattended mode; the authorizations are recorded durably so a mid-session compaction cannot lose them, and the two trivial bookkeeping items (the §1.18 close and the F1 breadcrumb) are folded into the same setup PR rather than left dangling.
+
 ## 2026-07-24, Library Version 2026.07.594, PR #1108
 
 Adds the fifteenth governance pack rule, `express-authorization-before-execution` (TODO §1.1), against a recurring failure class: treating a planning discussion, or a conditional or sequenced GO ("deliver X, then wait, then go"), as licence to begin executing work no authority expressly named. Maintainer-decided this session (a new rule, not an amendment; convention-first; a mechanical GO-ledger-keyed hook deferred). Built from an offloaded worker draft (worker-a, `research-15th-rule-build`, on the delivered §1.1 design seed); the orchestrator re-verified every surface at source against the change-impact map, authored the final rule prose in project voice, and applied all surfaces in one commit (guard-first).
