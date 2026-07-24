@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.3\
-**Date:** 2026-07-10\
+**Version:** 1.1.4\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -58,7 +58,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | Scope 1 and Scope 2 GHG emissions | GRI 305 / TCFD | Annual |
 | Scope 3 GHG emissions (material categories) | GRI 305 / TCFD | Annual |
 | Renewable energy percentage | GRI 302 | Annual |
-| Data centre PUE | ISO 30134 | Annual |
+| Data centre PUE | ISO/IEC 30134 | Annual |
 | AI workload energy intensity | GPAI Model Governance Playbook | Annual |
 
 ---
