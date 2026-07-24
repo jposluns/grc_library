@@ -1,6 +1,6 @@
 # Swift / iOS (and Objective-C) Security Rules
 
-These rules apply to iOS applications written in Swift or Objective-C. They supplement the core rules in `core/` and implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md). Section numbers below refer to that standard.
+These rules apply to iOS applications written in Swift or Objective-C. They supplement the core rules in `core/` and implement the controls in `standard-mobile-application-security.md`. Section numbers below refer to that standard.
 
 Objective-C-specific patterns are noted inline where they differ from Swift; the underlying iOS platform APIs are the same.
 
@@ -288,7 +288,7 @@ if case .success(.verified(let transaction)) = result {
 
 ## Framework alignment
 
-Implements these sections of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md):
+Implements these sections of `standard-mobile-application-security.md`:
 
 - Section 4 (storage): Keychain accessibility classes; data protection classes; backup exclusion.
 - Section 5 (cryptography): CryptoKit; Secure Enclave; `SecRandomCopyBytes`.

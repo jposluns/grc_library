@@ -1,6 +1,6 @@
 # Kotlin / Android (and Java for Android) Security Rules
 
-These rules apply to Android applications written in Kotlin or Java. They supplement the core rules in `core/` and implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md). Section numbers below refer to that standard.
+These rules apply to Android applications written in Kotlin or Java. They supplement the core rules in `core/` and implement the controls in `standard-mobile-application-security.md`. Section numbers below refer to that standard.
 
 Java-Android idioms are noted inline where they differ from Kotlin; the underlying Android platform APIs are the same. For server-side Java (Spring Boot, Jakarta EE), see [`languages/java.md`](java.md) instead.
 
@@ -332,7 +332,7 @@ Acknowledge purchases only after backend verification. Real-time Developer Notif
 
 ## Framework alignment
 
-Implements these sections of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md):
+Implements these sections of `standard-mobile-application-security.md`:
 
 - Section 4 (storage): EncryptedSharedPreferences, EncryptedFile, manifest backup posture.
 - Section 5 (cryptography): Android Keystore (StrongBox-backed for Tier 1), AES-GCM, SecureRandom.
