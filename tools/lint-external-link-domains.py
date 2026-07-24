@@ -68,7 +68,7 @@ ALLOW_LIST = {
     "legisquebec.gouv.qc.ca",
     "wcoomd.org", "icao.int", "imo.org", "bis.org", "nerc.com",
     "aicpa.org", "aicpa-cima.com",
-    "gov.br", "planalto.gov.br", "pdpc.gov.sg", "oaic.gov.au",
+    "gov.br", "planalto.gov.br", "pdpc.gov.sg", "imda.gov.sg", "aiverifyfoundation.sg", "oaic.gov.au",
     "admin.ch", "edoeb.admin.ch", "npc.gov.cn", "sdaia.gov.sa",
     # Internet Archive (third-party anchor)
     "web.archive.org",
