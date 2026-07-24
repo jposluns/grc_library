@@ -4,8 +4,10 @@
 The corpus carries several "collections" of items that are enumerated
 in multiple places: the pack's fifteen governance rules are listed in the
 pack README directory-tree section, in the pack's own CLAUDE.md
-Development-governance discipline section, and in the project's
-CLAUDE.md Security-and-governance-requirements section; the pack's
+Development-governance discipline section, in the project's
+CLAUDE.md Security-and-governance-requirements section, and (§3.56a
+guard 3) in the pack's rule-provenance register under its
+"## Governance rules" section; the pack's
 skills are listed in the pack README; and the external overlay
 sources (TikiTribe, Kariedo, addyosmani) are listed in NOTICE.md and
 the project's CLAUDE.md.
@@ -120,6 +122,17 @@ COLLECTIONS: tuple[Collection, ...] = (
                 section_start_regex=r"^- `\.claude/rules/governance/",
                 section_end_regex=r"^The `dev-security/claude-rules/` pack|^---|^## ",
                 item_regex=r"^- `\.claude/rules/governance/([\w-]+)\.md`",
+            ),
+            # Provenance register (§3.56a guard 3): every governance rule must
+            # have a `### `<rule-name>`` entry under the register's
+            # "## Governance rules" section, so a new rule cannot ship without
+            # its provenance entry. The register's per-rule headings run from
+            # "## Governance rules" until the "## Procedure skills" section.
+            EnumerationLocation(
+                file="dev-security/claude-rules/rule-provenance.md",
+                section_start_regex=r"^## Governance rules",
+                section_end_regex=r"^## Procedure skills|^## Maintaining",
+                item_regex=r"^### `([\w-]+)`",
             ),
         ),
     ),

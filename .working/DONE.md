@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.56a guard 3: rule-provenance register wired into gate 41 (2026-07-24, PR #1135)
+
+Built the third §3.56a pack-hygiene mechanization: gate 41 (collection-enumeration consistency) now checks the pack `rule-provenance.md` register (its `### `<rule-name>`` headings under `## Governance rules`) as a fourth rule-enumeration surface for the governance-rules collection, so a new rule cannot ship without its provenance entry. Synced the spec, the change-impact map, and the guardrail-review skill/command prose to "four surfaces", with a drift-locking unit test. §3.56a stays open for the two remaining guards (skill-body internal-ref-token linter; "gate N (name)"-to-§6-inventory renumbering guard).
+
 ### §3.62 Branch-to-main edit-guard hook built (2026-07-24, PR #1134)
 
 Built the G1 branch-to-main edit guard the r10 guardrail review routed (maintainer-decided BUILD): a PreToolUse Edit|Write hook (`block-branch-to-main-edit.py`) that blocks an edit to a `grc_library` file while the repo is on `main`, allowing sibling-repo files (scratch/private/ref are push-direct on their own main), feature branches, and detached HEAD, so the FP-safety envelope is tight. Wired into `settings.json` with a 7-case `--self-test` gated by `tests/test_linters.py`. Closed §3.62 (G1 its only open item; G2/G4 stay tracked at §3.38/§3.31) and removed the MEG-36 decision row.
