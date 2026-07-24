@@ -23,6 +23,9 @@ Ships §3.56a guard 2 as gate 77 (the gate-name-citation inventory audit), the L
 ### Verification
 - Gate 77 `--self-test` 9/9; live corpus clean (41 citation surfaces, 77-entry inventory, all consistent). Gate 39 recomputes to 77 with no stale count-prose; gate 35 four-surface parity and gate 64 section 6 detailed-prose presence pass. Pre-push guard green. A refute-briefed skeptical verifier probes the matcher's FP-safety pre-push. Canadian English, no em/en dashes.
 
+### Batched
+- PR #1138 `/validate-pr` (offloaded, CLEAN PASS) plus `/retro` rows (validate-pr history 1.2.893 to 1.2.894; improvement-log 1.0.824 to 1.0.825).
+
 ## 2026-07-24, Library Version 2026.07.624, PR #1138
 
 Ships §3.56a guard 1 as gate 76 (the skill-body internal-reference audit), the second of the three §3.56a pack-hygiene mechanizations. A pack skill's body is portable; this gate keeps it free of concrete project-internal references so a fork can use it unchanged. Only the third mechanization (guard 2, the "gate N (name)"-to-§6-inventory renumbering guard) now remains.
