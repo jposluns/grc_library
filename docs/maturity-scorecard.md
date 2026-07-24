@@ -50,7 +50,7 @@ _107 documents._
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.3 | 2026-07-11 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.5 | 2026-07-22 |
 | [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.5 | 2026-07-11 |
-| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.14 | 2026-07-24 |
+| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.15 | 2026-07-24 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.3 | 2026-07-11 |
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.4 | 2026-07-22 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.3 | 2026-07-11 |
@@ -80,7 +80,7 @@ _107 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.13 | 2026-07-23 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.15 | 2026-07-11 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.6 | 2026-07-05 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.41 | 2026-07-24 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.42 | 2026-07-24 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.30 | 2026-07-10 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.0 | 2026-07-06 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.89 | 2026-07-24 |
