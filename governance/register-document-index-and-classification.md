@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.90\
+**Version:** 1.27.91\
 **Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -305,7 +305,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Standard | AI Inference Cost Governance Standard | [`ai/standard-ai-inference-cost-governance.md`](../ai/standard-ai-inference-cost-governance.md) | AI Governance Approver | Annual | ISO/IEC 42001 §8/9, NIST AI RMF MEASURE/MANAGE, FinOps Foundation Framework, ISO/IEC 30134, EU AI Act Arts 26/53/55, GHG Protocol | template |
 | AI | Template | AI Red Team Report Template | [`ai/template-ai-red-team-report.md`](../ai/template-ai-red-team-report.md) | AI Security Maintainer | Annual | OWASP LLM Top 10, MITRE ATLAS, NIST AI RMF MEASURE, ISO/IEC 42001 §9, EU AI Act Arts 15/17, ISO/IEC 27001 Annex A.8.29, PTES, OWASP GenAI Red Teaming | template |
 | Dev Security | Policy | Secure Development and Engineering Policy | [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md) | Chief Information Officer | Annual | ISO/IEC 27034, NIST SSDF, OWASP ASVS v5, COBIT BAI03/BAI07, CSA CCM SEF | template |
-| Dev Security | Standard | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Chief Information Officer | Annual | ISO 12207, ISO/IEC 27002, ISO/IEC 25010, COBIT BAI03/BAI07/BAI09, CSA CCM AIS/SEF/TVM | template |
+| Dev Security | Standard | Software Evaluation, Acceptance and Lifecycle Management Standard | [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Chief Information Officer | Annual | ISO/IEC/IEEE 12207:2026, ISO/IEC 27002, ISO/IEC 25010, COBIT BAI03/BAI07/BAI09, CSA CCM AIS/SEF/TVM | template |
 | Dev Security | Standard | Quality Assurance and Testing Standard | [`dev-security/standard-quality-assurance-and-testing.md`](../dev-security/standard-quality-assurance-and-testing.md) | Chief Information Officer | Annual | ISO 9001 §8.6, ISO/IEC 27001 Annex A.8.29, COBIT BAI03, CSA CCM CCC-02, NIST SP 800-53 SA | template |
 | Resilience | Plan | IT Disaster Recovery Plan | [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md) | Chief Information Officer | Annual | ISO 22301:2019, COBIT DSS04, NIST SP 800-34r1, CSA CCM BCR-01 through BCR-07 | template |
 | Compliance | Register | US CTPAT IT and Cybersecurity Compliance Controls Register | [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md) | Chief Compliance Officer | Annual | CTPAT MSC 2020 IT, AEO-S (UK/HMRC), AEO (EU), ISO/IEC 27001, NIST SP 800-53 | template |

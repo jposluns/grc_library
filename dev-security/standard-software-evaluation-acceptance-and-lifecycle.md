@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-07-23\
+**Version:** 1.0.8\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -134,7 +134,7 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 12207 | Software Lifecycle Processes | Software lifecycle governance |
+| ISO/IEC/IEEE 12207:2026 | Software Lifecycle Processes | Software lifecycle governance |
 | ISO/IEC 27001:2022 | Information Security Management | Security controls for software |
 | ISO/IEC 27002:2022 | Operations and Vulnerability Management | Software security controls |
 | ISO/IEC 25010 | System and Software Quality Models | Quality evaluation criteria |

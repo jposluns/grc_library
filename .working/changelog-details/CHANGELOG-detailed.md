@@ -8,6 +8,25 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.612, PR #1126
+
+Closes §3.1 (the #663 base-unverified ISO/IEC designation-debt tracker) by reconciling all 11 candidate standards to their verified issuing-body designation. Authored from the `research-3001` designation-verification pass (worker-a, read-only), re-verified at apply against ISO's catalogue titles and the held base; the ISO 12207 edition was confirmed by the maintainer upstream.
+
+### Changed
+- [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md) (Version 1.27.89 to 1.27.91): four designation cells corrected, `ISO 27033` to `ISO/IEC 27033`, `ISO 27034` to `ISO/IEC 27034`, `ISO 25010` to `ISO/IEC 25010`, and `ISO 12207` to `ISO/IEC/IEEE 12207:2026`.
+- [`dev-security/policy-secure-development-and-engineering.md`](../../dev-security/policy-secure-development-and-engineering.md) (1.0.10 to 1.0.11): `ISO 27034` to `ISO/IEC 27034` in the CISO role cell.
+- [`governance/guideline-esg-and-ai-ethics-disclosure.md`](../../governance/guideline-esg-and-ai-ethics-disclosure.md) (1.1.3 to 1.1.4): `ISO 30134` to `ISO/IEC 30134` in the environmental-disclosures table.
+- [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) (1.0.7 to 1.0.8): `ISO/IEC 12207` to `ISO/IEC/IEEE 12207:2026` in the framework-alignment table.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the four version bumps.
+
+### Verification
+- **Designations verified at source** (research-3001): ISO/IEC 27033/27034/27559/29184/20889/25010/30134/38505 confirmed ISO/IEC against iso.org catalogue titles; ISO/IEC 5259 against the held catalogue; ISO 23247 confirmed sole-ISO (TC 184, not JTC 1) so it STAYS bare (retired from the candidate set, not an error); ISO 12207 is tripartite, and the maintainer confirmed ISO/IEC/IEEE 12207:2026 as the current edition (iso.org/standard/90219.html). 27559/29184/20889/5259/38505 had no bare corpus occurrence, so only the 5 bare-to-ISO/IEC edits plus the 2 12207 edits were needed.
+- **12207:2026 not held in `grc_library_ref`:** a `ref-holds` check found no held copy (the sole index hit is a bibliographic false match), so it was recorded on the `_private` maintainer-egress-requests list per the missing-reference SOP; the designation citation itself is maintainer-confirmed-current, so it is applied now.
+- A refute-briefed skeptical verifier probed the citation edits; the full 75-gate suite passes; batches PR #1125's `/validate-pr` and `/retro` rows.
+
+### Scope
+- Closes §3.1; §3.2 (the durable designation register + gate) stays open, with the ISO-27001 family-name carve-out migrated into it. The reconcile was small (7 edits across 4 files), the "corpus-wide sweep" framing having applied to the VERIFICATION (done by research-3001), not the apply.
+
 ## 2026-07-24, Library Version 2026.07.611, PR #1125
 
 Absolute-path repo-target guardrail (maintainer-directed 2026-07-24, after a session in which the orchestrator repeatedly ran a `grc_library` tool from a drifted `scratch` cwd and had a near-miss `git add -A` in the wrong repo, and lost a bet over it). Mechanical enforcement first, convention second, per the maintainer's "prose conventions did not save me" direction.
