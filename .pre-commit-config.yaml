@@ -537,3 +537,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-skill-internal-refs
+        name: Skill-body internal-reference audit
+        entry: python3 tools/lint-skill-internal-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true

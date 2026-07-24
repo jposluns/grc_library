@@ -8423,6 +8423,31 @@ class RuleScopeTableTests(LinterTestCase):
         self.assertIn("governance/bar.md", result.stdout)
 
 
+class SkillInternalRefsTests(LinterTestCase):
+    """tools/lint-skill-internal-refs.py (gate 76)"""
+
+    SCRIPT = "tools/lint-skill-internal-refs.py"
+
+    def test_runs_clean_on_corpus_at_head(self):
+        # Guard-first pairing: the one mild citation-quote-verification leak was
+        # genericized in the same PR, so the live skill bodies are clean.
+        result = run_linter(self.SCRIPT)
+        self.assertEqual(result.returncode, 0,
+                         f"gate exited {result.returncode} on HEAD.\n"
+                         f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_self_test_passes(self):
+        # The linter's own 15-case --self-test exercises every token class and
+        # every exemption (adopt-wholesale, .claude/ tree, placeholder tool path,
+        # generic gate placeholders, single-level section refs, is_private
+        # substring), the FP-safety envelope the census established.
+        result = run_linter(self.SCRIPT, "--self-test")
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}"
+                         f"\nstderr:\n{result.stderr}")
+        self.assertIn("OK", result.stderr)
+
+
 class WebCorpusLinkTests(LinterTestCase):
     """tools/lint-web-corpus-links.py (gate 75)"""
 

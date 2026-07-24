@@ -8,7 +8,7 @@ derives_from: ../../governance/evidence-grounded-completion.md
 
 ## Overview
 
-A citation has three properties a reader will rely on: format (is it well-formed and resolvable), currency (is the source still the current version), and correspondence (does the quoted or paraphrased text actually appear at the cited location and faithfully represent the source). The mechanical citation linters (`tools/lint-citations.py` for framework identifiers; `tools/lint-standards-currency.py` for version recency) check the first two. They do not check the third.
+A citation has three properties a reader will rely on: format (is it well-formed and resolvable), currency (is the source still the current version), and correspondence (does the quoted or paraphrased text actually appear at the cited location and faithfully represent the source). The mechanical citation linters (a citation-format linter for framework identifiers; a standards-currency linter for version recency) check the first two. They do not check the third.
 
 This skill closes that gap. Before any completion claim on a change that touches citation-bearing content, each citation in the modified region is verified by reading the source, locating the cited passage, and confirming the document's text matches.
 
@@ -68,4 +68,4 @@ If any of these is missing, the skill is incomplete and a completion claim that 
 - Canonical rule [`governance/evidence-grounded-completion.md`](../../governance/evidence-grounded-completion.md): the per-claim verification protocol this skill applies to citations specifically.
 - Related skill [`evidence-grounded-completion`](../evidence-grounded-completion/SKILL.md): the generic verification protocol. This skill is its citation-specific specialization.
 - Related skill [`validation-sweep`](../validation-sweep/SKILL.md): when the sweep surfaces a citation finding, this skill is the targeted follow-up.
-- Mechanical gates that operate at a different layer: `tools/lint-citations.py` (citation format), `tools/lint-standards-currency.py` (citation currency). Together with this skill, the three cover citation format, currency, and correspondence.
+- Mechanical gates that operate at a different layer: a citation-format linter, and a standards-currency linter. Together with this skill, the three cover citation format, currency, and correspondence.
