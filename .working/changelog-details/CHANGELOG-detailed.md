@@ -8,6 +8,25 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.624, PR #1138
+
+Ships §3.56a guard 1 as gate 76 (the skill-body internal-reference audit), the second of the three §3.56a pack-hygiene mechanizations. A pack skill's body is portable; this gate keeps it free of concrete project-internal references so a fork can use it unchanged. Only the third mechanization (guard 2, the "gate N (name)"-to-§6-inventory renumbering guard) now remains.
+
+### Added
+- [`tools/lint-skill-internal-refs.py`](../../tools/lint-skill-internal-refs.py) (gate 76): scans each pack skill's PORTABLE body (every line outside its `## Project wiring` section) and flags a concrete gate number (`gate <digit>`, not the generic `N gates` / `gates 1-N` placeholders), a working-tree path, a PR-number reference, a multi-level backlog-section reference (`§N.M` / `PN.M`, not a single-level `§N` document-section reference), a PROJECT tool path (a `tools/<name>` naming a real tool in this repo, so a placeholder example naming no real tool is not flagged), or a sibling-repo name (`grc_library_scratch` / `grc_library_private` / `grc_library_ref`, not the bare `_private` substring). Two census-derived exemptions: the `adopt` skill (inherently the parent's adoption procedure) is exempt wholesale, and the shared `.claude/` tree is not a project-unique path. Stdlib-only, with a 15-case `--self-test`.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `SkillInternalRefsTests` (corpus-clean at HEAD plus the `--self-test` invocation).
+
+### Changed
+- Wired gate 76 across the four audit surfaces: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh), [`.github/workflows/quality.yml`](../../.github/workflows/quality.yml), [`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) §5 grouped-list, §6 inventory table (row 76), and §6 detailed narrative. Spec Version 1.17.19 to 1.17.20 + taxonomy/scorecard regen.
+- [`dev-security/claude-rules/skills/citation-quote-verification/SKILL.md`](../../dev-security/claude-rules/skills/citation-quote-verification/SKILL.md): genericized the two concrete linter-filename references in its portable body (the one mild leak the census flagged) so the new gate ships green guard-first.
+- [`TODO.md`](../../TODO.md) §3.56a: marked guard 1 BUILT (2 of 3 mechanizations done); only guard 2 remains.
+
+### Verification
+- Gate 76 `--self-test` 15/15; live corpus clean (24 skills, 0 leaks). Gate 39 recomputes the count to 76 with no stale count-prose; gate 35 four-surface parity and gate 64 §6 detailed-prose presence both pass. Pre-push guard green. A refute-briefed skeptical verifier probes the new gate's FP-safety pre-push. Canadian English, no em/en dashes.
+
+### Batched
+- PR #1137 `/validate-pr` (offloaded, CLEAN PASS) + `/retro` rows (validate-pr history 1.2.892 to 1.2.893; improvement-log 1.0.823 to 1.0.824).
+
 ## 2026-07-24, Library Version 2026.07.623, PR #1137
 
 Corrects a #1135 free-prose miss (terse; tooling docstring only, no gate behaviour change): the [`tools/lint-rule-scope-table.py`](../../tools/lint-rule-scope-table.py) gate-74 module docstring still called the scope table "the FOURTH rule-enumeration surface, and the only ungated one: gate 41 ... checks the directory tree and the two CLAUDE.md bullet lists". #1135 made the rule-provenance register a fourth gate-41 surface and updated the spec, the change-impact map, the guardrail-review skill, and the command, but this docstring survived because #1135's change-impact grep was case-sensitive ("fourth") and the docstring reads "FOURTH". Reworded to match the spec §6 wording ("a rule-enumeration surface gate 41 does not cover: gate 41 checks the directory tree, the two CLAUDE.md bullet lists, and (since the section 3.56a guard-3 addition) the rule-provenance register"). A case-insensitive re-grep confirms this was the only remaining live carrier. DONE ledger unchanged (a hot-fix, not a backlog close). Batches PR #1136 `/validate-pr` (offloaded, PASS WITH FINDINGS) plus `/retro` rows (validate-pr history 1.2.891 to 1.2.892; improvement-log 1.0.822 to 1.0.823); the #1136 QA finding F1 (an unescaped Markdown pipe in "Edit\|Write" in the two #1134 ledger rows) is fixed in this PR by escaping the pipe.

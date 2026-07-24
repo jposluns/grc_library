@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.56a guard 1: skill-body internal-reference linter (gate 76) (2026-07-24, PR #1138)
+
+Built the second §3.56a pack-hygiene mechanization as gate 76 (`tools/lint-skill-internal-refs.py`): it flags a concrete project-internal reference (a gate number, `.working/` path, PR number, multi-level backlog-section ref, real project tool path, or sibling-repo name) in a pack skill's PORTABLE body (outside its `## Project wiring` section), so a portable skill cannot silently accrete this project's specifics. Census-derived FP-safety exemptions (the `adopt` skill wholesale, the shared `.claude/` tree, placeholder tool paths, generic gate placeholders, single-level doc-section refs, the `is_private` substring); wired across the four audit surfaces with a 15-case self-test plus a regression class, and the one mild `citation-quote-verification` linter-name leak genericized so it ships green guard-first. §3.56a's last mechanization (guard 2, the "gate N (name)"-to-§6-inventory renumbering guard) remains.
+
 ### §5.9 NYC-LL144 candidate reconciled and struck (2026-07-24, PR #1136)
 
 Reconciled the §5.9 "NYC bias audit law" remaining-candidate: it is already covered in full by the dedicated annex `ai/jurisdictions/annex-ai-us-new-york-city.md` (NYC Local Law 144 / AEDT), with the implementing DCWP final rule held in the reference base and currency confirmed (offloaded research-nyc-ll144-reconciliation, orchestrator-corroborated: annex present, 16 LL144/AEDT mentions). Struck it from the §5.9 candidate list as already-covered (mirrors the Canada-AIDA strike); the three remaining candidates (UK, China, Korea) stay source-gated. §5.9 stays open.
