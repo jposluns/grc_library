@@ -107,6 +107,7 @@ MIRROR_MAP: dict[str, str] = {
     ".claude/rules/governance/high-assurance-verification.md": "dev-security/claude-rules/governance/high-assurance-verification.md",
     ".claude/rules/governance/session-lifecycle.md": "dev-security/claude-rules/governance/session-lifecycle.md",
     ".claude/rules/governance/decision-classification-before-enacting.md": "dev-security/claude-rules/governance/decision-classification-before-enacting.md",
+    ".claude/rules/governance/express-authorization-before-execution.md": "dev-security/claude-rules/governance/express-authorization-before-execution.md",
 }
 
 

@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.4.7\
-**Date:** 2026-07-23\
+**Version:** 1.4.8\
+**Date:** 2026-07-24\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -58,6 +58,8 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 13. **Every census figure you report must name its scope inline** (the grep pattern or the set definition, not only the number), and any prose restatement of a tabulated count must be cross-checked against your own table before delivery. A correct count with an unstated or mislabeled scope fails reproduction exactly like a wrong count. (Caught at #600, two same-day instances: a "15 title-reference lines" figure reproducible only under an unstated broad-phrase scope, and a "13 H2" prose claim contradicting the worker's own 12-row heading table.)
 14. **Verify every gate NUMBER a delivery cites against `governance/specification-audit-programme.md` §6, and every asserted corpus-gate interaction by running the named gate, BEFORE propagating it into prose.** A gate's number is a checkable fact; do not carry a manifest's or a memory's gate label unverified. (Caught at #702/#703/#704: a delivery manifest labelled the paired-skill step-parity gate `gate 42`; it is canonically gate 44, gate 42 being the external-overlay licence audit, and propagating the wrong number into prose cost a three-PR correction churn. Sibling to rails 6, 9, and 10 for control codes; this rail is for gate numbers and asserted gate behaviour.)
 15. **A new gate or check whose configuration enumerates live repo paths ships a path-resolution fixture.** When your candidate adds a gate or check whose config lists concrete repository paths with a per-path parse expectation (a SURFACES-style table of a file path plus the header or field the gate reads from it), include a regression fixture that asserts every configured path EXISTS in the real repo and that its parse target matches that file, so a renamed, misspelled, or relocated configured path fails in the fixture rather than silently mis-resolving on the next triggering PR in CI. Precedent: the D7 handoff-snapshot check's `test_surfaces_table_paths_resolve_in_real_repo`. (Caught at PR #634, the F6 confabulated-live-path class: a gate's config named a live path that did not exist, so the gate mis-resolved and failed its own PR.)
+
+16. **Execute only the work your claimed order or brief expressly names; a discussion or an inferred next step is not authorization to act.** You deliver research and candidate diffs to your `inbox/` and never apply, merge, or push to `grc_library` (the standing deliver-only boundary); within that, stay inside the order you claimed, do not begin a different work-unit or expand scope on inferred authorization, and surface a scope question instead (rail 5). This is the worker-side form of the pack rule `express-authorization-before-execution` (the fifteenth rule): execution begins only on an express, work-naming authorization, and the orchestrator, not the worker, holds the authority to apply. (Codifies TODO section 1.1, 2026-07-23.)
 ```
 
 ---

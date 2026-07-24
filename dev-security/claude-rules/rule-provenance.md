@@ -1,8 +1,8 @@
 # Rule provenance register: the origin of each governance rule
 
 **Document Type:** Provenance register\
-**Version:** 1.2.0\
-**Date:** 2026-07-23\
+**Version:** 1.2.1\
+**Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/rule-provenance.md`](rule-provenance.md)\
 **License:** CC BY-SA 4.0
@@ -185,6 +185,22 @@ of three classifications (ACT, the default; ASK a specific named question while 
 is reachable; or BLOCKED by a named, externally-observable blocker from a closed set), written
 to the decision log BEFORE the decision is enacted so the classification is made at decision
 time rather than rationalized after.
+
+---
+
+### `express-authorization-before-execution`
+
+Up-front-codified against a named recurring failure the maintainer surfaced directly: a
+conceptual or planning discussion, or a conditional / sequenced go ("deliver X, then wait,
+then we proceed"), was repeatedly read as licence to begin executing work no authority had
+expressly named. The rule holds the assistant in discussion mode (plans, candidate shapes,
+questions, never edits or outward actions) until the responsible authority gives an express,
+work-naming go, and treats a conditional go as authorizing only its first, unconditioned step.
+Its closest kin is `decision-classification-before-enacting`, the act-boundary sibling: that
+rule governs the decision to NOT do already-authorized work, and this one governs the mirror,
+the decision to BEGIN work that is not yet authorized (it is that rule's ACT-branch entry
+condition, an unauthorized start being an ASK, not an ACT). Convention-first, maintainer-directed
+2026-07-23; a mechanical GO-ledger-keyed hook was considered and deliberately deferred.
 
 ---
 

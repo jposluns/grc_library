@@ -11,6 +11,9 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §1.1 discussion-vs-execution gate shipped as the fifteenth pack rule (2026-07-24, PR #1108)
+Closed TODO §1.1 (a recurring failure class the maintainer named): added the fifteenth governance pack rule `express-authorization-before-execution` (both trees byte-identical), the mirror of the 14th rule, holding the assistant in discussion mode until an express, work-naming GO and treating a conditional or sequenced GO as authorizing only its first step. Maintainer-decided as a new rule over an amendment, convention-first, with a mechanical GO-ledger hook deferred; wired across all enumeration / web / provenance surfaces (14 rules to 15; pack 1.64.0), the project CLAUDE.md gate section, and a worker-brief DO rail. Built from an offloaded draft, re-verified at source, and shipped guard-first with a pre-push skeptical verifier.
+
 ### §1.18 change-impact surface map, PR-1 of 2 (2026-07-23, PR #1104)
 Shipped the convention/doc half of TODO §1.18: a `## Change-impact surface map` in `.claude/CLAUDE.md` (change-types A-D, splitting gated / free-prose / website surfaces and cross-referencing the covering gates per decision Q3=C), a change-impact-completeness close-out bullet making the `grclibrary.ai` website a first-class paired surface updated concurrently (decision Q2), and the D8 pilot as a root-entry length-ceiling clause in the `change-tracking` pack rule (both trees, pack 1.63.2). Reconciled a stale gate-64-coverage claim in the audit-gate bullet and fixed a stale `.gitattributes` §3.19 pointer (the #1103 validate-pr LOW finding, in-window). Not a closure: §1.18 stays open for PR-2 (the FP-safe pack-README rule-scope-table gate, built guard-first).
 

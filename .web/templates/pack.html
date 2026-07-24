@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The Claude Code governance pack: 14 rules and 24 skills distilled from running an AI-managed GRC library, an open CC BY-SA 4.0 discipline layer you can drop into any AI-assisted project.">
+<meta name="description" content="The Claude Code governance pack: 15 rules and 24 skills distilled from running an AI-managed GRC library, an open CC BY-SA 4.0 discipline layer you can drop into any AI-assisted project.">
 <link rel="canonical" href="https://grclibrary.ai/pack/">
 <title>The governance pack: GRC Library</title>
 {{HEAD_STYLE}}
@@ -26,7 +26,7 @@
   .mode p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.55; }
 
   /* Pack sidebar overrides on the shared sidenav (defined in head-style.html).
-     The pack's rule + skill index is long (14 rules + 24 skills), so it must NOT
+     The pack's rule + skill index is long (15 rules + 24 skills), so it must NOT
      be a sticky internal-scroll box (that clipped most skills out of view); it is
      rendered inline and scrolls with the page. Also a slightly wider column and a
      hair smaller link font than the shared default. */
@@ -83,6 +83,7 @@
       <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md" target="_blank" rel="noopener">ai-assistant-workflow-disciplines</a>
       <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/session-lifecycle.md" target="_blank" rel="noopener">session-lifecycle</a>
       <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/decision-classification-before-enacting.md" target="_blank" rel="noopener">decision-classification-before-enacting</a>
+      <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/express-authorization-before-execution.md" target="_blank" rel="noopener">express-authorization-before-execution</a>
       <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/high-assurance-verification.md" target="_blank" rel="noopener">high-assurance-verification</a>
       <a href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/trust-recovery-escalation.md" target="_blank" rel="noopener">trust-recovery-escalation</a>
       <p class="sidenav-h">Skills</p>
@@ -156,7 +157,7 @@
   <!-- ===== 03 The rules ===== -->
   <section id="rules">
     <div class="wrap">
-      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>The rules (14).</h2></div>
+      <div class="sec-head"><span class="sec-num">&sect;03</span><h2>The rules (15).</h2></div>
       <p class="lede">Each rule is one governance discipline, framework-aligned and traceable to the maintenance event that motivated it. Names link to the rule on GitHub.</p>
       <ul class="pack-list">
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/project-integrity.md" target="_blank" rel="noopener">project-integrity</a><span class="r-desc">The apex rule: quality outranks speed outranks cost (Accuracy = Integrity = Quality = Trust), non-negotiable.</span></li>
@@ -171,6 +172,7 @@
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md" target="_blank" rel="noopener">ai-assistant-workflow-disciplines</a><span class="r-desc">Five disciplines for multi-change AI work: research-then-author, parallel research with serial apply, apply-time correction, split-when-in-doubt, and productive use of CI-wait windows, with a tiered skeptical-verification standard layered on top.</span></li>
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/session-lifecycle.md" target="_blank" rel="noopener">session-lifecycle</a><span class="r-desc">Durable handoffs, explicit operating modes, evidence-gated wind-down, and a clean closing merge for long multi-session work.</span></li>
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/decision-classification-before-enacting.md" target="_blank" rel="noopener">decision-classification-before-enacting</a><span class="r-desc">Classify a significant autonomous decision ACT / ASK / BLOCKED against a closed blocker set, written before enacting; an un-instrumented internal-state hold is never valid.</span></li>
+        <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/express-authorization-before-execution.md" target="_blank" rel="noopener">express-authorization-before-execution</a><span class="r-desc">Execution begins only on an express, work-naming go from the responsible authority; a discussion is not a go, and a conditional go authorizes only its first step.</span></li>
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/high-assurance-verification.md" target="_blank" rel="noopener">high-assurance-verification</a><span class="r-desc">A heavier pre-apply harness for sensitive changes: independent adversarial verifiers and a deterministic, re-checked apply.</span></li>
         <li><a class="r-name" href="https://github.com/jposluns/grc_library/blob/main/dev-security/claude-rules/governance/trust-recovery-escalation.md" target="_blank" rel="noopener">trust-recovery-escalation</a><span class="r-desc">The recovery tier when discipline lapses put a window of work in question: white-box re-examination to explicit sign-off.</span></li>
       </ul>
