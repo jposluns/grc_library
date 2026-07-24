@@ -28,11 +28,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
 
-P1 currently holds four standing machinery/guardrail items (§1.1, the discussion-vs-execution mode gate; §1.14, the external-source currency detection mechanism; §1.18, the change-impact surface map + enforcement; and §1.19, the operational-state privatization + adopter-clone portability multi-phase spec), alongside short-lived point-fix items opened and closed here as errors surface (none open at present; §1.20 and §1.21 both closed 2026-07-18). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
-
-### 1.1 Discussion-vs-execution mode gate (guardrail against assistant overeagerness) (H, M)
-
-Design a guardrail against a recurring assistant failure class: treating a conceptual or planning discussion as licence to begin execution ("I'll start building this now"), or treating a conditional / sequenced GO (deliver X, wait, then go) as immediate self-authorization and executing before the maintainer's explicit go. The guardrail is an explicit **discussion-mode vs execution-mode gate**: execution begins only on an express maintainer GO that names the work, and a conditional GO is not satisfied until its condition is maintainer-confirmed. Design scope: state the gate in the project [`.claude/CLAUDE.md`](.claude/CLAUDE.md) and the worker-brief / onboarding surfaces; draft a candidate pack rule or rule-amendment for it (adjacent to `clarify-before-acting` and `session-lifecycle`, but its own failure class); and assess whether a mechanical or hook-level backstop is feasible. This is a recurring failure mode (seen repeatedly in worker sessions), which is why it is P1. Record-only; do not begin the design until the item is picked.
+P1 currently holds three standing machinery/guardrail items (§1.14, the external-source currency detection mechanism; §1.18, the change-impact surface map + enforcement; and §1.19, the operational-state privatization + adopter-clone portability multi-phase spec), alongside short-lived point-fix items opened and closed here as errors surface (none open at present; §1.20 and §1.21 both closed 2026-07-18, and §1.1, the discussion-vs-execution mode gate, closed 2026-07-23 as the fifteenth pack rule `express-authorization-before-execution`). Its earlier correctness and reference-currency residuals (§1.5 through §1.11) are all closed (the version-currency register shipped in #505; the `needs-reconfirm` sweep ran in #751; the completion-guard, file-type-width, and ref-side items closed through #818). New P1 items are added here as errors or recurrence-risks surface; the routine cadences above are the ongoing preventive half.
 
 ### 1.14 External-source currency detection: cadence gate + scheduled egress sweep (maintainer-confirmed 2026-07-15, H, M-L)
 
@@ -725,7 +721,6 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 | Ref | Item | Note |
 |---|---|---|
-| MEG-28 | §1.1 | Discussion-vs-execution mode gate (pick the shape; design + hook). |
 | MEG-29 | §1.18 | Change-impact surface map + enforcement (significant scoping; maintainer revision expected). |
 | MEG-30 | §1.22 (item 1.22.8) | Chat text-pacing convention (an AskUserQuestion continue-gate was captured in `_private`; discuss). |
 | MEG-31 | §3.3 | Removal-ledger review cadence (standing). |

@@ -1357,6 +1357,17 @@ Un-instrumented internal state is NEVER a valid basis for a hold (the `evidence-
 
 **Write-before-enact.** Every SIGNIFICANT autonomous decision (one that disposes of a queued or authorized item, or changes the plan, NOT a routine execution step) is written to `grc_library_private/autonomous-decisions-log.md` as a classified entry (a `- **Classification:**` line reading ACT / ASK / BLOCKED with a blocker-type) BEFORE it is enacted, so the classification is made at decision time rather than rationalized after. The mechanical backstop is the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) PreToolUse hook, which refuses a log write that lacks a classification, names a blocker-type outside the closed set, or, in a deferral/hold entry (one carrying a deferral/hold marker: defer, blocked, wind-down, skip, or a common synonym such as postpone, hold off, punt, back-burner, or park it), cites a forbidden internal-state justification; a `_private` validate check gates the log's shape (its deferral-marker set is kept in exact parity with the hook's). (The forbidden-phrase check is deliberately scoped to deferral entries, an internal-state word in an ACT entry is not a deferral justification; the deferral-marker set was widened in #1081 to cover the common synonyms, so a synonym-phrased deferral no longer escapes the check.) Defence in depth, not a substitute for the rubric. The log file itself stays lean (entries only); this section is the discipline it references.
 
+## Execution begins only on an express GO (discussion is not licence)
+
+A recurring failure class: treating a conceptual or planning discussion as licence to begin building ("I'll start building this now"), or treating a conditional or sequenced GO (deliver X, wait, then go) as immediate self-authorization, and executing before the maintainer's explicit go on the work at hand. Execution begins only on an express maintainer GO that NAMES the work; this is the pack rule [`express-authorization-before-execution`](rules/governance/express-authorization-before-execution.md), the pause-before-acting family's entry-condition member and the mirror of the decision-discipline rubric above (that rubric governs the decision to NOT do already-authorized work; this governs the decision to BEGIN work that is not yet authorized).
+
+- **Discussion mode vs execution mode.** Planning, shaping, and drafting are discussion mode: they produce plans, candidate shapes, and questions, never edits, commits, or outward actions. Execution mode begins only on an express maintainer GO that names the work.
+- **A conditional GO is not satisfied until its condition is maintainer-confirmed.** "Deliver X, then we go" authorizes X, not the step after the wait; that step needs its own express go.
+- **When unsure whether a GO covers the work at hand, ask** (a one-sentence "confirm GO on X?") and stay in discussion mode until answered. This is the ACT-branch entry condition of the decision-discipline rubric above: an unauthorized start has no blocker, but it is not an ACT, it is an ASK.
+- **Composes with the operating modes.** An unattended run executes only work authorized BEFORE the run began, never a mid-run self-grant, so the "express GO" there is the pre-run authorization (per [`session-lifecycle`](rules/governance/session-lifecycle.md)).
+
+The maintainer-directed 2026-07-23 decision was to codify this as a new pack rule (convention-first; a mechanical GO-ledger-keyed hook was considered and deferred). The project-agnostic distributable form ships as the pack governance rule [`express-authorization-before-execution.md`](rules/governance/express-authorization-before-execution.md).
+
 ## Backlog-status characterization is the audit tool's output (anti-false-completeness)
 
 The project instantiation of the `evidence-grounded-completion` rule's set-completeness and asymmetric-skepticism principles (added 2026-07-23 after a false "every remaining backlog item is blocked" claim, made from a partial review, was used to justify stopping an unattended run). Concretely:
@@ -1456,6 +1467,16 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
   instantiation: the `## Decision discipline: act, ask, or name a blocker (write-before-enact)`
   and `## Backlog-status characterization is the audit tool's output` sections, the
   `block-unjustified-decision.py` hook, and `grc_library_private/autonomous-decisions-log.md`.
+- `.claude/rules/governance/express-authorization-before-execution.md` — execution of a
+  plan-initiating unit of work begins only on an express, work-naming go from the responsible
+  authority; a conceptual or planning discussion is not a go, and a conditional or sequenced go
+  ("do X, then wait, then we proceed") authorizes only its first step until its condition is
+  confirmed. The pause-before-acting family's entry-condition member and the mirror of
+  `decision-classification-before-enacting` (that rule governs not-doing already-authorized
+  work; this governs beginning not-yet-authorized work). Project instantiation: the `## Execution
+  begins only on an express GO (discussion is not licence)` section below; convention-first,
+  with a mechanical GO-ledger-keyed hook deferred (no project-specific machinery beyond that
+  section).
 
 The `dev-security/claude-rules/README.md` is the authoritative pack version history and
 future-work signalling; pack changes are tracked through the library's CHANGELOG and
