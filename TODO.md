@@ -164,7 +164,7 @@ Canadian authority coverage. Consolidates 2.22 (a redirect stub is left there): 
 
 New `ai/` content for model evaluation, assurance arguments and safety cases, and post-deployment monitoring, using the held reference maps as inputs. Enterprise-assurance scope (assuring a deployed system), not frontier-risk. Ships as Markdown now. Confirm the reference sources are held before authoring.
 
-**Depends on:** 3.14 (P3, ETSI Securing-AI map), 3.15 (P3, MITRE ATLAS 2026.06 refresh), 3.63 (P3, ETSI TR 104 128); references them as inputs.
+**Depends on:** 3.14 (P3, ETSI Securing-AI map) and 3.63 (P3, ETSI TR 104 128); references them as inputs. (The MITRE ATLAS 2026.06 map input, former 3.15, is complete: the corpus ATLAS citations were verified current against held 2026.06 and the one LLM02 fit finding applied, PR #1119.)
 
 **Blocks:** none.
 
@@ -281,10 +281,6 @@ Both currency gates are enumeration-scoped (`lint-standards-currency.py` flags o
 ### 3.14 ETSI Securing-AI alignment map (L, M) (was 3.16)
 
 Map the held ETSI SAI family (EN 304 223 plus the GR/TR set) against the corpus `ai/` security content: which requirements have no corpus carrier, which corpus claims an ETSI citation would strengthen, and a proposed alignment shape (options for maintainer scoping). Research DELIVERED (`inbox/worker-20260703-a/etsi-sai-alignment-research/`, 2026-07-04); the apply is a later decision. Citation form UNBLOCKED 2026-07-04 (the maintainer-supplied fresh EN 304 223 V2.1.1 copy; scratch PR #100).
-
-### 3.15 MITRE ATLAS 2026.06 alignment and currency map (L, M) (was 3.17)
-
-Coverage and identifier-currency map of the held ATLAS 2026.06 refresh against the corpus adversarial-AI content, with a proposed update shape. Research DELIVERED (`inbox/worker-20260703-a/atlas-adversarial-alignment-research/`, 2026-07-04). Pack-tree note (#654 verifier): a future `/matrix-fit`-style pass over the pack `dev-security/claude-rules/ai/` LLM02 rows should weigh the kept `AML.T0024` against `AML.T0057`.
 
 ### 3.16 CHANGELOG restructure: deferred history-collapse residual (maintainer-directed 2026-07-08, was reformat + compression, L; maintainer-gated)
 
