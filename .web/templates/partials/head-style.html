@@ -76,7 +76,12 @@
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    /* clip (not hidden) suppresses horizontal overflow identically but never
+       establishes a scroll container, so body cannot become the sticky
+       containing block that would break the sidebar's viewport-relative pin
+       (TODO 3.94: trailing Contents links clipped on engines where overflow-x:
+       hidden made body a scroll container). */
+    overflow-x: clip;
   }
 
   .wrap { max-width: 1080px; margin: 0 auto; padding-inline: var(--pad); }
