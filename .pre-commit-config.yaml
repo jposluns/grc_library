@@ -531,3 +531,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-web-corpus-links
+        name: Web-to-corpus link-target integrity audit
+        entry: python3 tools/lint-web-corpus-links.py
+        language: system
+        pass_filenames: false
+        always_run: true

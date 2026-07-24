@@ -247,6 +247,8 @@ jobs:
 
       - name: Rule-scope-table completeness audit
         run: python3 tools/lint-rule-scope-table.py
+      - name: Web-to-corpus link-target integrity audit
+        run: python3 tools/lint-web-corpus-links.py
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'

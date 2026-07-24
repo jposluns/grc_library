@@ -170,6 +170,7 @@ run_gate "Stdlib-only import audit"                       python3 tools/lint-std
 run_gate "Citation-currency-cadence audit"                python3 tools/lint-citation-currency-cadence.py
 run_gate "COBIT objective title-text audit"               python3 tools/lint-cobit-title-text.py
 run_gate "Rule-scope-table completeness audit"            python3 tools/lint-rule-scope-table.py
+run_gate "Web-to-corpus link-target integrity audit"      python3 tools/lint-web-corpus-links.py
 
 # ----------------------------------------------------------------------
 # Summary
