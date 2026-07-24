@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §5.9 NYC-LL144 candidate reconciled and struck (2026-07-24, PR #1136)
+
+Reconciled the §5.9 "NYC bias audit law" remaining-candidate: it is already covered in full by the dedicated annex `ai/jurisdictions/annex-ai-us-new-york-city.md` (NYC Local Law 144 / AEDT), with the implementing DCWP final rule held in the reference base and currency confirmed (offloaded research-nyc-ll144-reconciliation, orchestrator-corroborated: annex present, 16 LL144/AEDT mentions). Struck it from the §5.9 candidate list as already-covered (mirrors the Canada-AIDA strike); the three remaining candidates (UK, China, Korea) stay source-gated. §5.9 stays open.
+
 ### §3.56a guard 3: rule-provenance register wired into gate 41 (2026-07-24, PR #1135)
 
 Built the third §3.56a pack-hygiene mechanization: gate 41 (collection-enumeration consistency) now checks the pack `rule-provenance.md` register (its `### `<rule-name>`` headings under `## Governance rules`) as a fourth rule-enumeration surface for the governance-rules collection, so a new rule cannot ship without its provenance entry. Synced the spec, the change-impact map, and the guardrail-review skill/command prose to "four surfaces", with a drift-locking unit test. §3.56a stays open for the two remaining guards (skill-body internal-ref-token linter; "gate N (name)"-to-§6-inventory renumbering guard).
