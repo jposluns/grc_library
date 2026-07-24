@@ -1,6 +1,6 @@
 # Flutter / Dart Security Rules
 
-These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with Flutter and written in Dart. They supplement the core rules in `core/` and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
 Hybrid framework rule: Flutter shifts the layer at which a control is implemented; it does not remove the control. Every Section 4-12 requirement that applies to native iOS / Android applies to Flutter apps, delegated to the appropriate package or platform-channel method.
 
@@ -280,6 +280,6 @@ await SentryFlutter.init((options) {
 
 ## Framework alignment
 
-Implements Section 15 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through Flutter's platform-channel bridge and Dart runtime.
+Implements Section 15 (hybrid and cross-platform frameworks) of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through Flutter's platform-channel bridge and Dart runtime.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; Flutter Security best practices documentation.

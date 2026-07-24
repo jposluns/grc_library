@@ -1,6 +1,6 @@
 # React Native Security Rules
 
-These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md), with particular emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
+These rules apply to mobile applications built with React Native (with or without Expo). They supplement the core rules in `core/`, the JavaScript / TypeScript rules in [`languages/typescript.md`](typescript.md), and the underlying-platform rules in [`languages/swift.md`](swift.md) (iOS) and [`languages/kotlin.md`](kotlin.md) (Android). They implement the controls in `standard-mobile-application-security.md`, with particular emphasis on Section 15 (hybrid and cross-platform frameworks). Section numbers below refer to that standard.
 
 Hybrid framework rule: React Native shifts the layer at which a control is implemented; it does not remove the control. If a Section 4 storage requirement exists for native iOS / Android, the equivalent requirement applies to the React Native app, just delegated to the right plugin or native module.
 
@@ -255,6 +255,6 @@ Sentry.init({
 
 ## Framework alignment
 
-Implements Section 15 (hybrid and cross-platform frameworks) of [`standard-mobile-application-security.md`](../../../dev-security/standard-mobile-application-security.md) and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through the React Native bridge.
+Implements Section 15 (hybrid and cross-platform frameworks) of `standard-mobile-application-security.md` and the relevant native-layer Sections (4, 5, 6, 7, 8, 9, 11, 12, 16) as they apply through the React Native bridge.
 
 Supplements: OWASP MASVS v2 (L1, L2, R); MASTG hybrid-framework guidance; React Native Security guide; Expo Security documentation.

@@ -1,8 +1,8 @@
 # Maintainer vetting log: external rule sources
 
 **Document Type:** Maintainer log\
-**Version:** 1.3.5\
-**Date:** 2026-07-12\
+**Version:** 1.3.6\
+**Date:** 2026-07-24\
 **Owner:** Governance Library Maintainer\
 **Repository Path:** [`dev-security/claude-rules/vetting-log.md`](vetting-log.md)\
 **License:** CC BY-SA 4.0
@@ -72,8 +72,8 @@ Scanned for red-flag patterns (not read in full): the 19 remaining skill directo
 - **Scope is engineering workflows, not GRC.** addyosmani's collection is "production-grade engineering skills for AI coding agents", workflow processes spanning Define, Plan, Build, Verify, Review, and Ship phases. It is not a governance / risk / compliance pack. Adopters electing this overlay should know they are getting general engineering discipline (TDD, code review, debugging, etc.), not additional GRC content.
 - **Format diverges from the other three vetted sources.** addyosmani uses the Claude Skills `SKILL.md` format (YAML frontmatter with `name:` and `description:` for skill-tool discovery). TikiTribe, Wiz, and Kariedo use the rule / CLAUDE.md / `@`-import patterns. Consumers whose Claude Code session does not support the Skills discovery format may see addyosmani's content as static markdown without auto-invocation behaviour.
 - **License is MIT** (the GRC Library pack is CC BY-SA 4.0). Per the same logic as TikiTribe and Kariedo, adopters redistributing addyosmani content under their own terms must preserve the upstream attribution.
-- **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per [`NOTICE.md`](../../NOTICE.md)), not redistribution.
-- **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps [`dev-security/procedure-secure-code-review.md`](../procedure-secure-code-review.md). `ci-cd-and-automation` overlaps [`dev-security/claude-rules/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`dev-security/claude-rules/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
+- **Tier model (Mandatory / Approval-Gated / Prohibited) and STRIDE-per-trust-boundary framing** in `security-and-hardening` are common taxonomies; cherry-picking these structures into our own content is independent synthesis (per `NOTICE.md`), not redistribution.
+- **Some workflow content overlaps existing pack rules.** `code-review-and-quality` overlaps `dev-security/procedure-secure-code-review.md`. `ci-cd-and-automation` overlaps [`dev-security/claude-rules/pipeline/cicd-gates.md`](pipeline/cicd-gates.md). `security-and-hardening` overlaps [`dev-security/claude-rules/core/owasp.md`](core/owasp.md) and adjacent rules. The pack remains the primary content; the overlay is supplementary.
 
 **Verdict:** Vetted (no concerns) on the fully-read subset; the 19 spot-scanned skill directories require per-fetch EXT-01 if a consumer elects them later.
 
@@ -173,7 +173,7 @@ The TikiTribe repository organizes 100+ rule sets across 12 language directories
 
 ### Implicit vet via back-port cadence (pre-2026-05-31; historical, superseded by the entry above)
 
-**Vet method:** Back-port cadence review. The library maintainer reviewed TikiTribe diffs as part of the routine back-porting of vetted improvements into the GRC Library pack ([`dev-security/README.md`](../README.md) §"External projects and reference sources" records the back-port practice). No standalone EXT-01 pattern scan had been performed on the current upstream state of the repository at that time.
+**Vet method:** Back-port cadence review. The library maintainer reviewed TikiTribe diffs as part of the routine back-porting of vetted improvements into the GRC Library pack (`dev-security/README.md` §"External projects and reference sources" records the back-port practice). No standalone EXT-01 pattern scan had been performed on the current upstream state of the repository at that time.
 
 **Files reviewed:** Not enumerated explicitly. Back-port-by-back-port basis, focused on the rule files actually incorporated.
 
