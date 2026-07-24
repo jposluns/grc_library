@@ -8,6 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.625, PR #1139
+
+Ships §3.56a guard 2 as gate 77 (the gate-name-citation inventory audit), the LAST of the three §3.56a pack-hygiene mechanizations; §3.56a part (a) is now complete. Gate 77 catches a silent gate renumber that would leave a `gate N (name)` citation pointing its number at a different gate.
+
+### Added
+- [`tools/lint-gate-citation-inventory.py`](../../tools/lint-gate-citation-inventory.py) (gate 77): parses the spec section 6 inventory into a number-to-canonical-name map and, for each genuine gate-name citation on a citation surface (a pack skill, a `.claude/commands/` stub, or a CLAUDE.md), flags a `gate N (<name>)` / `the <name> gate (N)` whose cited name shares no significant token with section 6's name for that number, or that cites a number section 6 does not define. FP-safe: it scans only the citation surfaces (NOT the spec's own role-gloss prose), treats a parenthetical as a NAME only when it does not open with an article and carries no `gate <digit>` cross-reference, and compares by normalized significant-token set intersection (so a style variant like "cadence currency" vs "cadence audit" matches). Count-free so it does not trip gate 39. Stdlib-only, 9-case `--self-test`.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `GateCitationInventoryTests` (corpus-clean + self-test).
+
+### Changed
+- Wired gate 77 across the four audit surfaces (runner, workflow, pre-commit, spec section 5 grouped-list, section 6 inventory row 77, and section 6 detailed narrative). Spec Version 1.17.20 to 1.17.21 + taxonomy/scorecard regen.
+- [`TODO.md`](../../TODO.md) section 3.56a: guard 2 BUILT; part (a) COMPLETE (all 3 mechanizations); parts (b) to (e) remain.
+
+### Verification
+- Gate 77 `--self-test` 9/9; live corpus clean (41 citation surfaces, 77-entry inventory, all consistent). Gate 39 recomputes to 77 with no stale count-prose; gate 35 four-surface parity and gate 64 section 6 detailed-prose presence pass. Pre-push guard green. A refute-briefed skeptical verifier probes the matcher's FP-safety pre-push. Canadian English, no em/en dashes.
+
 ## 2026-07-24, Library Version 2026.07.624, PR #1138
 
 Ships §3.56a guard 1 as gate 76 (the skill-body internal-reference audit), the second of the three §3.56a pack-hygiene mechanizations. A pack skill's body is portable; this gate keeps it free of concrete project-internal references so a fork can use it unchanged. Only the third mechanization (guard 2, the "gate N (name)"-to-§6-inventory renumbering guard) now remains.
