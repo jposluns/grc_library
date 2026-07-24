@@ -18,8 +18,10 @@ Enacts two of the 2026-07-24 maintainer decisions: the ETSI register addition (d
 ### Changed
 - [`TODO.md`](../../TODO.md) §5.9: the stale "Canada AIDA" candidate struck (Canadian federal AI governance is covered by [`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md), which correctly treats AIDA as lapsed; AIDA re-confirmed dead upstream 2026-07-24, Bill C-27 died at prorogation). A follow-up notes the "NYC bias audit law" candidate may likewise already be covered by a shipped annex (a small §5.9 candidate-list reconciliation).
 - [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the register Version bump.
+- [`tools/lint-external-link-domains.py`](../../tools/lint-external-link-domains.py): `etsi.org` / `www.etsi.org` added to the standards-publisher ALLOW_LIST (gate 24), so the register's authoritative ETSI URLs are allow-listed. [`tools/lint-citation-currency-cadence.py`](../../tools/lint-citation-currency-cadence.py): the `ETSI standards` heading added to gate 72's `HEADING_TIER` map (standards tier, 365-day re-check), so the new sub-table carries an explicit tier rather than the unmapped-default note. Both are the change-impact surfaces a new register sub-table requires.
 
 ### Verification
+- The pre-push guard caught both tool-surface omissions the skeptical verifier could not (it had no egress and did not run the gates): gate 24 flagged the un-allow-listed `www.etsi.org`, and gate 36's citation-currency-cadence regression test flagged the unmapped `ETSI standards` sub-table. Both fixed and re-verified green (the mechanical floor doing its job under the semantic layer).
 - ETSI versions upstream-verified this turn (research-etsi-register-currency, egress with the anti-injection rail; both corpus-cited values confirmed current, no newer version). The Canada annex was read and confirmed accurate, so no annex edit was needed (AIDA already correctly lapsed). A refute-briefed skeptical verifier probes the register rows pre-push; the 75-gate suite plus D1-D8 pass.
 
 ### Batched
