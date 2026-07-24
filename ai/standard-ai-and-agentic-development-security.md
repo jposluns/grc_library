@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.15\
+**Version:** 1.8.16\
 **Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -707,6 +707,8 @@ When an AI security incident is declared, the following steps apply in addition 
 **SANDBOX-SEC-03:** Sandbox environments must be ephemeral. Fresh sandbox per session. No state between instances.
 
 **SANDBOX-SEC-04:** Sandbox isolation uses separate container environments with restricted egress profiles and no cloud RBAC permissions on the sandbox identity.
+
+**Note (informative):** the effectiveness of container sandbox isolation against capable coding agents is empirically testable. The open SandboxEscapeBench benchmark (Marchand et al., "Quantifying Frontier LLM Capabilities for Container Sandbox Escape", arXiv:2603.02277v2, 2026; University of Oxford and UK AI Security Institute) measures an agent's ability to escape a container sandbox across orchestration, runtime, and kernel attack classes, and reports that capable models can exploit common real-world misconfigurations such as privileged containers, an exposed `docker.sock`, `hostPath` mounts, and `CAP_SYS_ADMIN`. This corroborates the strict configuration baseline in SANDBOX-SEC-01 to SANDBOX-SEC-04 and the container-security guidance in NIST SP 800-190. The benchmark is a preprint held as an untrusted, screened reference; its specific quantitative figures are verified at the source before any reliance.
 
 ---
 
