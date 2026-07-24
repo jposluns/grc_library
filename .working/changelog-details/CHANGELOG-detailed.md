@@ -8,6 +8,27 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.628, PR #1142
+
+Corroborative see-also for the newly screened container sandbox-escape benchmark preprint: part 2 of the arXiv sandbox-escape disposition (round-A decision ii). The paired reference-base ingest is ref PR #103.
+
+### Added
+
+- One informative see-also note in [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) section 32 (Sandbox and isolation), after control SANDBOX-SEC-04. It cites the SandboxEscapeBench benchmark (Marchand et al., "Quantifying Frontier LLM Capabilities for Container Sandbox Escape", arXiv:2603.02277v2; University of Oxford and UK AI Security Institute) as untrusted-tier, corroborative and informative support for the SANDBOX-SEC-01 to SANDBOX-SEC-04 configuration baseline and the container-security guidance in NIST SP 800-190. The note records that the benchmark is a screened preprint held as an untrusted reference and that its specific quantitative figures are verified at the source before any reliance; it is never a normative preprint citation. Rendered as a plain arXiv id (no hyperlink), matching the document's existing zero-external-link convention, and using the corpus `(informative)` qualifier (precedent: the ISO/IEC 42005 Annex C usage).
+- Reference-base pairing: the preprint was ingested into the `grc_library_ref` publications bucket at SCREENING status `screened` (ref PR #103), which gates its admission to the corpus as a corroborative reference. Instruction-content scan re-run clean by the orchestrator at apply; provenance clean; load-bearing claims corroborated against NIST SP 800-190, OWASP Top 10 for Agentic Applications 2026, and MITRE ATLAS 2026.06; arXiv v2 confirmed current upstream 2026-07-24 (no v3).
+
+### Changed
+
+- Bumped [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) Version 1.8.15 to 1.8.16 (Date 2026-07-24); regenerated [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md).
+
+### Verification
+
+- Pre-push guard green: [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh) (all 77 gates) then [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh) (D1 to D8 plus the history-aware trio 45/40/31). Skeptical verifier (substantive corpus body change) pre-push. Per-touch reference-breadth audit: 0 candidates (steady state; the new item is in the excluded publications bucket). Canadian English, no em/en dashes, versions monotonic.
+
+### Batched
+
+- #1141 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 1.2.896 to 1.2.897) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md), 1.0.827 to 1.0.828): both CLEAN PASS, 0 findings.
+
 ## 2026-07-24, Library Version 2026.07.627, PR #1141
 
 De-duplicates the CCPA ADMT coverage (§3.105): consolidates the ADMT limb into a single canonical home (the California AI annex) and narrows the privacy annex to a pointer, mirroring the pattern the privacy annex already uses for the Colorado AI statute. Migrate-before-narrow, so no obligation detail is ever absent from both annexes.

@@ -13,7 +13,7 @@ commit the refresh with the touching PR's QA batch.
 | `ai/plan-ai-incident-response.md` | 8126580 | 2026-07-24 |
 | `ai/register-ai-risk.md` | 8126580 | 2026-07-24 |
 | `ai/standard-ai-access-and-agent-permissions.md` | 8126580 | 2026-07-24 |
-| `ai/standard-ai-and-agentic-development-security.md` | 8126580 | 2026-07-24 |
+| `ai/standard-ai-and-agentic-development-security.md` | 4a0f297 | 2026-07-24 |
 | `ai/standard-ai-security-and-risk.md` | 8126580 | 2026-07-24 |
 | `compliance/financial-services/annex-financial-services-sector-requirements.md` | 8126580 | 2026-07-24 |
 | `compliance/procedure-audit-planning.md` | 924a32e | 2026-07-24 |
