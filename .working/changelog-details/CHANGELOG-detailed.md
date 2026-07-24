@@ -8,6 +8,23 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.618, PR #1132
+
+Enacts two of the 2026-07-24 maintainer decisions: the ETSI register addition (decision iv) and the Canada-AIDA §5.9 rescope. Both authored from offloaded, upstream-verified research (research-etsi-register-currency, research-canada-aida-status), re-checked at apply.
+
+### Added
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (Version 1.5.42 to 1.5.43): a new `## ETSI standards` section (placed in the SDO cluster after IEEE, before EU regulations) with two rows, upstream-verified this turn: ETSI EN 304 223 V2.1.1 (2025-12, the normative Securing-AI baseline European Norm) and ETSI TR 104 128 V1.1.1 (2025-05, the informative implementation-guide companion to the TS 104 223 baseline carried forward into the EN). Both versions confirmed current at etsi.org (no newer version; the EN corroborated by the SIST EN 304 223 V2.1.1:2026 national adoption).
+
+### Changed
+- [`TODO.md`](../../TODO.md) §5.9: the stale "Canada AIDA" candidate struck (Canadian federal AI governance is covered by [`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md), which correctly treats AIDA as lapsed; AIDA re-confirmed dead upstream 2026-07-24, Bill C-27 died at prorogation). A follow-up notes the "NYC bias audit law" candidate may likewise already be covered by a shipped annex (a small §5.9 candidate-list reconciliation).
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the register Version bump.
+
+### Verification
+- ETSI versions upstream-verified this turn (research-etsi-register-currency, egress with the anti-injection rail; both corpus-cited values confirmed current, no newer version). The Canada annex was read and confirmed accurate, so no annex edit was needed (AIDA already correctly lapsed). A refute-briefed skeptical verifier probes the register rows pre-push; the 75-gate suite plus D1-D8 pass.
+
+### Batched
+- PR #1131 `/validate-pr` (offloaded) + `/retro` rows.
+
 ## 2026-07-24, Library Version 2026.07.617, PR #1131
 
 Adds a cwd-inference corollary to the validate-inference-before-action governance rule (both trees, byte-identical under gate 37), the portable form of the project's absolute-path / `git -C` discipline (TODO A2). It generalizes the failure this session repeatedly hit: the shell working directory is an unvalidated inferred premise for any repo-targeted command, so a cwd-relative tool or a bare git mutation silently acts on whichever repository the cwd drifted to.
