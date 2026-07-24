@@ -2,7 +2,7 @@
 """Collection-enumeration consistency audit.
 
 The corpus carries several "collections" of items that are enumerated
-in multiple places: the pack's fourteen governance rules are listed in the
+in multiple places: the pack's fifteen governance rules are listed in the
 pack README directory-tree section, in the pack's own CLAUDE.md
 Development-governance discipline section, and in the project's
 CLAUDE.md Security-and-governance-requirements section; the pack's
