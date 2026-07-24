@@ -8,6 +8,10 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.610, PR #1124
+
+Working-state bookkeeping for the local project (no corpus, gate, or pack change): batches PR #1123's post-merge validation-sweep (CLEAN PASS, 0 findings) and retrospective rows into the QA ledgers, refreshes the session queue and the pending-decisions record with the enumerated apply-queue-drained active-standby state (per the offloaded anti-false-completeness re-triage that ran the backlog-actionability audit over every open item, 96 open / 45 presumed-actionable, all blocked by a named external condition), and surfaces the grouped maintainer wake actions. The next genuine apply work needs a maintainer act; the session stays in active-standby with the fleet on a read-only research pass (no wind-down, no idle).
+
 ## 2026-07-24, Library Version 2026.07.609, PR #1123
 
 Closes two delivered offload items: the §3.20 publications-screening wave and the §4.2 pack language-rule review. Both were authored from offloaded worker deliveries the orchestrator re-verified at source (the §3.20 screening positive re-run at apply; the §4.2 review's F3 target re-read).
