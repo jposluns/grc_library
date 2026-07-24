@@ -4,9 +4,10 @@
 The pack README's "Rule files and their scope" table
 (``dev-security/claude-rules/README.md``) is exhaustive by design: it lists
 every pack rule file (``core`` / ``ai`` / ``pipeline`` / ``governance`` /
-``languages``) with its when-to-use. It is the FOURTH rule-enumeration surface,
-and the only ungated one: gate 41 (collection-enumeration consistency) checks
-the directory tree and the two CLAUDE.md bullet lists, not this table, so a new
+``languages``) with its when-to-use. It is a rule-enumeration surface gate 41
+does not cover: gate 41 (collection-enumeration consistency) checks the
+directory tree, the two CLAUDE.md bullet lists, and (since the section 3.56a
+guard-3 addition) the rule-provenance register, not this table, so a new
 rule silently misses a row (the 14th governance rule
 ``decision-classification-before-enacting`` was added with no scope-table row).
 
