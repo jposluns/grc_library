@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.66 Generic governance-rule ASVS citations remapped to 5.0.0 (2026-07-24, PR #1128)
+
+Remapped every generic OWASP ASVS 4.0-era citation (V1.1/V14.1/V14.2) in the framework-alignment tables of all 11 governance-pack rules, the 3 SKILL restatements, and the threat-modelling standard to ASVS 5.0.0, held-title-verified. Applied under the high-assurance harness (two independent adversarial verifiers plus a deterministic dual-tree apply): the false-negative lens caught a systematic V16.4 "Log Protection" gap on 3 durable-record rows and one missing in-scope row; the false-positive lens confirmed the V8.2 / V15.4 / V15.2 signal assignments and flagged the 3 no-clean-home gate/build-integrity rows to chapter-level V15. The banked research map was found incomplete (2 rules + 1 row missed) and reconciled against live main. The specific-code migration in the non-governance pack rules split out as §3.108.
+
 ### §3.1 Base-unverified ISO/IEC designation reconcile (2026-07-24, PR #1126)
 
 Reconciled the 11 base-unverified ISO/IEC standard designations the #663 sweep left in a mixed bare/`ISO/IEC` state. The `research-3001` pass verified each against iso.org catalogue titles + the held base; this PR applied the fixes: 5 bare-to-ISO/IEC corrections (ISO/IEC 27033, 27034 x2, 25010, 30134 across the document-index register, the secure-development policy, and the ESG guideline), `ISO 12207` -> `ISO/IEC/IEEE 12207:2026` (maintainer-confirmed current edition, 2 spots), and ISO 23247 confirmed correct-as-bare (sole-ISO TC 184, retired from the candidate set). 27559/29184/20889/5259/38505 were already clean. The durable register+gate stays open as §3.2 (the ISO-27001 family-name carve-out migrated there). 12207:2026 is not held in `_ref`, so it was added to the `_private` maintainer-egress-requests.

@@ -106,10 +106,10 @@ This rule also brings into the primary pack a discipline the third-party overlay
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Surface adverse effects before acting on an instruction | PO.5, RV.1 | GRC-04, GRC-05 | A.5.4, A.5.36 | V1.1 |
-| Confirm-before-destructive-action discipline | PO.5, RV.2 | GRC-04 | A.5.4, A.5.18 | V1.1 |
-| Scope-bounded authorization (an override covers the case it was given for) | PO.5 | IAM-09 | A.5.15, A.5.18 | V1.1 |
-| Decisions traceable to a confirmation step | PS.1, RV.2 | LOG-02, GRC-04 | A.8.15, A.5.4 | V14.1 |
+| Surface adverse effects before acting on an instruction | PO.5, RV.1 | GRC-04, GRC-05 | A.5.4, A.5.36 | V15.1 |
+| Confirm-before-destructive-action discipline | PO.5, RV.2 | GRC-04 | A.5.4, A.5.18 | V15.1 |
+| Scope-bounded authorization (an override covers the case it was given for) | PO.5 | IAM-09 | A.5.15, A.5.18 | V8.2 |
+| Decisions traceable to a confirmation step | PS.1, RV.2 | LOG-02, GRC-04 | A.8.15, A.5.4 | V16.2 |
 
 The rule expresses the same audit-trail-integrity principle the rest of the pack expresses, on the instruction-intake boundary: a counterproductive instruction acted on without a surfaced confirmation is a decision no one consciously made, and its cost is discovered downstream by the requestor who did not foresee it.
 

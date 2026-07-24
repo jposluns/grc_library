@@ -83,10 +83,10 @@ The honest limitation, stated plainly: documentation adds friction against repea
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Independent re-examination after control failure | RV.1, RV.2 | GRC-05, A&A-04 | A.5.35, A.5.36 | V1.1, V14.1 |
-| Findings traceable to a verification step | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
-| Authority-gated closure | PO.5 | GRC-04 | A.5.4 | V1.1 |
-| Process-lesson codification after incident | PO.5, RV.3 | GRC-04, CCC-03 | A.5.27, A.8.32 | V1.1 |
+| Independent re-examination after control failure | RV.1, RV.2 | GRC-05, A&A-04 | A.5.35, A.5.36 | V15.1, V16.2 |
+| Findings traceable to a verification step | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
+| Authority-gated closure | PO.5 | GRC-04 | A.5.4 | V8.2 |
+| Process-lesson codification after incident | PO.5, RV.3 | GRC-04, CCC-03 | A.5.27, A.8.32 | V15.1 |
 
 <!-- PROJECT-OVERLAY: not part of the distributable pack -->
 
