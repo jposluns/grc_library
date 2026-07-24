@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.12\
+**Version:** 1.8.13\
 **Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -127,6 +127,8 @@ Enforcement points: input validation before inference; output validation before 
 | **TC-17** Cascading Agentic Failures | A fault, error, or adversarial effect in one agent propagates and amplifies across interconnected agents, tools, and workflows, chaining otherwise-bounded risks into a system-wide failure without a human checkpoint. Prompt injection or excessive agency in one agent triggers autonomous tool runs that carry errors downstream; poisoned persistent memory skews decisions across sessions. Distinct from the origin classes (a direct compromise under TC-06, TC-11, or TC-15) in that the class names the propagation and amplification of an initial fault across the agent graph, not the initial compromise itself. Maps to OWASP ASI08 (Cascading Failures). |
 | **TC-18** Human-Agent Trust Exploitation | An agent's fluency, apparent confidence, or persona is used to manipulate the human in the loop into approving actions, disclosing information, or lowering oversight that they would not if the agent's limits were visible. The attack surface is the human's trust in the agent, not the agent's inputs; over-reliance and automation bias are the failure the class names. Maps to OWASP ASI09 (Human-Agent Trust Exploitation). |
 | **TC-19** Rogue Agents | An agent loses behavioural integrity and pursues objectives misaligned with its authorized goal. The divergence may be externally initiated (by prompt injection, goal hijack, or supply-chain tampering) or emergent (reward-hacking a proxy objective, or continuing a superseded goal); the class names the loss of behavioural integrity once the drift begins, not the initial intrusion, and it is distinct from over-granted permissions (excessive agency). It is addressed by the bounded-autonomy, reversibility, and production-authority preconditions rather than by input filtering. Maps to OWASP ASI10 (Rogue Agents). |
+
+The threat classes above crosswalk to the OWASP Top 10 for Agentic Applications 2026 (ASI01-ASI10): ASI01 Agent Goal Hijack maps to TC-14 with TC-01; ASI02 Tool Misuse and Exploitation to TC-04; ASI03 Identity and Privilege Abuse to TC-08; ASI04 Agentic Supply Chain Vulnerabilities to TC-06 with TC-09 and TC-12; ASI05 Unexpected Code Execution to TC-05; ASI06 Memory and Context Poisoning to TC-11 with TC-03 and TC-02; ASI07 Insecure Inter-Agent Communication to TC-15; ASI08 Cascading Failures to TC-17; ASI09 Human-Agent Trust Exploitation to TC-18; ASI10 Rogue Agents to TC-19.
 
 ---
 
@@ -764,17 +766,17 @@ This section governs autonomous and semi-autonomous production action. It does n
 
 ## 36. Framework alignment
 
-| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 |
-| --- | --- | --- | --- | --- | --- | --- |
-| Prompt injection | LLM01 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling |
-| Supply chain | LLM03 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management |
-| Sensitive data disclosure | LLM02 | N/A | DSP-17, IAM-16 | MAP 1.6 | Sensitive output handling | Data minimization and obfuscation |
-| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 | Least model privilege | Limit model behavior |
-| Unsafe code generation | LLM05 | N/A | AIS-10, AIS-05 | MAP 1.1 | N/A | N/A |
-| Excessive agency | LLM06 | N/A | IAM-18, IAM-05 | MANAGE 1.3 | Least model privilege | Limit model behavior (focused functionality) |
-| Overreliance | LLM09 Misinformation | N/A | GRC-15, GRC-13 | MANAGE 4.1 | AI transparency | N/A |
-| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0029, AML.T0034 | I&S-02, I&S-09 | N/A | DoS input validation, limit resources | Model I/O handling (rate limit) |
-| Hallucination/output validation | LLM09 Misinformation | N/A | AIS-10, LOG-16 | MAP 3.5 | Oversight, continuous validation | Model I/O handling (output validation, RAG grounding) |
+| Control Area | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM v1.1.0 | NIST AI RMF | OWASP AI Exchange | SANS CAISG v1.4 | OWASP Agentic Top 10 (ASI) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Prompt injection | LLM01 | AML.T0051 | AIS-15, AIS-09 | GOVERN 1.1 | Prompt injection I/O handling | Model I/O handling | ASI01 |
+| Supply chain | LLM03 | AML.T0010 | STA-10, STA-09 | MANAGE 2.2 | Supply chain manage | AI supply chain management | ASI04 |
+| Sensitive data disclosure | LLM02 | N/A | DSP-17, IAM-16 | MAP 1.6 | Sensitive output handling | Data minimization and obfuscation | ASI02 (data exfiltration); ASI03 (privilege route) |
+| Tool misuse / overreach | LLM06 | AML.T0053 | AIS-11, AIS-13, IAM-18 | GOVERN 2.2 | Least model privilege | Limit model behavior | ASI02 |
+| Unsafe code generation | LLM05 | N/A | AIS-10, AIS-05 | MAP 1.1 | N/A | N/A | ASI05 |
+| Excessive agency | LLM06 | N/A | IAM-18, IAM-05 | MANAGE 1.3 | Least model privilege | Limit model behavior (focused functionality) | ASI02 |
+| Overreliance | LLM09 Misinformation | N/A | GRC-15, GRC-13 | MANAGE 4.1 | AI transparency | N/A | ASI09 |
+| Model resource exhaustion / DoS | LLM10 Unbounded Consumption | AML.T0029, AML.T0034 | I&S-02, I&S-09 | N/A | DoS input validation, limit resources | Model I/O handling (rate limit) | no direct ASI (ASI08 availability consequence) |
+| Hallucination/output validation | LLM09 Misinformation | N/A | AIS-10, LOG-16 | MAP 3.5 | Oversight, continuous validation | Model I/O handling (output validation, RAG grounding) | ASI08 (cascading fault); ASI09 (over-trust) partial |
 
 
 
