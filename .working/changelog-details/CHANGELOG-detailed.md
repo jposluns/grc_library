@@ -8,6 +8,25 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.620, PR #1134
+
+Builds the G1 branch-to-main edit guard the r10 guardrail review routed (TODO §3.62; maintainer-decided BUILD in the 2026-07-24 15-item batch): a PreToolUse `Edit|Write` hook that blocks an edit to a `grc_library` file while the repo is on `main`, so the "first action after merge+sync is `git checkout -b`" rule is mechanically enforced rather than convention-only. Project-only machinery (the `artefact-and-branch-discipline` pack rule already carries the portable discipline; the pack ships rules, not hooks), so no pack change.
+
+### Added
+- [`.claude/hooks/block-branch-to-main-edit.py`](../../.claude/hooks/block-branch-to-main-edit.py): a PreToolUse `Edit|Write` hook. It BLOCKS (exit 2) when the target file resolves inside the project repo AND the project repo's current branch is `main` or `master`. The FP-safety envelope: a sibling-repo file (`grc_library_scratch` / `grc_library_private` / `grc_library_ref`, which are push-direct on their own `main`), a feature branch, a detached HEAD, and any parse/git failure all pass (fail-open). Ships with a 7-case `--self-test`.
+- [`tests/test_linters.py`](../../tests/test_linters.py): `test_block_branch_to_main_edit_hook_self_test` runs the hook's `--self-test` in the regression suite (the same pattern as the other hook self-tests).
+
+### Changed
+- [`.claude/settings.json`](../../.claude/settings.json): registered the hook in the existing `Edit|Write` PreToolUse matcher (appended after the two hooks already in that matcher).
+- [`TODO.md`](../../TODO.md): closed §3.62 (G1 was its only open item; G2 stays tracked at §3.38, G4 at §3.31), and removed the resolved MEG-36 maintainer-decision row.
+- [`.working/DONE.md`](../../.working/DONE.md): §3.62 close entry.
+
+### Verification
+- The hook `--self-test` passes 7/7 (edit-project-file-on-main blocks; feature-branch, sibling-repo file, outside-any-repo, detached-HEAD, empty-path, and non-git-project-dir all allowed). The pre-push guard (`run_all_audits.sh` 75 gates + `run-pr-time-checks.sh` D1-D8 + history-aware 45/40/31) is green; the regression suite (including the new hook test) runs inside it. A refute-briefed skeptical verifier probes the hook and the bookkeeping pre-push. No corpus document changed (no per-doc bump / taxonomy regen). Canadian English, no em/en dashes.
+
+### Batched
+- PR #1133 `/validate-pr` (offloaded, CLEAN PASS) + `/retro` rows (validate-pr history 1.2.888 to 1.2.889; improvement-log 1.0.819 to 1.0.820).
+
 ## 2026-07-24, Library Version 2026.07.619, PR #1133
 
 Codifies the two disciplines the maintainer directed this session (completeness and chat-answer pacing) and records the session's full maintainer-decision batch. The completeness discipline was earned after the assistant repeatedly under-delivered on set-scoped instructions (asking 4 of 15 open decisions, and working a subset of the queue then stopping).
