@@ -23,6 +23,9 @@ Ships §3.56a guard 2 as gate 77 (the gate-name-citation inventory audit), the L
 ### Verification
 - Gate 77 `--self-test` 9/9; live corpus clean (41 citation surfaces, 77-entry inventory, all consistent). Gate 39 recomputes to 77 with no stale count-prose; gate 35 four-surface parity and gate 64 section 6 detailed-prose presence pass. Pre-push guard green. A refute-briefed skeptical verifier probes the matcher's FP-safety pre-push. Canadian English, no em/en dashes.
 
+### Guardrail-review cadence
+- Adding gate 77 drove the gate-60 machinery-drift to the threshold (gates 74 to 77, +3 since the r14 review), so an OFFLOADED guardrail review (r15) ran over the machinery at main `b411b6dd`: near-steady-state, zero new machinery findings, mechanical parity fully green, gates 74/75/76 confirmed distinct (no overlap); the one tracked gap (the section 3.73 ledger-row-integrity gate) is confirmed on the backlog. Its cadence-reset guardrail-review history row (r15, inventory 76 gates / 15 rules / 24 skills / 15 commands) rides in this PR and clears gate 60.
+
 ### Batched
 - PR #1138 `/validate-pr` (offloaded, CLEAN PASS) plus `/retro` rows (validate-pr history 1.2.893 to 1.2.894; improvement-log 1.0.824 to 1.0.825).
 
