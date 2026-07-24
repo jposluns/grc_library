@@ -8,6 +8,20 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.603, PR #1117
+
+Reference-breadth-routed content follow-up, closing TODO §3.106 (the #1115 breadth cadence's LOW held-but-unused candidate). The held OWASP GenAI Red Teaming Guide v1.0 (January 2025) is a red-team methodology source directly on-point for the standard's §23, but was neither anchored there nor registered. This PR adds a corroborative see-also anchor and registers the Guide.
+
+### Changed
+- [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) (1.8.14 to 1.8.15): adds a "Framework anchors" line to §23 (red team, after REDTEAM-SEC-04) anchoring the held OWASP GenAI Red Teaming Guide v1.0, whose phased GenAI red-process blueprint (its model, implementation, system, and runtime / human and agentic evaluation phases, each with a per-phase checklist) and its agentic and RAG-specific red-team tooling map onto the multi-turn, tool-abuse, RAG-poisoning, context-contamination, and agent-chain scope of REDTEAM-SEC-02. The anchor is explicitly corroborative (see-also), not normative: a normative red-team obligation continues to rest on the AI Adversarial Test Reference and the NIST AI 100-2e2025 taxonomy cited in §22. §22 is left as-is (its generic OWASP GenAI Security Project reference in ADTEST-SEC-01 plus its existing framework-anchor line are sufficient; the Guide is red-team methodology, most on-point for §23).
+- [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md) (1.5.41 to 1.5.42): registers the OWASP GenAI Red Teaming Guide (v1.0, 2025-01) under the OWASP section (held but previously unregistered), so the newly-cited Guide resolves in the register.
+
+### Verification
+- **Held and unregistered state confirmed at source.** [`tools/ref-holds.py`](../../tools/ref-holds.py) confirms the Guide HELD (the held OWASP GenAI Red Teaming Guide, Version 1.0, January 2025, sub-formal trust tier); a register grep confirms it was previously unregistered (the register's red-team entries were tools, not this Guide).
+- **Worker-draft apply-time correction.** The offloaded research (worker-a) drafted the fourth blueprint phase as "runtime or business"; the orchestrator re-read the held Guide's "Checklists for Blueprint Phases" list and corrected it to the source-accurate "Runtime / Human & Agentic evaluation" phase (which, notably, names agentic evaluation directly, strengthening the §23 fit). The phased-blueprint structure ("Figure 4: Phases of a GenAI Red Process Blueprint"), the four phase names, and the agentic ("An automated agentic Red") and RAG ("Pentesting tooling for RAG") tooling were each verified at the held source.
+- **Corroborative, not normative.** The anchor line states the see-also framing explicitly, consistent with the Guide's sub-formal trust tier; no normative obligation rests on a preprint- or sub-formal-tier source.
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the standard's version bump. A refute-briefed skeptical verifier ran pre-push; all 74 audit gates pass.
+
 ## 2026-07-24, Library Version 2026.07.602, PR #1116
 
 Reference-breadth-routed content follow-up, closing TODO §3.107. The #1115 `/reference-audit` breadth pass surfaced a section-breadth gap in the AI compliance policy's US-state coverage (§7.5): two AI laws taking effect 1 January 2026, Texas TRAIGA and Illinois HB 3773, were not represented alongside the Colorado, NYC, and California entries. This PR adds both.

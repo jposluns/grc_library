@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.106 OWASP GenAI Red Teaming Guide anchored in the agentic-security standard's §23 (2026-07-24, PR #1117)
+
+Reference-audit-routed (the #1115 breadth cadence's LOW candidate): after confirming the held OWASP GenAI Red Teaming Guide v1.0 (held but unregistered) adds real, on-point methodology over the existing generic OWASP GenAI Security Project reference, added a corroborative see-also "Framework anchors" line to §23 (red team) of `ai/standard-ai-and-agentic-development-security.md` mapping the Guide's phased blueprint (model, implementation, system, runtime / human and agentic phases) and its agentic/RAG tooling onto REDTEAM-SEC-02, and registered the Guide in `register-canonical-citations.md`. §22 left as-is (its generic reference plus framework-anchor line suffice). Corroborative, not normative; worker-drafted phase names corrected at source (the fourth phase is "Runtime / Human & Agentic", not "runtime or business").
+
 ### §3.107 US-state AI-law coverage: Texas TRAIGA + Illinois HB 3773 in §7.5 (2026-07-24, PR #1116)
 
 Reference-audit-routed (surfaced by the #1115 breadth cadence as a section-breadth gap in `ai/policy-ai-compliance.md` §7.5): added a Texas TRAIGA bullet (HB 149, Business and Commerce Code Chapters 551 to 552, prohibited-use focus, AG-exclusive enforcement, effective 1 Jan 2026) and an Illinois HB 3773 bullet (PA 103-0804 amending the Human Rights Act, AI-in-employment civil-rights violation plus notice duty, effective 1 Jan 2026), each with a crosswalk row, plus their canonical-citations register rows. Held/upstream-verified; a refute-briefed skeptical verifier cleared the citations.
