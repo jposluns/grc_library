@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Development and Engineering Policy\
 **Document Type:** Policy\
-**Version:** 1.0.10\
-**Date:** 2026-07-23\
+**Version:** 1.0.11\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -50,7 +50,7 @@ It incorporates forward-looking controls for AI-generated code verification and 
 
 | Role | Responsibility |
 | --- | --- |
-| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF and ISO 27034. |
+| **CISO** | Defines secure coding standards, oversees vulnerability remediation, and enforces compliance with NIST SSDF and ISO/IEC 27034. |
 | **CIO** | Oversees policy enforcement and ensures that secure design principles are embedded across all engineering teams. |
 | **Development Team Leads** | Implement secure SDLC controls, manage peer review workflows, and track remediation timelines. |
 | **Developers / Engineers** | Follow approved secure coding practices, maintain code integrity, and complete annual secure coding training. |
