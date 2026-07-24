@@ -8,6 +8,10 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.622, PR #1136
+
+Working-state bookkeeping (terse; no corpus content change): reconciled the TODO §5.9 "NYC bias audit law" remaining-candidate and struck it as already-covered. NYC Local Law 144 (the AEDT bias-audit law) is covered in full by the dedicated annex [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../../ai/jurisdictions/annex-ai-us-new-york-city.md), its implementing DCWP final rule is held in the reference base, and currency was confirmed (offloaded research, orchestrator-corroborated: annex present with 16 LL144/AEDT mentions). Struck it from the §5.9 candidate list (mirrors the Canada-AIDA strike); the three remaining candidates (UK, China, Korea) stay source-gated; §5.9 stays open. DONE entry keyed PR #1136. Batches PR #1135 `/validate-pr` (offloaded, CLEAN PASS) plus `/retro` rows (validate-pr history 1.2.890 to 1.2.891; improvement-log 1.0.821 to 1.0.822).
+
 ## 2026-07-24, Library Version 2026.07.621, PR #1135
 
 Ships the third of the §3.56a pack-hygiene guard-3 mechanizations: gate 41 (collection-enumeration consistency) now checks the pack rule-provenance register as a fourth rule-enumeration surface, so a new governance rule cannot ship without its provenance entry. The other two §3.56a mechanizations (a skill-body internal-ref-token linter and a "gate N (name)"-to-§6-inventory renumbering guard) remain as the next two PRs.
