@@ -214,6 +214,19 @@ When the orchestrator dispatches a verifier or a validation subagent that SHARES
 
 ---
 
+## Completeness over sampling (exhaust the instructed set)
+
+When the responsible authority instructs the assistant to act over a SET ("ask the open questions", "work the next items", "fix the findings", "clear the backlog", "surface the decisions"), the instruction is to process the WHOLE set, not a self-chosen subset. This is a standard layered on the disciplines, not a sixth; it governs how a set-scoped instruction is read.
+
+- **"Ask the open questions" means ask ALL of them**, not the few the assistant judges most tractable or best-framed, batched into as few rounds as the question tool allows (four per round is a common cap). Deferring the harder ones is the failure: the authority asked for the set, and a partial ask hands back an incomplete picture while implying completeness.
+- **"Work the next items" means work until the set is exhausted**, until every remaining item is genuinely blocked by a named, externally-observable blocker, or the authority stops the run, not until a comfortable few are done. Stopping at three of thirty, with no named blocker on the remaining twenty-seven, substitutes the assistant's private sense of "enough" for the instruction to complete.
+- **"Enough" is not a named stop signal.** An un-instrumented sense of sufficiency ("this is probably enough", "a representative sample is done") is exactly the un-observable state the evidence-grounded-completion rule forbids as a stop trigger. The only valid stops over a set are: the set is exhausted; every remainder carries a named, externally-observable blocker (each surfaced, none silently dropped); or the authority halts the run.
+- **A deferred member is named and surfaced, never silently dropped.** When a subset genuinely must wait, each deferred item is stated with its blocker (a decision the authority owes, a source unavailable, a dependency unmet), so the authority sees the full set and its dispositions, not a truncated slice presented as the whole.
+
+The failure this forecloses is subtle because a partial delivery looks like progress: the assistant asks four good questions, or ships three clean changes, and stops, and the stop reads as a natural boundary rather than the un-instructed truncation it is. Treat a set-scoped instruction as a contract to exhaust the set, and make any incompleteness explicit and blocker-named.
+
+---
+
 ## QA-activity completion standard
 
 A quality-assurance activity (a validation sweep, a per-change-scoped sweep, a semantic-fit or citation-precision audit, a reference-breadth or publications screen, a behavioural verify, a fresh-reader review, or a whole-project assessment pass) is COMPLETE only when all five hold:

@@ -1407,6 +1407,20 @@ The project instantiation of the `evidence-grounded-completion` rule's set-compl
 - **A persistent blocked-enumeration record is operational state and goes in `grc_library_private`, never the public tree.** The public repo carries only the on-demand tool (which prints the enumeration when run), not a standing "here is what is blocked and why" document (some blocker reasons are internal or operational). When a blocked enumeration must be recorded (for example as evidence attached to a hold decision), it is written to `_private` (the decision-log that would carry it already lives there).
 - Enforced mechanically by the [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) hook (a hold decision-log entry justified by a set-completeness claim is refused unless it embeds a fresh full-audit token matching the live TODO item count) and the audit tool (layer 1); this section and the pack rule are the discipline the mechanics enforce.
 
+## Completeness over sampling (exhaust the instructed set)
+
+When the maintainer instructs work over a SET ("ask the open questions", "work the next items", "fix the findings", "clear the backlog"), it is an instruction to process the WHOLE set, not a self-chosen subset. "Ask the open questions" means ask ALL of them (batched into as few `AskUserQuestion` rounds as the four-per-round cap allows), never the few easiest to frame; "work the next items" means work until the set is exhausted, every remainder carries a named externally-observable blocker (each surfaced), or the maintainer stops the run, never a comfortable three-and-stop. An un-instrumented sense of "enough" is not a stop signal (the `evidence-grounded-completion` un-observable-state corollary). Maintainer-directed 2026-07-24 after the assistant repeatedly asked a subset of the open questions (4 of 15) and worked a subset of the queued items and stopped. This is the project instantiation of the pack [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md) rule's `## Completeness over sampling` standard; a mechanical completeness backstop is a queued follow-up, the discipline is the primary control.
+
+## Chat-answer pacing (readable answers, no stall)
+
+The maintainer reads chat in a narrow window and has repeatedly missed answers that scrolled past before they engaged, so a maintainer-facing ANSWER (a decision surfaced, a key status, a question) is paced to be readable AND paced so it never stalls the run (maintainer-directed 2026-07-24, the §1.22.8 disposition; chat-mechanics, project-only, not pack material):
+
+- After a key maintainer-facing answer or an `AskUserQuestion`, PAUSE for the maintainer's acknowledgement and hold the point on screen (the `AskUserQuestion` UI, or an `IMPORTANT:`-marked chunk within the ~30-line limit).
+- Arm the standard graceful-degradation timer (about 5 minutes). If the maintainer answers, act on it. If the timer fires with NO response, do NOT stall: continue on the next independent work AND log the unanswered question to [`.working/pending-decisions.md`](../.working/pending-decisions.md) to re-surface the moment the maintainer is back (detected because they have typed something).
+- The re-surface is prompt: on the maintainer's next message, present the logged unanswered question(s) before proceeding, so a question raised while they were away is not lost.
+
+This reconciles the two failure modes: an answer scrolling past unread (the read-pause fixes it) and the run stalling while the maintainer is away (the continue-and-log fixes it).
+
 ## Communication conventions
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.

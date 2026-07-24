@@ -1,5 +1,23 @@
 # Pending Decisions
 
+**[RESOLVED 2026-07-24 attended, 15-item maintainer-decision batch] The full audit-flagged maintainer-decision set, asked to completeness across four AskUserQuestion rounds (maintainer-directed: ask ALL, not a subset). Dispositions:**
+- **3.105 CCPA ADMT dedup = CONSOLIDATE into the AI annex** (narrow the privacy annex's ADMT bullet to a pointer, Colorado pattern). Actionable content PR.
+- **2.26.1 OSCAL adoption = INTENT-TO-ADOPT, scope deferred** until the backlog is caught up (catalog + profile scope when locked). The 2.26 / 2.26.4 cluster defers with it.
+- **7.1 non_fast_forward ruleset rule = ADD, held for maintainer GitHub-settings validation** (maintainer validates the setting, then we add the rule together). Maintainer-action.
+- **3.54 doc_type back-fill = POPULATE-ON-TOUCH now + a low-priority back-fill item** for idle time.
+- **1.19.13 history scrub = KEEP DEFERRED** (LAST, destructive force-push, gated).
+- **3.16 CHANGELOG history-collapse = KEEP DEFERRED** (optional, destructive git-history rewrite).
+- **3.62 G1 branch-to-main edit guard = BUILD the PreToolUse hook.** Actionable.
+- **1.22.8 chat text-pacing = CODIFY** (pause after a key answer/AskUser + about-5-min timer; on no response, continue + log the question to re-surface when the maintainer is back). Codified in CLAUDE.md #1133.
+- **1.22.3 .working-to-_private sweep = RUN the initial destructive cleanup-PR NOW, keep current + 1-prior-week in-repo** (set the DONE cutoff at that width). Actionable.
+- **2.25.1 Flow Modelling framework graduate = DEFER** (sequence after near-term backlog; feeds the deferred OSCAL crosswalks).
+- **3.56a pack-hygiene mechanization = BUILD ALL 3** guards (internal-ref-token linter; gate-N-name-to-inventory mapping; provenance register as a gate-41 surface). Actionable.
+- **4.9 pack packaging model = DECIDE NOW** (independent of the public-site timing). Actionable.
+- **RB-R6 source acquisition = ASSISTANT COMPILES the not-held-but-cited source list (upstream URLs, verified not fabricated) into _private egress-requests; maintainer fetches on a batched cycle.** Actionable (compile).
+- Plus the maintainer's standing **completeness directive** (ask-all / work-until-done-or-stopped) = CODIFIED (pack `ai-assistant-workflow-disciplines` + CLAUDE.md, #1133).
+
+Actionable-now queue (PRs): 3.105, 3.62-hook, 1.22.3-sweep, 3.56a-guards, 4.9-packaging, RB-R6-list, plus arXiv-ingest (the earlier round's decision ii). Confirmed-deferred: the OSCAL cluster, 1.19.13, 3.16, 2.25.1.
+
 **[RESOLVED 2026-07-24 attended, 4-decision batch] Maintainer answered 4 open decisions via AskUserQuestion; enacting:**
 - **(i) ASVS no-clean-home convention = CHAPTER-LEVEL V15.** For an ASVS 5.0.0 row with no clean SECTION home, cite the chapter (e.g. V15), not a weak section, not a removed cell. ENACTED in #1128 for the 3 no-clean-home governance rows; governs future ASVS work.
 - **(ii) arXiv sandbox-escape paper (SandboxEscapeBench, arXiv:2603.02277v2) = INGEST + SCREEN + corroborative see-also.** Screening DONE (worker qa-screen-publications-sandboxescape: verdict SCREENED, clean provenance, instruction-scan clean). PENDING: the grc_library_ref ingest PR (move ingest/ to publications/, catalogue, SCREENING row) plus a corroborative see-also in ai/standard-ai-and-agentic-development-security.md red-team sections (informative, never a normative preprint cite).

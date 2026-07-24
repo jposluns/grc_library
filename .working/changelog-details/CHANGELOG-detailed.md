@@ -8,6 +8,25 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.619, PR #1133
+
+Codifies the two disciplines the maintainer directed this session (completeness and chat-answer pacing) and records the session's full maintainer-decision batch. The completeness discipline was earned after the assistant repeatedly under-delivered on set-scoped instructions (asking 4 of 15 open decisions, and working a subset of the queue then stopping).
+
+### Added
+- [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) and its byte-identical [`.claude` mirror](../../.claude/rules/governance/ai-assistant-workflow-disciplines.md): a `## Completeness over sampling (exhaust the instructed set)` section (both trees, gate-37). A set-scoped instruction is a contract to process the WHOLE set: ask ALL the questions (batched), work until the set is exhausted or every remainder carries a named externally-observable blocker (each surfaced) or the authority stops the run; "enough" is not a valid stop (the evidence-grounded-completion un-observable-state corollary).
+
+### Changed
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): a `## Completeness over sampling` section (the project instantiation, pointing at the pack rule) and a `## Chat-answer pacing (readable answers, no stall)` section (pause after a key answer or AskUserQuestion plus an about-5-minute timer; on no response, continue on the next work and log the question to re-surface when the maintainer is back).
+- [`.working/pending-decisions.md`](../../.working/pending-decisions.md): the full 15-item maintainer-decision batch recorded with per-item dispositions (CCPA consolidate; OSCAL intent-adopt-then-defer; force-push hold-for-validation; doc_type populate-on-touch; history-scrub, CHANGELOG-collapse, and Flow-Modelling deferred; branch-guard hook, pack-hygiene guards, working-tree sweep, packaging, and the RB-R6 source-list all actionable).
+- [`TODO.md`](../../TODO.md) §3.54: reworded to the decided populate-on-touch plus low-priority-back-fill disposition.
+- Pack README Version 1.65.2 to 1.65.3 (patch) plus its version-history row.
+
+### Verification
+- lint-language.py and lint-unbalanced-fences.py clean on both changed pack trees before commit; a refute-briefed skeptical verifier probes the codification pre-push; both trees byte-identical (gate 37); the full 75-gate suite plus D1-D8 pass. No corpus document changed, so no per-doc version bump or taxonomy regen. The chat-pacing convention is project-only (chat mechanics), so it lives in CLAUDE.md, not the pack.
+
+### Batched
+- PR #1132 `/validate-pr` (offloaded) + `/retro` rows.
+
 ## 2026-07-24, Library Version 2026.07.618, PR #1132
 
 Enacts two of the 2026-07-24 maintainer decisions: the ETSI register addition (decision iv) and the Canada-AIDA §5.9 rescope. Both authored from offloaded, upstream-verified research (research-etsi-register-currency, research-canada-aida-status), re-checked at apply.
