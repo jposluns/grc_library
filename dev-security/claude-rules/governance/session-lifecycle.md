@@ -78,7 +78,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Durable state records and auditable handoff | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V14.1 |
-| Explicit authorization boundaries per mode | PO.5 | IAM-09, GRC-04 | A.5.15, A.5.18 | V1.1 |
-| Evidence-gated lifecycle decisions | RV.1, RV.2 | GRC-05 | A.5.36 | V14.1 |
-| Concurrency control on shared state | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 | V1.1 |
+| Durable state records and auditable handoff | PS.1, RV.2 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
+| Explicit authorization boundaries per mode | PO.5 | IAM-09, GRC-04 | A.5.15, A.5.18 | V8.2 |
+| Evidence-gated lifecycle decisions | RV.1, RV.2 | GRC-05 | A.5.36 | V16.2 |
+| Concurrency control on shared state | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 | V15.4 |

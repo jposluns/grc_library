@@ -133,10 +133,10 @@ The narrowest legitimate exception is the case where the action is in the safe s
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Action-grounded explanations of inaction | RV.1 | GRC-05 | A.5.36 | V14.1 |
-| Reversibility classification before acting | PO.5, RV.2 | GRC-04 | A.5.4 | V1.1 |
-| Confirm-before-destructive-action discipline | PO.5 | GRC-04 | A.5.4, A.5.18 | V1.1 |
-| Subscription-over-polling for event-shaped waits | RV.2 | LOG-02 | A.8.15 | V14.1 |
+| Action-grounded explanations of inaction | RV.1 | GRC-05 | A.5.36 | V16.2 |
+| Reversibility classification before acting | PO.5, RV.2 | GRC-04 | A.5.4 | V15.1 |
+| Confirm-before-destructive-action discipline | PO.5 | GRC-04 | A.5.4, A.5.18 | V15.1 |
+| Subscription-over-polling for event-shaped waits | RV.2 | LOG-02 | A.8.15 | V15.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every assertion the user is asked to rely on must be traceable to a verifiable artefact (a tool result, a quoted response, a named missing attempt). The cost of an unverifiable assertion compounds: each one the user accepts erodes the discipline that catches the next.
 

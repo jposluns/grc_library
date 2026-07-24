@@ -90,9 +90,9 @@ The value of the single named tier is that a conflict is resolved by one rule wi
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Quality prioritized over schedule and cost | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 | V1.1 |
-| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | GRC-05, A&A-04 | A.5.36, A.5.33 | V1.1, V14.2 |
-| Escalation of authority-bound tradeoffs | PO.5 | GRC-04 | A.5.4 | V1.1 |
-| Failing states surfaced, not concealed | RV.1, RV.2 | LOG-02, GRC-05 | A.8.15, A.5.36 | V14.1 |
+| Quality prioritized over schedule and cost | PO.1, PO.5 | GRC-01, GRC-04 | A.5.1, A.5.4 | V15.1 |
+| Integrity of work product (no fabrication, no suppression) | PW.7, RV.1 | GRC-05, A&A-04 | A.5.36, A.5.33 | V15 |
+| Escalation of authority-bound tradeoffs | PO.5 | GRC-04 | A.5.4 | V15.1 |
+| Failing states surfaced, not concealed | RV.1, RV.2 | LOG-02, GRC-05 | A.8.15, A.5.36 | V16.2 |
 
 The AIQT facets also align, at the concept level, with the trustworthiness vocabularies of the AI-assurance frameworks (the NIST AI Risk Management Framework's trustworthiness characteristics and the ISO/IEC 42001 management-system requirements); the consuming GRC library's corpus principle document carries that mapping in citable, source-verified form, and this rule deliberately does not restate it.

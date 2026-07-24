@@ -56,8 +56,8 @@ What none of them states as such, and this rule adds, is the write-BEFORE-enact 
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
-| Decision classified before enacting | RV.1 | GRC-05 | A.5.36 | V14.1 |
-| Closed, externally-observable blocker vocabulary | PO.5, RV.2 | GRC-04 | A.5.4 | V1.1 |
+| Decision classified before enacting | RV.1 | GRC-05 | A.5.36 | V15.1, V16.2 |
+| Closed, externally-observable blocker vocabulary | PO.5, RV.2 | GRC-04 | A.5.4 | V15.1 |
 
 The rule expresses the same audit-trail-integrity principle as the rest of the pack, at the decision-intake boundary: a decision that bends the plan must be traceable to a classification made and recorded before the action, against a closed vocabulary, not to an after-the-fact rationalization that a reader cannot tell apart from a real decision.
 

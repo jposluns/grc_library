@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-07-12\
+**Version:** 1.0.8\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -176,12 +176,12 @@ A system's threat model is refreshed when any of the following occurs:
 
 | Requirement | NIST SSDF | NIST SP 800-53 | ISO/IEC 27001:2022 | OWASP ASVS | CSA CCM |
 | --- | --- | --- | --- | --- | --- |
-| Design-time threat analysis | PW.1, PW.2 | SA-11, SA-15 | A.8.25, A.8.28 | V1.1 | AIS-04, TVM-04 |
-| Documented data-flow diagrams | PW.1 | SA-15 | A.8.27 | V1.1 | TVM-04 |
-| Boundary-level control mapping | PW.7 | SA-8, SA-11 | A.8.28 | V14.1 | IAM-02 |
-| AI / model-output boundary in scope | PW.1, PW.6 | SA-11 | A.5.36 (controls assessment) | V14.1 | AIS-04 |
-| Abuse-case authoring | PW.1, PW.6 | SA-11 | A.8.27 | V1.1 | TVM-04 |
-| Privacy threat modelling (LINDDUN) | PO.1, PW.1 | PT-2, PT-3 | A.5.34 | V1.1 | DSP-08 |
+| Design-time threat analysis | PW.1, PW.2 | SA-11, SA-15 | A.8.25, A.8.28 | V15.1 | AIS-04, TVM-04 |
+| Documented data-flow diagrams | PW.1 | SA-15 | A.8.27 | V15.1 | TVM-04 |
+| Boundary-level control mapping | PW.7 | SA-8, SA-11 | A.8.28 | V15.2 | IAM-02 |
+| AI / model-output boundary in scope | PW.1, PW.6 | SA-11 | A.5.36 (controls assessment) | V15.2 | AIS-04 |
+| Abuse-case authoring | PW.1, PW.6 | SA-11 | A.8.27 | V15.1 | TVM-04 |
+| Privacy threat modelling (LINDDUN) | PO.1, PW.1 | PT-2, PT-3 | A.5.34 | V15.1 | DSP-08 |
 
 ---
 
