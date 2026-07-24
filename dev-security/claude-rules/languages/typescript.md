@@ -53,7 +53,7 @@ res.cookie('session', token, {
 ## SQL injection: node specific
 
 ```typescript
-// NEVER: string concatenation or template literals in queries
+// NEVER: string concatenation or untagged template literals in queries
 const query = `SELECT * FROM users WHERE id = ${userId}`;
 db.query(query);
 
@@ -66,8 +66,10 @@ const result = await client.query(
 // CORRECT: Prisma ORM (parameterizes automatically)
 const user = await prisma.user.findUnique({ where: { id: userId } });
 
-// NEVER: Prisma raw with interpolated values
-await prisma.$queryRaw`SELECT * FROM users WHERE id = ${userId}`;  // Safe (tagged template)
+// CORRECT: Prisma $queryRaw as a tagged template (interpolated values are parameterized)
+await prisma.$queryRaw`SELECT * FROM users WHERE id = ${userId}`;
+
+// NEVER: Prisma $queryRawUnsafe with an interpolated string (not parameterized)
 await prisma.$queryRawUnsafe(`SELECT * FROM users WHERE id = ${userId}`);  // UNSAFE
 ```
 

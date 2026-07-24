@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.609, PR #1123
+
+Closes two delivered offload items: the §3.20 publications-screening wave and the §4.2 pack language-rule review. Both were authored from offloaded worker deliveries the orchestrator re-verified at source (the §3.20 screening positive re-run at apply; the §4.2 review's F3 target re-read).
+
+### Changed
+- [`dev-security/claude-rules/languages/typescript.md`](../../dev-security/claude-rules/languages/typescript.md) (SQL-injection section, F3 from the §4.2 review): a safe Prisma `$queryRaw` tagged-template example was grouped under a "NEVER: Prisma raw with interpolated values" heading though Prisma parameterizes tagged-template values (only `$queryRawUnsafe` with an interpolated string is unsafe, as the example's own inline comments already said). Moved the safe `$queryRaw` line into a CORRECT grouping and scoped the NEVER heading to `$queryRawUnsafe`, so the one prohibited call is unambiguous. Also tightened the same section's other NEVER comment from "template literals" to "untagged template literals", so the safe tagged-template form is not read as prohibited (an untagged template literal interpolates into a raw string, unsafe; a tagged template parameterizes). Pack language rules carry no `Version` field, so no per-doc bump; no `.claude/rules/languages/` mirror exists, so this is a single-tree pack edit (no gate-37 pairing).
+
+### Screening (applied cross-repo)
+- The §3.20 wave's substance landed in `grc_library_ref` #102: Article 29 WP260 rev.01 (GDPR transparency guidelines, EDPB-endorsed), the single remaining `pending` publication, was screened `screened` (provenance clean; instruction-content scan clean, 0 candidates, orchestrator-re-run at apply against the held extract; GDPR Articles 12-14 interpretive frame corroborated against the held GDPR primary). The register is now 34 `screened` / 0 `pending`. The TODO's "~13 pending EDPB/WP29 rows" estimate was stale; prior waves had cleared the rest.
+
+### Removed (backlog)
+- TODO §3.20 (publications-screening wave) and TODO §4.2 (pack language-coverage review) deleted; both rotated to [`.working/DONE.md`](../../.working/DONE.md). No live cross-file citer of either (verified by a whole-repo grep; the remaining `3.20`/`4.2` hits are frozen `.working/` archives or unrelated documents' own section 4.2).
+
+### Routed (residuals, not defects)
+- §4.2 finding F1 (the pack `languages/` rules render their Framework-alignment section in two shapes: a chapter-level bullet list in the Python and TypeScript rules versus a richer requirement-level table in the Go and Java rules) is a pack-wide rendering-standardization call, routed into TODO §3.74 (standards-reference-format standardization), which already scopes framework-alignment-table rendering.
+- §4.2 findings F2 (the "point to OWASP cheat sheets" positioning half is unrealized across all language files including the benchmark) and F4 (no README in the pack `languages/` tree) are low, pack-wide editorial decisions, routed to [`.working/pending-decisions.md`](../../.working/pending-decisions.md); no default applied.
+
+### Verification
+- **F3 correctness:** Prisma's `$queryRaw` tagged-template form parameterizes interpolated values (safe); `$queryRawUnsafe` takes a raw string and does not (injection-prone). The fix aligns the heading with the file's already-correct inline comments; it introduces no new claim.
+- **§3.20 positive re-verified at source:** the orchestrator independently confirmed WP260 is the only `pending` row (grep of the ref register) and re-ran the instruction-content scanner ([`tools/scan-publication-instruction-content.py`](../../tools/scan-publication-instruction-content.py)) on the held extract (0 candidates) before applying `grc_library_ref` #102; the merged ref `main` passes the ref validation gate (727 catalogue items, validation OK).
+- A refute-briefed skeptical verifier probed the F3 fix and the two closes; the full 75-gate suite passes; batched PR #1122's `/validate-pr` (CLEAN PASS) and `/retro` rows.
+
 ## 2026-07-24, Library Version 2026.07.608, PR #1122
 
 ETSI TR 104 128 secondary see-also (TODO §3.63, its last remaining item, so this closes §3.63). Authored from an offloaded, held-source-verified research draft; the orchestrator re-read the held TR and the target table, confirmed the informative trust tier and the TS-to-EN baseline relationship at the held catalogue note, and applied the single row.

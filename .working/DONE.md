@@ -11,6 +11,14 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §3.20 Publications screening wave (2026-07-24, PR #1123 / grc_library_ref #102)
+
+Screened the single remaining `pending` publication, Article 29 WP260 rev.01 (GDPR transparency guidelines, EDPB-endorsed), through `/screen-publications`: provenance clean, instruction-content scan clean (0 candidates, orchestrator-re-run at apply), GDPR Articles 12-14 interpretive frame corroborated against the held GDPR primary; verdict `screened`, applied in grc_library_ref #102. The TODO's "~13 pending EDPB/WP29 rows" estimate was stale (prior waves cleared the rest); the register is now 34 screened / 0 pending, closing the wave.
+
+### §4.2 Pack: dev-security/claude-rules language coverage review (2026-07-24, PR #1123)
+
+Reviewed the decided pack language-rule subset (typescript.md, go.md, java.md) against the python.md benchmark and the do-not-duplicate-OWASP positioning stance: the subset is in good shape (no coverage gaps; go.md and java.md exceed the benchmark). Applied the one clean fix (F3: a safe Prisma `$queryRaw` tagged-template example was grouped under a "NEVER" heading in typescript.md; moved it to CORRECT and scoped NEVER to `$queryRawUnsafe`). Routed the residuals: the pack-wide Framework-alignment-table shape divergence (F1) to §3.74; the point-to-OWASP-cheat-sheets positioning and the optional languages README (F2/F4) to pending-decisions as low editorial calls.
+
 ### §3.63 Reference-breadth FULL routed findings: RB-ETSI-104128 secondary see-also (2026-07-24, PR #1122)
 
 Added the informative ETSI TR 104 128 V1.1.1 (2025-05) implementation-guide see-also row to the §7 Framework-alignment table of `ai/standard-ai-security-and-risk.md`, corroborating the normative ETSI EN 304 223 provisions already mapped there (a see-also, not an additional obligation; normative weight stays on EN 304 223). Held-source-verified informative tier; no canonical-citations register row (the normative parent EN 304 223 is likewise inline-cited without one). This was §3.63's last remaining item, so it fully closes §3.63 (RB-FFIEC-CAT fixed in #899, RB-ETSI primary see-also in #907).
