@@ -19,7 +19,10 @@ De-duplicates the CCPA ADMT coverage (§3.105): consolidates the ADMT limb into 
 - [`TODO.md`](../../TODO.md): closed §3.105.
 
 ### Verification
-- The edit-plan was offloaded research, re-verified line-by-line against the live annexes before applying (the section-7001 enumerated categories confirmed present only in the privacy annex, migrated first). The Colorado pointer at the privacy annex's line 48 was the exact template mirrored. No held-source gap (the CCPA regulations are held and both annexes already cite them); the version-sensitive compliance date and categories carry the existing reconfirm-upstream caveat. A refute-briefed skeptical verifier probes the authorial content removal pre-push. Pre-push guard green. Canadian English, no em/en dashes.
+- The edit-plan was offloaded research, re-verified line-by-line against the live annexes before applying (the section-7001 enumerated categories confirmed present only in the privacy annex, migrated first). The Colorado pointer at the privacy annex's line 48 was the exact template mirrored. No held-source gap (the CCPA regulations are held and both annexes already cite them); the version-sensitive compliance date and categories carry the existing reconfirm-upstream caveat. A refute-briefed skeptical verifier confirmed no content lost (the section-7001 categories migrated byte-for-byte), the pointer mirrors the Colorado pattern, both annexes are internally consistent, and §3.105 is cleanly closed. Pre-push guard green. Canadian English, no em/en dashes.
+
+### Batched
+- PR #1140 `/validate-pr` (offloaded, PASS) plus `/retro` rows (validate-pr history 1.2.895 to 1.2.896; improvement-log 1.0.826 to 1.0.827).
 
 ## 2026-07-24, Library Version 2026.07.626, PR #1140
 
