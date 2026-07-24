@@ -2,8 +2,8 @@
 
 **Document Title:** Training Data Governance Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.10\
-**Date:** 2026-07-12\
+**Version:** 0.0.11\
+**Date:** 2026-07-24\
 **Owner:** AI Data Steward\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/template-dataset-datasheet.md`](template-dataset-datasheet.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`privacy/standard-pseudonymization-and-anonymization.md`](../privacy/standard-pseudonymization-and-anonymization.md), [`privacy/procedure-data-subject-rights-management.md`](../privacy/procedure-data-subject-rights-management.md)\
@@ -214,6 +214,7 @@ Where a retrieval index materially shapes model output:
 | ISO/IEC 5259-2:2024 | Data quality measures | Data-quality model, measures, and targets |
 | ISO/IEC 5259-3:2024 | Data quality management requirements | Data-quality plan, verification and validation, and supply chain |
 | ISO/IEC 5259-4:2024 | Data quality process framework | Plan, evaluate, improve, and validate loop and data-use approval |
+| ISO/IEC 5259-5:2025 | Data quality governance framework | Data-quality governance roles, policies, and oversight across the training-data lifecycle |
 | ISO/IEC 8183:2023 | AI data life cycle framework | Data lifecycle for AI training data |
 | OECD AI Principles | All five values | Foundational principles |
 
