@@ -36,7 +36,7 @@ Treat every LLM response, every model output, and every AI-generated value as if
 - Scrub AI responses for potential training data leakage before returning to users
 - Set up output content scanning to detect when the model reveals system prompt content, training data, or organizational configuration
 
-**References:** OWASP LLM02, MITRE ATLAS AML.T0024: Exfiltration via AI Inference API
+**References:** OWASP LLM02, MITRE ATLAS AML.T0057: LLM Data Leakage
 
 ---
 
@@ -124,7 +124,7 @@ Before any AI feature reaches production, adversarial testing must include:
 | Requirement | OWASP LLM Top 10 | MITRE ATLAS | CSA AICM | NIST AI RMF |
 | --- | --- | --- | --- | --- |
 | Prompt injection | LLM01 | AML.T0051 | TVM-12 | Measure 2.5 |
-| Sensitive disclosure | LLM02 | AML.T0024 | DSP-05 | Measure 2.7 |
+| Sensitive disclosure | LLM02 | AML.T0057 | DSP-05 | Measure 2.7 |
 | Supply chain | LLM03 | AML.T0010 | STA-05 | Govern 1.7 |
 | Excessive agency | LLM06 | AML.T0053 | IAM-04 | Manage 1.3 |
 | Output validation | LLM09 | N/A | AIS-02 | Measure 2.9 |

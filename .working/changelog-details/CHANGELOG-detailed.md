@@ -8,6 +8,20 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.605, PR #1119
+
+MITRE ATLAS 2026.06 alignment and currency map, closing TODO §3.15. The offloaded research (worker-b, recovering the wiped prior research from git history and re-verifying against the held 2026.06 CSVs) found the corpus adversarial-AI ATLAS citations already current, with one actionable item: the #654 verifier note on the OWASP LLM02 rows. The orchestrator confirmed ATLAS release currency upstream and applied the re-map.
+
+### Changed
+- [`dev-security/claude-rules/ai/ai-security.md`](../../dev-security/claude-rules/ai/ai-security.md), [`dev-security/claude-rules/ai/agent-security.md`](../../dev-security/claude-rules/ai/agent-security.md), [`dev-security/claude-rules/ai/rag-security.md`](../../dev-security/claude-rules/ai/rag-security.md): the four OWASP LLM02 (sensitive-information-disclosure) rows re-map from `AML.T0024` (Exfiltration via AI Inference API) to `AML.T0057` (LLM Data Leakage). The four rows are, in ai-security, the References line and its "Sensitive disclosure" alignment row; in agent-security, the "Memory security" row; and in rag-security, the "Sensitive disclosure via retrieval" row. Held rationale: T0057's scope ("prompt-induced leakage from training data, data sources the LLM is connected to, or other users") is the direct LLM02 match, sharpest on the RAG-retrieval and agent-memory rows (the "connected data sources" and cross-user leakage T0057 names); T0024 is the narrower training-data inference-API technique (membership inference, model inversion, model extraction), a valid sub-facet but not the general LLM02 anchor.
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md) (pack 1.64.0 to 1.64.1, patch): pack version bump plus version-history row.
+
+### Verification
+- **ATLAS currency confirmed upstream this turn.** The MITRE ATLAS latest release is v2026.06 (published 2026-06-30, confirmed via the mitre-atlas/atlas-data releases API), which is exactly the held edition; the currency guardrail is satisfied.
+- **Held identifier/title verification.** Both `AML.T0024` (Exfiltration via AI Inference API) and `AML.T0057` (LLM Data Leakage) titles and descriptions were read at the held `ATLAS-2026.06--techniques.csv`; the LLM02 fit judgement rests on the quoted held scope. No live corpus or pack citation of a stale/renamed/deprecated ATLAS technique remains (the four T0024 residuals elsewhere are historical version-history and closed-ledger records describing the past #635 / pack-1.54.4 re-maps).
+- **Worker over-claim caught (apply-time correction).** The research's caveat asserted a dual-tree edit (pack plus a `.claude/rules/ai/` mirror, eight edits); the orchestrator verified no `.claude/rules/ai/` mirror exists (gate 37 does not map the pack `ai/` rules), so the change is four edits across three pack files, not eight.
+- All 74 audit gates pass; a refute-briefed skeptical verifier ran pre-push. No corpus document `Version` field changed (the pack rules are versioned via the pack README), so no taxonomy regeneration.
+
 ## 2026-07-24, Library Version 2026.07.604, PR #1118
 
 Reference-breadth new-ingest follow-up advancing TODO §3.42 (the ISO/IEC 5259 sub-part). The post-ref-resync new-ingest cadence held all six ISO/IEC 5259 parts; the worker research corrected the item's premise (the doc already cites parts 2/3/4 specifically, not a generic "series" citation) and the orchestrator re-verified at source, so the one warranted, claim-accurate addition is part 5.
