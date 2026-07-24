@@ -8,6 +8,22 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.617, PR #1131
+
+Adds a cwd-inference corollary to the validate-inference-before-action governance rule (both trees, byte-identical under gate 37), the portable form of the project's absolute-path / `git -C` discipline (TODO A2). It generalizes the failure this session repeatedly hit: the shell working directory is an unvalidated inferred premise for any repo-targeted command, so a cwd-relative tool or a bare git mutation silently acts on whichever repository the cwd drifted to.
+
+### Added
+- [`dev-security/claude-rules/governance/validate-inference-before-action.md`](../../dev-security/claude-rules/governance/validate-inference-before-action.md) and its byte-identical [`.claude/rules/governance/` mirror](../../.claude/rules/governance/validate-inference-before-action.md): a `### The ambient working directory is an inferred premise` subsection under Tool-specific guidance. It states the cwd-as-inferred-premise principle and the discipline (prefer a cwd-independent form by default, absolute tool paths and `git -C <path>`; reserve an explicit `cd <repo-root> &&` prefix and read the command string back; never let a repo-mutating command run cwd-relative), and names a pre-execution guard as the mechanical backstop with the cwd-independent-command discipline as the primary control.
+
+### Changed
+- Pack README Version 1.65.1 to 1.65.2 (patch) plus its version-history row.
+
+### Verification
+- lint-language.py and lint-unbalanced-fences.py run clean on both changed trees before commit (the guard exempts these trees); a refute-briefed skeptical verifier probes the addition pre-push; both trees byte-identical (gate 37); the full 75-gate suite plus D1-D8 pass. No corpus document changed, so no per-doc version bump or taxonomy regen.
+
+### Batched
+- PR #1130 `/validate-pr` (offloaded) + `/retro` rows.
+
 ## 2026-07-24, Library Version 2026.07.616, PR #1130
 
 Working-state bookkeeping (terse; no corpus, gate, or pack change). Closes two backlog items to DONE and records four maintainer decisions.

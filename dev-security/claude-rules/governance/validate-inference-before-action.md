@@ -86,6 +86,17 @@ When a sweep, an audit, or any structured cycle includes the validation step, th
 
 A subagent's pre-tool verification preamble (state hypothesis / falsifier / prior result before each tool call) is the per-call form of this rule. The current rule is the broader form: it fires not just before tool calls within a subagent, but at every decision an orchestrator makes between actions.
 
+### The ambient working directory is an inferred premise
+
+In a multi-repository workspace, the shell's current working directory is itself an inferred premise for any command that resolves relative to it: a bare tool invocation (`tools/x`), a repository-relative path, or a bare version-control command (`git add`, `git commit`, `git push`). The working directory drifts between calls (a prior `cd` into a sibling repository persists), so such a command silently acts on whichever repository the cwd happens to be, not the one intended. This is this rule's inference cascade applied to the shell: an unvalidated "I am in repository X" premise drives a mutating command against repository Y.
+
+Validate the target explicitly rather than trusting the working directory:
+- **Prefer a cwd-independent form by default:** an absolute tool path (`python3 /abs/path/<repo>/tools/x`) or a repository-pinned flag (`git -C /abs/path/<repo> ...`), which cannot be redirected by drift.
+- **Reserve an explicit `cd <repo-root> &&` prefix** for the narrow case of a tool that must run from its own root; when used, type the `cd` as the literal first tokens of the command and read the command string back before submitting, because narrating a `cd` the command does not actually contain is an intent-versus-artefact gap: what you intend is not what the command string says.
+- **Never let a repository-mutating command (stage, commit, push, reset, checkout) run cwd-relative:** the blast radius of a wrong-repository mutation is large and hard to reverse, so it always carries `-C` or an explicit `cd`.
+
+Where the harness supports it, a pre-execution guard that blocks a cwd-relative sibling-repository tool or a repo-mutating bare version-control command is the mechanical backstop; the discipline (cwd-independent commands by default) is the primary control.
+
 ---
 
 ## Exception-handling protocol
