@@ -8,6 +8,22 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.604, PR #1118
+
+Reference-breadth new-ingest follow-up advancing TODO §3.42 (the ISO/IEC 5259 sub-part). The post-ref-resync new-ingest cadence held all six ISO/IEC 5259 parts; the worker research corrected the item's premise (the doc already cites parts 2/3/4 specifically, not a generic "series" citation) and the orchestrator re-verified at source, so the one warranted, claim-accurate addition is part 5.
+
+### Changed
+- [`ai/procedure-training-data-governance.md`](../../ai/procedure-training-data-governance.md) (0.0.10 to 0.0.11): adds a framework-alignment-table row citing ISO/IEC 5259-5:2025 (Data quality governance framework), the now-held governance-framework part, squarely on-claim for a training-data-governance procedure (governance roles, policies, and oversight across the training-data lifecycle). The parts already cited (5259-2/-3/-4:2024) were re-verified title-accurate against the held source and left unchanged; ISO/IEC 5259-1:2024 (overview and terminology) and ISO/IEC TR 5259-6:2026 (visualization framework) were considered and excluded as off-claim for this procedure.
+
+### Verification
+- **Held title verified at source.** The held designation is "ISO/IEC 5259-5:2025 ... Part 5: Data quality governance framework"; the doc's terse Reference column matches. The doc's existing 5259-2/-3/-4 citations were confirmed against the held part titles (all accurate).
+- **Currency.** The held 5259-5 edition is 2025 (the current edition); ISO editions are not freely fetchable for an upstream re-check, so currency rests on the held designation, consistent with the doc's existing 5259-2/-3/-4:2024 citations.
+- **Register.** The register carries one family-level ISO/IEC 5259 row (a common pattern for a multi-part standard); per-part rows are an optional orchestrator choice not taken here (the minimal upgrade adds only the doc table row).
+- [`taxonomy.yml`](../../taxonomy.yml) and [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md) regenerated for the doc version bump. All 74 audit gates pass; pre-push guard green.
+
+### Scope note
+- §3.42 is a compound item (ISO/IEC 5259 plus Canadian/international AI-governance captures). This PR completes the ISO/IEC 5259 sub-part only; the Canadian/international-source half (a looser, partly egress-gated set) remains open under §3.42.
+
 ## 2026-07-24, Library Version 2026.07.603, PR #1117
 
 Reference-breadth-routed content follow-up, closing TODO §3.106 (the #1115 breadth cadence's LOW held-but-unused candidate). The held OWASP GenAI Red Teaming Guide v1.0 (January 2025) is a red-team methodology source directly on-point for the standard's §23, but was neither anchored there nor registered. This PR adds a corroborative see-also anchor and registers the Guide.
