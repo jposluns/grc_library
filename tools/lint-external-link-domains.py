@@ -133,7 +133,8 @@ ALLOW_LIST = {
     "wto.org",  # World Trade Organization
     # Canonical-citations register Upstream check location URLs (register v1.5.7)
     "govinfo.gov",  # US Government Publishing Office (public laws: HITECH, SOX)
-    "ilga.gov",  # Illinois General Assembly (BIPA)
+    "ilga.gov",  # Illinois General Assembly (BIPA, HB 3773)
+    "capitol.texas.gov",  # Texas Legislature (TRAIGA HB 149)
     "leg.colorado.gov",  # Colorado General Assembly (Colorado AI Act / SB 24-205 / SB 26-189)
     "nyc.gov",  # New York City (DCWP Automated Employment Decision Tools / Local Law 144)
     "cac.gov.cn",  # Cyberspace Administration of China (cross-border data provisions)
