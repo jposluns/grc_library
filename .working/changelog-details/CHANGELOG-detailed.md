@@ -18,7 +18,10 @@ Runs the §1.22.3 initial working-tree-to-`_private` sweep as a dedicated cleanu
 - [`TODO.md`](../../TODO.md) §1.22.3: marked part (a) DONE; parts (b) the DONE/pending-decisions destructive-sweep enablement (a deferred tool-build per `verify-1223-draft`, needing a DONE effective-floor plus a tightened resolved-and-aged predicate plus self-tests) and (c) the session-boundary cleanup-PR policy codification remain open.
 
 ### Verification
-- The prune ran only after `--verify-archived` confirmed every swept artefact is present in the `grc_library_private` archive (the tool refuses to remove anything not archived), and the detailed-mirror rewrite passed its re-parse assertion. The two swept dirs are gate-exempt `.working/` content; no corpus document, gate, rule, or skill changed. Pre-push guard green. Working-state housekeeping, so no per-doc bump or taxonomy regen.
+- The prune ran only after `--verify-archived` confirmed every swept artefact is present in the `grc_library_private` archive (the tool refuses to remove anything not archived), and the detailed-mirror rewrite passed its re-parse assertion. The two swept dirs are gate-exempt `.working/` content; no corpus document, gate, rule, or skill changed. A broad all-file-type residual-reference grep confirmed no live reference to the swept dirs remains. Pre-push guard green. Working-state housekeeping, so no per-doc bump or taxonomy regen.
+
+### Batched
+- PR #1139 `/validate-pr` (offloaded, CLEAN PASS) plus `/retro` rows (validate-pr history 1.2.894 to 1.2.895; improvement-log 1.0.825 to 1.0.826).
 
 ## 2026-07-24, Library Version 2026.07.625, PR #1139
 
