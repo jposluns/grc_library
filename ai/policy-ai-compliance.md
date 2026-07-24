@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.12\
-**Date:** 2026-07-12\
+**Version:** 1.0.13\
+**Date:** 2026-07-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -218,6 +218,7 @@ The United States has no comprehensive federal AI statute; specific AI uses are 
 
 - **Colorado Artificial Intelligence Act** (Senate Bill 24-205, C.R.S. 6-1-1701 et seq.), the first US-state AI law of its kind, imposing a duty of reasonable care on developers and deployers of high-risk AI systems to protect consumers from algorithmic discrimination in consequential decisions. Colorado has repealed and re-enacted this part, with substantial amendments, as the Automated Decision-Making Technology in Consequential Decisions act (Senate Bill 26-189). The effective-date sequence and litigation status are version-sensitive; the organization tracks them via [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) and applies the requirements in force for each covered decision.
 - **New York City Local Law 144 (2021)** on automated employment decision tools requires that an automated employment decision tool (AEDT) used to screen candidates or employees for a role in New York City undergo an independent bias audit within one year of use, that a summary of the audit results be published, and that affected candidates receive notice; an AEDT may not be used if its most recent bias audit is more than one year old (New York City Department of Consumer and Worker Protection rule, 6 RCNY 5-300 to 5-304). The effective and enforcement dates are version-sensitive; the organization tracks them via [`ai/jurisdictions/annex-ai-us-new-york-city.md`](jurisdictions/annex-ai-us-new-york-city.md).
+- **California CCPA Automated Decisionmaking Technology (ADMT) regulations** (California Privacy Protection Agency, 11 CCR Division 6 Chapter 1, Article 11, sections 7200 to 7222), which bind a business that uses automated decisionmaking technology to make a significant decision concerning a consumer, imposing a pre-use notice, a consumer opt-out, and a consumer access right. The regulations are the final consolidated text effective 1 January 2026, with ADMT compliance deferred to 1 January 2027 (section 7200(b)); these compliance dates are version-sensitive, and the organization tracks them via [`ai/jurisdictions/annex-ai-us-california.md`](jurisdictions/annex-ai-us-california.md).
 
 Where the organization deploys AI in hiring, lending, housing, insurance, or other consequential decisions affecting United States residents, it assesses applicability against these and successor state laws and applies the classification and oversight controls in Sections 4 and 5.
 
@@ -344,6 +345,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | Canada: TBS Directive on Automated Decision-Making; ISED Voluntary Code (2023) | Federal automated-decision governance; algorithmic impact assessment; voluntary generative-AI commitments | 7.2 |
 | Colorado AI Act (SB24-205, re-enacted SB26-189) | High-risk AI developer and deployer duties; algorithmic-discrimination protection in consequential decisions | 7.5 |
 | NYC Local Law 144 (2021) | Automated employment decision tools; bias audit; candidate notice | 7.5 |
+| California CCPA ADMT regulations (11 CCR Div 6 Ch 1 Art 11) | Automated decisionmaking technology; pre-use notice, opt-out, and access for significant decisions | 7.5 |
 | GDPR (UK and EU) | Personal data processing; automated decision-making; breach reporting | 5.2, 9.3, 10.4 |
 
 ### Related GRC library documents

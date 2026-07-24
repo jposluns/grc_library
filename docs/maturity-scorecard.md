@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 107, Baseline: 170, Draft: 36, Unknown: 0._
+_Summary as of last regeneration: Mature: 107, Baseline: 170, Draft: 37, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _107 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.40 | 2026-07-24 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.30 | 2026-07-10 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.0 | 2026-07-06 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.88 | 2026-07-24 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.89 | 2026-07-24 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.13 | 2026-07-10 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.4 | 2026-07-02 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.4 | 2026-07-03 |
@@ -171,7 +171,7 @@ _170 documents._
 | [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.2 | 2026-07-15 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.2 | 2026-07-11 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.9 | 2026-07-22 |
-| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.12 | 2026-07-12 |
+| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.13 | 2026-07-24 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.8 | 2026-07-11 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.5 | 2026-07-23 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.5 | 2026-07-11 |
@@ -336,7 +336,7 @@ _170 documents._
 
 ## Draft
 
-_36 documents._
+_37 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -347,6 +347,7 @@ _36 documents._
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.3 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.1 | 2026-07-24 |
+| [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.1 | 2026-07-24 |
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/procedure-foundation-model-lifecycle.md](../ai/procedure-foundation-model-lifecycle.md) | Foundation Model Lifecycle Procedure | Procedure | 0.0.7 | 2026-07-12 |

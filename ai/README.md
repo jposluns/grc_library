@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.14\
+**Version:** 1.1.15\
 **Date:** 2026-07-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,6 +60,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Annex | Canada AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-canada.md`](jurisdictions/annex-ai-canada.md) |
 | Annex | Australia AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-australia.md`](jurisdictions/annex-ai-australia.md) |
 | Annex | Singapore Model AI Governance Framework for Generative AI | [`ai/jurisdictions/annex-ai-singapore.md`](jurisdictions/annex-ai-singapore.md) |
+| Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](jurisdictions/annex-ai-us-california.md) |
 | Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) |
 | Procedure | AI Model Lifecycle Management Procedure | [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md) |
 | Procedure | AI Evaluation Procedure | [`ai/procedure-ai-evaluation.md`](procedure-ai-evaluation.md) |
