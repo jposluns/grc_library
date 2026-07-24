@@ -8,6 +8,19 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.601, PR #1115
+
+Reference-breadth cadence follow-up. The deferred `/reference-audit` per-touch pass on this session's content PRs (run offloaded, `qa-cadence-refbreadth`) surfaced a held-but-unused gap: the agentic-security standard's §12 (ten MCP-SEC controls), TC-09, and P-08 are MCP-security content with no anchor to the held authoritative OWASP MCP Top 10 (2025). This PR engages that source; the paired `/claim-fit` + `/matrix-fit` pass on the two session annexes was CLEAN (zero findings).
+
+### Changed
+- [`ai/standard-ai-and-agentic-development-security.md`](../../ai/standard-ai-and-agentic-development-security.md) (1.8.13 to 1.8.14): adds a §12 "Framework anchors" line mapping the ten MCP-SEC controls to the OWASP MCP Top 10 (2025) categories. Six categories are anchored directly into §12 (MCP-SEC-01 to MCP09 Shadow Servers; MCP-SEC-02/08/09/10 + TC-09 to MCP03 Tool Poisoning; MCP-SEC-03 to MCP07 Authentication; MCP-SEC-04/07 to MCP02 Scope Creep; MCP-SEC-05 to MCP06 Intent Flow Subversion; MCP-SEC-06 to MCP08 Telemetry); MCP04 (Supply Chain) and MCP10 (Context Injection) are additionally/partly engaged and their fuller home noted (supply-chain controls, session-scoped context isolation); MCP01 (Secrets) and MCP05 (Command Injection) are dispositioned to the credential and execution controls outside §12. All ten categories are accounted for.
+
+### Verification
+- **Offloaded held-source mapping.** A worker read the held OWASP MCP Top 10 (`grc_library_ref`, MCP01-MCP10:2025) and mapped each MCP-SEC control to its category with a quoted held scope; the orchestrator spot-verified the load-bearing anchors at source (the six category titles, and the MCP03 "How to Prevent" set: signed schemas/manifests verified before use, content-addressable hash validation, immutable version control, which grounds the MCP-SEC-02/09 rug-pull anchors).
+- **Skeptical verifier, one fix applied.** A refute-briefed verifier confirmed the category titles, every mapping's defensibility against the held scope, and the MCP01/MCP05 characterization, and caught one MEDIUM defect: the first draft said "the two remaining categories" (MCP01, MCP05) but silently omitted MCP04 and MCP10, a false set-completeness claim. Fixed: all ten categories are now dispositioned.
+- No new citation surface (the OWASP MCP Top 10 is already registered). All 74 audit gates pass.
+- **Breadth-candidate routing.** The pass's other two candidates were routed to the backlog, not fixed here: the OWASP GenAI Red Teaming Guide anchor for §22/§23 (LOW, a generic OWASP GenAI Security Project reference already present) to [`TODO.md`](../../TODO.md) §3.106, and the §7.5 US-state AI-law coverage of Texas TRAIGA + Illinois HB3773 (a section-breadth decision) to §3.107. Both annexes were CLEAN empty-set on breadth. The reference-audit history register carries the run row.
+
 ## 2026-07-24, Library Version 2026.07.600, PR #1114
 
 OWASP Top 10 for Agentic Applications integration, PR-2 of 2, completing backlog item §2.27. Adds the §36 alignment-matrix ASI column and the §6 ASI-to-TC crosswalk note. The §36 column is the derived, error-prone per-Control-Area-to-ASI bridge, so it was built under the FULL high-assurance harness with two independent adversarial lenses.
