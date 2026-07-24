@@ -8,6 +8,26 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-24, Library Version 2026.07.621, PR #1135
+
+Ships the third of the §3.56a pack-hygiene guard-3 mechanizations: gate 41 (collection-enumeration consistency) now checks the pack rule-provenance register as a fourth rule-enumeration surface, so a new governance rule cannot ship without its provenance entry. The other two §3.56a mechanizations (a skill-body internal-ref-token linter and a "gate N (name)"-to-§6-inventory renumbering guard) remain as the next two PRs.
+
+### Changed
+- [`tools/lint-collection-enumeration-consistency.py`](../../tools/lint-collection-enumeration-consistency.py): added a fourth `EnumerationLocation` to the `pack-governance-rules` collection targeting [`dev-security/claude-rules/rule-provenance.md`](../../dev-security/claude-rules/rule-provenance.md), keyed on the `### `<rule-name>`` headings under its `## Governance rules` section; module docstring updated to name the register as an enumeration location. Gate 41 now checks 5 enumeration locations across the two collections (was 4), all consistent.
+- [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md): the §5 grouped-list and §6 gate-74 narrative dropped the now-stale ordinal ("the fourth rule-enumeration surface") and the gate-74 narrative now states gate 41 covers the directory tree, the two CLAUDE.md bullet lists, and the rule-provenance register.
+- [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md): the change-impact surface map row B advances "three enumeration surfaces (gate 41)" to four (naming the register) and moves the register from the free-prose column to the gated column; row C advances "the three it checks for rules" to four.
+- [`dev-security/claude-rules/skills/guardrail-review/SKILL.md`](../../dev-security/claude-rules/skills/guardrail-review/SKILL.md) and [`.claude/commands/guardrails.md`](../../.claude/commands/guardrails.md): the rule-inventory description advances from three enumeration surfaces to four (adding the provenance register). Portable (the register is a pack artefact). Pack README Version 1.65.3 to 1.65.4 (patch) plus its version-history row.
+- [`TODO.md`](../../TODO.md) §3.56a: the provenance-register mechanization marked BUILT; the two remaining guards noted as the next PRs.
+
+### Added
+- [`tests/test_linters.py`](../../tests/test_linters.py): `test_provenance_register_is_a_rules_enumeration_surface` locks the new surface's parse regexes against register-format drift (asserts the surface parses the same non-empty rule set as the canonical `governance/` directory, so a silently-empty parse cannot vacuously pass).
+
+### Verification
+- Gate 41 runs clean (5 locations, all consistent); the new unit test and the existing smoke test both pass; the passing gate-41 run itself proves the register regexes parse the 15-rule set (an empty parse would have reported 15 missing and failed). Pre-push guard green. A refute-briefed skeptical verifier probes the change pre-push. No corpus document changed (no per-doc bump / taxonomy regen). Canadian English, no em/en dashes.
+
+### Batched
+- PR #1134 `/validate-pr` (offloaded, CLEAN PASS) + `/retro` rows (validate-pr history 1.2.889 to 1.2.890; improvement-log 1.0.820 to 1.0.821).
+
 ## 2026-07-24, Library Version 2026.07.620, PR #1134
 
 Builds the G1 branch-to-main edit guard the r10 guardrail review routed (TODO §3.62; maintainer-decided BUILD in the 2026-07-24 15-item batch): a PreToolUse `Edit|Write` hook that blocks an edit to a `grc_library` file while the repo is on `main`, so the "first action after merge+sync is `git checkout -b`" rule is mechanically enforced rather than convention-only. Project-only machinery (the `artefact-and-branch-discipline` pack rule already carries the portable discipline; the pack ships rules, not hooks), so no pack change.
