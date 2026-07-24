@@ -2349,6 +2349,38 @@ class CollectionEnumerationConsistencyTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_provenance_register_is_a_rules_enumeration_surface(self) -> None:
+        # §3.56a guard 3: the rule-provenance register is wired as a fourth
+        # enumeration surface for the pack-governance-rules collection, so a
+        # new rule cannot ship without its `### `<rule-name>`` entry. This
+        # locks the surface's parse regexes against register-format drift: if
+        # they stopped matching, parse_enumeration would return an empty set
+        # and the surface would vacuously "pass", so assert it parses the same
+        # non-empty rule set as the canonical governance/ directory.
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        lpath = REPO_ROOT / "tools" / "lint-collection-enumeration-consistency.py"
+        spec = importlib.util.spec_from_file_location("lint_collection_enum", lpath)
+        mod = importlib.util.module_from_spec(spec)
+        # Register in sys.modules before exec: the module defines frozen
+        # dataclasses, and dataclass processing looks the module up in
+        # sys.modules by name (Python 3.14), so an unregistered module errors.
+        sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)
+        rules_collection = next(
+            c for c in mod.COLLECTIONS if c.name == "pack-governance-rules")
+        prov = next(
+            e for e in rules_collection.enumerations
+            if e.file.endswith("rule-provenance.md"))
+        parsed = mod.parse_enumeration(prov)
+        source = mod.list_source(rules_collection)
+        self.assertTrue(parsed, "provenance-register surface parsed an empty set")
+        self.assertEqual(
+            parsed, source,
+            "provenance register does not enumerate exactly the governance/ rule set")
+
 
 class GateCountConsistencyTests(LinterTestCase):
     """tools/lint-gate-count-consistency.py"""
