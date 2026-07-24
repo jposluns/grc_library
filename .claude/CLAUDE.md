@@ -1307,10 +1307,24 @@ the last commit before push (bump library CalVer and the README Version field)?
   preserve the pre-rewrite ref under
   `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>`; re-run the
   version-monotonicity audit after the rewrite.
-- **Cross-repo write-safety.** Before every Write/Edit and every repo-mutating git
-  command across the colocated sibling repos, confirm the target repo matches intent:
-  `git rev-parse --show-toplevel` for git, and the absolute-path prefix for Write/Edit;
-  prefix git sequences with an explicit `cd <repo-root> &&`.
+- **Cross-repo command-target safety (absolute paths, never ambient cwd).** Every shell
+  command that invokes a repo tool or runs git must be cwd-INDEPENDENT, because the
+  persisted working directory drifts between calls (the 2026-07-24 recurrence: a
+  `grc_library` tool run from a drifted `scratch` cwd, and a near-miss `git add -A` in the
+  wrong repo). The DEFAULT form is an ABSOLUTE tool path
+  (`python3 /home/jposluns/<repo>/tools/<x>`) and `git -C /home/jposluns/<repo>` for git;
+  an absolute path for Write/Edit. Use an explicit `cd <repo-root> &&` prefix ONLY for the
+  narrow case of a tool that carries a cwd-guard (the scratch `validate.py` and
+  `credit-offload-queue.py list-pending`), and when you do, type the `cd` as the LITERAL
+  first tokens of the command string and read it back (the recurring slip was narrating a
+  `cd` that the command string did not contain). The [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py)
+  PreToolUse hook (widened 2026-07-24, softened scope) ENFORCES the git half and the
+  sibling-tool half: it blocks a cwd-relative SIBLING `tools/<x>` (a PROJECT tool run
+  cwd-relative stays ALLOWED, so this file's documented `tools/x` commands are unaffected)
+  and ANY repo-mutating bare `git` (add/commit/push/... without `-C`/`cd`), printing the
+  copy-paste fix. Accordingly, the `git commit` / `git push` / `git add` examples elsewhere
+  in this file are to be run in the `git -C /home/jposluns/grc_library` (or `cd`-prefixed)
+  form; a bare project `tools/x` example stays valid as written.
 
 ## Behavioral rule: clarify before acting
 When the request has more than one reasonable interpretation, or an external value (date,
@@ -1340,7 +1354,7 @@ key-free novel decision still needs the manual search).
 
 Two disciplines layered on `evidence-grounded-completion`, closing the failure where the assistant substitutes what it MEANT to do for what it actually did.
 
-- **Read-back before every sibling-repo or previously-blocked command.** Before running a command that targets a sibling repo, or that a PreToolUse hook just blocked, READ the literal command string you are about to submit and confirm its key property in your reasoning (for a sibling-repo tool: an explicit `cd <repo-root> &&` prefix, or `git -C <path>`, or an absolute path). Do not rely on a persisted working directory. On a repeated identical hook-block, change the command STRUCTURE, never resubmit the same shape.
+- **Read-back before every sibling-repo or previously-blocked command.** Before running a command that targets a sibling repo, or that a PreToolUse hook just blocked, READ the literal command string you are about to submit and confirm its key property in your reasoning. The cwd-independent form is the DEFAULT and the first choice: an ABSOLUTE tool path (`python3 /home/jposluns/<repo>/tools/<x>`) or `git -C /home/jposluns/<repo> ...`; an explicit `cd <repo-root> &&` prefix is reserved for a cwd-guard tool, and there the `cd` must be the LITERAL first tokens (the recurring slip was narrating a `cd` the command string did not contain, the intent-vs-artefact gap). Do not rely on a persisted working directory. The widened [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) hook (softened scope) now blocks a cwd-relative SIBLING tool and any repo-mutating bare `git` (no `-C`/`cd`), so `git -C` and absolute paths are the reliable defaults. On a repeated identical hook-block, change the command STRUCTURE, never resubmit the same shape.
 - **Intent is not action: never narrate a change as made unless the artefact shows it.** Do not write "added the cd", "fixed it", "recorded it", or any done-claim unless the artefact you just wrote or ran actually reflects it. Editing a tool call's `description` field, or saying it in chat, is NOT editing the command string or the file. The immediate next action after describing a fix is to read or confirm the artefact reflects it (a `git status` / `git diff`, a re-read, the tool's own output). Before opening any PR, confirm `git status` is clean or intentionally staged (a targeted `git add <list>` can silently drop a file edited after it).
 
 The mechanical backstop is the [`block-repeated-tool-failure.py`](hooks/block-repeated-tool-failure.py) PreToolUse hook: it refuses a byte-identical resubmission of a just-blocked command, and after two consecutive same-class blocks requires a written diagnosis before any retry. Defence in depth, not a substitute for the read-back habit.

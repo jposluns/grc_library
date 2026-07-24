@@ -1960,6 +1960,21 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stderr)
 
+    def test_block_wrong_repo_tool_hook_self_test(self) -> None:
+        # The repo-target guardrail (widened 2026-07-24 to block cwd-relative tools/<x>
+        # and repo-mutating bare git); its 13-case --self-test gates the widening.
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-wrong-repo-tool.py"),
+             "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"hook --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stderr)
+
     def test_tail_safe_wrapper_self_test(self) -> None:
         result = self._run_selftest(
             ["bash", str(REPO_ROOT / "tools" / "tail-safe.sh"), "--self-test"]
