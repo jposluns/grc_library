@@ -31,6 +31,13 @@ A mutation probe that calibrates itself, a findings ledger that blocks, and the 
 - **This project's own rule text was overstated, and a verifier proved it rather than arguing it.** The guard-inputs section claimed mutation testing "is silent on whether the input is faithful". The verifier applied all three observer-mutation strategies the rule names to a live defect; one DETECTED, so the claim is false as written and self-contradictory, since a structurally blind technique could not be fixed by mutating the observer. Corrected in both trees, with its more useful half added: **observer mutation is bounded by the same case coverage as decision mutation**, because the two strategies closest to the real defect both missed it for want of any case discriminating on the thing mutated. A companion to reality fixtures, never a substitute.
 - **The self-test's own `if failures:` branch is now `INHERENT-EXTERNALLY-COVERED`** rather than a fixable defect: it cannot be asserted from inside itself without recursion, the probe's positive control covers it, and a permanently-red row would train readers to ignore the output.
 
+### Fixed, the highest-blast-radius QA-tooling defect open today
+
+- **`list-workers` reported an EMPTY registry while eight workers were live, and both instruction surfaces pointed at it.** An empty reading from that tool is the SINGLE reading that licenses the orchestrator to self-run offloadable work, so reporting empty while the file-drop plane holds live workers actively disarms the mandatory-offload rule, which sits at primordial tier. The git-scratch registry has been empty since the transport moved, `/resume` step 3 and the CLAUDE.md offload gate both still sent the orchestrator there, and the tool answered with silence. Same class as the NO-WORKERS-while-live defect already fixed once in the saturation observable, surviving in a second tool AND in the instructions.
+  - **Scratch side:** the tool never reports an empty registry bare. It names the other plane, its heartbeat count and the authoritative command, and distinguishes a genuinely ABSENT root from a PRESENT-but-empty one, because only one of those means no plane exists. Self-test 66/66.
+  - **This repo:** both instruction surfaces repointed, each edit asserted to have landed rather than assumed from a script's success message.
+  - Found hours before it was fixed, which is why it is recorded here: I identified it, described it accurately, and then kept building other things. That gap between noticing and acting is the same one the ledger in this PR exists to close.
+
 ### Verification
 
 - 78/78 gates standalone (gate 78 merged in #1173 before this rebase). Probe self-test 11/11, hook 8/8, `manage-workers` 38/38, `collect-deliveries` 38/38.

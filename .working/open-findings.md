@@ -46,6 +46,7 @@ empty disposition is what blocks.
 
 | Found | Severity | Finding | Source | Disposition |
 | --- | --- | --- | --- | --- |
+| 2026-07-25 | error | `credit-offload-queue.py list-workers` returned an EMPTY registry while the file-drop plane held up to eight live workers, AND `/resume` step 3 plus the CLAUDE.md mandatory-offload gate both directed the orchestrator to that tool, so a resume would read zero workers and license self-running every offloadable pass | orchestrator, 2026-07-25 | FIXED both halves: the tool now fails loud naming the other plane, its count and the authoritative command, distinguishing an absent root from a present-but-empty one (self-test 66/66, pushed); and both instruction surfaces are repointed, each edit asserted to have landed |
 | 2026-07-25 | warning | The git-scratch queue tool (`credit-offload-queue.py`) has NEITHER exclusion key in its fixed write-field list, so an order written through that plane SILENTLY DROPS `not_worker` / `not_author_of` and verifier independence is unenforced while appearing enforced | `triage-tray-34` rank 2 | ROUTED: cross-repo (the fix is in `grc_library_scratch`), and VERIFIED not to have bitten yet, since `reconcile-queue` uses a different write path and both dispatched orders still carry their exclusions in `queue/` and in the archived copies the workers read |
 | 2026-07-25 | warning | Gate 69's two blind spots remain live (part (c) of the never-recycle work, and the surviving F3 of the #1152 pre-push verify) | `triage-tray-34` ranks 4 and 20, `draft-3110c-gate69-blindspots` | ROUTED: this is TODO 3.110 part (c), already carried as a separate item with its candidate delivered and unapplied |
 | 2026-07-25 | warning | Three fresh-reader findings against the adopter documentation verified still live at HEAD | `codex-fresh-reader-corpus-review` via `triage-tray-34` rank 29 | ROUTED: adopter-facing prose, queued behind the safety and correctness work; the delivery is retained in the tray until applied |
@@ -53,6 +54,12 @@ empty disposition is what blocks.
 | 2026-07-25 | note | 27 coverage-gap guards across four tools (`manage-workers` 9, `collect-deliveries` 4, `audit-worker-saturation` 8, `audit-inbox-drops` 6): guards no self-test case reaches, chiefly CLI dispatch and error paths needing a live external process | `audit-selftest-discriminability.py` | ROUTED: these are coverage gaps rather than blind cases, so the fix is a case or a recorded out-of-scope decision per guard; queued behind the error and warning work |
 
 ## Closed today
+
+| Found | Severity | Finding | Disposition |
+| --- | --- | --- | --- |
+| 2026-07-25 | warning | `collect-deliveries.py`'s `report()` was ENTIRELY untested, all four branches genuine coverage gaps: the function that says what was held back and why, so an untested report is how a held-back file becomes the silent skip the tool's design forbids | FIXED; 8 output-asserting cases added, all four branches mutation-proved DETECTED with corrected controls |
+| 2026-07-25 | note | I claimed `collect-deliveries.py` had 9 guards; an independent audit measured 21 control-flow decision sites. I had counted my own hand-picked mutation list and called it the population | ACCEPTED and recorded: the probe now discovers sites rather than taking a hand-listed set, which is why it is a tool |
+
 
 | Found | Severity | Finding | Disposition |
 | --- | --- | --- | --- |

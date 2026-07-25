@@ -980,7 +980,7 @@ hard rule (maintainer-directed 2026-07-19):
 
 1. **If a worker CAN do it and a worker is available, USE THE WORKER.** Before self-running any
    offloadable pass, read the scratch `workers/` liveness registry (`python3
-   ../grc_library_scratch/tools/credit-offload-queue.py list-workers`). If at least one worker is
+   ../grc_library_scratch/tools/credit-offload-filedrop.py list-workers`, the FILE-DROP plane; the git-scratch `credit-offload-queue.py list-workers` reads a registry empty since the transport moved, and it now fails loud rather than reporting a bare zero that would license self-running). If at least one worker is
    live, ENQUEUE a credit-offload order pinned to an exact `grc_library` SHA and consume the
    delivered result; do not self-run.
 2. **If NO worker is available and you are on a VM, ALERT the maintainer that the workers are
