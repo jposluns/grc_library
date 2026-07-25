@@ -8,6 +8,37 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.641, PR #1155
+
+Round two of closing gate 44's fail-open surface. #1154 shipped the subsection-representation check and closed two ways to defeat it; its post-merge sweep, asked explicitly for a THIRD, found FIVE more. All five are closed here, with every one of the nine known routes reproduced against the fixed gate.
+
+### Fixed
+
+- **Five further fail-open routes** by which a token counted as "representation" while the subsection was not represented at all: a **relative link target**, a **reference-link definition**, **image alt text**, a **relative HTML attribute**, and a **scheme-less `www.` URL**. The structural cause is the important part: `URL_RE` required a SCHEME, but slash commands link to corpus documents by RELATIVE path, so the exact class the first fix closed stayed open for most links in this repository, and [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md) carries two relative link targets today. Not live at the time (the sweeper discounted all five routes and re-ran, confirming all five core tokens appear in prose alone), so no registered pair was fail-open, but the guard was hollow where it mattered most.
+- **The strip set is now asymmetric on purpose**, which is the one judgement in this change: an IMAGE is stripped whole, target and alt text together, because alt text is not prose a reader reads as content; an inline LINK loses only its target and keeps its text, because that text IS prose. The first attempt got this wrong and let image alt text through, which the route-by-route re-test caught.
+- **A docstring that overstated the fix.** It claimed `iter_non_code_lines` strips "fenced and indented" code; that helper's contract is fence-only. An inaccurate specification of what "representation" means is worse than the small gap itself, since a future reviewer would rely on it, so the docstring now states the limit rather than the aspiration.
+- **The exemption window now breaks on a `##` heading** as well as a `###` one, so a marker parked beside the section heading that follows the last subsection cannot leak backwards into it.
+
+### Verification
+
+- **All nine known routes reproduced against the fixed gate**, each previously demonstrated with a working construction rather than argued: prose (control, must count), fenced code, HTML comment, absolute URL, relative link target, reference definition, image alt text, relative HTML attribute, scheme-less `www.` URL. Every leak now fails and both controls hold, the second control being that link TEXT still counts, which is what stops the narrowing from discarding genuine representation.
+- Gate 44 green on the real corpus across all 13 registered pairs; **484-test regression suite green** (up from 482).
+- The audit-programme narrative now states the strip set explicitly, so the specification matches the code rather than describing an earlier version of it.
+
+### The prefix rule removed, which was the dominant hole and not in the strip set at all
+
+The verifier hunting a tenth route found something larger than a route. `token_present` accepted a shared five-character prefix, added in the original widening to absorb inflection (a heading's `execution` against a command's `Execute`). It also accepted UNRELATED words, and this corpus's own vocabulary supplies the collisions: `integration` was satisfied by `integrity`, `reference` by `referendum`, `compliance` by `complicated`, `execution` by `executive`. The verifier's end-to-end case used only words this project writes constantly, and its own AIQT principle reads "Accuracy = Integrity = Quality = Trust", so `integrity` is not an exotic word here.
+
+**Why this mattered more than any strip-set route.** Every route found across three rounds needed unusual markup: a comment, a fence, a URL, a link path, front matter. This one needed ordinary prose, so no further narrowing of WHERE a token may appear could close it. The weakness was WHAT counts as a match.
+
+**Removal is false-positive-free by MEASUREMENT rather than by argument.** Across all 13 registered pairs the check examines 5 subsection tokens, and all 5 match exactly, so nothing relied on the prefix rule; it was carrying no load while holding the door open. A future genuine inflection case has two honest answers, wording the command with the heading's own term, or an explicit `command-exempt` marker stating why, and both are visible where a silent prefix collision is not. Whether to add a principled inflection rule instead is left OPEN rather than guessed at, and is a banked maintainer question.
+
+The obsolete fixture that asserted the prefix rule works is replaced by one asserting the collisions are rejected and the verifier's end-to-end case is now reported (483 tests; the count drops by one because a fixture was replaced rather than added).
+
+### Discipline observation
+
+A fix written from an exploit tends to close the exploit rather than the class. Two demonstrated leaks felt like the whole class; the base rate said otherwise, and asking the next pass explicitly for a third produced five, including the one that mattered structurally. The generalizable question after any fail-open fix is not "is this exploit closed" but "what else reaches the same sink", and the answer has to be tested route by route with controls, because narrowing what counts as valid input is exactly how a fail-open fix becomes a false-positive generator.
+
 ## 2026-07-25, Library Version 2026.07.640, PR #1154
 
 A guard-first co-land: gate 44 gains a second check, and the one pair that check fails is fixed in the same commit. The pairing is not stylistic. The widened gate reddens the corpus at the parent SHA by design, so shipping it alone would break the build, and shipping the content fix alone would leave the defect ungated and free to recur. Both halves were worker-drafted; the orchestrator verified the co-land property mechanically before applying either.
