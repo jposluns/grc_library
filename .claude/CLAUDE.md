@@ -980,7 +980,7 @@ hard rule (maintainer-directed 2026-07-19):
 
 1. **If a worker CAN do it and a worker is available, USE THE WORKER.** Before self-running any
    offloadable pass, read the scratch `workers/` liveness registry (`python3
-   ../grc_library_scratch/tools/credit-offload-queue.py list-workers`). If at least one worker is
+   ../grc_library_scratch/tools/credit-offload-filedrop.py list-workers`, the FILE-DROP plane; the git-scratch `credit-offload-queue.py list-workers` reads a registry empty since the transport moved, and it now fails loud rather than reporting a bare zero that would license self-running). If at least one worker is
    live, ENQUEUE a credit-offload order pinned to an exact `grc_library` SHA and consume the
    delivered result; do not self-run.
 2. **If NO worker is available and you are on a VM, ALERT the maintainer that the workers are
@@ -1080,6 +1080,29 @@ for every observer bug; mutate the observer and not only the decision; state a p
 point of use; and keep a pure decision function behind a thin observer so both halves stay testable.
 `tools/audit-worker-saturation.py` is the local pattern to copy: its logic is pure, and today's
 discriminability audit found it the one tool here with zero undetectable guard sites.
+
+## Pin an order to a SHA that CONTAINS what the order references
+
+Three orders on 2026-07-25 asserted something untrue at their own pinned SHA, and each cost a worker
+cycle: one named a function that existed only on an unmerged branch, one pinned a merge SHA that
+PREDATED the backlog item the order told the worker to read, and one carried a worker exclusion as
+prose that nothing enforced.
+
+**The rule is narrower than "pin to a merge SHA", which was already the practice and was not enough.**
+The correction adopted after alert 2026-07-23-a made a pinned SHA REACHABLE (never a PR branch head
+that vanishes on squash-merge). It did not make the SHA CONTAIN what the order references. So: pin to
+a commit that contains every path, item and identifier the order tells the worker to read, which for
+an order derived from backlog item N means the commit that CREATED item N, not merely a later one.
+
+**Two mechanical backstops now exist at dispatch**, and their severities differ on purpose:
+- **A REFUSAL** when `not_worker` names a worker id the exchange has never seen, because that input is
+  exact and a vacuous exclusion silently disables an independence control.
+- **A WARNING** when a referenced path or `TODO N.M` item is absent at the pinned SHA, because that
+  extraction is heuristic and a false refusal on a legitimate dispatch would get the check bypassed.
+
+**Read the dispatch output.** Both backstops are useless if the dispatch line scrolls past unread, and
+a warning is exactly the shape that gets skimmed. The orchestrator's own habit is the primary control;
+these are defence in depth.
 
 ## Codex workers are single-shot: dispatch, check in, then re-check every 10 minutes
 
@@ -1284,11 +1307,71 @@ boundary, so "do N more" is really "do one more, re-assess, repeat" and self-ter
 early if quality signals turn. If a degradation signal appears mid-run, the assistant
 winds down regardless of the option chosen, surfacing why.
 
+## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
+
+**Maintainer-directed 2026-07-25, after the pattern recurred all day.** The moment ANYTHING wrong is
+found, the priority is: finish the task in hand, then fix it. Nothing that is not the fix, or part of
+the fix, proceeds ahead of it.
+
+**"Anything wrong" is deliberately the widest possible wording.** An issue, a defect, a problem, an
+error, an inaccuracy, a fault, a wrong figure, a stale instruction, a misleading name, an overstated
+claim, a silently-failed write. It does not matter how small it looks, who found it, or whether it has
+a severity yet. The severity assessment comes AFTER the fix decision, not before it, because grading a
+defect is one of the ways of not fixing it.
+
+**What "finish the current task" means, narrowly.** Complete the unit already in hand so it is not left
+half-applied, then fix. It does NOT license finishing a comfortable stretch of adjacent work, opening
+the next PR, running another analysis pass, or writing up what was found. If the current task IS the
+thing that produced the defect, the fix is the rest of that task.
+
+**The specific failures this forecloses, all observed on 2026-07-25.**
+- **Aestheticising.** Two live defects in a file-moving tool were rendered as a table row and followed
+  by a comparative statistic. Not ignored, formatted. Writing a count, table or comparison about
+  findings before each has a disposition is forbidden by the section below for exactly this reason.
+- **Noticing and carrying on.** The `list-workers` blindness that disarmed the mandatory-offload rule
+  was found, described accurately, and left unfixed for hours while other work continued.
+- **Grading instead of fixing.** A wrong worker count was reported as 8 against a true 3; the reflex
+  was to characterize it rather than repair the function that produced it.
+- **Routing what could be fixed.** A finding that can be fixed now is fixed now; the backlog is for
+  what genuinely cannot be, and using it as a queue for the merely inconvenient is the failure mode.
+
+**Interaction with the other disciplines.** This composes with the QA-blocking rule below (that one
+governs QA deliveries specifically, this governs anything wrong from any source) and with the
+decision-classification rubric: "found a defect and continued" is never an ACT, and it is not a valid
+BLOCKED either, since the blocker set is closed and contains no entry for it. The ledger
+[`.working/open-findings.md`](../.working/open-findings.md) and the
+[`block-on-open-findings.py`](hooks/block-on-open-findings.py) hook are the mechanical half; this
+section is the obligation the mechanics enforce, and it is wider than the hook, because the hook can
+only see a row once it is written.
+
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
 **Maintainer-directed 2026-07-25, in capitals, after 17 QA deliveries sat unread in worker outboxes
 while the orchestrator started new work.** This is the strongest form of the QA priority and it
 overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
+
+**SOURCE-INDEPENDENT (widened 2026-07-25, after the narrow version failed).** The rule below was
+first written for QA arriving FROM WORKERS, and that scope had a hole the same day: two live defects in
+a file-moving tool, produced by the orchestrator's OWN instrument minutes earlier, were rendered as a
+table row and walked past in favour of writing a summary statistic about them. The severity of a defect
+does not depend on who noticed it, so this covers ANY confirmed finding from ANY source: a worker
+delivery, a gate run, an instrument the orchestrator just wrote, a maintainer observation, a self-caught
+slip mid-edit.
+
+**THE ONE ACT THIS FORBIDS SPECIFICALLY: do not write a count, a table, or a comparative statistic
+about findings before every row has a recorded disposition.** That is the precise mechanism of the
+2026-07-25 failure. Three live defects became "3 blind cases against 27 coverage gaps", and the summary
+FELT like progress while the defects stayed open. Summarising is not dispositioning, and an elegant
+table is the most persuasive way to walk past a defect.
+
+**The ledger and its mechanical backstop.** Every confirmed defect gets a row in
+[`.working/open-findings.md`](../.working/open-findings.md) the moment it is confirmed, with a severity,
+and leaves only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The
+[`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh pr create`
+and `gh pr merge` while an `error`-severity row has no disposition, and surfaces undispositioned
+warnings without blocking an in-flight PR. It fails OPEN on a missing or unparseable ledger, deliberately:
+a guard that blocks all work on its own malfunction gets removed, and a removed guard protects nothing.
+Conventions alone failed twice on this axis in one day, which is why there is a hook.
 
 **The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
 high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
