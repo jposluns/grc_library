@@ -2613,33 +2613,51 @@ class PairedSkillStepParityTests(LinterTestCase):
             "a marker beside a following ## heading must not exempt the subsection",
         )
 
-    def test_prefix_equivalence_absorbs_morphological_variation(self) -> None:
-        # NEGATIVE fixture: the conjunctive rule's dominant
-        # false-positive risk is a heading token whose command form is
-        # inflected differently. A shared five-character prefix counts as
-        # representation, so `execution` matches `Execute`.
+    def test_exact_match_required_and_prefix_collisions_rejected(self) -> None:
+        # Replaces the former prefix-equivalence fixture, which asserted a rule
+        # that has been REMOVED. The five-character prefix rule absorbed
+        # inflection but also accepted UNRELATED words drawn from this corpus's
+        # own vocabulary, making it the dominant fail-open route and the only
+        # one reachable through ordinary prose (#1155 verifier W1). Removal was
+        # false-positive-free by measurement: across all registered pairs the
+        # check examines 5 subsection tokens and all 5 matched exactly.
         mod = self._load_module()
+        for token, impostor in (
+            ("integration", "integrity"),
+            ("parallel", "paralysis"),
+            ("reference", "referendum"),
+            ("compliance", "complicated"),
+            ("execution", "executive"),
+        ):
+            self.assertFalse(
+                mod.token_present(token, {impostor}),
+                f"{impostor!r} must not satisfy {token!r}: unrelated words "
+                "sharing a prefix are not representation",
+            )
+        self.assertTrue(
+            mod.token_present("parallel", {"parallel", "unrelated"}),
+            "an exact token match must still count",
+        )
+        # The verifier's end-to-end failure case, built only from words this
+        # corpus writes constantly, must now be reported.
         skill = (
             "## Process\n"
-            "\n"
             "### 1. Only step\n"
-            "\n"
-            "### Escalation path\n"
-            "\n"
-            "Body.\n"
-            "\n"
-            "## Red Flags\n"
+            "body\n"
+            "### Continuous integration gating\n"
+            "## Next\n"
         )
         command = (
-            "1. **Only step**: content.\n"
-            "\n"
-            "Escalate along the documented path.\n"
+            "1. **Only step**: verify data integrity continuously; "
+            "gating is automatic.\n"
         )
-        self.assertEqual(mod.unrepresented_subsections(skill, command), [])
-
-
-class CollectionEnumerationConsistencyTests(LinterTestCase):
-    """tools/lint-collection-enumeration-consistency.py"""
+        findings = mod.unrepresented_subsections(skill, command)
+        self.assertEqual(
+            [heading for _n, heading, _missing in findings],
+            ["Continuous integration gating"],
+            "a subsection matched only by unrelated same-prefix words is "
+            "not represented",
+        )
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test against the current corpus: the linter should

@@ -214,7 +214,6 @@ SUBSECTION_STOP_WORDS = frozenset(
 
 # Minimum token length for prefix-equivalent matching, and the prefix
 # length itself. A shorter token must match exactly.
-STEM_LEN = 5
 
 # How many lines below a heading an opt-out marker may sit.
 EXEMPT_WINDOW = 2
@@ -267,19 +266,28 @@ def content_tokens(text: str) -> set[str]:
 
 
 def token_present(token: str, corpus: set[str]) -> bool:
-    """Whole-token match, widened to a shared five-character prefix.
+    """Whole-token match, EXACT.
 
-    The prefix widening absorbs ordinary morphological variation (a
-    skill heading's ``execution`` against a command's ``Execute``),
-    which is the dominant false-positive risk for a conjunctive rule.
-    Tokens shorter than ``STEM_LEN`` must match exactly.
+    An earlier version accepted a shared five-character prefix, intended to
+    absorb inflection (a heading's ``execution`` against a command's
+    ``Execute``). It also accepted UNRELATED words, and this corpus's own
+    vocabulary supplies the collisions: ``integration`` was satisfied by
+    ``integrity``, ``reference`` by ``referendum``, ``compliance`` by
+    ``complicated``. That made it the dominant fail-open route, and the only
+    one reachable through ORDINARY PROSE rather than unusual markup, so no
+    amount of narrowing WHERE tokens may appear could close it (2026-07-25,
+    the #1155 verifier's W1).
+
+    Removing it is false-positive-free by MEASUREMENT, not by argument: across
+    all registered pairs the check examines 5 subsection tokens and all 5 match
+    exactly, so nothing relied on the prefix rule. A future genuine inflection
+    case has two honest answers, either wording the command to use the
+    heading's own term, or an explicit ``command-exempt`` marker stating why;
+    both are visible, unlike a silent prefix collision. Whether to add a
+    principled inflection rule instead is a design question left open rather
+    than guessed at.
     """
-    if token in corpus:
-        return True
-    if len(token) < STEM_LEN:
-        return False
-    stem = token[:STEM_LEN]
-    return any(candidate.startswith(stem) for candidate in corpus)
+    return token in corpus
 
 
 def heading_core_tokens(heading: str) -> list[str]:
