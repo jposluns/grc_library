@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.116.**
+**Next item number: 3.117.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.116 The saturation observable cannot distinguish a healthy idle worker from a STALLED one (2026-07-25, M, S)
+
+Observed across all three workers on 2026-07-25: the failure mode is not "the worker dies", it is **"the worker keeps heartbeating but stops claiming"**. `codex-...-f8b8` registered a live heartbeat twice and never claimed the priority-0 order in its own family; `opus-...-c46a` sat LIVE holding nothing while two orders waited in `available-work` for 11-plus minutes. Because the heartbeat is written on a different path from the claim loop, one survives the other, so [`tools/audit-worker-saturation.py`](tools/audit-worker-saturation.py) and `credit-offload-filedrop.py list-workers` both read a stalled worker as healthy capacity. **Consequence: `IDLE-CAPACITY` can name capacity that cannot actually be used, and worse, a stalled fleet looks fine, which is the same class of false reassurance as the `NO-WORKERS`-while-live defect fixed in #1157 (that one lied about absence; this one lies about availability).** Candidate signal, needing a false-positive analysis before it ships: a worker that is LIVE, holds NO order, and has held none while at least one order sat in its family's `available-work` for longer than some window is STALLED rather than idle, so report it as a distinct verdict (`STALLED-CAPACITY`) or at least name it in the report. The window is the whole difficulty: a worker legitimately holds nothing for a short period between delivering and claiming, so too tight a window flags every healthy cycle boundary. Consider deriving it from observed claim latency rather than picking a constant. **Deliberately NOT built on 2026-07-25:** that tool was changed twice that day and one of the changes introduced a mirror defect the next sweep caught, so a third same-day change to it is a bad bet; this is the routed follow-up.
 
 ### 3.115 Four gate-44 fail-open routes remain OPEN and were tracked nowhere (2026-07-25, M, S)
 

@@ -1,2 +1,2 @@
-1) consume 3110 never-recycle verify; 2) layer 2 enable after independent read; 3) 4 open gate-44 routes
-# then: TODO 3.111 --exclude-worker (unenforceable-by-construction, confirmed); 3.114 changelog thresholds; 1.14 Layer B
+1) 3110 apply once census lands; 2) gate-69 blind spots; 3) layer 2 enable after independent read
+# then: TODO 3.116 stalled-vs-idle worker signal; 3.111 --exclude-worker; 3.115 four gate-44 routes; 1.14 Layer B
