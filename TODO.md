@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.118.**
+**Next item number: 3.119.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.118 Route the #1166 and #1167 sweep residuals (2026-07-25, M, S)
+
+Five findings the two offloaded post-merge sweeps returned that were NOT fixed in the session-closing PR, deliberately kept out of it so the closing PR stayed narrow. From `validate-pr-1167`: **(a)** a worker can corrupt [`.working/worker-prompt-log.md`](.working/worker-prompt-log.md), which is the prompt injector's ONLY accountability record, so the log that exists to make keystroke injection auditable is itself unprotected; **(b)** a concurrent drop consumption crashes [`tools/audit-inbox-drops.py`](tools/audit-inbox-drops.py), which its own docstring says never exits non-zero, so the guarantee is false under a race; **(c)** a genuine drop whose filename ends in a staging-shaped suffix (`.log`, `.tmp`) is classified as staging and therefore reported as NOT awaiting a read, which is a false-negative in the one instrument watching that channel; **(d)** the orchestrator-session refusal in [`tools/manage-workers.py`](tools/manage-workers.py) keys on a session NAME rather than on a property, so renaming the orchestrator's session would silently disarm the guard against it prompting itself; **(e)** two unused imports. From `validate-pr-1166`: **(f)** [`tools/audit-delivery-status.py`](tools/audit-delivery-status.py) is mis-described as reading an OUTBOX in prose #1166 touched; **(g)** the merge-bypass log's scope sentence claims unbounded coverage while the backfill covers only one run's merges; **(h)** a factual claim about 15 GitHub PRs sits inside the very sentence arguing the backfill is not asserted, which is the shape of claim that needs its own evidence. Items (a) and (c) are the two that matter most: both are cases where an accountability or observability instrument fails in the direction that makes failure invisible, which is the class this project keeps finding.
 
 ### 3.117 A maintainer-placed inbox drop is invisible to every instrument (2026-07-25, M, S)
 

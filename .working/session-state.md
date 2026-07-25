@@ -1,12 +1,12 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/resume-sweep120-closeout
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** fully-attended
 
-**Last-heartbeat-UTC:** 2026-07-25T03:47:17Z
+**Last-heartbeat-UTC:** 2026-07-25T14:18:15Z
 
 **Current-task:** ACQUIRED at the 2026-07-25 `/resume` (branch `claude/resume-sweep120-closeout`). Mode moved ATTENDED to OVERNIGHT-UNATTENDED at maintainer direction ~03:5xZ with express authorization of the full queue INCLUDING merging H-01 on green (the maintainer chose the merge option with the no-human-review tradeoff stated; the orchestrator compensates by running the full high-assurance harness on H-01 rather than the single pre-push verifier). All four `/home/grc` repos synced; 77/77 green at `1b8cb202`. Sweep 120 loop-break `/validate` OFFLOADED and in flight (worker-20260716-a). Overnight queue: consume Sweep 120; apply the saturation file-drop-awareness patch; fix the 5 deep-assessment command lockstep findings; widen gate 44 guard-first; H-01 retention (2 carriers) under high assurance; consume the 2 scratch triage passes and execute the prune; process the 3 maintainer alerts (fix, leave UNCLEARED, clearing is the maintainer's decision); refresh handoff plus session metrics.
 

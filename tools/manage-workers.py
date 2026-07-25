@@ -238,6 +238,65 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
     return 0
 
 
+def self_test() -> int:
+    """Cover the four refusals in `do_send`, which ARE this tool's entire safety surface.
+
+    Added after the #1167 sweep observed that the CHANGELOG asserted these refusals were tested
+    while nothing tested them: they had been exercised by hand and never recorded, so nobody
+    could re-check them. A tool that injects keystrokes into a session running under a different
+    account should not have its guards resting on an unrepeatable manual run.
+
+    Each refusal is a pure early return, so it is reachable without touching tmux: the session
+    list is stubbed and no send is ever attempted.
+    """
+    import tempfile
+    failures, total = [], [0]
+
+    def check(name, got, want):
+        total[0] += 1
+        ok = got == want
+        print(f"  {'PASS' if ok else 'FAIL'}: {name} -> {got}" + ("" if ok else f" (expected {want})"))
+        if not ok:
+            failures.append(name)
+
+    global tmux_sessions
+    real = tmux_sessions
+    tmux_sessions = lambda: ["grc", "worker", "mailz", "unmapped-session"]  # noqa: E731
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / ".working").mkdir()
+            root = Path(td) / "work"
+            (root / "opus" / "inbox" / "worker-x").mkdir(parents=True)
+            # a worker holding an order, for the destructive gate
+            (root / "opus" / "inbox" / "worker-x" / "held-order.md").write_text("x")
+
+            check("refuses the orchestrator's own session",
+                  do_send(repo, root, "grc", "wake", "r", False, True), 1)
+            check("refuses a session with no runtime mapping",
+                  do_send(repo, root, "unmapped-session", "wake", "r", False, True), 1)
+            check("refuses a missing --reason",
+                  do_send(repo, root, "worker", "wake", "", False, True), 1)
+            check("refuses a nonexistent session",
+                  do_send(repo, root, "no-such-session", "wake", "r", False, True), 1)
+            # destructive verb against a holder: the session name must match the worker id by
+            # the same prefix rule do_send uses, so 'worker' matches 'worker-x'
+            check("refuses a destructive verb against an order holder",
+                  do_send(repo, root, "worker", "restart", "r", False, True), 1)
+            check("destructive verb refused when the root is UNKNOWN",
+                  do_send(repo, None, "worker", "restart", "r", False, True), 1)
+            check("a non-destructive verb on a mapped session is allowed (dry-run)",
+                  do_send(repo, root, "mailz", "wake", "r", False, True), 0)
+    finally:
+        tmux_sessions = real
+
+    if failures:
+        print(f"\nself-test: FAILED ({len(failures)} of {total[0]})")
+        return 1
+    print(f"\nself-test: {total[0]}/{total[0]} passed")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -249,7 +308,10 @@ def main(argv=None) -> int:
     ap.add_argument("--repo", default="/home/grc/grc_library", help="repo holding the log")
     ap.add_argument("--force", action="store_true", help="override a destructive-verb gate")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--self-test", action="store_true", help="exercise the refusal paths")
     a = ap.parse_args(argv)
+    if a.self_test:
+        return self_test()
     root = working_root(a.root)
     if a.list or not a.send:
         return do_list(root)
