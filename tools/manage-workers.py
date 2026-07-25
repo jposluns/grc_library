@@ -239,23 +239,69 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
 
 
 def self_test() -> int:
-    """Cover the four refusals in `do_send`, which ARE this tool's entire safety surface.
+    """Cover all SEVEN refusals in `do_send`, which ARE this tool's entire safety surface.
 
     Added after the #1167 sweep observed that the CHANGELOG asserted these refusals were tested
     while nothing tested them: they had been exercised by hand and never recorded, so nobody
     could re-check them. A tool that injects keystrokes into a session running under a different
     account should not have its guards resting on an unrepeatable manual run.
 
+    EACH CASE ASSERTS THE SPECIFIC REFUSAL MESSAGE, not merely the return code. Every refusal
+    returns 1, so a return-code-only assertion is satisfied by ANY guard firing rather than by the
+    one the case names. Sweep 121 mutation-proved the consequence: with the own-session, the
+    nonexistent-session, the runtime-mapping, or the verb-sequence guard neutralized one at a time,
+    the old self-test still printed PASS *under that case's own label*. That is the
+    passes-for-an-unrelated-reason shape, and it made this self-test unable to detect the removal
+    of four of the seven guards it claimed to cover. Matching on the message text is what turns
+    each case into a real discriminator, so the fix is the assertion, not more cases.
+
     Each refusal is a pure early return, so it is reachable without touching tmux: the session
     list is stubbed and no send is ever attempted.
     """
+    import contextlib
+    import io
     import tempfile
     failures, total = [], [0]
 
-    def check(name, got, want):
+    def expect_refusal(name, want_text, *args):
+        """Assert do_send REFUSED, that the refusal is the one `want_text` identifies, and that
+        it is the ONLY one that fired.
+
+        The exactly-one check is not redundant with the text match. A guard whose `return` is lost
+        while its `print` survives still emits its own message and then falls through to a later
+        guard, which supplies the 1; text-plus-return-code alone reads that as a pass. Counting the
+        refusals catches it, because two messages appear where one should.
+        """
         total[0] += 1
-        ok = got == want
-        print(f"  {'PASS' if ok else 'FAIL'}: {name} -> {got}" + ("" if ok else f" (expected {want})"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            got = do_send(*args)
+        out = buf.getvalue()
+        n_refusals = out.count("REFUSED")
+        ok = got == 1 and want_text in out and n_refusals == 1
+        if ok:
+            print(f"  PASS: {name}")
+        else:
+            if got != 1:
+                why = f"returned {got}, expected 1"
+            elif want_text not in out:
+                why = f"wrong refusal fired; expected text {want_text!r}, got: {out.strip()[:120]!r}"
+            else:
+                why = (f"{n_refusals} refusals fired, expected exactly 1 (a guard printed and then "
+                       f"fell through): {out.strip()[:160]!r}")
+            print(f"  FAIL: {name} ({why})")
+            failures.append(name)
+
+    def expect_allowed(name, *args):
+        """Assert do_send proceeded (rc 0) and printed no refusal at all."""
+        total[0] += 1
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            got = do_send(*args)
+        out = buf.getvalue()
+        ok = got == 0 and "REFUSED" not in out
+        print(f"  {'PASS' if ok else 'FAIL'}: {name}"
+              + ("" if ok else f" (returned {got}; output: {out.strip()[:120]!r})"))
         if not ok:
             failures.append(name)
 
@@ -271,22 +317,35 @@ def self_test() -> int:
             # a worker holding an order, for the destructive gate
             (root / "opus" / "inbox" / "worker-x" / "held-order.md").write_text("x")
 
-            check("refuses the orchestrator's own session",
-                  do_send(repo, root, "grc", "wake", "r", False, True), 1)
-            check("refuses a session with no runtime mapping",
-                  do_send(repo, root, "unmapped-session", "wake", "r", False, True), 1)
-            check("refuses a missing --reason",
-                  do_send(repo, root, "worker", "wake", "", False, True), 1)
-            check("refuses a nonexistent session",
-                  do_send(repo, root, "no-such-session", "wake", "r", False, True), 1)
+            # One case per REFUSED early return in do_send, in source order, each keyed to a
+            # distinctive fragment of ITS OWN message so no other guard can satisfy it.
+            expect_refusal("refuses the orchestrator's own session",
+                           "is the orchestrator's own session",
+                           repo, root, "grc", "wake", "r", False, True)
+            expect_refusal("refuses a nonexistent session",
+                           "no tmux session named",
+                           repo, root, "no-such-session", "wake", "r", False, True)
+            expect_refusal("refuses a session with no runtime mapping",
+                           "has no runtime mapping in RUNTIME_MAP",
+                           repo, root, "unmapped-session", "wake", "r", False, True)
+            # The seventh guard, previously uncovered: a mapped session but a verb with no
+            # sequence defined for that session's runtime.
+            expect_refusal("refuses a verb with no sequence for the session's runtime",
+                           "has no defined sequence for runtime",
+                           repo, root, "mailz", "no-such-verb", "r", False, True)
             # destructive verb against a holder: the session name must match the worker id by
             # the same prefix rule do_send uses, so 'worker' matches 'worker-x'
-            check("refuses a destructive verb against an order holder",
-                  do_send(repo, root, "worker", "restart", "r", False, True), 1)
-            check("destructive verb refused when the root is UNKNOWN",
-                  do_send(repo, None, "worker", "restart", "r", False, True), 1)
-            check("a non-destructive verb on a mapped session is allowed (dry-run)",
-                  do_send(repo, root, "mailz", "wake", "r", False, True), 0)
+            expect_refusal("refuses a destructive verb against an order holder",
+                           "it holds order",
+                           repo, root, "worker", "restart", "r", False, True)
+            expect_refusal("destructive verb refused when the root is UNKNOWN",
+                           "no file-drop root resolved",
+                           repo, None, "worker", "restart", "r", False, True)
+            expect_refusal("refuses a missing --reason",
+                           "--reason is required",
+                           repo, root, "worker", "wake", "", False, True)
+            expect_allowed("a non-destructive verb on a mapped session is allowed (dry-run)",
+                           repo, root, "mailz", "wake", "r", False, True)
     finally:
         tmux_sessions = real
 
