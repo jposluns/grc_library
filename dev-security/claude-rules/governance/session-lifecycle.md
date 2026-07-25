@@ -52,6 +52,34 @@ Where two sessions could hold the shared state surfaces at once, a lease file on
 
 ---
 
+
+## Wind-down pre-queues delegated work for the next session
+
+Where a project runs delegated workers alongside a singleton orchestrator, **a session's wind-down
+queues work for the workers to perform between sessions**, which the next session's resume then
+consumes.
+
+The reasoning is a resource asymmetry rather than a preference. Worker capacity is elastic and the
+orchestrator is the scarce singleton, so the interval between one session closing and the next opening
+is the only period in which worker time is free and orchestrator time costs nothing at all. A wind-down
+that queues nothing forfeits that entire interval, and the next resume then begins by dispatching and
+waiting rather than by consuming results.
+
+What to queue, in priority order: the mandatory validation pass for the closing window (so the
+compensating control for any skipped closing-change QA is already running); the per-change sweep for the
+last merged change, which the closing change is itself exempt from; research or draft candidates for the
+next few queued items; and any defect hunt whose target the closing session touched, while the changes
+are recent.
+
+Four disciplines keep the pre-queue from becoming a liability. Pin every order to the closing MERGE
+commit, never a branch head that disappears when the change is squashed, and to a commit that CONTAINS
+every path and identifier the order tells the worker to read. Queue enough to fill the LIVE worker pool
+rather than an unbounded backlog, which goes stale unserved and misreports the queue depth. Name the
+pre-queued orders in the handoff record, so the receiving session can distinguish a missing delivery
+from one that was never ordered. And treat a pre-queued order as work DISPATCHED, never work DONE: the
+receiving session still consumes each result, re-verifies every positive finding at source, and routes
+findings through the normal triage.
+
 ## Prohibited anti-patterns
 
 - **Winding down on felt degradation or work shape.** No instrument, no trigger; continue, with verification sustaining quality.

@@ -8,6 +8,51 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.665, PR #1177 (session-closing handoff)
+
+The session's last two queued items, then the close.
+
+### Changed
+
+- **The overdue public-CHANGELOG condensation ran** via
+  [`tools/build-public-changelog.py`](../../tools/build-public-changelog.py) in its
+  emit-verify-then-prune sequence, which is the order that makes it data-safe: the completed-week
+  entries were appended to the private full-per-PR source FIRST (1020 to 1021 entries), then the prune
+  ran with `--verify-private`, which refuses to remove anything not already archived. The public root
+  went from 127 to 120 entries with 119 kept per-PR. The tool left a `CONDENSE-SCAFFOLD` comment rather
+  than inventing a weekly summary, and the summary was authored from the per-PR material it preserved
+  in the comment block.
+
+### Added
+
+- **Wind-down pre-queueing as a standing discipline**, in
+  [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) and as a portable section in the pack's
+  [`session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md). This was
+  the maintainer's original ask at the 2026-07-25 resume and it stayed outstanding all session, which is
+  itself the argument for writing it down. The reasoning is a resource asymmetry rather than a
+  preference: worker capacity is elastic and the orchestrator is the scarce singleton, so the hours
+  between one session closing and the next opening are the only stretch in which worker time is free
+  and orchestrator time costs nothing at all. A wind-down that queues nothing forfeits that entire
+  window, and the next resume then opens by dispatching and waiting instead of by consuming.
+- Four disciplines are recorded with it, each traceable to something that went wrong earlier in the
+  same session: pin to the closing MERGE commit (a PR branch head vanishes on squash-merge) AND to a
+  commit that CONTAINS what the order references (three orders this session referenced things absent at
+  their own pin); queue to fill the LIVE worker pool rather than an unbounded backlog; NAME the
+  pre-queued orders in the handoff so a missing delivery is distinguishable from one never ordered; and
+  treat a pre-queued order as work DISPATCHED, never work done.
+
+### Verification
+
+- The discipline was exercised immediately rather than only written: `validate-pr-1176` (blocking,
+  priority 0) and `design-3.73-ledger-row-gate` are pre-queued against `462352b1`, the #1176 merge
+  commit. The validate-pr order asks for this session's six backlog CLOSURES to be judged
+  adversarially, because a wrongly-closed item is invisible afterwards, and names the 182-of-182
+  register measurement as the specific claim to re-derive.
+- Per the handoff-PR exception, this PR runs no trailing `/validate-pr` or `/retro`; the compensating
+  control is the next session's corpus-wide `/validate`, and the pre-queued `validate-pr-1176` covers
+  the last substantive PR. The [`validate-pr/history.md`](../validate-pr/history.md) row records the exemption with the
+  gate-50-recognized marker in its Findings cell.
+
 ## 2026-07-25, Library Version 2026.07.664, PR #1176
 
 The audit-programme spec cited eleven backlog sections. TODO sections are DELETED when their item
