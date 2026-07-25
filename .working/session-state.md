@@ -1,16 +1,16 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/resume-sweep120-closeout
 
-**Status:** released
+**Status:** active
 
-**Operating-mode:** attended-autonomous
+**Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-25T02:21:49Z
+**Last-heartbeat-UTC:** 2026-07-25T03:47:17Z
 
-**Current-task:** RELEASED at the #1150 session-closing handoff (2026-07-24/25 worker-wiring / file-drop-transport session; maintainer-directed ASAP wind-down once file-drop readiness was verified). The next `/resume` runs from `/home/grc/grc_library` (PATH MIGRATION: all sibling repos relocate to `/home/grc/`, off `/home/jposluns`) and must UPDATE ALL `/home/grc` repos first, then run the Sweep 120 loop-break `/validate` over #1106..#1150. File-drop transport is LIVE (workers restart onto `/home/grc/grc_working` via the transport-aware `/credit-offload`; the orchestrator dispatches via `credit-offload-filedrop.py dispatch` and consumes from `outbox/`). See the session handoff NEXT SESSION block for the full queue.
+**Current-task:** ACQUIRED at the 2026-07-25 `/resume` (branch `claude/resume-sweep120-closeout`). Mode moved ATTENDED to OVERNIGHT-UNATTENDED at maintainer direction ~03:5xZ with express authorization of the full queue INCLUDING merging H-01 on green (the maintainer chose the merge option with the no-human-review tradeoff stated; the orchestrator compensates by running the full high-assurance harness on H-01 rather than the single pre-push verifier). All four `/home/grc` repos synced; 77/77 green at `1b8cb202`. Sweep 120 loop-break `/validate` OFFLOADED and in flight (worker-20260716-a). Overnight queue: consume Sweep 120; apply the saturation file-drop-awareness patch; fix the 5 deep-assessment command lockstep findings; widen gate 44 guard-first; H-01 retention (2 carriers) under high assurance; consume the 2 scratch triage passes and execute the prune; process the 3 maintainer alerts (fix, leave UNCLEARED, clearing is the maintainer's decision); refresh handoff plus session metrics.
 
-**Worker-dispatches:** opus `worker-20260716-a` + `worker-20260716-b` (Opus 4.8) and the new Codex `codex-mailz-a` (family codex, role any). At close, `worker-20260716-a` and `codex-mailz-a` were heartbeating via the file-drop transport. PENDING CONSUME next session: `validate-pr-1149` (git-scratch `_scratch` `results/`) and `fd-verify-1149-deepassess` (file-drop `codex/outbox`); re-verify positives at source. MANDATORY-OFFLOAD active; the file-drop transport is now the same-VM path (git-scratch is the cross-VM fallback).
+**Worker-dispatches:** Fleet on the file-drop transport, worker ids CHURNED this session (the collision defect): opus `worker-20260716-a` (holds `sweep-120-validate`), opus `worker-20260725-c` (holds `fix-worker-id-collision-phase1`), codex `codex-mailz-a` (holds `scratch-queue-results-prune-list` AND `codex-env-package-phase1`, a one-at-a-time violation nothing enforced). CONSUMED this session: `fd-verify-1149-deepassess` (codex, PASS, 4 claims independently re-derived) and its `fnaudit-fd-verify-1149` auditor (opus-c, REFUTED the no-drift conclusion with 2 error findings). DELIVERED, pending consume: `fix-saturation-filedrop-awareness`, `codex-hooks-integration-test` (NOT-READY, 3 HIGH). MANDATORY-OFFLOAD active; git-scratch delivery instruction RETIRED (it caused a worker to rewrite the shared `.git/index`).
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

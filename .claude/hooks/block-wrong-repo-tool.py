@@ -30,7 +30,7 @@ Everything else is ALLOWED:
   - a command containing an explicit ``cd `` (the author manages cwd deliberately, e.g.
     ``cd <repo> && python3 tools/foo.py``, or the cwd-guard-tool subshell);
   - a cwd-relative PROJECT tool (softened scope: the documented ``tools/x`` commands stay valid);
-  - an ABSOLUTE tool path (``python3 /home/jposluns/grc_library/tools/foo.py``);
+  - an ABSOLUTE tool path (``python3 /home/grc/grc_library/tools/foo.py``);
   - a ``git -C <path> ...`` command (explicit target repo);
   - read-only git (``status``/``log``/``diff``/``show`` are not in the mutating set);
   - a filename mentioned as an argument (``grep -n x tools/foo.py``) (not invoked).
@@ -175,7 +175,10 @@ def main(argv: list[str]) -> int:
     project_dir = (
         workspace.get("project_dir")
         or os.environ.get("CLAUDE_PROJECT_DIR")
-        or "/home/jposluns/grc_library"
+        # Last-resort fallback: resolve the project root from this hook's own location
+        # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
+        # correct across a repo move (for example /home/jposluns -> /home/grc).
+        or str(Path(__file__).resolve().parents[2])
     )
     try:
         block, reason = decide(command, project_dir)

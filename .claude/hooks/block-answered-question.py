@@ -182,7 +182,10 @@ def main(argv: list[str]) -> int:
     project_dir = (
         workspace.get("project_dir")
         or os.environ.get("CLAUDE_PROJECT_DIR")
-        or "/home/jposluns/grc_library"
+        # Last-resort fallback: resolve the project root from this hook's own location
+        # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
+        # correct across a repo move (for example /home/jposluns -> /home/grc).
+        or str(Path(__file__).resolve().parents[2])
     )
     try:
         block, reason = decide(payload, project_dir)
