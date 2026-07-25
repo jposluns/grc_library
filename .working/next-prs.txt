@@ -1,2 +1,2 @@
-1) worker-id collision layer 1; 2) codex independent re-verify consume; 3) never-recycle gate
-# then: TODO 3.115 four open gate-44 routes; 3.111 --exclude-worker; 3.114 changelog-length thresholds; 1.14 Layer B
+1) consume 3110 never-recycle verify; 2) layer 2 enable after independent read; 3) 4 open gate-44 routes
+# then: TODO 3.111 --exclude-worker (unenforceable-by-construction, confirmed); 3.114 changelog thresholds; 1.14 Layer B

@@ -396,7 +396,17 @@ is external. Two mechanisms:
      multi-surface-incompleteness guard). For a **count, value, or term correction**, the
      contradiction grep is on the BARE token (`grep -nE '\b18\b'`), not a phrasing-specific
      string (`18 spot-scanned`): a phrasing-specific grep misses word-order variants of the
-     same stale value on other lines. The same
+     same stale value on other lines. **Counterpart discipline on the CLAIM side (the #1161
+     lesson): bare-token width is right for the SEARCH but wrong for the CLAIM when the token
+     is a legitimate substring of real content.** A completion claim must name the SLOT, not
+     the string. "No fabricated title survives anywhere in the corpus" was refuted as literally
+     stated, because the fabricated phrase `Post-Quantum Cryptography Readiness` is the leading
+     substring of the corpus's own document title `Post-Quantum Cryptography Readiness Roadmap`
+     and so appears legitimately in eight places; the checkable claim is "no fabricated title
+     survives IN A TITLE SLOT for SP 800-208", which is what the corpus's own record said. So
+     run the grep at bare-token width, then scope the CLAIM to the slot the token must not
+     occupy, because an unscoped claim invites a false refutation from the next verifier who
+     runs the same grep and reads the hit count. The same
      bare-token width applies to ENUMERATIONS, not only scalar counts: on a gate-list
      widening, grep both the comma form and the slash form of the old list (`48, 49, 54`
      AND `48/49/54`), since an enumeration is a value that carries its own separators; and it applies to REFUTATION searches, not only correction greps:
