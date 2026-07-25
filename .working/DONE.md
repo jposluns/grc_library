@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### PR #1173: TODO 3.110 closed, the never-recycle rule now has a gate (2026-07-25)
+
+Backlog item numbers were declared permanent on 2026-07-15 with nothing enforcing it, and the rule had been broken twice, once with a live consequence when a recycled number sent held research to the wrong item. Gate 78 now reports a number denoting both a live item and a recorded retirement, and a section counter at or below the highest ordinal used in it. It landed GREEN on the same commit: seven pre-rule collisions are grandfathered in an audited, closed EXEMPT set, and the one genuine post-rule finding turned out not to be a recycled number at all but a completed item never rotated out of TODO (the Quebec Law 25 re-ingest, whose DONE entry and reference-base PR both already existed), so it was deleted. Part (c) of the item, the gate-69 blind-spot work, is routed separately.
+
 ### PR #1158: gate 59 cross-file version parity + the last gate-44 fail-open route (2026-07-25)
 
 Closed TODO 3.112: gate 59 compared PR-number parity between the two changelog files and version monotonicity within each, but never that one PR carried the same version in both, which is how #1155 shipped `2026.07.642` in root beside a never-shipped `2026.07.641` in the mirror. Also closed the eleventh and final gate-44 fail-open route, an inline reference-link label passing as prose. The new gate-59 check was validated by replaying it against the real #1155 state, where it returns rc 1.
