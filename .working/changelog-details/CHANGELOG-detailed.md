@@ -8,7 +8,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
-## 2026-07-25, Library Version 2026.07.663, PR #1176
+## 2026-07-25, Library Version 2026.07.664, PR #1176
 
 The audit-programme spec cited eleven backlog sections. TODO sections are DELETED when their item
 closes, by design, so a corpus document citing one is depending on something built to disappear.
@@ -70,6 +70,47 @@ Seven of the eleven were already wrong.
   earlier working measurement. Recorded because a broken measurement that returns a plausible
   uniform result is worse than one that errors, and this one would have put three false claims in a
   record.
+
+The #1175 post-merge sweep returned one error and two warnings, all three valid, and one of them found
+a defect in the exact failure direction its order asked it to hunt.
+
+### Fixed
+
+- **V1175-1 (ERROR): the submit postcondition could report an unsent prompt as SUBMITTED.**
+  `submit_state` searched for a 40-character literal probe in the captured composer. `tmux` wraps a
+  long line at the pane width, so a payload sitting unsent in the composer is captured across several
+  lines and the literal does not appear, and the check fell through to `submitted`. The caller then
+  prints SENT, logs the send, and stops polling, so a worker that received nothing is recorded as
+  nudged. Reproduced before fixing with the sweep's own constructed pane. Both sides of the comparison
+  are now whitespace-normalized, which makes it wrap-invariant, and the sweep's pane shape is kept
+  VERBATIM as a reality fixture rather than tidied, because tidying it is where the defect would hide
+  again. Mutation-proved: reverting the normalization fails the suite.
+- **V1175-2 (warning): the token-spend parser invented figures from negated statements.**
+  "Token spend: not reported; the task budget is 8,000 tokens" returned 8000, because the pattern took
+  the first number within 40 non-digit characters regardless of whether it was a spend. That is worse
+  than returning nothing: an invented figure enters a report that is read as evidence, against the
+  tool's own stated premise that an unreadable figure is UNKNOWN rather than a guess. The window is now
+  20 characters, a negation between the phrase and the number disqualifies the match, and word
+  multipliers are supported. A second defect surfaced while fixing it: the multiplier was applied AFTER
+  truncating to int, so "8.4 thousand" became 8000 and "3.1k" became 3000. All six of the sweep's cases
+  are now fixtures.
+- **V1175-3 (warning): the per-tool discriminability figures were wrong, and so was my correction.**
+  #1175 published 9/3/13/6. The sweep measured 9/4/14/6 and was RIGHT. My original figures were stale
+  because I measured them before adding the submit-state code, which is the mid-PR figure drift the
+  CHANGELOG count-reflex bullet exists to catch. Worse, when I re-measured to check the sweep's claim I
+  got 9/3/13/6 again and briefly believed the sweep was mistaken: my re-measurement grepped the tool's
+  OUTPUT with a pattern matching only `NOT-DETECTED` / `BLIND-CASE` / `NO-CASE`, which silently misses
+  the `inherent/externally-covered` rows the tool counts in its own total. **The correct figures come
+  from the tool's own summary line: 9, 4, 14 and 6, totalling 33 across the four tools, not 31.**
+
+### Discipline observation
+
+**Third occurrence today of one mechanism: a grep over a tool's output disagreeing with the tool's own
+figure, and my grep losing.** The earlier two were a mutation matrix counting FAIL lines instead of exit
+codes, and a malformed classification regex returning a uniform GONE for nine keys. The rule this
+establishes: when a tool reports a count, QUOTE THE TOOL'S SUMMARY LINE. A grep over its output is a
+reimplementation of its counting logic, written in haste, with no test, and it will disagree at the
+edges the tool was careful about.
 
 ## 2026-07-25, Library Version 2026.07.662, PR #1175
 

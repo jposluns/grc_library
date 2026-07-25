@@ -53,11 +53,23 @@ DELIVERY_TRAY_REL = "inbox/deliveries"
 # A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a
 # delivery, not a field, so the brief's wording drifts and a single pattern would silently read
 # zero for a delivery that did report one. Matches "8,400", "8400", "~8.4k", "8.4K".
+# Words that NEGATE a spend statement. If one of these sits between the phrase and the number, the
+# number is not the spend: "Token spend: not reported; the task budget is 8,000 tokens" must yield
+# UNKNOWN, not 8000. Found by the #1175 sweep, which fed exactly that string and got 8000.
+NEGATION = re.compile(r"\b(?:not|no|none|nil|unknown|unreported|n/?a|without)\b", re.I)
+
+# Word multipliers, so "8.4 thousand tokens" is 8400 rather than 8.
+WORD_MULT = {"thousand": 1_000, "k": 1_000, "million": 1_000_000, "m": 1_000_000}
+
+# A spend statement. The window between the phrase and the number is DELIBERATELY SHORT (20 chars,
+# was 40) and must not contain a negation: the earlier form accepted the first number within 40
+# non-digits, so an unrelated budget figure later in the sentence became the spend.
 SPEND_PATTERNS = (
-    re.compile(r"token[s]?\s+spend[^0-9]{0,40}([0-9][0-9,\.]*\s*[kKmM]?)", re.I),
-    re.compile(r"token[s]?\s+(?:spent|used)[^0-9]{0,40}([0-9][0-9,\.]*\s*[kKmM]?)", re.I),
-    re.compile(r"(?:spent|used|approximately|approx\.?|about|~)\s*([0-9][0-9,\.]*\s*[kKmM]?)\s*tokens",
+    re.compile(r"token[s]?\s+spend\b(.{0,20}?)([0-9][0-9,\.]*)\s*([kKmM]|thousand|million)?", re.I),
+    re.compile(r"token[s]?\s+(?:spent|used)\b(.{0,20}?)([0-9][0-9,\.]*)\s*([kKmM]|thousand|million)?",
                re.I),
+    re.compile(r"(?:spent|used|approximately|approx\.?|about|~)(.{0,12}?)([0-9][0-9,\.]*)"
+               r"\s*([kKmM]|thousand|million)?\s*tokens", re.I),
 )
 
 
@@ -88,15 +100,31 @@ def parse_spend(token_text: str):
 def find_reported_spend(text: str):
     """PURE. The first readable self-reported spend in a delivery, or None.
 
-    FIRST match, not largest: a delivery's own "Token spend" section is what the brief asks for,
-    and picking the largest number would happily pick up an unrelated corpus figure the delivery
-    happens to quote.
+    FIRST match, not largest: a delivery's own "Token spend" section is what the brief asks for, and
+    picking the largest number would happily pick up an unrelated corpus figure the delivery quotes.
+
+    REFUSES on a negated statement. The #1175 sweep showed the earlier form turning
+    "Token spend: not reported; the task budget is 8,000 tokens" into 8000, which is worse than
+    returning None: an invented figure enters a report that is read as evidence. The tool's whole
+    premise is that an unreadable figure is UNKNOWN rather than zero or a guess, so the parser must
+    hold to that too.
     """
     for pattern in SPEND_PATTERNS:
         for m in pattern.finditer(text or ""):
-            value = parse_spend(m.group(1))
-            if value is not None:
-                return value
+            gap, digits, word = m.group(1) or "", m.group(2), (m.group(3) or "")
+            if NEGATION.search(gap):
+                continue  # the statement negates a spend; the number belongs to something else
+            # Multiply BEFORE truncating to int. Truncating first turned "8.4 thousand" into
+            # 8 * 1000 = 8000 and "3.1k" into 3000, silently losing the fractional part that the
+            # multiplier exists to scale.
+            try:
+                raw = float(digits.replace(",", ""))
+            except ValueError:
+                continue
+            if raw < 0:
+                continue
+            mult = WORD_MULT.get(word.lower().strip(), 1) if word else 1
+            return int(raw * mult)
     return None
 
 
@@ -290,6 +318,23 @@ def self_test() -> int:
 
     check("transcript_dir_for: underscores hyphenate too, not only separators",
           transcript_dir_for(Path("/home/grc/grc_library")).name, "-home-grc-grc-library")
+    # The #1175 sweep's own cases, kept verbatim as reality fixtures. The first two are the defect:
+    # the earlier parser turned a NEGATED spend statement into a real figure by grabbing an unrelated
+    # budget number later in the sentence, which is worse than returning None because an invented
+    # figure enters a report read as evidence.
+    for name, text, want in (
+        ("a negated statement yields None, not the budget figure",
+         "Token spend: not reported; the task budget is 8,000 tokens.", None),
+        ("a 'none' statement yields None, not the allowed budget",
+         "Tokens spent: none, although the allowed budget was 8,000 tokens.", None),
+        ("a spelled-out figure is unreadable, so None", "Approximate token spend: eight thousand tokens.",
+         None),
+        ("a word multiplier scales BEFORE truncation", "Token spend: 8.4 thousand tokens.", 8400),
+        ("a fractional k scales before truncation", "Tokens spent: 3.1k", 3100),
+        ("an uppercase M scales", "Token spend: 1.2M", 1200000),
+    ):
+        check(f"find_reported_spend: {name}", find_reported_spend(text), want)
+
     check("context_multiplier: zero output yields None, not a division error",
           context_multiplier({"output": 0, "cache_read": 100}), None)
     check("context_multiplier: the ratio is cache-read over output",
