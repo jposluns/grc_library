@@ -1081,6 +1081,29 @@ point of use; and keep a pure decision function behind a thin observer so both h
 `tools/audit-worker-saturation.py` is the local pattern to copy: its logic is pure, and today's
 discriminability audit found it the one tool here with zero undetectable guard sites.
 
+## Pin an order to a SHA that CONTAINS what the order references
+
+Three orders on 2026-07-25 asserted something untrue at their own pinned SHA, and each cost a worker
+cycle: one named a function that existed only on an unmerged branch, one pinned a merge SHA that
+PREDATED the backlog item the order told the worker to read, and one carried a worker exclusion as
+prose that nothing enforced.
+
+**The rule is narrower than "pin to a merge SHA", which was already the practice and was not enough.**
+The correction adopted after alert 2026-07-23-a made a pinned SHA REACHABLE (never a PR branch head
+that vanishes on squash-merge). It did not make the SHA CONTAIN what the order references. So: pin to
+a commit that contains every path, item and identifier the order tells the worker to read, which for
+an order derived from backlog item N means the commit that CREATED item N, not merely a later one.
+
+**Two mechanical backstops now exist at dispatch**, and their severities differ on purpose:
+- **A REFUSAL** when `not_worker` names a worker id the exchange has never seen, because that input is
+  exact and a vacuous exclusion silently disables an independence control.
+- **A WARNING** when a referenced path or `TODO N.M` item is absent at the pinned SHA, because that
+  extraction is heuristic and a false refusal on a legitimate dispatch would get the check bypassed.
+
+**Read the dispatch output.** Both backstops are useless if the dispatch line scrolls past unread, and
+a warning is exactly the shape that gets skimmed. The orchestrator's own habit is the primary control;
+these are defence in depth.
+
 ## Codex workers are single-shot: dispatch, check in, then re-check every 10 minutes
 
 Maintainer-directed 2026-07-25, after the codex session minted four worker ids in under two hours and
