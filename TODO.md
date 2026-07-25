@@ -677,7 +677,7 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 | MEG-10 | §5.4 | Healthcare country regulator overlays: source-gated except EU MDR/IVDR (held). |
 | MEG-11 | §5.7 | Public-sector country/regulator overlays: source-gated. |
 | MEG-12 | §5.8 | Privacy jurisdiction gaps (Argentina PDPA 2025, Saudi PDPL): source-gated. |
-| MEG-13 | §5.9 | AI jurisdiction overlays (Canada AIDA, UK, NYC bias-audit, China, Korea): source-gated. |
+| MEG-13 | §5.9 | AI jurisdiction overlays (UK, China, Korea): source-gated. Canada AIDA and the NYC bias-audit law are NOT in this queue: both are STRUCK candidates rather than open gaps (AIDA lapsed and re-confirmed dead upstream 2026-07-24; NYC covered in full by its own annex), per the section 5.9 body. Do not acquire sources for either. |
 | MEG-14 | §6.2 | Quantum-crypto readiness: source-gate CLEARED in #1129 (FIPS 203/204/205 held + confirmed current); core deepening shipped; residual is a PQC migration playbook + PQC-ready CA/PKI (build-ready). |
 | MEG-15 | AI Strategy FPS | Complete re-download of the AI Strategy for the Federal Public Service 2025-2027 full text (LOW; currency, not a content gap). [in egress queue] |
 
