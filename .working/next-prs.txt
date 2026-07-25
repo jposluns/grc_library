@@ -1,2 +1,2 @@
-1) consume validate-pr-1166/1167; 2) draft-3115 + draft-3116 (mutation-prove fixtures); 3) rotate TODO 3.100
-# then: codex exec runner (needs maintainer approval of cost ceiling); assessment M-03/M-05; sign-off request
+1) stalled-worker detect + tmux nudge; 2) daily changelog condense 07-22/23/24; 3) consume 4 P1 deliveries
+# then: codify wind-down worker pre-queueing; fnaudit-sweep121 + audit-selftest-discriminability findings; alert 2026-07-25-a fail-open worker-id exclusion; SP 800-208 register row (no egress needed); draft-3115 + draft-3116 (mutation-prove fixtures); rotate TODO 3.100; codex exec runner (needs maintainer approval of cost ceiling)
