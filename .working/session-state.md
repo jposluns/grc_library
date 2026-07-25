@@ -4,7 +4,7 @@
 
 **Status:** active
 
-**Operating-mode:** overnight-unattended
+**Operating-mode:** fully-attended
 
 **Last-heartbeat-UTC:** 2026-07-25T03:47:17Z
 
