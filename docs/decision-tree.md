@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.18\
-**Date:** 2026-07-10\
+**Version:** 1.0.19\
+**Date:** 2026-07-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`README.md`](../README.md), [`docs/worked-example.md`](worked-example.md)\
@@ -346,7 +346,7 @@ Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privac
 
 **"I'm building AI products. Where do I start?"**
 
-Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. The EU AI Act and the Colorado AI statute each have a dedicated jurisdiction annex in `ai/jurisdictions/` (see 5.1).
+Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. Seven jurisdictions have a dedicated annex in `ai/jurisdictions/` (see 5.1): Australia, Canada, the European Union, Singapore, US California (CCPA ADMT), US Colorado, and US New York City.
 
 ---
 

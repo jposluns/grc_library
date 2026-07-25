@@ -8,6 +8,37 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.638, PR #1152
+
+Closes TODO 1.24, the Sweep 120 F2 finding family: two AI-jurisdiction annexes shipped in-window (California ADMT in #1141, Singapore in #1143) without the judgment-call surfaces that name them being updated, so the library understated its own coverage to adopters. Worker-drafted against a verified annex enumeration, orchestrator-applied. Also routes the never-recycle enforcement gap the #1151 verifier chain surfaced.
+
+### Fixed
+
+- **The public For-AI page positively asserted the corpus does NOT cover California ADMT or Singapore**, the most adopter-visible error in the set. Both are now in the jurisdiction list, Singapore carrying an "advisory, not legislation" qualifier because the list is headed AI-specific legislation and adding it unqualified would have traded one accuracy defect for another. The follow-on paragraph now qualifies Texas and Illinois as cited in the AI compliance policy without a dedicated annex, rather than merely "named".
+- **[`governance/register-glossary.md`](../../governance/register-glossary.md)** routed ADMT to the annex #1141 explicitly de-designated. It now points at the canonical California annex, and a second defect on the same line is fixed: the instrument was mis-named "CPRA" where both annexes and the regulations themselves are the CCPA regulations.
+- **[`governance/register-coverage-gaps.md`](../../governance/register-coverage-gaps.md) section 2.5** is replaced in full. It graded Canada AIDA an open planned gap that TODO 5.9 had struck, and its preamble said the structure holds only the EU annex. A third stale row the sweep did not list claimed "the NYC bias-audit law and other US states are not yet cited in any corpus document", false in three separate ways at once: NYC has a dedicated annex, California has one, and Texas and Illinois are cited with verified canonical-citations rows. Fixing the two routed lines while leaving that row would have left the register self-contradictory.
+- **[`docs/decision-tree.md`](../../docs/decision-tree.md)** routed AI adopters to two of seven annexes; it now names all seven. The count and the list are both present deliberately, so a future drift trips the collection-enumeration gate rather than passing silently.
+- **[`tools/build-portal.py`](../../tools/build-portal.py)** hardcoded a two-annex enumeration in its Compliance blurb. The selector one line below it already derives the full set from the filesystem, so the enumeration was duplicated state and is deleted rather than lengthened: "every AI jurisdiction annex" cannot go stale at any count.
+- **[`TODO.md`](../../TODO.md) section 2.21** deferred six AI annexes as having "no held primary yet". The deferral was wrong on arrival for Australia, whose annex predated the deferral text by three days, and the source-gate is cleared for Texas and Illinois (both primaries held, both cited). The other three have held full texts and need citation adoption rather than acquisition. Left as written, an unattended session would have re-run acquisition for sources already held, or built a duplicate annex.
+
+### Changed
+
+- **[`.web/build.py`](../../.web/build.py) now scans static page templates when rendering the corpus link manifest**, so gate 75's reach goes from 321 to 369 distinct targets. The previously-uncovered 48 include **all 15 governance rules and all 24 skills**: the site linked them and no gate resolved them, so a rule or skill rename would have broken the live site silently. All 48 resolve at this SHA, so the gate passes immediately with no red window. The manifest header no longer claims a universality it lacked.
+
+### Added
+
+- **TODO 3.110**, the never-recycle enforcement gap. #1151 created an item number already retired in PR #1130, and the class-width re-verify then found a further live violation predating #1151 (section 3.100) plus counters stale against their sections. The rule is stated in [`TODO.md`](../../TODO.md) and enforced by nothing, which is why the assistant that had just read it still broke it. The item specifies both the reconcile and the mechanical check.
+
+### Verification
+
+- Gate 75 standalone after the manifest widening: every web-to-corpus link target resolves, rc 0. All three generator `--check` forms clean, regenerated in dependency order with taxonomy first so the derived artefacts never bake a stale version.
+- Three corpus documents bumped Version and Date in the same commit as their bodies: the glossary to 1.4.14, the coverage-gaps register to 1.1.31, the decision tree to 1.0.19.
+- Every premise was re-verified at source before applying, and the applied text came from the delivery verbatim rather than retyped, extracted programmatically to remove transcription risk.
+
+### Discipline observation
+
+The draft's value was concentrated in what the order did NOT ask for. Three of the eight surfaces were wrong more broadly than the finding recorded, all three found by enumerating the collection instead of checking the cited lines: a third stale register row, a preamble understating by six rather than five, and the Australia deferral that was already false when written. The generator surface inverted the order's own instruction for a better reason than the order gave, deleting duplicated state rather than re-deriving it. Recorded because the pattern now repeats: on this and the two preceding orders, the highest-value output came from a worker declining the order's framing and measuring instead.
+
 ## 2026-07-25, Library Version 2026.07.637, PR #1151
 
 The Sweep 120 resume close-out for the 2026-07-25 session. Records the loop-break corpus-wide `/validate`, fixes its single error finding together with the warning that is that error's enforcement half, prunes the session handoff per the keep-current-plus-one-prior discipline, and routes the remaining 24 findings to [`TODO.md`](../../TODO.md) so every finding reaches a terminal disposition.
