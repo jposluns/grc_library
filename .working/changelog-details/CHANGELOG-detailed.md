@@ -8,6 +8,20 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.635, PR #1149
+
+Fixes the paired-command lockstep gap that the offloaded #1148 `/validate-pr` found, and records the #1148 QA audit trail. Found by feeding an idle credit-offload worker the #1148 post-merge sweep; the worker (worker-b, Opus 4.8) applied a self-verification guard because its own deep-assessment restructure design was the change under review, re-deriving each claim from the head.
+
+### Fixed
+- [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md): the condensed slash-command mirror had drifted from its authoritative SKILL after #1148. Phase 1 said "all three repos" while the SKILL now checks four (adding `grc_library_private`); phase 4 omitted the new sub-pass (e) validation-coverage ([`tools/audit-validation-coverage.py`](../../tools/audit-validation-coverage.py)); phase 6 omitted the new sub-pass (d) private-store operational-document review (orchestrator-only). All three were re-verified at source, then fixed by extending the existing step prose (not adding numbered steps), so the eight-step gate-44 paired-skill parity stays intact. Gate 44 could not catch this class: it compares numbered step-identifier sets, not prose repo counts or sub-pass enumerations (the retro lesson: step-parity is not content-parity).
+
+### Changed
+- [`README.md`](../../README.md): Library Version 2026.07.634 to 2026.07.635; README Version 1.9.995 to 1.9.996.
+- [`.working/validate-pr/history.md`](../validate-pr/history.md): the #1148 `/validate-pr` row (3 findings, all in the paired command, offloaded, self-verification guard applied). [`.working/improvement-log.md`](../improvement-log.md): the #1148 `/retro` row.
+
+### Verification
+- All 77 audit gates pass (gate 44 paired-skill step-parity confirmed green after the edits, via the pre-push guard). The language and unbalanced-fence linters run clean on the touched `.claude/` command prose. The three findings were re-verified at source before fixing.
+
 ## 2026-07-25, Library Version 2026.07.634, PR #1148
 
 Trust-recovery build part 2 (§1.23; maintainer-directed 2026-07-24). Wires the anti-recurrence coverage tool into the whole-project deep-assessment and makes every phase worker-splittable. Offloaded design (`research-deepassess-restructure`, worker-b), authored to preserve the pack's project-agnosticism (concrete repo names in the Project-wiring block, generic in the phase text, which the design's literal prose did not fully separate).
