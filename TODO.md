@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.112.**
+**Next item number: 3.113.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.112 Gate 59 never compares a PR's version ACROSS the two changelog files (2026-07-25, M, XS)
+
+[`tools/lint-changelog-mirror-header-parity.py`](tools/lint-changelog-mirror-header-parity.py) (gate 59) checks PR-number set parity between the root [`CHANGELOG.md`](CHANGELOG.md) and the detailed mirror, and checks that Library Versions strictly decrease WITHIN each file, but never that a PR present in BOTH files carries the SAME version in each. Found in #1156's own bookkeeping: #1155 shipped `2026.07.642` (per [`README.md`](README.md) at merge `0366b91c`, and per root) while the mirror recorded `2026.07.641`, a version that was never shipped at all. Both files were independently monotonic and the PR sets matched, so the gate passed. Fix is small and false-positive-free by construction: the gate's `pr_headers()` already returns a parsed version per record, so join the two record lists on PR number and flag any pair whose versions differ, skipping a record whose version did not parse (already tolerated). Add a positive fixture (same PR, divergent versions, must fail) and a negative one (agreeing versions, must pass). Same fail-open shape as the gate-44 routes closed in #1154 and #1155; worth pairing with the remaining gate-44 route in the same PR since both are parity-gate widenings.
 
 ### 3.111 File-drop dispatch cannot target or exclude a worker, so verifier independence is unenforceable (2026-07-25, M, S)
 
