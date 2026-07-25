@@ -1,2 +1,2 @@
-1) worker-id collision layer 1; 2) never-recycle gate + gate-69 blind spots; 3) --exclude-worker
-# then: TODO 1.14 Layer B egress sweep; scratch inbox-delivery triage apply; codex env package (needs maintainer)
+1) worker-id collision layer 1; 2) 4 open gate-44 routes; 3) never-recycle gate + gate-69 blind spots
+# then: TODO 3.111 --exclude-worker (verifier independence); 3.114 changelog-length threshold mismatch; TODO 1.14 Layer B
