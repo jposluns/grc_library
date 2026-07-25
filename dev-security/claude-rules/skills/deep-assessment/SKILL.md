@@ -16,14 +16,23 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   convention the fitness-review records use).
 - Gate-efficacy tools (phase 4's deterministic halves): `tools/audit-gate-blindspots.py`
   and `tools/audit-gate-mutation.py` with its variant library
-  `tools/gate-mutation-variants.json`.
+  `tools/gate-mutation-variants.json`; and the validation-coverage tool for phase 4(e),
+  `tools/audit-validation-coverage.py`.
 - Phase-3 advisory aids: `tools/verify-reference-modules.py`,
   `tools/audit-brief-freshness.py`, `tools/residual-scan.py`, and `tools/tension-scan.py`
   (the last two run over the QA ledgers).
 - Sibling-repo set: the corpus repo (`grc_library`), the reference base
-  (`grc_library_ref`, the held source texts and indexes phase 5 judges against), and the
-  worker exchange (`grc_library_scratch`, the delivery pipeline phase 6 reviews); each
-  sibling carries its own validation gate (`tools/validate.py`).
+  (`grc_library_ref`, the held source texts and indexes phase 5 judges against), the
+  worker exchange (`grc_library_scratch`, the delivery pipeline phase 6 reviews), and the
+  private operational store (`grc_library_private`, the orchestrator's operational state:
+  the decision-log, the design-decisions record, the operating runbook, the egress and
+  activity requests, and the store index; phase 2 runs its gate and phase 6(d)
+  content-reviews it). Each sibling carries its own validation gate (`tools/validate.py`);
+  `grc_library` carries `tools/run_all_audits.sh` instead. CAUTION: `grc_library_private`
+  has received direct-push-to-`main` operations that bypassed the PR and CI path, so its
+  content is not gate-verified by construction, and it is not in a worker's read surface,
+  so its baseline gate, its validation-coverage row, and its phase-6(d) content review are
+  orchestrator-only.
 - Phase-1 inventory sources: the audit runner `tools/run_all_audits.sh`, the PR-time
   delta runner `tools/run-pr-time-checks.sh`, the `.claude/commands/` directory plus the
   pack skills directory, the advisory tools under `tools/`, and the audit-programme
@@ -94,8 +103,9 @@ file (the dated per-run record pattern named in the project wiring; the non-date
 register stays in-repo by design). Environment preconditions, each verified
 mechanically, never assumed: a full clone (`git rev-parse --is-shallow-repository` must
 print `false`; unshallow first otherwise, per the full-clone methodology rule), the
-corpus repo, the reference base, and the worker exchange (as named in the project
-wiring) all present, and the session-concurrency interlock satisfied. Derive the live
+corpus repo, the reference base, the worker exchange, and the private operational store
+(as named in the project wiring) all present, and the session-concurrency interlock
+satisfied. Derive the live
 instrument inventory from the repo, not from this skill's text: the gate list from the
 audit runner, the PR-time checks from the delta runner, the skill and command set from
 the command directory and the pack skills directory, the advisory tools from the tools
@@ -107,7 +117,10 @@ wiring). Record the inventory and the HEAD SHA in the run record.
 Run, standalone and unpiped: the audit runner and the PR-time delta runner (named in
 the project wiring), the linter regression suite, every generator `--check` invocation,
 and each sibling repo's own validation gate. All must exit 0 before any semantic phase;
-a failure here is itself a finding and is fixed or routed before proceeding. Record the green-at-SHA
+a failure here is itself a finding and is fixed or routed before proceeding. A sibling
+gate that went red while ungated direct-push operations kept landing on that sibling is
+the exact failure this phase now catches, so a non-green sibling gate is a finding of the
+same standing as a red corpus gate, not a silent condition. Record the green-at-SHA
 baseline in the register and cross-check it against the session handoff's asserted
 expectations.
 
@@ -128,7 +141,7 @@ model, so set the session model deliberately at phase boundaries.
 
 ### 4. Audit the audit programme itself
 
-The phase the routine cadence never runs. Four sub-passes, each recorded: (a)
+The phase the routine cadence never runs. Five sub-passes, each recorded: (a)
 **blind-spot map**: run the blind-spot mapping tool named in the project wiring to
 compute, from every
 linter's own exemption configuration, which repo surfaces are scanned by which gates
@@ -143,7 +156,21 @@ have never fired, and which recurring failure classes in the improvement and
 hallucination ledgers still have no gate or convention guard. (d) **independent parity
 re-derivation**: reconcile the workflow, runner, pre-commit, and specification
 inventories by hand, explaining or routing every count discrepancy rather than
-trusting the parity gate's own pass.
+trusting the parity gate's own pass. (e) **validation-coverage**: run the
+validation-coverage tool named in the project wiring, which reports, per repository the
+assistant writes to, whether a validating CI workflow reaches it and whether recent
+commits landed through a PR (with a validating workflow present in the repo) or an
+ungated direct-push. The other lenses of
+this phase examine the ARTEFACTS and the GATES that check them; none examines the
+sequence of pushes that actually landed, so a whole class of unvalidated operation (a
+direct push to `main` that never opened a PR and never triggered CI) is invisible by
+construction: no artefact is wrong and every gate that ran was green, yet a change landed
+unchecked. This sub-pass reads the durable evidence that operation leaves, the git
+landing pattern and the CI-workflow presence, not an operation log there is none to
+trust. An ungated landing on a repo that should require PRs is a HIGH trust-recovery
+finding (it is the class this lens exists to close); a branch-protection enforcement the
+assistant's token cannot read routes as a maintainer-verify deferral in the phase-8
+sign-off packet, never silently cleared.
 
 ### 5. Sample content accuracy against ground truth
 
@@ -158,7 +185,7 @@ each accepted-unverified item gets a durable tracker.
 
 ### 6. Assess adoptability, pipeline integrity, and the QA ledgers
 
-Three sub-passes: (a) **fresh-adopter simulation**: from a bare clone with no project
+Four sub-passes: (a) **fresh-adopter simulation**: from a bare clone with no project
 context, follow the README, portal, and scorecard to select and tailor one document;
 score discoverability, tailoring friction, toolchain portability (the project's stated toolchain claims; for the parent library, its stdlib-only tooling and Python version envelope), and the documented adopter options. (b) **pipeline
 integrity**: review the CI workflow's hardening (permissions scoping, action pinning)
@@ -167,7 +194,18 @@ via the platform API rather than assumed, run a full-history secret and PII scan
 verify the guard and hook defences fire in the current environment. (c) **ledger
 meta-audit**: sample QA history rows against their run records for the sham-pass
 shape, trend the hallucination and session metrics, and reconcile the cross-repo
-coverage surfaces.
+coverage surfaces. (d) **private-store operational-document consistency**: because the
+private operational store (named in the project wiring) has received direct-push
+operations that no gate content-checks, read its load-bearing operational docs for
+internal consistency and against the corpus and ledgers they coordinate: its decision-log
+(do resolved entries match the corpus closed-item and pending-decisions state), its
+design-decisions record, its operating runbook (does it still describe the live process
+and the repo model), its egress and activity requests (are recorded requests still
+accurate, not stale), and its store index (does it enumerate what the store actually
+holds). A divergence is a finding routed like any in this phase; this is the content half
+of the coverage the phase-2 gate cannot give, since the private store has no content gate.
+Where the private store is not in a worker's read surface, this sub-pass, the private
+store's phase-2 gate, and its phase-4(e) row are run by the orchestrator directly.
 
 ### 7. Verify, dedupe, tier, and route every finding
 
@@ -188,6 +226,24 @@ the routed set to the maintainer, tiered. The run terminates ONLY on the maintai
 explicit sign-off; an empty finding set is presented for sign-off, never
 self-declared complete. Until sign-off, the register row stays `in-progress` and the
 next `/resume` surfaces it like the other standing registers.
+
+### Parallel execution (worker fan-out)
+
+Every phase decomposes into disjoint units the orchestrator may dispatch to parallel
+workers, coordinated through the phase-state register extended from per-phase to per-unit
+rows: each unit is claimed before work and reported on completion, pinned to the run HEAD
+SHA, the same claims-ledger discipline the project's worker exchange already uses. Two
+constraints bound the fan-out. The mechanical baseline (phase 2) is a BARRIER: every
+baseline unit, including each sibling gate, must be green before any semantic-phase unit
+starts, so phase 2 is dispatched then joined, never overlapped with phases 3 to 6. And the
+private operational store is not in a worker's read surface, so its baseline gate, its row
+of the phase-4(e) validation-coverage sub-pass, and its phase-6(d) operational-document
+review are orchestrator-only units; everything on the corpus, the reference base, and the
+worker exchange is worker-dispatchable. After the phase-2 join, phases 3, 4, 5, and 6 run
+as one parallel fan-out, each semantic instrument, each phase-4 sub-pass, each citation
+batch, and each phase-6 slice a separate unit; phase 7 (synthesis) joins them and is
+orchestrator-only, as is phase 8 (sign-off). A full pass's wall-clock then drops from
+serial to about the slowest unit per phase plus the two barriers.
 
 ## Red Flags
 

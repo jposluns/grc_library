@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### Deep-assessment coverage of unvalidated operations (trust-recovery build part 2) (2026-07-25, PR #1148)
+
+Wired the validation-coverage tool into `/deep-assessment` and made the pass worker-splittable (§1.23 part 2). Brought `grc_library_private` into scope (the sibling set, phase-1 present check, phase-2 gate, and a new phase-6(d) content review of its ungated operational docs), added a phase-4(e) validation-coverage sub-pass (the operation class the artefact-and-gate lenses miss by construction, since none reads the operation log), and documented the per-phase worker fan-out bounded by the phase-2 barrier and the orchestrator-only private-store units. Authored from the offloaded design (worker-b), refined to keep concrete repo names in the Project-wiring block and generic prose in the phases (pack project-agnosticism). Pack 1.65.6 to 1.65.7.
+
 ### Validation-coverage audit tool (anti-recurrence for the direct-push-without-validation failure) (2026-07-25, PR #1147)
 
 Built `tools/audit-validation-coverage.py`, a cross-repo advisory that flags any ungated direct-push landing on a PR-required repo (grc_library, `_ref`, `_private`), the exact 2026-07-24 `_private` failure signature, using the commit-to-PR association as the reliable signal (the assistant token cannot read branch protection). Attribution (assistant `Co-Authored-By` trailer vs maintainer web-upload) annotates but does not gate the finding. Self-test (8 cases) wired into the regression suite. Live run confirmed grc_library clean, `_private` remediated (now PR-protected), and surfaced a still-open gap on `_ref` (currently allows direct-pushes). Part 1 of the maintainer-directed trust-recovery build.
