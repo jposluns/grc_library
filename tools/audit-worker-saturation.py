@@ -84,6 +84,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from lint_common import resolve_sibling, sibling_placeholder_present
@@ -276,6 +277,50 @@ def claimable_by(worker, order_fields):
     return worker not in barred
 
 
+def ctime_age_minutes(path):
+    """Minutes since the path's inode last changed. Observer.
+
+    Distinct from mtime age because os.rename preserves mtime but advances ctime, which is exactly
+    the difference the availability clock turns on (see collect_stall_facts).
+    """
+    try:
+        return max(0.0, (time.time() - path.stat().st_ctime) / 60.0)
+    except OSError:
+        return 0.0
+
+
+def session_age_from_id(worker_id):
+    """Minutes since this worker's session STARTED, parsed from its minted id. Pure.
+
+    The id is `<family>-<YYYYMMDD>T<HHMMSS>Z-<4 hex>` and the heartbeat FILE NAME is the id, so the
+    timestamp is available without reading anything.
+
+    THIS IS THE DEFECT THIS FUNCTION EXISTS TO FIX (found by a worker 2026-07-25, after TODO 3.116
+    had already closed). The shipped version used the heartbeat marker's mtime as the session age.
+    A heartbeat marker is REWRITTEN on every check-in, so its mtime is the LAST CHECK-IN, never the
+    session start, and neither does its ctime. Because the stall evidence is a min() of three spans
+    and the heartbeat age also caps liveness at STALE_MINUTES, an mtime-derived session age made the
+    evidence unable to exceed STALE_MINUTES: the signal could fire only in the narrow band between
+    STALL_MINUTES and STALE_MINUTES, minutes before the worker would be called stale anyway. A
+    worker heartbeating on its documented cycle, which is the ENTIRE subject of the check ("the
+    worker keeps heartbeating but stops claiming"), could never be flagged. The guard's logic was
+    correct throughout; it was fed an input that cannot answer the question asked of it.
+
+    Returns +inf for an id that does not carry a conforming timestamp. +inf and not 0.0: the value
+    feeds a min() of vetoes, so an unparseable id must contribute NO veto rather than a permanent
+    one. A legacy or hand-made id therefore neither suppresses a real suspect nor invents one.
+    """
+    match = re.search(r"(\d{8}T\d{6}Z)", worker_id or "")
+    if not match:
+        return float("inf")
+    try:
+        started = datetime.datetime.strptime(
+            match.group(1), "%Y%m%dT%H%M%SZ").replace(tzinfo=datetime.timezone.utc)
+    except ValueError:
+        return float("inf")
+    return max(0.0, (datetime.datetime.now(datetime.timezone.utc) - started).total_seconds() / 60.0)
+
+
 def collect_stall_facts(root):
     """The file-drop walk: one WorkerFacts row per heartbeat marker. Observer; decides nothing.
 
@@ -306,9 +351,15 @@ def collect_stall_facts(root):
                 held = sorted(q.stem for q in inbox.glob("*.md") if q.name != "README.md")
                 holds = held[0] if held else None
             outbox = fam_dir / "outbox" / worker
-            # Since its LAST delivery. A worker that has never delivered is treated as its session
-            # age, so a brand-new worker is not credited with an infinite quiet period.
-            since_delivery = mtime_age_minutes(hb)
+            # Since its LAST delivery, or +inf when it has never delivered. The +inf is deliberate
+            # and was WRONG here before: this fell back to heartbeat age, which made the span a
+            # permanent veto (see session_age_from_id for why any heartbeat-derived span cannot
+            # answer this question). A never-delivered worker gives NO evidence about quiet time,
+            # and since evidence is a min() of vetoes, "no evidence" must be +inf, not a small
+            # number that silently vetoes. The compounding factor: collect-deliveries.py sweeps
+            # outboxes empty, so `ages` is now routinely empty for a worker whose results were
+            # collected, which made the bad fallback the COMMON path rather than the rare one.
+            since_delivery = float("inf")
             if outbox.is_dir():
                 ages = [mtime_age_minutes(q) for q in outbox.glob("*.md") if q.name != "README.md"]
                 if ages:
@@ -324,10 +375,15 @@ def collect_stall_facts(root):
                         continue
                     if not claimable_by(worker, fields):
                         continue
-                    oldest_claimable = max(oldest_claimable, mtime_age_minutes(order))
+                    # ctime, NOT mtime: `reclaim` returns an order to available-work with
+                    # os.rename, which PRESERVES mtime, so a reclaimed order's mtime age includes
+                    # the span a now-dead worker held it. That inflated span would fire against a
+                    # healthy worker that has only had the chance to claim it since the rename.
+                    # ctime advances on the rename, so it dates the order's availability.
+                    oldest_claimable = max(oldest_claimable, ctime_age_minutes(order))
             facts.append(WorkerFacts(
                 family=fam, worker=worker, hb_age=mtime_age_minutes(hb), holds=holds,
-                session_age=mtime_age_minutes(hb), since_delivery=since_delivery,
+                session_age=session_age_from_id(worker), since_delivery=since_delivery,
                 oldest_claimable=oldest_claimable))
     return facts
 
@@ -1014,6 +1070,89 @@ def self_test():
             print(f"  FAIL: {_n} -> {_got} suspect(s), expected {_want}")
         else:
             print(f"  PASS: {_n}")
+    # COLLECTOR-level cases (added 2026-07-25 after a worker found the shipped stall signal could
+    # not fire). The seven PURE cases above were all correct and all passed, which is precisely why
+    # they missed the defect: the predicate was right and the INPUT could not answer the question.
+    # Every case below is DISCRIMINATING against the shipped code, i.e. it fails if the input
+    # reverts. A pure-predicate suite alone cannot catch a guard-input defect, so the collector's
+    # derivation of each span needs its own pinning.
+    for _n, _id, _want in (
+            ("a conforming worker id yields a finite session age", "opus-20260101T000000Z-aaaa", True),
+            ("an unparseable id yields +inf, contributing NO veto", "legacy-worker-a", False),
+            ("an impossible date yields +inf rather than raising", "opus-20261399T999999Z-bb", False),
+    ):
+        total += 1
+        _age = session_age_from_id(_id)
+        _finite = _age != float("inf")
+        if _finite != _want:
+            failures.append(_n)
+            print(f"  FAIL: {_n} -> {_age}")
+        else:
+            print(f"  PASS: {_n}")
+    with tempfile.TemporaryDirectory() as _td:
+        _r = Path(_td)
+        # (1) The availability clock is ctime, not mtime. Setting mtime 45m into the past leaves
+        # ctime at now, so a ctime-based read stays ~0 while an mtime-based read returns ~45. This
+        # is the only way to pin fix 3: ctime CANNOT be aged with os.utime (the kernel owns it), so
+        # a genuinely-old availability span is not constructible here. The discrimination runs the
+        # other way instead, and it is enough to catch a revert to mtime.
+        _o = _r / "order.md"
+        _o.write_text("- **id:** o\n", encoding="utf-8")
+        os.utime(_o, (time.time() - 45 * 60,) * 2)
+        total += 1
+        _av = ctime_age_minutes(_o)
+        if _av > 5.0:
+            failures.append("the availability clock ignores a back-dated mtime")
+            print(f"  FAIL: the availability clock ignores a back-dated mtime -> {_av:.1f}m "
+                  "(reverted to mtime)")
+        else:
+            print("  PASS: the availability clock ignores a back-dated mtime")
+        # (2) THE DEFECT ITSELF. A worker minted long ago that is heartbeating on its normal cycle
+        # must report its SESSION age, not its heartbeat age. Under the shipped code this reported
+        # ~1 minute, which capped the evidence below STALL_MINUTES and made the whole check inert.
+        _fam = _r / "opus"
+        for _sub in ("heartbeat", "available-work", "inbox", "outbox"):
+            (_fam / _sub).mkdir(parents=True, exist_ok=True)
+        _old = (datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(minutes=600)).strftime("%Y%m%dT%H%M%SZ")
+        _wid = f"opus-{_old}-cccc"
+        _hb = _fam / "heartbeat" / _wid
+        _hb.write_text("x\n", encoding="utf-8")
+        os.utime(_hb, (time.time() - 60,) * 2)  # heartbeating one minute ago: healthy cycle
+        total += 1
+        _f = [f for f in collect_stall_facts(_r) if f.worker == _wid]
+        _sa = _f[0].session_age if _f else -1.0
+        if not _f or _sa < 500.0:
+            failures.append("session age comes from the minted id, not the heartbeat mtime")
+            print("  FAIL: session age comes from the minted id, not the heartbeat mtime -> "
+                  f"{_sa:.1f}m (heartbeat is 1m old; a heartbeat-derived value cannot exceed it)")
+        else:
+            print("  PASS: session age comes from the minted id, not the heartbeat mtime")
+        # (3) A never-delivered worker gives +inf, not its heartbeat age. collect-deliveries.py
+        # sweeps outboxes empty, so this fallback is the common path, not the rare one.
+        # (3b) The availability clock at its CALL SITE, not just in the helper. Testing
+        # ctime_age_minutes directly is NOT sufficient: reverting only the call site to
+        # mtime_age_minutes leaves the helper's own test passing, which is how the first version of
+        # this case let the revert through. A back-dated-mtime order must age ~0, not ~45.
+        _ord = _fam / "available-work" / "back-dated.md"
+        _ord.write_text("- **id:** back-dated\n", encoding="utf-8")
+        os.utime(_ord, (time.time() - 45 * 60,) * 2)
+        total += 1
+        _f = [f for f in collect_stall_facts(_r) if f.worker == _wid]
+        _oc = _f[0].oldest_claimable if _f else -1.0
+        if not _f or _oc > 5.0:
+            failures.append("the collector's availability span uses ctime at the call site")
+            print("  FAIL: the collector's availability span uses ctime at the call site -> "
+                  f"{_oc:.1f}m (call site reverted to mtime)")
+        else:
+            print("  PASS: the collector's availability span uses ctime at the call site")
+        total += 1
+        _sd = _f[0].since_delivery if _f else 0.0
+        if _sd != float("inf"):
+            failures.append("an empty outbox yields +inf for since-delivery")
+            print(f"  FAIL: an empty outbox yields +inf for since-delivery -> {_sd}")
+        else:
+            print("  PASS: an empty outbox yields +inf for since-delivery")
     # The claimability amendment: a BARRED order must not make its excluded worker a suspect.
     for _n, _worker, _fields, _want in (
             ("an unbarred worker may claim", "opus-a", {}, True),

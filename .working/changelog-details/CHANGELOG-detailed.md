@@ -8,6 +8,104 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.662, PR #1175
+
+The stalled-worker signal that closed TODO 3.116 two days ago could not fire on the condition it
+was built for. A worker found it after the item had closed, which is the case the out-of-band alert
+channel exists for: the item was closed, the tool reported nothing, and nothing reporting nothing
+reads as health.
+
+### Fixed
+
+- **`session_age` came from the heartbeat marker's mtime** in
+  [`tools/audit-worker-saturation.py`](../../tools/audit-worker-saturation.py). A heartbeat marker
+  is rewritten on every check-in, so its mtime is the LAST CHECK-IN, never the session start (nor
+  does its ctime). Because the stall evidence is a `min()` of three spans and liveness separately
+  caps heartbeat age at `STALE_MINUTES` (20), an mtime-derived session age made the evidence unable
+  to exceed 20 minutes, while firing needs it above `STALL_MINUTES` (15). The signal could therefore
+  fire only in the band (15, 20], five minutes before the worker would be declared stale anyway. A
+  worker heartbeating on its documented five-minute cycle could never be flagged, and that worker is
+  the entire subject: the item's own words were "the failure mode is not 'the worker dies', it is
+  'the worker keeps heartbeating but stops claiming'". Reproduced independently before fixing:
+  0 suspects at heartbeat ages 1, 5, 10 and 14 minutes, 1 at 16 and 19, 0 again at 21. The new
+  `session_age_from_id` parses the `YYYYMMDDTHHMMSSZ` stamp out of the minted worker id (the
+  heartbeat FILE NAME is the id, so nothing extra is read) and returns `+inf` for a non-conforming
+  id, because the value feeds a `min()` of vetoes and an unparseable id must contribute NO veto
+  rather than a permanent one.
+- **The never-delivered fallback compounded the same error.** `since_delivery` fell back to
+  heartbeat age when a worker's outbox held nothing, making that span a permanent veto too. It now
+  yields `+inf`. This mattered more after #1171: [`tools/collect-deliveries.py`](../../tools/collect-deliveries.py) sweeps outboxes
+  empty, so the empty-outbox path became the common one rather than the rare one, and two of the
+  same day's changes interacted to flatten a second span.
+- **The availability clock read mtime where it needed ctime.** `reclaim` returns an order to
+  `available-work` with `os.rename`, which PRESERVES mtime, so a reclaimed order's mtime age
+  included the span a now-dead worker held it and could fire against a healthy worker that has only
+  had the chance to claim it since the rename. ctime advances on the rename. Confirmed safe before
+  adopting: nothing chmods an order while it waits in `available-work` (dispatch writes then
+  chmods once, reclaim renames without chmod), so ctime is not spuriously reset mid-wait.
+
+- **The tmux submit postcondition reported two working workers as never prompted.**
+  [`tools/manage-workers.py`](../../tools/manage-workers.py) read the pane ONCE,
+  `ENTER_DELAY_S` after Enter, and declared failure if a distinctive slice of the payload was still
+  visible. A large payload is still sitting in the composer at that instant because the TUI has not
+  finished processing it, so a single read cannot distinguish "the TUI absorbed the Enter" from "it
+  has not got to it yet". Two claude workers were reported NOT SUBMITTED while both were
+  demonstrably working seconds later (one generating, one running shell commands). The boolean
+  `submit_failed` is replaced by `submit_state`, which returns `submitted` /
+  `not-submitted` / `indeterminate`, and the call site now POLLS to `SUBMIT_POLL_S` (8s), breaking
+  as soon as it reads submitted. The third state is the substance: a pane whose composer cannot be
+  located, or a probe too short to discriminate, now yields `UNVERIFIED` and says delivery is
+  unconfirmed, rather than asserting either outcome. A new pure `composer_region` scopes the read
+  to the composer box by locating the horizontal rules both TUIs draw around it, so the region is
+  principled rather than a fixed line count.
+
+### Added
+
+- **Fifteen discriminating self-test cases**: seven collector-level cases in the saturation tool (37 to 44), and eight submit-state cases in `manage-workers` replacing three (38 to 43). The seven pre-existing
+  cases pinned the pure predicate exhaustively and all passed, which is exactly why they missed
+  this: the predicate was correct and the INPUT could not answer the question. This is the
+  guard-input class, and it is not reachable by a pure-predicate suite, so each span's DERIVATION is
+  now pinned separately. Every new case is discriminating, verified by reverting each fix in turn
+  against a calibrated harness (negative control passing, positive control failing) and confirming a
+  non-zero exit: session age DETECTED, never-delivered span DETECTED, availability clock DETECTED.
+
+### Verification
+
+- The first version of the availability-clock case tested `ctime_age_minutes` directly and did NOT
+  detect a revert of its CALL SITE, because the helper's own test kept passing. Caught by the
+  mutation matrix, then re-scoped to assert on the fact row `collect_stall_facts` produces. Recorded
+  because it is the same shape as the defect being fixed: testing the instrument is not testing the
+  wiring.
+- An earlier run of that matrix reported all three reverts NOT DETECTED. That was a harness
+  artefact: it counted `FAIL` lines rather than the exit code, so a mutant that crashed read as
+  undetected. Re-run with controls, which is the calibration discipline this session codified after
+  four such false signals.
+- End-to-end on the item's canonical shape (worker minted 45 minutes ago, heartbeat 1 minute old,
+  order waiting 45 minutes): 1 suspect at 45 minutes of evidence, against 0 before the fix.
+- [`tools/run_all_audits.sh`](../../tools/run_all_audits.sh): all 78 gates pass.
+  [`tools/run-linter-regression.py`](../../tools/run-linter-regression.py): green (the tool's
+  `--self-test` runs under it via [`tests/test_linters.py`](../../tests/test_linters.py)).
+
+- **The first diagnosis of the submit defect was WRONG, and the correction is recorded rather than
+  quietly replaced.** It was written up as the whole-pane read picking up the TUI's echo of a
+  submitted prompt in the scrollback. That could not have been the mechanism: the old call site read
+  only `pane_tail(session, 4)`, the last four lines, and the echo sat tens of lines above. Checking
+  `pane_tail`'s definition is what refuted it. The composer scoping is still worth having and is
+  kept, but the defect was the single premature read, and the fix that matters is the poll. Stated
+  because a plausible mechanism accepted without checking the one function it depends on is the
+  inference-before-validation failure, committed here while fixing two others of the same family.
+
+### Discipline observation
+
+The worker disclosed that it was reporting its own delivered design as mis-applied, and asked that
+the authorship be weighed. It was, and the finding held on independent reproduction. The root cause
+is a substitution the candidate had specifically argued against in terms: it computed session start
+from the minted id precisely because "the heartbeat marker is rewritten on every check-in, so
+neither its mtime nor its st_ctime records when the session began". The applied version dropped that
+parse and its own comment records the belief that heartbeat age IS session age, so this reads as a
+good-faith substitution at apply time rather than a shortcut, which is the class the apply-time
+worker-correction discipline exists to catch and did not.
+
 ## 2026-07-25, Library Version 2026.07.661, PR #1174
 
 A mutation probe that calibrates itself, a findings ledger that blocks, and the four QA deliveries that were sitting unread. One of those corrected this project's own rule text.
