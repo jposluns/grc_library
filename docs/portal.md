@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.0\
-**Date:** 2026-07-24\
+**Date:** 2026-07-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -513,7 +513,7 @@ The Data Protection Officer needs the privacy programme charter, policy, procedu
 
 ## Compliance
 
-The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, the audit programme, the AI jurisdiction annexes (EU AI Act, Colorado AI Act), and the reverse framework crosswalk (GDPR / EU AI Act / DORA / NIS 2 mappings).
+The Chief Compliance Officer needs the compliance and audit policies, the regulatory applicability register, sector annexes, trade-compliance registers, the audit programme, every AI jurisdiction annex, and the reverse framework crosswalk (GDPR / EU AI Act / DORA / NIS 2 mappings).
 
 ### Annex
 
