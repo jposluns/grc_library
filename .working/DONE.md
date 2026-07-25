@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### PR #1158: gate 59 cross-file version parity + the last gate-44 fail-open route (2026-07-25)
+
+Closed TODO 3.112: gate 59 compared PR-number parity between the two changelog files and version monotonicity within each, but never that one PR carried the same version in both, which is how #1155 shipped `2026.07.642` in root beside a never-shipped `2026.07.641` in the mirror. Also closed the eleventh and final gate-44 fail-open route, an inline reference-link label passing as prose. The new gate-59 check was validated by replaying it against the real #1155 state, where it returns rc 1.
+
 ### §1.25 Sweep 120 citation and attribution precision residuals closed (2026-07-25, PR #1156)
 
 Nine held-source items, eight fixed and one refuted. The headline: NIST SP 800-208 carried a FABRICATED title in two alignment tables ("PQC Transition Planning" and "Post-Quantum Cryptography Readiness"), where the held title page reads "Recommendation for Stateful Hash-Based Signature Schemes"; both were semantically wrong too, since that standard covers stateful hash-based signatures rather than PQC transition. Also fixed: the OWASP Agentic publication date (the date cell only, the version cell reading 2026 being correct), a promotional superlative in the ETSI row, the NIST PQC AES-equivalence attributed to standards that do not state it, the ML-DSA-44 RBG condition restored to the standard's BAND rather than an upper bound alone, FIPS 205 added to a paired approved-algorithm list that omitted it, the OWASP MCP Top 10's Beta status disclosed where it anchors controls, and a non-canonical framework name in a crosswalk header. The Texas TRAIGA date finding was REFUTED at source: the register's convention makes upstream the authority and the row is upstream-verified, so the sweep's hypothesis did not survive.

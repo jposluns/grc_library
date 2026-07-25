@@ -231,6 +231,16 @@ URL_RE = re.compile(r"(?:\bhttps?://|\bwww\.)\S+", re.IGNORECASE)
 # would discard genuine representation.
 IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
+# The inline reference-link LABEL form `[visible text][label]`. The label is a
+# reference key, not prose, but it survived every strip added in #1154 and #1155
+# and could satisfy a subsection token match on its own: a command reading
+# `See [the notes][parallel-execution-worker-fan-out]` counted `parallel`,
+# `execution`, `worker`, `fan` and `out` while omitting the subsection entirely.
+# Handled exactly as LINK_TARGET_RE handles an inline target: the label is
+# replaced and the closing bracket kept, so the VISIBLE TEXT survives as prose.
+# A shortcut reference (`[label]` alone, no second bracket pair) is deliberately
+# NOT matched, because there the label IS the visible text.
+REF_LINK_LABEL_RE = re.compile(r"\]\[[^\]]*\]")
 REF_DEFINITION_RE = re.compile(r"^\s*\[[^\]]+\]:.*$", re.MULTILINE)
 HTML_TAG_RE = re.compile(r"<[^>]+>")
 
@@ -246,7 +256,17 @@ def content_tokens(text: str) -> set[str]:
     - fenced code (via ``iter_non_code_lines``, whose contract is fence-only:
       an INDENTED code block is not stripped, so do not rely on it being),
     - HTML comments, which are invisible to a reader,
+    - reference-link definitions, whose whole line is a key and a target,
+    - images WHOLE, alt text included, since alt text is not command prose,
+    - inline-link TARGETS and inline reference-link LABELS, keeping the visible
+      link text in both cases, since the text is prose and the target and the
+      label are keys,
+    - HTML tags, and
     - URLs, whose path slugs routinely contain topic words.
+
+    The reference-LABEL strip closes the twelfth such route (2026-07-25): the
+    eleven closed in #1154 and #1155 left `[visible text][label]` intact, so a
+    label slug could satisfy a subsection match by itself.
 
     Without this, ONE incidental token anywhere in the file satisfied the
     subsection check. A single line of the form
@@ -260,6 +280,7 @@ def content_tokens(text: str) -> set[str]:
     visible = REF_DEFINITION_RE.sub(" ", visible)
     visible = IMAGE_RE.sub(" ", visible)
     visible = LINK_TARGET_RE.sub("] ", visible)
+    visible = REF_LINK_LABEL_RE.sub("] ", visible)
     visible = HTML_TAG_RE.sub(" ", visible)
     visible = URL_RE.sub(" ", visible)
     return set(TOKEN_RE.findall(visible.lower()))

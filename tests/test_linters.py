@@ -2428,6 +2428,58 @@ class PairedSkillStepParityTests(LinterTestCase):
             "a compressed but represented subsection must not be flagged",
         )
 
+    def test_reference_link_label_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard, route B. The twelfth
+        # route: `[visible text][label]`. The label is a reference key, not
+        # prose, yet it survived the eleven strips added in #1154 and #1155 and
+        # could satisfy a subsection match on its own.
+        #
+        # The command below omits the subsection entirely and its ONLY carrier
+        # of the heading tokens is the LABEL, so this can only pass if the label
+        # strip ran. Confirmed by mutation: removing REF_LINK_LABEL_RE from
+        # content_tokens makes this test fail. That check matters because a
+        # sibling fixture in #1155 initially passed for the wrong reason,
+        # exercising comment-stripping rather than the URL strip it named.
+        mod = self._load_module()
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens(
+                "See [the notes][parallel-execution-worker-fan-out] for background.\n"
+            ),
+            "a token only inside a reference-link LABEL is not representation",
+        )
+        skill = (
+            "## Process\n\n### 1. Only step\n\nBody.\n\n"
+            "### Parallel execution (worker fan-out)\n\nBody.\n\n## Red Flags\n"
+        )
+        command = (
+            "1. **Only step**: content.\n\n"
+            "See [the notes][parallel-execution-worker-fan-out].\n\n"
+            "[parallel-execution-worker-fan-out]: ../x.md\n"
+        )
+        findings = mod.unrepresented_subsections(skill, command)
+        self.assertEqual(
+            len(findings), 1,
+            f"the label-only command must be flagged, got {findings}",
+        )
+
+    def test_reference_link_visible_text_still_counts(self) -> None:
+        # NEGATIVE fixture: the visible text of a reference link IS prose and
+        # must survive the label strip, exactly as inline-link text survives the
+        # target strip. Three shapes, because the strip must not over-reach.
+        mod = self._load_module()
+        for shape, text in (
+            ("full", "We run [parallel execution by worker fan-out][n], out.\n"),
+            ("collapsed", "We run [parallel execution by worker fan-out][], out.\n"),
+            ("shortcut", "We run [parallel execution by worker fan-out], out.\n"),
+        ):
+            tokens = mod.content_tokens(text)
+            for token in ("parallel", "execution", "worker", "fan", "out"):
+                self.assertIn(
+                    token, tokens,
+                    f"{shape} reference: visible text must remain prose ({token})",
+                )
+
     def test_heading_inside_fence_is_not_a_subsection(self) -> None:
         # NEGATIVE fixture: an illustrative `###` heading inside a fenced
         # block is a template, not a document subsection. This is the
@@ -2946,6 +2998,71 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
         self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_shared_pr_with_different_versions_flagged(self) -> None:
+        # POSITIVE fixture, fail-open regression guard (added in PR #1158). The gate
+        # checked PR-number set parity and per-file monotonicity but never that
+        # a PR present in BOTH files carried the SAME version. PR #1155 shipped
+        # 2026.07.642 (root and README) while the mirror said 2026.07.641, a
+        # version never shipped; both files were independently monotonic and the
+        # PR sets matched, so the gate passed.
+        #
+        # Built so ONLY the new check can fire: identical PR sets (no
+        # missing/extra), no duplicates, and each file descends strictly on its
+        # own (root .9 then .8; mirror .7 then .6). Every pre-existing check
+        # therefore passes and a failure can only come from the version join.
+        # Confirmed by mutation: reverting the join makes this test pass.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.07.8, PR #520\n\ntext.\n",
+                "## 2026-07-01, Library Version 2026.07.7, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.07.6, PR #520\n\ntext.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("DIFFERENT Library Versions", result.stdout)
+        self.assertIn("#521", result.stdout)
+        self.assertIn("root=2026.07.9", result.stdout)
+        self.assertIn("mirror=2026.07.7", result.stdout)
+
+    def test_shared_pr_with_identical_versions_passes(self) -> None:
+        # NEGATIVE fixture: the same PR set with matching versions must stay
+        # silent, which is what makes the widening shippable.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            same = (
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n"
+                "## 2026-06-30, Library Version 2026.07.8, PR #520\n\ntext.\n"
+            )
+            self._write_pair(root, same, same)
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("SAME Library Version in both files", result.stdout)
+
+    def test_unparseable_version_is_skipped_not_flagged(self) -> None:
+        # NEGATIVE fixture, boundary: a header whose version does not parse
+        # yields None, which the ordering assertion already tolerates. The new
+        # join must SKIP such a pair rather than start failing on a shape the
+        # rest of the gate accepts.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write_pair(
+                root,
+                "## 2026-07-01, Library Version 2026.07.9, PR #521\n\ntext.\n",
+                "## 2026-07-01, PR #521\n\ntext.\n",
+            )
+            result = run_linter(
+                "tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
+            )
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("DIFFERENT Library Versions", result.stdout)
 
     def test_compact_root_header_parses(self) -> None:
         # The stage-3a compact root header form (TODO 3.16 changelog reformat)

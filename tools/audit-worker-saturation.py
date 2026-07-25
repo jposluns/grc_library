@@ -380,9 +380,12 @@ def merge_orders(scratch_orders, filedrop_orders, delivered=frozenset()):
     same id to file-drop, where a worker then claims it: the claimed state is the
     later, more accurate one.
 
-    ``delivered`` is the set of order ids with a result file in a file-drop outbox.
-    Such an order is FINISHED whatever either plane's row still says, so it is
-    dropped from the outstanding count. This is what keeps a delivered-but-still-
+    ``delivered`` is the set of order ids with a file in a file-drop outbox. Read it as
+    "a worker wrote something back", NOT as "the work is complete": a NOT-RUN notice and
+    a declined order are indistinguishable from a finished result here, and that is
+    deliberate, because in every case the git-scratch row should stop sitting ``pending``
+    once a worker has responded. Such an order is dropped from the outstanding count
+    UNLESS file-drop currently shows it outstanding (see the retirement rule below). This is what keeps a delivered-but-still-
     ``pending`` git-scratch row (a file-drop delivery never updates that row) from
     inflating ``outstanding`` and flipping the verdict to SATURATED when the truth is
     IDLE-CAPACITY. Evidence is DELIVERY, not a status field, so the count does not
@@ -394,7 +397,16 @@ def merge_orders(scratch_orders, filedrop_orders, delivered=frozenset()):
         if merged.get(oid) == "claimed":
             continue
         merged[oid] = state
-    for oid in delivered:
+    # Retire only ids file-drop does NOT currently show. A historical outbox file must
+    # not erase an order that is outstanding RIGHT NOW: an id can be re-dispatched
+    # (the natural move, since the id names the work) while an older outbox file for it
+    # survives, and popping it then makes a genuinely outstanding order invisible to
+    # the observable, which is the under-count direction and how an order gets
+    # forgotten. Current file-drop presence outranks a historical outbox file, the same
+    # "later state wins" logic already applied for claimed-over-pending above. Found by
+    # the #1157 post-merge sweep (F1), whose precondition was live at the time: a
+    # NOT-RUN notice sat in an outbox for work that still needed doing.
+    for oid in delivered - set(filedrop_orders):
         merged.pop(oid, None)
     return merged
 
@@ -635,14 +647,47 @@ def _plane_cases(tmp):
     cases.append(("phantom does not flip IDLE-CAPACITY to SATURATED",
                   cf_s, cf_f, (3, 1, 1, "IDLE-CAPACITY")))
 
-    # 9. A delivered order retires even when BOTH planes still show it outstanding
-    #    (scratch 'pending' AND a stale inbox copy), because delivery is the evidence.
+    # 9. A delivered order retires when the SCRATCH row is the only thing still calling
+    #    it outstanding. This is the W1 phantom in its pure form: git-scratch says
+    #    'pending', file-drop has no entry at all (delivery unlinked the inbox copy), and
+    #    an outbox file exists. It retires.
+    #    NOTE: an earlier version of this case asserted that delivery also outranks a
+    #    LIVE claimed inbox copy, and expected (1, 0, 0, IDLE-CAPACITY). That expectation
+    #    was WRONG and encoded the under-count the #1157 post-merge sweep found as F1: a
+    #    historical outbox file must not erase an order that is outstanding right now.
+    #    Cases 10 and 11 now cover that shape with the correct expectation.
+    dd_s = _build_scratch(tmp / "c9-scratch",
+                          workers={"w-a": ("active", 1)},
+                          orders={"o-both": "pending"})
     dd_f = _build_filedrop(tmp / "c9-working",
                            heartbeats={"opus": {"w-a": 1}},
-                           available={}, claimed={"opus": {"w-a": ["o-both"]}},
+                           available={}, claimed={},
                            delivered={"opus": {"w-a": ["o-both"]}})
-    cases.append(("delivery outranks a stale claimed inbox copy",
-                  None, dd_f, (1, 0, 0, "IDLE-CAPACITY")))
+    cases.append(("delivery retires a scratch-only phantom",
+                  dd_s, dd_f, (1, 0, 0, "IDLE-CAPACITY")))
+
+    # 10. THE UNDER-COUNT GUARD (the #1157 post-merge sweep's F1). A historical outbox
+    #     file must NOT erase an order that is outstanding right now. An id can be
+    #     re-dispatched while an older outbox file for it survives (a NOT-RUN notice was
+    #     sitting in an outbox for real work when this was found), and retiring it then
+    #     makes a genuinely outstanding order invisible, which is how an order gets
+    #     forgotten. Here o-redispatched is BOTH in available-work and in an outbox: it
+    #     must still count as pending.
+    rd_f = _build_filedrop(tmp / "c10-working",
+                           heartbeats={"opus": {"w-a": 1}},
+                           available={"opus": ["o-redispatched"]}, claimed={},
+                           delivered={"opus": {"w-a": ["o-redispatched"]}})
+    cases.append(("a re-dispatched id is not retired by an old outbox file",
+                  None, rd_f, (1, 1, 0, "SATURATED")))
+
+    # 11. Same guard on the CLAIMED side: an id claimed on file-drop with an older
+    #     outbox file must stay claimed, not vanish.
+    rc_f = _build_filedrop(tmp / "c11-working",
+                           heartbeats={"opus": {"w-a": 1}},
+                           available={}, claimed={"opus": {"w-a": ["o-again"]}},
+                           delivered={"opus": {"w-a": ["o-again"]}})
+    cases.append(("a claimed id is not retired by an old outbox file",
+                  None, rc_f, (1, 0, 1, "SATURATED")))
 
     return cases
 

@@ -102,7 +102,7 @@ run; each was routed around per the graceful-degradation paths.
   #1154 and #1155 closed eleven gate-44 fail-open routes; #1156's own version bookkeeping then tripped
   an unguarded gate-59 route (root `2026.07.642` beside mirror `2026.07.641`, a version never
   shipped). Gate 59 checks PR-set parity and within-file monotonicity but never cross-file same-PR
-  version equality. Data fixed in #1156, gate routed as TODO 3.112 and drafted overnight.
+  version equality. Data fixed in #1156; the gate was routed as TODO 3.112, drafted overnight, and CLOSED in #1158, where the new check was validated by replaying it against the real #1155 state.
 
 - **[FYI] Five exit-code mishandlings this session, all caught, none escaped.** The fourth was the
   first that would have produced a FALSE source-verified negative (a `grep` into `head` while
