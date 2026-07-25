@@ -8,6 +8,35 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.647, PR #1160
+
+Closes the THIRTEENTH gate-44 fail-open route and, more importantly, stops the project making completeness claims about this class, because every one made so far has been false.
+
+### The route
+
+- **The image REFERENCE form `![alt][label]` leaked its alt text as prose.** `IMAGE_RE` matched only the inline `![alt](target)`, so a reference-form image fell through to `REF_LINK_LABEL_RE`, which strips the label and KEEPS the bracketed text as though it were link text. Measured at source: `See ![alt caption][label] here` yielded the tokens `alt` and `caption`, while the inline `See ![alt caption](img.png) here` correctly yielded neither. The `!` is what distinguishes the two cases and it must be consumed by the image strip, because the link-shaped strips cannot see it. `IMAGE_RE` now matches both forms.
+- **All five forms verified after the fix**, including the two that must NOT change: an inline image strips whole, a reference image strips whole, a reference link keeps its visible text, an inline link keeps its visible text, and a shortcut reference `[label]` alone still counts, because there the label IS the visible text. Gate 44 stays `rc=0` on the live corpus (13 paired surfaces), so no false positive.
+- **The fixture is mutation-proven.** Reverting `IMAGE_RE` to the inline-only pattern makes the new test fail (`rc=1`), and restoring it makes the test pass again. Both runs are recorded, because a fixture that passes for the wrong reason is the specific trap this repo has hit before, and asserting a guard without proving it fails-when-broken is not a guard.
+
+### The pattern this closes: three completeness claims, three falsifications
+
+This is the part worth reading. The claim about this class has now been wrong three times, each time caught by the NEXT sweep rather than by the one that shipped it:
+
+1. #1158 called the twelfth route **"the eleventh and last"** fail-open route. Wrong on the ordinal (the code shipped in the same commit said twelfth) and wrong on "last".
+2. #1159 corrected it to **"the twelfth, and the last of the REFERENCE-FORM routes"**, a narrowed claim, and explicitly asked the next sweep to check whether the narrowed version was itself "a smaller version of the same error". It was: this route is a reference form.
+3. #1160 therefore makes **no completeness claim at all**. The entry states the ordinal and nothing more, and TODO 3.115 now records that every completeness claim about this class has been falsified, with the instruction to treat it as an open class sampled per round rather than a closed one being drained. The observed per-round rate is 2, then 5, then 1, then 1, then 1.
+
+The narrowing instinct is the trap: when a completeness claim is falsified, the reflex is to narrow its scope until it becomes true, and that reflex produced a second false claim inside one day. The correct move was to drop the claim.
+
+### Fixed alongside
+
+- **The specification clause, rewritten for the THIRD time.** It said an image "is stripped whole including its alt text", which was inaccurate for the reference form. It now says "an image in either the inline or the reference form". Three errors in a clause rewritten three times is itself the signal that the underlying code, not the prose, was incomplete each time.
+- The module docstring's ordinal, now naming the thirteenth route beside the twelfth.
+
+### Provenance
+
+Found by the #1159 post-merge sweep, which was asked specifically to test whether the narrowed completeness claim was itself false. It was, and the order that asked the question is the reason it was caught within one PR instead of surviving in the record. Verified at source by the orchestrator before applying, per validate-then-apply.
+
 ## 2026-07-25, Library Version 2026.07.646, PR #1159
 
 Corrects a FALSE-COMPLETENESS claim the #1158 post-merge sweep caught in #1158's own entry, and adds that sweep's records. The sweep itself came back clean on every corpus-wide axis; this is its single finding.
@@ -43,7 +72,7 @@ Closes TODO 3.112 and the last of the gate-44 fail-open routes: two parity gates
 
 ### Gate 44 no longer accepts an inline reference-link LABEL as prose
 
-- **The twelfth fail-open route, and the last of the REFERENCE-FORM routes** (not the last route overall; see the correction recorded in #1159), after the five closed in #1154 and the six in #1155. The gate strips URLs, link targets, reference definitions, HTML tags and comments, and whole images before tokenizing a command body, deliberately keeping visible link TEXT. The surviving route was the inline reference-link label form: in `[visible text][label]` the label is a reference KEY, not prose, yet it survived stripping and could satisfy a subsection-representation token match. The worker reproduced the route at the pinned SHA before drafting, per the order, since a route that does not reproduce is not a route.
+- **The twelfth fail-open route** (NO completeness claim attaches to this: the "last route" claim was corrected to "last reference-form route" in #1159, and #1160 found THAT false too, so this class is now stated ordinally only), after the five closed in #1154 and the six in #1155. The gate strips URLs, link targets, reference definitions, HTML tags and comments, and whole images before tokenizing a command body, deliberately keeping visible link TEXT. The surviving route was the inline reference-link label form: in `[visible text][label]` the label is a reference KEY, not prose, yet it survived stripping and could satisfy a subsection-representation token match. The worker reproduced the route at the pinned SHA before drafting, per the order, since a route that does not reproduce is not a route.
 - **Link text is still kept.** The fix removes the label and preserves the visible text, matching the existing link handling rather than diverging from it.
 - **The specification narrative needed rewriting, not just its table row.** [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) enumerates the strip set verbatim, so that list was incomplete the moment the code changed. It now names inline reference-link labels and states why link TEXT still counts. A bare-token sweep confirmed no other carrier of the old enumeration.
 
