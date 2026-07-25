@@ -1664,6 +1664,46 @@ The maintainer reads chat in a narrow window and has repeatedly missed answers t
 
 This reconciles the two failure modes: an answer scrolling past unread (the read-pause fixes it) and the run stalling while the maintainer is away (the continue-and-log fixes it).
 
+**Backlog item numbers are PERMANENT and are never reused (gated as gate 78 since #1173;
+codified here 2026-07-25 after the maintainer pointed out the rule was enforced but never written
+down).** Once a number is assigned it is never reassigned, even after the item closes and its section
+is deleted from `TODO.md`. Allocate the next UNUSED number, never the lowest free one: a gap in the
+sequence is the correct permanent record that an item existed and closed, and filling gaps is what
+produces reuse. The harm is not a naming collision but a SILENT MIS-RESOLUTION, because the number
+leaks outside TODO into CHANGELOG entries, `DONE.md` keys, spec prose and tool docstrings, and a
+recycled number makes every one of those resolve cleanly to the WRONG item while looking like a valid
+citation. That is strictly worse than a dangling reference, which at least announces itself. The live
+proof sat in this repo's own audit-programme spec: it cited "TODO section 3.9" for gate 68's origin,
+§3.9 closed in #1087, the number was reused, and the citation silently pointed at a different item,
+invisible to the very gate built to prevent recycling. **So corpus and tool prose OUTSIDE TODO cites
+the CLOSING PR, never a TODO section**, since a TODO section is deleted on close by design; #1176
+converted all eleven such citations in the spec accordingly. `tools/lint-todo-number-permanence.py`
+is the mechanical backstop; the portable form is the `change-tracking` pack rule's
+`### Backlog item numbers are permanent and are never reused` section.
+
+## Defence in depth is the default (maintainer-directed 2026-07-25)
+
+**When the cost is not significant, choose the layered control, and present it as the recommended
+option.** The maintainer's standing directive, in their words: the defence-in-depth choice is usually
+the right one, so it is the default preference; only when there is a considerable additional cost
+should other options be considered. The reasoning that prompted it, worth keeping because it
+generalizes: on widening gate 69 to `docs/` despite the generator `--check` gates already covering
+those files, "if the generator should catch issues then this won't find any, defence in depth
+control." An overlapping control that finds nothing is not redundant, it is the evidence the first
+control worked.
+
+Consequences for the assistant. When surfacing an `AskUserQuestion` with a layered option and a
+leaner one, the LAYERED option is listed first and marked recommended, and its marginal cost is
+stated so the maintainer can see it is small. Do NOT present the leaner option as the default on the
+reasoning that some sibling control probably covers the case; that substitutes an expectation for
+evidence. The one genuine counterweight is a control whose noise would get it bypassed: a gate that
+cries wolf protects nothing, so its cost is NOT small and the tradeoff is real. Judge marginal cost
+in both directions, and say which way you judged it.
+
+The project-agnostic form ships as a section in the pack governance rule
+[`governance/project-integrity.md`](../dev-security/claude-rules/governance/project-integrity.md),
+where it belongs because it is the tier ordering (Cost is lowest) applied to option selection.
+
 ## Communication conventions
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.
