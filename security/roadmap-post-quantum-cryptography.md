@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.4\
-**Date:** 2026-07-24\
+**Version:** 1.1.5\
+**Date:** 2026-07-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -48,12 +48,12 @@ Hybrid schemes combining classical and PQC algorithms (e.g., X25519 + ML-KEM) ar
 
 ### Parameter sets and NIST security categories
 
-Each standardized algorithm defines parameter sets keyed to a NIST post-quantum security category. Categories 1, 3, and 5 correspond to the difficulty of an exhaustive key search against AES-128, AES-192, and AES-256 respectively; a higher category is more conservative, at a cost in key size, signature size, and performance. The organization adopts **category 3 as the interoperability baseline** and selects category 5 for long-lived (post-2030 confidentiality) or high-assurance contexts.
+Each standardized algorithm defines parameter sets keyed to a NIST post-quantum security category. The categories are defined in NIST's original PQC Call for Proposals and are stated in FIPS 203 and FIPS 204 as a claim that a parameter set is at least as secure as a generic block cipher with a prescribed key size or a generic hash function with a prescribed output length; categories 1, 3, and 5 are conventionally read against AES-128, AES-192, and AES-256 key search respectively. A higher category is more conservative, at a cost in key size, signature size, and performance. The organization adopts **category 3 as the interoperability baseline** and selects category 5 for long-lived (post-2030 confidentiality) or high-assurance contexts.
 
 | Algorithm | Parameter sets by security category | Baseline selection |
 | --- | --- | --- |
 | ML-KEM (FIPS 203) | ML-KEM-512 (category 1), ML-KEM-768 (category 3), ML-KEM-1024 (category 5) | ML-KEM-768 |
-| ML-DSA (FIPS 204) | ML-DSA-44 (category 2; reduced to category 1 only when an approved RBG below 192 bits of security is used), ML-DSA-65 (category 3), ML-DSA-87 (category 5) | ML-DSA-65 |
+| ML-DSA (FIPS 204) | ML-DSA-44 (category 2; reduced to category 1 when the approved RBG provides at least 128 but less than 192 bits of security, which FIPS 204 permits while requiring at least 128 bits, and recommending at least 192), ML-DSA-65 (category 3), ML-DSA-87 (category 5) | ML-DSA-65 |
 | SLH-DSA (FIPS 205) | SLH-DSA-SHA2 and SLH-DSA-SHAKE at the 128-bit (category 1), 192-bit (category 3), and 256-bit (category 5) strengths, each in a small-signature (s) and fast-signing (f) variant | category 3, variant per signing profile |
 
 Parameter-set names and category assignments are drawn from FIPS 203, FIPS 204, and FIPS 205 (SLH-DSA parameter sets and their categories are specified in FIPS 205 Section 11); the tables above are illustrative selection guidance for adopters, not a reproduction of the standards' normative bodies.

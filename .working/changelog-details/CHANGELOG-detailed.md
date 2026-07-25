@@ -8,7 +8,40 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
-## 2026-07-25, Library Version 2026.07.641, PR #1155
+## 2026-07-25, Library Version 2026.07.643, PR #1156
+
+Closes TODO 1.25, the Sweep 120 citation-and-attribution precision residuals: nine held-source items, **eight fixed and one refuted**. This is the class the existence gates cannot see, because they check that a citation is well-formed rather than that it is true. Also corrects a paired-surface version drift this PR's own bookkeeping surfaced in the immediately-prior entry.
+
+### Fixed
+
+- **NIST SP 800-208 carried a FABRICATED title in two alignment tables**, [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) ("PQC Transition Planning") and [`security/policy-encryption-and-key-management.md`](../../security/policy-encryption-and-key-management.md) ("Post-Quantum Cryptography Readiness"). The held title page reads "Recommendation for Stateful Hash-Based Signature Schemes". Both were also SEMANTICALLY wrong: that standard covers stateful hash-based signatures (LMS, HSS, XMSS), not PQC transition planning. **Provenance, found while checking for a third carrier:** [`security/roadmap-post-quantum-cryptography.md`](../../security/roadmap-post-quantum-cryptography.md) carries the correct title with "PQC transition planning" in its RELEVANCE column, so the fabrication looks like a column copy rather than an invention. No third carrier of the wrong title exists (bare-token grep, all file types).
+- **The NIST PQC security-category-to-AES mapping was attributed to standards that do not state it.** FIPS 203 and FIPS 204 mention AES exactly once each, in their acronyms lists, and state a RELATIVE claim: a parameter set is "at least as secure as a generic block cipher with a prescribed key size or a generic hash function with a prescribed output length". The AES-128/192/256 reading is conventional, and the text now says so, attributing the categories to the PQC Call for Proposals.
+- **The ML-DSA-44 category-reduction condition dropped half the standard's requirement.** FIPS 204 states a BAND; the corpus carried only an upper bound. Now stated as at least 128 but less than 192 bits of approved-RBG security, with the requires-128 / recommends-192 gloss. The verifier confirmed the previous text was genuinely wrong, not merely imprecise.
+- **FIPS 205 / SLH-DSA was in the encryption policy's approved list but not the paired key-lifecycle framework's.** The verifier confirmed the two surfaces now AGREE rather than merely both mentioning it.
+- **The OWASP MCP Top 10 was cited as a control anchor without disclosing its Beta status.** The held extract's own header reads "(2025, Beta)" and warns "prefer a formal standard or law for a normative claim", so this was an accuracy gap rather than a style nicety.
+- **The OWASP Agentic publication DATE cell** corrected to `2025-12`; the VERSION cell reading `2026` is correct and deliberately untouched, a split the verifier confirmed rather than assumed.
+- **A promotional superlative** ("the first global EN for AI cyber security") deleted from the ETSI row: absent from the held deliverable, confirmed by an unpiped grep returning rc 1.
+- **A non-canonical framework name** in a crosswalk header, corrected to the held title page's "OWASP Top 10 for Agentic Applications".
+- **The Texas TRAIGA date cell normalized** from `2025-06-22` to `2025-06`, because the register's own Conventions block defines that column as "ISO 8601 year or year-month" and the day-level precision was exactly the part no source demonstrated.
+- **PR #1155's Library Version in this mirror corrected from `2026.07.641` to `2026.07.642`.** Ground truth is [`README.md`](../../README.md) at #1155's merge commit `0366b91c`, which reads `2026.07.642`, and the root CHANGELOG agrees; `2026.07.641` was never a shipped library version (the sequence runs #1154 `.640` then #1155 `.642`). The mirror was the sole outlier, a paired-surface lag from an amend round that updated root and README but not the mirror.
+
+### Refuted, not fixed
+
+- **The Texas TRAIGA date finding does not survive.** The register's convention makes upstream the authority and the row is upstream-verified, so the sweep's hypothesis fails on the value. The verifier judged that reasoning sound and added the precision observation acted on above, noting that the refutation is "right about authority and silent about precision".
+
+### Gate blind spot found, and routed rather than fixed here
+
+The version drift above passed **gate 59** ([`tools/lint-changelog-mirror-header-parity.py`](../../tools/lint-changelog-mirror-header-parity.py)) cleanly, and the reason is structural: the gate checks PR-number set parity between the two files, and it checks that Library Versions strictly decrease WITHIN each file, but it never checks that a PR present in both files carries the SAME version in each. Both files were independently monotonic and the PR sets matched, so `.642` in root beside `.641` in the mirror was invisible. The missing check is cross-file same-PR version equality, which is mechanically exact and false-positive-free (both values are already parsed by the gate's own `VERSION_RE`). It is routed as a new TODO item rather than bundled here, because a gate widening plus its fixtures is not this PR's subject and the split-when-in-doubt default applies. Noted for the record: this is the same fail-open shape as the gate-44 routes closed in #1154 and #1155, found in the bookkeeping of the PR that closed them.
+
+### Verification, and its honest shape
+
+**Coverage is a COMPOSITE of independent and orchestrator verification, which is weaker than a single independent pass over all nine, and it exists because the fleet ran out of context rather than because the orchestrator judged it sufficient.** The full nine-check pre-push order was correctly DECLINED as NOT RUN on capacity grounds by the only independence-eligible worker (its eleventh order, roughly 86 percent of context), which noted that establishing the two load-bearing NEGATIVES is the most context-expensive work a verifier does. The orchestrator then settled both negatives itself at source, resized the order to four single-lookup checks, and re-dispatched. Per item: items 3, 6, 7 and the TRAIGA reasoning were independently verified (SHIP on those four only, with the worker stating emphatically that its verdict must not be read as covering the whole change); items 1, 2, 4, 5, 8 and 9 were verified by the orchestrator at the held source. The version correction was ground-truthed against git rather than against either changelog. No item rests on the draft alone.
+
+### Discipline observation
+
+While closing the coverage gap the orchestrator piped a `grep` into `head`, so "no output" proved nothing about whether the ETSI superlative was absent: `head` masked the exit code. That is the fourth exit-code mishandling of the session and the first that would have produced a FALSE source-verified negative rather than a visible failure. Redone unpiped, rc 1 confirmed the absence. The pattern is now recorded in the private degradation-watch log with its threshold computation, assessed as mechanical rather than substantive, and the standing correction is to capture rc into a variable and never pipe a verification into a truncating filter.
+
+## 2026-07-25, Library Version 2026.07.642, PR #1155
 
 Round two of closing gate 44's fail-open surface. #1154 shipped the subsection-representation check and closed two ways to defeat it; its post-merge sweep, asked explicitly for a THIRD, found FIVE more. All five are closed here, with every one of the nine known routes reproduced against the fixed gate.
 
