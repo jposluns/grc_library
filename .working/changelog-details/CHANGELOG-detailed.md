@@ -8,6 +8,39 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.650, PR #1163
+
+Corrects a claim in TODO 3.110's own specification, by measurement. The item said its mechanical check would be "false-positive-free by construction". It is not, and the naive form of it is unshippable.
+
+### What the census measured
+
+The check as specified compares every live `### N.M` heading in [`TODO.md`](../../TODO.md) against every retired number in [`DONE.md`](../DONE.md). Run against the live files, that produces **23 raw collisions**, and most are not never-recycle violations.
+
+Classifying every numeric token in [`DONE.md`](../DONE.md) headings by the context it appears in:
+
+| context | count |
+| --- | --- |
+| context-qualified TODO-item reference (`§N.M`, `TODO N.M`, `item N.M`) | 210 |
+| UNQUALIFIED bare token | 58 |
+| statute / rule / clause section | 10 |
+| version string | 4 |
+
+So **72 of the numeric tokens are not TODO items at all**, roughly a quarter. Two concrete false positives, each verified at source: `DONE.md:295` reads "Quebec Law 25 PIA-section citation corrected to **s. 3.3**", a statute section, while `### 3.3` is a live TODO item about a review cadence; and `DONE.md:2160` reads "**Rule 5.6** (subagent-dispatch declaration discipline)", a skill rule, while `### 5.9` and `### 5.6`-adjacent items are live backlog entries. Neither has anything to do with backlog numbering.
+
+### Why this changes the delivered candidate rather than just annotating it
+
+The pre-apply verify of the 3.110 candidate found it **red on arrival** and prescribed populating its `EXEMPT` set with grandfather entries. The census shows that redness is a **matcher defect, not a missing exemption list**: populating `EXEMPT` with a statute section and a skill rule would permanently exempt numbers that were never colliding, hiding the defect behind a data patch and leaving the gate blind to whatever real collision later occupies one of those numbers. That is the shape of a gate made green by lowering the bar, which the gate-discipline rule forbids.
+
+The required design change is recorded in the item: match only **context-qualified** references, then adjudicate the 58 unqualified bare tokens separately, since some are probably genuine item references written without a marker and others are not. Only then compare live headings against that set.
+
+### #1162's QA rows were self-run, and labelled as such
+
+With the fleet fully down, #1162's mandatory post-merge sweep could not be offloaded, so it was run inline. That is the weakest shape in the assurance ladder and the history row says so plainly rather than presenting an orchestrator self-check as an independent pass. The row also records what makes the weight judgeable: #1162's diff is 10 files of bookkeeping and prose with no corpus-document body and no tool logic; its pre-push guard was green; and the #1158 corpus-wide drift hunt covering #1151 to #1158 came back clean on every axis. Zero findings, with each check verified at source, including that the handoff's D7-validated snapshot at the merge commit matches [`README.md`](../../README.md) at that same commit exactly, which is the drift D7 had caught twice earlier in the run.
+
+### Why this was done inline rather than offloaded
+
+The fleet went fully down (all three workers ended the run heartbeating-but-not-claiming, then stale), so the two queued orders covering this work could not be served, and the no-workers fallback applies. The alert is banked as the top item in [`pending-decisions.md`](../pending-decisions.md). The two orders remain queued and claimable the moment a worker restarts; this PR does not duplicate them, because what it delivers is the design correction that reframes what those orders should produce.
+
 ## 2026-07-25, Library Version 2026.07.649, PR #1162
 
 Session-state consolidation for the eleven-PR overnight run (#1151 to #1161), plus one routed observation about the offload fleet that is worth more than the bookkeeping.
