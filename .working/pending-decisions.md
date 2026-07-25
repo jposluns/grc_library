@@ -196,6 +196,15 @@ These three are surfaced, not guessed; the run holds them for the maintainer rat
   is questionable: Layer B needs egress at RUN time, which a scheduled workflow has, so it may need no
   grant to the assistant's local session at all.
 
+**STANDING SEQUENCING PREFERENCE (maintainer-directed 2026-07-25):** work everything doable in
+**Priority 1 and Priority 3 before starting Priority 2.** P1 is fix-errors-and-prevent-recurrence and P3
+is cleanup-and-tooling; P2 is fill-significant-gaps, which is content build-out. So the ordering is
+correctness and machinery first, content expansion after, and a P2 item is not started while an
+actionable P1 or P3 item remains. This composes with the existing standing priority (fixes and
+QA-tooling from findings outrank everything) rather than replacing it: that rule orders work WITHIN
+the fix/tooling class, and this one orders the classes.
+
+
 ## MORNING-REVIEW / QUESTIONS BANKED (2026-07-25 overnight run; ask at the maintainer's first message)
 
 Banked per the `/loop` standing instruction ("if you have questions for the Maintainer, queue them up

@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 
@@ -34,6 +34,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-25 | #1176 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. Written at merge time from the observed CI state. | the deferred-item review, the eleven spec citations, and the #1175 sweep's three findings |
 | 2026-07-25 | #1175 | all checks green (Lint markdown corpus 2m14s, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. Written immediately after the merge from the observed CI state, which is the practice the five backfilled rows in this same PR exist to restore. | four guard-input fixes, gate 50 Check 6, the token-spend instrument |
 | 2026-07-25 | #1174 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. **Row BACKFILLED in #1175, not written at merge time: this bypass went unlogged on the day, which is the discipline failure the log exists to prevent.** | the discriminability probe, the open-findings ledger and hook, and TODO 3.116's stall signal |
 | 2026-07-25 | #1173 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. **Row BACKFILLED in #1175, not written at merge time: this bypass went unlogged on the day, which is the discipline failure the log exists to prevent.** | gate 78, the backlog-item-number permanence gate |
