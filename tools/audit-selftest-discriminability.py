@@ -463,6 +463,8 @@ def main(argv=None) -> int:
         return 0
 
     total_nd = 0
+    measured_tools: list[str] = []
+    void_tools: list[str] = []
     for tool in targets:
         if not tool.is_file():
             print(f"SKIP {tool}: not a file")
@@ -470,7 +472,9 @@ def main(argv=None) -> int:
         r = probe_tool(tool)
         if not r["control_ok"]:
             print(f"\n=== {r['tool']} ===\n  VOID: {r['control_detail']}")
+            void_tools.append(r["tool"])
             continue
+        measured_tools.append(r["tool"])
         # startswith, NOT equality: the verdict carries a /BLIND-CASE or /NO-CASE suffix once tracing
         # runs, and an equality filter silently matched nothing, reporting 22 detected and 0 findings
         # where the untraced run had found 10. A false CLEAN introduced by a refactor of the reporting
@@ -492,10 +496,22 @@ def main(argv=None) -> int:
             print(f"  NO-CASE     :{x['line']}  {x['guard']}   <- never executed by the self-test")
         for x in unk:
             print(f"  UNKNOWN     :{x['line']}  {x['guard']}   <- tracing did not run")
-    print(f"\nselftest-discriminability: {total_nd} NOT-DETECTED guard(s) across {len(targets)} tool(s). "
+    # Report the MEASURED denominator, never the attempted one. `total_nd` accumulates only from
+    # tools whose positive control fired, so dividing it by the probed-tool count states a coverage
+    # this run does not have: a VOID tool contributes zero findings while inflating the denominator,
+    # so "N across <probed>" reads as full coverage of every tool named. A void tool's exposure is
+    # UNKNOWN, never zero, and the summary now says so rather than letting silence read as health.
+    # Found by Sweep 122 (2026-07-25) against this tool's own output, and re-measured at source.
+    print(f"\nselftest-discriminability: {total_nd} NOT-DETECTED guard(s) across the "
+          f"{len(measured_tools)} tool(s) this run could MEASURE, of {len(targets)} probed. "
+          f"{len(void_tools)} tool(s) are VOID (the positive control did not fire), contributing no "
+          "findings; their exposure is UNKNOWN, not zero, so the total understates the true figure by "
+          "an unmeasured amount. "
           "Advisory. NOT-DETECTED means the self-test does not fail when the guard is disabled, which "
           "covers BOTH a case that is blind to its own guard (the defect) AND a guard no case reaches "
           "(a coverage gap). The fixes differ, so confirm which before acting; see the module docstring.")
+    if void_tools:
+        print("  VOID (exposure unknown): " + ", ".join(sorted(void_tools)))
     return 0
 
 
