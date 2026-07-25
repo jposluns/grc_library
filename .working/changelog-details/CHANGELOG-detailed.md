@@ -30,6 +30,15 @@ A guard-first co-land: gate 44 gains a second check, and the one pair that check
 - **480-test regression suite green** (up from 474: six new fixtures), both generator `--check` forms in sync, and the widening is false-positive-free across all 13 registered pairs per the drafter's census.
 - The four gate-wiring surfaces need no change, because the widening is additive inside an existing gate script whose id, display name, and entry point are unchanged; verified by reading each.
 
+### Two fail-open weaknesses the gating verifier broke, fixed before merge
+
+The verifier was briefed to attack the gate rather than the content, and it succeeded twice, in the direction that matters for a guard: both defects made the gate MISS drift rather than raise a false alarm, so neither made the shipped state wrong, and both would have left the corpus relying on a check that could be defeated trivially.
+
+- **The exemption marker leaked to an adjacent heading.** The window was `range(n, n + EXEMPT_WINDOW + 1)` with no bound at the next heading, so a marker sitting after the SECOND of two tightly-stacked `###` headings fell inside the FIRST heading's window and silently exempted it too. Demonstrated against the shipped code. Now bounded by the next heading.
+- **One incidental token anywhere in the command defeated the check.** The command side was tokenized from RAW text while the skill side went through `iter_non_code_lines`, so tokens inside fenced code, inline spans, link URLs, and HTML comments all counted as representation. Compounding it, the motivating detection rested on a SINGLE token: four of the five core tokens of "Parallel execution (worker fan-out)" were already present in the old command, so everything hung on the word `parallel`. The verifier appended a single HTML-comment line whose only occurrence of the word was inside a link path (a `parallel-notes` slug in an example URL), and the gate passed a command that omitted the entire subsection. The command side now reads through the same non-code path as the skill side, with HTML comments and URLs stripped first.
+
+Both exploits were re-run against the fixed gate and now fail, with two controls confirming no over-correction: the same token in genuine prose still counts, and a token inside a fenced block still does not. Two regression fixtures added (482 tests, up from 480).
+
 ### Discipline observation
 
 The defect this gate now catches was found by a worker that had been asked to verify a DIFFERENT worker's clean verdict on the same file. The first verification confirmed the four things its order named and reported no drift; the false-negative auditor then found two error-severity divergences the order had not thought to ask about. The lesson is about order-writing rather than worker quality: a verify order scoped to named spots gets those spots checked, and a step-count check that passes eight-to-eight tells you nothing about content. Both the gate and the order template are now narrower in what they assume and wider in what they inspect.

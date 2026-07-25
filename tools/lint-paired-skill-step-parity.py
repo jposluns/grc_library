@@ -220,8 +220,33 @@ STEM_LEN = 5
 EXEMPT_WINDOW = 2
 
 
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+URL_RE = re.compile(r"\bhttps?://\S+", re.IGNORECASE)
+
+
 def content_tokens(text: str) -> set[str]:
-    return set(TOKEN_RE.findall(text.lower()))
+    """Tokens of the command's PROSE, symmetric with the skill side.
+
+    The skill side reads through ``iter_non_code_lines``, so the command
+    side must too, or the two halves of the comparison disagree about what
+    counts as content. Three sources are stripped first because a token
+    appearing in any of them is not a representation of anything:
+
+    - fenced and indented code (via ``iter_non_code_lines``),
+    - HTML comments, which are invisible to a reader,
+    - URLs, whose path slugs routinely contain topic words.
+
+    Without this, ONE incidental token anywhere in the file satisfied the
+    subsection check. A single line of the form
+    an HTML comment whose only occurrence of the word was a link-path slug
+    was demonstrated (2026-07-25, the #1154 verifier's F-2) to make the
+    gate pass a command that omitted the whole subsection, because the
+    detection rested on the one token ``parallel``.
+    """
+    visible = "\n".join(line for _n, line in iter_non_code_lines(text))
+    visible = HTML_COMMENT_RE.sub(" ", visible)
+    visible = URL_RE.sub(" ", visible)
+    return set(TOKEN_RE.findall(visible.lower()))
 
 
 def token_present(token: str, corpus: set[str]) -> bool:
@@ -286,9 +311,18 @@ def extract_skill_subsections(text: str) -> list[tuple[int, str, str | None]]:
         match = SUBSECTION_H3_RE.match(line)
         if match is None or NUMBERED_H3_RE.match(line):
             continue
-        window = "\n".join(
-            by_line.get(k, "") for k in range(n, n + EXEMPT_WINDOW + 1)
-        )
+        # The window is bounded by the NEXT heading as well as by
+        # EXEMPT_WINDOW. Without the heading bound, a marker sitting after
+        # the second of two adjacent headings falls inside the first
+        # heading's window and silently exempts it too (2026-07-25, the
+        # #1154 verifier's F-1, demonstrated on tightly-stacked headings).
+        window_lines = []
+        for k in range(n, n + EXEMPT_WINDOW + 1):
+            candidate = by_line.get(k, "")
+            if k > n and SUBSECTION_H3_RE.match(candidate):
+                break
+            window_lines.append(candidate)
+        window = "\n".join(window_lines)
         exempt = SUBSECTION_EXEMPT_RE.search(window)
         reason: str | None = None
         if exempt is not None:

@@ -2487,6 +2487,72 @@ class PairedSkillStepParityTests(LinterTestCase):
         )
         self.assertIn("no reason", findings[0][2][0])
 
+    def test_exemption_marker_does_not_leak_to_an_adjacent_heading(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The exemption window is
+        # bounded by the next heading as well as by EXEMPT_WINDOW. Without the
+        # heading bound, a marker after the SECOND of two adjacent headings
+        # fell inside the FIRST heading's window and silently exempted it too
+        # (the #1154 verifier's F-1, demonstrated on stacked headings).
+        mod = self._load_module()
+        skill = (
+            "## Process\n"
+            "### 1. First step\n"
+            "body\n"
+            "### Alpha Beta Gamma\n"
+            "### Delta Epsilon Zeta\n"
+            "<!-- parity: command-exempt: legitimately orchestrator-side -->\n"
+            "## Next\n"
+        )
+        subs = mod.extract_skill_subsections(skill)
+        by_heading = {heading: reason for _n, heading, reason in subs}
+        self.assertIsNone(
+            by_heading.get("Alpha Beta Gamma", "MISSING"),
+            "a marker after a LATER heading must not exempt an earlier one",
+        )
+        self.assertEqual(
+            by_heading.get("Delta Epsilon Zeta"),
+            "legitimately orchestrator-side",
+            "the marker must still exempt the heading it follows",
+        )
+
+    def test_command_tokens_ignore_comments_urls_and_code(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The command side is
+        # tokenized through the same non-code path as the skill side, with HTML
+        # comments and URLs stripped. Before that symmetry, ONE incidental
+        # token anywhere in the file satisfied the check: a single
+        # `<!-- see scheme-less-example/parallel-notes ... -->` line made
+        # the gate pass a command omitting the whole subsection, because
+        # detection rested on the lone token `parallel` (the #1154 F-2).
+        mod = self._load_module()
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens(
+                "Command prose with no fan-out content.\n"
+                "<!-- see scheme-less-example/parallel-notes for background -->\n"
+            ),
+            "a token only inside an HTML comment or a URL is not representation",
+        )
+        self.assertIn(
+            "parallel",
+            mod.content_tokens("we dispatch the phases in parallel"),
+            "the same token in genuine prose must still count",
+        )
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens("```\nparallel\n```\n"),
+            "a token only inside fenced code is not representation",
+        )
+        # Exercises the URL strip specifically, outside a comment, so this
+        # assertion cannot pass merely because comment-stripping ran. The
+        # domain is allow-listed so the external-link gate stays green.
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens(
+                "See https://github.com/example/parallel-notes for background.\n"
+            ),
+            "a token only inside a URL path is not representation",
+        )
+
     def test_prefix_equivalence_absorbs_morphological_variation(self) -> None:
         # NEGATIVE fixture: the conjunctive rule's dominant
         # false-positive risk is a heading token whose command form is
