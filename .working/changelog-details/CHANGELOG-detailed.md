@@ -36,6 +36,17 @@ Names the defect class behind three of today's faults, and records that Codex wo
 
 **`ha-h01-falseneg`'s ERROR-severity F1 was already fixed**, and saying so matters as much as the fixes: its HOLD verdict concerned the GPAI Annex XI 10-year clock, and that clause landed in the merged #1153 itself, whose title reads "widened to the GPAI clock". So the high-assurance harness worked exactly as designed, the HOLD was cleared by the fix, and `ha-h01-falseneg-reverify` returned SHIP. The point is that this could not be known without reading it: an unread HOLD on an already-merged regulatory change is indistinguishable from an unactioned one.
 
+### Added, from processing the QA backlog
+
+- **The NIST SP 800-208 canonical-citations row**, the standard whose title #1156 found FABRICATED in two carriers. Applied after independent verification both ways: the exact title and October 2020 Final edition at held source, and currency upstream this session against the CSRC page (HTTP 200, title and date both matching, no errata, revision, withdrawal or superseding publication). The worker's draft row carried six cells for a seven-column table and left the upstream URL unstated; the URL it had actually checked was recovered from its own evidence and re-verified rather than reconstructed. TODO 3.9's NIST-side instance closes; its 17 ISO-side rows and the 29134 conflict remain.
+- **TODO 3.119, the absent Codex hook port.** All three paths confirmed absent, so the `codex-hooks-integration-test` returned NOT-READY because there was nothing to probe. It matters beyond the missing files: the Claude workers have ten PreToolUse hooks and the codex family has none, which is why codex is restricted to read-only research, a compensating control held by convention alone. It had been carried in a handoff as "PR-2b UNBUILT" and never reached the backlog, so it was one prune from being lost. The same order's claim about the live user-level config is recorded as ORCHESTRATOR-UNVERIFIABLE, because that path is not readable under this account, rather than repeated as fact.
+- **A required amendment on TODO 3.116 before its candidate is applied.** The stall signal models four false-positive cases; a fifth exists, since the transport has enforced per-order exclusions at claim time since scratch `fc43eb12`, so a worker BARRED from the only available order is reported STALL-SUSPECT while correctly declining it every cycle. Demonstrated against the candidate's own pure predicate. An interaction rather than an oversight: the candidate predates the feature by hours.
+
+### Changed, from the same pass
+
+- **`validate-pr-1169` re-issued a THIRD time, now with an ENFORCED exclusion.** The first two were declined by the worker that produced Sweep 121, correctly, because the exclusion lived only in prose that nothing checks. Processing the QA backlog surfaced that the transport has supported a `not_worker` order field enforced at claim time all along, so the third issue uses it. Two cycles were wasted for want of reading a delivery.
+- **Two H-01 retention findings fixed** (see above) and **`verify-1154`'s two fail-open weaknesses confirmed already closed**: F-1 by #1155's exemption-window heading bound, whose code comment names this very verifier's finding, and F-2 by its prose-narrowing, which I reproduced.
+
 ### Verification
 
 - `tools/run_all_audits.sh` standalone: **77/77**, including gate 37 (19 local rule copies in sync, every local rule mapped) after the dual-tree mirror.
