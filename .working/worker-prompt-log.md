@@ -9,3 +9,4 @@ can appear in the verb column; nothing here is ever composed from worker output.
 | UTC | session | runtime | verb | held order | reason | keys sent |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-07-25T14:05:46Z | worker | claude | wake | none | first live test of the injection path; opus queue is empty so this is a harmless no-op probe | `/credit-offload` |
+| 2026-07-25T14:14:45Z | worker1 | claude | wake | none | two prio-0 validate-pr sweeps just dispatched; worker1 is idle | `/credit-offload` |

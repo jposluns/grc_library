@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.0\
+**Version:** 1.0.1\
 **Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 
@@ -49,6 +49,8 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 | 2026-07-25 | #1153 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green (both runners, 77 gates plus D1-D8, unpiped) | H-01 EU AI Act Article 18 retention restated as floors |
 | 2026-07-25 | #1152 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green (both runners, 77 gates plus D1-D8, unpiped) | AI-jurisdiction coverage surfaces (Sweep 120 F2 family) |
 | 2026-07-25 | #1151 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green (both runners, 77 gates plus D1-D8, unpiped) | /home/grc wiring fix (Sweep 120 F1 family) |
+| 2026-07-25 | #1166 | all three checks green (Lint markdown corpus, Web generator health, Cloudflare Pages), verified on the actual head SHA | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green both runners, unpiped | act on the unread codex deep assessment (M-04 bypass logging, M-06 dispatcher) |
+| 2026-07-25 | #1167 | all three checks green (Lint markdown corpus, Web generator health, Cloudflare Pages), verified on the actual head SHA | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green both runners, unpiped | two worker-fleet tools: drop reconciliation and the closed-verb prompt injector |
 
 ## Backfill note, stated plainly
 

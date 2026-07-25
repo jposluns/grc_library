@@ -1,2 +1,2 @@
-1) P1 deliveries: census-3110, draft-3115, draft-3116; 2) codex exec runner (needs approval); 3) queue/ gate exemption
-# then: TODO 3.117 done (drops tool); 3.116 stalled signal; 3.115 gate-44 routes; M-03/M-05 from the codex assessment
+1) consume validate-pr-1166/1167; 2) draft-3115 + draft-3116 (mutation-prove fixtures); 3) rotate TODO 3.100
+# then: codex exec runner (needs maintainer approval of cost ceiling); assessment M-03/M-05; sign-off request
