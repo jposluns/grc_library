@@ -8,6 +8,33 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.660, PR #1173
+
+Gate 78 enforces the never-recycle rule for backlog item numbers, closing TODO 3.110 parts (a) and (b). It lands GREEN and MEANINGFUL on the same commit, which was the whole design question.
+
+### Added
+
+- **Gate 78, backlog item-number permanence** ([`tools/lint-todo-number-permanence.py`](../../tools/lint-todo-number-permanence.py)). Item numbers were declared permanent on 2026-07-15 and nothing enforced it; the rule was broken twice, once with a live consequence when a recycled number routed held research to the wrong item. The gate reports two classes: a number denoting BOTH a live item and a recorded retirement, and a section counter at or below the highest ordinal actually used in it. Wired across all six surfaces (the three runtime surfaces, the specification inventory row, its section-5 narrative, and the count idioms), taking the corpus from 77 to 78 gates.
+- **A regression fixture of eight cases**, appended to the suite and run through it. The delivery shipped the fixture but explicitly could NOT run it through the project's own suite (that needs the 9000-line test module's helpers), so its load-bearing property had only been established indirectly. It now runs green in-suite, and three real predicate mutations were each DETECTED with the control clean.
+
+### Changed
+
+- **`EXEMPT` is an audited, closed grandfather set, and it is the gate's declared false-positive surface.** The parse cannot distinguish a partial close, or the close of one sub-item, from a full retirement, so every legitimate live-and-retired coexistence is enumerated with its reason. Two classes: seven pre-rule grandfathers (numbers reassigned before the rule existed, and unfixable forward because the same rule forbids renumbering an existing item), plus two partial closes against still-open umbrellas. It is keyed by a distinctive [`DONE.md`](../DONE.md) heading SUBSTRING rather than a line number, because a line key was MEASURED to lapse when an unrelated change shifted the file by four lines.
+- **The gate is named "backlog" rather than "TODO" item-number permanence**, because the word TODO is an uncertainty marker to another gate and the original name tripped it. Renaming was the honest fix rather than exempting either gate, and "backlog" is the project's own term for the file.
+- **The one genuine post-rule finding was not a recycled number.** Investigating it showed the live item and the retired entry were the SAME work: the Quebec Law 25 re-ingest, whose DONE entry named reference-base PR #89 and whose clean source is genuinely held (confirmed by index lookup, not inference). So it was a TODO-to-DONE rotation failure, and the stale live row was deleted. Its two dangling references were then cleaned per the section-orphan discipline: the 3.110 body reworded, and the maintainer-egress request MEG-22 discharged because the source it asked for is held.
+
+### Verification
+
+- `tools/run_all_audits.sh` standalone: **78/78**, with gate 78 reporting 97 live items, 109 retired numbers and 8 counters clean.
+- Four-surface gate-name parity confirmed at 78; gate 64's detailed-prose pairing satisfied at 78 inventory rows; gate 39 consistent at "gates 78"; the intra-document reference and mandatory-near-uncertainty gates both re-run clean after the two defects this work introduced.
+- The fixture's eight cases pass in-suite, and the gate's exemption predicate was mutation-proved three ways.
+
+### Discipline observations
+
+- **Three deliveries triangulated, and the third corrected the first two.** The draft shipped the gate and left the grandfather decision open; the adversarial verify said safe-to-apply with named amendments; the census then CONFIRMED the seven-grandfather count exactly, corrected the draft's provenance attribution (it named eight commits for seven ids, including one that reassigned nothing and omitting one that did), and corrected the verify's classification of a row as a missing partial close when it is a grandfather. Where the two disagreed the orchestrator adjudicated in favour of the census, which explains the other's error rather than merely contradicting it.
+- **My throwaway mutation harness produced a false signal for the third time today.** Its first two "mutations" against this gate were a heading string and a consistent global rename, neither of which changes behaviour, so both read as NOT DETECTED. Mutating the real predicates showed all three detected. The pattern across the session is that the harness, not the code under test, has been the weak link, and a mutation that cannot change behaviour is worse than no mutation because it reads as evidence.
+- **A third order-authoring defect, and a new pinning failure mode.** This order pinned a merge SHA that PREDATED the item it told the worker to read. That follows the corrected practice adopted after alert 2026-07-23-a (pin to a merge, not a branch head) and still failed, so the rule needs strengthening: pin to a SHA that CONTAINS everything the order references, which for an order derived from item N is the commit that created item N. The worker disclosed the substitution rather than making it silently, and did not deliver BLOCKED because the order body was self-sufficient.
+
 ## 2026-07-25, Library Version 2026.07.659, PR #1172
 
 Names the defect class behind three of today's faults, and records that Codex workers are single-shot so the orchestrator manages them rather than waiting on them.

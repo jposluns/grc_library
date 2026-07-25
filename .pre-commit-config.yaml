@@ -549,3 +549,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-todo-number-permanence
+        name: Backlog item-number permanence audit
+        entry: python3 tools/lint-todo-number-permanence.py
+        language: system
+        pass_filenames: false
+        always_run: true

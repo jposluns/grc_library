@@ -9053,5 +9053,175 @@ class WebCorpusLinkTests(LinterTestCase):
         self.assertLinterFails(result, "resolves outside repo")
 
 
+class TodoNumberPermanenceTests(LinterTestCase):
+    """tools/lint-todo-number-permanence.py (gate 78)
+
+    Flags a live ``### N.M`` TODO heading whose number ``.working/DONE.md``
+    also records as retired (a recycled permanent id), and a
+    ``**Next item number: X.**`` counter pointing at a number already used
+    in its section. A redirect stub is deliberately NOT exempt (its number
+    is alive, not retired); a ``-R<n>`` sub-bullet close does not read as
+    retiring its parent; and a partial-close entry against a still-open
+    umbrella is exempted by heading substring.
+
+    The gate spans two files, so each fixture builds a synthetic root
+    holding both ``TODO.md`` and ``.working/DONE.md`` and passes
+    ``--root``, the idiom gate 35 established for multi-surface gates.
+    """
+
+    def _run(self, name: str, todo: str, done: str | None):
+        """Build a synthetic {TODO.md, .working/DONE.md} root and run the gate.
+
+        Returns the completed process. The caller cleans up via the returned
+        root, so each test wraps this in try/finally per the module's
+        synthetic-root idiom.
+        """
+        root = FIXTURE_DIR / name
+        (root / ".working").mkdir(parents=True, exist_ok=True)
+        (root / "TODO.md").write_text(todo, encoding="utf-8")
+        if done is not None:
+            (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
+        result = run_linter(
+            "tools/lint-todo-number-permanence.py", "--root", str(root)
+        )
+        return root, result
+
+    def test_recycled_number_flagged(self) -> None:
+        # the #1151 defect shape: a live item wearing a number DONE.md retired
+        root, result = self._run(
+            "perm-recycle",
+            "# TODO\n\n## Priority 3\n\n**Next item number: 3.110.**\n\n"
+            "### 3.108 A brand-new item wearing a retired number (2026-07-25, L, S)\n\n"
+            "Body.\n",
+            "# DONE\n\n### §3.108 ASVS specific-code migration closed as "
+            "already-satisfied (2026-07-24, PR #1130)\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "3.108")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_stale_counter_flagged(self) -> None:
+        # the paired #1151 defect: counter at 1.23 while ### 1.23 is live
+        root, result = self._run(
+            "perm-counter",
+            "# TODO\n\n## Priority 1\n\n**Next item number: 1.23.**\n\n"
+            "### 1.23 An item already occupying the counter's number\n\nBody.\n",
+            "# DONE\n\nNo entries.\n",
+        )
+        try:
+            self.assertLinterFails(result, "1.23")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_clean_tree_passes(self) -> None:
+        root, result = self._run(
+            "perm-clean",
+            "# TODO\n\n## Priority 3\n\n**Next item number: 3.110.**\n\n"
+            "### 3.109 The next number, correctly drawn\n\nBody.\n",
+            "# DONE\n\n### §3.108 A properly retired item (PR #1130)\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(
+                result.returncode, 0,
+                f"a clean TODO/DONE pair must pass.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_destination_mention_not_flagged(self) -> None:
+        # '### TODO §2.5 (... re-homed to §2.17-§2.21): ...' retires 2.5 only.
+        # This was a MEASURED false positive before parentheticals were stripped.
+        root, result = self._run(
+            "perm-destination",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.29.**\n\n"
+            "### 2.21 A live item named only as a destination in DONE\n\nBody.\n",
+            "# DONE\n\n### TODO §2.5 (AI-domain delta executed; umbrella retired, "
+            "remaining workstreams re-homed to §2.17-§2.21): AI-domain post-plan "
+            "delta (2026-07-15)\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(
+                result.returncode, 0,
+                f"a section id named as a DESTINATION in a DONE heading must not "
+                f"read as retired.\nstdout:\n{result.stdout}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_sub_bullet_close_not_flagged(self) -> None:
+        # closing §5.9-R1 does not retire §5.9
+        root, result = self._run(
+            "perm-subbullet",
+            "# TODO\n\n## Priority 5\n\n**Next item number: 5.10.**\n\n"
+            "### 5.9 AI jurisdiction overlays\n\nBody.\n",
+            "# DONE\n\n### TODO §5.9-R1 + §6.3-R3 (deep-assessment r1): stale "
+            "sub-bullets closed as already-resolved (2026-07-12)\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(
+                result.returncode, 0,
+                f"a '-R<n>' sub-bullet close must not read as retiring its parent."
+                f"\nstdout:\n{result.stdout}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_redirect_stub_colliding_with_done_is_flagged(self) -> None:
+        # a stub is alive, not retired, so a DONE entry for the same number is a
+        # real inconsistency: stubs are deliberately NOT exempt (design note 2)
+        root, result = self._run(
+            "perm-stub",
+            "# TODO\n\n## Priority 2\n\n**Next item number: 2.29.**\n\n"
+            "### 2.24 Governance Relationship Framework, MOVED to 2.25.1 (Series A)\n\n"
+            "**Moved to 2.25.1** (Series A): this is a forward redirect stub.\n",
+            "# DONE\n\n### §2.24 The same number also recorded retired "
+            "(PR #900)\n\nBody.\n",
+        )
+        try:
+            self.assertLinterFails(result, "2.24")
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_partial_close_exemption_not_flagged(self) -> None:
+        # the recorded EXEMPT entry: a partial close against a still-open umbrella
+        root, result = self._run(
+            "perm-exempt",
+            "# TODO\n\n## Priority 3\n\n**Next item number: 3.110.**\n\n"
+            "### 3.57 Reference-breadth new-ingest apply\n\nBody.\n",
+            "# DONE\n\n### TODO §3.57 (apply wave complete; item stays open for the "
+            "matrix TSC-column residual): reference-breadth new-ingest apply "
+            "(2026-07-15)\n\nBody.\n",
+        )
+        try:
+            self.assertEqual(
+                result.returncode, 0,
+                f"a recorded partial-close exemption must not be flagged.\n"
+                f"stdout:\n{result.stdout}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_missing_done_file_is_environmental_error(self) -> None:
+        root, result = self._run(
+            "perm-nodone", "# TODO\n\n**Next item number: 1.26.**\n", None
+        )
+        try:
+            self.assertEqual(
+                result.returncode, 2,
+                f"a missing required file must exit 2, not 0 or 1.\n"
+                f"stderr:\n{result.stderr}",
+            )
+        finally:
+            import shutil
+            shutil.rmtree(root, ignore_errors=True)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
