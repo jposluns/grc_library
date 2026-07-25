@@ -16,7 +16,8 @@ reads BOTH exchange planes and reports their de-duplicated union: the SIBLING
 repository ``grc_library_scratch`` (the worker liveness registry ``workers/<id>.md``
 and the work queue ``queue/<id>.md``), AND the same-VM file-drop exchange root
 (``$GRC_WORKING``, default ``/home/grc/grc_working``: per-family ``available-work``
-and per-worker ``heartbeat`` files). Reading only the git-scratch plane was a real
+and per-worker ``heartbeat`` files, PLUS the central month-partitioned ``done/`` archive of
+consumed deliveries and orders). Reading only the git-scratch plane was a real
 defect, fixed 2026-07-25: once workers moved to the file-drop transport as primary,
 this tool reported ``NO-WORKERS`` while a worker was demonstrably live, and
 ``NO-WORKERS`` is precisely the verdict that licenses self-running work under the
@@ -370,6 +371,29 @@ def survey_filedrop(root):
                 for p in entries:
                     if p.is_file() and p.suffix == ".md" and p.name != "README.md":
                         delivered.add(_order_id(p))
+
+    # The CENTRAL, worker-id-independent archive (2026-07-25). A consumed delivery is MOVED
+    # out of its worker's outbox into done/, so without scanning here every archived order id
+    # would stop counting as delivered, its phantom `pending` git-scratch row would come back,
+    # `outstanding` would inflate, and the verdict could flip to a false SATURATED. That is
+    # precisely the defect fixed in grc_library #1158, and the archive would have reintroduced
+    # it. Both partitions are scanned because an order and its result archive separately.
+    for kind in ("deliveries", "orders"):
+        kind_root = root / "done" / kind
+        if not kind_root.is_dir():
+            continue
+        month_dirs, readable = _entries(kind_root)
+        if not readable:
+            unreadable.append(kind_root)
+        for mdir in month_dirs:
+            if not mdir.is_dir():
+                continue
+            entries, readable = _entries(mdir)
+            if not readable:
+                unreadable.append(mdir)
+            for p in entries:
+                if p.is_file() and p.suffix == ".md" and p.name != "README.md":
+                    delivered.add(_order_id(p))
     return live_ids, orders, unreadable, delivered
 
 
@@ -521,10 +545,11 @@ def _build_scratch(root, workers, orders):
     return root
 
 
-def _build_filedrop(root, heartbeats, available, claimed, delivered=None):
+def _build_filedrop(root, heartbeats, available, claimed, delivered=None, archived=None):
     """heartbeats: {family: {worker_id: age_minutes}};
     available: {family: [order_id]}; claimed: {family: {worker_id: [order_id]}};
-    delivered: {family: {worker_id: [order_id]}} written into outbox/<worker>/."""
+    delivered: {family: {worker_id: [order_id]}} written into outbox/<worker>/;
+    archived: [order_id] written into done/deliveries/<month>/ (family-independent)."""
     for fam, workers in heartbeats.items():
         hb_dir = root / fam / "heartbeat"
         hb_dir.mkdir(parents=True, exist_ok=True)
@@ -550,6 +575,10 @@ def _build_filedrop(root, heartbeats, available, claimed, delivered=None):
             d.mkdir(parents=True, exist_ok=True)
             for oid in oids:
                 _write(d / f"{oid}.md", f"# result {oid}\n")
+    for oid in (archived or []):
+        d = root / "done" / "deliveries" / "2026-07"
+        d.mkdir(parents=True, exist_ok=True)
+        _write(d / f"{oid}.md", f"# archived result {oid}\n")
     return root
 
 
@@ -688,6 +717,22 @@ def _plane_cases(tmp):
                            delivered={"opus": {"w-a": ["o-again"]}})
     cases.append(("a claimed id is not retired by an old outbox file",
                   None, rc_f, (1, 0, 1, "SATURATED")))
+
+    # 12. THE ARCHIVE MUST STILL COUNT AS DELIVERED (2026-07-25). A consumed delivery is MOVED
+    #     out of its worker's outbox into the central done/ archive, so if done/ were not
+    #     scanned its order id would stop counting as delivered, the phantom `pending`
+    #     git-scratch row would return, and outstanding would inflate. Here the ONLY evidence
+    #     of delivery is the archive: no outbox copy exists at all. Mutation-check: removing
+    #     the done/ scan makes this case report 1 pending instead of 0.
+    ar_s = _build_scratch(tmp / "c12-scratch",
+                          workers={"w-a": ("active", 1)},
+                          orders={"o-archived": "pending"})
+    ar_f = _build_filedrop(tmp / "c12-working",
+                           heartbeats={"opus": {"w-a": 1}},
+                           available={}, claimed={},
+                           archived=["o-archived"])
+    cases.append(("an archived delivery in done/ still counts as delivered",
+                  ar_s, ar_f, (1, 0, 0, "IDLE-CAPACITY")))
 
     return cases
 
