@@ -132,8 +132,10 @@ def report(root: Path, oneline: bool) -> int:
 def self_test() -> int:
     import tempfile
     failures = []
+    total = [0]  # a list so `check` can mutate it without a nonlocal declaration
 
     def check(name, got, want):
+        total[0] += 1
         ok = got == want
         print(f"  {'PASS' if ok else 'FAIL'}: {name} -> {got}" + ("" if ok else f" (expected {want})"))
         if not ok:
@@ -169,8 +171,12 @@ def self_test() -> int:
         un3, st3, ar3, _ = survey(empty)
         check("absent drop dir is a no-op", (un3, st3, ar3), ([], [], 0))
 
-    print(f"\nself-test: {6 - len(failures)}/6 passed" if not failures
-          else f"\nself-test: FAILED ({len(failures)})")
+    # Both numbers derive from the actual check count. A hardcoded denominator decouples the
+    # reported total from reality, so a later added check goes silently uncounted and a reader
+    # auditing coverage from this output under-counts it (found by the #1167 sweep, which
+    # observed seven PASS lines above a "6/6" total).
+    print(f"\nself-test: {total[0] - len(failures)}/{total[0]} passed" if not failures
+          else f"\nself-test: FAILED ({len(failures)} of {total[0]})")
     return 1 if failures else 0
 
 

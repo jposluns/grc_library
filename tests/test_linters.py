@@ -8795,6 +8795,36 @@ class HookToolItemCountParityTests(unittest.TestCase):
             f"have drifted; re-align them (guardrail layers 1 and 2 are a pair).")
 
 
+class OrchestratorAdvisoryToolTests(unittest.TestCase):
+    """The two orchestrator-side advisory tools' own ``--self-test`` runs, wired here so
+    they cannot silently rot.
+
+    Both are advisory rather than gates, so the four-surface parity machinery does not
+    protect them and this is the only thing that does. `manage-workers.py` in particular
+    injects keystrokes into a session running under a different account, and its four
+    refusals ARE its entire safety surface; the #1167 sweep found those refusals asserted
+    as tested while nothing tested them, which is why they are covered here now.
+    """
+
+    def test_inbox_drops_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-inbox-drops.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-inbox-drops.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("passed", result.stdout)
+
+    def test_manage_workers_self_test_passes(self) -> None:
+        result = run_linter("tools/manage-workers.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"manage-workers.py --self-test failed (its refusal paths are its safety "
+            f"surface).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("passed", result.stdout)
+
+
 class WorkerSaturationToolTests(unittest.TestCase):
     """The advisory ``tools/audit-worker-saturation.py`` tool's own ``--self-test``,
     wired into the regression suite so its verdict logic (IDLE-CAPACITY / SATURATED
