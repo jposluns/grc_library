@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.1\
+**Version:** 1.0.2\
 **Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 
@@ -50,6 +50,8 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 | 2026-07-25 | #1152 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green (both runners, 77 gates plus D1-D8, unpiped) | AI-jurisdiction coverage surfaces (Sweep 120 F2 family) |
 | 2026-07-25 | #1151 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green (both runners, 77 gates plus D1-D8, unpiped) | /home/grc wiring fix (Sweep 120 F1 family) |
 | 2026-07-25 | #1166 | all three checks green (Lint markdown corpus, Web generator health, Cloudflare Pages), verified on the actual head SHA | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green both runners, unpiped | act on the unread codex deep assessment (M-04 bypass logging, M-06 dispatcher) |
+| 2026-07-25 | #1168 | all three checks green at merge time (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with the base-branch policy; maintainer-authored session-closing handoff PR under the standing no-self-gatekeeping convention | session-closing handoff; row added retrospectively at the Sweep 121 close-out, since #1168 was the session's last act and no following PR of that session existed to carry it |
+| 2026-07-25 | #1169 | all three checks green, read from `gh pr checks 1169` on the actual head SHA before merging (Lint markdown corpus 1m46s, Web generator health 13s, Cloudflare Pages) | `gh pr merge --admin --squash --delete-branch` | Plain merge refused with "the base branch policy prohibits the merge"; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green on both runners, unpiped, after it caught and blocked two real defects (a stale D7 version snapshot and a 117-word root entry over the 100 ceiling) | Sweep 121 close-out: the retrospective asserted-expectations block and the mutation-proved `manage-workers.py` self-test fix |
 | 2026-07-25 | #1167 | all three checks green (Lint markdown corpus, Web generator health, Cloudflare Pages), verified on the actual head SHA | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR under the standing no-self-gatekeeping convention; pre-push guard green both runners, unpiped | two worker-fleet tools: drop reconciliation and the closed-verb prompt injector |
 
 ## Backfill note, stated plainly

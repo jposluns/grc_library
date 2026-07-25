@@ -56,7 +56,16 @@ ORCHESTRATOR_SESSIONS = {"grc"}
 
 # session name -> runtime. Explicit rather than sniffed from the pane: pane markers appear in
 # scrollback and output too, so sniffing has a false-positive mode a static map does not.
-RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "mailz": "codex"}
+# `codex` added 2026-07-25 after a second Codex worker was started in a session of that name and
+# every verb against it was refused for having no mapping. The refusal was correct (this tool will
+# not guess a prompt shape), but an unmapped live worker is un-nudgeable, so the map has to keep up
+# with the fleet. Adding a session here stays the deliberate, reviewable act it is meant to be.
+RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "mailz": "codex", "codex": "codex"}
+
+# runtime -> file-drop FAMILY directory. Needed because held-order attribution scopes its
+# fail-safe by family (see attribute_held): the exchange lays out `opus/`, `codex/`, `fable/`,
+# and a Claude worker's orders live under `opus/`, so runtime and family are not the same word.
+RUNTIME_FAMILY = {"claude": "opus", "codex": "codex", "fable": "fable"}
 
 # The closed set. Values are literal keystroke sequences; a tuple sends in order, and a float
 # member is a delay in seconds between sends.
@@ -92,6 +101,13 @@ VERBS = {
 # Verbs that destroy context, so they require the worker to hold NO order.
 DESTRUCTIVE = {"restart"}
 
+# Seconds between sending a prompt's TEXT and sending its Enter. Two separate send-keys calls with
+# a gap between them, because a single combined call is read by both agent TUIs as a paste, and a
+# paste swallows the trailing Enter into a newline (maintainer-observed 2026-07-25: the prompt sat
+# unsubmitted in the input box until they pressed Enter by hand). Small enough not to matter, large
+# enough to fall outside the TUIs' paste-burst window.
+ENTER_DELAY_S = 0.4
+
 
 def sh(*args) -> tuple:
     r = subprocess.run(args, capture_output=True, text=True)
@@ -111,11 +127,16 @@ def pane_tail(session: str, lines: int = 4) -> str:
 
 
 def held_orders(root: Path | None) -> dict:
-    """worker-id -> held order id, read from the file-drop inboxes.
+    """worker-id -> held order id, or None for a worker present but holding nothing.
 
     The AUTHORITATIVE half of the gate. A pane can look idle while an order is held (that is
     exactly the stalled-mid-task case), so held-state must come from the exchange, never from
     the pane and never from the worker's self-report.
+
+    Every worker inbox directory is recorded, INCLUDING empty ones, mapped to None. That makes
+    "this worker exists and holds nothing" distinguishable from "no such worker", which
+    `attribute_held` needs in order to tell a real free worker from an unmatched session name.
+    Recording only holders, as this did before, collapsed those two cases together.
     """
     held = {}
     if root is None:
@@ -127,9 +148,59 @@ def held_orders(root: Path | None) -> dict:
         for wdir in base.iterdir():
             if not wdir.is_dir():
                 continue
-            for p in wdir.glob("*.md"):
-                held[wdir.name] = p.stem
+            orders = sorted(p.stem for p in wdir.glob("*.md"))
+            held[wdir.name] = orders[0] if orders else None
     return held
+
+
+def attribute_held(session: str, held: dict, family: str | None = None) -> tuple:
+    """Map a tmux SESSION name to the order held by the worker running in it.
+
+    PURE: (session, held-map, family) in, (state, order-or-none) out. No filesystem, no tmux, no
+    clock, so the self-test can pin every branch with constructed inputs.
+
+    Returns one of:
+      ("held",      order_id)  exactly one worker id matches this session, and it holds that order
+      ("free",      None)      exactly one matches, and it holds nothing
+      ("ambiguous", None)      more than one matches, so WHICH worker runs here is unknown
+      ("unknown",   None)      none matches, but a worker in this session's family holds an order,
+                               so this session CANNOT BE PROVEN not to be that holder
+      ("none",      None)      none matches and no worker in the family holds anything
+
+    THIS FUNCTION CANNOT SOUNDLY IDENTIFY THE WORKER, AND SAYS SO RATHER THAN GUESSING. A worker id
+    is minted per run as `<family>-<timestamp>-<nonce>` and encodes NOTHING about the tmux session
+    it runs in, so matching a session NAME against a worker ID is unsound by construction. It ever
+    appeared to work only because an earlier id scheme embedded the session name (`codex-mailz-a`
+    contains `mailz`); the timestamped scheme does not.
+
+    The live 2026-07-25 fail-open, which is pinned as a self-test case. `codex-...f8b8` held
+    `fnaudit-sweep121` while running in session `mailz`, and `codex-...b6ba` held nothing in session
+    `codex`. First-match attribution credited session `codex` with f8b8's order and session `mailz`
+    with NOTHING, so a destructive verb against `mailz` was ALLOWED while its worker had an order in
+    flight, destroying exactly the work the holder gate exists to protect, while `codex` was refused
+    for an order it did not hold. Both verdicts were wrong, and the dangerous one was the silent
+    permit rather than the visible refusal.
+
+    So ignorance is reported as ignorance, and it is scoped by FAMILY so the conservatism stays
+    proportionate: an unmatched `codex`-family session while a codex worker holds an order is
+    `unknown` (refuse a destructive verb), whereas the same session while no codex worker holds
+    anything is `none` (nothing to lose, so proceed). Without the family scope, any single holder
+    anywhere would freeze destructive verbs against every session, which is the kind of over-broad
+    guard that gets switched off. `--force` remains the deliberate override.
+    """
+    matches = [(k, v) for k, v in held.items() if k.startswith(session) or session in k]
+    if len(matches) > 1:
+        return "ambiguous", None
+    if matches:
+        _worker_id, order = matches[0]
+        return ("held", order) if order else ("free", None)
+    # No match. That is not evidence of absence, because the id does not encode the session.
+    prefix = f"{family}-" if family else None
+    family_holds = any(
+        order for wid, order in held.items()
+        if prefix is None or wid.startswith(prefix)
+    )
+    return ("unknown", None) if family_holds else ("none", None)
 
 
 def working_root(explicit: str | None) -> Path | None:
@@ -168,8 +239,18 @@ def do_list(root: Path | None) -> int:
     print(f"{'session':10s} {'runtime':8s} {'pane':6s} {'held order':34s} tail")
     for s in sessions:
         rt = "ORCH" if s in ORCHESTRATOR_SESSIONS else RUNTIME_MAP.get(s, "unmapped")
-        # a session name is not a worker id, so match on prefix (worker ids are minted per run)
-        h = next((v for k, v in held.items() if k.startswith(s) or s in k), None)
+        # A session name is not a worker id (ids are minted per run), so attribution goes through
+        # attribute_held, which reports ambiguity instead of guessing the first match.
+        if s in ORCHESTRATOR_SESSIONS:
+            # The orchestrator holds no order by construction, and no verb may target it, so
+            # attributing held-state to it would be noise rather than information.
+            h = None
+        else:
+            state, h = attribute_held(s, held, RUNTIME_FAMILY.get(RUNTIME_MAP.get(s)))
+            if state == "ambiguous":
+                h = "AMBIGUOUS (matches >1 worker)"
+            elif state == "unknown":
+                h = "UNKNOWN (family has a holder)"
         cap = pane_tail(s, 6)
         # "esc to interrupt" is Claude's busy tell; the prompt marker shows in BOTH states, so
         # it is useless as a discriminator (observed 2026-07-25). Advisory only: no verb gates
@@ -201,12 +282,24 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
     if keys is None:
         print(f"REFUSED: verb '{verb}' has no defined sequence for runtime '{runtime}'.")
         return 1
-    held = held_orders(root)
-    h = next((v for k, v in held.items() if k.startswith(session) or session in k), None)
+    state, h = attribute_held(session, held_orders(root), RUNTIME_FAMILY.get(runtime))
     if verb in DESTRUCTIVE and h and not force:
         print(f"REFUSED {verb} on '{session}': it holds order '{h}', and {verb} destroys "
               "context, so in-flight work would be lost. Wait for delivery, or reclaim the "
               "order first. --force overrides.")
+        return 1
+    if state == "ambiguous" and verb in DESTRUCTIVE and not force:
+        print(f"REFUSED {verb} on '{session}': the session name matches MORE THAN ONE worker id, "
+              "so which worker runs here, and therefore whether it holds an order, is UNKNOWN. "
+              "This happens when a session is named after its family, because every worker id in "
+              "that family shares that prefix. Reclaim first, or override. --force overrides.")
+        return 1
+    if state == "unknown" and verb in DESTRUCTIVE and not force:
+        print(f"REFUSED {verb} on '{session}': no worker id matches this session name, AND a "
+              f"worker in the '{RUNTIME_FAMILY.get(runtime)}' family holds an order. A worker id "
+              "encodes nothing about its tmux session, so a non-match is NOT evidence that this "
+              "session is idle: it may be the holder. Confirm which session the holder runs in, "
+              "or wait for delivery. --force overrides.")
         return 1
     if root is None and verb in DESTRUCTIVE and not force:
         print(f"REFUSED {verb} on '{session}': no file-drop root resolved, so held-order state "
@@ -227,9 +320,30 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         if dry_run:
             print(f"  WOULD SEND to {session}: {k[:110]}")
             continue
-        rc, _, err = sh("tmux", "send-keys", "-t", session, k, "Enter")
+        # TEXT AND ENTER ARE TWO SEPARATE send-keys CALLS, WITH A PAUSE BETWEEN THEM.
+        #
+        # Maintainer-observed 2026-07-25, and the single most important line in this loop: sending
+        # `send-keys -t <session> "<text>" Enter` in ONE call delivered the text but NOT the submit,
+        # so the prompt sat in the worker's input box as a line break and the maintainer had to press
+        # Enter by hand on the `mailz` pane. Both agent TUIs treat a fast burst of input as a PASTE,
+        # and a paste absorbs the trailing Enter as a newline instead of submitting.
+        #
+        # The failure is LENGTH-DEPENDENT, which is why it was not caught earlier: the Claude `wake`
+        # is the single short token `/credit-offload`, which submits fine and did revive a worker in
+        # the same run, while the Codex `wake` is a long prose sentence, which did not. So a
+        # one-call send appears to work for exactly the verbs whose payload is shortest.
+        #
+        # `-l` sends the payload LITERALLY, so prose containing anything tmux would otherwise read
+        # as a key name (a bare `Enter`, `Space`, `C-c`) cannot be reinterpreted as a keystroke.
+        rc, _, err = sh("tmux", "send-keys", "-t", session, "-l", k)
         if rc != 0:
-            print(f"send-keys FAILED on '{session}': {err.strip()}")
+            print(f"send-keys FAILED on '{session}' (text): {err.strip()}")
+            return 1
+        import time
+        time.sleep(ENTER_DELAY_S)
+        rc, _, err = sh("tmux", "send-keys", "-t", session, "Enter")
+        if rc != 0:
+            print(f"send-keys FAILED on '{session}' (Enter): {err.strip()}")
             return 1
         print(f"  SENT to {session}: {k[:110]}")
     if not dry_run:
@@ -307,7 +421,7 @@ def self_test() -> int:
 
     global tmux_sessions
     real = tmux_sessions
-    tmux_sessions = lambda: ["grc", "worker", "mailz", "unmapped-session"]  # noqa: E731
+    tmux_sessions = lambda: ["grc", "worker", "mailz", "codex", "unmapped-session"]  # noqa: E731
     try:
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
@@ -346,8 +460,60 @@ def self_test() -> int:
                            repo, root, "worker", "wake", "", False, True)
             expect_allowed("a non-destructive verb on a mapped session is allowed (dry-run)",
                            repo, root, "mailz", "wake", "r", False, True)
+
+            # The ambiguity gate, end to end: two same-family worker ids both prefix-match the
+            # family-named session, so held-state is UNKNOWN and a destructive verb must refuse.
+            # This is the 2026-07-25 fail-open, pinned as a case: before the fix, attribution took
+            # the first match and a restart against the NON-matching session was allowed while its
+            # worker held an order.
+            (root / "codex" / "inbox" / "codex-aaa").mkdir(parents=True)
+            (root / "codex" / "inbox" / "codex-bbb").mkdir(parents=True)
+            (root / "codex" / "inbox" / "codex-aaa" / "live-order.md").write_text("x")
+            expect_refusal("refuses a destructive verb when the session matches >1 worker id",
+                           "matches MORE THAN ONE worker id",
+                           repo, root, "codex", "restart", "r", False, True)
+            expect_allowed("a non-destructive verb is allowed despite ambiguous attribution",
+                           repo, root, "codex", "wake", "r", False, True)
+            # THE ACTUAL 2026-07-25 FAIL-OPEN, pinned: session `mailz` matches NO codex worker id,
+            # yet a codex worker holds an order, so `mailz` may be that holder and a restart must
+            # refuse. Before the family-scoped unknown state, this case PASSED THE SEND.
+            expect_refusal("refuses a destructive verb on an unmatched session whose family holds",
+                           "no worker id matches this session name",
+                           repo, root, "mailz", "restart", "r", False, True)
     finally:
         tmux_sessions = real
+
+    # attribute_held is pure, so its four states are pinned directly with constructed maps
+    # rather than through the filesystem. Purity is what makes these cases discriminating:
+    # each asserts a distinct return, not a shared sentinel.
+    def check_attr(name, got, want):
+        total[0] += 1
+        ok = got == want
+        print(f"  {'PASS' if ok else 'FAIL'}: {name}" + ("" if ok else f" -> {got}, expected {want}"))
+        if not ok:
+            failures.append(name)
+
+    check_attr("attribute_held: one match holding an order",
+               attribute_held("opus-1", {"opus-1": "o"}, "opus"), ("held", "o"))
+    check_attr("attribute_held: one match holding nothing",
+               attribute_held("opus-1", {"opus-1": None}, "opus"), ("free", None))
+    check_attr("attribute_held: two matches is ambiguous, never a first-match guess",
+               attribute_held("codex", {"codex-a": "o", "codex-b": None}, "codex"),
+               ("ambiguous", None))
+    check_attr("attribute_held: no match and NO family holder is a safe none",
+               attribute_held("mailz", {"codex-a": None}, "codex"), ("none", None))
+    check_attr("attribute_held: no match while the family HOLDS is unknown, not none",
+               attribute_held("mailz", {"codex-a": "o"}, "codex"), ("unknown", None))
+    check_attr("attribute_held: the family scope keeps it proportionate (claude session, codex holder)",
+               attribute_held("worker9", {"codex-a": "o"}, "opus"), ("none", None))
+    check_attr("attribute_held: THE live 2026-07-25 fail-open (mailz unmatched, f8b8 holding)",
+               attribute_held("mailz", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
+                                        "codex-20260725T151831Z-b6ba": None}, "codex"),
+               ("unknown", None))
+    check_attr("attribute_held: its sibling half (family session matches both ids)",
+               attribute_held("codex", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
+                                        "codex-20260725T151831Z-b6ba": None}, "codex"),
+               ("ambiguous", None))
 
     if failures:
         print(f"\nself-test: FAILED ({len(failures)} of {total[0]})")
