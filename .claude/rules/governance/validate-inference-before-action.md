@@ -52,7 +52,11 @@ The validation must be a concrete observation, not another inference. "I assume 
 
 A guard is a premise-driven action, so this rule reaches it: `if P(x): refuse` acts on the premise that `x` represents the thing `P` is asking about. The failure this section names is a guard whose logic is right and whose INPUT cannot answer the question asked of it. The guard then does its job perfectly on a value that does not mean what the code believes it means.
 
-The failure hides from the usual instrument. Mutation testing perturbs BRANCHES, so it verifies that `P` fires correctly GIVEN `x`; it is silent on whether `x` is faithful, because the code that produces `x` is a mapping with few or no branches for a mutation to perturb. A guard can therefore be mutation-proved, documented, and still be worthless, and the proof will read as reassurance.
+The failure hides from the usual instrument, and the scope of that blindness is worth stating precisely, because the loose version of this claim contradicts its own remedy. Mutating the DECISION verifies that `P` fires correctly GIVEN `x` and says nothing about whether `x` is faithful. Mutating the OBSERVER can say something, so the blindness is not structural, and a rule claiming otherwise would make its own "mutate the observer" advice incoherent.
+
+**But observer mutation is bounded by the same case coverage as decision mutation, and that is the part a reader will underestimate.** It detects only what some case already discriminates on. Measured against a real defect: of three observer-mutation strategies applied to a live one (an entry missing from a runtime-to-family map), only one was detected; the two that mapped most directly onto the actual defect, dropping the entry and returning the wrong key, BOTH missed it, because the test had no case for that entry at all, so no mutation involving it could ever fail. So observer mutation is a companion to the reality-fixture practice below, never a substitute for it: where no case discriminates, no mutation of either kind can help.
+
+A guard can therefore be mutation-proved, documented, and still be worthless, and the proof will read as reassurance.
 
 The recurring shape is **a proxy standing in for the real question**, where nobody asked whether the source is authoritative for what is being asked of it. Three observed instances, which share one shape:
 
