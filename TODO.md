@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.113.**
+**Next item number: 3.114.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.113 Worker-id ownership is unvalidated, so two sessions can wear one id (2026-07-25, M, S)
+
+Neither transport has any notion of worker-id ownership: file-drop `_touch_heartbeat` writes the heartbeat file unconditionally with no owner field, and git-scratch `cmd_register` treats a pre-existing registry row as a REJOIN and hands the colliding session the prior `held_order` and `held_token` without testing whether `last_seen` is fresh. On 2026-07-25 two live sessions wore `worker-20260716-a` at once. A candidate fix is already DELIVERED (`results/fix-worker-id-collision-phase1.md`, Recommendation 1 only: a session nonce plus a `--takeover` override, staged as layer 1 warn-but-serve then layer 2 refuse behind an opt-in, so rolling it out cannot wedge a live worker mid-order); the remaining work is orchestrator-side verification and apply, plus deciding when to flip layer 2 on. Do NOT implement the delivered draft's Recommendation 2 (auto-minted ids): that trade-off is the maintainer's and is unrelated now that workers self-mint. **This is also where N2 from #1157's pre-push verifier lands:** `tools/audit-worker-saturation.py` de-duplicates live workers by id across the two planes, so two distinct sessions sharing one id are counted as ONE live worker, under-reporting the fleet. That under-count is a symptom of the missing ownership validation, not a defect in the saturation tool, so it is fixed here rather than there.
 
 ### 3.112 Gate 59 never compares a PR's version ACROSS the two changelog files (2026-07-25, M, XS)
 
