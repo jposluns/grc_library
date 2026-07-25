@@ -17,7 +17,7 @@ Wired the validation-coverage tool into `/deep-assessment` and made the pass wor
 
 ### Validation-coverage audit tool (anti-recurrence for the direct-push-without-validation failure) (2026-07-25, PR #1147)
 
-Built `tools/audit-validation-coverage.py`, a cross-repo advisory that flags any ungated direct-push landing on a PR-required repo (grc_library, `_ref`, `_private`), the exact 2026-07-24 `_private` failure signature, using the commit-to-PR association as the reliable signal (the assistant token cannot read branch protection). Attribution (assistant `Co-Authored-By` trailer vs maintainer web-upload) annotates but does not gate the finding. Self-test (8 cases) wired into the regression suite. Live run confirmed grc_library clean, `_private` remediated (now PR-protected), and surfaced a still-open gap on `_ref` (currently allows direct-pushes). Part 1 of the maintainer-directed trust-recovery build.
+Built `tools/audit-validation-coverage.py`, a cross-repo advisory that flags any ungated direct-push landing on a PR-required repo (grc_library, `_ref`, `_private`), the exact 2026-07-24 `_private` failure signature, using the commit-to-PR association as the reliable signal (the assistant token cannot read branch protection). Attribution (assistant `Co-Authored-By` trailer vs maintainer web-upload) annotates but does not gate the finding. Self-test (13 cases: 9 verdict plus 4 CI-detection fixtures) wired into the regression suite. Live run confirmed grc_library clean, `_private` remediated (now PR-protected), and surfaced a still-open gap on `_ref` (currently allows direct-pushes). Part 1 of the maintainer-directed trust-recovery build.
 
 ### §4.9 pack public-distribution packaging model implemented (2026-07-24, PR #1145)
 

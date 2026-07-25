@@ -8,6 +8,21 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.636, PR #1150
+
+Session-closing handoff PR for the 2026-07-24/25 attended session (the worker-wiring / file-drop-transport session). Fixes the two findings the offloaded trust-recovery-window `/validate` corpus sweep (worker-a) delivered, and refreshes the session handoff for the next `/resume`, which the maintainer will run from `/home/grc` after relocating all sibling repos there. Per the session-closing-handoff discipline, this PR is exempt from its own trailing `/validate-pr` plus `/retro` (the loop-break); the compensating control is the next `/resume` corpus-wide `/validate`.
+
+### Fixed
+- [`dev-security/claude-rules/README.md`](../../dev-security/claude-rules/README.md): the `## Parent-repo dependencies` section (§4.9, added in pack 1.65.6) named a nonexistent skills directory under `.claude/` as where the project slash commands live. The pack skills actually ship in the pack's own [`skills/`](../../dev-security/claude-rules/skills/) tree (24 skill subdirectories), which the same sentence's next clause already references. Corrected the claim, a MEDIUM outward-facing factual error in a public pack document. Pack Version 1.65.7 to 1.65.8 with a matching version-history row.
+- [`.working/DONE.md`](../DONE.md): the #1147 DONE entry said the [`tools/audit-validation-coverage.py`](../../tools/audit-validation-coverage.py) self-test had 8 cases; it has 13 (the `--self-test` run reports 13, being 9 verdict plus 4 CI-detection fixtures). Corrected to 13.
+
+### Changed
+- [`README.md`](../../README.md): Library Version 2026.07.635 to 2026.07.636; README Version 1.9.996 to 1.9.997.
+- [`.working/session-handoff.md`](../session-handoff.md): full session-closing refresh (state snapshot, last-merged, next-actions queue, asserted expectations, green-at-`<sha>`) plus the `/home/grc` path-migration and file-drop worker-transport runbook notes. [`.working/session-state.md`](../session-state.md): concurrency lease RELEASED. [`.working/validate-pr/history.md`](../validate-pr/history.md) and [`.working/improvement-log.md`](../improvement-log.md): the #1149 `/validate-pr` and `/retro` rows.
+
+### Verification
+- Pre-push guard green (`run_all_audits.sh` plus `run-pr-time-checks.sh`). The two findings were re-verified at source before fixing (the skills directory under `.claude/` confirmed absent; the self-test confirmed 13 cases). This is the session-closing handoff PR, exempt from its own trailing `/validate-pr` plus `/retro`; the compensating control is the next `/resume` corpus-wide `/validate`.
+
 ## 2026-07-25, Library Version 2026.07.635, PR #1149
 
 Fixes the paired-command lockstep gap that the offloaded #1148 `/validate-pr` found, and records the #1148 QA audit trail. Found by feeding an idle credit-offload worker the #1148 post-merge sweep; the worker (worker-b, Opus 4.8) applied a self-verification guard because its own deep-assessment restructure design was the change under review, re-deriving each claim from the head.
