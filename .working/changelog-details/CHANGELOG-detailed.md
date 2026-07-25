@@ -8,6 +8,10 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.632, PR #1146
+
+Local-project convention (`.claude/` change; no corpus content). Codified the repo shorthands `_scratch`, `_ref`, `_private` (for `grc_library_scratch`, `grc_library_ref`, `grc_library_private`) as a bullet in the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) communication-conventions section, after the maintainer flagged an inconsistent bare `scratch`: each sibling repo is always referred to by its underscore shorthand or its full name, never a bare inconsistent form. Also saved as an assistant memory. Library CalVer + README Version bumped.
+
 ## 2026-07-24, Library Version 2026.07.631, PR #1145
 
 Standalone-pack packaging model (TODO section 4.9, item e; closes section 4.9). Makes the [`dev-security/claude-rules/`](../../dev-security/claude-rules/README.md) pack cleanly distributable as a standalone bundle. Offloaded candidate diff (worker), verified and applied deterministically by the orchestrator.
