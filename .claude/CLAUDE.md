@@ -1200,6 +1200,35 @@ The PORTABLE form of this coupling ships in the pack's
 (so an adopter extending the pack inherits the keep-in-sync discipline); that pack-side clause
 lands with the Task-1 pack reconciliation.
 
+## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
+
+**Every wind-down queues worker orders that the NEXT session's `/resume` will consume.** The
+maintainer's standing directive, given at the 2026-07-25 resume: "any wind down will queue worker
+tasks to perform QA activities and tasks that can help expedite the resume."
+
+**Why the timing is the whole point.** Worker capacity is ELASTIC and the orchestrator is the scarce
+singleton, so the hours between one session closing and the next opening are the only stretch where
+worker time is free and orchestrator time costs nothing. A wind-down that queues nothing wastes that
+entire window, and the next `/resume` then starts by DISPATCHING and WAITING instead of by consuming.
+Pre-queued work inverts that: the resume opens with deliveries already in the tray.
+
+**What to queue, in this order.** (1) The mandatory loop-break `/validate` for the closing window,
+pinned to the closing SHA, so the compensating control for the skipped handoff-PR QA is already
+running rather than waiting to be dispatched. (2) The `/validate-pr` for the last merged PR, which the
+handoff PR itself is exempt from. (3) Research or draft candidates for the next-five queue in
+[`.working/next-prs.txt`](../.working/next-prs.txt), which is what makes the next session's first
+substantive PR fast. (4) Any defect-hunt whose target the closing session touched, while the changes
+are recent.
+
+**Discipline, so the pre-queue does not become a liability.** Pin every order to the closing merge SHA
+(never a branch head, which vanishes on squash-merge) and to a SHA that CONTAINS what the order
+references. Fill the live worker pool rather than the queue: read
+[`tools/audit-worker-saturation.py`](../tools/audit-worker-saturation.py) and queue enough to saturate,
+not an unbounded backlog that goes stale unserved. Name the pre-queued order ids in the handoff record
+so the receiving session knows what to expect and can tell a missing delivery from one never ordered.
+And a pre-queued order is NOT a claim that its work is done: the receiving session still consumes,
+re-verifies every positive finding at source, and routes findings normally.
+
 ## Wind-down decision framework (surface the handoff choice, do not take it silently)
 
 **The default is to continue, not to hand off.** Concluding that a session-closing handoff
