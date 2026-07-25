@@ -8,6 +8,22 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.634, PR #1148
+
+Trust-recovery build part 2 (§1.23; maintainer-directed 2026-07-24). Wires the anti-recurrence coverage tool into the whole-project deep-assessment and makes every phase worker-splittable. Offloaded design (`research-deepassess-restructure`, worker-b), authored to preserve the pack's project-agnosticism (concrete repo names in the Project-wiring block, generic in the phase text, which the design's literal prose did not fully separate).
+
+### Changed
+
+- [`dev-security/claude-rules/skills/deep-assessment/SKILL.md`](../../dev-security/claude-rules/skills/deep-assessment/SKILL.md): (1) brought the private operational store into scope: added `grc_library_private` to the Project-wiring sibling set (with the direct-push caution and the orchestrator-only-read note), added it to the phase-1 present check and the phase-2 sibling-gate run (a red private-store gate is now a phase-2 finding, the exact failure that went unnoticed), and added a new phase-6(d) content review of its ungated operational docs (the decision-log, design-decisions, runbook, egress and activity requests, and store index) against the corpus and ledgers they coordinate. (2) Added a phase-4(e) validation-coverage sub-pass that runs [`tools/audit-validation-coverage.py`](../../tools/audit-validation-coverage.py), with the structural insight that deep-assessment's other lenses examine artefacts and gates but not the sequence of pushes that landed, so an unvalidated-operation class is invisible by construction. (3) Added a Parallel-execution (worker fan-out) subsection: every phase decomposes into disjoint register-tracked units, bounded by the phase-2 barrier and the worker-cannot-read-private-store access constraint (private-store units are orchestrator-only), so a full pass fans out to parallel workers. The wired tool was also added to the Project-wiring gate-efficacy bullet.
+
+### Verification
+
+- lint-language and unbalanced-fences clean on the skill; gate 44 (paired-skill step parity) OK, so the paired command needs no change (sub-passes are not phase identifiers); gate 37 single-tree (the skill is not mirrored, so no gate-37 pair); gate 39 (count consistency) and gate 77 (gate-citation inventory) OK. Pre-push guard green. Canadian English, no em/en dashes.
+
+### Batched
+
+- #1147 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md)) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md)), offloaded to worker-b.
+
 ## 2026-07-25, Library Version 2026.07.633, PR #1147
 
 Trust-recovery build, part 1 (maintainer-directed 2026-07-24, after the assistant direct-pushed to `grc_library_private` without validation and its CI was red all day): the anti-recurrence coverage tool.
