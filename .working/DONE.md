@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### Validation-coverage audit tool (anti-recurrence for the direct-push-without-validation failure) (2026-07-25, PR #1147)
+
+Built `tools/audit-validation-coverage.py`, a cross-repo advisory that flags any ungated direct-push landing on a PR-required repo (grc_library, `_ref`, `_private`), the exact 2026-07-24 `_private` failure signature, using the commit-to-PR association as the reliable signal (the assistant token cannot read branch protection). Attribution (assistant `Co-Authored-By` trailer vs maintainer web-upload) annotates but does not gate the finding. Self-test (8 cases) wired into the regression suite. Live run confirmed grc_library clean, `_private` remediated (now PR-protected), and surfaced a still-open gap on `_ref` (currently allows direct-pushes). Part 1 of the maintainer-directed trust-recovery build.
+
 ### §4.9 pack public-distribution packaging model implemented (2026-07-24, PR #1145)
 
 Made the `dev-security/claude-rules/` pack cleanly distributable as a standalone bundle: rewrote the 104 relative links that escape the pack directory (into the parent `tools/`, corpus docs, `.claude/`, and the parent CHANGELOG) to bare code-span mentions per the §1.19 convention (so a dragged-in pack has no dangling links); added a `## Parent-repo dependencies` README section documenting the audit toolchain, the project slash commands, and the private reference-base dependency as parent-only; and fixed the README's nonexistent `/add-files` reference to the real `@` mention and `--add-dir` mechanisms. Deterministic scripted unwrap plus re-parse (0 escaping links remain); gate 37 byte-parity clean (no mirrored file touched). Pack 1.65.5 to 1.65.6. §4.9 was a §4.30 umbrella sub-item; the umbrella stays open.

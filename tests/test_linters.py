@@ -8333,6 +8333,24 @@ class WorkerSaturationToolTests(unittest.TestCase):
         self.assertIn("passed", result.stdout)
 
 
+class ValidationCoverageToolTests(unittest.TestCase):
+    """The advisory ``tools/audit-validation-coverage.py`` tool's own ``--self-test``,
+    wired into the regression suite so its verdict logic (which repo landings are a
+    FINDING vs OK vs OK-EXCHANGE, and that attribution annotates but does not gate the
+    finding) stays green. Built after the 2026-07-24 direct-push-without-validation
+    failure. The tool is advisory (never a gate: it is cross-repo and needs gh auth to
+    read commit-to-PR associations), so its correctness is protected here rather than by
+    the gate-parity machinery."""
+
+    def test_validation_coverage_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-validation-coverage.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-validation-coverage.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+
 class RuleScopeTableTests(LinterTestCase):
     """tools/lint-rule-scope-table.py (gate 74)"""
 
