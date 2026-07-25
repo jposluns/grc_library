@@ -8,6 +8,26 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.651, PR #1164
+
+Closes item (4) of TODO 1.23, the last assistant-actionable part of that trust-recovery item: the em-dashes in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), which the corpus house-style rule forbids and which no gate reads.
+
+### The ungated lane, closed
+
+`.claude/` is in the audit programme's exempt set, so [`tools/lint-language.py`](../../tools/lint-language.py) never walks it in a default run. The result was the house-style rule going unenforced against **the very file that states it**, which is the same ungated-lane shape as the unvalidated-operation class that triggered TODO 1.23 in the first place: not a defect in any gate, but a surface no gate looks at.
+
+**The recorded figure of 26 was right, and resolved as 25 prose violations plus 1 legitimate.** Measured rather than assumed, by splitting each flagged line on code spans and testing only the prose outside them: 25 lines carried a genuine prose em-dash, and one, at `:182`, is the house-style rule's OWN backticked illustration of the forbidden characters. That one must not change, so [`tools/lint-language.py`](../../tools/lint-language.py) on that file now reports exactly one finding, and that finding is correct. Recording the split matters because "26 em-dashes" read as 26 violations, and a blind replace-all would have corrupted the rule into forbidding characters it no longer displayed.
+
+The fixes use the punctuation the rule itself prescribes: a colon where the line is a definition-list entry (the rule-index and pointer lists, `` - `path`: description ``, which is what the em-dash was standing in for), and a comma in one list continuation where a colon would have read as introducing a list rather than continuing one. 25 insertions, 25 deletions, no other change.
+
+### What remains on 1.23, and why it is not mine
+
+Item (3) only: protect `grc_library_ref` with require-PR and block-force-push, as `_private` already is. That is **maintainer-action**, not deferred work: the assistant's token 403s on branch-protection reads, so it can neither set the protection nor verify it, which is itself why the coverage tool reports enforcement as maintainer-verify rather than asserting it. Items (1) and (2) closed in #1147 and #1148.
+
+### #1163's QA rows, self-run and labelled
+
+The fleet remained at zero live workers, so #1163's mandatory post-merge sweep was run inline, the weakest shape in the ladder, and its history row says so rather than presenting an orchestrator self-check as an independent pass. Five orders now sit staged in the exchange queue, claimable the moment a worker restarts, covering the four open gate-44 routes, the TODO 3.110 census and its part (c), and two P2 research items.
+
 ## 2026-07-25, Library Version 2026.07.650, PR #1163
 
 Corrects a claim in TODO 3.110's own specification, by measurement. The item said its mechanical check would be "false-positive-free by construction". It is not, and the naive form of it is unshippable.
