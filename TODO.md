@@ -246,7 +246,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.120.**
+**Next item number: 3.123.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -388,6 +388,57 @@ looking populated. Use a real fused row as the regression fixture.
 The table-row-join / ledger-row-fusion class (a reverse-chronological ledger row appended via `Edit` whose new row lacks the trailing newline before the preserved next row, merging two rows onto one physical line and dropping the displaced row's leading identifier cells) recurred as #915's Sweep-103 history-row edit (`.working/validate-sweeps/history.md:15`) and, for the FIRST time in the class's history, ESCAPED to `main`. Every prior occurrence (#347/#462/#498/#656/#887/#888/#891) was self-caught pre-commit by gate 50, gate 36, or the pipe-count self-check, which is why the #891 `/retro` declined a gate ("the self-check catches it"); the #915 escape refutes that disposition. It escaped because (a) `validate-sweeps/history.md` is NOT read by gate 50 (which reads only `validate-pr/history.md` and `improvement-log.md`), and (b) the post-edit self-check was skipped. Build a STRUCTURAL table-row-integrity check over the reverse-chronological `.working/` bookkeeping ledgers ([`validate-pr/history.md`](.working/validate-pr/history.md), [`improvement-log.md`](.working/improvement-log.md), [`validate-sweeps/history.md`](.working/validate-sweeps/history.md), [`deep-assessment/register.md`](.working/deep-assessment/register.md)): assert every non-separator table line begins with `|` and carries that ledger's expected column count (counting an escaped `\|` as a literal, not a separator). FP-free (a well-formed ledger yields no findings; a ledger-less fork yields none). Decide gate-vs-advisory and whether to fold it into gate 50 (which already reads two of these ledgers despite the `.working/` exemption) or ship it standalone. Surfaced and routed by the #915 `/retro` (the improvement-log auto-graduation, the class having reached pattern-plus-escape).
 
 **Design analysis (2026-07-14, from the #916/#917 build; BUILD DEFERRED to a fresh session).** A prototype measurement showed the naive design (assert every data row's unescaped-pipe count equals its ledger header's) is NOT FP-free: it flags ~50 pre-existing LEGITIMATE rows across the ledgers (validate-pr/history.md 20, improvement-log.md 17, validate-sweeps/history.md 13; deep-assessment/register.md 0) that carry unescaped `|` inside prose cells (the ledgers were never structurally constrained, being gate-exempt). Shipping that naive check as a hard gate would fire on 50 legitimate rows (a decorative/broken gate, gate-discipline). Also the ledgers are structurally inconsistent: validate-sweeps/history.md and deep-assessment/register.md carry a `|---|` separator row, while validate-pr/history.md and improvement-log.md put data directly under the header (and the latter two have `|---|`-shaped text inside prose cells), so separator-based column detection is unreliable too. An FP-free detector needs a SMARTER signal than a column count: (i) flag a data row that contains, MID-ROW, a second occurrence of the ledger's row-start pattern (`| YYYY-MM-DD | <id> |`) - the row-join-that-retains-the-identifier shape; AND (ii) a per-ledger SEQUENCE-GAP check (a missing expected id, e.g. Sweep 102 absent while 103 present) - the dropped-identifier join shape that F1@#915 actually took (a pure column-count check catches F1 but not FP-free). Options for the fresh build: normalize the ~50 legit rows to escape their prose pipes first (a large risky sweep, then the simple check is FP-free), OR build the smarter detector directly. The build was deferred (not attempted) because it is a subtle FP-free-detector design better done fresh, and because it surfaced during a session already carrying a precision-strain signal on exactly this mechanical-edit class. **Interim mitigation now in force (codified in the #916 retro):** insert a ledger row by anchoring the `Edit` on the HEADER line alone and appending the new row AFTER it, never matching-and-re-appending the next row's leading cells.
+
+**SCOPE CORRECTED AND SEQUENCED (maintainer-directed 2026-07-25c).** The premise above, that #915 is the
+class's first escape, is WRONG. Worker `opus-20260725T121943Z-78ff`, measuring detector candidates for this
+item, found **five** fused rows live on `main` in [`validate-sweeps/history.md`](.working/validate-sweeps/history.md)
+(lines 44, 45, 46, 84, 103) and one in [`matrix-fit/history.md`](.working/matrix-fit/history.md), confirmed two
+independent ways (a cell count exceeding the 7-cell header, and a missing sweep whose per-run detail file is
+referenced from inside the flagged line). #915 was the first NOTICED escape, not the first. **Four of the six
+fusions DROPPED the displaced row's identifier entirely** (Sweeps 88, 86, 27, and one unidentified, plus one
+matrix-fit batch), so QA audit trail has been silently lost rather than merely mis-rendered. Sweep 90's row
+survives inside line 44. The consequence for this item is mechanical: **the gate as specified cannot land
+green against the current tree.** The maintainer's decision at the 2026-07-25c resume is **REPAIR FIRST, THEN
+GATE**: reconstruct the four dropped rows from git history and the per-run detail files, repair all six
+fusions, and only then land the detector, so the gate is green on arrival and no grandfathered exemption list
+is created. The alternative considered and rejected was landing the gate now with the six exempted, which
+would have baked an exemption set that itself drifts and left the dropped rows lost meanwhile.
+
+### 3.120 Gate 50 Check 1 needs a third `pending` state, so an undelivered QA order cannot read green (Sweep 122 Part 3 + maintainer-directed 2026-07-25c, M, S)
+
+Check 1 is satisfied by row PRESENCE. #1176 is neither the highest-numbered PR nor a handoff, so its honest
+`DISPATCHED, RESULT PENDING` row satisfies the check and **the parity gate reads green while that PR's
+`/validate-pr` has never run**. The honesty lives entirely in prose no gate can see, which is the
+silence-reads-as-health shape. Check 1 already models two exemptions mechanically, one of them by exactly this
+kind of Findings-cell marker (`SKIPPED` together with `handoff`), so a third state follows an existing
+precedent rather than inventing one: recognize a `DISPATCHED, RESULT PENDING` marker as present-but-UNRESOLVED
+and FAIL once a later PR exists (the same demotion trigger the highest-PR exemption already uses). The
+convention half shipped in #1178 (CLAUDE.md close-out item 3 and pack `session-lifecycle.md` section 5) and is
+explicitly the weaker half of the pair. **Sequencing constraint: this gate cannot land green until #1176's own
+QA returns and its row is resolved**, so it follows item 3.122.
+
+### 3.121 A sweep order that strips `origin` makes the pre-push-guard claim un-re-derivable (Sweep 122 Part 5, L, XS)
+
+Sweep orders direct the worker to remove `origin` from its clone so the library-version-monotonicity gate does
+not fire spuriously. That makes the pre-push guard's PR-time D-series unrunnable: all eight checks fail rc=2 on
+merge-base resolution against a missing `origin/main`, an environment error rather than a finding. So a closing
+handoff's "pre-push guard green on both runners" assertion comes back **VOID**, neither confirmed nor
+contradicted, and no worker can verify it under the current instructions. Two candidate fixes, both naming a
+decision the order author must make rather than one a worker may improvise: keep `origin` and give the
+monotonicity gate its own exclusion, or clone with `origin` intact and create a local `origin/main` ref at the
+base SHA so the D-series can resolve a merge-base. The Sweep 122 worker correctly declined to invent the ref
+unasked, on the grounds that it changes what the guard measures.
+
+### 3.122 #1176 merged unvalidated; its `/validate-pr` must return and be dispositioned (maintainer-directed 2026-07-25c, H, S)
+
+#1176 carried 22 files, 813 insertions and **six backlog-item closures**, and merged with its `/validate-pr`
+order dispatched but never claimed; the session then closed. A wrongly-closed backlog item is invisible
+afterwards, which is exactly why the order asks for those closures to be judged adversarially. The order
+`validate-pr-1176` is still queued, pinned to `462352b1`, blocking and priority 0. It has **no eligible
+claimant**: both codex workers declined it on a documented independence conflict (one produced the
+`validate-pr-1175` sweep whose findings #1176 fixed) and both opus workers are chain-adjacent. Per the rule
+#1178 adds, if no worker serves it the orchestrator runs it directly rather than closing over it. This item
+closes when the result has RETURNED and every finding has a disposition, not when the order is re-dispatched.
 
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 

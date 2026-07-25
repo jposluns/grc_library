@@ -62,9 +62,26 @@ def parse_open_rows(text: str) -> list:
     return rows
 
 
+# The closed disposition vocabulary. The ledger's own contract is that a row leaves only via one
+# of these four, so anything else in the cell is NOT a disposition however much text it carries.
+TERMINAL = ("fixed", "routed", "refuted", "accepted")
+
+
 def undispositioned(rows: list, severity: str) -> list:
-    """PURE. Rows of `severity` whose disposition cell is empty."""
-    return [(s, f, d) for (s, f, d) in rows if s == severity and not d.strip()]
+    """PURE. Rows of `severity` carrying no TERMINAL disposition.
+
+    Emptiness is not the right test, and testing it was a live gap: the cell is free prose, so
+    `OPEN: still working on it` or `pending` is non-empty and satisfied the old check while saying
+    in plain words that the finding is undispositioned. That is the guard-input-authority class the
+    project already fixed three times elsewhere: the check was correct, and its input could not
+    answer the question asked of it. Requiring one of the four vocabulary words makes the cell able
+    to answer it, and makes ignorance refuse rather than permit.
+    """
+    return [
+        (s, f, d)
+        for (s, f, d) in rows
+        if s == severity and not d.strip().lstrip("*_` ").lower().startswith(TERMINAL)
+    ]
 
 
 def is_blocking_command(cmd: str) -> bool:
@@ -138,6 +155,24 @@ def self_test() -> int:
     ck("a dispositioned warning does not count", len(undispositioned(rows, "warning")), 1)
     ck("a closed-section error never blocks",
        [f for (_s, f, _d) in undispositioned(rows, "error")], ["a wrong thing"])
+    # The reality fixture for the vocabulary gap: these exact cell shapes are non-empty and were
+    # accepted by the emptiness test while stating in plain words that nothing had been decided.
+    vocab = ("## Open\n"
+             "| Found | Severity | Finding | Source | Disposition |\n"
+             "| --- | --- | --- | --- | --- |\n"
+             "| 2026-07-25 | error | narrated-open | probe | OPEN: a fresh worker is requested |\n"
+             "| 2026-07-25 | error | pending-word | probe | pending |\n"
+             "| 2026-07-25 | error | really-routed | probe | ROUTED TODO 3.73, P1 tier |\n"
+             "| 2026-07-25 | error | bolded-fixed | probe | **FIXED** in #1178 |\n"
+             "| 2026-07-25 | error | lowercase-accepted | probe | accepted: recorded decision |\n")
+    vrows = parse_open_rows(vocab)
+    vopen = [f for (_s, f, _d) in undispositioned(vrows, "error")]
+    ck("an OPEN: narration is NOT a disposition", "narrated-open" in vopen, True)
+    ck("a bare 'pending' is NOT a disposition", "pending-word" in vopen, True)
+    ck("ROUTED counts as dispositioned", "really-routed" in vopen, False)
+    ck("bold markup around FIXED still counts", "bolded-fixed" in vopen, False)
+    ck("lowercase accepted still counts", "lowercase-accepted" in vopen, False)
+    ck("exactly the two narrations block", len(vopen), 2)
     ck("gh pr create blocks", is_blocking_command("cd /x && gh pr create --title y"), True)
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
