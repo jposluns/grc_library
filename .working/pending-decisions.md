@@ -113,6 +113,18 @@ run; each was routed around per the graceful-degradation paths.
   filter). Raising it because the *class* recurring five times in one session is worth your judgement
   even though every instance was caught.
 
+- **[FLEET, worth a look] The codex worker heartbeats on start but never claims work.** After you restarted
+  it (~10:25Z) `codex-20260725T041432Z-f8b8` appeared LIVE at `hb_age 0.6m`, but it never claimed the
+  priority-0 order sitting in its OWN family's `available-work` and went stale ~24 minutes later without
+  serving anything. The same shape as its earlier disappearance (live, then stale at ~5 hours, zero
+  deliveries all night). So the restart did not fail visibly, it registered and then did not enter or
+  sustain its serve loop. **Consequence for the run:** codex was the only family independent of every opus
+  delivery, so the independence-gap-closing order I routed to it went unserved. I re-routed that work to
+  `opus-20260725T102556Z-c46a`, which started at 10:25Z and authored none of the #1153 / #1156 / #1157
+  work, so its independence of the CLAIMS is genuine even though it shares the opus family. Worth checking
+  whether the codex worker is actually running its serve loop, or whether its startup is failing silently
+  after the heartbeat write. Its stale marker is retired, so a restart lands cleanly.
+
 - **[FYI] The codex environment package still cannot be applied by the orchestrator.** It needs
   writes to `/home/mailz`, which is not writable from this account. It waits on you or on the codex
   worker applying it to itself.
