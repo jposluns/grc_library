@@ -18,6 +18,17 @@ This gate closes that gap: it parses the per-PR header set from each
 file and requires them to match, so a lost or duplicated detailed-mirror
 header fails the build instead of surfacing only at a later manual sweep.
 
+It also asserts CROSS-FILE VERSION AGREEMENT (added in PR #1158): a PR present in
+BOTH files must carry the SAME ``Library Version`` in each. Set parity plus
+per-file monotonicity left this gate-blind, because two files can each be
+independently monotonic while disagreeing on one shared PR's version: PR #1155
+shipped ``2026.07.642`` (root ``CHANGELOG.md`` and ``README.md`` at its merge
+commit) while the detailed mirror recorded ``2026.07.641``, a version never
+shipped at all, and the gate passed. A pair is SKIPPED when either side's
+version does not parse, matching the ordering assertion's existing tolerance,
+and a PR duplicated within one file is already caught by the duplicate check
+rather than by this join.
+
 It also asserts Library-Version ORDERING (the GR-1 extension): entries
 are newest-first, so within each file the cutoff-scoped headers'
 ``Library Version`` values must be STRICTLY DECREASING top-down (the
@@ -221,6 +232,49 @@ def ordering_violations(
     return violations
 
 
+def version_mismatches(
+    root_records: list[tuple[int, int, tuple[int, int, int] | None, str]],
+    mirror_records: list[tuple[int, int, tuple[int, int, int] | None, str]],
+) -> list[tuple[int, str, str]]:
+    """PRs present in BOTH files whose Library Versions DIFFER.
+
+    Returns ``(pr, root_version_text, mirror_version_text)`` triples, ordered by
+    PR. The gate previously checked set parity of PR numbers and strict
+    monotonicity WITHIN each file, but never that a PR present in both carried
+    the SAME version in each, so a mirror could record a version that was never
+    shipped while both files stayed independently monotonic and their PR sets
+    matched (PR #1155: root and README both said 2026.07.642, the mirror said
+    2026.07.641).
+
+    Two deliberate exclusions:
+
+    - A record whose version did not parse carries ``None``, which the caller
+      already tolerates for the ordering assertion; such a pair is SKIPPED here
+      too rather than reported, so this check cannot start failing on a shape the
+      rest of the gate accepts.
+    - A PR appearing MORE THAN ONCE in either file is already a failure via the
+      existing duplicate checks, so this join assumes at most one record per PR
+      per file and reads the FIRST if that assumption is ever violated. It
+      therefore adds no new policy for duplicates and cannot mask them: the
+      duplicate check fires independently in the same run.
+    """
+    root_by_pr: dict[int, tuple[tuple[int, int, int] | None, str]] = {}
+    for _lineno, pr, version, version_text in root_records:
+        root_by_pr.setdefault(pr, (version, version_text))
+    mismatches: list[tuple[int, str, str]] = []
+    seen: set[int] = set()
+    for _lineno, pr, version, version_text in mirror_records:
+        if pr in seen or pr not in root_by_pr:
+            continue
+        seen.add(pr)
+        root_version, root_text = root_by_pr[pr]
+        if root_version is None or version is None:
+            continue
+        if root_version != version:
+            mismatches.append((pr, root_text, version_text))
+    return sorted(mismatches)
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -246,17 +300,30 @@ def main(argv: list[str]) -> int:
     dup_mirror = sorted(n for n, c in mirror_counts.items() if c > 1)
     order_root = ordering_violations(root_records)
     order_mirror = ordering_violations(mirror_records)
+    version_diff = version_mismatches(root_records, mirror_records)
 
-    problems = missing or extra or dup_root or dup_mirror or order_root or order_mirror
+    problems = (missing or extra or dup_root or dup_mirror or order_root
+                or order_mirror or version_diff)
     if not problems:
         shared = len(set(root_counts))
         print(
             f"OK: root and detailed-mirror CHANGELOG per-PR headers match "
-            f"for all {shared} PR(s) at or above #{cutoff}, and each "
-            f"file's Library Versions strictly decrease top-down."
+            f"for all {shared} PR(s) at or above #{cutoff}, each "
+            f"file's Library Versions strictly decrease top-down, and every "
+            f"shared PR carries the SAME Library Version in both files."
         )
         return 0
 
+    if version_diff:
+        print(
+            "FAIL: PR(s) present in BOTH files with DIFFERENT Library Versions "
+            "(the mirror and the root must agree; the shipped version is the one "
+            "in README.md at that PR's merge commit): "
+            + ", ".join(
+                f"#{pr} root={root_text} mirror={mirror_text}"
+                for pr, root_text, mirror_text in version_diff
+            )
+        )
     if missing:
         print(
             "FAIL: PR header(s) present in root CHANGELOG.md but MISSING from the "
