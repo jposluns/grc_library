@@ -70,7 +70,7 @@ Items 15 to 24 are in [`next-prs.txt`](next-prs.txt): 3.113, 2.25.3 (Canada AI c
 
 - **Current truth (verify against live files at `/resume`, which now runs from `/home/grc`)**:
   - **Session / mode:** resumed from #1105; long ATTENDED run; the WORKER-WIRING / same-VM file-drop-transport session; SESSION-CLOSING at #1150. Lease RELEASED; the next `/resume` sets its own mode. **PATH MIGRATION: the next session runs from `/home/grc/grc_library`; all sibling repos are at `/home/grc/` (off `/home/jposluns`, moved to backup); UPDATE ALL `/home/grc` repos at `/resume` FIRST (they may be stale).**
-  - **Version snapshot (D7 validates these tokens):** library `2026.07.656`, README `1.10.17` (as of the Sweep 121 close-out PR #1169, which carries this line; the prior session merged #1151 through #1168); pack `1.65.8` (last touched at the #1150 handoff's F1 §4.9 fix; unchanged through this run and #1169, neither of which touches a pack file). Counts independently re-measured by the orchestrator at the Sweep 121 resume and matching the worker's proof-of-run, re-verify again at the next resume: gate **77**, rules **15**, skills **24**, commands **15**, Document-types **18**.
+  - **Version snapshot (D7 validates these tokens):** library `2026.07.665`, README `1.10.26` (as of the Sweep 121 close-out PR #1169, which carries this line; the prior session merged #1151 through #1168); pack `1.65.14` (last touched at the #1150 handoff's F1 §4.9 fix; unchanged through this run and #1169, neither of which touches a pack file). Counts independently re-measured by the orchestrator at the Sweep 121 resume and matching the worker's proof-of-run, re-verify again at the next resume: gate **77**, rules **15**, skills **24**, commands **15**, Document-types **18**.
   - **Green-at:** the #1149 merge `3ac1f555` (77/77; pre-push guard green). This #1150 handoff is working-state + the F1/F2 fix + CHANGELOG + version only; `main` stays 77/77 at its descendant merge.
   - **Shipped this session (grc_library + siblings):** #1106-#1150 (full list in [`CHANGELOG.md`](../CHANGELOG.md) / [`DONE.md`](DONE.md)), headline the trust-recovery build (#1147 `audit-validation-coverage.py`, #1148 deep-assessment restructure) and the WORKER-WIRING (`_scratch` #174 transport-aware `/credit-offload`, `_scratch` #175 Codex onboarding core, `grc_library` #1149 command-lockstep fix, #1150 this handoff).
   - **File-drop transport EMPIRICALLY LIVE at close:** `credit-offload-filedrop.py list-workers` showed `worker-20260716-a` (opus) + `codex-mailz-a` (codex) heartbeating via `/home/grc/grc_working`; the `init` layout is pre-provisioned; a real order (`fd-verify-1149-deepassess`) was dispatched to codex to demonstrate the end-to-end loop.
@@ -116,7 +116,7 @@ The `.claude/rules/` and pack trees are in sync (gate 37).
    adversarially, because a wrongly-closed item is invisible afterwards.
 5. **The 78 positional-reference defects** across 59 files are MEASURED and UNFIXED (queue item 13).
 
-**Green at `462352b1`** (this closing PR's head before merge): `tools/run_all_audits.sh` reports all 78
+**Green at `c009e041`** (this closing PR's head before merge): `tools/run_all_audits.sh` reports all 78
 gates passing; `tools/pre-push-guard.sh` green on both runners.
 
 **PRE-QUEUED worker orders awaiting the next resume** (name them so a missing delivery is
