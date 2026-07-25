@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.43\
-**Date:** 2026-07-24\
+**Version:** 1.5.44\
+**Date:** 2026-07-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -114,7 +114,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| ETSI EN 304 223 | V2.1.1 | 2025-12 | Securing Artificial Intelligence (SAI): baseline cyber security requirements for AI models and systems (13 principles across five lifecycle phases: secure design, development, deployment, maintenance, end of life; the European Norm evolution of the TS 104 223 baseline; the first global EN for AI cyber security) | V2.0.0 (2025-09 draft); TS 104 223 V1.1.1 (2025-04, predecessor Technical Specification) | https://www.etsi.org/deliver/etsi_en/304200_304299/304223/ | verified 2026-07-24 |
+| ETSI EN 304 223 | V2.1.1 | 2025-12 | Securing Artificial Intelligence (SAI): baseline cyber security requirements for AI models and systems (13 principles across five lifecycle phases: secure design, development, deployment, maintenance, end of life; the European Norm evolution of the TS 104 223 baseline) | V2.0.0 (2025-09 draft); TS 104 223 V1.1.1 (2025-04, predecessor Technical Specification) | https://www.etsi.org/deliver/etsi_en/304200_304299/304223/ | verified 2026-07-24 |
 | ETSI TR 104 128 | V1.1.1 | 2025-05 | Securing Artificial Intelligence (SAI): guide to cyber security for AI models and systems (informative implementation guide to the SAI baseline TS 104 223, carried forward into EN 304 223; AI-lifecycle scenarios and examples for the full supply chain) | - | https://www.etsi.org/deliver/etsi_tr/104100_104199/104128/ | verified 2026-07-24 |
 
 ## EU regulations and directives
@@ -227,7 +227,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | OWASP Top 10 | 2025 | 2025-11 | Top 10 web application security risks (Eighth edition; new categories include "Software Supply Chain Failures" evolving from "Vulnerable and Outdated Components"; A02 "Security Misconfiguration" moved up from #5 in 2021 to #2 in 2025) | 2021, 2017 | https://owasp.org/www-project-top-ten/ | 2026-06-30 |
 | OWASP LLM Top 10 | 2025 | 2025 | Top 10 LLM application risks | 2023 | https://genai.owasp.org/llm-top-10/ | 2026-06-30 |
-| OWASP Top 10 for Agentic Applications | 2026 | 2026 | Top 10 risks for agentic AI systems (ASI01-ASI10) | - | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | 2026-07-23 |
+| OWASP Top 10 for Agentic Applications | 2026 | 2025-12 | Top 10 risks for agentic AI systems (ASI01-ASI10) | - | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | 2026-07-23 |
 | OWASP MCP Top 10 | 2025 | 2025 | Security risks for Model Context Protocol integrations | - | https://owasp.org/www-project-mcp-top-10/ | 2026-06-30 |
 | OWASP GenAI Red Teaming Guide | 1.0 | 2025-01 | Phased GenAI red-team process blueprint (model, implementation, system, and runtime / human and agentic evaluation phases) with per-phase checklists and agentic and RAG red-team tooling; sub-formal trusted guidance, cited corroboratively (see-also), not normative | - | https://genai.owasp.org/ | 2026-07-24 |
 | OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/www-project-application-security-verification-standard/ | 2026-06-30 |
