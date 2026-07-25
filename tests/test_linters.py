@@ -2553,33 +2553,111 @@ class PairedSkillStepParityTests(LinterTestCase):
             "a token only inside a URL path is not representation",
         )
 
-    def test_prefix_equivalence_absorbs_morphological_variation(self) -> None:
-        # NEGATIVE fixture: the conjunctive rule's dominant
-        # false-positive risk is a heading token whose command form is
-        # inflected differently. A shared five-character prefix counts as
-        # representation, so `execution` matches `Execute`.
+    def test_representation_excludes_every_non_prose_route(self) -> None:
+        # POSITIVE fixture, fail-open regression guard, round 2. The #1154
+        # post-merge sweep demonstrated FIVE routes beyond the first two by
+        # which a token could count as representation without the subsection
+        # being represented at all. The structural one: URL_RE required a
+        # scheme, but slash commands link to corpus documents by RELATIVE path,
+        # so the class the first fix closed stayed open for most links here.
+        # Each case below was a demonstrated leak. The two controls matter as
+        # much as the leaks: narrowing what counts must not discard prose.
+        mod = self._load_module()
+        token = "parallel"
+        leaks = {
+            "fenced code": "```\nparallel\n```",
+            "HTML comment": "<!-- parallel -->",
+            "absolute URL": "See https://github.com/x/parallel-notes.",
+            "relative link target": "See [the notes](../notes/parallel-execution.md).",
+            "reference definition": "See [n][n].\n\n[n]: ../notes/parallel-execution.md",
+            "image alt text": "![parallel execution](../img/x.png)",
+            "relative HTML attribute": '<a href="../notes/parallel-execution.md">n</a>',
+            "scheme-less www URL": "See www.example.com/parallel-execution.",
+        }
+        for label, text in leaks.items():
+            self.assertNotIn(
+                token,
+                mod.content_tokens(text),
+                f"a token only in {label} is not representation",
+            )
+        self.assertIn(
+            token,
+            mod.content_tokens("We dispatch the phases in parallel here."),
+            "genuine prose must still count",
+        )
+        self.assertIn(
+            token,
+            mod.content_tokens("See [the parallel notes](../x.md)."),
+            "link TEXT is prose and must still count, unlike a link target",
+        )
+
+    def test_exemption_window_breaks_on_a_section_heading(self) -> None:
+        # POSITIVE fixture. The window breaks on a `##` heading as well as a
+        # `###` one, so a marker parked beside the section heading that follows
+        # the last subsection cannot leak backwards into it (#1154 sweep V3).
         mod = self._load_module()
         skill = (
             "## Process\n"
+            "### 1. First step\n"
+            "body\n"
+            "### Alpha Beta Gamma\n"
             "\n"
+            "## Red Flags <!-- parity: command-exempt: for something else -->\n"
+        )
+        by_heading = {
+            heading: reason
+            for _n, heading, reason in mod.extract_skill_subsections(skill)
+        }
+        self.assertIsNone(
+            by_heading.get("Alpha Beta Gamma", "MISSING"),
+            "a marker beside a following ## heading must not exempt the subsection",
+        )
+
+    def test_exact_match_required_and_prefix_collisions_rejected(self) -> None:
+        # Replaces the former prefix-equivalence fixture, which asserted a rule
+        # that has been REMOVED. The five-character prefix rule absorbed
+        # inflection but also accepted UNRELATED words drawn from this corpus's
+        # own vocabulary, making it the dominant fail-open route and the only
+        # one reachable through ordinary prose (#1155 verifier W1). Removal was
+        # false-positive-free by measurement: across all registered pairs the
+        # check examines 5 subsection tokens and all 5 matched exactly.
+        mod = self._load_module()
+        for token, impostor in (
+            ("integration", "integrity"),
+            ("parallel", "paralysis"),
+            ("reference", "referendum"),
+            ("compliance", "complicated"),
+            ("execution", "executive"),
+        ):
+            self.assertFalse(
+                mod.token_present(token, {impostor}),
+                f"{impostor!r} must not satisfy {token!r}: unrelated words "
+                "sharing a prefix are not representation",
+            )
+        self.assertTrue(
+            mod.token_present("parallel", {"parallel", "unrelated"}),
+            "an exact token match must still count",
+        )
+        # The verifier's end-to-end failure case, built only from words this
+        # corpus writes constantly, must now be reported.
+        skill = (
+            "## Process\n"
             "### 1. Only step\n"
-            "\n"
-            "### Escalation path\n"
-            "\n"
-            "Body.\n"
-            "\n"
-            "## Red Flags\n"
+            "body\n"
+            "### Continuous integration gating\n"
+            "## Next\n"
         )
         command = (
-            "1. **Only step**: content.\n"
-            "\n"
-            "Escalate along the documented path.\n"
+            "1. **Only step**: verify data integrity continuously; "
+            "gating is automatic.\n"
         )
-        self.assertEqual(mod.unrepresented_subsections(skill, command), [])
-
-
-class CollectionEnumerationConsistencyTests(LinterTestCase):
-    """tools/lint-collection-enumeration-consistency.py"""
+        findings = mod.unrepresented_subsections(skill, command)
+        self.assertEqual(
+            [heading for _n, heading, _missing in findings],
+            ["Continuous integration gating"],
+            "a subsection matched only by unrelated same-prefix words is "
+            "not represented",
+        )
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test against the current corpus: the linter should

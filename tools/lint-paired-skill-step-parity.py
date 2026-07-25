@@ -214,14 +214,25 @@ SUBSECTION_STOP_WORDS = frozenset(
 
 # Minimum token length for prefix-equivalent matching, and the prefix
 # length itself. A shorter token must match exactly.
-STEM_LEN = 5
 
 # How many lines below a heading an opt-out marker may sit.
 EXEMPT_WINDOW = 2
 
 
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
-URL_RE = re.compile(r"\bhttps?://\S+", re.IGNORECASE)
+# A scheme is not required: slash-command files link to corpus documents by
+# RELATIVE path, so a scheme-only pattern left the very class it was written
+# to close open for most links in this repo (2026-07-25, the #1154 post-merge
+# sweep's V1, which demonstrated five further routes).
+URL_RE = re.compile(r"(?:\bhttps?://|\bwww\.)\S+", re.IGNORECASE)
+# An IMAGE is stripped whole, target AND alt text, because alt text is not prose
+# a reader reads as content. An inline LINK keeps its text, which is prose, and
+# loses only its target. That asymmetry is deliberate; stripping link text too
+# would discard genuine representation.
+IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
+REF_DEFINITION_RE = re.compile(r"^\s*\[[^\]]+\]:.*$", re.MULTILINE)
+HTML_TAG_RE = re.compile(r"<[^>]+>")
 
 
 def content_tokens(text: str) -> set[str]:
@@ -232,7 +243,8 @@ def content_tokens(text: str) -> set[str]:
     counts as content. Three sources are stripped first because a token
     appearing in any of them is not a representation of anything:
 
-    - fenced and indented code (via ``iter_non_code_lines``),
+    - fenced code (via ``iter_non_code_lines``, whose contract is fence-only:
+      an INDENTED code block is not stripped, so do not rely on it being),
     - HTML comments, which are invisible to a reader,
     - URLs, whose path slugs routinely contain topic words.
 
@@ -245,24 +257,37 @@ def content_tokens(text: str) -> set[str]:
     """
     visible = "\n".join(line for _n, line in iter_non_code_lines(text))
     visible = HTML_COMMENT_RE.sub(" ", visible)
+    visible = REF_DEFINITION_RE.sub(" ", visible)
+    visible = IMAGE_RE.sub(" ", visible)
+    visible = LINK_TARGET_RE.sub("] ", visible)
+    visible = HTML_TAG_RE.sub(" ", visible)
     visible = URL_RE.sub(" ", visible)
     return set(TOKEN_RE.findall(visible.lower()))
 
 
 def token_present(token: str, corpus: set[str]) -> bool:
-    """Whole-token match, widened to a shared five-character prefix.
+    """Whole-token match, EXACT.
 
-    The prefix widening absorbs ordinary morphological variation (a
-    skill heading's ``execution`` against a command's ``Execute``),
-    which is the dominant false-positive risk for a conjunctive rule.
-    Tokens shorter than ``STEM_LEN`` must match exactly.
+    An earlier version accepted a shared five-character prefix, intended to
+    absorb inflection (a heading's ``execution`` against a command's
+    ``Execute``). It also accepted UNRELATED words, and this corpus's own
+    vocabulary supplies the collisions: ``integration`` was satisfied by
+    ``integrity``, ``reference`` by ``referendum``, ``compliance`` by
+    ``complicated``. That made it the dominant fail-open route, and the only
+    one reachable through ORDINARY PROSE rather than unusual markup, so no
+    amount of narrowing WHERE tokens may appear could close it (2026-07-25,
+    the #1155 verifier's W1).
+
+    Removing it is false-positive-free by MEASUREMENT, not by argument: across
+    all registered pairs the check examines 5 subsection tokens and all 5 match
+    exactly, so nothing relied on the prefix rule. A future genuine inflection
+    case has two honest answers, either wording the command to use the
+    heading's own term, or an explicit ``command-exempt`` marker stating why;
+    both are visible, unlike a silent prefix collision. Whether to add a
+    principled inflection rule instead is a design question left open rather
+    than guessed at.
     """
-    if token in corpus:
-        return True
-    if len(token) < STEM_LEN:
-        return False
-    stem = token[:STEM_LEN]
-    return any(candidate.startswith(stem) for candidate in corpus)
+    return token in corpus
 
 
 def heading_core_tokens(heading: str) -> list[str]:
@@ -319,7 +344,7 @@ def extract_skill_subsections(text: str) -> list[tuple[int, str, str | None]]:
         window_lines = []
         for k in range(n, n + EXEMPT_WINDOW + 1):
             candidate = by_line.get(k, "")
-            if k > n and SUBSECTION_H3_RE.match(candidate):
+            if k > n and (SUBSECTION_H3_RE.match(candidate) or SECTION_H2_RE.match(candidate)):
                 break
             window_lines.append(candidate)
         window = "\n".join(window_lines)
