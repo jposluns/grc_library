@@ -8,6 +8,27 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.633, PR #1147
+
+Trust-recovery build, part 1 (maintainer-directed 2026-07-24, after the assistant direct-pushed to `grc_library_private` without validation and its CI was red all day): the anti-recurrence coverage tool.
+
+### Added
+
+- [`tools/audit-validation-coverage.py`](../../tools/audit-validation-coverage.py): a cross-repo advisory audit answering "does every repository the orchestrator writes to require changes to land through a validating path, or is there an ungated direct-push lane?". For each repo (grc_library, `_ref`, `_scratch`, `_private`) it reports whether a validating CI workflow exists and classifies the recent main commits by landing mode via `gh api repos/<owner>/<repo>/commits/<sha>/pulls` (a commit with an associated PR landed validated; an empty result is a direct-push). On a PR-required repo any direct-push is a FINDING (the requirement was not enforced for that commit); attribution (an assistant `Co-Authored-By` trailer vs a maintainer web-upload) annotates but does not gate the finding, since the assistant does not always add the trailer, so a non-attributed direct-push is not assumed safe. The `_scratch` exchange channel's direct-pushes are the intended, enqueue-order.sh-gated mechanism (not a finding). The structural point it encodes: the whole-project deep-assessment examines artefacts and gates, not the assistant's OPERATION LOG, so an unvalidated-operation class is invisible to it by construction; this tool is that missing coverage check. Advisory (exit 0; `--strict` exits 1 on findings for deep-assessment/CI use); the assistant token gets HTTP 403 on branch-protection reads, so enforcement is flagged maintainer-verify.
+- A `ValidationCoverageToolTests` class in [`tests/test_linters.py`](../../tests/test_linters.py) wiring the tool's 13-case `--self-test` (the pure verdict logic plus fixturable CI-detection cases) into the regression suite, mirroring the worker-saturation advisory-tool pattern.
+
+### Verification
+
+- Tool `--self-test` 13/13; `py_compile` clean; language lint clean; the new regression test passes; pre-push guard green. LIVE RUN (also the requested exposure audit) surfaced: grc_library clean (12/12 PR-landed); `_private` FINDING (the failure, 12 direct-pushes, now PR-protected so it will age out); `_ref` FINDING (2 direct-pushes, both maintainer web-uploads, `_ref` currently allows direct-pushes, a still-open gap routed to the maintainer); `_scratch` OK-EXCHANGE.
+
+### Discipline observation
+
+- A pre-push skeptical verifier (adversarial, hunting false-negatives) found THREE confirmed false-negatives in the first cut of the anti-recurrence tool, all fixed before push, each with a new regression test: (1) `has_validating_ci` matched a bare `check`, so `actions/checkout` made every workflow read as "validating CI: yes" and the CI dimension never fired; tightened to concrete validate/audit/lint command tokens (a fixturable test now asserts checkout-only is not validating). (2) the tool never `git fetch`ed and only sampled 15 commits, so the newest/oldest direct-pushes could be invisible against a stale local `origin/main` (the project's own no-auto-sync lesson); added a fetch, widened the window to 25, and surfaced the completeness bound in the summary. (3) a whole-repo gh failure made every commit "unknown" and the verdict OK-PARTIAL, passing under `--strict`; added an UNVERIFIABLE verdict (cannot-see is not OK) counted under `--strict`. The tool built to catch unvalidated operations was itself caught under-validating; the verifier is why it ships correct.
+
+### Batched
+
+- #1146 `/validate-pr` row ([`.working/validate-pr/history.md`](../validate-pr/history.md), 1.2.901 to 1.2.902) and `/retro` row ([`.working/improvement-log.md`](../improvement-log.md), 1.0.832 to 1.0.833), both CLEAN PASS, 0 findings.
+
 ## 2026-07-25, Library Version 2026.07.632, PR #1146
 
 Local-project convention (`.claude/` change; no corpus content). Codified the repo shorthands `_scratch`, `_ref`, `_private` (for `grc_library_scratch`, `grc_library_ref`, `grc_library_private`) as a bullet in the [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) communication-conventions section, after the maintainer flagged an inconsistent bare `scratch`: each sibling repo is always referred to by its underscore shorthand or its full name, never a bare inconsistent form. Also saved as an assistant memory. Library CalVer + README Version bumped.
