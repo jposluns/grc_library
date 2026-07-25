@@ -3,7 +3,7 @@
 # Cross-repo write-safety guard (TODO section 1.15a).
 #
 # The maintainer-orchestrator works across three colocated repositories under
-# /home/jposluns/ (grc_library, grc_library_ref, grc_library_scratch, plus
+# /home/grc/ (grc_library, grc_library_ref, grc_library_scratch, plus
 # grc_library_private), and the Bash tool's working directory persists a `cd` across
 # calls. So a cwd-dependent repo-mutating git command can silently target the WRONG
 # repository (observed 2026-07-15: a grc_library-intended `git checkout main && git pull`
