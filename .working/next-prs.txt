@@ -1,2 +1,2 @@
-1) gate-44 label + gate-59 version parity; 2) worker-id collision layer 1; 3) saturation file-drop fix
-# then: TODO 3.110 never-recycle gate + gate-69 blind spots; 3.111 --exclude-worker for verifier independence; TODO 1.14 Layer B
+1) gate-44 label + gate-59 version parity; 2) worker-id collision layer 1; 3) never-recycle gate
+# then: TODO 3.110 gate-69 blind spots; 3.111 --exclude-worker for verifier independence; TODO 1.14 Layer B egress

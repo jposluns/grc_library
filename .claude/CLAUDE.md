@@ -1001,13 +1001,19 @@ worker idle "for a while" between orders). The fix is an OBSERVABLE plus a narro
 another blanket rule.
 
 - **The observable (L1).** [`tools/audit-worker-saturation.py`](../tools/audit-worker-saturation.py)
-  reads the scratch worker registry plus the pending/claimed queue and returns a verdict:
+  reads BOTH exchange planes, the `_scratch` worker registry and queue AND the same-VM file-drop
+  exchange root, reports their de-duplicated union, and returns a verdict:
   `NO-WORKERS` (nothing to offload to), `SATURATED` (outstanding orders >= live workers), or
   `IDLE-CAPACITY` (live workers > outstanding orders, so at least one live worker has nothing to
-  claim). It is advisory (exit 0 always), stdlib-only, no-op when the scratch checkout is absent,
+  claim). It is advisory (every reporting path exits 0; only `--self-test` can exit non-zero, on a self-test failure), stdlib-only, no-op only when BOTH planes are absent,
   the same cross-repo shape as `audit-delivery-status.py` / `audit-brief-freshness.py`. Its
   `--oneline` form is surfaced continuously in the console statusline beside `next:`, so idle
-  capacity is always in view.
+  capacity is always in view. **It reads both planes because reading only `_scratch` was a real
+  defect (fixed 2026-07-25):** once the file-drop transport became primary, the tool reported
+  `NO-WORKERS` while a worker was demonstrably live, and `NO-WORKERS` is the one verdict that
+  licenses self-running work, so a false one defeated the very discipline this observable serves.
+  An unreadable directory is now reported rather than counted as empty, since the file-drop
+  subtrees are group-owned and a permissions failure would reproduce the same silent zero.
 - **The checkpoint (L2).** At each of these boundaries (NOT every micro-step): the start of a
   task, PR close-out / next-PR selection, and before self-running any substantial pass, read the
   saturation verdict (run the tool, or read the statusline). If it reports `IDLE-CAPACITY` AND

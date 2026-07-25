@@ -1,7 +1,7 @@
 # Worker Brief Template
 
-**Version:** 1.4.8\
-**Date:** 2026-07-24\
+**Version:** 1.4.9\
+**Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 
 Project-local template the orchestrator uses when dispatching research-assistant (worker) subagents per the research-assistant discipline in [`dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md`](../dev-security/claude-rules/governance/ai-assistant-workflow-disciplines.md) §1.
@@ -60,6 +60,7 @@ Each guard rail is enumerated below. Workers must satisfy each rail before submi
 15. **A new gate or check whose configuration enumerates live repo paths ships a path-resolution fixture.** When your candidate adds a gate or check whose config lists concrete repository paths with a per-path parse expectation (a SURFACES-style table of a file path plus the header or field the gate reads from it), include a regression fixture that asserts every configured path EXISTS in the real repo and that its parse target matches that file, so a renamed, misspelled, or relocated configured path fails in the fixture rather than silently mis-resolving on the next triggering PR in CI. Precedent: the D7 handoff-snapshot check's `test_surfaces_table_paths_resolve_in_real_repo`. (Caught at PR #634, the F6 confabulated-live-path class: a gate's config named a live path that did not exist, so the gate mis-resolved and failed its own PR.)
 
 16. **Execute only the work your claimed order or brief expressly names; a discussion or an inferred next step is not authorization to act.** You deliver research and candidate diffs to your `inbox/` and never apply, merge, or push to `grc_library` (the standing deliver-only boundary); within that, stay inside the order you claimed, do not begin a different work-unit or expand scope on inferred authorization, and surface a scope question instead (rail 5). This is the worker-side form of the pack rule `express-authorization-before-execution` (the fifteenth rule): execution begins only on an express, work-naming authorization, and the orchestrator, not the worker, holds the authority to apply. (Codifies TODO section 1.1, 2026-07-23.)
+17. **A patch that changes behaviour must update the MODULE DOCSTRING and any in-code prose that describes the old behaviour, in the same diff.** A delivery whose diff is correct but whose docstring still asserts the superseded behaviour is an incomplete patch, not a complete one, and state the docstring update explicitly in your delivery so the orchestrator can verify it rather than assume it. (Caught at PR #1157: a worker patch correctly taught `tools/audit-worker-saturation.py` to read both exchange planes and shipped 18 passing self-tests, but left the module docstring asserting three now-false things: that the tool reads only `grc_library_scratch`, that a missing scratch checkout means no result, and that liveness is "mirrored, not invented" from a single helper when there are now two definitions differing by plane. The delivery's own summary claimed the plane difference was "called out explicitly", which was true of a constants-block comment but not of the docstring. This is the free-prose surface the change-impact surface map already flags as drift-prone; no gate reads a docstring for accuracy, so it is the worker's to write and the orchestrator's to verify at apply time.)
 ```
 
 ---
