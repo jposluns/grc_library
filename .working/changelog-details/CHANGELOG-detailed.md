@@ -8,6 +8,34 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.652, PR #1165
+
+Turns a theoretical backlog-hygiene rule into a documented, currently-live defect, and records the evidence where the check being built to catch it will be read.
+
+### A recycled number is mis-routing real research today
+
+The never-recycle rule (TODO 3.110) has been argued so far from convention: a recycled number breaks the CHANGELOG, DONE and handoff references that point at it. Found today, a concrete instance with a live consequence:
+
+- `TODO.md:311` reads `### 3.14 ETSI Securing-AI alignment map (L, M) (was 3.16)`, so the ETSI item was renumbered OUT of `3.16`.
+- `TODO.md:315` reads `### 3.16 CHANGELOG restructure: deferred history-collapse residual`, so `3.16` was then REASSIGNED to an unrelated item.
+- Consequently [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py) maps the held research delivery `inbox/worker-20260708-fable/etsi-sai-crosswalk-316` to the CHANGELOG-restructure item: a completely different subject.
+
+The tool's own `LOW-CONFIDENCE` annotation on that mapping ("a renumbered/recycled section number may map to the wrong current item, verify against the live TODO heading") is exactly right, which is worth saying plainly: the tool warned, and the warning was correct. **Whether the original renumber was legitimate under the pre-2026-07-15 practice is a separate question for 3.110's EXEMPT census; the mis-mapping is current either way.** That is the point: the cost of recycling is not hypothetical, and it lands on a different tool than the one whose rule was broken.
+
+A second, milder case: `inbox/worker-20260716-a/flow-framework-224` maps to `2.24`, which is a REDIRECT STUB whose content moved to `2.25.1`, so the delivery points at a forwarder rather than at its work.
+
+### The same stub also pads the actionable set, which matters more than it looks
+
+[`tools/audit-backlog-actionability.py`](../../tools/audit-backlog-actionability.py) reports `2.24` as `NONE (presumed-actionable)` although it is a stub carrying no work. That is a false positive in the ONE tool the anti-false-completeness discipline requires backlog-status claims to be sourced from, so **a hold or wind-down justified on that enumeration would be resting on a padded actionable set**. Recorded on TODO 3.116 beside the stalled-worker signal, because both are the same class: an observability tool reporting a state that reads healthier or more actionable than the truth. Both are covered by one queued order.
+
+### Method note: all eight pending maps were LOW-CONFIDENCE, and checking them is what found this
+
+[`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py) flagged every one of its eight PENDING mappings as section-token-only and therefore low-confidence. It would have been easy to read the summary line and move on. Resolving each against the live heading, which is what the annotation asks for, is what surfaced both defects. The tool did its job by refusing to overstate its own confidence; the finding came from acting on that refusal rather than skimming past it.
+
+### Also in this PR
+
+#1164's QA rows, self-run inline and labelled as such (the fleet remains at zero live workers), and the handoff reconciled to the fifteen merged PRs of this run.
+
 ## 2026-07-25, Library Version 2026.07.651, PR #1164
 
 Closes item (4) of TODO 1.23, the last assistant-actionable part of that trust-recovery item: the em-dashes in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), which the corpus house-style rule forbids and which no gate reads.
