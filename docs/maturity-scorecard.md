@@ -50,7 +50,7 @@ _107 documents._
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.3 | 2026-07-11 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.5 | 2026-07-22 |
 | [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.5 | 2026-07-11 |
-| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.17 | 2026-07-24 |
+| [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.18 | 2026-07-25 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.3 | 2026-07-11 |
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.5 | 2026-07-24 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.3 | 2026-07-11 |
@@ -80,7 +80,7 @@ _107 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.13 | 2026-07-23 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.3.15 | 2026-07-11 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.6 | 2026-07-05 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.43 | 2026-07-24 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.45 | 2026-07-25 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.31 | 2026-07-25 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.0 | 2026-07-06 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.91 | 2026-07-24 |
@@ -133,14 +133,14 @@ _107 documents._
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.1 | 2026-07-02 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.3 | 2026-07-02 |
-| [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.13 | 2026-07-24 |
+| [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.14 | 2026-07-25 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.12 | 2026-07-19 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.17 | 2026-07-19 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.7 | 2026-07-10 |
 | [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.3 | 2026-07-23 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.21 | 2026-07-10 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.8 | 2026-07-23 |
-| [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.4 | 2026-07-24 |
+| [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.5 | 2026-07-25 |
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.2.8 | 2026-07-23 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.3 | 2026-07-23 |
 | [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.2 | 2026-07-19 |
@@ -297,7 +297,7 @@ _170 documents._
 | [risk/template-board-risk-report.md](../risk/template-board-risk-report.md) | Board Risk Report Template | Template | 1.0.3 | 2026-07-02 |
 | [risk/template-operational-risk-register.md](../risk/template-operational-risk-register.md) | Operational Risk Register Template | Template | 1.0.4 | 2026-07-02 |
 | [risk/template-risk-appetite-statement.md](../risk/template-risk-appetite-statement.md) | Risk Appetite Statement Template | Template | 1.0.4 | 2026-07-03 |
-| [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.0.6 | 2026-07-23 |
+| [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.0.7 | 2026-07-25 |
 | [security/framework-insider-risk-programme.md](../security/framework-insider-risk-programme.md) | Insider Risk Programme Framework | Framework | 1.0.6 | 2026-07-02 |
 | [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.7 | 2026-07-23 |
 | [security/procedure-cryptographic-key-operations.md](../security/procedure-cryptographic-key-operations.md) | Cryptographic Key Operations Procedure | Procedure | 1.0.3 | 2026-07-23 |

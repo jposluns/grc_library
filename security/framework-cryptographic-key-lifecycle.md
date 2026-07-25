@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.6\
-**Date:** 2026-07-23\
+**Version:** 1.0.7\
+**Date:** 2026-07-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -47,7 +47,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 **Approved algorithms:**
 
 - Symmetric: AES-256 and ChaCha20-Poly1305
-- Asymmetric: RSA-4096, ECC P-384, ML-KEM/ML-DSA hybrids (PQC)
+- Asymmetric: RSA-4096, ECC P-384, ML-KEM/ML-DSA hybrids (PQC), and SLH-DSA (FIPS 205) where a conservative hash-only signature assumption is required
 - Hashing: SHA-512 or BLAKE2b
 
 **Control requirements:**
@@ -123,7 +123,7 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | --- | --- | --- |
 | ISO/IEC 27002:2022 | §8.24 to §8.28: Cryptographic Controls | Key management lifecycle governance |
 | NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key generation, rotation, and destruction |
-| NIST SP 800-208 | PQC Transition Planning | Post-quantum algorithm migration |
+| NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes | Stateful hash-based signature key management (LMS, HSS, XMSS, XMSS^MT) |
 | NIST FIPS 203 / 204 | ML-KEM and ML-DSA Standards | PQC algorithm selection |
 | COBIT 2019 | DSS05: Managed Security Services | Security service controls |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
