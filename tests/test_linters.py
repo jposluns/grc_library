@@ -2553,6 +2553,66 @@ class PairedSkillStepParityTests(LinterTestCase):
             "a token only inside a URL path is not representation",
         )
 
+    def test_representation_excludes_every_non_prose_route(self) -> None:
+        # POSITIVE fixture, fail-open regression guard, round 2. The #1154
+        # post-merge sweep demonstrated FIVE routes beyond the first two by
+        # which a token could count as representation without the subsection
+        # being represented at all. The structural one: URL_RE required a
+        # scheme, but slash commands link to corpus documents by RELATIVE path,
+        # so the class the first fix closed stayed open for most links here.
+        # Each case below was a demonstrated leak. The two controls matter as
+        # much as the leaks: narrowing what counts must not discard prose.
+        mod = self._load_module()
+        token = "parallel"
+        leaks = {
+            "fenced code": "```\nparallel\n```",
+            "HTML comment": "<!-- parallel -->",
+            "absolute URL": "See https://github.com/x/parallel-notes.",
+            "relative link target": "See [the notes](../notes/parallel-execution.md).",
+            "reference definition": "See [n][n].\n\n[n]: ../notes/parallel-execution.md",
+            "image alt text": "![parallel execution](../img/x.png)",
+            "relative HTML attribute": '<a href="../notes/parallel-execution.md">n</a>',
+            "scheme-less www URL": "See www.example.com/parallel-execution.",
+        }
+        for label, text in leaks.items():
+            self.assertNotIn(
+                token,
+                mod.content_tokens(text),
+                f"a token only in {label} is not representation",
+            )
+        self.assertIn(
+            token,
+            mod.content_tokens("We dispatch the phases in parallel here."),
+            "genuine prose must still count",
+        )
+        self.assertIn(
+            token,
+            mod.content_tokens("See [the parallel notes](../x.md)."),
+            "link TEXT is prose and must still count, unlike a link target",
+        )
+
+    def test_exemption_window_breaks_on_a_section_heading(self) -> None:
+        # POSITIVE fixture. The window breaks on a `##` heading as well as a
+        # `###` one, so a marker parked beside the section heading that follows
+        # the last subsection cannot leak backwards into it (#1154 sweep V3).
+        mod = self._load_module()
+        skill = (
+            "## Process\n"
+            "### 1. First step\n"
+            "body\n"
+            "### Alpha Beta Gamma\n"
+            "\n"
+            "## Red Flags <!-- parity: command-exempt: for something else -->\n"
+        )
+        by_heading = {
+            heading: reason
+            for _n, heading, reason in mod.extract_skill_subsections(skill)
+        }
+        self.assertIsNone(
+            by_heading.get("Alpha Beta Gamma", "MISSING"),
+            "a marker beside a following ## heading must not exempt the subsection",
+        )
+
     def test_prefix_equivalence_absorbs_morphological_variation(self) -> None:
         # NEGATIVE fixture: the conjunctive rule's dominant
         # false-positive risk is a heading token whose command form is

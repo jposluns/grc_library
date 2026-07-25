@@ -221,7 +221,19 @@ EXEMPT_WINDOW = 2
 
 
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
-URL_RE = re.compile(r"\bhttps?://\S+", re.IGNORECASE)
+# A scheme is not required: slash-command files link to corpus documents by
+# RELATIVE path, so a scheme-only pattern left the very class it was written
+# to close open for most links in this repo (2026-07-25, the #1154 post-merge
+# sweep's V1, which demonstrated five further routes).
+URL_RE = re.compile(r"(?:\bhttps?://|\bwww\.)\S+", re.IGNORECASE)
+# An IMAGE is stripped whole, target AND alt text, because alt text is not prose
+# a reader reads as content. An inline LINK keeps its text, which is prose, and
+# loses only its target. That asymmetry is deliberate; stripping link text too
+# would discard genuine representation.
+IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
+REF_DEFINITION_RE = re.compile(r"^\s*\[[^\]]+\]:.*$", re.MULTILINE)
+HTML_TAG_RE = re.compile(r"<[^>]+>")
 
 
 def content_tokens(text: str) -> set[str]:
@@ -232,7 +244,8 @@ def content_tokens(text: str) -> set[str]:
     counts as content. Three sources are stripped first because a token
     appearing in any of them is not a representation of anything:
 
-    - fenced and indented code (via ``iter_non_code_lines``),
+    - fenced code (via ``iter_non_code_lines``, whose contract is fence-only:
+      an INDENTED code block is not stripped, so do not rely on it being),
     - HTML comments, which are invisible to a reader,
     - URLs, whose path slugs routinely contain topic words.
 
@@ -245,6 +258,10 @@ def content_tokens(text: str) -> set[str]:
     """
     visible = "\n".join(line for _n, line in iter_non_code_lines(text))
     visible = HTML_COMMENT_RE.sub(" ", visible)
+    visible = REF_DEFINITION_RE.sub(" ", visible)
+    visible = IMAGE_RE.sub(" ", visible)
+    visible = LINK_TARGET_RE.sub("] ", visible)
+    visible = HTML_TAG_RE.sub(" ", visible)
     visible = URL_RE.sub(" ", visible)
     return set(TOKEN_RE.findall(visible.lower()))
 
@@ -319,7 +336,7 @@ def extract_skill_subsections(text: str) -> list[tuple[int, str, str | None]]:
         window_lines = []
         for k in range(n, n + EXEMPT_WINDOW + 1):
             candidate = by_line.get(k, "")
-            if k > n and SUBSECTION_H3_RE.match(candidate):
+            if k > n and (SUBSECTION_H3_RE.match(candidate) or SECTION_H2_RE.match(candidate)):
                 break
             window_lines.append(candidate)
         window = "\n".join(window_lines)

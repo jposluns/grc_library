@@ -8,6 +8,27 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.641, PR #1155
+
+Round two of closing gate 44's fail-open surface. #1154 shipped the subsection-representation check and closed two ways to defeat it; its post-merge sweep, asked explicitly for a THIRD, found FIVE more. All five are closed here, with every one of the nine known routes reproduced against the fixed gate.
+
+### Fixed
+
+- **Five further fail-open routes** by which a token counted as "representation" while the subsection was not represented at all: a **relative link target**, a **reference-link definition**, **image alt text**, a **relative HTML attribute**, and a **scheme-less `www.` URL**. The structural cause is the important part: `URL_RE` required a SCHEME, but slash commands link to corpus documents by RELATIVE path, so the exact class the first fix closed stayed open for most links in this repository, and [`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md) carries two relative link targets today. Not live at the time (the sweeper discounted all five routes and re-ran, confirming all five core tokens appear in prose alone), so no registered pair was fail-open, but the guard was hollow where it mattered most.
+- **The strip set is now asymmetric on purpose**, which is the one judgement in this change: an IMAGE is stripped whole, target and alt text together, because alt text is not prose a reader reads as content; an inline LINK loses only its target and keeps its text, because that text IS prose. The first attempt got this wrong and let image alt text through, which the route-by-route re-test caught.
+- **A docstring that overstated the fix.** It claimed `iter_non_code_lines` strips "fenced and indented" code; that helper's contract is fence-only. An inaccurate specification of what "representation" means is worse than the small gap itself, since a future reviewer would rely on it, so the docstring now states the limit rather than the aspiration.
+- **The exemption window now breaks on a `##` heading** as well as a `###` one, so a marker parked beside the section heading that follows the last subsection cannot leak backwards into it.
+
+### Verification
+
+- **All nine known routes reproduced against the fixed gate**, each previously demonstrated with a working construction rather than argued: prose (control, must count), fenced code, HTML comment, absolute URL, relative link target, reference definition, image alt text, relative HTML attribute, scheme-less `www.` URL. Every leak now fails and both controls hold, the second control being that link TEXT still counts, which is what stops the narrowing from discarding genuine representation.
+- Gate 44 green on the real corpus across all 13 registered pairs; **484-test regression suite green** (up from 482).
+- The audit-programme narrative now states the strip set explicitly, so the specification matches the code rather than describing an earlier version of it.
+
+### Discipline observation
+
+A fix written from an exploit tends to close the exploit rather than the class. Two demonstrated leaks felt like the whole class; the base rate said otherwise, and asking the next pass explicitly for a third produced five, including the one that mattered structurally. The generalizable question after any fail-open fix is not "is this exploit closed" but "what else reaches the same sink", and the answer has to be tested route by route with controls, because narrowing what counts as valid input is exactly how a fail-open fix becomes a false-positive generator.
+
 ## 2026-07-25, Library Version 2026.07.640, PR #1154
 
 A guard-first co-land: gate 44 gains a second check, and the one pair that check fails is fixed in the same commit. The pairing is not stylistic. The widened gate reddens the corpus at the parent SHA by design, so shipping it alone would break the build, and shipping the content fix alone would leave the defect ungated and free to recur. Both halves were worker-drafted; the orchestrator verified the co-land property mechanically before applying either.
