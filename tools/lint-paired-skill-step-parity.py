@@ -229,7 +229,16 @@ URL_RE = re.compile(r"(?:\bhttps?://|\bwww\.)\S+", re.IGNORECASE)
 # a reader reads as content. An inline LINK keeps its text, which is prose, and
 # loses only its target. That asymmetry is deliberate; stripping link text too
 # would discard genuine representation.
-IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+#
+# BOTH image forms are matched, the inline `![alt](target)` and the REFERENCE
+# `![alt][label]`. Matching only the inline form was the thirteenth fail-open route
+# (found by the #1159 sweep): a reference-form image fell through to
+# REF_LINK_LABEL_RE below, which strips the label and KEEPS the bracketed text as
+# though it were link text, so `![alt caption][label]` leaked `alt` and `caption`
+# as prose while `![alt caption](img.png)` correctly leaked nothing. The `!` is what
+# distinguishes the two cases, and it must be consumed here rather than left to the
+# link-shaped strips, which cannot see it.
+IMAGE_RE = re.compile(r"!\[[^\]]*\](?:\([^)]*\)|\[[^\]]*\])")
 LINK_TARGET_RE = re.compile(r"\]\([^)]*\)")
 # The inline reference-link LABEL form `[visible text][label]`. The label is a
 # reference key, not prose, but it survived every strip added in #1154 and #1155
@@ -264,7 +273,8 @@ def content_tokens(text: str) -> set[str]:
     - HTML tags, and
     - URLs, whose path slugs routinely contain topic words.
 
-    The reference-LABEL strip closes the twelfth such route (2026-07-25): the
+    The reference-LABEL strip closed the twelfth such route (2026-07-25), and the
+    image-REFERENCE-form strip above closes the thirteenth (see IMAGE_RE): the
     eleven closed in #1154 and #1155 left `[visible text][label]` intact, so a
     label slug could satisfy a subsection match by itself.
 

@@ -2463,6 +2463,49 @@ class PairedSkillStepParityTests(LinterTestCase):
             f"the label-only command must be flagged, got {findings}",
         )
 
+    def test_reference_form_image_alt_text_is_not_representation(self) -> None:
+        # POSITIVE fixture, fail-open regression guard. The THIRTEENTH route,
+        # found by the #1159 post-merge sweep: the image REFERENCE form
+        # `![alt][label]`. IMAGE_RE matched only the inline `![alt](target)`, so a
+        # reference-form image fell through to REF_LINK_LABEL_RE, which strips the
+        # label and KEEPS the bracketed text as though it were link text. So
+        # `![alt caption][label]` leaked `alt` and `caption` as prose while the
+        # inline `![alt caption](img.png)` correctly leaked nothing.
+        #
+        # This route is why NO completeness claim attaches to this class: #1158
+        # called the twelfth route "the last", #1159 narrowed that to "the last
+        # reference-form route", and this route falsified the narrowed claim too.
+        #
+        # Confirmed by mutation: restoring IMAGE_RE to the inline-only pattern
+        # `!\[[^\]]*\]\([^)]*\)` makes both assertions below fail.
+        mod = self._load_module()
+        tokens = mod.content_tokens("See ![parallel execution diagram][fig-1] above.\n")
+        self.assertNotIn(
+            "parallel", tokens,
+            "a token only inside a REFERENCE-form image's alt text is not representation",
+        )
+        # And the inline form must remain stripped, so the fix did not trade one
+        # form for the other.
+        self.assertNotIn(
+            "parallel",
+            mod.content_tokens("See ![parallel execution diagram](fig1.png) above.\n"),
+            "the inline image form must remain stripped whole",
+        )
+        skill = (
+            "## Process\n\n### 1. Only step\n\nBody.\n\n"
+            "### Parallel execution (worker fan-out)\n\nBody.\n\n## Red Flags\n"
+        )
+        command = (
+            "1. **Only step**: content.\n\n"
+            "See ![parallel execution worker fan-out][fig-1].\n\n"
+            "[fig-1]: ../x.png\n"
+        )
+        findings = mod.unrepresented_subsections(skill, command)
+        self.assertEqual(
+            len(findings), 1,
+            f"an alt-text-only command must be flagged, got {findings}",
+        )
+
     def test_reference_link_visible_text_still_counts(self) -> None:
         # NEGATIVE fixture: the visible text of a reference link IS prose and
         # must survive the label strip, exactly as inline-link text survives the

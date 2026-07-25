@@ -1,2 +1,2 @@
-1) worker-id collision layer 1; 2) 4 open gate-44 routes; 3) never-recycle gate + gate-69 blind spots
-# then: TODO 3.111 --exclude-worker (verifier independence); 3.114 changelog-length threshold mismatch; TODO 1.14 Layer B
+1) worker-id collision layer 1; 2) codex independent re-verify consume; 3) never-recycle gate
+# then: TODO 3.115 four open gate-44 routes; 3.111 --exclude-worker; 3.114 changelog-length thresholds; 1.14 Layer B
