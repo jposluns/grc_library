@@ -41,11 +41,10 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import getpass
 import os
-import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 LOG_REL = ".working/worker-prompt-log.md"
@@ -62,10 +61,14 @@ ORCHESTRATOR_SESSIONS = {"grc"}
 # with the fleet. Adding a session here stays the deliberate, reviewable act it is meant to be.
 RUNTIME_MAP = {"worker": "claude", "worker1": "claude", "mailz": "codex", "codex": "codex"}
 
-# runtime -> file-drop FAMILY directory. Needed because held-order attribution scopes its
-# fail-safe by family (see attribute_held): the exchange lays out `opus/`, `codex/`, `fable/`,
-# and a Claude worker's orders live under `opus/`, so runtime and family are not the same word.
-RUNTIME_FAMILY = {"claude": "opus", "codex": "codex", "fable": "fable"}
+# runtime -> the file-drop FAMILY directories that runtime can serve. A TUPLE, not one name,
+# because the relationship is ONE-TO-MANY and the previous one-to-one map left the fail-open this
+# tool fixed still standing for one family (validate-pr-1170 F1, error). Fable IS a Claude model, so
+# a `fable`-family worker runs the `claude` runtime; mapping that runtime to `opus` alone made a
+# `fable-` prefixed holder invisible to the fail-safe, so a destructive verb against a fable worker
+# holding live work was PERMITTED. The old map even had a `fable` key, which shows the family was
+# accounted for in the wrong dimension: `RUNTIME_MAP` can never yield `fable` as a RUNTIME.
+RUNTIME_FAMILIES = {"claude": ("opus", "fable"), "codex": ("codex",)}
 
 # The closed set. Values are literal keystroke sequences; a tuple sends in order, and a float
 # member is a delay in seconds between sends.
@@ -146,7 +149,10 @@ DESTRUCTIVE = {"restart"}
 # paste swallows the trailing Enter into a newline (maintainer-observed 2026-07-25: the prompt sat
 # unsubmitted in the input box until they pressed Enter by hand). Small enough not to matter, large
 # enough to fall outside the TUIs' paste-burst window.
-ENTER_DELAY_S = 0.4
+ENTER_DELAY_S = 1.0  # raised from 0.4 (validate-pr-1170 F3): the threshold is a
+# property of third-party TUIs and is neither measured nor observable, the risk is
+# one-sided (too short fails, too long costs only latency), and `restart` already
+# sleeps 10s between its keys, so a second here is not the cost worth optimizing.
 
 
 def sh(*args) -> tuple:
@@ -193,7 +199,21 @@ def held_orders(root: Path | None) -> dict:
     return held
 
 
-def attribute_held(session: str, held: dict, family: str | None = None) -> tuple:
+def submit_failed(probe: str, pane_text: str) -> bool:
+    """PURE. Did the payload fail to submit, judged from what the pane still shows?
+
+    Split out from the send loop so the DECISION is testable even though its OBSERVATION
+    (`pane_tail`, which needs a live tmux pane) is not. That split is the guard-input discipline
+    applied here: a mutation sweep found the inline form undetectable, because the self-test runs
+    dry-run only and never reaches the send path at all.
+
+    A distinctive slice of the payload still visible in the pane after Enter means the TUI absorbed
+    the Enter as a newline. An empty probe cannot discriminate anything, so it never reports failure.
+    """
+    return bool(probe) and probe in pane_text
+
+
+def attribute_held(session: str, held: dict, families: tuple | None = None) -> tuple:
     """Map a tmux SESSION name to the order held by the worker running in it.
 
     PURE: (session, held-map, family) in, (state, order-or-none) out. No filesystem, no tmux, no
@@ -230,15 +250,22 @@ def attribute_held(session: str, held: dict, family: str | None = None) -> tuple
     """
     matches = [(k, v) for k, v in held.items() if k.startswith(session) or session in k]
     if len(matches) > 1:
-        return "ambiguous", None
+        # Ambiguity only MATTERS when a candidate holds something. If more than one worker id matches
+        # but every match holds nothing, then whichever one runs here holds nothing either, so there
+        # is nothing a destructive verb could destroy. Refusing anyway was a false refusal that fired
+        # permanently on any family-named session with two live workers (validate-pr-1170 F2), and the
+        # predictable response to a guard that refuses when nothing is at stake is habitual --force,
+        # which disarms it for the cases that do matter. The unsound first-match guess is still never
+        # made; only the risk-free case is released.
+        return ("ambiguous", None) if any(o for _w, o in matches) else ("free", None)
     if matches:
         _worker_id, order = matches[0]
         return ("held", order) if order else ("free", None)
     # No match. That is not evidence of absence, because the id does not encode the session.
-    prefix = f"{family}-" if family else None
+    prefixes = tuple(f"{f}-" for f in families) if families else None
     family_holds = any(
         order for wid, order in held.items()
-        if prefix is None or wid.startswith(prefix)
+        if prefixes is None or wid.startswith(prefixes)
     )
     return ("unknown", None) if family_holds else ("none", None)
 
@@ -286,7 +313,7 @@ def do_list(root: Path | None) -> int:
             # attributing held-state to it would be noise rather than information.
             h = None
         else:
-            state, h = attribute_held(s, held, RUNTIME_FAMILY.get(RUNTIME_MAP.get(s)))
+            state, h = attribute_held(s, held, RUNTIME_FAMILIES.get(RUNTIME_MAP.get(s)))
             if state == "ambiguous":
                 h = "AMBIGUOUS (matches >1 worker)"
             elif state == "unknown":
@@ -329,7 +356,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
               f"the other runtime. Sending it would hand this worker an instruction for a surface it "
               f"does not have. Fix the VERBS entry rather than the target.")
         return 1
-    state, h = attribute_held(session, held_orders(root), RUNTIME_FAMILY.get(runtime))
+    state, h = attribute_held(session, held_orders(root), RUNTIME_FAMILIES.get(runtime))
     if verb in DESTRUCTIVE and h and not force:
         print(f"REFUSED {verb} on '{session}': it holds order '{h}', and {verb} destroys "
               "context, so in-flight work would be lost. Wait for delivery, or reclaim the "
@@ -343,7 +370,7 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         return 1
     if state == "unknown" and verb in DESTRUCTIVE and not force:
         print(f"REFUSED {verb} on '{session}': no worker id matches this session name, AND a "
-              f"worker in the '{RUNTIME_FAMILY.get(runtime)}' family holds an order. A worker id "
+              f"worker in the {RUNTIME_FAMILIES.get(runtime)} family/families holds an order. A worker id "
               "encodes nothing about its tmux session, so a non-match is NOT evidence that this "
               "session is idle: it may be the holder. Confirm which session the holder runs in, "
               "or wait for delivery. --force overrides.")
@@ -361,7 +388,6 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         if isinstance(k, float):
             print(f"  (wait {k}s)")
             if not dry_run:
-                import time
                 time.sleep(k)
             continue
         if dry_run:
@@ -386,11 +412,24 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         if rc != 0:
             print(f"send-keys FAILED on '{session}' (text): {err.strip()}")
             return 1
-        import time
         time.sleep(ENTER_DELAY_S)
         rc, _, err = sh("tmux", "send-keys", "-t", session, "Enter")
         if rc != 0:
             print(f"send-keys FAILED on '{session}' (Enter): {err.strip()}")
+            return 1
+        # VERIFY THE SUBMIT, do not merely trust the delay (validate-pr-1170 F3, warning).
+        # Both send-keys calls return 0 whether or not the prompt actually submitted, so a regression
+        # in the paste-window timing presented as a worker that was never nudged, which is
+        # indistinguishable from a stalled worker: the exact condition this tool exists to fix. The
+        # original defect was caught only by the maintainer watching a pane by hand, and the fleet is
+        # meant to run HEADLESS, so the postcondition is checked rather than assumed. A distinctive
+        # slice of the payload still sitting in the pane means it did not submit.
+        probe = k.strip()[:40]
+        if submit_failed(probe, pane_tail(session, 4)):
+            print(f"  NOT SUBMITTED on '{session}': the payload is still in the input box after Enter. "
+                  f"The agent TUI likely absorbed the Enter as a newline (a paste-burst window wider "
+                  f"than ENTER_DELAY_S={ENTER_DELAY_S}s). Nothing was queued; raise the delay or submit "
+                  f"by hand. Reported rather than retried, because a blind retry can double-send.")
             return 1
         print(f"  SENT to {session}: {k[:110]}")
     if not dry_run:
@@ -502,6 +541,16 @@ def self_test() -> int:
             expect_refusal("destructive verb refused when the root is UNKNOWN",
                            "no file-drop root resolved",
                            repo, None, "worker", "restart", "r", False, True)
+            # The routing refusal inside do_send: unreachable while the live table is clean, so a
+            # bad payload is injected for the duration of this one case (a mutation sweep found the
+            # branch otherwise undetectable).
+            VERBS.setdefault("__probe", {})["claude"] = ("re-read grc_library_scratch/AGENTS.md",)
+            try:
+                expect_refusal("refuses a payload naming the other runtime's surface",
+                               "belongs to the other runtime",
+                               repo, root, "worker", "__probe", "r", False, True)
+            finally:
+                VERBS.pop("__probe", None)
             expect_refusal("refuses a missing --reason",
                            "--reason is required",
                            repo, root, "worker", "wake", "", False, True)
@@ -540,6 +589,13 @@ def self_test() -> int:
         if not ok:
             failures.append(name)
 
+    check_attr("submit_failed: payload still in the pane means it did not submit",
+               submit_failed("At your next opportunity", "> At your next opportunity\n"), True)
+    check_attr("submit_failed: an empty pane means it submitted",
+               submit_failed("At your next opportunity", "> \n  idle"), False)
+    check_attr("submit_failed: an empty probe never reports failure",
+               submit_failed("", "anything at all"), False)
+
     # THE LIVE VERBS TABLE must never name another runtime's surface. This is the case that would
     # have caught the 2026-07-25 defect, where both `reload` payloads named the Codex contract.
     check_attr("the shipped VERBS table has no cross-runtime prompt",
@@ -565,25 +621,42 @@ def self_test() -> int:
                verb_routing_violations({"restart": {"claude": ("/clear", 10.0, "/credit-offload")}},
                                        RUNTIME_FOREIGN_TOKENS), [])
     check_attr("attribute_held: one match holding an order",
-               attribute_held("opus-1", {"opus-1": "o"}, "opus"), ("held", "o"))
+               attribute_held("opus-1", {"opus-1": "o"}, ("opus",)), ("held", "o"))
     check_attr("attribute_held: one match holding nothing",
-               attribute_held("opus-1", {"opus-1": None}, "opus"), ("free", None))
+               attribute_held("opus-1", {"opus-1": None}, ("opus",)), ("free", None))
     check_attr("attribute_held: two matches is ambiguous, never a first-match guess",
-               attribute_held("codex", {"codex-a": "o", "codex-b": None}, "codex"),
+               attribute_held("codex", {"codex-a": "o", "codex-b": None}, ("codex",)),
                ("ambiguous", None))
     check_attr("attribute_held: no match and NO family holder is a safe none",
-               attribute_held("mailz", {"codex-a": None}, "codex"), ("none", None))
+               attribute_held("mailz", {"codex-a": None}, ("codex",)), ("none", None))
     check_attr("attribute_held: no match while the family HOLDS is unknown, not none",
-               attribute_held("mailz", {"codex-a": "o"}, "codex"), ("unknown", None))
-    check_attr("attribute_held: the family scope keeps it proportionate (claude session, codex holder)",
-               attribute_held("worker9", {"codex-a": "o"}, "opus"), ("none", None))
+               attribute_held("mailz", {"codex-a": "o"}, ("codex",)), ("unknown", None))
+    # F4(1): multi-match where EVERY match is idle. This is where F2 lived, which is why F2 shipped.
+    check_attr("attribute_held: multi-match with NO holder is free, not a false refusal",
+               attribute_held("codex", {"codex-a": None, "codex-b": None}, ("codex",)), ("free", None))
+    check_attr("attribute_held: multi-match with ONE holder stays ambiguous",
+               attribute_held("codex", {"codex-a": None, "codex-b": "o"}, ("codex",)), ("ambiguous", None))
+    # F4(2): families=None, the default, reachable from do_list for an UNMAPPED session.
+    check_attr("attribute_held: families=None widens the fail-safe fleet-wide (conservative)",
+               attribute_held("nomatch", {"opus-a": "o"}, None), ("unknown", None))
+    check_attr("attribute_held: families=None with no holder anywhere is none",
+               attribute_held("nomatch", {"opus-a": None}, None), ("none", None))
+    # F1: a fable worker runs the CLAUDE runtime, so its family set must include fable.
+    check_attr("attribute_held: a fable holder is visible to a claude-runtime session",
+               attribute_held("worker9", {"fable-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               ("unknown", None))
+    check_attr("attribute_held: a codex holder still does NOT freeze a claude session",
+               attribute_held("worker9", {"codex-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               ("none", None))
+    check_attr("the runtime-to-family map is one-to-many and covers every family directory",
+               sorted({f for fs in RUNTIME_FAMILIES.values() for f in fs}), ["codex", "fable", "opus"])
     check_attr("attribute_held: THE live 2026-07-25 fail-open (mailz unmatched, f8b8 holding)",
                attribute_held("mailz", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
-                                        "codex-20260725T151831Z-b6ba": None}, "codex"),
+                                        "codex-20260725T151831Z-b6ba": None}, ("codex",)),
                ("unknown", None))
     check_attr("attribute_held: its sibling half (family session matches both ids)",
                attribute_held("codex", {"codex-20260725T041432Z-f8b8": "fnaudit-sweep121",
-                                        "codex-20260725T151831Z-b6ba": None}, "codex"),
+                                        "codex-20260725T151831Z-b6ba": None}, ("codex",)),
                ("ambiguous", None))
 
     if failures:
