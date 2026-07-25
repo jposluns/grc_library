@@ -56,6 +56,7 @@ defect, and confirm which situation it is before fixing.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -146,10 +147,47 @@ def run_selftest(tool: Path, timeout: int = 180) -> tuple:
     """Run a tool's self-test. Returns (rc, combined_output)."""
     try:
         r = subprocess.run([sys.executable, str(tool), SELFTEST_FLAG],
-                           capture_output=True, text=True, timeout=timeout, cwd=str(tool.parent))
+                           capture_output=True, text=True, timeout=timeout, cwd=str(tool.parent),
+                           env=probe_env())
         return r.returncode, (r.stdout or "") + (r.stderr or "")
     except subprocess.TimeoutExpired:
         return 124, "TIMEOUT"
+
+
+REENTRY_ENV = "GRC_SELFTEST_PROBE_ACTIVE"
+
+
+def probe_env() -> dict:
+    """The environment for any child this probe spawns. Observer.
+
+    Stamps REENTRY_ENV so a spawned self-test, and above all a MUTANT of this probe, refuses to
+    probe in turn. Without this stamp the layer-2 backstop is inert: it reads an environment
+    variable nothing ever sets, which is the dead-guard shape this project treats as worse than no
+    guard, because the code reads as protected. Inherits the rest of the environment so a tool's own
+    PATH and locale assumptions still hold.
+    """
+    env = dict(os.environ)
+    env[REENTRY_ENV] = "1"
+    return env
+
+
+def is_self(path: Path) -> bool:
+    """PURE-ish (one resolve). Is this path the probe itself?
+
+    LAYER 1 OF THE RECURSION GUARD. THE DEFECT THIS CLOSES (found by a worker, 2026-07-25, hours
+    after the probe shipped in #1174, while doing exactly what its validate-pr order asked). The
+    probe enumerates every `tools/*.py` carrying a `--self-test` and mutates each in place. It IS
+    such a tool, and nothing excluded it, so it wrote a mutant of itself into `tools/` and executed
+    it; that mutant enumerated the directory and did the same, spawning runaway processes. It escaped
+    testing because every run to that point had passed explicit `--tool` arguments, so the default
+    enumeration path, the only one that reaches this, was never exercised.
+
+    Compares RESOLVED paths, so a relative argument, a symlink, or a `./tools/x` form all match.
+    """
+    try:
+        return path.resolve() == Path(__file__).resolve()
+    except OSError:
+        return False
 
 
 def has_selftest(tool: Path) -> bool:
@@ -190,7 +228,8 @@ def covered_lines(tool: Path, timeout: int = 240) -> set:
     )
     try:
         r = subprocess.run([sys.executable, "-c", runner, str(tool)],
-                           capture_output=True, text=True, timeout=timeout, cwd=str(tool.parent))
+                           capture_output=True, text=True, timeout=timeout, cwd=str(tool.parent),
+                           env=probe_env())
         last = [ln for ln in (r.stdout or "").strip().splitlines() if ln.startswith("[")]
         if not last:
             return set()
@@ -345,6 +384,21 @@ def self_test() -> int:
         if not ok:
             failures.append(name)
 
+    # The recursion guard (the #1174 escape). Both layers get a case: the path exclusion, and the
+    # environment stamp WITHOUT WHICH the layer-2 backstop reads an unset variable and is inert.
+    check("is_self: the probe recognizes its own absolute path",
+          is_self(Path(__file__).resolve()), True)
+    check("is_self: and its relative form, so a `tools/x` argument is caught too",
+          is_self(Path("tools") / Path(__file__).name), True)
+    check("is_self: another tool is not itself",
+          is_self(REPO_ROOT / "tools" / "audit-worker-saturation.py"), False)
+    check("is_self: default enumeration excludes the probe",
+          any(is_self(q) for q in (REPO_ROOT / "tools").glob("*.py")
+              if has_selftest(q) and not is_self(q)), False)
+    check("probe_env: every spawned child carries the re-entry sentinel",
+          probe_env().get(REENTRY_ENV), "1")
+    check("probe_env: the rest of the environment is inherited, not replaced",
+          set(os.environ) <= set(probe_env()), True)
     check("classify: controls failed voids everything", classify(False, True, True), "VOID-CONTROLS-FAILED")
     check("classify: a non-mutation is INVALID, never NOT-DETECTED",
           classify(True, False, False), "INVALID-NON-MUTATION")
@@ -383,9 +437,27 @@ def main(argv=None) -> int:
     if a.self_test:
         return self_test()
 
+    # LAYER 2 OF THE RECURSION GUARD (see excluded_self and REENTRY_ENV). If this process is itself
+    # a mutant of the probe, executed by an outer probe run, refuse to probe anything. Layer 1
+    # (self-exclusion by path) is the control; this is the backstop that holds even if a rename, a
+    # copy, or an explicit path argument defeats it, because a mutant inherits the environment.
+    if os.environ.get(REENTRY_ENV):
+        print("REFUSED: this process is running inside a probe run "
+              f"({REENTRY_ENV} is set), so probing again would recurse. Exiting without probing.")
+        return 0
+
     # Resolve to absolute so a relative argument still reports a repo-relative label.
-    targets = [Path(t).resolve() for t in a.tools] if a.tools else sorted(
-        p for p in (REPO_ROOT / "tools").glob("*.py") if has_selftest(p))
+    if a.tools:
+        requested = [Path(t).resolve() for t in a.tools]
+        targets = [t for t in requested if not is_self(t)]
+        for t in requested:
+            if is_self(t):
+                print(f"SKIP {t.name}: a probe cannot probe itself. Mutating this file writes a "
+                      "mutant of the probe and EXECUTES it, and the mutant enumerates the tools "
+                      "directory again, so each run spawns another. Excluded explicitly.")
+    else:
+        targets = sorted(p for p in (REPO_ROOT / "tools").glob("*.py")
+                         if has_selftest(p) and not is_self(p))
     if not targets:
         print("no self-tested tool found; nothing to probe (no-op).")
         return 0

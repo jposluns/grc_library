@@ -227,8 +227,19 @@ def composer_region(pane_text: str):
     lines = pane_text.splitlines()
     if not lines:
         return None
-    rules = [n for n, ln in enumerate(lines)
-             if len(ln.strip()) >= 8 and set(ln) <= RULE_CHARS and ln.strip()]
+    # A THRESHOLD, not a strict subset. `tmux capture-pane` can truncate a wide box-drawing
+    # character at the pane's right edge, leaving a replacement char in the rule line; a strict
+    # subset test then rejects a real rule and the caller reports INDETERMINATE for a payload that
+    # plainly submitted (observed on both codex sessions, 2026-07-25). Requiring MOST of the line to
+    # be rule characters keeps a prose line from matching while tolerating a torn edge.
+    rules = []
+    for n, ln in enumerate(lines):
+        stripped = ln.strip()
+        if len(stripped) < 8:
+            continue
+        rule_chars = sum(1 for ch in stripped if ch in RULE_CHARS)
+        if rule_chars / len(stripped) >= 0.8:
+            rules.append(n)
     if not rules:
         return None
     start = rules[-2] + 1 if len(rules) >= 2 else rules[-1] + 1
@@ -720,6 +731,12 @@ def self_test() -> int:
                submit_state("hi", _claude_stuck)[0], "indeterminate")
     check_attr("submit: an empty probe reads indeterminate",
                submit_state("", _claude_empty)[0], "indeterminate")
+    _torn = "\n".join(["  transcript", "\u2500" * 39 + "\ufffd", "",
+                        "\u203a Improve documentation in @filename", "  gpt-5.6"])
+    check_attr("submit: a rule with a truncated wide char is still a rule (codex capture)",
+               submit_state("At your next opportunity", _torn)[0], "submitted")
+    check_attr("composer_region: a prose line of words is NOT mistaken for a rule",
+               composer_region("a line of ordinary prose here\nand another one"), None)
     check_attr("composer_region: returns None when no rule is present",
                composer_region("no rules at all\nsecond line"), None)
 

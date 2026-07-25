@@ -11,7 +11,7 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
-### PR #1175: two shipped guards that could not answer their own question (2026-07-25)
+### PR #1175: four guards that could not answer their own question, and the bypass log's missing rows (2026-07-25)
 
 TODO 3.116's stall signal (shipped in #1174) could not detect the worker it was built for: its
 session-age input came from the heartbeat marker, whose mtime is the last check-in rather than the
@@ -19,7 +19,7 @@ session start, so the evidence was capped below the firing threshold and a norma
 worker was invisible. Session age now parses the minted worker id, the never-delivered span gives no
 veto, the availability clock reads ctime, and seven discriminating collector-level cases pin each
 input's derivation (the pure predicate was correct all along, which is why its seven cases missed
-this). Found by a worker after the item had closed and reported through the alert channel. The same session's tmux submit check had the same shape: it read the pane once and reported two workers as never prompted while both were demonstrably working, so it now polls and returns an explicit indeterminate state instead of guessing.
+this). Found by a worker after the item had closed and reported through the alert channel. The same session's tmux submit check had the same shape: it read the pane once and reported two workers as never prompted while both were demonstrably working, so it now polls and returns an explicit indeterminate state instead of guessing. The #1174 post-merge sweep then found a third and worst instance: the discriminability probe enumerated itself, wrote a mutant of itself and executed it, spawning runaway processes and voiding every figure it had reported (31 not-detected across the four tools, not 27); and a fourth, an exclusion control that refused a real retired worker because it treated unobservable as nonexistent. Separately, five merges had shipped with no merge-bypass-log row, so gate 50 gained Check 6 to require one, and a new `tools/audit-token-spend.py` pairs measured orchestrator token cost against workers' self-reported estimates, which had never been paired before.
 
 ### PR #1174: TODO 3.116 closed, a stalled worker no longer reads as healthy capacity (2026-07-25)
 

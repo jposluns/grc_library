@@ -1,0 +1,362 @@
+#!/usr/bin/env python3
+"""Advisory token-spend report: orchestrator spend beside worker spend, per session.
+
+WHY THIS EXISTS. The credit-offload metrics ledger recorded, per offloaded order, the worker's
+own best-effort estimate of the tokens it spent, and called that figure "orchestrator credits
+conserved". It never recorded what the orchestrator ACTUALLY spent, so the ledger could show a
+running total of credits saved with no denominator: saved against what? The maintainer asked for
+the pairing (2026-07-25) and the honest answer was that only half of it was being tracked.
+
+WHAT MAKES THE PAIRING WORTH HAVING, and the thing the "credits conserved" framing gets wrong.
+An orchestrator turn does not cost its output tokens. It costs its output PLUS a re-read of the
+whole conversation context, which on a long session is orders of magnitude larger. Measured on
+one real session: 1.35M output tokens against 800M cache-read tokens, a ratio near 600 to 1. So
+a worker order that the worker estimates at 8k tokens did not save the orchestrator 8k; it saved
+8k of generation plus however many context re-reads the orchestrator would have needed to do that
+work inline. The ledger's conserved figure is therefore a FLOOR, not an estimate, and this tool
+reports the orchestrator's own context-multiplier so the floor can be read against something.
+
+TWO SOURCES, TWO EVIDENCE QUALITIES, KEPT SEPARATE ON PURPOSE.
+
+  ORCHESTRATOR spend is INSTRUMENTED. It comes from the session transcript, which records a
+  `usage` block per assistant message: input, output, cache-creation and cache-read tokens. This
+  is a measurement, not an estimate.
+
+  WORKER spend is SELF-REPORTED. A worker cannot read an exact in-session count either, so its
+  order brief asks it to state an approximate spend and this tool parses that statement. It is an
+  estimate, and the report labels it as one every time. Do not add the two columns into a single
+  "total" and present it as measured: that would launder an estimate into an instrumented figure,
+  which is the kind of quiet precision-inflation this project treats as a defect.
+
+Advisory only: every reporting path exits 0. Only `--self-test` can exit non-zero. Cross-repo and
+environment-dependent by nature (the transcript lives under the harness's own state directory and
+the deliveries live in the file-drop root), so an absent source is reported as absent rather than
+counted as zero, the same no-op-loudly shape as `audit-worker-saturation.py` and
+`audit-delivery-status.py`.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+# The harness's per-project transcript directory. Derived from the repo path the way the harness
+# derives it (absolute path, separators to hyphens), never hardcoded, so this follows a checkout
+# that moves on disk (the repo-root-relocation row of the change-impact surface map).
+TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
+FILEDROP_DEFAULT = Path("/home/grc/grc_working")
+DELIVERY_TRAY_REL = "inbox/deliveries"
+
+# A worker's self-reported spend. Deliberately several phrasings: the figure is prose in a
+# delivery, not a field, so the brief's wording drifts and a single pattern would silently read
+# zero for a delivery that did report one. Matches "8,400", "8400", "~8.4k", "8.4K".
+SPEND_PATTERNS = (
+    re.compile(r"token[s]?\s+spend[^0-9]{0,40}([0-9][0-9,\.]*\s*[kKmM]?)", re.I),
+    re.compile(r"token[s]?\s+(?:spent|used)[^0-9]{0,40}([0-9][0-9,\.]*\s*[kKmM]?)", re.I),
+    re.compile(r"(?:spent|used|approximately|approx\.?|about|~)\s*([0-9][0-9,\.]*\s*[kKmM]?)\s*tokens",
+               re.I),
+)
+
+
+def parse_spend(token_text: str):
+    """PURE. A worker's reported spend as an int, or None when it cannot be read.
+
+    Returns None rather than 0 for an unparseable figure. The distinction is load-bearing: 0 means
+    "reported nothing spent", None means "we could not read what it reported", and collapsing the
+    second into the first would make a parsing gap look like a free order.
+    """
+    s = (token_text or "").strip().replace(",", "")
+    if not s:
+        return None
+    mult = 1
+    if s[-1] in "kK":
+        mult, s = 1_000, s[:-1]
+    elif s[-1] in "mM":
+        mult, s = 1_000_000, s[:-1]
+    try:
+        value = float(s)
+    except ValueError:
+        return None
+    if value < 0:
+        return None
+    return int(value * mult)
+
+
+def find_reported_spend(text: str):
+    """PURE. The first readable self-reported spend in a delivery, or None.
+
+    FIRST match, not largest: a delivery's own "Token spend" section is what the brief asks for,
+    and picking the largest number would happily pick up an unrelated corpus figure the delivery
+    happens to quote.
+    """
+    for pattern in SPEND_PATTERNS:
+        for m in pattern.finditer(text or ""):
+            value = parse_spend(m.group(1))
+            if value is not None:
+                return value
+    return None
+
+
+def transcript_dir_for(repo_root: Path) -> Path:
+    """The harness transcript directory for a repo path. Observer.
+
+    The harness names it after the absolute repo path with BOTH path separators and underscores
+    replaced by hyphens, so `/home/grc/grc_library` becomes `-home-grc-grc-library`. Getting only
+    the separators produced `-home-grc-grc_library`, which does not exist; the tool reported the
+    transcript as ABSENT rather than counting zero, which is how the mistake surfaced instead of
+    shipping as a silent "0 tokens spent".
+    """
+    return TRANSCRIPT_HOME / str(repo_root.resolve()).replace("/", "-").replace("_", "-")
+
+
+def sum_usage(transcript: Path) -> dict:
+    """Total the per-message usage blocks in one session transcript. Observer.
+
+    Tolerates a partially-written or corrupt line rather than aborting: a transcript is appended to
+    live by the running session, so the last line can be half-flushed at read time, and refusing to
+    report anything because of one torn line would be the wrong trade for an advisory tool. The
+    count of unreadable lines is reported so the tolerance is visible rather than silent.
+    """
+    totals = {"turns": 0, "input": 0, "output": 0, "cache_write": 0, "cache_read": 0, "unreadable": 0}
+    try:
+        handle = transcript.open(encoding="utf-8", errors="replace")
+    except OSError:
+        return totals
+    with handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except (ValueError, TypeError):
+                totals["unreadable"] += 1
+                continue
+            usage = (record.get("message") or {}).get("usage") if isinstance(record, dict) else None
+            if not isinstance(usage, dict):
+                continue
+            totals["turns"] += 1
+            totals["input"] += usage.get("input_tokens") or 0
+            totals["output"] += usage.get("output_tokens") or 0
+            totals["cache_write"] += usage.get("cache_creation_input_tokens") or 0
+            totals["cache_read"] += usage.get("cache_read_input_tokens") or 0
+    return totals
+
+
+def context_multiplier(totals: dict):
+    """PURE. Cache-read tokens per output token, or None when output is zero.
+
+    This is the number that makes the offload case concrete: it is roughly how many context tokens
+    the orchestrator re-reads for each token it generates. A worker starts from a small context, so
+    the same work done by a worker skips this multiplier entirely.
+    """
+    if not totals.get("output"):
+        return None
+    return (totals.get("cache_read") or 0) / totals["output"]
+
+
+def collect_worker_spend(filedrop_root: Path):
+    """Per-delivery self-reported spend from the delivery tray. Observer.
+
+    Returns (rows, unreadable_count) where each row is (worker_id, order_id, spend_or_None). The
+    tray filename is `<worker-id>__<order-id>.md`, so attribution needs no file read.
+    """
+    rows, unreadable = [], 0
+    tray = filedrop_root / DELIVERY_TRAY_REL
+    if not tray.is_dir():
+        return rows, unreadable
+    for path in sorted(tray.glob("*__*.md")):
+        worker, _, order = path.stem.partition("__")
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            unreadable += 1
+            continue
+        rows.append((worker, order, find_reported_spend(text)))
+    return rows, unreadable
+
+
+def fmt(value) -> str:
+    return "not reported" if value is None else f"{value:,}"
+
+
+def report(repo_root: Path, filedrop_root: Path, session: str | None, oneline: bool) -> int:
+    tdir = transcript_dir_for(repo_root)
+    transcripts = []
+    if tdir.is_dir():
+        transcripts = sorted(tdir.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if session:
+        transcripts = [p for p in transcripts if session in p.stem]
+
+    orch = sum_usage(transcripts[0]) if transcripts else None
+    rows, unreadable = collect_worker_spend(filedrop_root)
+    reported = [s for _, _, s in rows if s is not None]
+
+    if oneline:
+        if orch is None:
+            print(f"tokens: orchestrator transcript not found under {tdir}; "
+                  f"workers {len(reported)}/{len(rows)} reporting ~{sum(reported):,} (self-reported)")
+            return 0
+        mult = context_multiplier(orch)
+        mult_text = f", {mult:.0f}x context" if mult is not None else ""
+        print(f"tokens: orchestrator {orch['output']:,} out / {orch['cache_read']:,} cache-read"
+              f"{mult_text} | workers ~{sum(reported):,} est. over {len(reported)} delivery(ies)")
+        return 0
+
+    print("token-spend report (advisory)")
+    print()
+    if orch is None:
+        print(f"  ORCHESTRATOR: no transcript found under {tdir}")
+        print("    Reported as absent rather than zero. The transcript lives in the harness's own")
+        print("    state directory, so a different machine or harness legitimately has none here.")
+    else:
+        print(f"  ORCHESTRATOR (INSTRUMENTED, from {transcripts[0].name})")
+        print(f"    assistant turns:      {orch['turns']:>14,}")
+        print(f"    output (generated):   {orch['output']:>14,}")
+        print(f"    input (uncached):     {orch['input']:>14,}")
+        print(f"    cache writes:         {orch['cache_write']:>14,}")
+        print(f"    cache reads:          {orch['cache_read']:>14,}")
+        mult = context_multiplier(orch)
+        if mult is not None:
+            print(f"    context multiplier:   {mult:>13.0f}x  (cache-read tokens per output token)")
+            print("      Each turn re-reads the whole conversation. This is why an offloaded order")
+            print("      saves MORE than the worker's own reported spend: the worker never pays it.")
+        if orch["unreadable"]:
+            print(f"    unreadable lines:     {orch['unreadable']:>14,}  (live-append tear, tolerated)")
+    print()
+    if not rows:
+        print(f"  WORKERS: no deliveries in {filedrop_root / DELIVERY_TRAY_REL}")
+    else:
+        print(f"  WORKERS (SELF-REPORTED ESTIMATES, {len(reported)} of {len(rows)} deliveries)")
+        by_worker: dict[str, list] = {}
+        for worker, _order, spend in rows:
+            by_worker.setdefault(worker, []).append(spend)
+        for worker in sorted(by_worker):
+            spends = [s for s in by_worker[worker] if s is not None]
+            print(f"    {worker:<34} {len(by_worker[worker]):>2} delivery(ies), "
+                  f"~{sum(spends):,} est." if spends
+                  else f"    {worker:<34} {len(by_worker[worker]):>2} delivery(ies), none reported")
+        print(f"    {'TOTAL':<34} ~{sum(reported):,} est.")
+        if len(reported) < len(rows):
+            print(f"    {len(rows) - len(reported)} delivery(ies) reported no readable figure; counted")
+            print("      as unknown, NOT as zero, so a parsing gap cannot read as a free order.")
+        if unreadable:
+            print(f"    {unreadable} delivery file(s) unreadable")
+    print()
+    print("  The two columns are NOT summed. One is measured, the other is a worker's estimate;")
+    print("  adding them would present an estimate with instrumented precision.")
+    return 0
+
+
+def self_test() -> int:
+    failures = []
+    total = 0
+
+    def check(name, got, want):
+        nonlocal total
+        total += 1
+        if got != want:
+            failures.append(name)
+            print(f"  FAIL: {name} -> {got!r}, expected {want!r}")
+        else:
+            print(f"  PASS: {name}")
+
+    for name, text, want in (
+        ("a plain figure parses", "8400", 8400),
+        ("thousands separators are stripped", "8,400", 8400),
+        ("a k suffix multiplies", "8.4k", 8400),
+        ("an uppercase K multiplies", "12K", 12000),
+        ("an m suffix multiplies", "1.2M", 1200000),
+        ("an unparseable figure is None, NOT zero", "several", None),
+        ("an empty figure is None", "", None),
+        ("a negative figure is rejected", "-5", None),
+    ):
+        check(f"parse_spend: {name}", parse_spend(text), want)
+
+    for name, text, want in (
+        ("the brief's own phrasing is found",
+         "## Token spend\nApproximate token spend: 8,400.", 8400),
+        ("an inline sentence is found", "This used about 5,900 tokens in total.", 5900),
+        ("the tokens-spent phrasing is found", "Tokens spent: 3.1k", 3100),
+        ("a delivery reporting nothing yields None",
+         "# Delivery\nSome findings and no spend statement.", None),
+        ("the FIRST readable figure wins, not the largest",
+         "Token spend: 2,000. The corpus cites 900,000 elsewhere.", 2000),
+    ):
+        check(f"find_reported_spend: {name}", find_reported_spend(text), want)
+
+    check("transcript_dir_for: underscores hyphenate too, not only separators",
+          transcript_dir_for(Path("/home/grc/grc_library")).name, "-home-grc-grc-library")
+    check("context_multiplier: zero output yields None, not a division error",
+          context_multiplier({"output": 0, "cache_read": 100}), None)
+    check("context_multiplier: the ratio is cache-read over output",
+          context_multiplier({"output": 100, "cache_read": 60000}), 600.0)
+    check("context_multiplier: absent cache reads count as zero, not an error",
+          context_multiplier({"output": 100}), 0.0)
+
+    # The transcript reader must tolerate a torn line (live append) and COUNT it, and must ignore a
+    # record with no usage block rather than counting it as a turn.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td) / "s.jsonl"
+        t.write_text(
+            json.dumps({"message": {"usage": {"input_tokens": 5, "output_tokens": 7,
+                                              "cache_read_input_tokens": 11,
+                                              "cache_creation_input_tokens": 13}}}) + "\n"
+            + json.dumps({"message": {"role": "user"}}) + "\n"
+            + '{"message": {"usage": {"output_tok\n'
+            + json.dumps({"message": {"usage": {"output_tokens": 3}}}) + "\n",
+            encoding="utf-8")
+        got = sum_usage(t)
+        check("sum_usage: only usage-bearing records count as turns", got["turns"], 2)
+        check("sum_usage: output totals across records", got["output"], 10)
+        check("sum_usage: a torn line is counted, not silently dropped", got["unreadable"], 1)
+        check("sum_usage: cache reads total", got["cache_read"], 11)
+        check("sum_usage: a missing transcript yields zeros, not an exception",
+              sum_usage(Path(td) / "nope.jsonl")["turns"], 0)
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        tray = root / DELIVERY_TRAY_REL
+        tray.mkdir(parents=True)
+        (tray / "opus-a__order-1.md").write_text("Token spend: 1,000.", encoding="utf-8")
+        (tray / "opus-a__order-2.md").write_text("no figure here", encoding="utf-8")
+        (tray / "codex-b__order-3.md").write_text("Approximate token spend: 2k", encoding="utf-8")
+        (tray / "README.md").write_text("not a delivery", encoding="utf-8")
+        rows, bad = collect_worker_spend(root)
+        check("collect_worker_spend: only <worker>__<order>.md files count", len(rows), 3)
+        check("collect_worker_spend: attribution comes from the filename",
+              sorted({w for w, _, _ in rows}), ["codex-b", "opus-a"])
+        check("collect_worker_spend: an unreported figure stays None, not zero",
+              [s for _, _, s in rows].count(None), 1)
+        check("collect_worker_spend: reported figures survive parsing",
+              sorted(s for _, _, s in rows if s is not None), [1000, 2000])
+        check("collect_worker_spend: an absent tray is empty, not an error",
+              collect_worker_spend(Path(td) / "nothing")[0], [])
+        check("collect_worker_spend: unreadable count starts at zero", bad, 0)
+
+    print()
+    print(f"self-test: {total - len(failures)}/{total} passed")
+    return 1 if failures else 0
+
+
+def main(argv) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--repo", default=os.environ.get("GRC_REPO", str(Path(__file__).resolve().parents[1])),
+                    help="repo root whose transcript directory to read")
+    ap.add_argument("--filedrop-root", default=os.environ.get("GRC_WORKING", str(FILEDROP_DEFAULT)),
+                    help="file-drop exchange root holding the delivery tray")
+    ap.add_argument("--session", help="substring of a session id; defaults to the most recent")
+    ap.add_argument("--oneline", action="store_true", help="one-line form for a statusline")
+    ap.add_argument("--self-test", action="store_true", help="run the fixture set")
+    a = ap.parse_args(argv[1:])
+    if a.self_test:
+        return self_test()
+    return report(Path(a.repo), Path(a.filedrop_root), a.session, a.oneline)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

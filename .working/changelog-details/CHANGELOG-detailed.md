@@ -69,6 +69,72 @@ reads as health.
   against a calibrated harness (negative control passing, positive control failing) and confirming a
   non-zero exit: session age DETECTED, never-delivered span DETECTED, availability clock DETECTED.
 
+### Fixed (URGENT, from the #1174 post-merge sweep)
+
+- **The discriminability probe recursed into itself and spawned runaway processes.**
+  [`tools/audit-selftest-discriminability.py`](../../tools/audit-selftest-discriminability.py)
+  enumerates every self-tested tool in the tools directory and mutates each in place. It IS such a
+  tool and nothing excluded it, so it wrote a mutant of ITSELF into `tools/` and executed it; that
+  mutant enumerated the directory and did the same. Found hours after #1174 merged by the worker
+  running its post-merge sweep, while doing exactly what the order asked. It escaped every test
+  because every run during development passed explicit `--tool` arguments, so the DEFAULT
+  enumeration path, the only one that reaches the self-inclusion, was never exercised once. Two
+  independent guard layers now: `is_self` excludes the probe by RESOLVED path (so a relative,
+  symlinked or `./tools/x` form all match) and refuses an explicit self-target with an explanation;
+  and `probe_env` stamps a re-entry sentinel on every spawned child, which the probe checks at
+  entry, so a mutant refuses to probe even if a rename or copy defeats layer 1. The sentinel matters
+  BECAUSE it is stamped: a backstop keyed on an environment variable nothing sets is inert while
+  reading as protection, so the self-test asserts the stamp as well as the exclusion. Both layers
+  mutation-proved. Verified by a full argument-free run over all 21 remaining tools: exit 0, peak 5
+  concurrent processes, no residue in `tools/`.
+- **#1174's four reported figures were VOID and are corrected here.** The probe was
+  self-contaminating, so no figure it produced was reproducible, including the one that happened to
+  match: a reproducing figure from a non-deterministic instrument is not evidence. The worker
+  reported this as ONE finding rather than four, which is the right call. Re-measured after the fix,
+  and confirmed deterministic by two identical consecutive runs: 9 not-detected for
+  `audit-worker-saturation`, 3 for `collect-deliveries`, 13 for `manage-workers`, 6 for
+  `audit-inbox-drops`, so **31 across the four tools, not the 27 previously published**, and 73
+  across all 21 self-tested tools. The two in-flight worker orders that quoted the void figures were
+  warned by tmux prompt, both because the figures are void and because the probe at the pinned SHA
+  will recurse if run without arguments.
+- **The submit postcondition's rule detection was defeated by a truncated wide character.**
+  `tmux capture-pane` can cut a box-drawing character at the pane edge, leaving a replacement char,
+  and a strict character-subset test then failed to recognize a real composer border. Both codex
+  sessions reported UNVERIFIED for payloads that had plainly submitted. The test is now a threshold
+  (most of the line must be rule characters) rather than a subset, which tolerates a torn edge while
+  still refusing a line of prose. Caught by using the tool minutes after fixing it, which is the
+  same way its predecessor defect surfaced.
+
+### Added (gate)
+
+- **Gate 50 gained Check 6, merge-bypass-log parity**, in
+  [`tools/lint-bookkeeping-parity.py`](../../tools/lint-bookkeeping-parity.py). Branch protection
+  here requires an approval a solo-authored PR never receives, so every merge goes through the
+  maintainer's always-on `--admin` bypass, and [`.working/merge-bypass-log.md`](../../.working/merge-bypass-log.md)
+  is the only thing that makes that bypass auditable. CLAUDE.md already called an unlogged bypass a
+  discipline failure. It recurred FIVE times in one day: #1170, #1171, #1172, #1173 and #1174 all
+  merged with `reviewDecision: REVIEW_REQUIRED` outstanding and none has a row, noticed only because
+  the log was read for an unrelated reason. Five recurrences in a day is past the point where a
+  convention is the right control. The check uses Check 1's window (highest PR exempt as in flight,
+  floor at the register's own oldest row) and counts a row by PRESENCE whatever its Mechanism cell
+  says, so a future protection change permitting a plain merge is recorded honestly rather than
+  forced to keep reading `--admin`. An empty or absent log NO-OPS rather than flagging every PR since
+  inception, which would be useless as a signal and hostile to an adopter fork that deleted
+  `.working/` as CLAUDE.md permits. Six regression fixtures in
+  [`tests/test_linters.py`](../../tests/test_linters.py) pin each branch, including that prose
+  mentioning a PR number does not satisfy the parity.
+- **The five missing rows were backfilled**, each marked BACKFILLED IN #1175 rather than presented as
+  contemporaneous. The log's own preamble says a row is written after the bypass from the observed
+  result and never in anticipation, so a silently-backdated row would be the fabricated artefact that
+  preamble warns against. CI state was read from the merged PRs (all three checks green on each).
+
+### Fixed (prose)
+
+- `Summarising` to `Summarizing` in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md), a British `-ise` against the
+  project's own Canadian-orthography convention. Pre-existing, surfaced by running
+  [`tools/lint-language.py`](../../tools/lint-language.py) on the file while adding the gate-50 prose; `.claude/` is outside the
+  language gate's default walk, which is why it had never fired.
+
 ### Verification
 
 - The first version of the availability-clock case tested `ctime_age_minutes` directly and did NOT

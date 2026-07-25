@@ -1,2 +1,2 @@
-1) clear the 5 open maintainer alerts; 2) self-test cases for the 27 coverage gaps; 3) daily CHANGELOG condensation
-# then: 4) codify wind-down worker pre-queueing; 5) TODO 3.110(c) gate-69 blind spots, 3.115 gate-44 routes, 3.118 sweep residuals; then the ~19 tray drafts/research incl. codex-orchestrator readiness
+1) clear the 5 open maintainer alerts; 2) close the 31 self-test coverage gaps; 3) daily CHANGELOG condensation
+# then: 4) codify wind-down worker pre-queueing; 5) TODO 3.110(c) gate-69 blind spots, 3.115 gate-44 routes, 3.118 sweep residuals; then the tray drafts/research incl. codex-orchestrator readiness. 73 not-detected guards across all 21 self-tested tools is the wider backlog.
