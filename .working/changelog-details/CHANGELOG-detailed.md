@@ -8,6 +8,41 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.661, PR #1174
+
+A mutation probe that calibrates itself, a findings ledger that blocks, and the four QA deliveries that were sitting unread. One of those corrected this project's own rule text.
+
+### Added
+
+- **[`tools/audit-selftest-discriminability.py`](../../tools/audit-selftest-discriminability.py), the complement to the existing gate-mutation probe.** That one seeds defects into a disposable corpus copy and asks whether the gates detect them; this one mutates TOOL CODE and asks whether the tool's own self-test notices. Four ad-hoc harnesses produced false findings in a single day, so the technique became a tool with its safeguards mechanical rather than remembered: every run is BRACKETED by a positive control (force the self-test to fail, confirm the failure is observed) and a negative control (an inert comment must not fire), and the run is VOIDED if either misbehaves. Each candidate is screened for semantic effect first, so a non-mutation reports INVALID rather than NOT-DETECTED.
+- **Statement-level line tracing, splitting the verdict into the two situations whose fixes differ.** BLIND-CASE means the self-test executes the guard and still passes without it, the real defect. NO-CASE means no case reaches it, a coverage gap. Function-granularity reachability was REJECTED because it over-counts, measured rather than assumed: it called a guard exercised because its enclosing function was reachable, when the guard sat behind an early `continue` the self-test always takes. Tracing reproduces that correction independently. **The split matters:** 3 blind cases against 27 coverage gaps across four tools, so the earlier 28-site figure was a large over-count.
+- **[`.working/open-findings.md`](../open-findings.md) and [`block-on-open-findings.py`](../../.claude/hooks/block-on-open-findings.py).** The QA-blocks-progress rule covered findings arriving FROM WORKERS and said nothing about findings the orchestrator generates ITSELF. That hole cost two live defects in a file-moving tool, produced by the orchestrator's own probe minutes earlier, rendered as a table row and walked past in favour of a statistic about them. The rule is now source-independent, the ledger holds every confirmed defect until dispositioned, and the hook refuses to open or merge a PR while an error-severity row has none. It fails OPEN on a broken ledger, deliberately and stated, because a guard that blocks all work when it malfunctions gets deleted.
+
+### Fixed
+
+- **[`tools/collect-deliveries.py`](../../tools/collect-deliveries.py)'s empty-part guard was BLIND** (found by the new probe): the cases covered a non-tray name and a wrong extension but never an empty part, so `split_name("__x.md")` returned `("", "x")` and a caller could use an empty worker id, which the saturation tool's phantom-pending retirement depends on being well-formed. Guard removal now FAILS the self-test.
+- **The saturation observable reported SATURATED while a worker sat idle**, the guardrail the maintainer asked for. My own regression: the delivery tray added a third location its phantom-pending retirement did not scan, and the composed filename needed splitting or the recovered id matched no queue row and the scan was inert.
+- **An unclassifiable holder was PERMITTED on the destructive path.** The fail-safe asked "does a worker in MY families hold an order", and an id outside every known family prefix cannot answer that. Ids are self-minted and this project's own historical ids took exactly that shape, including one minted today. Third instance of this class in one file.
+- **A check-then-act race on the destructive path.** The verifier SIZED the window from its own measurement, 8 to 13 seconds detect-to-claim (n=8), far wider than the read-to-send gap. Destructive verbs now re-read the gate immediately before sending. It narrows the race and does not close it, stated at the point of use.
+- **The probe caught two of its own bugs.** It wrote mutants into a temp SUBDIRECTORY, so any tool importing a sibling died on import and voided the run, which its own NEGATIVE control detected: the identical working-directory error that had voided a hand-rolled matrix an hour earlier. And its first traced run reported a FALSE CLEAN (22 detected, 0 findings) because the verdict strings gained a suffix while the filter tested exact equality.
+
+### Changed
+
+- **This project's own rule text was overstated, and a verifier proved it rather than arguing it.** The guard-inputs section claimed mutation testing "is silent on whether the input is faithful". The verifier applied all three observer-mutation strategies the rule names to a live defect; one DETECTED, so the claim is false as written and self-contradictory, since a structurally blind technique could not be fixed by mutating the observer. Corrected in both trees, with its more useful half added: **observer mutation is bounded by the same case coverage as decision mutation**, because the two strategies closest to the real defect both missed it for want of any case discriminating on the thing mutated. A companion to reality fixtures, never a substitute.
+- **The self-test's own `if failures:` branch is now `INHERENT-EXTERNALLY-COVERED`** rather than a fixable defect: it cannot be asserted from inside itself without recursion, the probe's positive control covers it, and a permanently-red row would train readers to ignore the output.
+
+### Verification
+
+- 78/78 gates standalone (gate 78 merged in #1173 before this rebase). Probe self-test 11/11, hook 8/8, `manage-workers` 38/38, `collect-deliveries` 38/38.
+- **The hook was proven in both directions against a live ledger:** rc 2 with an injected undispositioned error row, rc 0 against the real one. Both self-tests wired into the regression suite at introduction.
+- Both `manage-workers` fixes replayed against the verifiers' exact constructed shapes.
+
+### Discipline observations
+
+- **The maintainer caught the failure this PR exists to prevent.** I found two live defects with my own instrument, rendered them as a table row, and moved on to a comparative statistic. Not ignored, aestheticised. Hence the forbidden act, now named: no count, table or statistic about findings before every row has a disposition.
+- **Three writes silently did nothing and I reported them as done.** The version bumps and both changelog entries anchored on `2026.07.660` and `PR #1173`, which existed only on an UNMERGED sibling branch, so every `replace` matched nothing. I asserted some replacements and printed success for all of them, and preflight then passed VACUOUSLY because there were no added lines to check. Delta gate D1 caught it. The lesson is narrow and mechanical: assert EVERY replacement individually, and never anchor bookkeeping on state that lives only on another branch. The root cause was two open PRs racing for one version number, resolved by merging the first and rebasing.
+- **Four related pieces were built before any was committed**, so the API error that interrupted the stretch would have cost the probe, the hook and the ledger.
+
 ## 2026-07-25, Library Version 2026.07.660, PR #1173
 
 Gate 78 enforces the never-recycle rule for backlog item numbers, closing TODO 3.110 parts (a) and (b). It lands GREEN and MEANINGFUL on the same commit, which was the whole design question.
