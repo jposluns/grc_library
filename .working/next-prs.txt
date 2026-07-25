@@ -1,2 +1,2 @@
-1) 3110 apply once census lands; 2) gate-69 blind spots; 3) layer 2 enable after independent read
-# then: TODO 3.116 stalled-vs-idle worker signal; 3.111 --exclude-worker; 3.115 four gate-44 routes; 1.14 Layer B
+1) 3110 matcher redesign (context-qualified); 2) gate-69 blind spots; 3) adjudicate 58 bare tokens
+# then: TODO 3.116 stalled-vs-idle signal; 3.111 --exclude-worker; 3.115 four gate-44 routes; 1.14 Layer B
