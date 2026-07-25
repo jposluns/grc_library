@@ -8,6 +8,69 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.663, PR #1176
+
+The audit-programme spec cited eleven backlog sections. TODO sections are DELETED when their item
+closes, by design, so a corpus document citing one is depending on something built to disappear.
+Seven of the eleven were already wrong.
+
+### Fixed
+
+- **Six citations dangled and one resolved to the WRONG item.** Measured against the live [`TODO.md`](../../TODO.md)
+  headings rather than the reporting worker's list, which was one PR out of date: `1.22.2`, `1.19.1`,
+  `1.16`, `1.18`, `3.56a` and `3.110` name sections that no longer exist (`3.110` closed the same day
+  in #1173), and **`3.9` still exists but is a DIFFERENT item**, because §3.9 closed in #1087 and the
+  number was recycled before the never-recycle rule. That last one is the recycling harm sitting in
+  this repository's own specification, citing gate 68's origin, invisible to the very gate built to
+  prevent recycling. All eleven now cite the CLOSING PR (or a plain description where the item is
+  still open), because a PR number never rotates and a backlog section is deleted on close. Residual
+  `TODO section` citations in the file: zero, measured after the edit.
+
+### Added (codification, maintainer-directed)
+
+- **Backlog item numbers are permanent and are never reused**, in
+  [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) and as a section in the pack's
+  [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md). The
+  maintainer pointed out that this rule was ENFORCED (gate 78, #1173) but written down nowhere: it
+  appeared only in [`TODO.md`](../../TODO.md) and in gate 78's own spec description, was absent from CLAUDE.md, and had
+  no pack counterpart, which is also a pack-parity miss by #1173 (a portable guard rail shipped
+  without its pack entry). The codification states the part a gate cannot: the harm is a SILENT
+  MIS-RESOLUTION rather than a collision, because the number leaks outside the backlog into CHANGELOG
+  entries, [`DONE.md`](../DONE.md) keys, spec prose and tool docstrings, so a recycled number makes every one of
+  those resolve cleanly to the wrong item while looking like a valid citation. That is strictly worse
+  than a dangling reference, which announces itself. Two practices follow: allocate the next UNUSED
+  number rather than the lowest free one, since a gap is the correct permanent record; and prefer a
+  stable anchor (the closing change) over a backlog number in prose outside the backlog, which avoids
+  creating the dependency at all.
+- **Defence in depth is the default choice when its marginal cost is low**, in CLAUDE.md and as a
+  section in the pack's
+  [`project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md). Directed
+  by the maintainer after choosing to widen gate 69's scan to `docs/` despite the generator `--check`
+  gates already covering those files: "if the generator should catch issues then this won't find any,
+  defence in depth control." It belongs in the apex rule because it is the tier ordering applied to
+  option selection: Cost is the LOWEST dimension, so a small cost is never a reason to decline a layer
+  that protects an AIQT facet. Concrete consequence for the assistant: when presenting a layered and a
+  leaner option, the LAYERED one is listed first and marked recommended, with its marginal cost
+  stated, and the leaner one is never made the default on the reasoning that a sibling control
+  probably covers the case. The one genuine counterweight is recorded too: a control whose noise gets
+  it bypassed protects nothing, so its cost is NOT small.
+
+### Verification
+
+- Two of the three "decisions" the originating worker drop raised DISSOLVED on verification at source,
+  and both are recorded rather than quietly dropped. The `§3.56` numbering clash ("three DIFFERENT
+  closed items under one number") is three guards of ONE sub-item, `§3.56a guard 1/2/3`, correctly
+  keyed, with the parent still live. The `docs/` scan-scope blind spot does not exist: gate 69's
+  default walk already covers all 12 `docs/` files, measured. The answered-question hook is what
+  forced the first check; the second came from measuring the gate's real scope rather than accepting
+  the drop's description of it.
+- One of my own measurements was wrong and nearly reported: a regex written to classify the eleven
+  citations was malformed under this environment's grep, and it returned a uniform "GONE" for all
+  nine keys, including three that are live. It was caught because the uniform answer contradicted an
+  earlier working measurement. Recorded because a broken measurement that returns a plausible
+  uniform result is worse than one that errors, and this one would have put three false claims in a
+  record.
+
 ## 2026-07-25, Library Version 2026.07.662, PR #1175
 
 The stalled-worker signal that closed TODO 3.116 two days ago could not fire on the condition it
