@@ -113,7 +113,24 @@ run; each was routed around per the graceful-degradation paths.
   filter). Raising it because the *class* recurring five times in one session is worth your judgement
   even though every instance was caught.
 
-- **[FLEET, worth a look] The codex worker heartbeats on start but never claims work.** After you restarted
+- **[FLEET, THE PATTERN IS NOW GENERAL, and it is the top item] All THREE workers showed the same shape:
+  they heartbeat, then stop claiming.** Not just codex. Sequence observed tonight, all from
+  `list-workers` and the file-drop tree, no inference: `opus-...-d268` served the whole run then went
+  stale ~23m after its last delivery; `codex-...-f8b8` twice registered a live heartbeat and never claimed
+  the priority-0 order sitting in its OWN family (going stale without serving anything, across two
+  restarts); and `opus-...-c46a`, the last one standing, is at this writing LIVE with a fresh-ish
+  heartbeat, holding NOTHING, with TWO orders sitting unclaimed in its family's `available-work` for
+  11-plus minutes. **So the failure is not "the worker dies", it is "the worker keeps heartbeating but
+  stops serving".** That is worse than dying, because `list-workers` and the saturation observable both
+  read it as healthy capacity, so the fleet looks fine while nothing is being served. The heartbeat is
+  written on a different path from the claim loop, which is presumably why one survives the other.
+  **What I did NOT do:** I did not self-run the two queued orders, because duplicating a queued order
+  wastes the work if a worker wakes, and because mandatory-offload asks me to surface a stalled fleet
+  rather than route around it silently. Both orders are queued and will be served whenever a worker
+  claims. **Worth investigating on the worker side:** whether the serve loop is exiting or blocking after
+  N cycles while the heartbeat thread survives.
+
+- **[FYI, subsumed by the above] The codex worker specifically heartbeats on start but never claims work.** After you restarted
   it (~10:25Z) `codex-20260725T041432Z-f8b8` appeared LIVE at `hb_age 0.6m`, but it never claimed the
   priority-0 order sitting in its OWN family's `available-work` and went stale ~24 minutes later without
   serving anything. The same shape as its earlier disappearance (live, then stale at ~5 hours, zero

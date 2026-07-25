@@ -571,6 +571,12 @@ is external. Two mechanisms:
      count, a suite size), bare-token grep the WHOLE entry, all sections in both files,
      for the superseded figure before push (the #620 catch: an entry corrected in one
      clause kept the stale figure in another).
+   - **Handoff-snapshot write order** (the D7 guard; twice in one session, 2026-07-25 #1158 and #1162):
+     when a PR both BUMPS the library/README versions and REFRESHES the handoff's D7-validated snapshot
+     line, do the version bump FIRST and write the snapshot FROM the bumped values. Writing the snapshot
+     first records the pre-bump figures, which D7 then correctly rejects as stale against the PR's own
+     head. The snapshot quotes the state the PR PRODUCES, not the state it started from, so any narrative
+     line elsewhere in the handoff that repeats those figures moves with it.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); a `build-portal.py

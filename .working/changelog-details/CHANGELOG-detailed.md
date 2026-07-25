@@ -8,6 +8,34 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.649, PR #1162
+
+Session-state consolidation for the eleven-PR overnight run (#1151 to #1161), plus one routed observation about the offload fleet that is worth more than the bookkeeping.
+
+### The fleet failure mode is subtler than "workers die", and it defeats its own observability
+
+Observed across all THREE workers on 2026-07-25: **they keep heartbeating but stop claiming.** `codex-...-f8b8` registered a live heartbeat across two restarts and never claimed the priority-0 order sitting in its OWN family; `opus-...-d268` went quiet 23 minutes after its last delivery; `opus-...-c46a` sat LIVE holding nothing while two orders waited unclaimed in its family for more than eleven minutes.
+
+**Why this matters more than an ordinary outage:** the heartbeat is written on a different code path from the claim loop, so one survives the other, and both [`tools/audit-worker-saturation.py`](../../tools/audit-worker-saturation.py) and the file-drop `list-workers` read a stalled worker as healthy capacity. A stalled fleet therefore LOOKS FINE. That is the same class of false reassurance as the `NO-WORKERS`-while-a-worker-is-live defect fixed in #1157, inverted: that one lied about absence, this one lies about availability, and `IDLE-CAPACITY` can now name capacity that cannot be used.
+
+Routed as **TODO 3.116** with a candidate signal (LIVE, holding nothing, while an order sat available beyond some window) and an explicit note that the window is the hard part, since a worker legitimately holds nothing briefly between delivering and claiming, so too tight a window flags every healthy cycle boundary. **Deliberately not built today:** that tool was changed twice on 2026-07-25 and one of those changes introduced a mirror defect the next sweep caught, so a third same-day change to it is a bad bet. That is a decision on evidence, not on caution.
+
+### Codified: the handoff-snapshot write order (a D7 catch, twice in one session)
+
+The pre-push guard's D7 check rejected this PR's first commit, exactly as it rejected #1158's: the handoff's D7-validated snapshot line quoted the versions the PR STARTED from rather than the ones it produces. Both times the cause was ordering, not carelessness about the values: the snapshot was written before the PR's own version bump, so it faithfully recorded pre-bump figures.
+
+Now in the close-out checklist: when a PR both bumps the library and README versions AND refreshes that snapshot, **bump first and write the snapshot from the bumped values**, and move any narrative line elsewhere in the handoff that repeats those figures at the same time. The snapshot quotes what the PR produces, not what it started from. Recorded because it is a sequencing rule of exactly the same shape as the existing generated-artefact regen-order rule (regenerate the taxonomy before checking the portal, or the check is false-clean against a stale input), and because two occurrences in one session is the codification threshold.
+
+### What was NOT done, and why
+
+Two orders (the TODO 3.110 EXEMPT census and its part (c)) sit queued against a stalled fleet. They were **not** self-run: duplicating a queued order wastes the work if a worker wakes, and the mandatory-offload discipline asks for a stalled fleet to be SURFACED rather than routed around in silence. Both are banked for the maintainer as the top item in [`pending-decisions.md`](../pending-decisions.md), alongside the fleet pattern itself.
+
+### Handoff refreshed, reconciled rather than appended
+
+[`session-handoff.md`](../session-handoff.md) now leads with the eleven merged PRs, the fleet constraint, what the run delivered in rough order of value, and the standing caveats. Three of those caveats matter to whoever resumes: two post-merge sweeps were served non-independently and say so in their own history rows; **worker-exclusion by order text is unenforceable by construction**, since the file-drop `claim` is atomic and cannot read a routing exclusion (confirmed from the worker side, which is the case for TODO 3.111); and the worker-id collision fix landed as **layer 1 only**, with layer 2 not to be enabled until an independent reader clears three of its verify's findings.
+
+The prior in-flight block is retained one cycle per the file's own pruning discipline rather than deleted, and the D7-validated version snapshot is reconciled to head rather than left quoting figures from seven PRs earlier, which is the drift that gate caught earlier in the run.
+
 ## 2026-07-25, Library Version 2026.07.648, PR #1161
 
 The output of the first genuinely INDEPENDENT re-verification of this overnight run. For most of the run one worker was live and it had authored or verified nearly every work stream, so two mandatory post-merge sweeps were served non-independently. This closes that gap, and its headline result is a corroboration rather than a finding.
