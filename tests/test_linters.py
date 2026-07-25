@@ -1908,6 +1908,24 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             cmd, capture_output=True, text=True, cwd=str(REPO_ROOT)
         )
 
+    def test_collect_deliveries_self_test(self) -> None:
+        """The delivery-tray sweep's own self-test, wired in so it cannot rot.
+
+        Wired at introduction rather than later, because the 2026-07-25 discriminability audit
+        found 20 tools advertising a self-test and 28 sites whose cases could not detect the
+        removal of the guard they named. This tool's 8 decision guards were each mutation-proved
+        DETECTED before it shipped, and this wiring is what keeps that true.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "collect-deliveries.py"), "--self-test"]
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"collect-deliveries --self-test failed.\nstdout:\n{result.stdout}"
+            f"\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_verification_pipes_hook_self_test(self) -> None:
         result = self._run_selftest(
             [sys.executable,

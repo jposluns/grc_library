@@ -1,2 +1,2 @@
-1) daily changelog condense 07-22/23/24; 2) 4 maintainer alerts; 3) consume P1 deliveries
-# then: list-workers plane blindness + /resume step-3 tool; STALLED-CAPACITY verdict from the window analysis; not_worker order-exclusion enforced at dispatch; 28 class-D self-test sites (8 tools); codify wind-down worker pre-queueing; codex-orchestrator readiness package
+1) migrate the 36-delivery backlog into the tray; 2) daily changelog 07-22/23/24; 3) 4 maintainer alerts
+# then: list-workers plane blindness + /resume step-3 tool; STALLED-CAPACITY verdict from the delivered window analysis; not_worker order-exclusion enforced at dispatch; 28 class-D self-test sites across 8 tools; AGENTS.md-CLAUDE.md contract parity guard; codify wind-down worker pre-queueing; codex-orchestrator readiness package

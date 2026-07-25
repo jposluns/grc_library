@@ -76,9 +76,17 @@ VERBS = {
         "codex": ("At your next opportunity, resync your grc_library_scratch clone and check in: "
                   "claim the next waiting order in your family if you are not already working.",),
     },
+    # PER-RUNTIME CONTRACT PATH. `AGENTS.md` and `CLAUDE.md` are a deliberate PARALLEL PAIR in the
+    # exchange repo, not one file with two names: AGENTS.md states it is "the Codex-agent equivalent
+    # of this repository's CLAUDE.md", and CLAUDE.md is auto-loaded by Claude Code. Both texts
+    # previously named AGENTS.md, so a `reload` sent a Claude worker to the Codex contract
+    # (maintainer-caught 2026-07-25, after exactly that was sent to two Claude workers). Each runtime
+    # is now pointed at ITS OWN file. The pairing also means a contract edit must land in BOTH, which
+    # the same catch surfaced: the issue-drop rule went into AGENTS.md alone and reached only half the
+    # fleet.
     "reload": {
         "claude": ("When you finish your current task, re-read your worker contract at "
-                   "grc_library_scratch/AGENTS.md and your skills, then continue.",),
+                   "grc_library_scratch/CLAUDE.md and your skills, then continue.",),
         "codex": ("When you finish your current task, re-read your worker contract at "
                   "grc_library_scratch/AGENTS.md and your skills, then continue.",),
     },
@@ -97,6 +105,38 @@ VERBS = {
                   "told otherwise.",),
     },
 }
+
+# Surfaces that belong to ONE runtime, so naming them in the OTHER runtime's prompt is a routing
+# defect. This exists because the routing itself was never the bug: `do_send` has always selected
+# VERBS[verb][runtime], and the 2026-07-25 failure was that BOTH runtime entries for `reload`
+# contained the same text naming `AGENTS.md`, so a correctly-routed prompt still sent a Claude worker
+# to the Codex contract. A per-runtime table cannot be trusted merely because it is keyed by runtime;
+# its VALUES have to be checked too, which is what the guard below does.
+RUNTIME_FOREIGN_TOKENS = {
+    # AGENTS.md is the Codex-agent contract; CLAUDE.md is the Claude one, auto-loaded by Claude Code.
+    # They are a deliberate parallel pair in the exchange repo, not one file with two names.
+    "claude": ("AGENTS.md",),
+    # `/credit-offload` is a Claude slash command with no Codex equivalent, which is exactly why the
+    # Codex wake text is prose instead. Naming it to Codex would send an instruction it cannot run.
+    "codex": ("CLAUDE.md", "/credit-offload"),
+}
+
+
+def verb_routing_violations(verbs: dict, foreign: dict) -> list:
+    """PURE. Every (verb, runtime, token) where a prompt names another runtime's surface.
+
+    Pure and table-driven so the self-test can pin it with constructed tables AND so the live VERBS
+    table is checked on every send, not only when someone remembers to run the self-test.
+    """
+    out = []
+    for verb, per_runtime in sorted(verbs.items()):
+        for runtime, keys in sorted(per_runtime.items()):
+            payload = " ".join(k for k in keys if isinstance(k, str))
+            for token in foreign.get(runtime, ()):
+                if token in payload:
+                    out.append((verb, runtime, token))
+    return out
+
 
 # Verbs that destroy context, so they require the worker to hold NO order.
 DESTRUCTIVE = {"restart"}
@@ -281,6 +321,13 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
     keys = VERBS.get(verb, {}).get(runtime)
     if keys is None:
         print(f"REFUSED: verb '{verb}' has no defined sequence for runtime '{runtime}'.")
+        return 1
+    bad = [v for v in verb_routing_violations({verb: {runtime: keys}}, RUNTIME_FOREIGN_TOKENS)]
+    if bad:
+        names = ", ".join(f"'{tok}'" for _v, _r, tok in bad)
+        print(f"REFUSED: the '{verb}' prompt for runtime '{runtime}' names {names}, which belongs to "
+              f"the other runtime. Sending it would hand this worker an instruction for a surface it "
+              f"does not have. Fix the VERBS entry rather than the target.")
         return 1
     state, h = attribute_held(session, held_orders(root), RUNTIME_FAMILY.get(runtime))
     if verb in DESTRUCTIVE and h and not force:
@@ -493,6 +540,30 @@ def self_test() -> int:
         if not ok:
             failures.append(name)
 
+    # THE LIVE VERBS TABLE must never name another runtime's surface. This is the case that would
+    # have caught the 2026-07-25 defect, where both `reload` payloads named the Codex contract.
+    check_attr("the shipped VERBS table has no cross-runtime prompt",
+               verb_routing_violations(VERBS, RUNTIME_FOREIGN_TOKENS), [])
+    # and the guard itself discriminates, pinned on constructed tables
+    check_attr("a Claude prompt naming the Codex contract is caught",
+               verb_routing_violations({"reload": {"claude": ("re-read grc_library_scratch/AGENTS.md",)}},
+                                       RUNTIME_FOREIGN_TOKENS),
+               [("reload", "claude", "AGENTS.md")])
+    check_attr("a Codex prompt naming the Claude contract is caught",
+               verb_routing_violations({"reload": {"codex": ("re-read grc_library_scratch/CLAUDE.md",)}},
+                                       RUNTIME_FOREIGN_TOKENS),
+               [("reload", "codex", "CLAUDE.md")])
+    check_attr("a Codex prompt naming the Claude-only slash command is caught",
+               verb_routing_violations({"wake": {"codex": ("/credit-offload",)}},
+                                       RUNTIME_FOREIGN_TOKENS),
+               [("wake", "codex", "/credit-offload")])
+    check_attr("each runtime naming its OWN contract is clean",
+               verb_routing_violations({"reload": {"claude": ("grc_library_scratch/CLAUDE.md",),
+                                                   "codex": ("grc_library_scratch/AGENTS.md",)}},
+                                       RUNTIME_FOREIGN_TOKENS), [])
+    check_attr("a float delay in the sequence does not break the scan",
+               verb_routing_violations({"restart": {"claude": ("/clear", 10.0, "/credit-offload")}},
+                                       RUNTIME_FOREIGN_TOKENS), [])
     check_attr("attribute_held: one match holding an order",
                attribute_held("opus-1", {"opus-1": "o"}, "opus"), ("held", "o"))
     check_attr("attribute_held: one match holding nothing",
