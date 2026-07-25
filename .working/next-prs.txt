@@ -1,2 +1,2 @@
-1) stalled-worker detect + tmux nudge; 2) daily changelog condense 07-22/23/24; 3) consume 4 P1 deliveries
-# then: codify wind-down worker pre-queueing; fnaudit-sweep121 + audit-selftest-discriminability findings; alert 2026-07-25-a fail-open worker-id exclusion; SP 800-208 register row (no egress needed); draft-3115 + draft-3116 (mutation-prove fixtures); rotate TODO 3.100; codex exec runner (needs maintainer approval of cost ceiling)
+1) daily changelog condense 07-22/23/24; 2) 4 maintainer alerts; 3) consume P1 deliveries
+# then: list-workers plane blindness + /resume step-3 tool; STALLED-CAPACITY verdict from the window analysis; not_worker order-exclusion enforced at dispatch; 28 class-D self-test sites (8 tools); codify wind-down worker pre-queueing; codex-orchestrator readiness package
