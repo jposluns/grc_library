@@ -249,6 +249,14 @@ drive end-to-end on the maintainer's behalf:
    justification. An unlogged bypass merge is a discipline failure; the log is what
    converts an always-on bypass from an unaudited hole into a recorded exception. If a
    future protection change makes a plain merge succeed, prefer it and stop bypassing.
+   **This is now GATED, not merely conventional (gate 50's Check 6, added 2026-07-25).**
+   The convention did not hold: five consecutive merges (#1170 to #1174) shipped with no
+   row on a single day, noticed only when the log was read for an unrelated reason. The
+   check requires a row for every in-window merged PR, exempts the highest-numbered PR as
+   in flight, floors the window at the log's own oldest row, and counts a row by its
+   PRESENCE whatever its Mechanism cell says, so a future plain merge is recorded honestly
+   rather than forced to keep reading `--admin`. Write the row AFTER the merge from the
+   OBSERVED CI state, never in anticipation of one.
 5. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
 5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep (dispatches
@@ -1361,7 +1369,7 @@ slip mid-edit.
 **THE ONE ACT THIS FORBIDS SPECIFICALLY: do not write a count, a table, or a comparative statistic
 about findings before every row has a recorded disposition.** That is the precise mechanism of the
 2026-07-25 failure. Three live defects became "3 blind cases against 27 coverage gaps", and the summary
-FELT like progress while the defects stayed open. Summarising is not dispositioning, and an elegant
+FELT like progress while the defects stayed open. Summarizing is not dispositioning, and an elegant
 table is the most persuasive way to walk past a defect.
 
 **The ledger and its mechanical backstop.** Every confirmed defect gets a row in

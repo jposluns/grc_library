@@ -199,18 +199,91 @@ def held_orders(root: Path | None) -> dict:
     return held
 
 
-def submit_failed(probe: str, pane_text: str) -> bool:
-    """PURE. Did the payload fail to submit, judged from what the pane still shows?
+RULE_CHARS = set("\u2500\u2501\u2504\u2505\u2508\u2509\u254c\u254d \t")
+COMPOSER_TAIL_LINES = 12
+# The submit postcondition polls rather than reading once: see the call site in do_send.
+SUBMIT_POLL_S = 8.0
+SUBMIT_POLL_INTERVAL_S = 0.5
 
-    Split out from the send loop so the DECISION is testable even though its OBSERVATION
-    (`pane_tail`, which needs a live tmux pane) is not. That split is the guard-input discipline
-    applied here: a mutation sweep found the inline form undetectable, because the self-test runs
-    dry-run only and never reaches the send path at all.
 
-    A distinctive slice of the payload still visible in the pane after Enter means the TUI absorbed
-    the Enter as a newline. An empty probe cannot discriminate anything, so it never reports failure.
+def composer_region(pane_text: str):
+    """The composer (input box) slice of a captured pane, or None when it cannot be located. PURE.
+
+    Both agent TUIs draw the composer inside a horizontal-rule box at the bottom of the pane and
+    ECHO a submitted prompt back into the scrollback above it. That echo is why the whole pane
+    cannot answer "is the payload still in the input box": after a SUCCESSFUL submit the payload is
+    still visible, as history. Scoping the read to the composer is what makes the question
+    answerable.
+
+    Claude's composer sits BETWEEN two rules (top border, input line, bottom border, status), so
+    the region starts after the second-to-last rule. Codex draws one rule above its composer, so
+    the region starts after the last one. Both are then capped to the final COMPOSER_TAIL_LINES,
+    because a rule drawn in transcript OUTPUT would otherwise widen the region back toward the
+    echo, which is the exact failure this replaces.
+
+    Returns None rather than guessing when no rule is present, so the caller reports INDETERMINATE
+    instead of asserting a submit state its input cannot support.
     """
-    return bool(probe) and probe in pane_text
+    lines = pane_text.splitlines()
+    if not lines:
+        return None
+    # A THRESHOLD, not a strict subset. `tmux capture-pane` can truncate a wide box-drawing
+    # character at the pane's right edge, leaving a replacement char in the rule line; a strict
+    # subset test then rejects a real rule and the caller reports INDETERMINATE for a payload that
+    # plainly submitted (observed on both codex sessions, 2026-07-25). Requiring MOST of the line to
+    # be rule characters keeps a prose line from matching while tolerating a torn edge.
+    rules = []
+    for n, ln in enumerate(lines):
+        stripped = ln.strip()
+        if len(stripped) < 8:
+            continue
+        rule_chars = sum(1 for ch in stripped if ch in RULE_CHARS)
+        if rule_chars / len(stripped) >= 0.8:
+            rules.append(n)
+    if not rules:
+        return None
+    start = rules[-2] + 1 if len(rules) >= 2 else rules[-1] + 1
+    start = max(start, len(lines) - COMPOSER_TAIL_LINES)
+    return "\n".join(lines[start:])
+
+
+def submit_state(probe: str, pane_text: str) -> tuple:
+    """PURE. Did the payload submit, judged from the composer alone? (state, reason) out.
+
+    THREE states, not two, because a two-state answer forced a claim the input could not support:
+
+      ("submitted",     ...)  the probe is NOT in the composer, so Enter took it
+      ("not-submitted", ...)  the probe IS in the composer, so the TUI absorbed the Enter
+      ("indeterminate", ...)  the composer could not be located, or the probe cannot discriminate
+
+    THIS REPLACES A FALSE-POSITIVE CHECK (found in use, 2026-07-25). Two claude workers that had in
+    fact submitted, and were visibly working seconds later, were both reported NOT SUBMITTED. The
+    mechanism is a RACE, not a scoping error: the check read the pane once, ENTER_DELAY_S after
+    Enter, and a large payload is still sitting in the composer at that instant because the TUI has
+    not finished processing it. The single read cannot distinguish "absorbed the Enter" from "has
+    not got to it yet", so the caller now POLLS until SUBMIT_POLL_S (see do_send) and only reports
+    failure if the payload is STILL there at the end of the window.
+
+    (The first diagnosis written here was that the TUI echoes a submitted prompt into the
+    scrollback and the whole-pane read picked up that echo. That was WRONG and is recorded because
+    the correction matters: the old call site read only the last four lines, so the echo, tens of
+    lines up, could never have been in scope. Scoping to the composer is still worth doing, and
+    this function does it, but a fixed line count was not the defect.)
+
+    An empty or too-short probe discriminates nothing and returns indeterminate rather than a
+    reassuring "submitted": a check that cannot fail is not a check.
+    """
+    if not probe or len(probe.strip()) < 8:
+        return ("indeterminate",
+                "the probe is empty or too short to discriminate, so no submit claim is made")
+    region = composer_region(pane_text)
+    if region is None:
+        return ("indeterminate",
+                "no composer box could be located in the captured pane, so whether the payload is "
+                "still in the input box cannot be read; check the pane directly")
+    if probe in region:
+        return ("not-submitted", "the payload is still in the composer after Enter")
+    return ("submitted", "the composer no longer holds the payload")
 
 
 def attribute_held(session: str, held: dict, families: tuple | None = None) -> tuple:
@@ -454,12 +527,26 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         # meant to run HEADLESS, so the postcondition is checked rather than assumed. A distinctive
         # slice of the payload still sitting in the pane means it did not submit.
         probe = k.strip()[:40]
-        if submit_failed(probe, pane_tail(session, 4)):
-            print(f"  NOT SUBMITTED on '{session}': the payload is still in the input box after Enter. "
-                  f"The agent TUI likely absorbed the Enter as a newline (a paste-burst window wider "
-                  f"than ENTER_DELAY_S={ENTER_DELAY_S}s). Nothing was queued; raise the delay or submit "
+        # POLL, do not read once. A single read ENTER_DELAY_S after Enter reports a false failure on
+        # a payload the TUI simply has not finished processing (observed on two claude workers that
+        # were demonstrably working seconds later). Break as soon as it reads submitted.
+        state, why = ("indeterminate", "not yet read")
+        deadline = time.time() + SUBMIT_POLL_S
+        while True:
+            state, why = submit_state(probe, pane_tail(session, COMPOSER_TAIL_LINES))
+            if state == "submitted" or time.time() >= deadline:
+                break
+            time.sleep(SUBMIT_POLL_INTERVAL_S)
+        if state == "not-submitted":
+            print(f"  NOT SUBMITTED on '{session}': {why}, still there after {SUBMIT_POLL_S}s. The "
+                  f"agent TUI absorbed the Enter as a newline (a paste-burst window wider than "
+                  f"ENTER_DELAY_S={ENTER_DELAY_S}s). Nothing was queued; raise the delay or submit "
                   f"by hand. Reported rather than retried, because a blind retry can double-send.")
             return 1
+        if state == "indeterminate":
+            print(f"  UNVERIFIED on '{session}': the payload was sent, but {why}. Treat delivery as "
+                  f"UNCONFIRMED and check the pane rather than assuming either outcome.")
+            return 0
         print(f"  SENT to {session}: {k[:110]}")
     if not dry_run:
         log_send(repo, session, runtime, verb, keys, reason, h)
@@ -618,12 +705,40 @@ def self_test() -> int:
         if not ok:
             failures.append(name)
 
-    check_attr("submit_failed: payload still in the pane means it did not submit",
-               submit_failed("At your next opportunity", "> At your next opportunity\n"), True)
-    check_attr("submit_failed: an empty pane means it submitted",
-               submit_failed("At your next opportunity", "> \n  idle"), False)
-    check_attr("submit_failed: an empty probe never reports failure",
-               submit_failed("", "anything at all"), False)
+    # The submit postcondition. THREE states, and the indeterminate one is the point: the two-state
+    # form asserted a submit verdict its single pane read could not support and reported two working
+    # workers as NOT SUBMITTED.
+    _rule = "\u2500" * 40
+    _claude_empty = "\n".join(["  transcript line", _rule, "\u276f ", _rule, "  auto mode on"])
+    _claude_stuck = "\n".join(["  transcript line", _rule,
+                                "\u276f At your next opportunity, resync", _rule, "  auto mode on"])
+    _claude_echo = "\n".join(["\u276f At your next opportunity, resync", "  assistant reply", _rule,
+                               "\u276f ", _rule, "  auto mode on"])
+    _codex_empty = "\n".join(["  transcript", _rule, "", "\u203a Improve documentation in @filename",
+                               "  gpt-5.6 medium"])
+    check_attr("submit: an empty claude composer reads submitted",
+               submit_state("At your next opportunity", _claude_empty)[0], "submitted")
+    check_attr("submit: a payload still in the claude composer reads not-submitted",
+               submit_state("At your next opportunity", _claude_stuck)[0], "not-submitted")
+    check_attr("submit: a SUBMITTED payload echoed in the scrollback still reads submitted",
+               submit_state("At your next opportunity", _claude_echo)[0], "submitted")
+    check_attr("submit: an empty codex composer reads submitted",
+               submit_state("At your next opportunity", _codex_empty)[0], "submitted")
+    check_attr("submit: a pane with no composer box reads indeterminate, not submitted",
+               submit_state("At your next opportunity", "just some text\nno rules here")[0],
+               "indeterminate")
+    check_attr("submit: a too-short probe reads indeterminate rather than reassuring",
+               submit_state("hi", _claude_stuck)[0], "indeterminate")
+    check_attr("submit: an empty probe reads indeterminate",
+               submit_state("", _claude_empty)[0], "indeterminate")
+    _torn = "\n".join(["  transcript", "\u2500" * 39 + "\ufffd", "",
+                        "\u203a Improve documentation in @filename", "  gpt-5.6"])
+    check_attr("submit: a rule with a truncated wide char is still a rule (codex capture)",
+               submit_state("At your next opportunity", _torn)[0], "submitted")
+    check_attr("composer_region: a prose line of words is NOT mistaken for a rule",
+               composer_region("a line of ordinary prose here\nand another one"), None)
+    check_attr("composer_region: returns None when no rule is present",
+               composer_region("no rules at all\nsecond line"), None)
 
     # THE LIVE VERBS TABLE must never name another runtime's surface. This is the case that would
     # have caught the 2026-07-25 defect, where both `reload` payloads named the Codex contract.

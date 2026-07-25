@@ -11,9 +11,21 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### PR #1175: four guards that could not answer their own question, and the bypass log's missing rows (2026-07-25)
+
+TODO 3.116's stall signal (shipped in #1174) could not detect the worker it was built for: its
+session-age input came from the heartbeat marker, whose mtime is the last check-in rather than the
+session start, so the evidence was capped below the firing threshold and a normally-heartbeating
+worker was invisible. Session age now parses the minted worker id, the never-delivered span gives no
+veto, the availability clock reads ctime, and seven discriminating collector-level cases pin each
+input's derivation (the pure predicate was correct all along, which is why its seven cases missed
+this). Found by a worker after the item had closed and reported through the alert channel. The same session's tmux submit check had the same shape: it read the pane once and reported two workers as never prompted while both were demonstrably working, so it now polls and returns an explicit indeterminate state instead of guessing. The #1174 post-merge sweep then found a third and worst instance: the discriminability probe enumerated itself, wrote a mutant of itself and executed it, spawning runaway processes and voiding every figure it had reported (31 not-detected across the four tools, not 27); and a fourth, an exclusion control that refused a real retired worker because it treated unobservable as nonexistent. Separately, five merges had shipped with no merge-bypass-log row, so gate 50 gained Check 6 to require one, and a new `tools/audit-token-spend.py` pairs measured orchestrator token cost against workers' self-reported estimates, which had never been paired before.
+
 ### PR #1174: TODO 3.116 closed, a stalled worker no longer reads as healthy capacity (2026-07-25)
 
 The saturation observable could not tell a healthy idle worker from one that keeps heartbeating while having stopped claiming, because the heartbeat is written on a different code path from the claim loop, so one survives the other. It now reports STALL-SUSPECT rows beside the verdict, naming each worker's three evidence spans. Deliberately never folded INTO the verdict: a false STALLED-CAPACITY would read as unusable capacity and license self-running work that must be offloaded, whereas IDLE-CAPACITY on a stalled worker merely wastes a near-free enqueue. The oldest-claimable span excludes orders the worker is barred from, the amendment an adversarial verify required after the transport began enforcing per-order exclusions.
+
+**CORRECTION (#1175, 2026-07-25):** the signal this entry describes shipped INERT. Its session-age input came from the heartbeat marker, so it could fire only in a five-minute band before the worker would be called stale anyway, and never on a worker heartbeating normally, which was the whole subject. Fixed in #1175; the capability this entry claims is real only from that PR forward.
 
 ### PR #1173: TODO 3.110 closed, the never-recycle rule now has a gate (2026-07-25)
 

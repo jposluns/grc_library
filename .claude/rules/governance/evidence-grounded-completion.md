@@ -57,6 +57,22 @@ These are corollaries of the same principle as the rest of the rule (a claim req
 
 **A missing load-bearing reference is acquired, or the work pauses, never worked around.** The external-version-currency discipline above covers a reference the collection HOLDS at a stale version; the same principle governs a reference the collection does NOT hold at all and that is load-bearing for the task (a standard, regulation, framework, or dataset a citation or an attributed value depends on). Do not proceed on the gap and do not merely record it as a "source-not-held" note: (1) PAUSE at the point the missing reference is needed; (2) attempt to acquire it from its authoritative or primary source and add it to the collection via the ingest path, then continue against the now-held source; (3) if acquisition fails (egress-blocked, licensed, paywalled, or otherwise unavailable), surface it to the responsible authority with named options (they provide it; the task defers and routes around to the next independent item; or the artefact is reworded so it does not depend on the missing reference, or cites it corroboratively-only with a tracked verification item). Routing a "source-not-held" finding WITHOUT first attempting the acquisition is the shortcut this forecloses.
 
+
+### Never sum a measured figure with an estimated one
+
+When a report pairs an INSTRUMENTED measurement with a SELF-REPORTED estimate (a system's own
+recorded counters beside a collaborator's or a subagent's best-effort figure), keep the two in
+separate columns and do NOT present a combined total. A single total inherits the precision of its
+most precise input in the reader's mind while inheriting the error of its least precise one, which
+launders an estimate into a measurement. Label each column with its evidence quality at the point
+of display, not in a footnote, and where a figure could not be read at all, report it as UNKNOWN
+rather than zero: a parsing gap that reads as zero understates the total silently, and silence that
+reads as a real value is the failure this rule family exists to prevent.
+
+The same applies to a derived ratio: state which inputs are measured and which are estimated before
+the ratio is used to justify a decision, because a ratio of a measurement to an estimate is an
+estimate, however many digits it prints.
+
 ---
 
 ## The verification protocol
