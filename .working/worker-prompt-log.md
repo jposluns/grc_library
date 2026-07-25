@@ -1,0 +1,11 @@
+# Worker prompt log
+
+Every prompt the orchestrator injected into a worker's tmux session, one row each.
+
+Keystroke injection into a session running as another user is invisible unless
+recorded, so it is recorded. Only the closed verb set in `tools/manage-workers.py`
+can appear in the verb column; nothing here is ever composed from worker output.
+
+| UTC | session | runtime | verb | held order | reason | keys sent |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-07-25T14:05:46Z | worker | claude | wake | none | first live test of the injection path; opus queue is empty so this is a harmless no-op probe | `/credit-offload` |
