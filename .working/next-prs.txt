@@ -1,2 +1,2 @@
-1) consume 5 staged orders on worker restart; 2) 3110 matcher redesign; 3) _ref protection (maintainer)
-# then: TODO 3.116 stalled-vs-idle signal; 3.111 --exclude-worker; 3.115 four gate-44 routes; 1.14 Layer B
+1) consume 8 staged orders on restart; 2) 3110 matcher redesign; 3) _ref protection (maintainer-action)
+# then: TODO 3.116 stalled-vs-idle + backlog-audit stub FP; 3.111 exclude-worker; 3.115 gate-44 routes; 1.14 Layer B
