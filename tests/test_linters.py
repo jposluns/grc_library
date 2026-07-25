@@ -1908,6 +1908,30 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             cmd, capture_output=True, text=True, cwd=str(REPO_ROOT)
         )
 
+    def test_block_on_open_findings_hook_self_test(self) -> None:
+        """The open-findings guard's own self-test, wired at introduction.
+
+        A guard nobody tests is the shape this whole class of failure takes, so the hook that
+        enforces disposition is itself enforced here.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / ".claude" / "hooks" / "block-on-open-findings.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
+    def test_selftest_discriminability_probe_self_test(self) -> None:
+        """The discriminability probe's own self-test. It is an instrument, so it is calibrated here."""
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "audit-selftest-discriminability.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"probe --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_collect_deliveries_self_test(self) -> None:
         """The delivery-tray sweep's own self-test, wired in so it cannot rot.
 

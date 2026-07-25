@@ -237,6 +237,8 @@ def self_test() -> int:
     the pure planner is driven with constructed facts so every branch is reachable without a
     filesystem.
     """
+    import contextlib
+    import io
     import tempfile
     failures, total = [], [0]
 
@@ -257,6 +259,13 @@ def self_test() -> int:
     check("split_name round-trips a hyphenated order id",
           split_name(compose_name("codex-abc", "validate-pr-1169-b")),
           ("codex-abc", "validate-pr-1169-b"))
+    # The empty-part guard, previously BLIND: the cases below covered a non-tray name and a wrong
+    # extension, so disabling the guard changed nothing observable and it read as covered. Found by
+    # tools/audit-selftest-discriminability.py. Without the guard these return ("", "x") and
+    # ("x", ""), and a caller would then use an empty worker id, which the saturation tool's
+    # phantom-pending retirement now depends on being well-formed.
+    check("split_name rejects an empty worker id", split_name("__x.md"), (None, None))
+    check("split_name rejects an empty order id", split_name("x__.md"), (None, None))
     check("split_name rejects a non-tray filename", split_name("sweep-121.md"), (None, None))
     check("split_name rejects a non-md file", split_name("w__o.txt"), (None, None))
 
@@ -300,6 +309,49 @@ def self_test() -> int:
           ["g2"])
     check("grandfathering a complete file does not mark it grandfathered",
           plan_collection([fact("g3")], grandfather=True)["grandfathered"], [])
+
+    # report() was ENTIRELY UNTESTED: all four of its branches were genuine coverage gaps, found by
+    # an independent control-bracketed audit (mutation-audit-todays-three-tools). It is the function
+    # that tells the operator what was held back and why, so an untested report is how a held-back
+    # file becomes a silent skip, which is the exact failure this tool's design forbids. Captured
+    # rather than eyeballed, so each branch is pinned by an assertion on its output.
+    def _report_text(plan, tray_path, oneline=False):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            report(plan, tray_path, oneline)
+        return buf.getvalue()
+
+    with tempfile.TemporaryDirectory() as td2:
+        empty_tray = Path(td2) / "tray"
+        held_plan = {"move": [], "held_no_sentinel": [fact("h1", complete=False)],
+                     "collision": [], "grandfathered": []}
+        out = _report_text(held_plan, empty_tray)
+        check("report names a held-back file individually, never only a count",
+              "h1.md" in out, True)
+        check("report explains WHY a file was held back", SENTINEL in out, True)
+        check("report states the file is not lost", "NOT collected and NOT lost" in out, True)
+
+        coll_plan = {"move": [], "held_no_sentinel": [], "collision": [fact("c1")],
+                     "grandfathered": []}
+        out = _report_text(coll_plan, empty_tray)
+        check("report names a collision and says nothing was overwritten",
+              "c1.md" in out and "overwritten" in out, True)
+
+        gf_plan = {"move": [fact("g1", complete=False)], "held_no_sentinel": [],
+                   "collision": [], "grandfathered": [fact("g1", complete=False)]}
+        out = _report_text(gf_plan, empty_tray)
+        check("report names each grandfathered file, since completeness is ASSUMED there",
+              "g1.md" in out and "GRANDFATHERED" in out, True)
+
+        quiet_plan = {"move": [], "held_no_sentinel": [], "collision": [], "grandfathered": []}
+        out = _report_text(quiet_plan, empty_tray)
+        check("report is silent about held-back files when there are none",
+              "HELD BACK" in out, False)
+
+        # --oneline is the statusline form: exactly one line, and it must still carry the unswept count
+        one = _report_text(held_plan, empty_tray, oneline=True)
+        check("oneline emits exactly one line", len(one.strip().splitlines()), 1)
+        check("oneline still surfaces the held count", "held" in one, True)
 
     # --- end to end on a real tree, including the .tmp invisibility that layer 1 relies on ---
     with tempfile.TemporaryDirectory() as td:

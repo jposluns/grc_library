@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### PR #1174: TODO 3.116 closed, a stalled worker no longer reads as healthy capacity (2026-07-25)
+
+The saturation observable could not tell a healthy idle worker from one that keeps heartbeating while having stopped claiming, because the heartbeat is written on a different code path from the claim loop, so one survives the other. It now reports STALL-SUSPECT rows beside the verdict, naming each worker's three evidence spans. Deliberately never folded INTO the verdict: a false STALLED-CAPACITY would read as unusable capacity and license self-running work that must be offloaded, whereas IDLE-CAPACITY on a stalled worker merely wastes a near-free enqueue. The oldest-claimable span excludes orders the worker is barred from, the amendment an adversarial verify required after the transport began enforcing per-order exclusions.
+
 ### PR #1173: TODO 3.110 closed, the never-recycle rule now has a gate (2026-07-25)
 
 Backlog item numbers were declared permanent on 2026-07-15 with nothing enforcing it, and the rule had been broken twice, once with a live consequence when a recycled number sent held research to the wrong item. Gate 78 now reports a number denoting both a live item and a recorded retirement, and a section counter at or below the highest ordinal used in it. It landed GREEN on the same commit: seven pre-rule collisions are grandfathered in an audited, closed EXEMPT set, and the one genuine post-rule finding turned out not to be a recycled number at all but a completed item never rotated out of TODO (the Quebec Law 25 re-ingest, whose DONE entry and reference-base PR both already existed), so it was deleted. Part (c) of the item, the gate-69 blind-spot work, is routed separately.

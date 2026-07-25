@@ -214,6 +214,124 @@ def heartbeat_is_live(hb_path, stale_minutes=STALE_MINUTES):
     return mtime_age_minutes(hb_path) <= stale_minutes
 
 
+STALL_MINUTES = 15
+
+# One row per live worker, for the stall read. A namedtuple so the pure predicate below cannot
+# accidentally reach the filesystem through it.
+WorkerFacts = collections.namedtuple(
+    "WorkerFacts", "family worker hb_age holds session_age since_delivery oldest_claimable")
+Suspect = collections.namedtuple(
+    "Suspect", "family worker hb_age session_age since_delivery oldest_claimable evidence")
+
+
+def stall_evidence_minutes(session_age, since_delivery, oldest_claimable):
+    """PURE. The weakest of the three spans, because the finding is only as strong as its weakest leg.
+
+    A worker cannot be judged stalled on a long-waiting order if it only started a minute ago, nor on
+    a long session if it delivered seconds ago. Taking the MINIMUM makes every span a veto, which is
+    what keeps the healthy cycle boundary out of the report.
+    """
+    return min(session_age, since_delivery, oldest_claimable)
+
+
+def stall_suspects(facts, stall_minutes=STALL_MINUTES, stale_minutes=STALE_MINUTES):
+    """PURE: WorkerFacts in, Suspect out. No filesystem, no clock.
+
+    A STALL SUSPECT is live, holds nothing, and has had CLAIMABLE work in its own family for longer
+    than `stall_minutes` on all three evidence spans.
+
+    IT IS CALLED SUSPECT AND NOT STALLED ON PURPOSE, and it deliberately does NOT feed `verdict()`.
+    The exchange records no claim event, so the finding is circumstantial by construction. More
+    importantly the asymmetry runs one way: a false `STALLED-CAPACITY` verdict would read as "this
+    capacity is unusable" and license self-running work the mandatory-offload discipline requires be
+    offloaded, which is the same false reassurance as the NO-WORKERS-while-live defect fixed in #1157,
+    in the more expensive direction. Whereas IDLE-CAPACITY on a genuinely stalled worker merely wastes
+    an enqueue, which is nearly free and self-correcting. So this reports a condition and names its
+    evidence; it never moves a verdict.
+    """
+    out = []
+    for f in facts:
+        if f.hb_age > stale_minutes:
+            continue   # not live: a dead worker is `reclaim`'s job, not a stall report
+        if f.holds:
+            continue   # holding work is the opposite of failing to claim
+        evidence = stall_evidence_minutes(f.session_age, f.since_delivery, f.oldest_claimable)
+        if evidence > stall_minutes:
+            out.append(Suspect(f.family, f.worker, f.hb_age, f.session_age,
+                               f.since_delivery, f.oldest_claimable, evidence))
+    return out
+
+
+def claimable_by(worker, order_fields):
+    """PURE. May this worker claim an order carrying these fields?
+
+    THE AMENDMENT THE CANDIDATE REQUIRED (resume-consume-3115-3116-verify F-1). The candidate measured
+    the age of the oldest AVAILABLE order, with no test of whether the worker may claim it. Since the
+    transport began enforcing per-order exclusions at claim time, a BARRED order sits in
+    available-work ageing indefinitely while the excluded worker correctly declines it every cycle, so
+    availability alone would report a blameless worker as a stall suspect. Demonstrated against the
+    candidate's own predicate before this fix, so it is a measured interaction rather than a guess.
+    """
+    barred = {w.strip() for w in (order_fields.get("not_worker") or "").split(",") if w.strip()}
+    return worker not in barred
+
+
+def collect_stall_facts(root):
+    """The file-drop walk: one WorkerFacts row per heartbeat marker. Observer; decides nothing.
+
+    FAMILY-SCOPED by design. The transport routes orders by family and a worker only ever sees its own
+    family's available-work, so an order waiting in another family is no evidence at all about this
+    worker. The fleet-wide counts elsewhere in this tool are deliberately not reused here.
+
+    The oldest-claimable span EXCLUDES orders this worker is barred from, which is the amendment the
+    candidate required: a barred order ages in available-work indefinitely while the excluded worker
+    correctly declines it every cycle, so counting it would report a blameless worker as a suspect.
+    """
+    facts = []
+    if root is None:
+        return facts
+    for fam in FAMILIES:
+        fam_dir = root / fam
+        if not fam_dir.is_dir():
+            continue
+        hb_dir = fam_dir / "heartbeat"
+        if not hb_dir.is_dir():
+            continue
+        avail = fam_dir / "available-work"
+        for hb in sorted(p for p in hb_dir.iterdir() if p.is_file()):
+            worker = hb.name
+            inbox = fam_dir / "inbox" / worker
+            holds = None
+            if inbox.is_dir():
+                held = sorted(q.stem for q in inbox.glob("*.md") if q.name != "README.md")
+                holds = held[0] if held else None
+            outbox = fam_dir / "outbox" / worker
+            # Since its LAST delivery. A worker that has never delivered is treated as its session
+            # age, so a brand-new worker is not credited with an infinite quiet period.
+            since_delivery = mtime_age_minutes(hb)
+            if outbox.is_dir():
+                ages = [mtime_age_minutes(q) for q in outbox.glob("*.md") if q.name != "README.md"]
+                if ages:
+                    since_delivery = min(ages)
+            oldest_claimable = 0.0
+            if avail.is_dir():
+                for order in avail.glob("*.md"):
+                    if order.name == "README.md":
+                        continue
+                    try:
+                        fields = parse_fields(order.read_text(encoding="utf-8", errors="replace"))
+                    except OSError:
+                        continue
+                    if not claimable_by(worker, fields):
+                        continue
+                    oldest_claimable = max(oldest_claimable, mtime_age_minutes(order))
+            facts.append(WorkerFacts(
+                family=fam, worker=worker, hb_age=mtime_age_minutes(hb), holds=holds,
+                session_age=mtime_age_minutes(hb), since_delivery=since_delivery,
+                oldest_claimable=oldest_claimable))
+    return facts
+
+
 def verdict(live, pending, claimed):
     """The saturation verdict. outstanding = pending + claimed.
     NO-WORKERS when no live worker; SATURATED when outstanding >= live (every live
@@ -236,6 +354,18 @@ def _entries(directory):
         return sorted(directory.iterdir()), True
     except OSError:
         return [], False
+
+
+def _tray_order_id(stem: str) -> str:
+    """PURE. Recover an order id from a delivery-tray filename.
+
+    The tray names a collected delivery ``<worker-id>__<order-id>.md`` so both ids survive without
+    parsing the body. A RESULT file carries no ``id:`` field, so ``_order_id`` would fall back to the
+    whole stem and yield an id that matches no queue row, which would silently defeat the
+    phantom-pending retirement below. Splitting on the FIRST join is correct because a worker id never
+    contains it while an order id may contain hyphens.
+    """
+    return stem.split("__", 1)[1] if "__" in stem else stem
 
 
 def _order_id(path):
@@ -378,6 +508,24 @@ def survey_filedrop(root):
     # `outstanding` would inflate, and the verdict could flip to a false SATURATED. That is
     # precisely the defect fixed in grc_library #1158, and the archive would have reintroduced
     # it. Both partitions are scanned because an order and its result archive separately.
+    # THE DELIVERY TRAY (grc_library #1171, and the regression it caused). A delivery is now swept out
+    # of its worker's outbox into inbox/deliveries/ as soon as the orchestrator notices it, so between
+    # that sweep and its eventual archive an order sits in a THIRD location this scan did not know
+    # about. Without it the order stops counting as delivered, its phantom `pending` git-scratch row
+    # comes back, `outstanding` inflates, and the verdict flips to a false SATURATED, which is the very
+    # defect the delivered-set logic below was written to prevent, reintroduced by a tool built the same
+    # day. It fired live: SATURATED reported while a worker sat idle, found because the maintainer asked
+    # whether the fleet was being kept fed. The composed filename also has to be split, or the recovered
+    # id matches no queue row and the scan is inert even when it runs.
+    tray = root / "inbox" / "deliveries"
+    if tray.is_dir():
+        entries, readable = _entries(tray)
+        if not readable:
+            unreadable.append(tray)
+        for p in entries:
+            if p.is_file() and p.suffix == ".md" and p.name != "README.md":
+                delivered.add(_tray_order_id(p.stem))
+
     for kind in ("deliveries", "orders"):
         kind_root = root / "done" / kind
         if not kind_root.is_dir():
@@ -393,7 +541,10 @@ def survey_filedrop(root):
                 unreadable.append(mdir)
             for p in entries:
                 if p.is_file() and p.suffix == ".md" and p.name != "README.md":
-                    delivered.add(_order_id(p))
+                    # done/deliveries/ holds files filed FROM the tray, so they carry the same
+                    # composed name and need the same split; done/orders/ holds plain order ids,
+                    # which the split leaves untouched.
+                    delivered.add(_tray_order_id(p.stem))
     return live_ids, orders, unreadable, delivered
 
 
@@ -483,6 +634,14 @@ def run_report(scratch, working, one):
     print(f"outstanding orders: {outstanding} ({s.pending} pending + {s.claimed} claimed)")
     print(f"idle capacity:     {idle} live worker(s) with nothing to claim")
     print(f"verdict:           {v}")
+    # STALL SUSPECTS, reported beside the verdict and never folded into it (TODO 3.116).
+    for _s in stall_suspects(collect_stall_facts(working)):
+        print(f"STALL-SUSPECT  {_s.worker} ({_s.family}): live at {_s.hb_age:.1f}m, holds "
+              f"nothing, and claimable work has waited {_s.oldest_claimable:.1f}m "
+              f"(session {_s.session_age:.1f}m, since delivery {_s.since_delivery:.1f}m; "
+              f"weakest span {_s.evidence:.1f}m). CIRCUMSTANTIAL: the exchange records no claim "
+              f"event, so this is not proof. Check in on it before assuming the capacity is real.")
+
     # Plane transparency: which plane the fleet is actually on, and what the
     # de-duplication removed. Without this the union is unauditable.
     print(f"planes:            git-scratch {s.scratch_live} live, "
@@ -545,11 +704,20 @@ def _build_scratch(root, workers, orders):
     return root
 
 
-def _build_filedrop(root, heartbeats, available, claimed, delivered=None, archived=None):
+def _build_filedrop(root, heartbeats, available, claimed, delivered=None, archived=None,
+                    trayed=None):
     """heartbeats: {family: {worker_id: age_minutes}};
     available: {family: [order_id]}; claimed: {family: {worker_id: [order_id]}};
     delivered: {family: {worker_id: [order_id]}} written into outbox/<worker>/;
-    archived: [order_id] written into done/deliveries/<month>/ (family-independent)."""
+    archived: [order_id] written into done/deliveries/<month>/ (family-independent);
+    trayed: [(worker_id, order_id)] written into inbox/deliveries/ under the tray's composed
+    <worker-id>__<order-id>.md name, the location a swept delivery occupies before archive."""
+    for wid, oid in (trayed or []):
+        tray = root / "inbox" / "deliveries"
+        tray.mkdir(parents=True, exist_ok=True)
+        # A RESULT file, deliberately WITHOUT an `id:` field, because that absence is what makes the
+        # composed-filename split load-bearing rather than incidental.
+        (tray / f"{wid}__{oid}.md").write_text("# result\n\n<!-- END OF DELIVERY -->\n", encoding="utf-8")
     for fam, workers in heartbeats.items():
         hb_dir = root / fam / "heartbeat"
         hb_dir.mkdir(parents=True, exist_ok=True)
@@ -734,6 +902,30 @@ def _plane_cases(tmp):
     cases.append(("an archived delivery in done/ still counts as delivered",
                   ar_s, ar_f, (1, 0, 0, "IDLE-CAPACITY")))
 
+    # THE #1171 REGRESSION, pinned. A delivery swept into the tray must still retire its phantom
+    # `pending` scratch row; before the tray was scanned this returned SATURATED with a worker idle.
+    tr_s = _build_scratch(tmp / "c13-scratch",
+                          workers={"w-a": ("active", 1)},
+                          orders={"o-trayed": "pending"})
+    tr_f = _build_filedrop(tmp / "c13-working",
+                           heartbeats={"opus": {"w-a": 1}},
+                           available={}, claimed={},
+                           trayed=[("opus-20260725T122030Z-6443", "o-trayed")])
+    cases.append(("a delivery swept into the tray retires its phantom pending row",
+                  tr_s, tr_f, (1, 0, 0, "IDLE-CAPACITY")))
+
+    # And the SPLIT is what makes that work: an unsplit stem yields an id matching no queue row, so
+    # the scan would run and be inert. Two live workers with one phantom row would read SATURATED.
+    sp_s = _build_scratch(tmp / "c14-scratch",
+                          workers={"w-a": ("active", 1), "w-b": ("active", 1)},
+                          orders={"o-split": "pending"})
+    sp_f = _build_filedrop(tmp / "c14-working",
+                           heartbeats={"opus": {"w-a": 1, "w-b": 1}},
+                           available={}, claimed={},
+                           trayed=[("opus-worker-with-a-long-id", "o-split")])
+    cases.append(("the composed-filename split is load-bearing, not incidental",
+                  sp_s, sp_f, (2, 0, 0, "IDLE-CAPACITY")))
+
     return cases
 
 
@@ -800,6 +992,43 @@ def self_test():
                   + ("" if ok else f" (expected {expected})"))
 
     total = len(cases) + len(live_cases) + plane_total
+    # The stall read (TODO 3.116). PURE predicate, so every guard is pinned with constructed facts.
+    def _wf(**kw):
+        base = dict(family="opus", worker="opus-a", hb_age=1.0, holds=None,
+                    session_age=600.0, since_delivery=600.0, oldest_claimable=600.0)
+        base.update(kw)
+        return WorkerFacts(**base)
+    for _n, _facts, _want in (
+            ("a live idle worker with long-waiting claimable work is a suspect", [_wf()], 1),
+            ("a worker HOLDING an order is never a suspect", [_wf(holds="o-1")], 0),
+            ("a STALE worker is reclaim's job, not a stall report", [_wf(hb_age=99.0)], 0),
+            ("a JUST-STARTED worker is not a suspect", [_wf(session_age=2.0)], 0),
+            ("a worker that delivered SECONDS ago is not a suspect", [_wf(since_delivery=0.5)], 0),
+            ("a RECENT order is not evidence yet", [_wf(oldest_claimable=1.0)], 0),
+            ("no claimable work at all is not a stall", [_wf(oldest_claimable=0.0)], 0),
+    ):
+        total += 1
+        _got = len(stall_suspects(_facts))
+        if _got != _want:
+            failures.append(_n)
+            print(f"  FAIL: {_n} -> {_got} suspect(s), expected {_want}")
+        else:
+            print(f"  PASS: {_n}")
+    # The claimability amendment: a BARRED order must not make its excluded worker a suspect.
+    for _n, _worker, _fields, _want in (
+            ("an unbarred worker may claim", "opus-a", {}, True),
+            ("the barred worker may NOT claim", "opus-a", {"not_worker": "opus-a"}, False),
+            ("a different worker may still claim a barred order", "opus-b", {"not_worker": "opus-a"}, True),
+            ("whitespace and multiples are handled", "opus-b", {"not_worker": " opus-a , opus-b "}, False),
+    ):
+        total += 1
+        _got = claimable_by(_worker, _fields)
+        if _got != _want:
+            failures.append(_n)
+            print(f"  FAIL: {_n} -> {_got}, expected {_want}")
+        else:
+            print(f"  PASS: {_n}")
+
     print(f"\nself-test: {total - failures}/{total} passed")
     return 0 if failures == 0 else 1
 

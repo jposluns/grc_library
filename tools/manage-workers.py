@@ -267,7 +267,20 @@ def attribute_held(session: str, held: dict, families: tuple | None = None) -> t
         order for wid, order in held.items()
         if prefixes is None or wid.startswith(prefixes)
     )
-    return ("unknown", None) if family_holds else ("none", None)
+    if family_holds:
+        return "unknown", None
+    # A HOLDER THIS TOOL CANNOT CLASSIFY IS ALSO IGNORANCE, NOT ABSENCE (validate-pr-1172 F-1).
+    # The check above answers "does a worker in MY families hold an order". A worker id outside every
+    # known family prefix cannot be answered by that question, and worker ids are SELF-MINTED by each
+    # session, so nothing constrains them to a prefix. The project's own historical ids took exactly
+    # that shape (`worker-20260716-a`, and one minted today), so this is a form in use rather than a
+    # hypothetical. Encoding it as `none`, the permissive branch, is the same defect this file has now
+    # been fixed for twice: two outcomes for three real states, with ignorance landing on the
+    # permissive one. So an unclassifiable holder refuses too.
+    all_prefixes = tuple(f"{f}-" for fs in RUNTIME_FAMILIES.values() for f in fs)
+    if any(order for wid, order in held.items() if not wid.startswith(all_prefixes)):
+        return "unknown", None
+    return "none", None
 
 
 def working_root(explicit: str | None) -> Path | None:
@@ -384,6 +397,22 @@ def do_send(repo: Path, root: Path | None, session: str, verb: str, reason: str,
         print("REFUSED: --reason is required, because the log is the only record that this "
               "happened at all.")
         return 1
+    # RE-READ THE GATE IMMEDIATELY BEFORE ACTING (validate-pr-1172 F-2, a check-then-act race).
+    # The held-order state above was read once, and claiming is a single rename by an independent
+    # process, so a worker matched `free` can be holding live work by the time the keystrokes land.
+    # The verifier SIZED the window from its own measurement rather than asserting it: detect-to-claim
+    # for an idle polling worker is 8 to 13 seconds (n=8), which is far wider than the gap between the
+    # read and the send. The all-idle release added by this same tool's F-2 fix is what makes the race
+    # reachable, so the release keeps its own guard rather than being reverted. This closes most of the
+    # window; it cannot close all of it, and saying so is the point (a re-check narrows a race, it does
+    # not make the operation atomic).
+    if verb in DESTRUCTIVE and not force:
+        state2, h2 = attribute_held(session, held_orders(root), RUNTIME_FAMILIES.get(runtime))
+        if (state2, h2) != (state, h):
+            print(f"REFUSED {verb} on '{session}': the held-order state CHANGED between the check and "
+                  f"the send ({state}/{h} then {state2}/{h2}), so a worker claimed or delivered in the "
+                  "gap. Re-run to decide against the current state rather than a stale one.")
+            return 1
     for k in keys:
         if isinstance(k, float):
             print(f"  (wait {k}s)")
@@ -647,6 +676,16 @@ def self_test() -> int:
                ("unknown", None))
     check_attr("attribute_held: a codex holder still does NOT freeze a claude session",
                attribute_held("worker9", {"codex-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               ("none", None))
+    # F-1: a holder whose id matches NO known family prefix must refuse, not permit.
+    check_attr("attribute_held: an unclassifiable holder is unknown, not none",
+               attribute_held("worker9", {"mystery-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               ("unknown", None))
+    check_attr("attribute_held: the project's own historical id shape refuses too",
+               attribute_held("worker9", {"worker-20260716-a": "live-order"}, RUNTIME_FAMILIES["claude"]),
+               ("unknown", None))
+    check_attr("attribute_held: an unclassifiable worker holding NOTHING still permits",
+               attribute_held("worker9", {"mystery-a": None}, RUNTIME_FAMILIES["claude"]),
                ("none", None))
     check_attr("the runtime-to-family map is one-to-many and covers every family directory",
                sorted({f for fs in RUNTIME_FAMILIES.values() for f in fs}), ["codex", "fable", "opus"])

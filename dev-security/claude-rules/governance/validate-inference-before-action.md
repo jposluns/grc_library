@@ -52,7 +52,11 @@ The validation must be a concrete observation, not another inference. "I assume 
 
 A guard is a premise-driven action, so this rule reaches it: `if P(x): refuse` acts on the premise that `x` represents the thing `P` is asking about. The failure this section names is a guard whose logic is right and whose INPUT cannot answer the question asked of it. The guard then does its job perfectly on a value that does not mean what the code believes it means.
 
-The failure hides from the usual instrument. Mutation testing perturbs BRANCHES, so it verifies that `P` fires correctly GIVEN `x`; it is silent on whether `x` is faithful, because the code that produces `x` is a mapping with few or no branches for a mutation to perturb. A guard can therefore be mutation-proved, documented, and still be worthless, and the proof will read as reassurance.
+The failure hides from the usual instrument, and the scope of that blindness is worth stating precisely, because the loose version of this claim contradicts its own remedy. Mutating the DECISION verifies that `P` fires correctly GIVEN `x` and says nothing about whether `x` is faithful. Mutating the OBSERVER can say something, so the blindness is not structural, and a rule claiming otherwise would make its own "mutate the observer" advice incoherent.
+
+**But observer mutation is bounded by the same case coverage as decision mutation, and that is the part a reader will underestimate.** It detects only what some case already discriminates on. Measured against a real defect: of three observer-mutation strategies applied to a live one (an entry missing from a runtime-to-family map), only one was detected; the two that mapped most directly onto the actual defect, dropping the entry and returning the wrong key, BOTH missed it, because the test had no case for that entry at all, so no mutation involving it could ever fail. So observer mutation is a companion to the reality-fixture practice below, never a substitute for it: where no case discriminates, no mutation of either kind can help.
+
+A guard can therefore be mutation-proved, documented, and still be worthless, and the proof will read as reassurance.
 
 The recurring shape is **a proxy standing in for the real question**, where nobody asked whether the source is authoritative for what is being asked of it. Three observed instances, which share one shape:
 
@@ -70,6 +74,22 @@ The recurring shape is **a proxy standing in for the real question**, where nobo
 - **Mutate the observer, not only the decision.** Extend the mutation discipline past `if` statements: drop a field the mapping should carry, collapse two cases it should distinguish, return the wrong key, and confirm the test notices. An observer mutation that changes nothing observable is the same finding as an undetectable guard, and it is reported the same way.
 - **Where a proxy is unavoidable, state in the artefact what it does NOT establish.** A documented proxy whose residue is written down and whose failure direction is safe is a legitimate engineering choice; an undocumented one invites the next reader to trust it further than it earns. Name the residue at the point of use, and prefer the failure direction that refuses.
 - **Separate observation from decision in the code.** A pure decision function driven by constructed facts, with a thin observer that gathers and decides nothing, makes both halves testable: the decision by mutation, the observer by reality fixtures. Where the two are entangled, neither is properly reachable.
+
+### A mutation harness is itself an instrument, and an unverified one produces false findings
+
+The discipline above leans on mutation testing to bound a guard. That makes the HARNESS a measuring instrument, and an instrument nobody calibrated reports confidently wrong answers. Three observed failures in a single day, all from ad-hoc harnesses written to check a specific guard:
+
+- **A non-mutation read as a coverage gap.** The edit changed a string literal no assertion reads, and separately performed a consistent rename. Neither can change behaviour, so the test passed, and the passing test was reported as NOT DETECTED, which reads exactly like a missing case.
+- **A harness logic bug inverting every verdict.** Its collection step relied on a call whose return value was truthy, so a short-circuit gathered every candidate into the failure list. It reported all nine guards undetected when all nine were detected.
+- **A degenerate return read as a finding.** A real function was called with an input too small to satisfy its preconditions, returned empty, and the empty result was read as evidence that a guard had been removed. The guard was present and correct.
+
+The response is to treat the harness as needing its own verification, which costs little and is mechanical:
+
+- **Bracket every run with controls, and refuse to report if they fail.** A POSITIVE control forces the self-test to fail and confirms the harness SEES a failure: a harness that cannot observe a failing test produces NOT-DETECTED verdicts that are void rather than evidence, and this alone catches the inverted-verdict class. A NEGATIVE control makes a change that cannot matter (a comment) and confirms the test still passes: a harness that flags a comment is over-sensitive, and its DETECTED verdicts mean nothing either. Controls failing invalidates the whole run, not one row of it.
+- **Screen each candidate for semantic effect BEFORE interpreting its result.** An edit that cannot change behaviour is reported INVALID, never NOT-DETECTED, because its passing test says nothing about coverage. Never mutate a string literal and never rename: both are behaviour-preserving by construction. Mutate control flow only, meaning conditions, comparisons, return values and boundaries.
+- **Establish a true positive before believing a negative.** Before concluding a guard is undetectable, confirm the UN-mutated code produces the expected finding on a known-good input. If it cannot, the invocation is wrong rather than the code, and this is the discipline that catches the degenerate-return class.
+- **Prefer the project's own test harness to a hand-rolled caller.** A suite's helpers set up roots, fixtures and paths correctly; a fragment assembled by hand bypasses exactly that setup, which is where the precondition failures come from.
+- **Where mutation claims recur, build the probe as a TOOL rather than re-improvising.** Three false signals in one day is the signal that the technique has outgrown ad-hoc scripting. A probe that enforces the controls and the semantic screen mechanically cannot forget them, and it makes the claim reproducible by someone other than its author.
 
 ### Prohibited anti-patterns
 

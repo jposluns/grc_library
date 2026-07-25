@@ -30,6 +30,47 @@ A BLOCKED entry that rests on a set-completeness claim (everything remaining is 
 
 ---
 
+## Finding something wrong is not a decision point: finish the task, then fix it
+
+There is one situation where the three classifications do not apply, because only one action is
+available. **The moment anything wrong is found, the obligation is to finish the unit of work in hand
+and then FIX it, and nothing that is not the fix, or part of the fix, proceeds ahead of it.**
+
+"Anything wrong" is deliberately the widest wording: an issue, a defect, an error, an inaccuracy, a
+fault, a wrong figure, a stale instruction, a misleading name, an overstated claim, a write that
+silently did nothing. It does not matter how small it looks, who found it, or whether it has a severity
+yet. **Grading a defect is one of the ways of not fixing it**, so the severity assessment comes after
+the fix decision rather than gating it.
+
+"Finish the current task" is narrow: complete the unit already in hand so nothing is left half-applied,
+then fix. It does not license finishing a comfortable stretch of adjacent work, starting the next
+change, running another analysis pass, or writing up what was found.
+
+**Why this needs saying, when it sounds obvious.** The failure is never a decision to ignore a defect.
+It is one of these, and each feels like diligence at the time:
+
+- **Aestheticising it.** Rendering findings as a table, a count, or a comparison, and letting the tidy
+  summary stand in for the fix. A defect formatted well reads as a defect handled.
+- **Noticing and carrying on.** Describing the problem accurately, even recording it, and continuing
+  with the work in flight. Accurate description is the most convincing substitute for action.
+- **Grading instead of repairing.** Characterizing severity, blast radius or class while the defect
+  stays live.
+- **Routing what could be fixed.** Sending a fixable finding to the backlog because the backlog is a
+  legitimate destination for what genuinely cannot be fixed now.
+
+**Against the rubric.** "Found a defect and continued" is never an ACT, since the queued work was not
+what the discovery made necessary. It is not an ASK, since fixing your own defect needs no authority.
+And it cannot be BLOCKED, because the blocker set is closed and contains no entry for it. There is no
+classification under which it is legitimate, which is precisely why it needs stating: the rubric would
+otherwise appear to permit it by silence.
+
+**Where a fix genuinely cannot be made now** (it needs an authority's decision, a source that is
+unavailable, or it lives in a repository this actor cannot write), it is ROUTED with its severity and
+its blocker named, and the routing is the terminal disposition. That is the narrow exception, and the
+test for it is whether the fix is impossible rather than merely inconvenient.
+
+---
+
 ## Prohibited anti-patterns
 
 - **Deferral with no question.** Recording a defer when the decision is the authority's and the authority is reachable. Ask the specific question instead.
