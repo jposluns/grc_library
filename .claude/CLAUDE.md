@@ -232,10 +232,23 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `## PR activity subscription discipline` below; on failure, fix and re-push.
-4. On green CI, merge via `mcp__github__merge_pull_request`. The maintainer does not
-   gate-keep merges of PRs they have personally authored. `mergeable_state: blocked`
-   is the branch-protection state immediately before merge, not a human-review gate;
-   the merge attempt resolves it.
+4. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
+   in a no-MCP session). The maintainer does not gate-keep merges of PRs they have
+   personally authored.
+   **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
+   resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
+   false against the live protection config, which requires one approval, so the plain
+   merge fails with `REVIEW_REQUIRED` / "base branch policy prohibits the merge". The
+   working path is the maintainer's always-bypass (`gh pr merge --admin`, or the
+   equivalent), which the same finding identifies as a governance-enforcement risk
+   precisely because it is invisible when used.
+   **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
+   retain the emergency path and make its use auditable rather than remove it. Append
+   one row to [`.working/merge-bypass-log.md`](../.working/merge-bypass-log.md) for each
+   `--admin` merge, recording the PR, the pre-merge CI state, and a one-line
+   justification. An unlogged bypass merge is a discipline failure; the log is what
+   converts an always-on bypass from an unaudited hole into a recorded exception. If a
+   future protection change makes a plain merge succeed, prefer it and stop bypassing.
 5. After merge: sync local `main`, delete the feature branch locally, confirm the
    remote branch is gone.
 5a. Invoke `/validate-pr` to run the PR-scoped post-merge validation sweep (dispatches
