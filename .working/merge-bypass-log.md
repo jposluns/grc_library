@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 

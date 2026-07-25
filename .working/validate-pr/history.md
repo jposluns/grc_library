@@ -1,6 +1,6 @@
 # PR-Scoped Validation History
 
-**Version:** 1.2.928\
+**Version:** 1.2.929\
 **Date:** 2026-07-25\
 **License:** CC BY-SA 4.0
 
