@@ -404,7 +404,12 @@ def main(argv=None) -> int:
         return 0
     tray = root / "inbox" / "deliveries"
     plan = plan_collection(gather_facts(root, tray), a.grandfather_existing)
-    execute(plan, root, tray, a.dry_run or a.oneline)
+    # --oneline is the STATUSLINE form, so it is read-only AND silent apart from its single line.
+    # It previously routed through execute() in dry-run mode, which prints a WOULD COLLECT line per
+    # candidate, so the statusline emitted N+1 lines instead of 1. The console is the maintainer's
+    # live window and extra lines there are the specific harm the no-diffs-in-chat convention names.
+    if not a.oneline:
+        execute(plan, root, tray, a.dry_run)
     report(plan, tray, a.oneline)
     return 0
 
