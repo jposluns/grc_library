@@ -1054,6 +1054,54 @@ another blanket rule.
   corollary above: if the queue-able work exceeds the live pool, ask the maintainer for more
   workers rather than serializing.
 
+## Guard inputs: check the input's authority, not just the check
+
+The project instantiation of the [`validate-inference-before-action`](rules/governance/validate-inference-before-action.md)
+rule's `## Guard inputs` section. Three defects on 2026-07-25 shared one shape, and the instrument the
+project already trusted did not see any of them: a guard whose logic was correct and mutation-proved, fed
+an input that could not answer the question asked of it. Mutation testing perturbs BRANCHES, so it bounds
+the check given its input and is silent on the input's fidelity.
+
+- **`tools/manage-workers.py`** decided which worker occupied a tmux session by prefix-matching the
+  session NAME against the worker ID. A worker id is minted per run and encodes nothing about its
+  session, so a destructive verb was PERMITTED against a worker holding live work. Fixed in #1170 by an
+  explicit five-state attribution where ambiguity and non-match both refuse.
+- **Delivery completeness** was inferable from a file existing, so a sweep could move a half-written
+  result. Fixed in #1171 by an atomic rename plus an end-of-delivery sentinel, with the residue stated:
+  the sentinel proves a file went through `deliver`, not that its content is semantically complete.
+- **Worker health** is read from a heartbeat, but the heartbeat and the claim loop are separate code
+  paths, so a worker that stopped claiming still reads as healthy capacity. This is TODO 3.116, and it is
+  the SAME class rather than a separate bug, which is why its fix follows this shape.
+
+**At each consequential guard, ask the authority question:** can this source, even in principle, answer
+what I am asking of it? Then apply the rule's discipline: make ignorance a first-class return value that
+REFUSES rather than permits; keep a reality fixture (the actual state that exposed the defect, verbatim)
+for every observer bug; mutate the observer and not only the decision; state a proxy's residue at the
+point of use; and keep a pure decision function behind a thin observer so both halves stay testable.
+`tools/audit-worker-saturation.py` is the local pattern to copy: its logic is pure, and today's
+discriminability audit found it the one tool here with zero undetectable guard sites.
+
+## Codex workers are single-shot: dispatch, check in, then re-check every 10 minutes
+
+Maintainer-directed 2026-07-25, after the codex session minted four worker ids in under two hours and
+every one went stale. A Codex chat cannot be resumed by the control plane: once it returns a final
+response its heartbeat daemon can hold a claim but nothing continues the semantic pass, which its own
+continuation brief records as a confirmed limit. So a Codex worker is effectively SINGLE-SHOT PER NUDGE
+rather than a standing worker, and treating it like an Opus worker leaves orders sitting in
+`available-work` beside a fleet that reads as live.
+
+The orchestrator therefore MANAGES codex directly rather than waiting on it:
+
+1. **Dispatch** the order to the codex family as normal.
+2. **Immediately issue a check-in** (`--send wake`), because the order will not otherwise be noticed.
+3. **If nothing has arrived in 10 minutes, issue another check-in.** Repeat. A fresh worker id appearing
+   is normal and expected here: the protocol deliberately refuses to let a replacement session inherit a
+   prior session's claim, so id churn is the mechanism working rather than a fault to chase.
+
+This is project-only operational mechanics (the tmux and file-drop specifics), NOT pack material. It is
+also the reason a codex order should be scoped to ONE self-contained pass: a task needing several turns
+will not survive the boundary, so split it rather than hoping the worker persists.
+
 ## Delivery tray: one place to look, and issues jump the queue
 
 The exchange stores a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering "what is
@@ -1235,6 +1283,40 @@ relax any discipline: each additional PR still gets its full per-PR `/validate-p
 boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates
 early if quality signals turn. If a degradation signal appears mid-run, the assistant
 winds down regardless of the option chosen, surfacing why.
+
+## A delivered QA result BLOCKS progress until it is read and its findings are fixed
+
+**Maintainer-directed 2026-07-25, in capitals, after 17 QA deliveries sat unread in worker outboxes
+while the orchestrator started new work.** This is the strongest form of the QA priority and it
+overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
+
+**The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
+high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
+`/fitness`, `/full-qa`, a `/deep-assessment` phase), the orchestrator READS it before starting any
+new unit of work, and every finding reaches a terminal disposition (fixed, or routed with a severity
+tier) before the next PR is opened. Not at the next boundary, not batched, not "after this one
+lands". Reading it IS the next task.
+
+**Why it is a hard block rather than a priority.** A finding nobody has read is strictly worse than
+no QA at all, because the record shows the pass ran and so the surface reads as covered. On
+2026-07-25 that cost was concrete: an ERROR-severity finding on `manage-workers.py` and an
+error-severity HOLD on an EU AI Act retention change that had already MERGED without human review
+both sat unread while three further PRs were built on top of them, and the retention finding
+described a fact pattern in which records could be destroyed before a statutory keeping period
+expires. The QA had already found it. Nobody had looked.
+
+**The specific failure this forecloses:** treating a delivered result as inventory to triage later.
+Deliveries accumulate silently because nothing about a full outbox is loud, so "I will read them at
+the next boundary" becomes never, and the boundary that finally forces it is a maintainer noticing.
+
+**Operationally.** At every task boundary run
+[`tools/collect-deliveries.py`](../tools/collect-deliveries.py) and read every QA-kind item in the
+tray before selecting work. A tray holding an unread QA delivery means there IS no next work item.
+An in-flight PR may be finished, since abandoning it mid-flight leaves worse state, but no NEW PR
+starts. If a finding cannot be fixed in-window it is routed with its tier and named in the PR that
+follows, never left resident in the tray as a substitute for a decision. A HOLD verdict blocks the
+merge of what it holds; converting a HOLD to SHIP is an explicit recorded judgement with reasoning,
+never the default that follows from not acting.
 
 ## QA-activity completion standard
 
@@ -1496,7 +1578,7 @@ This reconciles the two failure modes: an answer scrolling past unread (the read
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.
 
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. State caveats and self-assessments plainly, without the intensifier.
-- **Never render a file diff or long file body in chat (maintainer-directed 2026-07-25).** The console is the maintainer's live window onto the run, and a wall of added/removed lines pushes the things they actually need to read off the screen; it has twice this session scrolled a real issue out of view. Do NOT paste diffs, do not echo the body of a file being written, and do not dump a tool's full output when a line of it carries the signal. A ONE-LINE summary of what changed is the right level ("self-test 8 to 19 cases, all passing"), and a verification's own terminal PASS/FAIL line is always worth showing. Where long prose must be written to a file, prefer a shell heredoc redirect over an editor tool call, because the editor call renders its payload into the console while the redirect does not. This is chat mechanics, project-only, and it does NOT license hiding a failure: a failing gate, a refused command, or a defect is surfaced in full, because that is signal rather than noise.
+- **Never render a file diff or long file body in chat (maintainer-directed 2026-07-25).** The console is the maintainer's live window onto the run, and a wall of added/removed lines pushes the things they actually need to read off the screen; it has twice this session scrolled a real issue out of view. Do NOT paste diffs, do not echo the body of a file being written, and do not dump a tool's full output when a line of it carries the signal. A ONE-LINE summary of what changed is the right level ("self-test 8 to 19 cases, all passing"), and a verification's own terminal PASS/FAIL line is always worth showing. **This covers the COMMANDS too, not only their output (maintainer-directed 2026-07-25, extending the same instruction):** the maintainer does not need to read every shell invocation, so prefer FEWER and SHORTER calls, consolidate related steps into one, and lead the prose with the one-line summary of what was done so the readable account is the assistant's sentence rather than the reader reconstructing it from a command body. Honest limit: the harness renders tool calls and the assistant cannot suppress that, so the lever is volume and length, plus always stating in prose what a call accomplished. Where long prose must be written to a file, prefer a shell heredoc redirect over an editor tool call, because the editor call renders its payload into the console while the redirect does not. This is chat mechanics, project-only, and it does NOT license hiding a failure: a failing gate, a refused command, or a defect is surfaced in full, because that is signal rather than noise.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
 - **Proactive assessment is standing, not "suggest"-scoped (maintainer-directed 2026-07-02).** Proactively surface a better, more-efficient, or higher-quality alternative, and disagree when a choice looks against the project's best interests, any time you see one, not only when the maintainer says "suggest" or "advise". Surface the disagreement with its reasoning and give the maintainer an opportunity to change their mind; the maintainer retains override. This is the [`surface-counterproductive-instructions`](rules/governance/surface-counterproductive-instructions.md) discipline as a standing default, governed by the AIQT tier > Speed > Cost; its calibration section still applies (the bar is material impact, surfaced once and concisely, and an informed override is final).
 - **"Suggest" and "advise" invite assessment, not just compliance.** When the maintainer prefaces a request with "I suggest", "I advise", or similar, read it as: the maintainer believes this is the right path but is not fully certain and wants the assistant to assess it and give feedback. The assistant's primary function in that case is to help the maintainer reach the best decision, which includes surfacing a better alternative or a concern and pushing back when warranted, not silently complying. A firm directive with no hedge is followed directly once any standing-assessment concern (the bullet above) has been surfaced or none exists.

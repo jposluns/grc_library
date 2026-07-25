@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.46\
+**Version:** 1.5.47\
 **Date:** 2026-07-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -100,6 +100,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST CSF | 2.0 | 2024-02 | Cybersecurity Framework | 1.1 | https://www.nist.gov/cyberframework | 2026-06-30 |
 | NIST AI RMF | 1.0 | 2023-01 | AI Risk Management Framework | - | https://www.nist.gov/itl/ai-risk-management-framework | 2026-06-30 |
 | NIST AI 600-1 | 1.0 | 2024-07 | Generative AI Profile for AI RMF | - | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | 2026-06-30 |
+| NIST SP 800-208 | Final | 2020-10 | Recommendation for Stateful Hash-Based Signature Schemes (stateful hash-based digital signatures: LMS and XMSS, with the HSS and XMSS-MT multi-tree variants) | - | https://csrc.nist.gov/pubs/sp/800/208/final | 2026-07-25 |
 | NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
 | NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | Rev. 0 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
 | NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |

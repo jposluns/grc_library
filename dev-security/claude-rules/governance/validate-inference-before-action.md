@@ -48,6 +48,38 @@ The validation must be a concrete observation, not another inference. "I assume 
 
 ---
 
+## Guard inputs: a correct check on an unsound input
+
+A guard is a premise-driven action, so this rule reaches it: `if P(x): refuse` acts on the premise that `x` represents the thing `P` is asking about. The failure this section names is a guard whose logic is right and whose INPUT cannot answer the question asked of it. The guard then does its job perfectly on a value that does not mean what the code believes it means.
+
+The failure hides from the usual instrument. Mutation testing perturbs BRANCHES, so it verifies that `P` fires correctly GIVEN `x`; it is silent on whether `x` is faithful, because the code that produces `x` is a mapping with few or no branches for a mutation to perturb. A guard can therefore be mutation-proved, documented, and still be worthless, and the proof will read as reassurance.
+
+The recurring shape is **a proxy standing in for the real question**, where nobody asked whether the source is authoritative for what is being asked of it. Three observed instances, which share one shape:
+
+| Guard input | Its source | Why the source cannot answer |
+| --- | --- | --- |
+| which process occupies this session | a per-run process id | the id encodes nothing about the session it runs in |
+| is this file complete | the file exists | existence is not completeness |
+| is this worker still working | its heartbeat | the heartbeat and the work loop are separate code paths, so one survives the other |
+
+### The discipline
+
+- **Ask the authority question for every consequential guard.** Not "is this value correct" but "can this source, even in principle, answer the question I am asking of it?" A per-run identifier cannot answer "where is it running"; no amount of careful coding fixes that, and the answer is to change the input rather than harden the check. This question is cheap, and it is the one that catches the class.
+- **Make "I don't know" a first-class return value, and make ignorance refuse.** This is the highest-value structural change. An observer with two outcomes for three real states must encode ignorance as one of the two, and the permissive one is the usual choice, which is how ignorance becomes a silent permit. An observer feeding a consequential guard should be able to return an explicit unknown, and every caller must handle it: a destructive action proceeding on an unknown gate is the defect, and refusing on an unknown gate is the fix. Scope the conservatism so it stays proportionate, because a guard that refuses far too broadly is one somebody switches off.
+- **Keep a reality fixture for every observer defect found.** When an observation is found unsound, capture the ACTUAL state that exposed it, verbatim, as a permanent test fixture with the correct verdict recorded. This is the only technique that tests an observer against the world rather than against the author's model of it, and it costs one fixture per defect. Never paraphrase the state into something tidier; the tidying is where the defect hides.
+- **Mutate the observer, not only the decision.** Extend the mutation discipline past `if` statements: drop a field the mapping should carry, collapse two cases it should distinguish, return the wrong key, and confirm the test notices. An observer mutation that changes nothing observable is the same finding as an undetectable guard, and it is reported the same way.
+- **Where a proxy is unavoidable, state in the artefact what it does NOT establish.** A documented proxy whose residue is written down and whose failure direction is safe is a legitimate engineering choice; an undocumented one invites the next reader to trust it further than it earns. Name the residue at the point of use, and prefer the failure direction that refuses.
+- **Separate observation from decision in the code.** A pure decision function driven by constructed facts, with a thin observer that gathers and decides nothing, makes both halves testable: the decision by mutation, the observer by reality fixtures. Where the two are entangled, neither is properly reachable.
+
+### Prohibited anti-patterns
+
+- **Reading a mutation proof as proof the guard is sound.** It bounds the check, never the data reaching it. A guard's proof and its input's fidelity are separate claims requiring separate evidence.
+- **Encoding ignorance as absence.** Collapsing "I could not determine this" into "there is nothing here", when absence is the permissive branch.
+- **Hardening the check instead of fixing the input.** Adding conditions to a predicate whose input cannot answer the question makes the defect harder to see without making it less real.
+- **Asserting a proxy as the thing itself.** Treating "the file exists" as "the file is complete", or "it is heartbeating" as "it is working", in prose or in a variable name that claims more than the value carries.
+
+---
+
 ## The repeated-failure circuit-breaker
 
 When the same action has been blocked or has failed in the same way two or more times in a row, the premise that the next attempt will fare differently is itself unvalidated, and retrying on it is this rule's cascade in its most acute form: a retry loop. Before any further attempt, stop and write a concrete mechanism diagnosis: (1) what literally failed, the exact error or block, quoted; (2) the exact fix the failure calls for; and (3) how this attempt differs, byte for byte, from the blocked one. A retry whose command or input is byte-identical to the blocked one is the same attempt, not a new one, and it fails the same way. A common mechanism is editing the description of an action while leaving the action itself unchanged.
