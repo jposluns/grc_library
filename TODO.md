@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.115.**
+**Next item number: 3.116.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.115 Four gate-44 fail-open routes remain OPEN and were tracked nowhere (2026-07-25, M, S)
+
+The #1158 post-merge sweep caught a false-completeness claim: the CHANGELOG called the reference-label strip "the eleventh and last fail-open route" when it is the TWELFTH (five closed in #1154 plus six in #1155 is eleven already, and the module docstring shipped in the SAME PR says twelfth) and, more importantly, **it is not the last**. The `validate-pr-1155` sweep reported four further non-prose routes that survive `content_tokens` in [`tools/lint-paired-skill-step-parity.py`](tools/lint-paired-skill-step-parity.py), each verified there by running the gate on a constructed case: **(a)** YAML front matter, **(b)** a table cell of pure metadata, **(c)** a link target containing a literal `)` (which `LINK_TARGET_RE`'s `[^)]*` stops short of), and **(d)** an HTML attribute value appearing after a `>`. None was recorded in any backlog item, which is exactly the accepted-unverified-without-a-tracker failure the close-out checklist names; this item is that tracker. **Do NOT assume the class is exhausted when these four close:** the observed per-round base rate was 2, then 5, then 1, then 1, so treat each round as sampling an open class rather than draining a closed one, and keep the false-positive census as the gate on any widening. Route (c) is the most interesting, since it is a defect in an existing strip pattern rather than an unhandled construct.
 
 ### 3.114 The advisory CHANGELOG-length tool is looser than the gate that enforces it (2026-07-25, L, XS)
 
