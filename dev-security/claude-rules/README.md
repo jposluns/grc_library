@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.65.6\
-**Date:** 2026-07-24\
+**Version:** 1.65.7\
+**Date:** 2026-07-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -505,6 +505,7 @@ The pack's change history is maintained in the parent grc_library repository CHA
 
 | Pack | Library | Date | Notable change |
 | --- | --- | --- | --- |
+| 1.65.7 | 2026.07.634 | 2026-07-25 | Deep-assessment coverage of unvalidated operations (patch; changed skill body, no new rule or skill; TODO section 1.23 part 2). Brought `grc_library_private` into `/deep-assessment` scope (the sibling set, the phase-1 present check, the phase-2 gate run, and a new phase-6(d) private-store operational-document content review), added a phase-4(e) validation-coverage sub-pass consuming `tools/audit-validation-coverage.py` (the unvalidated-operation class the artefact-and-gate lenses miss by construction, since none examines the assistant's operation log), and added a Parallel-execution subsection with the per-phase worker-split partition so the orchestrator fans a full pass out to workers. Single-tree (the skill is not mirrored into `.claude/rules/`, so no gate-37 pair). Pack `1.65.6` to `1.65.7` (patch). |
 | 1.65.6 | 2026.07.631 | 2026-07-24 | Standalone-pack packaging model (patch; no new rule or skill; TODO section 4.9 item e). Rewrote the 104 pack-tree relative links that escape `dev-security/claude-rules/` (into the parent `tools/`, corpus docs, `.claude/`, and the parent CHANGELOG) to bare code-span mentions per the section 1.19 convention, so a dragged-in standalone pack has no dangling relative links; added a `## Parent-repo dependencies` README section (the audit toolchain, the project slash commands, and the private reference-base dependency); and fixed the `## What are these files?` paragraph to drop the nonexistent `/add-files` command in favour of the `@` mention and the `--add-dir` CLI flag. Single-tree (no edited file is mirrored into `.claude/rules/`, so no gate-37 pair). Pack `1.65.5` to `1.65.6` (patch). |
 | 1.65.5 | 2026.07.624 | 2026-07-24 | Skill-body genericization for the §3.56a guard-1 gate (patch; no new rule or skill): the project added gate 76 (`tools/lint-skill-internal-refs.py`), which flags a concrete project-internal reference in a pack skill's PORTABLE body (outside its `## Project wiring` section); to ship it green guard-first, [`skills/citation-quote-verification/SKILL.md`](skills/citation-quote-verification/SKILL.md) genericized its two concrete project-tool-filename references (a citation-format linter, a standards-currency linter) that had leaked into its portable body. Portable: the skill body is now project-agnostic, as an adopter needs. Pack `1.65.4` to `1.65.5` (patch). |
 | 1.65.4 | 2026.07.621 | 2026-07-24 | Guardrail-review skill prose sync for the §3.56a guard-3 change (patch; no new rule or skill): the project-side gate 41 now checks the pack's [`rule-provenance.md`](rule-provenance.md) register as a fourth rule-enumeration surface for the governance rules, so [`skills/guardrail-review/SKILL.md`](skills/guardrail-review/SKILL.md) advances its rule-inventory description from three enumeration surfaces to four (adding the provenance register). Portable: the register is a pack artefact, so an adopter's guardrail review inventories the same four surfaces. Pack `1.65.3` to `1.65.4` (patch). |
