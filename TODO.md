@@ -242,9 +242,13 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.117.**
+**Next item number: 3.118.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.117 A maintainer-placed inbox drop is invisible to every instrument (2026-07-25, M, S)
+
+Found 2026-07-25 when the maintainer surfaced a 13KB codex deep assessment that had sat UNREAD in the file-drop inbox for an entire overnight run, along with a second unread drop of comparable size. Nothing detects that state: the file-drop root is outside every repository, so no audit gate walks it; [`tools/audit-delivery-status.py`](tools/audit-delivery-status.py) reconciles worker OUTBOX deliveries against the backlog, not maintainer-placed drops; and the orchestrator's own sense of "what needs processing" is built from the order queue, which a drop is never part of. **Consequence: the highest-value input available, an external read-only assessment with a sign-off request, was invisible to the one instrument set that is supposed to make work visible, and its discovery depended on the maintainer remembering it.** Two of its findings turned out to concern the assistant's own conduct (an unlogged branch-protection bypass) and to refute the assistant's own diagnosis of a worker fault, so the cost of not reading it was real rather than notional. Candidate fix, mirroring the shape of the delivery-status tool: reconcile the drop directory against a processed-marker (a `results/` archive copy, or a reference from any `.working` record), report anything unreferenced as UNPROCESSED, and surface it at `/resume` alongside the other standing registers. **Design care needed on two points:** the drop directory also holds transient orchestrator staging files (diffs staged for a worker to read), which must not be reported as unprocessed drops; and "processed" must not be inferred from mere file age, since an old drop can be unread and a new one already consumed. Advisory and cross-repo, the same shape as the other sibling-reaching tools, so it exits 0 and no-ops when the drop root is absent.
 
 ### 3.116 The saturation observable cannot distinguish a healthy idle worker from a STALLED one (2026-07-25, M, S)
 
