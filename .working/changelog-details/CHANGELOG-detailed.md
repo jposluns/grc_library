@@ -8,6 +8,41 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.640, PR #1154
+
+A guard-first co-land: gate 44 gains a second check, and the one pair that check fails is fixed in the same commit. The pairing is not stylistic. The widened gate reddens the corpus at the parent SHA by design, so shipping it alone would break the build, and shipping the content fix alone would leave the defect ungated and free to recur. Both halves were worker-drafted; the orchestrator verified the co-land property mechanically before applying either.
+
+### Fixed
+
+- **[`.claude/commands/deep-assessment.md`](../../.claude/commands/deep-assessment.md) had dropped the whole of its skill's ninth `## Process` subsection**, "Parallel execution (worker fan-out)", including the clause with live operational consequence: phase 2 is a BARRIER, so every baseline unit must be green before any semantic-phase unit starts. An orchestrator working from the command alone would have fanned phases 3 to 6 out without joining that barrier, which the skill forbids, and the project is currently dispatching deep-assessment-adjacent QA to parallel workers. The fan-out substance is carried inside existing step prose (steps 1, 2, and 7) rather than as a ninth numbered step, so the gate's original step-identifier check stays green.
+- **The private store's orchestrator-only restriction was carried at one of three sites.** Step 6 had it; the phase-2 baseline gate and the phase-4(e) validation-coverage row did not, and since step 1 names all four repos, step 2 read as including the private store. A worker briefed from the command rather than the skill could have attempted to run a gate inside `grc_library_private`, which is not in a worker's read surface. All three sites now match.
+- **Three warnings and a five-item compression bundle**, all closed by the same edits: the branch-protection maintainer-verify deferral rule restored to 4(e); phase 3's four advisory aids restored by reference rather than by an enumeration the command's own step 1 forbids hard-coding; and step 2's hard-coded "both generator checks" replaced with "every generator `--check` invocation (derived in step 1, never a remembered count)", which converts a wording fix into a standing instruction.
+
+### Changed
+
+- **Gate 44 becomes a two-check parity audit.** Check 1 (step-identifier parity) is unchanged byte for byte. Check 2 requires every unnumbered `###` subsection of a skill's step section to leave a trace in the paired command, measured as every core heading token appearing in the command body, with an explicit `<!-- parity: command-exempt: <reason> -->` escape whose reason is required. It deliberately detects an ENTIRELY unrepresented subsection rather than a compressed one, because a slash command is a concise entry point and never a copy.
+- **The specification's per-gate narrative** is rewritten to describe both checks, keeping the Sweep 3 provenance for check 1 and adding check 2's own provenance: on 2026-07-25 a false-negative audit found this exact omission while the gate passed the pair eight identifiers to eight.
+
+### Verification
+
+- **The co-land property proven in both directions, in that order:** with the widening applied and the content fix absent, gate 44 FAILS naming the unrepresented subsection and the absent core token; with both applied it passes on 13 paired surfaces. That sequence is the evidence the pairing was necessary, not an assumption about it.
+- The command still holds exactly EIGHT numbered steps, so check 1 is unaffected.
+- **480-test regression suite green** (up from 474: six new fixtures), both generator `--check` forms in sync, and the widening is false-positive-free across all 13 registered pairs per the drafter's census.
+- The four gate-wiring surfaces need no change, because the widening is additive inside an existing gate script whose id, display name, and entry point are unchanged; verified by reading each.
+
+### Two fail-open weaknesses the gating verifier broke, fixed before merge
+
+The verifier was briefed to attack the gate rather than the content, and it succeeded twice, in the direction that matters for a guard: both defects made the gate MISS drift rather than raise a false alarm, so neither made the shipped state wrong, and both would have left the corpus relying on a check that could be defeated trivially.
+
+- **The exemption marker leaked to an adjacent heading.** The window was `range(n, n + EXEMPT_WINDOW + 1)` with no bound at the next heading, so a marker sitting after the SECOND of two tightly-stacked `###` headings fell inside the FIRST heading's window and silently exempted it too. Demonstrated against the shipped code. Now bounded by the next heading.
+- **One incidental token anywhere in the command defeated the check.** The command side was tokenized from RAW text while the skill side went through `iter_non_code_lines`, so tokens inside fenced code, inline spans, link URLs, and HTML comments all counted as representation. Compounding it, the motivating detection rested on a SINGLE token: four of the five core tokens of "Parallel execution (worker fan-out)" were already present in the old command, so everything hung on the word `parallel`. The verifier appended a single HTML-comment line whose only occurrence of the word was inside a link path (a `parallel-notes` slug in an example URL), and the gate passed a command that omitted the entire subsection. The command side now reads through the same non-code path as the skill side, with HTML comments and URLs stripped first.
+
+Both exploits were re-run against the fixed gate and now fail, with two controls confirming no over-correction: the same token in genuine prose still counts, and a token inside a fenced block still does not. Two regression fixtures added (482 tests, up from 480).
+
+### Discipline observation
+
+The defect this gate now catches was found by a worker that had been asked to verify a DIFFERENT worker's clean verdict on the same file. The first verification confirmed the four things its order named and reported no drift; the false-negative auditor then found two error-severity divergences the order had not thought to ask about. The lesson is about order-writing rather than worker quality: a verify order scoped to named spots gets those spots checked, and a step-count check that passes eight-to-eight tells you nothing about content. Both the gate and the order template are now narrower in what they assume and wider in what they inspect.
+
 ## 2026-07-25, Library Version 2026.07.639, PR #1153
 
 Closes **H-01**, the only HIGH finding of the external codex deep assessment, and the one item the maintainer authorized to merge WITHOUT human review. Because that forgoes the review, this change ran the full high-assurance-verification harness rather than a single pre-push verifier, and the harness earned it: one error-severity and one warning-severity finding were caught and fixed before merge, neither of which a single verifier pass had raised.
