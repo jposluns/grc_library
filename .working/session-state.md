@@ -1,16 +1,16 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/overnight-setup-1109
+**Active-session:** none
 
-**Status:** active
+**Status:** released
 
 **Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-24T00:37:00Z
+**Last-heartbeat-UTC:** 2026-07-25T02:21:49Z
 
-**Current-task:** 2026-07-23b resumed session, now OVERNIGHT/unattended (the maintainer switched to overnight ~00:30Z 2026-07-24 and authorized the full overnight run; do not stop until they wake). On the VM, gh-CLI, no GitHub MCP. Both workers live Opus 4.8; MANDATORY-OFFLOAD active (offload every draft / research / QA pass to conserve orchestrator credits). SHIPPED this session: #1106 (resume close-out, Sweep 119 CLEAN), #1107 (§1.18 PR-2 gate 74 rule-scope-table completeness), #1108 (§1.1 the fifteenth pack rule `express-authorization-before-execution`). CURRENT PR #1109 = overnight setup (§1.18 close + the F1 date-breadcrumb fix + the overnight-authorizations record + this mode change + the #1108 QA rows). OVERNIGHT AUTHORIZATIONS (full block at `pending-decisions.md` top): all P3 (quick-clears + machinery) + the P2 AI annexes (Singapore 2.19, California 2.17) + the OWASP-Agentic 2.27 build are authorized; content mode = build-with-verifier / high-assurance-and-merge-on-green; §1.18 = close; no idle-stop, re-assess ALL of TODO for not-hard-blocked items if the queue drains; overnight ends ONLY on an explicit maintainer signal. QUEUE next: P3 quick-clears (3.94 / 3.60 / 3.38 / 3.13 / 3.47) -> broader P3 -> P2 annexes -> OWASP build. The Singapore 2.19 annex draft is already offloaded.
+**Current-task:** RELEASED at the #1150 session-closing handoff (2026-07-24/25 worker-wiring / file-drop-transport session; maintainer-directed ASAP wind-down once file-drop readiness was verified). The next `/resume` runs from `/home/grc/grc_library` (PATH MIGRATION: all sibling repos relocate to `/home/grc/`, off `/home/jposluns`) and must UPDATE ALL `/home/grc` repos first, then run the Sweep 120 loop-break `/validate` over #1106..#1150. File-drop transport is LIVE (workers restart onto `/home/grc/grc_working` via the transport-aware `/credit-offload`; the orchestrator dispatches via `credit-offload-filedrop.py dispatch` and consumes from `outbox/`). See the session handoff NEXT SESSION block for the full queue.
 
-**Worker-dispatches:** BOTH live Opus 4.8 (the maintainer spun up the second this session): `worker-20260716-a` (role any) + `worker-20260716-b` (role qa). worker-a claimed the blocking prio-0 `sweep-118-validate`; background research orders queued for worker-b: `research-1223-working-cycleout` (§1.22.3 seed, prio 2), `research-inbox-delivery-triage` (prio 2), `research-p1p3-quickclear-survey` (prio 3). Both workers' session-scoped elevated-QA windows RE-ESTABLISH this fresh session, so first deliveries are consumed under full ELEVATED QA. Fetch scratch `origin/main` before every coordination-plane read (§3.93); prefer `git -C <scratch>` (or an absolute script path) for sibling tools/git.
+**Worker-dispatches:** opus `worker-20260716-a` + `worker-20260716-b` (Opus 4.8) and the new Codex `codex-mailz-a` (family codex, role any). At close, `worker-20260716-a` and `codex-mailz-a` were heartbeating via the file-drop transport. PENDING CONSUME next session: `validate-pr-1149` (git-scratch `_scratch` `results/`) and `fd-verify-1149-deepassess` (file-drop `codex/outbox`); re-verify positives at source. MANDATORY-OFFLOAD active; the file-drop transport is now the same-VM path (git-scratch is the cross-VM fallback).
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
