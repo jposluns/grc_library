@@ -1054,6 +1054,40 @@ another blanket rule.
   corollary above: if the queue-able work exceeds the live pool, ask the maintainer for more
   workers rather than serializing.
 
+## Delivery tray: one place to look, and issues jump the queue
+
+The exchange stores a delivery at `<family>/outbox/<worker-id>/<order-id>.md`, so answering "what is
+delivered and unprocessed?" means walking every family crossed with every minted worker id. Doing that
+by hand mis-reported the fleet once on 2026-07-25 (a stale `list-pending` read was described as "7
+stranded orders" when all ten had in fact been delivered). Two trays now separate the traffic, and the
+separation is the point (maintainer-directed 2026-07-25):
+
+- **`inbox/`** carries HIGH-PRIORITY issues a worker raises, read as soon as noticed. A worker writes one
+  the moment it hits a blocker, a malformed order, an out-of-scope defect, or an independence conflict,
+  rather than burying it in a result the orchestrator may not read for hours. This matters more now that
+  workers run HEADLESS, with no pane being watched.
+- **`inbox/deliveries/`** carries routine order results, processed at the next boundary, named
+  `<worker-id>__<order-id>.md` so both ids survive without parsing the body. The orchestrator needs the
+  worker id for the elevated-QA trust window (keyed on worker plus model) and for independence routing.
+
+Mixing them would destroy what makes the issue channel work, namely that its list is short and every item
+on it matters, so a delivery never lands in bare `inbox/`.
+
+**Run [`tools/collect-deliveries.py`](../tools/collect-deliveries.py) at each task boundary** (the same
+boundaries as the saturation checkpoint): it sweeps completed deliveries into the tray and files each
+served order under `done/orders/`. Two independent completeness layers gate the move, because they catch
+different failures. `deliver` publishes via an atomic rename from a `.md.tmp` name in the same directory,
+so any `*.md` in an outbox has all its bytes; and the last non-blank line must be
+`<!-- END OF DELIVERY -->`, which is the author's assertion that the work was finished rather than merely
+fully written. A file failing either is LEFT IN PLACE and REPORTED individually, never silently skipped,
+because a file sitting untouched with no explanation is the same silence-reads-as-health failure as a
+stalled worker heartbeating or a saturation verdict naming unusable capacity.
+
+Its report names BOTH planes (tray count and still-in-outbox count) rather than summing them, because the
+sweep only runs while the orchestrator is alive, so a tray-only reading under-reports between sessions.
+That is the single-plane blindness already fixed once in the saturation observable and still live in the
+scratch `list-workers`. `--dry-run` is the read-only status form and `--oneline` the statusline form.
+
 Scope note: the tool ships with a `--self-test` fixture set (the `block-unjustified-decision.py`
 pattern) wired into the linter-regression suite, asserting it flags `IDLE-CAPACITY` and never
 flags `SATURATED` / `NO-WORKERS` / a healthy queue, so the signal is false-positive-free before it
