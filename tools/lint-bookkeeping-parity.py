@@ -112,6 +112,18 @@ caught post-merge by /validate-pr). A register-less fork yields no findings.
 Added as a fifth internal check of gate 50 (not a new numbered gate), the same
 no-count-ripple precedent as Check 4.
 
+**Check 6, merge-bypass-log parity (added after five same-day recurrences).** Every
+in-window merged PR needs a row in `.working/merge-bypass-log.md`. Branch protection
+here requires an approval a solo-authored PR never receives, so every merge goes
+through the maintainer's always-on `--admin` bypass, which is invisible when used; the
+log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
+bypass a discipline failure, and it recurred five times in one day (#1170 to #1174),
+which is past the point where a convention is the right control. Same window as
+Check 1 (highest PR exempt as in flight, floor at the register's own oldest row); a row
+counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
+permits a plain merge is recorded honestly rather than forced to keep reading
+`--admin`. An empty or absent log no-ops rather than flagging the whole history.
+
 Exit codes:
     0 - All present-and-rotated checks pass.
     1 - At least one missing record or rotation-failure marker detected.
@@ -285,6 +297,69 @@ def parse_retro_prs(text: str) -> set[int]:
         if m:
             prs.add(int(m.group(1)))
     return prs
+
+
+BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
+BYPASS_LOG_REL = ".working/merge-bypass-log.md"
+
+
+def parse_bypass_prs(text: str) -> set[int]:
+    """The set of PR numbers carrying a merge-bypass-log row."""
+    prs: set[int] = set()
+    for line in text.splitlines():
+        m = BYPASS_ROW_PR.match(line)
+        if m:
+            prs.add(int(m.group(1)))
+    return prs
+
+
+def bypass_log_findings(
+    changelog_prs: set[int],
+    bypass_prs: set[int],
+    *,
+    inception: int = INCEPTION,
+) -> list[str]:
+    """Check 6: every in-window merged PR has a merge-bypass-log row.
+
+    WHY THIS IS A GATE AND NOT A CONVENTION. The project CLAUDE.md already states that an unlogged
+    bypass merge is a discipline failure, because branch protection here requires an approval that a
+    solo-authored PR never receives, so every merge goes through the maintainer's always-on
+    `--admin` bypass. That bypass is invisible when used, and the log is the only thing converting
+    it from an unaudited hole into a recorded exception. The convention alone did not hold: on
+    2026-07-25 FIVE consecutive merges (#1170 to #1174) shipped with no row, unnoticed until the log
+    was read for an unrelated reason. Five recurrences in one day is past the point where a
+    convention is the right control.
+
+    The window matches Check 1's: the highest-numbered PR is EXCLUDED as in-flight (its row is
+    written after its own merge, so demanding it here would make every PR fail its own gate), and the
+    floor is the register's own oldest row, so a log that starts partway through history is not
+    retroactively in breach.
+
+    A row is satisfied by its PRESENCE, whatever its Mechanism cell says. That is deliberate: if a
+    future protection change makes a plain merge succeed, the honest record is a row saying so, and
+    this check must not force the mechanism to keep reading `--admin` to stay green.
+    """
+    findings: list[str] = []
+    if not changelog_prs:
+        return findings
+    if not bypass_prs:
+        # NO-OP, not a storm. An empty or absent log has no oldest row to anchor a floor on, so the
+        # window would open at INCEPTION and flag every PR in the corpus's history. That is useless
+        # as a signal and actively hostile to an adopter fork, which the project CLAUDE.md says may
+        # delete `.working/` outright. Silence here is the honest answer: with no rows there is
+        # nothing to be in parity WITH.
+        return findings
+    max_pr = max(changelog_prs)
+    floor = effective_floor(bypass_prs, floor=inception)
+    for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
+        if pr not in bypass_prs:
+            findings.append(
+                f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
+                f"[{floor}, {max_pr}) needs one, because protection requires an approval a "
+                f"solo-authored PR never gets, so the merge went through the always-on `--admin` "
+                f"bypass and the row is the only record that it did. Add the row from the OBSERVED "
+                f"pre-merge CI state, never in anticipation of a merge.")
+    return findings
 
 
 def effective_floor(present_prs: set[int], *, floor: int = INCEPTION) -> int:
@@ -541,6 +616,11 @@ def main() -> int:
     register_path = REPO_ROOT / DEEP_ASSESSMENT_REGISTER
     register_text = read_text_safe(register_path) if register_path.is_file() else ""
     all_findings.extend(register_row_order_findings(register_text))
+    try:
+        _bypass_text = read(BYPASS_LOG_REL)
+    except OSError:
+        _bypass_text = ""  # adopter fork with `.working/` removed: the check no-ops, see above
+    all_findings.extend(bypass_log_findings(changelog, parse_bypass_prs(_bypass_text)))
 
     if not all_findings:
         print(

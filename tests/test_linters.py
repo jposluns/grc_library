@@ -6140,6 +6140,59 @@ class BookkeepingParityTests(LinterTestCase):
             "a file without a Version history table is out of scope",
         )
 
+    def test_bypass_log_all_rows_present_passes(self) -> None:
+        # Check 6: every in-window merged PR has a row: no flag.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1171, 1172}), [],
+            "a complete bypass log must not flag",
+        )
+
+    def test_bypass_log_missing_row_flagged(self) -> None:
+        # Check 6: the #1170-#1174 class, five merges that shipped with no row.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({1170, 1171, 1172, 1175}, {1170, 1172})
+        self.assertTrue(findings, "an unlogged in-window merge should flag")
+        self.assertIn("bypass-log", findings[0])
+        self.assertIn("#1171", findings[0])
+
+    def test_bypass_log_highest_pr_exempt(self) -> None:
+        # Check 6: the highest-numbered PR is in flight; its own row is written after its
+        # merge, so demanding it here would make every PR fail its own gate.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({1170, 1175}, {1170}), [],
+            "the highest-numbered PR must be exempt as in-flight",
+        )
+
+    def test_bypass_log_floor_is_the_registers_own_oldest_row(self) -> None:
+        # Check 6: a log that starts partway through history is not retroactively in breach.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({900, 1173, 1174, 1175}, {1173, 1174}), [],
+            "PRs older than the log's own oldest row are out of scope",
+        )
+
+    def test_bypass_log_empty_is_a_noop_not_a_storm(self) -> None:
+        # Check 6: an empty or absent log has no floor to anchor, so flagging would sweep the
+        # whole corpus history and break an adopter fork that deleted `.working/`.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({329, 900, 1174, 1175}, set()), [],
+            "an empty bypass log must no-op rather than flag every PR since inception",
+        )
+
+    def test_bypass_log_row_parser_ignores_non_rows(self) -> None:
+        # Check 6: only a real data row counts, so prose mentioning a PR number does not
+        # silently satisfy the parity.
+        mod = self._load_module()
+        text = (
+            "| 2026-07-25 | #1174 | green | `gh pr merge --admin` | j | c |\n"
+            "Prose mentioning #9999 must not count as a row.\n"
+            "| --- | --- | --- | --- | --- | --- |\n"
+        )
+        self.assertEqual(mod.parse_bypass_prs(text), {1174})
+
     def test_register_row_order_ascending_passes(self) -> None:
         # Check 5: a run-table in strictly ascending run-number order: no flag.
         mod = self._load_module()
@@ -8865,6 +8918,23 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
             f"surface).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
         self.assertIn("passed", result.stdout)
+
+
+class TokenSpendToolTests(LinterTestCase):
+    """The advisory ``tools/audit-token-spend.py`` tool's own ``--self-test``.
+
+    Wired here for the same reason the saturation tool is: the tool is cross-repo and
+    environment-dependent, so no corpus gate exercises it, and its figures are read by a
+    human making an offload decision. Its parsers must not silently read zero.
+    """
+
+    def test_token_spend_self_test_passes(self) -> None:
+        result = run_linter("tools/audit-token-spend.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-token-spend.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
 
 
 class WorkerSaturationToolTests(unittest.TestCase):
