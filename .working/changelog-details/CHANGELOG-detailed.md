@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.646, PR #1159
+
+Corrects a FALSE-COMPLETENESS claim the #1158 post-merge sweep caught in #1158's own entry, and adds that sweep's records. The sweep itself came back clean on every corpus-wide axis; this is its single finding.
+
+### Fixed
+
+- **The claim that the reference-label strip was "the eleventh and last" gate-44 fail-open route was wrong twice over.** On the ORDINAL: five routes closed in #1154 plus six in #1155 is eleven already closed, making this one the TWELFTH, and the module docstring shipped in the SAME commit says exactly that, so the CHANGELOG and the code disagreed by one inside a single PR. On COMPLETENESS: "last" over-claimed. The entry now reads "the twelfth fail-open route, and the last of the REFERENCE-FORM routes", which is what the evidence supports.
+- **The four routes that actually remain are now tracked, in TODO 3.115.** The `validate-pr-1155` sweep had reported four further non-prose routes surviving `content_tokens`, each verified there against a constructed case: YAML front matter, a table cell of pure metadata, a link target containing a literal `)` (which `LINK_TARGET_RE`'s `[^)]*` stops short of), and an HTML attribute value after a `>`. **None was recorded in any backlog item**, confirmed by a grep of [`TODO.md`](../../TODO.md) returning zero for both `front matter` and `table cell`. That is precisely the accepted-unverified-without-a-tracker failure the close-out checklist names, and it is the substantive half of this correction: the difference between a closed class and an open one. The new item also records the observed per-round base rate (2, then 5, then 1, then 1) with the instruction to treat the class as OPEN rather than drained when those four close, since three rounds of "surely that is the last one" have now been wrong.
+
+### The corpus-wide drift hunt came back clean, which is the result worth recording
+
+The #1158 sweep was deliberately WIDENED beyond the PR diff to a corpus-wide hunt across the whole eight-PR overnight run (#1151 to #1158), because every sweep this run was PR-scoped and most were served non-independently, making run-wide drift the largest remaining blind spot. It reported **no** bare-token residual of anything corrected during the run (the fabricated NIST SP 800-208 titles, the `2026.07.641` non-version, the superseded gate-44 strip-set enumerations, or closed items 1.24 / 1.25 / 3.112 still referenced as open), four-surface gate wiring intact at the live count, gate-37 dual-tree sync clean above the PROJECT-OVERLAY marker, generated artefacts in sync, no stale `.claude/` or tool-docstring forward pointer left by the run's TODO churn, and a mechanical baseline re-derived unpiped. A clean result from a hunt aimed at the blind spot is worth stating as plainly as a finding would be.
+
+### Discipline observation: three iterations on one small tool, each caught by the NEXT layer
+
+Worth recording because the shape is instructive rather than flattering. #1157 fixed a false `NO-WORKERS` (workers under-counted); that fix introduced a false `SATURATED` (orders over-counted), caught by its pre-push verifier; the fix for THAT introduced an order under-count, caught by the next post-merge sweep; and one self-test fixture written along the way asserted the intermediate wrong behaviour as correct, so it had to be corrected too. No defect escaped, but none was caught by the layer that shipped it. The standing lesson, now in the improvement log: when fixing a counting or filtering defect, explicitly test the OPPOSITE direction before shipping and say in the entry that you did; and when writing an ordinal or a completeness word, grep the code shipped in the same commit for a conflicting statement of the same fact.
+
+### Also in this PR
+
+- #1158's `/validate-pr` row and record file, and its `/retro` row, batched here per recursion-avoidance.
+- TODO 3.115 added (the four open gate-44 routes).
+
 ## 2026-07-25, Library Version 2026.07.645, PR #1158
 
 Closes TODO 3.112 and the last of the gate-44 fail-open routes: two parity gates were each blind on the one axis they do not join on. Worker-drafted with a full false-positive census, orchestrator-verified, and in gate 59's case validated by REPLAY against the real defect that motivated it.
@@ -21,7 +43,7 @@ Closes TODO 3.112 and the last of the gate-44 fail-open routes: two parity gates
 
 ### Gate 44 no longer accepts an inline reference-link LABEL as prose
 
-- **The eleventh and last fail-open route**, after the five closed in #1154 and the six in #1155. The gate strips URLs, link targets, reference definitions, HTML tags and comments, and whole images before tokenizing a command body, deliberately keeping visible link TEXT. The surviving route was the inline reference-link label form: in `[visible text][label]` the label is a reference KEY, not prose, yet it survived stripping and could satisfy a subsection-representation token match. The worker reproduced the route at the pinned SHA before drafting, per the order, since a route that does not reproduce is not a route.
+- **The twelfth fail-open route, and the last of the REFERENCE-FORM routes** (not the last route overall; see the correction recorded in #1159), after the five closed in #1154 and the six in #1155. The gate strips URLs, link targets, reference definitions, HTML tags and comments, and whole images before tokenizing a command body, deliberately keeping visible link TEXT. The surviving route was the inline reference-link label form: in `[visible text][label]` the label is a reference KEY, not prose, yet it survived stripping and could satisfy a subsection-representation token match. The worker reproduced the route at the pinned SHA before drafting, per the order, since a route that does not reproduce is not a route.
 - **Link text is still kept.** The fix removes the label and preserves the visible text, matching the existing link handling rather than diverging from it.
 - **The specification narrative needed rewriting, not just its table row.** [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md) enumerates the strip set verbatim, so that list was incomplete the moment the code changed. It now names inline reference-link labels and states why link TEXT still counts. A bare-token sweep confirmed no other carrier of the old enumeration.
 
