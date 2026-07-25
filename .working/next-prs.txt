@@ -1,2 +1,2 @@
-1) consume 8 staged orders on restart; 2) 3110 matcher redesign; 3) _ref protection (maintainer-action)
-# then: TODO 3.116 stalled-vs-idle + backlog-audit stub FP; 3.111 exclude-worker; 3.115 gate-44 routes; 1.14 Layer B
+1) P1 deliveries: census-3110, draft-3115, draft-3116; 2) codex exec runner (needs approval); 3) queue/ gate exemption
+# then: TODO 3.117 done (drops tool); 3.116 stalled signal; 3.115 gate-44 routes; M-03/M-05 from the codex assessment

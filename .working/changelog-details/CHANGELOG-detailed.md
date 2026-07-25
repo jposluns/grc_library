@@ -8,6 +8,35 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.654, PR #1167
+
+Two orchestrator-side tools for managing the worker fleet, both from failures observed the same day, plus the observed behaviour that corrected the design.
+
+### [`tools/audit-inbox-drops.py`](../../tools/audit-inbox-drops.py): a drop was invisible to every instrument
+
+A 13KB external deep assessment sat UNREAD in the file-drop inbox for an entire overnight run, and nothing could have surfaced it: the drop root is outside every repository so no gate walks it, [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py) reconciles worker OUTBOX deliveries rather than drops, and the orchestrator's task list is built from the order queue, which a drop is never part of. Two of that assessment's findings concerned the orchestrator's own conduct, so the cost was real. Routed as TODO 3.117 and built here.
+
+**The LOCATION is the marker**, deliberately: a drop still in `inbox/` is unread, and a processed one moves to `done/drops/<YYYY-MM>/`. Inference was tried and rejected, because a reference-scan over the merged records had roughly a 30 percent false-negative rate (the orchestrator records a drop's CONTENT without always naming its filename). Both traps named when the gap was routed are handled: transient orchestrator staging is reported separately rather than counted as work awaiting a read, and **age is reported as context and never used to decide status**, since an old drop can be unread and a new one already consumed. Self-test 6/6, including that case. Wired into `/resume` step 3 and the statusline, suppressed when zero.
+
+### [`tools/manage-workers.py`](../../tools/manage-workers.py): a closed verb set, gated and logged
+
+The codex continuation brief established that a Codex chat cannot resume itself, and that the file-drop plane can signal a reload but cannot wake an idle turn. The mechanism that CAN is tmux keystroke injection, because an agent CLI reads its TTY while a socket would move bytes nothing reads. No privilege escalation is involved: the panes were created on the orchestrator's own account and each then switched user INSIDE, so that shell is the pane's foreground process while the pane and its TTY belong to the tmux server, which runs as the orchestrator's own account.
+
+**Every prompt is a constant in the file, never composed from worker output**, which makes prompt-injection structurally impossible rather than policy-dependent: a worker cannot steer what is sent to it because no free-text path exists. Four verbs (`wake`, `reload`, `restart`, `stand-down`), each mapped per runtime and never guessed: Claude's wake is a single command token because that command file carries its whole serve loop, whereas Codex has NO equivalent (per its own recommendation, its workflow is an on-disk contract plus a normal task prompt) so its wake is maintainer-specified prose. Refusals tested: the orchestrator's own session, an unmapped runtime, a missing reason, and a destructive verb against a worker holding an order.
+
+**Every send is logged** to [`.working/worker-prompt-log.md`](../worker-prompt-log.md) with the verb, target, held-order state and reason. Keystroke injection into a session running as another user is invisible unless recorded, and this project already fixed one such class today (an unlogged branch-protection bypass); this does not create a second.
+
+### Two findings from the first live send, which corrected the design
+
+- **Claude QUEUES a message injected mid-turn** rather than corrupting the running turn: the pane showed a queued-message notice, and the worker went from stale to LIVE once its turn completed. So a non-destructive verb is safe regardless of pane state, and none of them gates on idleness.
+- **A visible prompt marker does NOT mean idle.** The pane showed its prompt while a turn was in flight. The reliable busy tell is the interrupt hint in the status line. This is why the maintainer's instruction not to poll for prompt markers was right on the merits, not merely simpler: the marker has a false-ready mode that a fixed delay does not.
+
+A destructive verb is still gated, because a queued context-reset would execute after the current turn and destroy whatever that turn produced.
+
+### Cross-repo, recorded here because the audit trail lives here
+
+`grc_library_scratch` gained the order lifecycle designed with the maintainer (claim stamps provenance into the order; deliver moves the order to the worker's own outbox archive instead of unlinking it, refuses on a revoked claim to prevent a double-serve, and rebuilds directories the orchestrator pruned; a new `consume` archives to a month-partitioned central `done/`), the order-file exclusion enforcement from the verified `verify-3111` design, and a dispatch-time check that REFUSES an order whose own prose contains the running account name or instructs a drop delivery while carrying an order id. That check exists because order params are the least-guarded surface the orchestrator writes: the account-name class recurred four times, and the channel-conflation class produced a byte-identical duplicate the maintainer caught.
+
 ## 2026-07-25, Library Version 2026.07.653, PR #1166
 
 Acts on the codex deep assessment of 2026-07-25, an external read-only review of the four-repository ecosystem that had been sitting **unprocessed** in the file-drop inbox. The maintainer surfaced it; the assistant had not read it. Two of its seven findings are decided and closed here, and one of them concerns the assistant's own conduct.
