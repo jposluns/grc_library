@@ -11,6 +11,46 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### §1.22.3 `.working` cycle-out tool-build (2026-07-25 rotation; tool shipped in PR #1070, initial sweep part (a) in #1140)
+
+The `.working` records cycle-out tool shipped as `tools/sweep-working-records-to-private.py` (emit-verify-then-prune, data-safe), with the current-week model for the detailed CHANGELOG mirror. Rotated out of TODO at the maintainer's direction on 2026-07-25, which asked that large combined items keep only their NOT-done components in the forward-looking backlog.
+
+### Layer A of the external-source currency mechanism (item 1.14) closed as SHIPPED (2026-07-25)
+**Heading-sigil note.** The `§` sigil in a DONE heading asserts that the NUMBER retired, which is
+what gate 78 reads. Both headings above were first written with `§` on a number that is still LIVE
+(item 1.14 keeps Layer B; item 1.19.13 is still open and now carries 3.16's absorbed scope), and the
+gate correctly rejected them. A cross-reference to a still-live item is written WITHOUT the sigil.
+
+
+Layer A of the external-source currency mechanism is gate 72
+(`tools/lint-citation-currency-cadence.py`) plus `tools/audit-register-currency.py` on the
+`grc_library_ref` side, both already in CI. Closed on a MEASURED basis at the maintainer's
+direction rather than on the gates' existence: gate 72 checks **182 of 182 data rows** in
+`governance/register-canonical-citations.md`, skips 0 for an unparseable date, and reports every
+dated source inside its re-check window. The register's other 20 rows are table HEADERS, not
+coverage gaps, which is what the verification was for: the raw 182-versus-202 figure looked like
+90 percent coverage and would have been reported as a gap. §1.14's remainder is Layer B alone.
+
+### §1.19 parent closed outright (2026-07-25 deferred-item review)
+
+The privatization parent held no work of its own: phases 1.19.2 through 1.19.12 are keyed by PR here already, and its LOCKED design record (the incremental model, the three-way repo separation, session entry, the 1.19.8 move-list, the Phase-1 build design) was migrated verbatim to `grc_library_private/design-decisions.md` because it existed nowhere else. Closed with no index line at the maintainer's direction; 1.19.13 stands alone (1.19.10a closed in the same review).
+
+### §1.19.10a event-driven weekly root-condensation wiring closed as SHIPPED (2026-07-25)
+
+Nothing remained to build: the one-time tiered migration and projection generator shipped in #1037, and the recurring `--condense-completed-week` mode on `build-public-changelog.py` shipped in #1120. The item stayed open because it was never closed, not because work was outstanding. The recurring sweep of a newly-completed week becomes a PR close-out step beside the existing sibling sweep rather than a backlog item.
+
+### §2.22 Canada.ca reference utilization closed as consolidated (2026-07-25)
+
+The stub carried no independent scope: its content moved to §2.25.3, which absorbed the 49-source federal engagement and added the provincial FOI/privacy gap. Its 'deferred-blocked on currency' status was also void, since the Canada.ca sources are held and were downloaded within the previous two weeks; that stale blocker was dropped from §2.25.3 in the same change.
+
+### §3.16 CHANGELOG history-collapse residual closed as ABSORBED into item 1.19.13 (2026-07-25)
+
+Everything else in 3.16 was already complete (the root reformat, the gate-59 dynamic cutoff, the sweep tool, `.gitattributes export-ignore`, the initial archive sweep, the #855 compact-header reformat, and the stage-3b plain-language rewrite of every historical entry). The only residual was a destructive git-history collapse, which is the SAME operation as §1.19.13 on different content. They share every expensive and risky part (one rewrite, one approval, one collaborator notification, one preservation ref, one monotonicity re-run), and 3.16's motive is cosmetic so it would never justify a rewrite alone. Absorbed into 1.19.13's scope so a future rewrite runs ONCE.
+
+### §3.55 ref bulk-ingest of the staged files closed as SATISFIED (2026-07-25)
+
+`grc_library_ref/ingest/` now contains only its README, and every spot-checked family is held: MiCA (128 index matches), eIDAS (69), DSA (99), EDPB Guidelines 01/2021 (4). **Stated residual:** per-document completeness against the original 64-file manifest was NOT verified, because the manifest no longer exists to check against. Closed on the evidence available rather than implied complete.
+
 ### PR #1175: four guards that could not answer their own question, and the bypass log's missing rows (2026-07-25)
 
 TODO 3.116's stall signal (shipped in #1174) could not detect the worker it was built for: its

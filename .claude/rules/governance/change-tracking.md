@@ -226,6 +226,39 @@ When a PR closes a TODO item:
 
 The rotation is enforced by convention rather than by a gate (gate enforcement would require parsing TODO and DONE structurally, which is brittle; the convention is cheaper and matches how the maintainer mentally tracks the work).
 
+
+### Backlog item numbers are permanent and are never reused
+
+A backlog item's number is a durable identifier, not a slot. Once assigned it is never reassigned,
+even after the item closes and its section is deleted from the forward-looking backlog. A closed
+item's number stays retired.
+
+The reason is that the number leaks OUT of the backlog. Change entries cite it, the closed-work
+ledger is keyed by it, specification and tool prose reference it, and a reviewer chasing a decision
+searches for it. So reusing a number does not create a naming collision, it creates a SILENT
+MIS-RESOLUTION: every one of those outside references now resolves to a different item than the one
+its author meant, and nothing about the reference looks wrong. It reads as a valid citation to
+whoever finds it next.
+
+This is a distinct failure from a dangling reference, and worse. A dangling reference to a deleted
+item is visibly broken and gets fixed. A recycled number resolves cleanly to the WRONG item, so it is
+invisible, and it stays wrong until someone happens to read both the citation and the item and
+notices they do not match.
+
+Two practices follow, and the second is the one usually missed:
+
+- **Allocate the next unused number, never the lowest free one.** A gap in the sequence is the
+  correct, permanent record that an item existed and closed. Filling gaps is what produces reuse.
+- **Prefer a stable external anchor over the backlog number when prose OUTSIDE the backlog needs to
+  cite an item.** Cite the change or pull request that closed it, which never rotates, rather than a
+  backlog section that is deleted on close by design. The permanence rule protects a number that is
+  already cited; this practice avoids creating the dependency in the first place.
+
+Where the toolchain permits, enforce permanence mechanically by comparing the live backlog's numbers
+against the closed-work ledger's and failing on any number that appears as both live and closed. The
+convention alone is not sufficient: this rule is typically written only after a recycled number has
+already mis-routed something.
+
 ### After-merge: list the upcoming next-N planned PRs
 
 When a PR merges, the next thing the assistant (or the maintainer) does is consult TODO's forward-looking section and list the upcoming N planned PRs in the chat. Default N is 5; the exact count is project-configurable.

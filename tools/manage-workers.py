@@ -281,7 +281,17 @@ def submit_state(probe: str, pane_text: str) -> tuple:
         return ("indeterminate",
                 "no composer box could be located in the captured pane, so whether the payload is "
                 "still in the input box cannot be read; check the pane directly")
-    if probe in region:
+    # NORMALIZE WHITESPACE ON BOTH SIDES BEFORE MATCHING. tmux wraps a long line at the pane width,
+    # so a payload sitting in the composer is captured as several lines and a literal probe spanning a
+    # wrap boundary does NOT appear in the text. The previous form then fell through to "submitted",
+    # reporting a prompt that was never sent as delivered, which is the DANGEROUS direction: the
+    # caller prints SENT, logs the send, and stops polling, so a worker that received nothing is
+    # recorded as nudged. Found by the #1175 post-merge sweep, in the exact failure direction its
+    # order asked it to hunt. Collapsing runs of whitespace to single spaces makes the comparison
+    # wrap-invariant.
+    flat_region = " ".join(region.split())
+    flat_probe = " ".join(probe.split())
+    if flat_probe in flat_region:
         return ("not-submitted", "the payload is still in the composer after Enter")
     return ("submitted", "the composer no longer holds the payload")
 
@@ -733,6 +743,25 @@ def self_test() -> int:
                submit_state("", _claude_empty)[0], "indeterminate")
     _torn = "\n".join(["  transcript", "\u2500" * 39 + "\ufffd", "",
                         "\u203a Improve documentation in @filename", "  gpt-5.6"])
+    # THE REALITY FIXTURE for V1175-1 (#1175 post-merge sweep). The composer state below is the
+    # verbatim shape the sweep constructed to defeat the literal match: tmux wrapped the payload at
+    # the pane width, so the probe spanned a wrap boundary, did not appear as a literal, and the
+    # check returned "submitted" for a prompt that was never sent. Kept verbatim rather than tidied,
+    # because tidying it is where the defect would hide again.
+    _wrapped = "\n".join([
+        "\u2500" * 40,
+        "\u276f At your next opportunity, resync",
+        "  your grc_library scratch clone",
+        "\u2500" * 40,
+        "auto mode",
+    ])
+    _long_probe = "At your next opportunity, resync your grc_library scratch clone"[:40]
+    check_attr("submit: a WRAPPED payload in the composer is not-submitted, not submitted",
+               submit_state(_long_probe, _wrapped)[0], "not-submitted")
+    check_attr("submit: the same probe against an EMPTY composer still reads submitted",
+               submit_state(_long_probe,
+                            "\n".join(["\u2500" * 40, "\u276f ", "\u2500" * 40, "auto mode"]))[0],
+               "submitted")
     check_attr("submit: a rule with a truncated wide char is still a rule (codex capture)",
                submit_state("At your next opportunity", _torn)[0], "submitted")
     check_attr("composer_region: a prose line of words is NOT mistaken for a rule",

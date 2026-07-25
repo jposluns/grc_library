@@ -8,6 +8,110 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.664, PR #1176
+
+The audit-programme spec cited eleven backlog sections. TODO sections are DELETED when their item
+closes, by design, so a corpus document citing one is depending on something built to disappear.
+Seven of the eleven were already wrong.
+
+### Fixed
+
+- **Six citations dangled and one resolved to the WRONG item.** Measured against the live [`TODO.md`](../../TODO.md)
+  headings rather than the reporting worker's list, which was one PR out of date: `1.22.2`, `1.19.1`,
+  `1.16`, `1.18`, `3.56a` and `3.110` name sections that no longer exist (`3.110` closed the same day
+  in #1173), and **`3.9` still exists but is a DIFFERENT item**, because §3.9 closed in #1087 and the
+  number was recycled before the never-recycle rule. That last one is the recycling harm sitting in
+  this repository's own specification, citing gate 68's origin, invisible to the very gate built to
+  prevent recycling. All eleven now cite the CLOSING PR (or a plain description where the item is
+  still open), because a PR number never rotates and a backlog section is deleted on close. Residual
+  `TODO section` citations in the file: zero, measured after the edit.
+
+### Added (codification, maintainer-directed)
+
+- **Backlog item numbers are permanent and are never reused**, in
+  [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) and as a section in the pack's
+  [`change-tracking.md`](../../dev-security/claude-rules/governance/change-tracking.md). The
+  maintainer pointed out that this rule was ENFORCED (gate 78, #1173) but written down nowhere: it
+  appeared only in [`TODO.md`](../../TODO.md) and in gate 78's own spec description, was absent from CLAUDE.md, and had
+  no pack counterpart, which is also a pack-parity miss by #1173 (a portable guard rail shipped
+  without its pack entry). The codification states the part a gate cannot: the harm is a SILENT
+  MIS-RESOLUTION rather than a collision, because the number leaks outside the backlog into CHANGELOG
+  entries, [`DONE.md`](../DONE.md) keys, spec prose and tool docstrings, so a recycled number makes every one of
+  those resolve cleanly to the wrong item while looking like a valid citation. That is strictly worse
+  than a dangling reference, which announces itself. Two practices follow: allocate the next UNUSED
+  number rather than the lowest free one, since a gap is the correct permanent record; and prefer a
+  stable anchor (the closing change) over a backlog number in prose outside the backlog, which avoids
+  creating the dependency at all.
+- **Defence in depth is the default choice when its marginal cost is low**, in CLAUDE.md and as a
+  section in the pack's
+  [`project-integrity.md`](../../dev-security/claude-rules/governance/project-integrity.md). Directed
+  by the maintainer after choosing to widen gate 69's scan to `docs/` despite the generator `--check`
+  gates already covering those files: "if the generator should catch issues then this won't find any,
+  defence in depth control." It belongs in the apex rule because it is the tier ordering applied to
+  option selection: Cost is the LOWEST dimension, so a small cost is never a reason to decline a layer
+  that protects an AIQT facet. Concrete consequence for the assistant: when presenting a layered and a
+  leaner option, the LAYERED one is listed first and marked recommended, with its marginal cost
+  stated, and the leaner one is never made the default on the reasoning that a sibling control
+  probably covers the case. The one genuine counterweight is recorded too: a control whose noise gets
+  it bypassed protects nothing, so its cost is NOT small.
+
+### Verification
+
+- Two of the three "decisions" the originating worker drop raised DISSOLVED on verification at source,
+  and both are recorded rather than quietly dropped. The `§3.56` numbering clash ("three DIFFERENT
+  closed items under one number") is three guards of ONE sub-item, `§3.56a guard 1/2/3`, correctly
+  keyed, with the parent still live. The `docs/` scan-scope blind spot does not exist: gate 69's
+  default walk already covers all 12 `docs/` files, measured. The answered-question hook is what
+  forced the first check; the second came from measuring the gate's real scope rather than accepting
+  the drop's description of it.
+- One of my own measurements was wrong and nearly reported: a regex written to classify the eleven
+  citations was malformed under this environment's grep, and it returned a uniform "GONE" for all
+  nine keys, including three that are live. It was caught because the uniform answer contradicted an
+  earlier working measurement. Recorded because a broken measurement that returns a plausible
+  uniform result is worse than one that errors, and this one would have put three false claims in a
+  record.
+
+The #1175 post-merge sweep returned one error and two warnings, all three valid, and one of them found
+a defect in the exact failure direction its order asked it to hunt.
+
+### Fixed
+
+- **V1175-1 (ERROR): the submit postcondition could report an unsent prompt as SUBMITTED.**
+  `submit_state` searched for a 40-character literal probe in the captured composer. `tmux` wraps a
+  long line at the pane width, so a payload sitting unsent in the composer is captured across several
+  lines and the literal does not appear, and the check fell through to `submitted`. The caller then
+  prints SENT, logs the send, and stops polling, so a worker that received nothing is recorded as
+  nudged. Reproduced before fixing with the sweep's own constructed pane. Both sides of the comparison
+  are now whitespace-normalized, which makes it wrap-invariant, and the sweep's pane shape is kept
+  VERBATIM as a reality fixture rather than tidied, because tidying it is where the defect would hide
+  again. Mutation-proved: reverting the normalization fails the suite.
+- **V1175-2 (warning): the token-spend parser invented figures from negated statements.**
+  "Token spend: not reported; the task budget is 8,000 tokens" returned 8000, because the pattern took
+  the first number within 40 non-digit characters regardless of whether it was a spend. That is worse
+  than returning nothing: an invented figure enters a report that is read as evidence, against the
+  tool's own stated premise that an unreadable figure is UNKNOWN rather than a guess. The window is now
+  20 characters, a negation between the phrase and the number disqualifies the match, and word
+  multipliers are supported. A second defect surfaced while fixing it: the multiplier was applied AFTER
+  truncating to int, so "8.4 thousand" became 8000 and "3.1k" became 3000. All six of the sweep's cases
+  are now fixtures.
+- **V1175-3 (warning): the per-tool discriminability figures were wrong, and so was my correction.**
+  #1175 published 9/3/13/6. The sweep measured 9/4/14/6 and was RIGHT. My original figures were stale
+  because I measured them before adding the submit-state code, which is the mid-PR figure drift the
+  CHANGELOG count-reflex bullet exists to catch. Worse, when I re-measured to check the sweep's claim I
+  got 9/3/13/6 again and briefly believed the sweep was mistaken: my re-measurement grepped the tool's
+  OUTPUT with a pattern matching only `NOT-DETECTED` / `BLIND-CASE` / `NO-CASE`, which silently misses
+  the `inherent/externally-covered` rows the tool counts in its own total. **The correct figures come
+  from the tool's own summary line: 9, 4, 14 and 6, totalling 33 across the four tools, not 31.**
+
+### Discipline observation
+
+**Third occurrence today of one mechanism: a grep over a tool's output disagreeing with the tool's own
+figure, and my grep losing.** The earlier two were a mutation matrix counting FAIL lines instead of exit
+codes, and a malformed classification regex returning a uniform GONE for nine keys. The rule this
+establishes: when a tool reports a count, QUOTE THE TOOL'S SUMMARY LINE. A grep over its output is a
+reimplementation of its counting logic, written in haste, with no test, and it will disagree at the
+edges the tool was careful about.
+
 ## 2026-07-25, Library Version 2026.07.662, PR #1175
 
 The stalled-worker signal that closed TODO 3.116 two days ago could not fire on the condition it

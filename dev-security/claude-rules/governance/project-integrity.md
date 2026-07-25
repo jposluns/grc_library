@@ -64,6 +64,34 @@ The checkpoints are deliberately the high-signal moments (task boundaries, persi
 
 ---
 
+
+## Defence in depth is the default choice when its marginal cost is low
+
+When choosing between a leaner control and a layered one, or when presenting options to the
+responsible authority, **prefer defence in depth unless the additional cost is considerable.** A
+second control that overlaps a first is not waste: if the first is doing its job the second finds
+nothing, and if the first is not, the second is the only thing that catches it. The overlap IS the
+value, and "the other control already covers this" is the reasoning that leaves a single point of
+failure looking like efficiency.
+
+This follows directly from the tier ordering rather than adding to it. Cost is the LOWEST dimension,
+so a small cost is not a reason to decline a layer that protects an AIQT facet. Only a
+CONSIDERABLE additional cost (a materially slower pipeline, a control that generates enough noise to
+get itself bypassed, a maintenance burden that will not be sustained) moves the question back into
+genuine tradeoff territory, and that is when the alternatives deserve weighing.
+
+For an actor presenting options, this has a concrete consequence: the layered option is the
+RECOMMENDED one by default, and the recommendation states the marginal cost so the authority can see
+that it is small. Presenting a leaner option as the default, on the reasoning that another control
+probably covers it, understates the risk of the choice being made.
+
+Two failure modes it forecloses. **Declining a layer because a sibling control "should" catch the
+problem** substitutes an expectation about the sibling for evidence about the artefact, which is the
+inference-instead-of-observation failure the accuracy facet forbids. **Adding a layer whose noise
+guarantees it will be ignored** is the opposite error: a control that cries wolf is bypassed, so it
+protects nothing while appearing to, and its cost is therefore not small. Judge marginal cost
+honestly in both directions.
+
 ## Relationship to the rest of the pack
 
 This rule does not replace the other governance rules; it names and orders them. Each AIQT facet in section 1 points at the rules that stand on their own:
