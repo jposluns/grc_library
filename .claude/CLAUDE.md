@@ -1284,6 +1284,43 @@ boundary, so "do N more" is really "do one more, re-assess, repeat" and self-ter
 early if quality signals turn. If a degradation signal appears mid-run, the assistant
 winds down regardless of the option chosen, surfacing why.
 
+## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
+
+**Maintainer-directed 2026-07-25, after the pattern recurred all day.** The moment ANYTHING wrong is
+found, the priority is: finish the task in hand, then fix it. Nothing that is not the fix, or part of
+the fix, proceeds ahead of it.
+
+**"Anything wrong" is deliberately the widest possible wording.** An issue, a defect, a problem, an
+error, an inaccuracy, a fault, a wrong figure, a stale instruction, a misleading name, an overstated
+claim, a silently-failed write. It does not matter how small it looks, who found it, or whether it has
+a severity yet. The severity assessment comes AFTER the fix decision, not before it, because grading a
+defect is one of the ways of not fixing it.
+
+**What "finish the current task" means, narrowly.** Complete the unit already in hand so it is not left
+half-applied, then fix. It does NOT license finishing a comfortable stretch of adjacent work, opening
+the next PR, running another analysis pass, or writing up what was found. If the current task IS the
+thing that produced the defect, the fix is the rest of that task.
+
+**The specific failures this forecloses, all observed on 2026-07-25.**
+- **Aestheticising.** Two live defects in a file-moving tool were rendered as a table row and followed
+  by a comparative statistic. Not ignored, formatted. Writing a count, table or comparison about
+  findings before each has a disposition is forbidden by the section below for exactly this reason.
+- **Noticing and carrying on.** The `list-workers` blindness that disarmed the mandatory-offload rule
+  was found, described accurately, and left unfixed for hours while other work continued.
+- **Grading instead of fixing.** A wrong worker count was reported as 8 against a true 3; the reflex
+  was to characterize it rather than repair the function that produced it.
+- **Routing what could be fixed.** A finding that can be fixed now is fixed now; the backlog is for
+  what genuinely cannot be, and using it as a queue for the merely inconvenient is the failure mode.
+
+**Interaction with the other disciplines.** This composes with the QA-blocking rule below (that one
+governs QA deliveries specifically, this governs anything wrong from any source) and with the
+decision-classification rubric: "found a defect and continued" is never an ACT, and it is not a valid
+BLOCKED either, since the blocker set is closed and contains no entry for it. The ledger
+[`.working/open-findings.md`](../.working/open-findings.md) and the
+[`block-on-open-findings.py`](hooks/block-on-open-findings.py) hook are the mechanical half; this
+section is the obligation the mechanics enforce, and it is wider than the hook, because the hook can
+only see a row once it is written.
+
 ## A delivered QA result BLOCKS progress until it is read and its findings are fixed
 
 **Maintainer-directed 2026-07-25, in capitals, after 17 QA deliveries sat unread in worker outboxes
