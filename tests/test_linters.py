@@ -2334,6 +2334,183 @@ class PairedSkillStepParityTests(LinterTestCase):
             mod.extract_command_steps(command_with_3a),
         )
 
+    # --- check 2: subsection representation ---------------------------
+    #
+    # The motivating false negative (2026-07-25): the deep-assessment
+    # command omitted the whole of the skill's ninth Process subsection,
+    # "Parallel execution (worker fan-out)", and the step-identifier
+    # check passed the pair because both surfaces carry eight numbered
+    # steps. A count comparison is blind to an unnumbered subsection by
+    # construction, so these fixtures exercise the subsection check
+    # independently of the step count.
+
+    SKILL_WITH_SUBSECTION = (
+        "# Skill\n"
+        "\n"
+        "## Process\n"
+        "\n"
+        "### 1. First step\n"
+        "\n"
+        "Body.\n"
+        "\n"
+        "### 2. Second step\n"
+        "\n"
+        "Body.\n"
+        "\n"
+        "### Parallel execution (worker fan-out)\n"
+        "\n"
+        "Phase 2 is a barrier; the fan-out joins before synthesis.\n"
+        "\n"
+        "## Red Flags\n"
+        "\n"
+        "- Something.\n"
+    )
+
+    # Concise command that carries BOTH numbered steps and a trace of
+    # the subsection. Deliberately compressed to one clause, because a
+    # command is an entry point and the check must not demand a copy.
+    COMPLIANT_COMMAND = (
+        "1. **First step**: content.\n"
+        "\n"
+        "2. **Second step**: content.\n"
+        "\n"
+        "Parallel execution of the worker fan-out joins at the barrier.\n"
+    )
+
+    # Same command with the subsection dropped entirely. It still reuses
+    # "worker" and "fan-out" for an unrelated purpose, which is exactly
+    # what the real command did, so a disjunctive "no heading token
+    # appears anywhere" rule would NOT flag this fixture.
+    COMMAND_MISSING_SUBSECTION = (
+        "1. **First step**: content.\n"
+        "\n"
+        "2. **Second step**: content.\n"
+        "\n"
+        "Dispatch the wide fan-out readers on a cheaper tier; the private\n"
+        "store is not in a worker's read surface.\n"
+    )
+
+    def test_unrepresented_subsection_is_flagged(self) -> None:
+        # POSITIVE fixture: a skill subsection with no representation in
+        # the paired command must produce a finding, even though the
+        # numbered step sets match exactly.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.extract_skill_steps(self.SKILL_WITH_SUBSECTION),
+            mod.extract_command_steps(self.COMMAND_MISSING_SUBSECTION),
+            "step-identifier sets must match, so the positive fixture "
+            "isolates the subsection check from check 1",
+        )
+        findings = mod.unrepresented_subsections(
+            self.SKILL_WITH_SUBSECTION, self.COMMAND_MISSING_SUBSECTION
+        )
+        self.assertEqual(
+            len(findings), 1,
+            f"expected exactly one unrepresented subsection, got {findings}",
+        )
+        line_no, heading, missing = findings[0]
+        self.assertEqual(heading, "Parallel execution (worker fan-out)")
+        self.assertIn(
+            "parallel", missing,
+            "the conjunctive rule must report the absent core token",
+        )
+
+    def test_compliant_concise_command_passes(self) -> None:
+        # NEGATIVE fixture: a command that compresses the subsection to a
+        # single clause is compliant. The check must stay silent, since a
+        # command is a concise entry point and never a copy.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.unrepresented_subsections(
+                self.SKILL_WITH_SUBSECTION, self.COMPLIANT_COMMAND
+            ),
+            [],
+            "a compressed but represented subsection must not be flagged",
+        )
+
+    def test_heading_inside_fence_is_not_a_subsection(self) -> None:
+        # NEGATIVE fixture: an illustrative `###` heading inside a fenced
+        # block is a template, not a document subsection. This is the
+        # validation-sweep skill's SARIF-lite block, whose
+        # `### Finding: <one-line title>` line is the one real
+        # false-positive source the census found.
+        mod = self._load_module()
+        skill = (
+            "## Process\n"
+            "\n"
+            "### 1. Only step\n"
+            "\n"
+            "```\n"
+            "### Finding: <one-line title>\n"
+            "- level: error|warning|note\n"
+            "```\n"
+            "\n"
+            "## Red Flags\n"
+        )
+        command = "1. **Only step**: content.\n"
+        self.assertEqual(mod.extract_skill_subsections(skill), [])
+        self.assertEqual(mod.unrepresented_subsections(skill, command), [])
+
+    def test_reasoned_opt_out_marker_suppresses_the_finding(self) -> None:
+        # NEGATIVE fixture: a subsection that legitimately has no command
+        # counterpart is exempted by an explicit reasoned marker.
+        mod = self._load_module()
+        skill = self.SKILL_WITH_SUBSECTION.replace(
+            "### Parallel execution (worker fan-out)\n",
+            "### Parallel execution (worker fan-out)\n"
+            "<!-- parity: command-exempt: orchestrator-side dispatch "
+            "mechanics, not an operator instruction -->\n",
+        )
+        self.assertEqual(
+            mod.unrepresented_subsections(
+                skill, self.COMMAND_MISSING_SUBSECTION
+            ),
+            [],
+            "a reasoned opt-out marker must suppress the finding",
+        )
+
+    def test_reasonless_opt_out_marker_is_itself_a_finding(self) -> None:
+        # POSITIVE fixture: the opt-out must not rot into a silent
+        # suppression, so a marker with no reason is reported.
+        mod = self._load_module()
+        skill = self.SKILL_WITH_SUBSECTION.replace(
+            "### Parallel execution (worker fan-out)\n",
+            "### Parallel execution (worker fan-out)\n"
+            "<!-- parity: command-exempt -->\n",
+        )
+        findings = mod.unrepresented_subsections(
+            skill, self.COMMAND_MISSING_SUBSECTION
+        )
+        self.assertEqual(
+            len(findings), 1,
+            f"a reasonless opt-out marker must be reported, got {findings}",
+        )
+        self.assertIn("no reason", findings[0][2][0])
+
+    def test_prefix_equivalence_absorbs_morphological_variation(self) -> None:
+        # NEGATIVE fixture: the conjunctive rule's dominant
+        # false-positive risk is a heading token whose command form is
+        # inflected differently. A shared five-character prefix counts as
+        # representation, so `execution` matches `Execute`.
+        mod = self._load_module()
+        skill = (
+            "## Process\n"
+            "\n"
+            "### 1. Only step\n"
+            "\n"
+            "### Escalation path\n"
+            "\n"
+            "Body.\n"
+            "\n"
+            "## Red Flags\n"
+        )
+        command = (
+            "1. **Only step**: content.\n"
+            "\n"
+            "Escalate along the documented path.\n"
+        )
+        self.assertEqual(mod.unrepresented_subsections(skill, command), [])
+
 
 class CollectionEnumerationConsistencyTests(LinterTestCase):
     """tools/lint-collection-enumeration-consistency.py"""

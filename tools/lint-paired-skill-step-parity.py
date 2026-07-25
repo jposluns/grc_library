@@ -2,8 +2,24 @@
 """Paired-skill step-parity audit.
 
 For each known paired surface (a SKILL.md + slash-command .md
-describing the same workflow), verify that the set of step
-identifiers in the two files matches by symmetric difference.
+describing the same workflow), run two checks:
+
+1. Step-identifier parity: the set of step identifiers in the two
+   files must match by symmetric difference.
+2. Subsection representation: every UNNUMBERED ``###`` subsection of
+   the skill's step section must leave a mechanical trace in the
+   paired command, or carry an explicit reasoned opt-out marker.
+
+Check 2 closes a blind spot check 1 has by construction. Check 1
+compares numbered identifiers, so an unnumbered subsection is
+invisible to it: on 2026-07-25 a false-negative audit found that
+``.claude/commands/deep-assessment.md`` omitted the whole of
+``deep-assessment/SKILL.md``'s ninth Process subsection, "Parallel
+execution (worker fan-out)" (including its phase-2 barrier rule), and
+this gate passed the pair because the command has eight numbered steps
+and the skill has eight numbered phases. Eight equals eight is
+consistent with both a complete command and a command missing an
+entire unnumbered subsection.
 
 The motivating finding is Sweep 3 in the validation-sweep history
 register: PR #78 introduced the deterministic pre-flight scanner
@@ -20,7 +36,7 @@ registration is a discipline gap the orchestrator must close at
 ship time (per `ai-assistant-workflow-disciplines.md` §3 Apply-time
 worker correction).
 
-Step-identifier extraction:
+Step-identifier extraction (check 1):
 - SKILL.md headings: ``### N. Title`` or ``### N<suffix>. Title``
   (where suffix is a lowercase letter or `.N`, e.g. ``3a``, ``3.5``).
 - Slash-command numbered items: ``N. **Title**:`` at line start.
@@ -28,9 +44,44 @@ Step-identifier extraction:
   to catch the ``Step 8 (only when...)`` form the validation-sweep
   command file uses for the final step.
 
+Subsection representation (check 2). A command is deliberately a
+CONCISE entry point, so it never reproduces a skill's full prose. This
+check therefore detects an ENTIRELY UNREPRESENTED subsection, not a
+compressed one, by requiring a heading-vocabulary anchor:
+
+- Candidate subsections are the ``###`` headings that carry no step
+  identifier and sit in the same ``##`` section as the skill's numbered
+  step headings. Lines inside fenced code blocks are skipped, so an
+  illustrative heading inside a fence (the validation-sweep skill's
+  ``### Finding: <one-line title>`` SARIF-lite template) is not a
+  subsection.
+- A candidate is REPRESENTED when every core token of its heading
+  (lowercased alphanumeric runs, minus a short stop-word list and
+  tokens under three characters) appears in the command body. A token
+  matches exactly, or by a shared five-character prefix so ordinary
+  morphological variation counts (skill ``execution`` against command
+  ``Execute``).
+- A subsection that legitimately has no command counterpart carries
+  ``<!-- parity: command-exempt: <reason> -->`` on its heading line or
+  within the two lines below it. The reason is required: an unexplained
+  exemption is itself a finding, so the opt-out cannot rot into a
+  silent suppression.
+
+Why a conjunction over the core tokens rather than "no heading token
+appears anywhere". The weaker disjunctive rule does not detect the
+motivating case: the command reuses "worker" (a worker's read surface)
+and "fan-out" (wide fan-out readers on a cheaper tier) for unrelated
+purposes, so the omitted subsection's heading tokens DO appear, and a
+disjunctive rule passes it. A majority-of-tokens rule passes it too
+(three of five). Only the conjunction fails it.
+
+Scope: only paired surfaces in the PAIRS registry are checked.
+
 Exit codes:
-    0 - All paired surfaces have matching step-identifier sets.
-    1 - At least one pair has a symmetric-difference mismatch.
+    0 - All paired surfaces have matching step-identifier sets and no
+        unrepresented subsection.
+    1 - At least one pair has a symmetric-difference mismatch or an
+        unrepresented skill subsection.
 
 Stdlib-only Python 3.11.
 """
@@ -41,7 +92,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, read_text_safe
+from lint_common import REPO_ROOT, iter_non_code_lines, read_text_safe
 
 
 # Each entry: (skill_path, command_path). Add a pair when a new
@@ -123,6 +174,154 @@ COMMAND_NUMBERED_RE = re.compile(
 # "Step 8 (only when the sweep produced findings)" form).
 COMMAND_PROSE_RE = re.compile(r"\bStep\s+(\d+(?:[a-z]|\.\d+)?)\b")
 
+# --- check 2: subsection representation ---------------------------------
+
+# Any `## ` heading (a section boundary). `### ` does not match: the
+# fourth character must be whitespace.
+SECTION_H2_RE = re.compile(r"^##\s")
+
+# Any `### ` heading; captures the heading text with a trailing closing
+# `#` run (an ATX variant no corpus file uses) stripped.
+SUBSECTION_H3_RE = re.compile(r"^###\s+(.*?)\s*#*\s*$")
+
+# A `### ` heading that DOES carry a step identifier, i.e. the shape
+# SKILL_STEP_RE matches. Such a heading is check 1's business, not
+# check 2's.
+NUMBERED_H3_RE = re.compile(r"^###\s+\d+(?:[a-z]|\.\d+)?\.\s")
+
+# Author opt-out for a subsection with no legitimate command
+# counterpart. The reason group is optional in the pattern so a
+# reasonless marker can be detected and reported rather than silently
+# honoured.
+SUBSECTION_EXEMPT_RE = re.compile(
+    r"<!--\s*parity:\s*command-exempt(?::(?P<reason>[^>]*?))?\s*-->",
+    re.IGNORECASE,
+)
+
+TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+# Deliberately short and closed: function words that carry no
+# distinguishing content in a heading. Anything domain-bearing stays in
+# the required set.
+SUBSECTION_STOP_WORDS = frozenset(
+    {
+        "the", "a", "an", "and", "or", "of", "to", "in", "for", "on",
+        "with", "its", "it", "is", "are", "be", "by", "at", "as", "any",
+        "all", "then", "into", "from", "per", "not", "no", "if", "when",
+        "only", "every", "this", "that",
+    }
+)
+
+# Minimum token length for prefix-equivalent matching, and the prefix
+# length itself. A shorter token must match exactly.
+STEM_LEN = 5
+
+# How many lines below a heading an opt-out marker may sit.
+EXEMPT_WINDOW = 2
+
+
+def content_tokens(text: str) -> set[str]:
+    return set(TOKEN_RE.findall(text.lower()))
+
+
+def token_present(token: str, corpus: set[str]) -> bool:
+    """Whole-token match, widened to a shared five-character prefix.
+
+    The prefix widening absorbs ordinary morphological variation (a
+    skill heading's ``execution`` against a command's ``Execute``),
+    which is the dominant false-positive risk for a conjunctive rule.
+    Tokens shorter than ``STEM_LEN`` must match exactly.
+    """
+    if token in corpus:
+        return True
+    if len(token) < STEM_LEN:
+        return False
+    stem = token[:STEM_LEN]
+    return any(candidate.startswith(stem) for candidate in corpus)
+
+
+def heading_core_tokens(heading: str) -> list[str]:
+    """Content tokens of a subsection heading, order-preserved and deduped."""
+    core: list[str] = []
+    for token in TOKEN_RE.findall(heading.lower()):
+        if len(token) < 3 or token in SUBSECTION_STOP_WORDS:
+            continue
+        if token not in core:
+            core.append(token)
+    return core
+
+
+def extract_skill_subsections(text: str) -> list[tuple[int, str, str | None]]:
+    """Unnumbered ``###`` subsections of the skill's step section.
+
+    Returns ``(line_number, heading_text, exemption_reason)`` triples.
+    ``exemption_reason`` is ``None`` when no opt-out marker is present
+    and the empty string when a marker carries no reason.
+
+    The step section is the ``##`` section enclosing the skill's
+    numbered step headings, which is ``## Process`` in most pack skills
+    and the unwrapped top level in ``adopt``. A skill with no numbered
+    step headings yields no candidates.
+    """
+    visible = list(iter_non_code_lines(text))
+    numbered = [n for n, line in visible if NUMBERED_H3_RE.match(line)]
+    if not numbered:
+        return []
+    first_step, last_step = numbered[0], numbered[-1]
+    start = 0
+    end = visible[-1][0] + 1
+    for n, line in visible:
+        if not SECTION_H2_RE.match(line):
+            continue
+        if n < first_step:
+            start = n
+        elif n > last_step:
+            end = n
+            break
+    by_line = dict(visible)
+    found: list[tuple[int, str, str | None]] = []
+    for n, line in visible:
+        if not start < n < end:
+            continue
+        match = SUBSECTION_H3_RE.match(line)
+        if match is None or NUMBERED_H3_RE.match(line):
+            continue
+        window = "\n".join(
+            by_line.get(k, "") for k in range(n, n + EXEMPT_WINDOW + 1)
+        )
+        exempt = SUBSECTION_EXEMPT_RE.search(window)
+        reason: str | None = None
+        if exempt is not None:
+            reason = (exempt.group("reason") or "").strip()
+        found.append((n, match.group(1).strip(), reason))
+    return found
+
+
+def unrepresented_subsections(
+    skill_text: str, command_text: str
+) -> list[tuple[int, str, list[str]]]:
+    """Skill subsections with no representation in the paired command.
+
+    Returns ``(line_number, heading_text, missing_core_tokens)`` triples.
+    """
+    command = content_tokens(command_text)
+    out: list[tuple[int, str, list[str]]] = []
+    for line_no, heading, reason in extract_skill_subsections(skill_text):
+        if reason:
+            continue
+        if reason == "":
+            out.append(
+                (line_no, heading, ["<opt-out marker carries no reason>"])
+            )
+            continue
+        core = heading_core_tokens(heading)
+        if not core:
+            continue
+        missing = [t for t in core if not token_present(t, command)]
+        if missing:
+            out.append((line_no, heading, missing))
+    return out
+
 
 def extract_skill_steps(text: str) -> set[str]:
     return set(SKILL_STEP_RE.findall(text))
@@ -172,6 +371,19 @@ def main() -> int:
                 "Same logical step in both files must use the same "
                 "identifier; rename one to match the other."
             )
+        for line_no, heading, missing in unrepresented_subsections(
+            skill_text, command_text
+        ):
+            findings.append(
+                f"unrepresented subsection: {skill_rel}:{line_no} "
+                f"'### {heading}' has no representation in {command_rel} "
+                f"(core heading token(s) absent: {sorted(missing)}). "
+                "A command is a concise entry point, not a copy, but an "
+                "entirely unrepresented subsection is lockstep drift: "
+                "carry the subsection's substance into the command, or "
+                "mark the subsection "
+                "'<!-- parity: command-exempt: <reason> -->'."
+            )
         pairs_checked += 1
 
     if findings:
@@ -180,7 +392,8 @@ def main() -> int:
         return 1
     print(
         f"OK: {pairs_checked} paired skill+slash-command surface(s) "
-        "have matching step-identifier sets."
+        "have matching step-identifier sets and no unrepresented "
+        "skill subsection."
     )
     return 0
 
