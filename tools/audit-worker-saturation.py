@@ -238,6 +238,18 @@ def _entries(directory):
         return [], False
 
 
+def _tray_order_id(stem: str) -> str:
+    """PURE. Recover an order id from a delivery-tray filename.
+
+    The tray names a collected delivery ``<worker-id>__<order-id>.md`` so both ids survive without
+    parsing the body. A RESULT file carries no ``id:`` field, so ``_order_id`` would fall back to the
+    whole stem and yield an id that matches no queue row, which would silently defeat the
+    phantom-pending retirement below. Splitting on the FIRST join is correct because a worker id never
+    contains it while an order id may contain hyphens.
+    """
+    return stem.split("__", 1)[1] if "__" in stem else stem
+
+
 def _order_id(path):
     """An order's id: its ``id`` field when present, else the file stem. The
     file-drop dispatch names the dropped file ``<order-id>.md``, so the stem and
@@ -378,6 +390,24 @@ def survey_filedrop(root):
     # `outstanding` would inflate, and the verdict could flip to a false SATURATED. That is
     # precisely the defect fixed in grc_library #1158, and the archive would have reintroduced
     # it. Both partitions are scanned because an order and its result archive separately.
+    # THE DELIVERY TRAY (grc_library #1171, and the regression it caused). A delivery is now swept out
+    # of its worker's outbox into inbox/deliveries/ as soon as the orchestrator notices it, so between
+    # that sweep and its eventual archive an order sits in a THIRD location this scan did not know
+    # about. Without it the order stops counting as delivered, its phantom `pending` git-scratch row
+    # comes back, `outstanding` inflates, and the verdict flips to a false SATURATED, which is the very
+    # defect the delivered-set logic below was written to prevent, reintroduced by a tool built the same
+    # day. It fired live: SATURATED reported while a worker sat idle, found because the maintainer asked
+    # whether the fleet was being kept fed. The composed filename also has to be split, or the recovered
+    # id matches no queue row and the scan is inert even when it runs.
+    tray = root / "inbox" / "deliveries"
+    if tray.is_dir():
+        entries, readable = _entries(tray)
+        if not readable:
+            unreadable.append(tray)
+        for p in entries:
+            if p.is_file() and p.suffix == ".md" and p.name != "README.md":
+                delivered.add(_tray_order_id(p.stem))
+
     for kind in ("deliveries", "orders"):
         kind_root = root / "done" / kind
         if not kind_root.is_dir():
@@ -393,7 +423,10 @@ def survey_filedrop(root):
                 unreadable.append(mdir)
             for p in entries:
                 if p.is_file() and p.suffix == ".md" and p.name != "README.md":
-                    delivered.add(_order_id(p))
+                    # done/deliveries/ holds files filed FROM the tray, so they carry the same
+                    # composed name and need the same split; done/orders/ holds plain order ids,
+                    # which the split leaves untouched.
+                    delivered.add(_tray_order_id(p.stem))
     return live_ids, orders, unreadable, delivered
 
 
@@ -545,11 +578,20 @@ def _build_scratch(root, workers, orders):
     return root
 
 
-def _build_filedrop(root, heartbeats, available, claimed, delivered=None, archived=None):
+def _build_filedrop(root, heartbeats, available, claimed, delivered=None, archived=None,
+                    trayed=None):
     """heartbeats: {family: {worker_id: age_minutes}};
     available: {family: [order_id]}; claimed: {family: {worker_id: [order_id]}};
     delivered: {family: {worker_id: [order_id]}} written into outbox/<worker>/;
-    archived: [order_id] written into done/deliveries/<month>/ (family-independent)."""
+    archived: [order_id] written into done/deliveries/<month>/ (family-independent);
+    trayed: [(worker_id, order_id)] written into inbox/deliveries/ under the tray's composed
+    <worker-id>__<order-id>.md name, the location a swept delivery occupies before archive."""
+    for wid, oid in (trayed or []):
+        tray = root / "inbox" / "deliveries"
+        tray.mkdir(parents=True, exist_ok=True)
+        # A RESULT file, deliberately WITHOUT an `id:` field, because that absence is what makes the
+        # composed-filename split load-bearing rather than incidental.
+        (tray / f"{wid}__{oid}.md").write_text("# result\n\n<!-- END OF DELIVERY -->\n", encoding="utf-8")
     for fam, workers in heartbeats.items():
         hb_dir = root / fam / "heartbeat"
         hb_dir.mkdir(parents=True, exist_ok=True)
@@ -733,6 +775,30 @@ def _plane_cases(tmp):
                            archived=["o-archived"])
     cases.append(("an archived delivery in done/ still counts as delivered",
                   ar_s, ar_f, (1, 0, 0, "IDLE-CAPACITY")))
+
+    # THE #1171 REGRESSION, pinned. A delivery swept into the tray must still retire its phantom
+    # `pending` scratch row; before the tray was scanned this returned SATURATED with a worker idle.
+    tr_s = _build_scratch(tmp / "c13-scratch",
+                          workers={"w-a": ("active", 1)},
+                          orders={"o-trayed": "pending"})
+    tr_f = _build_filedrop(tmp / "c13-working",
+                           heartbeats={"opus": {"w-a": 1}},
+                           available={}, claimed={},
+                           trayed=[("opus-20260725T122030Z-6443", "o-trayed")])
+    cases.append(("a delivery swept into the tray retires its phantom pending row",
+                  tr_s, tr_f, (1, 0, 0, "IDLE-CAPACITY")))
+
+    # And the SPLIT is what makes that work: an unsplit stem yields an id matching no queue row, so
+    # the scan would run and be inert. Two live workers with one phantom row would read SATURATED.
+    sp_s = _build_scratch(tmp / "c14-scratch",
+                          workers={"w-a": ("active", 1), "w-b": ("active", 1)},
+                          orders={"o-split": "pending"})
+    sp_f = _build_filedrop(tmp / "c14-working",
+                           heartbeats={"opus": {"w-a": 1, "w-b": 1}},
+                           available={}, claimed={},
+                           trayed=[("opus-worker-with-a-long-id", "o-split")])
+    cases.append(("the composed-filename split is load-bearing, not incidental",
+                  sp_s, sp_f, (2, 0, 0, "IDLE-CAPACITY")))
 
     return cases
 

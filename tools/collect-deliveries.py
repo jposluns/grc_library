@@ -257,6 +257,13 @@ def self_test() -> int:
     check("split_name round-trips a hyphenated order id",
           split_name(compose_name("codex-abc", "validate-pr-1169-b")),
           ("codex-abc", "validate-pr-1169-b"))
+    # The empty-part guard, previously BLIND: the cases below covered a non-tray name and a wrong
+    # extension, so disabling the guard changed nothing observable and it read as covered. Found by
+    # tools/audit-selftest-discriminability.py. Without the guard these return ("", "x") and
+    # ("x", ""), and a caller would then use an empty worker id, which the saturation tool's
+    # phantom-pending retirement now depends on being well-formed.
+    check("split_name rejects an empty worker id", split_name("__x.md"), (None, None))
+    check("split_name rejects an empty order id", split_name("x__.md"), (None, None))
     check("split_name rejects a non-tray filename", split_name("sweep-121.md"), (None, None))
     check("split_name rejects a non-md file", split_name("w__o.txt"), (None, None))
 
