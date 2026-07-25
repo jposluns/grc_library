@@ -24,7 +24,7 @@ This file is informational and is not subject to the library's metadata-block, a
 
 ## Priority 1 — Fix errors and prevent recurrence
 
-**Next item number: 1.23.**
+**Next item number: 1.26.**
 
 Correctness fixes and the **error-prevention tooling** that keeps the corpus from regressing.
 
@@ -65,6 +65,33 @@ A cohesive block the maintainer surfaced at the 2026-07-19 `/resume`, tightening
 - **1.22.3 `.working` cycle-out to `_private` (generalize + policy).** **TOOL-BUILD SHIPPED (#1070):** [`tools/sweep-working-records-to-private.py`](tools/sweep-working-records-to-private.py) generalized with the one-off completed-directory sweep (`ONEOFF_DIRS` allow-list, never auto-detected; seeded `pack-hygiene-acceptance`/`pack-hygiene-fragments`, swept whole inside the existing emit-verify-prune sequence after all re-parse assertions) plus a read-only `--staleness-report` (advisory counts of aged `DONE.md` + resolved-and-aged `pending-decisions.md` entries), with the one-off verify-before-prune extracted to the self-tested `oneoff_missing_from_archive` helper (7 self-tests; offloaded draft + independent adversarial verify, SHIP-WITH-FIXES, the one required fix applied). **REMAINING:** (a) **DONE (initial sweep, #1140-era dedicated cleanup-PR):** at the maintainer's decided cutoff (keep current + 1 prior week, `--as-of 2026-07-13`), the dated records and the ~383 roll-up rows all fall inside that window and stay in-repo, so only the 2 completed one-off dirs (pack-hygiene-acceptance, pack-hygiene-fragments) swept to the grc_library_private archive via emit-to-`_private` + verify-archived + prune (git history retains everything; the 3 TODO references and the .working/README.md inventory row to the swept acceptance file were delinked). The default current-week-only dry-run still shows the larger backlog; the conservative current+1-prior cutoff keeps it in-repo for now; (b) **ENABLE the destructive `DONE.md` aged-entry + `pending-decisions.md` resolved-tail sweeps**, gated on a maintainer `DONE` cutoff-width decision + a `DONE` `effective_floor` (gates 50/57 have none) + the conservative resolved-AND-aged entry-boundary predicate (tighten `RESOLVED_MARKER` to an anchored status token + add an embedded-open-sub-item guard, per `verify-1223-draft`); (c) codify the session-boundary dedicated-cleanup-PR policy (NOT on-touch coupling; maintainer-decided 2026-07-19). Keep live load-bearing files public (handoff, state, next-prs, current-window gate-50 rows, current-window changelog-details).
 - **1.22.8 Chat text-pacing / read-pause convention (maintainer-directed 2026-07-19; DISCUSS TOMORROW; maintainer-gated).** Recurring problem the maintainer flagged: assistant chat scrolls past too fast to read ("you scrolled text so fast i didn't see anything else"), so answers are missed. The maintainer's existing mitigations are the AskUserQuestion multiple-choice UI (per memory) and the IMPORTANT: marker. Design a durable text-pacing convention so a maintainer-facing answer is readable before the next output scrolls it away (candidates: a pause/acknowledgement gate after answering a maintainer question; shorter chunked messages; a "press to continue" affordance; surfacing key points via AskUserQuestion so they hold on screen). Needs the maintainer's input on the preferred mechanism, so DISCUSS at the next attended boundary before building.
 - **1.22.9 Canada.ca AI/privacy-suite egress URLs (maintainer-directed 2026-07-19; overnight action).** Add the DIRECT download URLs for the Canada.ca AI-governance + privacy suite (the 2.25.3 sources, the item formerly at §2.22: TBS Directive on ADM, AIA tool, the AI guides, Guiding Principles, FASTER, GC AI Register, the Voluntary Code; Privacy Act, OPC Fair Information Principles, OPC retention/disposal, the Breach of Security Safeguards Regulations, the TBS Policy on Privacy Protection) to the `_private` maintainer-egress-requests list, since canada.ca is WAF-blocked for automated fetch. Verify each URL (do NOT fabricate; use WebSearch to confirm the canonical canada.ca path, mark any unconfirmed for the maintainer). The maintainer downloads them into `grc_library_ref/ingest/`, then 2.25.3 proceeds. This is the concrete seed for the §1.22.7 egress-gated section's Canada rows.
+
+### 1.24 Sweep 120 F2: coverage surfaces do not name the AI-jurisdiction annexes that shipped (2026-07-25, H, M)
+
+Sweep 120's second finding family: the California ADMT (#1141) and Singapore (#1143) AI annexes shipped in-window, but the judgment-call surfaces a reader consults to find them were not updated with them, so the library under-states its own coverage to adopters. These are accuracy defects on adopter-facing surfaces, which is why they sit in P1 rather than P2. Eight routed findings, each with its `path:line` and full evidence in the Sweep 120 delivery (`/home/grc/grc_working/opus/outbox/worker-20260716-a/sweep-120-validate.md`); re-verify each at source before applying, per validate-then-apply.
+
+- **`.web/templates/for-ai.html:161`** (warning, in-window) still tells readers the corpus does not cover California ADMT or Singapore. Public-facing and directly wrong; fix first.
+- **`governance/register-glossary.md:54`** (warning, in-window) routes California ADMT to the annex that #1141 explicitly de-designated.
+- **`governance/register-coverage-gaps.md:147`** (warning, in-window) grades Canada AIDA an open planned gap that TODO 5.9 struck.
+- **`governance/register-coverage-gaps.md:142`** (warning, out-of-window) says the AI-jurisdictions structure holds only the EU annex, understating coverage by five.
+- **`TODO.md` §2.21** (warning, out-of-window; cited by section, not line, because inserting this very item shifted the line number the sweep reported) defers three AI annexes as having "no held primary yet" when the primaries ARE held and two were cited in-window. Correct the deferral basis before 2.21 is next scheduled, or the item stays blocked on a premise that is false.
+- **`docs/decision-tree.md:349`** (warning, out-of-window) routes AI adopters to only two of seven jurisdiction annexes.
+- **`tools/build-portal.py:111`** (note, out-of-window) hardcodes a two-annex AI-jurisdiction enumeration, which is the GENERATOR half of the same class: fix it guard-first or the prose fixes above regress at the next regeneration.
+- **`.web/corpus-link-manifest.md:3`** (warning, in-window) claims universal coverage the manifest does not have, leaving all 15 rule links and all 24 skill links outside gate 75's reach. A gate-coverage overstatement, so treat it as a gate-scope fix, not a prose fix.
+
+### 1.25 Sweep 120: citation and attribution precision residuals (2026-07-25, H, M)
+
+Sweep 120 routed ten findings where a cited value, title, or date does not match the held source, or where an attributed claim is not verifiable at the source cited. This is the `claim-fit` and citation-accuracy class the existence gates cannot see. Every item needs verification against the held text in `grc_library_ref` before any edit, and an `informed-not-prescribed` case is fixed by the ATTRIBUTION PHRASING, never by silently changing the value.
+
+- **`security/framework-cryptographic-key-lifecycle.md:126` and `security/policy-encryption-and-key-management.md:213`** (2 notes, out-of-window): NIST SP 800-208 carries a FABRICATED title in both alignment tables. Two carriers of one defect, so fix them together and grep for a third.
+- **`governance/register-canonical-citations.md:230`** (warning, out-of-window): the OWASP Agentic Top 10 publication date is recorded as 2026 where the held title page says December 2025.
+- **`governance/register-canonical-citations.md:148`** (note, in-window): the Texas TRAIGA publication date is the one register cell no held text supports.
+- **`governance/register-canonical-citations.md:117`** (note, in-window): a promotional superlative sits in the ETSI row beside verified facts; register prose should state facts, not vendor framing.
+- **`security/roadmap-post-quantum-cryptography.md:51`** (note, in-window): the NIST PQC security-category-to-AES equivalence is unattributed and not verifiable at the held source.
+- **`security/roadmap-post-quantum-cryptography.md:56`** (note, in-window): the ML-DSA-44 category-reduction condition drops the standard's lower RBG bound, so the condition as written is weaker than the standard's.
+- **`security/framework-cryptographic-key-lifecycle.md:50`** (warning, in-window): FIPS 205 / SLH-DSA reached the encryption policy in-window but not this paired framework's approved-algorithm list. A paired-surface miss of the kind the close-out checklist targets.
+- **`ai/standard-ai-and-agentic-development-security.md:350`** (note, in-window): the OWASP MCP Top 10 is cited as a control anchor without disclosing its Beta status.
+- **`ai/standard-ai-and-agentic-development-security.md:777`** (note, in-window): the section 36 ASI column header uses a non-canonical framework name.
 
 ## Priority 2 — Fill significant gaps
 
@@ -242,9 +269,19 @@ Surfaced 2026-07-24 during the §2.19 Singapore GenAI annex build: IMDA and the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.109.**
+**Next item number: 3.110.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+### 3.109 Sweep 120: tooling-docstring and record-accuracy residuals (2026-07-25, L, S)
+
+Low-severity Sweep 120 notes, grouped because each is a one-line accuracy fix in a tool docstring or a working record. Full evidence per finding in the Sweep 120 delivery.
+
+- **`tools/lint-skill-internal-refs.py:23`** (gate 76) docstring lists a token class (`section N`) the code deliberately does not flag, and **`:22`** says PR refs match at "three-plus digits" where the pattern caps at five. Docstring-versus-behaviour drift in both directions.
+- **`tools/lint-gate-citation-inventory.py:95`** (gate 77) parses the gate inventory from the WHOLE specification rather than the section-6 region, so an inventory-shaped line elsewhere in the spec would be read as a gate row. Behaviour change, so gate it with a fixture.
+- **`.working/changelog-details/CHANGELOG-detailed.md:62`** asserts a validation guarantee for the exchange channel that the instrument itself declines to assert. Correct the record's claim to what the tool actually guarantees.
+- **`TODO.md:31`** the Priority-1 preamble asserts no point-fix items are open while two P1 sections are open.
+- **`TODO.md:53`** mixes bare-`scratch` and `_private` forms in the 1.19 block, against the repo-shorthand convention. The same class was fixed in `.claude/CLAUDE.md` at the Sweep 120 close-out.
 
 ### 3.2 Authoritative standards register + designation-correctness gate (M-H, L; egress-gated)
 
@@ -416,7 +453,7 @@ Capability and guidance for organizations adopting the library, and the operator
 
 ### 4.1 Corpus-management discipline as a shareable skill (M, XL)
 
-Package the cumulative documentation-and-corpus discipline as a standalone Claude Code skill anyone managing a documentation corpus with an AI assistant could install. Distillation source: the fourteen `governance/` pack rules (discipline core), `validation-sweep` + `library-fitness-review` (periodic-review surface), the audit-programme architecture (mechanical-enforcement surface). Decided 2026-06-22: skill **family** (not omnibus), **prescriptive-only** (no linter scaffolds), **existing pack 1.x bump**. After the FR backlog closes. UNBLOCKED: the pack adoption-hygiene programme is complete (phases 1-4, closed #846), so the distillation source (the condensed, adoption-clean governance rules) is merged and available.
+Package the cumulative documentation-and-corpus discipline as a standalone Claude Code skill anyone managing a documentation corpus with an AI assistant could install. Distillation source: the fifteen `governance/` pack rules (discipline core), `validation-sweep` + `library-fitness-review` (periodic-review surface), the audit-programme architecture (mechanical-enforcement surface). Decided 2026-06-22: skill **family** (not omnibus), **prescriptive-only** (no linter scaffolds), **existing pack 1.x bump**. After the FR backlog closes. UNBLOCKED: the pack adoption-hygiene programme is complete (phases 1-4, closed #846), so the distillation source (the condensed, adoption-clean governance rules) is merged and available.
 
 ### 4.3 Overnight unattended-run driver (M, L)
 
