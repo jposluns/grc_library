@@ -8,6 +8,89 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-25, Library Version 2026.07.666, PR #1178 (Sweep 122 close-out, and a directive about how sessions end)
+
+The first PR of the resumed session: the loop-break sweep consumed, a maintainer directive codified, and two guards
+repaired that had each been answering a question their input could not answer.
+
+### Verification
+
+Sweep 122, the loop-break corpus-wide `/validate` for the **#1169..#1177** window, was **PRE-QUEUED at the prior
+session's wind-down** under the discipline #1177 had just codified, so it was already in flight when this session
+resumed rather than waiting to be dispatched. That is the first firing of that discipline and it did what it was
+meant to do. Delivered by `opus-20260725T121943Z-78ff` and consumed under elevated QA: **PASS, zero genuine misses,
+0 error and 0 warning**, with all five of the closing session's asserted-clean claims independently re-derived and
+confirmed. The **loop-break control for #1177 PASSES.** Baseline re-derived by the worker in an isolated pinned clone:
+78/78 with suite exit 0, no `FAIL` lines, and gate numbers 1 to 78 with no hole.
+
+### Changed
+
+**A session must not close with a large unvalidated PR (maintainer-directed).** The previous session ended with
+#1176 on `main` carrying 22 files, 813 insertions and six backlog-item closures, its `/validate-pr` order dispatched
+and never claimed. The row recording that is unusually honest, saying in terms "NOT a pass and NOT an exemption",
+and honesty is not the issue: a dispatched order is work ORDERED, never work DONE, and a wrongly-closed backlog item
+is invisible afterwards, so that PR needed its sweep more than most rather than less. The rule now says the handoff
+exemption covers exactly one PR and does not extend to the one before it; that an outstanding QA is waited for; that
+where no worker will serve it the orchestrator runs it directly, because on this one conflict the mandatory-QA
+obligation outranks mandatory offload; that where it cannot be run at all the closing handoff does not go out; and
+that the last substantive PR of a session is kept small, since the exposure is the product of its size and the
+chance its QA does not return. Codified in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) close-out item 3 and,
+portably, in the pack's [`session-lifecycle.md`](../../dev-security/claude-rules/governance/session-lifecycle.md)
+section 5.
+
+**The convergence is worth recording.** Sweep 122's Part 3 reached the same place from the opposite direction and
+independently of the directive: gate 50's Check 1 is satisfied by row PRESENCE, and #1176 is neither the
+highest-numbered PR nor a handoff, so its honest pending row satisfies the check and **the parity gate reads green
+while that PR's QA has never run**. The mechanical half is deliberately NOT built here and is queued as TODO 3.120,
+because it cannot land green until #1176's own QA returns; the convention is stated as the weaker half of the pair
+rather than assumed adequate.
+
+### Fixed
+
+**[`tools/audit-selftest-discriminability.py`](../../tools/audit-selftest-discriminability.py) divided a measured numerator by an attempted denominator.** Its summary
+read "73 NOT-DETECTED guard(s) across 21 tool(s)" while ten of those twenty-one probes are VOID, meaning the positive
+control never fired so the probe cannot see a failing self-test and reports no figures at all. The 73 therefore spans
+the eleven tools the run could measure, and the exposure across the other ten is UNKNOWN rather than zero, so the
+line read as full coverage of twenty-one tools when the true figure is larger by an unmeasured amount. Surfaced by
+Sweep 122 and re-measured by the orchestrator from a fresh probe run rather than accepted from the delivery; the
+re-run reproduced the worker's void list exactly. The summary now reports measured-of-probed, names the ten void
+tools, and states that the total understates the truth. Self-test 17/17.
+
+**The open-findings hook accepted any non-empty text where a decision belongs.** The ledger's own contract is that a
+row leaves only via `FIXED`, `ROUTED`, `REFUTED` or `ACCEPTED`, but
+[`block-on-open-findings.py`](../../.claude/hooks/block-on-open-findings.py) tested the disposition cell for
+EMPTINESS, so `OPEN: a fresh worker is requested` or a bare `pending` satisfied it while saying in plain words that
+nothing had been decided. Found while writing exactly such a row in this PR. This is the guard-input-authority class
+the project fixed three times elsewhere this week: the check was correct and its input could not answer the question
+asked of it. The check now requires one of the four vocabulary words, tolerating surrounding bold or backtick markup
+and case. The self-test grew from 8 to 14 cases, and the new cases are a reality fixture built from the two cell
+shapes that actually slipped through, not from invented ones.
+
+### Added
+
+Three backlog items at the next unused numbers, counter advanced 3.120 to 3.123: **3.120** the third `pending` state
+gate 50 Check 1 needs; **3.121** that a sweep order stripping `origin` makes the pre-push-guard claim un-re-derivable,
+so such a claim returns VOID rather than confirmed (Sweep 122 Part 5, and the worker correctly declined to invent a
+local ref unasked); **3.122** that #1176's QA must RETURN and be dispositioned, which closes on the result, never on
+a re-dispatch.
+
+### Discipline observation
+
+**TODO 3.73's premise was wrong, and the correction came from a worker raising an issue rather than from a sweep.**
+The item recorded #915 as the ledger-fusion class's first escape to `main`. Measuring detector candidates for that
+very item, `opus-20260725T121943Z-78ff` found **five** fused rows live in [`validate-sweeps/history.md`](../validate-sweeps/history.md) and one in
+[`matrix-fit/history.md`](../matrix-fit/history.md), confirmed two independent ways. #915 was the first NOTICED escape. Four of the six fusions
+dropped the displaced row's identifier entirely, so QA audit trail has been silently lost rather than merely
+mis-rendered, and the gate as specified cannot land green against the current tree. The maintainer's decision is
+repair first, then gate, with no grandfathered exemption set. The worker was right to raise it out of band rather
+than bury it in a result: the finding invalidated its own order's success condition.
+
+**Three of the Sweep 122 worker's own instruments were wrong before they were right**, each disclosed at the point of
+use, and each would have produced a false escalation against a session that in fact made no miss. The orchestrator's
+handling of the two figure corrections follows the same shape: both were re-measured at source rather than
+transcribed, and the frozen `.working` records carrying the superseded figures are left as written, with the
+corrections annotated rather than retro-edited, because a frozen record states what was believed when it was written.
+
 ## 2026-07-25, Library Version 2026.07.665, PR #1177 (session-closing handoff)
 
 The session's last two queued items, then the close.

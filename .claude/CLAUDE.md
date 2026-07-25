@@ -671,6 +671,43 @@ is external. Two mechanisms:
    marker placed only in the Summary cell leaves the row flagged the moment the next PR
    demotes it from highest-numbered.
 
+   **A SESSION MUST NOT CLOSE WITH A LARGE UNVALIDATED PR (maintainer-directed 2026-07-25).**
+   The handoff exemption covers exactly ONE PR, the closing handoff, and only because that PR is
+   bookkeeping. It does not extend to the PR before it, and it is not a licence to let the QA
+   cadence lapse as a session winds down. **A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE.**
+
+   The 2026-07-25 session closed with #1176 carrying 22 files, 813 insertions, and SIX
+   backlog-item closures, its `/validate-pr` merely DISPATCHED: no worker ever claimed the order,
+   so the last substantive PR of the session merged unvalidated and six closures went unchecked.
+   A wrongly-closed backlog item is invisible afterwards, which is precisely why that PR needed
+   the sweep more than most, not less.
+
+   So, before the closing handoff PR is opened:
+   - **Every merged PR in the session except the handoff itself has a `/validate-pr` result that
+     RETURNED, with its findings dispositioned.** A row reading `DISPATCHED, RESULT PENDING`
+     does NOT satisfy this, however honestly it is worded. Honest prose recording an absence is
+     the right way to record it and is not a substitute for the thing being absent.
+   - **If the order is outstanding, WAIT for it.** If no worker will serve it (no eligible
+     claimant, an independence conflict, a stalled fleet), SELF-RUN it inline: on this one
+     conflict the mandatory-QA rule outranks the mandatory-offload rule, never the reverse.
+     Alert the maintainer and request another worker at the same time, per the
+     worker-elasticity corollary, but do not let the ask become the reason the QA never ran.
+   - **If it genuinely cannot be run before close, the closing handoff does not go out.** Keep
+     the session open, or land the substantive PR's QA as its own PR first. Closing is the
+     assistant's choice; closing over an unvalidated substantive PR is not.
+   - **Keep the last substantive PR of a session SMALL.** The exposure is the product of the
+     PR's size and the chance its QA does not return, so a wind-down is the wrong moment for a
+     wide, multi-surface, or closure-bearing change. Sequence those earlier in the session.
+
+   **The mechanical half is NOT YET BUILT, and the gap is specific.** Gate 50's Check 1 is
+   satisfied by row PRESENCE, so an honest `DISPATCHED, RESULT PENDING` row satisfies it and the
+   parity gate reads GREEN while the PR's QA has in fact not run (Sweep 122 Part 3 identified
+   this from the gate's own contract, independently of the maintainer's directive; the two
+   exemptions Check 1 already models are both detected mechanically, one of them by exactly this
+   kind of Findings-cell marker, so a third state follows an existing precedent). Until that
+   check exists, THIS CONVENTION IS THE ONLY CONTROL, which is the weaker half of the
+   defence-in-depth pair and is stated as such rather than assumed adequate.
+
 ## Multi-session orchestration
 
 The serial-apply, CI-gating, per-PR `/validate-pr` + `/retro`, and validate-then-apply

@@ -1,16 +1,16 @@
 # Session State (concurrency lease)
 
-**Active-session:** none
+**Active-session:** claude/sweep122-closeout-and-ledger-repair
 
-**Status:** released
+**Status:** active
 
 **Operating-mode:** fully-attended
 
-**Last-heartbeat-UTC:** 2026-07-25T22:54:08Z
+**Last-heartbeat-UTC:** 2026-07-25T23:32:22Z
 
-**Current-task:** ACQUIRED at the 2026-07-25 `/resume` (branch `claude/resume-sweep120-closeout`). Mode moved ATTENDED to OVERNIGHT-UNATTENDED at maintainer direction ~03:5xZ with express authorization of the full queue INCLUDING merging H-01 on green (the maintainer chose the merge option with the no-human-review tradeoff stated; the orchestrator compensates by running the full high-assurance harness on H-01 rather than the single pre-push verifier). All four `/home/grc` repos synced; 77/77 green at `1b8cb202`. Sweep 120 loop-break `/validate` OFFLOADED and in flight (worker-20260716-a). Overnight queue: consume Sweep 120; apply the saturation file-drop-awareness patch; fix the 5 deep-assessment command lockstep findings; widen gate 44 guard-first; H-01 retention (2 carriers) under high assurance; consume the 2 scratch triage passes and execute the prune; process the 3 maintainer alerts (fix, leave UNCLEARED, clearing is the maintainer's decision); refresh handoff plus session metrics.
+**Current-task:** ACQUIRED at the 2026-07-25c `/resume` (branch `claude/sweep122-closeout-and-ledger-repair`). Live state verified: 78/78 green at `c3cefd8f`, counts 78/15/24/15, library `2026.07.665`, pack `1.65.14`. Sweep 122 (loop-break `/validate` for #1169..#1177) was PRE-QUEUED at the prior wind-down, delivered, and CONSUMED: PASS, zero genuine misses. Maintainer directive this session: a session must not close with a large unvalidated PR (#1176 merged with its `/validate-pr` dispatched-never-served); and the six fused ledger rows are REPAIR-FIRST-THEN-GATE. Queue: this close-out PR, then the ledger-fusion repair, then TODO 3.73's gate, then 3.120 once #1176's QA returns. `validate-pr-1176` is queued with no eligible claimant; a fresh codex worker is requested from the maintainer.
 
-**Worker-dispatches:** Fleet on the file-drop transport, worker ids CHURNED this session (the collision defect): opus `worker-20260716-a` (holds `sweep-120-validate`), opus `worker-20260725-c` (holds `fix-worker-id-collision-phase1`), codex `codex-mailz-a` (holds `scratch-queue-results-prune-list` AND `codex-env-package-phase1`, a one-at-a-time violation nothing enforced). CONSUMED this session: `fd-verify-1149-deepassess` (codex, PASS, 4 claims independently re-derived) and its `fnaudit-fd-verify-1149` auditor (opus-c, REFUTED the no-drift conclusion with 2 error findings). DELIVERED, pending consume: `fix-saturation-filedrop-awareness`, `codex-hooks-integration-test` (NOT-READY, 3 HIGH). MANDATORY-OFFLOAD active; git-scratch delivery instruction RETIRED (it caused a worker to rewrite the shared `.git/index`).
+**Worker-dispatches:** file-drop plane. LIVE at acquire: `opus-20260725T121943Z-78ff` (delivered `sweep122-resume-validate`, consumed under elevated QA), `codex-20260725T041432Z-f8b8` (holds `fnaudit-sweep121`), `codex-20260725T210500Z-81f5` (holds `selftest-gaps-workers-deliveries`, revived after a tmux nudge). OUTSTANDING and UNSERVABLE: `validate-pr-1176`, declined by both codex workers on a documented independence conflict. Maintainer directive 2026-07-25c: nudge stale or stopped workers via tmux injection (`tools/manage-workers.py --send wake`) for the rest of this session. 30 deliveries sit in the tray and 8 inbox drops are unprocessed, four of them worker-raised issues, all read this session.
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),
