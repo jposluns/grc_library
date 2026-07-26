@@ -8,7 +8,7 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
-## 2026-07-26, Library Version 2026.07.667, PR #1179 (the inbox drops triaged, and what each one turned out to be)
+## 2026-07-26, Library Version 2026.07.668, PR #1179 (the inbox drops triaged, and what each one turned out to be)
 
 The eight unprocessed inbox drops were read. Four were worker-raised `issue-*` items dispositioned in #1178; the
 other four are larger documents, and one of them carried nine decisions nobody had seen.
