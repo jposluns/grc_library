@@ -11,6 +11,10 @@ DONE records *which backlog items each PR closed*, formatted as **scrolling batt
 
 This file is informational and is not subject to the library's metadata-block, audit-conformance, or version-tracking conventions. It is exempt from corpus audit gates per the `.working/` directory exemption.
 
+### 3.129 (#1186): destructive-path fail-open in the working-records sweep FIXED (2026-07-26)
+
+The sweep tool's verify-before-prune guard checked archive-copy EXISTENCE (`is_file()`), not content, so `--prune` could delete a source whose archive copy was present-but-divergent (silent data loss on the only destructive path). Fixed by content comparison on ALL FOUR destructive paths: the whole-file copies (records, one-off dirs) byte-compare via `_files_identical`; the generated-body archives (weekly changelog-details, roll-up rows) recompute the body from a shared `--emit`/verify source-of-truth helper and compare. Reality-fixture self-tests added (a present-but-divergent archive MUST refuse). Clears the standing "do not run `--prune` until 3.129 lands" gate. Also created the `3.139` CLAUDE.md-right-sizing series and standardized multi-phase-project `N.M`/`N.M.Y` numbering.
+
 ### PR #1185: exec-worker dispatch tool + loop-break /validate recorded (2026-07-26)
 
 Shipped `tools/exec-dispatch.py`, the orchestrator-side control plane for the on-demand exec'd worker harness the maintainer's post-resume first task built: config-reader + eligibility filter (usage-limit-aware, personal-last, exhaust-a-set-then-next) + policy selection + `sudo`-wrapper dispatch with model/effort, self-test 11 checks. Recorded Sweep 123 (the #1181..#1184 loop-break `/validate`, CLEAN, the harness's first production QA, spot-verified at source), added worker-brief rail 18 (read-only workers cannot run the write-requiring gate 36), and queued TODO 3.138 (worker full-suite via per-job writable checkout). Not a pre-existing numbered backlog item; it is the "wire the orchestrator side" step named in the takeover handoff.
