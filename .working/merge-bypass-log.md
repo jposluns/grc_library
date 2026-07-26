@@ -1,7 +1,7 @@
 # Merge-bypass log
 
-**Version:** 1.0.6\
-**Date:** 2026-07-25\
+**Version:** 1.0.7\
+**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Every merge that used the maintainer's always-bypass path on a protected branch, one row each.
@@ -34,6 +34,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-25 | #1178 | all checks green (Lint markdown corpus 2m1s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended merge authority. Written after the merge from the observed `gh pr checks` output, never in anticipation. | Sweep 122 close-out, the must-not-close-unvalidated directive, and two guard-input fixes |
 | 2026-07-25 | #1177 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored session-closing handoff PR, green CI, attended-autonomous merge authority. Written at merge time from the observed CI state. | the week condensation, wind-down pre-queueing codified, the session-closing handoff |
 | 2026-07-25 | #1176 | all checks green (Lint markdown corpus, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. Written at merge time from the observed CI state. | the deferred-item review, the eleven spec citations, and the #1175 sweep's three findings |
 | 2026-07-25 | #1175 | all checks green (Lint markdown corpus 2m14s, Web generator health, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, attended-autonomous merge authority. Written immediately after the merge from the observed CI state, which is the practice the five backfilled rows in this same PR exist to restore. | four guard-input fixes, gate 50 Check 6, the token-spend instrument |

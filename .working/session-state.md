@@ -4,9 +4,9 @@
 
 **Status:** active
 
-**Operating-mode:** fully-attended
+**Operating-mode:** overnight-unattended
 
-**Last-heartbeat-UTC:** 2026-07-25T23:32:22Z
+**Last-heartbeat-UTC:** 2026-07-26T00:29:56Z
 
 **Current-task:** ACQUIRED at the 2026-07-25c `/resume` (branch `claude/sweep122-closeout-and-ledger-repair`). Live state verified: 78/78 green at `c3cefd8f`, counts 78/15/24/15, library `2026.07.665`, pack `1.65.14`. Sweep 122 (loop-break `/validate` for #1169..#1177) was PRE-QUEUED at the prior wind-down, delivered, and CONSUMED: PASS, zero genuine misses. Maintainer directive this session: a session must not close with a large unvalidated PR (#1176 merged with its `/validate-pr` dispatched-never-served); and the six fused ledger rows are REPAIR-FIRST-THEN-GATE. Queue: this close-out PR, then the ledger-fusion repair, then TODO 3.73's gate, then 3.120 once #1176's QA returns. `validate-pr-1176` is queued with no eligible claimant; a fresh codex worker is requested from the maintainer.
 

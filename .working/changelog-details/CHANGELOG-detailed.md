@@ -8,6 +8,88 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.668, PR #1179 (the inbox drops triaged, and what each one turned out to be)
+
+The eight unprocessed inbox drops were read. Four were worker-raised `issue-*` items dispositioned in #1178; the
+other four are larger documents, and one of them carried nine decisions nobody had seen.
+
+### Why this needed its own PR
+
+The file-drop `inbox/` is the channel for work handed to the orchestrator OUTSIDE the order queue, so no gate walks
+it, [`tools/audit-delivery-status.py`](../../tools/audit-delivery-status.py) does not reconcile it (it reads worker
+OUTBOXES), and nothing in the task list is built from it. A drop can therefore sit unread indefinitely while every
+instrument reports health. One here had.
+
+### Changed
+
+**TODO 2.20 is now EGRESS-GATED, cross-referenced as MEG-48 (maintainer-directed).** A worker completed everything
+around the single blocking field and then correctly refused to finish: `last_checked` records that someone verified
+an entry AGAINST UPSTREAM, so no amount of held material can establish it, and proposing a date would have been an
+inference presented as a verification. Ready to apply once the upstream pass happens: the item identification,
+per-item held-source evidence, drafted `checked_edition` for all six, and paste-ready hunks with the date left as a
+placeholder. The **EU Digital Omnibus** goes first, being the only one of the six awaiting a dateable adoption event
+rather than a routine refresh, and its status bears on the EU AI Act entry too. The request block is in the
+maintainer's egress queue in `grc_library_private`.
+
+**TODO 3.56's numbering is settled as LEAVE AS IS (maintainer-decided).** [`TODO.md`](../../TODO.md) tracks the item as `3.56` while
+[`DONE.md`](../DONE.md) records three post-rule partial closes against `3.56a`. The ids genuinely differ, so nothing resolves to
+the wrong item and gate 78 is correct to stay silent. Normalizing either side would make the gate fire three times
+on three legitimate partial closes, needing three `EXEMPT` rows that exist only to silence a self-inflicted firing.
+Recorded in the item so the question is not re-opened.
+
+### Added
+
+**TODO 3.125, codex worker guard rails phase 1.** The maintainer's report is that codex workers misdescribe what
+they are doing and need to be called out before they actually work. The mechanism is structural rather than
+behavioural: a codex worker's heartbeat is stamped by a background daemon that is a SEPARATE code path from the
+work, so a worker whose turn ended an hour ago still reads `LIVE` and answers a status question from context rather
+than from state. The drop's first measurement was then corrected by its own author, before this item
+was committed, and the corrected picture is worse. Not two sessions dying at startup: one genuinely dead, and one
+that went **163 minutes between its first heartbeat and its second** and is alive still. Since 163 minutes is about
+eight times the 20-minute stale window, a LIVE codex worker reads as DEAD for most of its life, which makes the
+stale-scan capable of reclaiming an order from a worker that is mid-gap and still working it, so two workers could
+deliver the same order id. The maintainer
+chose guard rails before the VM-local runner, and chose to split this phase out because it is load-bearing and
+testable alone: the heartbeat moves INTO the claim-and-serve loop so that when work stops the heartbeat stops, and
+every liveness verdict is DERIVED from artefacts the worker does not author. The corrected timestamps are the reality fixture, and a third change is added: the
+stale-scan must not reclaim from the codex family until the cadence is fixed. This is the genuine fix behind TODO 3.116, which was closed with a stall signal that could not
+fire.
+
+**TODO 3.123**, the answered-question guardrail's own blind spot, and **TODO 3.124**, two verified `_ref` catalogue
+defects. Counter advanced 3.123 to 3.126.
+
+### Fixed and refuted
+
+**One drop finding is REFUTED, and re-measuring is what showed it.** Drop D2 reported eleven positional references
+in the audit-programme spec, five already broken, including a `TODO section 3.9` resolving to a DIFFERENT item
+through pre-rule number recycling. That would have been the never-recycle harm sitting in corpus prose, invisible to
+the gate built to catch it. Re-measured on live `main`: `grep -c 'TODO section'` on that file returns **0**, because
+#1176 converted all eleven citations to closing-PR anchors, and Sweep 122 independently confirmed the same zero. The
+drop was written against a pre-#1176 tree. Routing it unexamined would have sent the orchestrator to fix something
+already fixed, and asserted a live defect that does not exist.
+
+**Two `_ref` catalogue defects are ROUTED, not applied, and deliberately so.** D4: the `notes` field on the EU
+Implementing Regulation (EU) 2025/454 entry describes an Australian statute, and the Australian entry has no `notes`
+of its own, so the text was moved onto the wrong entry rather than duplicated. D5: a Canada TB Directive title
+presents a compliance transition that ended 2026-06-24 as still running. Both are held-evidence findings needing no
+egress. Neither has been re-verified at source by the orchestrator, because `_ref` is a separate repository and the
+fix is a separate PR; the routing says so explicitly rather than implying the worker's verification is mine.
+
+### Discipline observation
+
+**The answered-question guardrail false-negatived on a question the maintainer had answered in writing.** Before
+surfacing drop D1 (whether to widen gate 69 to `docs/`), [`tools/decisions-search.py`](../../tools/decisions-search.py)
+was run as the rule requires and reported `NO recorded decision found`. The maintainer had answered exactly that
+question the same day, and their words are quoted verbatim in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md)'s defence-in-depth section. The
+tool's `SEARCH_STORES` covers the pending queue, the private design-decisions record and the closed-work ledger, and
+does NOT cover CLAUDE.md, which is where standing directives live. So D1 was NOT re-asked, the recorded answer being
+to widen; and the gap is queued as 3.123. This is the fifth instance in one week of a guard whose logic is sound and
+whose input cannot answer the question asked of it.
+
+**A scripted multi-replace reported success while matching nothing.** Two ledger rows kept their old text through a
+`python3` `str.replace` pass that printed a success line, and only a follow-up grep caught it. `Edit` fails loudly on
+a near-miss; `replace` no-ops silently. Recorded in the retro as a habit to change, not just an incident.
+
 ## 2026-07-25, Library Version 2026.07.666, PR #1178 (Sweep 122 close-out, and a directive about how sessions end)
 
 The first PR of the resumed session: the loop-break sweep consumed, a maintainer directive codified, and two guards

@@ -77,6 +77,8 @@ New domain for crypto-asset / blockchain governance: digital-asset custody, stak
 
 Stamp `last_checked` on the 6 EU / CA AI sources ingested for the AI-domain delta in `grc_library_ref`'s `catalogue.yml` (a cross-repo `grc_library_ref` PR; OPEN). Pairs with the SR-1 currency mechanism. Re-homed from the retired AI-domain-delta umbrella (Workstream C.2).
 
+**EGRESS-GATED (maintainer-directed 2026-07-25c), cross-referenced as MEG-48.** A worker completed everything around the one blocking field and reported why it stopped: `last_checked` records that someone verified currency AGAINST UPSTREAM, so no amount of held material can establish it and proposing a date would have been the inference the order forbade. Delivered and ready to apply once the upstream pass happens: the item identification (self-verifying at six), per-item held-source evidence, drafted `checked_edition` for all six, and paste-ready `catalogue.yml` hunks with the date left as a placeholder. **Two residuals.** First, the six drafted `upstream_url` values came from knowledge rather than a fetch, so each must be confirmed to resolve before it lands. Second, one of the six deserves priority: the **EU Digital Omnibus** (`catalogue.yml:4934`) is the only one awaiting a specific dateable EVENT rather than a routine date refresh, its held header recording it as provisionally agreed 13 May 2026 but not yet adopted, and its status bears on the EU AI Act entry too. The maintainer's egress queue in `grc_library_private` carries the fetch list; this item stays open until the upstream pass returns.
+
 ### 2.21 Further AI-jurisdiction annexes (M, L; partly source-gated)
 
 **SPLIT THREE WAYS 2026-07-25.** (i) **Australia is STRUCK, not deferred**: the annex has existed
@@ -246,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.123.**
+**Next item number: 3.126.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -362,6 +364,13 @@ TODO items carry internal working-provenance that an adopter reading the backlog
 
 ### 3.56 Pack-hygiene Phase-4 routed cleanups + mechanization candidates (pack-hygiene Phase-4 close, S-M)
 
+**Numbering: LEAVE AS IS (maintainer-decided 2026-07-25c).** This item is tracked as `3.56` while
+[`DONE.md`](.working/DONE.md) records three post-rule partial closes against `3.56a` (2026-07-24, PRs #1139,
+#1138 and #1135). The ids genuinely differ, so nothing resolves to the wrong item and gate 78 is CORRECT to stay
+silent; no `EXEMPT` row is needed or wanted. Normalizing either side would make the gate fire three times on
+three legitimate partial closes, requiring three exemption rows that exist only to silence a self-inflicted
+firing, and a dead row dilutes an auditable record. Recorded here so the question is not re-opened.
+
 Routed from the pack-hygiene Phase-4 triage (full detail: `.working/pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md` (swept to the grc_library_private archive by the §1.22.3 initial sweep; git history retains it)). (a) Three proposed cheap mechanizations (guardrail-machinery candidates, maintainer-decision): a linter scanning skill bodies outside the wiring section for internal-reference token classes (convention-erosion guard); an instrument mapping "gate N (name)" citations in wiring sections/command stubs to the §6 inventory (renumbering guard); the provenance register as a gate-41 enumeration surface (a new rule cannot ship without its entry) **[BUILT (3 of 3; part (a) COMPLETE): the provenance-register-as-gate-41 mechanization is gate 41's fourth rule-enumeration surface (rule-provenance.md under `## Governance rules`); the skill-body internal-ref-token linter is gate 76 (tools/lint-skill-internal-refs.py); and the "gate N (name)"-to-§6-inventory renumbering guard is gate 77 (tools/lint-gate-citation-inventory.py). §3.56a part (a) is done; parts (b) command-stub co-updates, (c) cosmetics, (d) maintainer flags, (e) pack notes remain open below]**. (b) Apply-time command-stub co-updates: the `/fitness` stub's ten-persona step heading; the `/retro` stub's concrete register format. (c) Small pre-existing accuracy cosmetics: vetting-log "Spot-scanned" vocabulary + the line-254 summary; the validation-sweep zero-finding record/register wording; the session-lifecycle "prevented by luck" phrasing; `.working/README.md` activities inventory stale for 8 pre-existing subdirectories; adoption-path numbering (pack 1/2/3 vs adopter-guide A/B/C); root-README "claude.md" lowercase option headings (anchor-safety check first). **ASSESSED 2026-07-13 (c is a partially-stale grab-bag, deferred to attended):** spot-checks found the session-lifecycle "prevented by luck" phrasing and the root-README lowercase-"claude.md" option headings NOT present (already resolved or mislocated), while the vetting-log "Spot-scanned" vocabulary and the docs adoption-path A/B/C-vs-1/2/3 numbering ARE present but each needs the `.working/pack-hygiene-acceptance/2026-07-12-phase4-acceptance.md` (swept to the grc_library_private archive by the §1.22.3 initial sweep; git history retains it) detail plus target-file reading to fix accurately, low-value per-item archaeology better done as one attended pass over the Phase-4 detail than as scattered overnight edits; the `.working/`-tree cosmetics (vetting-log, validation-sweep record, `.working/README.md` inventory) are gate-exempt and non-urgent. (d) Two defensible-judgement flags for the maintainer: the pack README "shaped by the parent library's real maintenance practice" wording; "authoritative" for the reference-audit motivating source. (e) Sweep-100-routed pack project-flavour notes (out-of-window, note-level, low-confidence; neither contradicts the narrowly-worded #846 asserted-clean property): [`dev-security/claude-rules/governance/change-tracking.md`](dev-security/claude-rules/governance/change-tracking.md) line ~73 uses `.claude/`/`.working/` directory paths as illustrative examples in a scrubbed pack rule (candidate to genericize to a placeholder path); [`dev-security/claude-rules/governance/project-integrity.md`](dev-security/claude-rules/governance/project-integrity.md) line ~98 names "the consuming GRC library's corpus principle document" (project-integrity was Phase-1 condensed, not Phase-3-scrubbed, so outside the acceptance-sweep scope; candidate to reword to "the consuming library"). Both are optional strict-project-agnosticism polish, protected-file class.
 
 ### 3.57 Reference-breadth new-ingest apply (held-but-uncited over the 63 2026-07-12 ref sources, M)
@@ -439,6 +448,76 @@ claimant**: both codex workers declined it on a documented independence conflict
 `validate-pr-1175` sweep whose findings #1176 fixed) and both opus workers are chain-adjacent. Per the rule
 #1178 adds, if no worker serves it the orchestrator runs it directly rather than closing over it. This item
 closes when the result has RETURNED and every finding has a disposition, not when the order is re-dispatched.
+
+### 3.123 `decisions-search.py` does not scan CLAUDE.md, so it false-negatives on maintainer directives (orchestrator-found 2026-07-25c, M, XS)
+
+`SEARCH_STORES` covers [`pending-decisions.md`](.working/pending-decisions.md), the `_private`
+design-decisions record and [`DONE.md`](.working/DONE.md). It does NOT cover
+[`.claude/CLAUDE.md`](.claude/CLAUDE.md), which is where a standing maintainer directive is recorded. The tool
+therefore reported `NO recorded decision found` for the gate-69-`docs/` scope question, which the maintainer had
+answered in writing that same day in the `## Defence in depth is the default` section, quoting their own words on
+exactly that question. A guardrail whose whole purpose is preventing a re-ask gave a false negative on a settled
+question, which is the same guard-input-authority class as the four other defects of 2026-07-25: the check is
+correct and its input cannot answer what is asked of it. Add CLAUDE.md and the pack governance rules to the store
+list, and add a self-test case keyed on this exact query so the regression is pinned by the real failure rather
+than an invented one. Note the tool is also the backstop the `block-answered-question.py` hook complements, so the
+gap widens beyond the manual search.
+
+### 3.124 Two verified `grc_library_ref` catalogue defects, neither needing egress (worker-reported 2026-07-25, H and L, XS; cross-repo)
+
+Both come from the worker inbox drop `opus-worker-maintainer-decisions-2026-07-25.md` and both are held-evidence
+findings rather than currency claims, so they are fixable now. **D4 (error):** `catalogue.yml:4922`, the `notes`
+field on the **EU Implementing Regulation (EU) 2025/454** entry, describes an **Australian** statute (as-made
+authorised version, royal assent, amends the Privacy Act 1988). Three signals establish misplacement rather than
+coincidence: an EU implementing regulation has neither royal assent nor any relation to the Privacy Act 1988; the
+held EU extract's own header carries no Australian content; and the Australian entry at `:4838` has **no `notes`
+field at all**, so the text was MOVED onto the wrong entry rather than duplicated. Both carry
+`last_checked: 2026-07-11`, so one editing pass did it. Fix: move the line to the Australian entry after `:4849`,
+and give the EU entry notes describing the EU instrument or none. **D5 (note):** `catalogue.yml:5531`'s title
+presents the Canada TB Directive on Automated Decision-Making as having a 24 June 2025 to 24 June 2026 compliance
+transition, but the held text's sections 1.2.1 and 1.2.2 put that window's end at 2026-06-24, which has passed, so
+a closed transition reads as running. **Orchestrator has NOT re-verified either at source**, because `_ref` is a
+separate repository and this is a separate PR; re-verify before applying, per apply-time worker correction.
+
+### 3.125 Codex worker guard rails, phase 1: a heartbeat emitted by the work loop, and liveness derived not self-reported (maintainer-directed 2026-07-25c, H, M; cross-repo)
+
+**The maintainer's report is that codex workers misdescribe what they are doing and need to be called out before
+they actually work.** The mechanism behind that is structural rather than behavioural: a codex worker's heartbeat
+is stamped by a background daemon that is a SEPARATE code path from the work, so a worker whose turn ended an
+hour ago still reads `LIVE`, and asking it for its state gets an answer composed from context rather than read
+from anything.
+
+**The measured evidence was CORRECTED by its own author before this item was committed, and the corrected picture
+is WORSE.** The first drop reported two consecutive codex sessions heartbeating exactly once and never again, and
+inferred a startup loop completing one cycle and stopping. The measurement was right at 22:12Z; the inference was
+not. `codex-20260725T210500Z-81f5` did not die: it went **163 minutes between its first heartbeat and its second**
+and is alive now, still holding its order. Only `codex-20260725T203923Z-83b0` is a genuine never-beat-again case
+(202 minutes silent). So it is one dead session and one very slow one, not a pattern of startup death.
+
+Why that is worse rather than better: **163 minutes is roughly eight times the 20-minute stale window, so a LIVE
+codex worker reads as DEAD for most of its life.** Three consequences, the first being a live safety defect.
+**(1)** The stale-scan cannot safely reclaim from the codex family: during `81f5`'s gap it was a textbook reclaim
+candidate (stale 67 minutes, holding an order), and had the scan reclaimed then, two workers could have delivered
+the same order id. **(2)** Earlier orphan reports against codex holders are probably false positives, and the
+author has withdrawn the `81f5` one. **(3)** The remedy is NOT "wait for a second heartbeat before giving a codex
+session work", which on this evidence means waiting up to three hours; the question is why the cadence is so long,
+and a serve loop that heartbeats only BETWEEN orders rather than DURING one produces exactly this shape, which is
+direct support for change (a) below.
+
+The maintainer chose **guard rails first, runner later** (the VM-local supervised runner is deferred), and chose
+to **split** this from the remaining guard rails because it is the load-bearing half and is testable on its own.
+Phase 1 is therefore two changes: **(a)** the heartbeat is emitted BY the claim-and-serve loop, so that when the
+work stops the heartbeat stops, rather than by a sidecar; and **(b)** every liveness verdict is DERIVED from
+artefacts the worker does not author (process liveness, the order's `claimed_at`, available-work ctime, outbox
+mtime) rather than from any self-report. The correction adds a third: **(c)** until the cadence is fixed, the
+stale-scan must NOT reclaim from the codex family, whether by a per-family stale window or by an explicit refusal,
+because reclaiming from a mid-gap live worker is how two workers come to deliver the same order id. Use the
+CORRECTED timestamps as the reality fixture (`f8b8` surviving 1187 minutes, `81f5` with a 163-minute gap and alive,
+`83b0` silent at 202 minutes and genuinely dead), since a fixture built from the real state is the only thing that
+tests an observer against the world rather than against its author's model, and here the first version of that
+state was itself wrong. This is the genuine fix behind TODO 3.116, which was
+closed with a stall signal that could not fire on a worker heartbeating normally. Phase 2 (evidence-mandatory
+delivery format, and an adversarial audit cadence over deliveries) follows as its own item.
 
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 
@@ -869,3 +948,4 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 | MEG-45 | item 1.19 (closed 2026-07-25).13 | History scrub (Phase 6): git-history purge + force-push; MAINTAINER-GATED and LAST (prep drafted in `_private`). |
 | MEG-46 | item 3.16 (closed 2026-07-25) | CHANGELOG history-collapse residual: a protected-branch history rewrite (optional; maintainer-gated). |
 | MEG-47 | §7.1 | Ruleset `non_fast_forward` (force-push) rule: a maintainer-owned GitHub setting (low-priority hardening). |
+| MEG-48 | 2.20 | Upstream currency pass for the 6 EU / CA AI sources in `_ref` `catalogue.yml`, so `last_checked` can be stamped honestly (it records upstream verification, which held material cannot establish). EU Digital Omnibus first: it awaits a dateable adoption event, not a date refresh. Also confirm the 6 drafted `upstream_url` values resolve. Needs an egress-capable run or a maintainer session. |
