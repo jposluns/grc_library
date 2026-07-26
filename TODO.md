@@ -248,7 +248,7 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.129.**
+**Next item number: 3.130.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
 
@@ -597,6 +597,20 @@ beside an honest unknown-count, and it is the more dangerous half, because the u
 the output while the per-worker figure carries none. The fix must therefore also decide what to DISPLAY for a worker
 whose figures are mostly unreadable: a number derived from a minority of a worker's deliveries is not that worker's
 spend, and presenting it as such is the measured-versus-estimated conflation the pack rule already forbids.
+
+### 3.129 Destructive-path fail-open in the working-records sweep (takeover tray finding, 2026-07-26, M-H, S) `[machinery]`
+
+[`tools/sweep-working-records-to-private.py`](tools/sweep-working-records-to-private.py) `oneoff_missing_from_archive()`
+is the verify-before-prune guard for the one destructive path in the sweep, and it checks archive-copy EXISTENCE
+(`if not p.is_file()`), not content. So `--prune` will delete a source whose archive copy is present-but-WRONG (stale,
+truncated, or divergent): silent data loss on exactly the path whose docstring calls this check "the whole data-safety
+guarantee of the only new destructive path". Confirmed live at `4f79cb94` during the orchestrator-takeover tray
+reconciliation (finding `hunt-unsound-guard-inputs`, re-verified at source), recorded at
+[`open-findings.md`](.working/open-findings.md). This is the guard-input-authority class again (the check is right, its
+input cannot answer the question). **Fix:** replace the existence check with a byte-or-hash comparison of source against
+archive before any prune; add a reality-fixture self-test (a present-but-divergent archive copy that MUST refuse); mutate
+the observer, not only the decision. Imminence is low because the sweep is a manual close-out step, but the fix GATES it:
+do not run the sweep with `--prune` until this lands.
 
 ### 3.74 Standards-reference-format standardization (maintainer-directed 2026-07-14, M)
 

@@ -1,16 +1,16 @@
 # Session State (concurrency lease)
 
-**Active-session:** claude/sweep122-closeout-and-ledger-repair
+**Active-session:** claude/takeover-reconcile
 
 **Status:** active
 
-**Operating-mode:** overnight-unattended
+**Operating-mode:** attended-autonomous
 
-**Last-heartbeat-UTC:** 2026-07-26T00:29:56Z
+**Last-heartbeat-UTC:** 2026-07-26T13:51:11Z
 
-**Current-task:** ACQUIRED at the 2026-07-25c `/resume` (branch `claude/sweep122-closeout-and-ledger-repair`). Live state verified: 78/78 green at `c3cefd8f`, counts 78/15/24/15, library `2026.07.665`, pack `1.65.14`. Sweep 122 (loop-break `/validate` for #1169..#1177) was PRE-QUEUED at the prior wind-down, delivered, and CONSUMED: PASS, zero genuine misses. Maintainer directive this session: a session must not close with a large unvalidated PR (#1176 merged with its `/validate-pr` dispatched-never-served); and the six fused ledger rows are REPAIR-FIRST-THEN-GATE. Queue: this close-out PR, then the ledger-fusion repair, then TODO 3.73's gate, then 3.120 once #1176's QA returns. `validate-pr-1176` is queued with no eligible claimant; a fresh codex worker is requested from the maintainer.
+**Current-task:** ORCHESTRATOR TAKEOVER 2026-07-26. A new orchestrator identity (the current maintainer account) took over from the prior session, which ran out of usage mid-work on #1181 during its 2026-07-25 overnight-unattended run (last live action about 01:33Z, a worker-nudge loop). The takeover ran read-only assessment first, then verified and landed the interrupted #1181 (the seven-lost-QA-rows ledger repair): pre-push guard green (78/78 plus all PR-time checks), and an INDEPENDENT adversarial worker verify (`verify-1181-ledger-repair`) confirmed nothing invented and nothing lost before merge. #1181 merged clean at `13861709` via `--admin` (logged). This PR (`claude/takeover-reconcile`, #1182) reconciles the takeover state: this lease, #1181's validate-pr / retro / bypass rows, the restored nudge-log, and one recorded finding (a destructive fail-open in `tools/sweep-working-records-to-private.py`, ROUTED TODO 3.129). Deferred queue (mostly staged worker candidates): Phase-3 tray processing (18 archive / 20 open / 10 route-to-maintainer per `reconcile-delivery-tray`), the `/restore-broken` command, TODO 3.128 + `/sitrep` (bundled), and the codex-`exec`-serve-loop (post-resume; design in `grc_library_private/codex-exec-serve-loop-decision.md`). Plan: reconcile, then build the deliverables, then a session-closing handoff, after which the maintainer resumes THIS session in a tmux via `/resume`.
 
-**Worker-dispatches:** file-drop plane. LIVE at acquire: `opus-20260725T121943Z-78ff` (delivered `sweep122-resume-validate`, consumed under elevated QA), `codex-20260725T041432Z-f8b8` (holds `fnaudit-sweep121`), `codex-20260725T210500Z-81f5` (holds `selftest-gaps-workers-deliveries`, revived after a tmux nudge). OUTSTANDING and UNSERVABLE: `validate-pr-1176`, declined by both codex workers on a documented independence conflict. Maintainer directive 2026-07-25c: nudge stale or stopped workers via tmux injection (`tools/manage-workers.py --send wake`) for the rest of this session. 30 deliveries sit in the tray and 8 inbox drops are unprocessed, four of them worker-raised issues, all read this session.
+**Worker-dispatches:** file-drop plane. LIVE: two Opus 4.8 workers, `opus-20260726T123931Z-f6b9` (worker1) and `opus-20260726T134016Z-5b06` (worker, restarted into a tmux session). Consumed this session and re-verified at source: `verify-1181-ledger-repair` (independent adversarial verify of #1181, CLEAN) and `reconcile-delivery-tray` (candidate tray classification). Codex family: all ids stale/out and HELD until the environment is confirmed clean (maintainer decision); the codex build is post-resume. The `worker_private_access` / `worker_scratch_access` toggles and `check_perms.sh` in `/home/grc` now enforce the worker-access permission model (workers read-only on the corpus, denied the shared `grc_library_scratch` and `grc_library_private`, read-write only on the `grc_working` exchange; `check_perms.sh --check` PASSES).
 
 This file is the session-concurrency lease: the declared half of the two-part interlock
 that protects the shared `main` state surfaces (the session handoff, [`../TODO.md`](../TODO.md),

@@ -43,3 +43,13 @@ can appear in the verb column; nothing here is ever composed from worker output.
 | 2026-07-26T01:13:41Z | worker1 | claude | wake | none | overnight nudge cadence, round 4 | `/credit-offload` |
 | 2026-07-26T01:17:31Z | worker | claude | wake | none | overnight nudge cadence, round 5 | `/credit-offload` |
 | 2026-07-26T01:17:33Z | worker1 | claude | wake | none | overnight nudge cadence, round 5 | `/credit-offload` |
+| 2026-07-26T01:21:23Z | worker | claude | wake | none | overnight nudge cadence, round 6 | `/credit-offload` |
+| 2026-07-26T01:21:24Z | worker1 | claude | wake | none | overnight nudge cadence, round 6 | `/credit-offload` |
+| 2026-07-26T01:25:03Z | codex | codex | wake | none | overnight nudge cadence, round 7 | `If you are currently working on an order, ignore this message and carry on. If you are not, then at your next opportunity resync your grc_library_scratch clone ` |
+| 2026-07-26T01:25:14Z | worker | claude | wake | none | overnight nudge cadence, round 7 | `/credit-offload` |
+| 2026-07-26T01:25:15Z | worker1 | claude | wake | none | overnight nudge cadence, round 7 | `/credit-offload` |
+| 2026-07-26T01:28:53Z | codex | codex | wake | none | overnight nudge cadence, round 8 | `If you are currently working on an order, ignore this message and carry on. If you are not, then at your next opportunity resync your grc_library_scratch clone ` |
+| 2026-07-26T01:29:04Z | worker | claude | wake | none | overnight nudge cadence, round 8 | `/credit-offload` |
+| 2026-07-26T01:29:06Z | worker1 | claude | wake | none | overnight nudge cadence, round 8 | `/credit-offload` |
+| 2026-07-26T01:32:56Z | worker | claude | wake | none | overnight nudge cadence, round 9 | `/credit-offload` |
+| 2026-07-26T01:32:58Z | worker1 | claude | wake | none | overnight nudge cadence, round 9 | `/credit-offload` |
