@@ -281,13 +281,6 @@ to FIX: when a staged versioned file's body changed and its Version did not, aut
 the staged content instead of blocking. The Version-Date co-bump was the single most recurrent self-caught failure of
 the takeover session; automating it removes it. Keep the block path as a fallback for ambiguous cases.
 
-### 3.135 Drop the Version field from append-only `.working` logs (fresh-eyes 2026-07-26; MAINTAINER-APPROVED; EXECUTE EARLY, M, S) `[machinery]`
-
-Maintainer-approved 2026-07-26. `validate-pr/history.md`, `improvement-log.md`, `merge-bypass-log.md`,
-`guardrail-reviews/history.md`, and `open-findings.md` are APPEND-ONLY logs; git history already versions them and they
-are exempt from the corpus version gates, so their per-touch Version+Date is pure overhead that triggers D2/D4 on every
-append. Remove the field from these logs and confirm no gate keys on it.
-
 ### 3.136 Handoff/close-out snapshot generator (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
 
 `tools/handoff-snapshot.py` emits the mechanical facts the handoff and D7 need: library + README versions,
