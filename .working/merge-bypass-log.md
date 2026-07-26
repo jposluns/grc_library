@@ -1,6 +1,6 @@
 # Merge-bypass log
 
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
@@ -34,6 +34,7 @@ on a RED PR would skip the mechanical gates as well, which nothing in this proje
 
 | Date (UTC) | PR | CI state at merge | Mechanism | Justification | Change |
 | --- | --- | --- | --- | --- | --- |
+| 2026-07-26 | #1182 | all checks green (Lint markdown corpus 1m52s, Web generator health 15s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, daytime attended-autonomous merge authority during the orchestrator takeover. Written after the merge from the observed `gh pr checks` output. | the takeover reconciliation: the lease, #1181's QA and bypass rows, the restored nudge-log, and the recorded sweep fail-open |
 | 2026-07-26 | #1181 | all checks green (Lint markdown corpus 1m50s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, daytime attended-autonomous merge authority during the orchestrator takeover. Written after the merge from the observed `gh pr checks` output. | the seven lost QA-history rows restored (none invented) and the commit-time version-bump hook |
 | 2026-07-26 | #1180 | all checks green (Lint markdown corpus 2m6s, Web generator health 11s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, overnight-unattended merge authority. Written after the merge from the observed `gh pr checks` output. | the E1 false-SUBMITTED fix, the re-issue and AIQT-cadence directives, and both positives re-derived at source |
 | 2026-07-26 | #1179 | all checks green (Lint markdown corpus 1m44s, Web generator health 10s, Cloudflare Pages) | `gh pr merge --admin --squash` | Plain merge refused with `REVIEW_REQUIRED`; maintainer-authored PR, green CI, overnight-unattended merge authority set by the maintainer this session. Written after the merge from the observed `gh pr checks` output. | the inbox-drop triage, one finding refuted by re-measurement, and TODO 2.20 egress-gated |
