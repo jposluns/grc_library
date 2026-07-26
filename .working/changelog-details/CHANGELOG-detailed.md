@@ -8,6 +8,45 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.677, PR #1187 (exec-dispatch --account override + #1186 close-out)
+
+### Changed
+
+- [`tools/exec-dispatch.py`](../../tools/exec-dispatch.py): added an `--account` override so a dispatch
+  can target a SPECIFIC eligible account instead of the auto-pick. A new pure `pick_account(config,
+  family, model, now, account=None)` resolves the target: without `account` it returns the top eligible
+  (unchanged behaviour); with `account` it returns that exact account IF eligible, else `None` with a
+  reason that distinguishes an unknown account from a known-but-ineligible one. `dispatch()` and the
+  `--dispatch` / `--dry-run` CLI paths thread it through, and a failed resolution surfaces loudly (NOT
+  DISPATCHED with the reason) rather than silently falling back.
+
+### Why
+
+The wrapper holds a per-account flock that serializes same-account jobs at 1, and the dispatcher had no
+in-flight registry, so N concurrent auto-dispatches all picked the top account (`jposluns-work`) and ran
+SERIALLY. Confirmed live from the process table: four concurrent workers all on one account, one running
+while three blocked on the flock. Targeting a distinct eligible account per concurrent job gives real
+parallelism (each account's flock serializes only its own one job). This is the cheap unlock for
+concurrent worker prep; per-account concurrency greater than 1 via config-dir snapshots is a separate,
+later item. My earlier "config-dir race" diagnosis was wrong (the flock makes it safe-but-serial, not a
+race); corrected here.
+
+### Also (the #1186 close-out batch)
+
+- [`.working/merge-bypass-log.md`](../merge-bypass-log.md), [`.working/validate-pr/history.md`](../validate-pr/history.md),
+  and [`.working/improvement-log.md`](../improvement-log.md): the #1186 bypass, `/validate-pr` (SHIP, 2
+  LOW routed), and `/retro` rows, plus the [`.working/validate-pr/2026-07-26-PR-1186.md`](../validate-pr/2026-07-26-PR-1186.md)
+  detail file.
+
+### Verification
+
+- `python3 tools/exec-dispatch.py --self-test` -> OK (17 checks; 6 new `pick_account` cases covering
+  auto-pick, targeting an eligible non-top account, targeting the personal account, rejecting a
+  known-but-limited account, rejecting an unknown account, and family-scoped resolution).
+- `--dry-run --account security-work` prints PICK; `--dry-run --account jeff-posluns` (limited) prints
+  REJECTED with the reason. Verified live: a `security-work`-targeted worker ran in parallel with the
+  `jposluns-work` flock queue.
+
 ## 2026-07-26, Library Version 2026.07.676, PR #1186 (sweep-prune fail-open fix + CLAUDE.md-right-size series)
 
 The fix-first PR of the resumed session: it closes the one open error-class finding (TODO 3.129, the
