@@ -1,7 +1,7 @@
 # Merge-bypass log
 
 **Version:** 1.0.7\
-**Date:** 2026-07-25\
+**Date:** 2026-07-26\
 **License:** CC BY-SA 4.0
 
 Every merge that used the maintainer's always-bypass path on a protected branch, one row each.
