@@ -8,6 +8,28 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.682, PR #1192 (daily-rollup reminder D9 + restore previous-week summaries)
+
+### Added
+
+- [`tools/check-daily-changelog-rollup.py`](../../tools/check-daily-changelog-rollup.py) + a D9 wiring
+  in [`tools/run-pr-time-checks.sh`](../../tools/run-pr-time-checks.sh): an ADVISORY pre-push check that
+  scans the root CHANGELOG for any past UTC date still carrying more than one per-PR entry (never
+  collapsed into its daily roll-up) and WARNS `DAILY SUMMARY DUE for <date>`. It exits 0 (never blocks),
+  so the reminder is surfaced at every PR and the daily roll-up cannot be silently skipped; a close-out
+  checklist line in [`.claude/CLAUDE.md`](../../.claude/CLAUDE.md) names the action. Self-test 8/8.
+
+### Fixed
+
+- [`CHANGELOG.md`](../../CHANGELOG.md): restores six previous-week summary blocks (Week of 2026-07-06,
+  06-29, 06-22, 06-15, 06-01, 05-25) that #1177 ("the week condensation") had removed from the root,
+  recovered verbatim from the pre-#1177 revision. The root now carries the full weekly-summary history
+  again below the current per-PR and daily-roll-up entries.
+
+### Also
+
+- Batches the #1191 close-out (bypass, validate-pr SHIP, retro rows + detail file).
+
 ## 2026-07-26, Library Version 2026.07.681, PR #1191 (daily roll-up of older root CHANGELOG entries)
 
 ### Changed

@@ -94,6 +94,7 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "Handoff-snapshot freshness check",
     "CHANGELOG length-on-PR check",
     "Detect collection candidates on pack PRs (informational)",
+    "Daily-changelog-rollup reminder",
 }
 
 # Pre-commit hooks that are setup or regeneration steps, not audit
@@ -416,10 +417,10 @@ def verify_exclusion_and_delta_guards(
         dmap[num] = (nm, scr)
     if prtime_lines:  # only if the runner is present (portable-clone tolerant)
         nums = sorted(dmap)
-        if nums != list(range(1, 9)):
+        if nums != list(range(1, 10)):
             findings.append(
                 f"delta-gate guard: D-numbers in {PRTIME_PATH} are {nums}, not the "
-                f"contiguous D1..D8 set (a delta gate was added, removed, or "
+                f"contiguous D1..D9 set (a delta gate was added, removed, or "
                 f"misnumbered without updating the parity surfaces)."
             )
         for num, (nm, scr) in sorted(dmap.items()):

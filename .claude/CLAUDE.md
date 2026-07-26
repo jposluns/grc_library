@@ -658,6 +658,7 @@ is external. Two mechanisms:
      refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
+   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D9 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-week-model section is the authoritative description): the in-repo
      [`.working/changelog-details/CHANGELOG-detailed.md`](../.working/changelog-details/CHANGELOG-detailed.md)
@@ -684,6 +685,7 @@ is external. Two mechanisms:
      3b plain-language wave (#855-#862) converted the whole back-catalogue to it, so every new root
      entry uses this one-line form while the detailed mirror keeps the full structured sections.
      TODO 3.16's only remaining residual is the deferred, maintainer-gated git-history collapse.
+   - **Daily-changelog-rollup reminder (D9, midnight-UTC cadence).** If the pre-push guard's D9 check prints `DAILY SUMMARY DUE for <date>`, the next PR carries that date's daily roll-up (collapse its per-PR root entries to one `**date | version | PRs #A-#B (N PRs)**` summary) AND prunes the matching detailed-mirror rows to the `grc_library_private/changelog-archive/`. D9 is advisory (exit 0, never blocks), so the reminder is ACTIONED not skipped; the roll-up draft is a small worker offload (`tools/check-daily-changelog-rollup.py` is the check).
    - CHANGELOG (root + detailed) and version bumps are present; the pre-push guard
      (`run_all_audits.sh` + `run-pr-time-checks.sh`) is green.
 
