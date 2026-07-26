@@ -50,8 +50,9 @@ reader, version bump correct).
 ### Verification
 
 - `tools/run_all_audits.sh`: all 78 gates pass (standalone).
-- Generated artefacts (`taxonomy.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`) regenerated
-  after the spec Version bump and confirmed in sync (`--check`).
+- Generated artefacts ([`taxonomy.yml`](../../taxonomy.yml), [`docs/portal.md`](../../docs/portal.md),
+  [`docs/maturity-scorecard.md`](../../docs/maturity-scorecard.md)) regenerated after the spec Version
+  bump and confirmed in sync (`--check`).
 - Pre-push guard (both runners) green before push.
 
 ## 2026-07-26, Library Version 2026.07.683, PR #1193 (drop Version+Date from append-only .working logs, TODO 3.135)
