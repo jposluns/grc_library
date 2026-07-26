@@ -248,9 +248,52 @@ Umbrella for adopting NIST OSCAL as an open, machine-readable projection of the 
 
 ## Priority 3 — Clean up and tooling
 
-**Next item number: 3.133.**
+**Next item number: 3.138.**
 
 Cross-document consistency cleanup and routine development / quality tooling: lower-priority than gaps, not error-prevention or adopter-facing. Picked deliberately into batches, not from the routine P1/P2 queue.
+
+**Close-out-efficiency cluster (fresh-eyes 2026-07-26, maintainer-directed to EXECUTE EARLY in P3):** the takeover
+session found per-PR bookkeeping and wind-down to be ~20-30 minutes of mostly-mechanical work; these six items
+(3.133-3.137, plus the adopted fewer-larger-PRs guideline) remove that overhead. Rationale and ranking in
+`grc_library_private/fresh-eyes-observations-2026-07-26.md`.
+
+### 3.133 PR close-out scaffolding tool (fresh-eyes 2026-07-26; EXECUTE EARLY, M, M) `[machinery]`
+
+The biggest per-PR efficiency lever. `tools/pr-closeout.py <pr> --summary "..."` does the MECHANICAL close-out half
+in one pass: bump every staged versioned file's Version AND Date to today; advance the touched TODO section counter;
+prepend the CHANGELOG root header + the detailed-mirror heading; refresh `next-prs.txt`; and insert EMPTY
+correctly-columned row skeletons into the validate-pr / retro / bypass / guardrail histories for the orchestrator to
+fill with authored prose. The orchestrator still AUTHORS all content (integrity unchanged); the tool removes the
+error-prone scaffolding and kills the D2/D4/D7 co-bump trap class. Add a `--self-test`.
+
+### 3.134 Auto-bump-on-commit: extend the version hook from detect to fix (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
+
+Extend [`.claude/hooks/block-unbumped-version-commit.py`](.claude/hooks/block-unbumped-version-commit.py) from DETECT
+to FIX: when a staged versioned file's body changed and its Version did not, auto-bump both Version and Date (patch) in
+the staged content instead of blocking. The Version-Date co-bump was the single most recurrent self-caught failure of
+the takeover session; automating it removes it. Keep the block path as a fallback for ambiguous cases.
+
+### 3.135 Drop the Version field from append-only `.working` logs (fresh-eyes 2026-07-26; MAINTAINER-APPROVED; EXECUTE EARLY, M, S) `[machinery]`
+
+Maintainer-approved 2026-07-26. `validate-pr/history.md`, `improvement-log.md`, `merge-bypass-log.md`,
+`guardrail-reviews/history.md`, and `open-findings.md` are APPEND-ONLY logs; git history already versions them and they
+are exempt from the corpus version gates, so their per-touch Version+Date is pure overhead that triggers D2/D4 on every
+append. Remove the field from these logs and confirm no gate keys on it.
+
+### 3.136 Handoff/close-out snapshot generator (fresh-eyes 2026-07-26; EXECUTE EARLY, M, S) `[machinery]`
+
+`tools/handoff-snapshot.py` emits the mechanical facts the handoff and D7 need: library + README versions,
+gate/rule/skill/command counts, green-at `<sha>`, and the session-metrics figures. The wind-down pastes a verified
+block and writes only the narrative, instead of hand-deriving each number (where the D7 snapshot trap lives).
+
+### 3.137 Close-out speed: changed-files quick guard + reconsider async recursion-avoidance (fresh-eyes 2026-07-26; EXECUTE EARLY, M-L, M) `[machinery]`
+
+Two smaller fresh-eyes items. (a) A `--changed-only` fast path for the pre-push guard's fix loop (full 78-gate suite
+once before push; a scoped check for iteration), to stop re-running the ~3-minute full suite after every one-line
+self-fix. (b) Reconsider the async recursion-avoidance rule (the prior PR's QA rows batch into the next PR), which
+serializes PR N on PR N-1's validate-pr worker round-trip; options: run validate-pr synchronously before finalizing,
+or a periodic QA-rows catch-up decoupled from the next feature PR. Structural; a deliberate design look, not a quick
+change. The fewer-larger-PRs guideline (do not fragment one theme into separate PRs) is ADOPTED as a convention.
 
 ### 3.118 Route the #1166 and #1167 sweep residuals (2026-07-25, M, S)
 
@@ -639,7 +682,11 @@ codes because of the alternate-screen buffer, so the STRUCTURED event log is the
 only an optional raw supplement. The helper lives in `grc_library_scratch`, so the primary build is a scratch-side
 change; best done post-resume alongside the codex-exec build so both worker families share one `logs/` layout.
 
-### 3.132 Gate 78 enforces only the recorded-retirement half of the never-recycle rule (r16 guardrails, G-1, L; maintainer-decision) `[machinery]` `[needs-decision]`
+### 3.132 Gate 78 enforces only the recorded-retirement half of the never-recycle rule (r16 guardrails, G-1; DECIDED, rotate to DONE) `[machinery]`
+
+**DECIDED 2026-07-26 (maintainer): option (b), ACCEPT the recorded-retirement half of gate 78 as sufficient. DONE.md is
+a quick-reference for the maintainer, not a permanence record, so no DONE-heading-id convention is adopted and gate 78
+is not extended. This item is RESOLVED; rotate it to DONE at the next close-out.**
 
 Guardrail-review r16 (2026-07-26) GAP finding, re-verified at source. The `TODO.md` never-recycle rule is ABSOLUTE (a
 number maps to exactly one item across the whole history), but gate 78 (`tools/lint-todo-number-permanence.py`) enforces

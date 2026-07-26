@@ -8,6 +8,40 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.674, PR #1184 (orchestrator-takeover session-closing handoff)
+
+The session-closing handoff for the 2026-07-26 orchestrator-takeover session. Per the loop-break
+discipline it skips its own trailing per-PR QA; the compensating control is the next `/resume`'s
+corpus-wide `/validate`, cross-checked against the refreshed Asserted-expectations block.
+
+### Changed
+- [`.working/session-handoff.md`](../session-handoff.md): the resume queue rewritten for the takeover
+  close (first task the interactive exec'd-worker setup; then the loop-break `/validate`, 3.128 +
+  `/sitrep`, the codex deep-assessment, the Phase-3 tray, and the close-out efficiency tooling); a new
+  Asserted-expectations block (#1181-#1183 all merged and validated CLEAN; inventory 78/15/24/16); and
+  the locked decisions recorded so `/resume` does not re-ask.
+- [`.working/session-state.md`](../session-state.md): the concurrency lease RELEASED (`Status: released`,
+  `Active-session: none`).
+- [`.working/next-prs.txt`](../next-prs.txt): the resume queue.
+
+### Added
+- #1183's `/validate-pr` (CLEAN), `/retro`, and `--admin` bypass rows batch in per recursion-avoidance.
+- [`TODO.md`](../../TODO.md) items 3.133-3.137: the close-out-efficiency cluster (a PR close-out
+  scaffolding tool, auto-bump-on-commit, dropping the Version field from append-only `.working` logs, a
+  handoff-snapshot generator, and a fix-loop quick guard), maintainer-directed to execute EARLY in P3,
+  from the takeover's fresh-eyes observations. TODO 3.132 (guardrail G-1) resolved by the maintainer's
+  decision to accept the recorded-retirement half.
+
+### Verification
+- Session-closing handoff (loop-break exempt from its own trailing QA); `tools/pre-push-guard.sh` green.
+
+Handoff note: the resume's FIRST task is the interactive, step-by-step setup of the orchestrator-managed
+exec'd codex + claude workers (single fresh `worker_agents` user, per-account config dirs via
+`CLAUDE_CONFIG_DIR` / `CODEX_HOME`, root-owned sudo wrappers), whose full design and the maintainer's
+locked decisions live in the exec-worker decision note in the `grc_library_private` companion repo, with
+a staged prep-instructions file for the setup. A DGX-Spark local-model worker (free, highest-priority)
+is noted there as a future worker host, not an orchestrator relocation.
+
 ## 2026-07-26, Library Version 2026.07.673, PR #1183 (/restore-broken recovery command)
 
 Adds a slash command that codifies recovery of a project whose orchestrator died, ran out of usage, or was interrupted
