@@ -31,7 +31,59 @@ in the "Next actions" blocks below and is an as-of-last-refresh snapshot (drift 
 
 - **Last validation sweep**: Sweep 122 iter 1 (2026-07-25c; the loop-break corpus-wide `/validate` over the **#1169..#1177** deltas (base `02a820a8`=#1168, head `c3cefd8f`=#1177, 9 commits / 50 files) at the 2026-07-25c `/resume` from the #1177 session-closing handoff. **PRE-QUEUED at the prior session's wind-down** under the discipline #1177 codified, so it was already in flight at resume: the first firing of that discipline. OFFLOADED to `opus-20260725T121943Z-78ff` (Opus 5) as blocking prio-0 `sweep122-resume-validate` pinned `c3cefd8f`, consumed under ELEVATED QA. **0 error / 0 warning / 3 note. PASS, ZERO genuine misses; loop-break control for #1177 PASSES.** Mechanical baseline worker-re-derived in an isolated pinned clone: 78/78 (suite exit 0, no FAIL lines, gate numbers 1..78 with no hole), self-tests 47/47, 34/34, 44/44, 17/17, `_scratch` filedrop 112/112; all five asserted-clean claims CONFIRMED, zero contradicted. The headline is a ROUTED DECISION that converges with a maintainer directive given independently at the same resume: gate 50 Check 1 is satisfied by row PRESENCE, so #1176's honest `DISPATCHED, RESULT PENDING` row satisfies it and **the parity gate reads green while #1176's QA has never run**. #1178 codifies the convention half and states that the mechanical half is not yet built. Both notes were orchestrator-re-measured, not accepted: the `9/4/14/6 (total 33)` figures misattribute a 6 to a tool absent from its own report (real sum 27), and `73 across 21 tools` overstates coverage because 10 of the 21 probes are VOID, so the 73 spans 11 measured tools and the other 10 are UNKNOWN not zero. The second was a live defect in the probe's summary line (measured numerator over attempted denominator), FIXED in #1178. Worker source `/home/grc/grc_working/inbox/deliveries/opus-20260725T121943Z-78ff__sweep122-resume-validate.md`. Prior: Sweep 120 iter 1 (2026-07-25; the loop-break corpus-wide `/validate` over the **#1105..#1150** deltas (base `b5c08643`=#1104, head `1b8cb202`=#1150, 46 commits / 128 files) at the 2026-07-25 `/resume` from the #1150 session-closing handoff. OFFLOADED to worker-20260716-a as blocking prio-0 `sweep-120-validate` pinned `1b8cb202`, the FIRST sweep delivered over the same-VM file-drop transport. **1 error / 12 warning / 17 note (30 findings). PASS with findings.** Mechanical baseline GREEN and worker-re-derived in its own pinned clone: 77/77, 474-test regression rc 0, both generator `--check` gates in sync, non-shallow (1327 commits); counts 77/15/24/15/18. **Asserted-expectations cross-check: all testable assertions CORROBORATED, 0 CONTRADICTED, so NO miss-signal; loop-break control for #1150 PASSES.** Yield concentrates in two families the per-PR QA structurally could not see: **F1** the `/home/grc` migration landed its narrative but not its wiring (the error plus the hooks warning, FIXED this close-out: `.claude/CLAUDE.md` three prescriptions, `tools/repo-guard.sh`, `.claude/settings.json` statusLine, and five PreToolUse hooks moved to the path-derived `parents[2]` root pattern; a new surface-map row E prevents recurrence), and **F2** two new AI-jurisdiction annexes shipped without the coverage surfaces that name them (five warnings, ROUTED). Hazard link settled by the orchestrator under its own account: `/home/jposluns/grc_library/.git` does not exist, so a prescribed-form command would fail loudly, not silently mutate a backup. 25 findings ROUTED to TODO by severity, none dropped. Worker source `/home/grc/grc_working/opus/outbox/worker-20260716-a/sweep-120-validate.md`. Prior: Sweep 119 iter 1 (2026-07-23b; the loop-break corpus-wide `/validate` over the **#1068..#1104** deltas (base #1067 `3ceb0c54`, head #1104 `b5c08643`) at the 2026-07-23b `/resume` from the #1105 session-closing handoff. OFFLOADED to worker-20260716-b as blocking prio-0 `sweep-119-validate` pinned `b5c08643` (a `main` SHA, per the SHA-pinning practice adopted after alert 2026-07-23-a; ref `924a32e`), consumed under ELEVATED QA (worker-b delivery 1 this fresh session). **CLEAN PASS, 0 error / 0 warning / 0 note.** Baseline **73/73** at the pinned SHA (orchestrator-re-run at HEAD #1105, matches); counts 73/14/24/15/18; four-surface parity 73; gate 54 CSF-clean; gate 37 dual-tree sync; generated artefacts in sync; 457-test regression rc 0. The #1097 vuln-SLA values, #1101 14th-rule wiring, #1102 GAP-1 + pack-parity clauses, and #1104 change-impact map re-verified at source; the one subagent MEDIUM (supplier Tier-1 High=90d) DISMISSED as the maintainer-decided value (pending-decisions §3.68b). All #1101-#1104 asserted-clean surfaces CORROBORATED, 0 contradicted; the pack-README rule-scope-table missing 14th-rule row is the pre-declared known-open drift (§1.18 PR-2), not a miss. **Loop-break control for #1105 PASSES.** No detail file (worker source `grc_library_scratch:results/sweep-119-validate.md`). _(Prior-chain trimmed at the Sweep 121 resume: entries from Sweep 118 back are duplication of [`validate-sweeps/history.md`](validate-sweeps/history.md), which this cursor already names as the full record, so the chain keeps current plus two priors. Nothing is lost; gate 45 reads only the leading sweep number.)_
 
-## Next actions (the queue for the next session)
+## Next actions (2026-07-26 ORCHESTRATOR-TAKEOVER close, the CURRENT resume queue)
+
+This session was an ORCHESTRATOR TAKEOVER: a new identity took over from the session that ran out of
+usage mid-#1181, assessed read-only, then landed #1181 (ledger repair, independently verified),
+#1182 (reconciliation), and #1183 (`/restore-broken` command + guardrail review r16). All three are
+merged and validated CLEAN. The maintainer spent the session prepping the exec'd-worker system, so:
+
+**1. FIRST TASK: set up the orchestrator-managed exec'd codex + claude workers. INTERACTIVE, one step
+at a time, NO other work and NO background tasks during it (a clean, focused screen).** Two shells:
+the maintainer's ROOT shell runs the commands; this orchestrator gives ONE step, waits, verifies,
+answers questions, then the next. Reference: the staged prep-instructions file for the setup (in the session temp dir)
+(single-Linux-user model; a FRESH `worker_agents` user; per-account config dirs via `CLAUDE_CONFIG_DIR`
+/ `CODEX_HOME`; root-owned sudo wrappers; read-only Claude settings; per-account `max_concurrent`) and
+the design of record `grc_library_private/codex-exec-serve-loop-decision.md`. After it is tested and
+working, **REMIND THE MAINTAINER TO SHUT DOWN the old tmux-session workers**. Then I wire the
+orchestrator side: dispatch (account+model per the `_private` config; exhaust-a-set-then-next;
+personal accounts last; fresh worker id per exec; independence routing keyed on `(account, model)`;
+elevated-QA trust window keyed on `(account, model)`), the config reader (+ self-test), the
+usage-limit parser (mark `limited_until`, re-dispatch elsewhere), and per-worker logging to
+`grc_working/logs/` (TODO 3.131).
+
+**2. The loop-break `/validate`** (the compensating control for THIS session-closing handoff PR, which
+skipped its trailing per-PR QA): pre-queued at wind-down, pinned to the closing merge SHA, over the
+#1181..this-PR delta. Consume + cross-check against the Asserted-expectations block below.
+
+**3. Then, in order:** `3.128 + /sitrep` bundle (the token-spend parser fix, then the `/sitrep` command
+with the four sections + a **decisions-owed-you** section + the usage footer showing orchestrator
+(instrumented) + per-worker (est.) spend + the ~73% offload-savings figure; and start recording the
+instrumented orchestrator spend in `_private/session-metrics.md` per decision B2) -> the **codex
+deep-assessment** `/home/grc/codex_assessment.md` (dedup H-01..M-06 against merged PRs + the live
+backlog, re-verify positives at source, present the routed set to the maintainer 4 decisions at a
+time for TODO routing) -> **Phase-3 tray** (18 already-processed archive; 20 open per standing
+priority; 10 route-to-maintainer; egress-blocked acquisitions route to `_private` maintainer-egress-
+requests + a per-priority "egress-gated" section at the end of each priority list) -> the **close-out
+efficiency tooling** (TODO 3.133-3.137, maintainer-directed EXECUTE EARLY in P3).
+
+**Decisions locked this session** (recorded durably; do NOT re-ask): the exec-worker design
+(`_private/codex-exec-serve-loop-decision.md` "Decisions locked" section) covers A1 per-account caps,
+A2 model-ids-confirm-at-resume, A3 exhaust-set-then-next, B1 build codex hooks, B2 record orchestrator
+spend, fresh-id-per-exec, single-`worker_agents`-user with per-account config dirs, and interactive
+step-by-step setup. Also: fresh-review = my note (below) + a worker fresh-reader pass; codex-assessment
+= dedup + present 4-at-a-time; egress = `_private` egress-requests + per-priority egress-gated sections;
+`/sitrep` gets a decisions-owed section; G-1/gate-78 = accept the recorded-retirement half (TODO 3.132
+resolved). All efficiency ideas = TODO 3.133-3.137, execute early.
+
+**Fresh-eyes note (maintainer decision 1):** `grc_library_private/fresh-eyes-observations-2026-07-26.md`
+(the takeover orchestrator's cold-takeover observations, chiefly the per-PR/wind-down mechanical-
+overhead finding and the ranked tooling ideas now tracked as 3.133-3.137). The worker fresh-reader
+review appends alongside it.
+
+---
+
+## Next actions (PRIOR session's queue, superseded by the block above; prune at resume)
 
 **RESEQUENCED at the 2026-07-25c `/resume` (#1178). Two maintainer decisions this session move to the
 front of the queue and supersede the ordering below for their own items only; everything else keeps
@@ -98,7 +150,7 @@ Items 15 to 24 are in [`next-prs.txt`](next-prs.txt): 3.113, 2.25.3 (Canada AI c
 
 - **Current truth (verify against live files at `/resume`, which now runs from `/home/grc`)**:
   - **Session / mode:** resumed from #1105; long ATTENDED run; the WORKER-WIRING / same-VM file-drop-transport session; SESSION-CLOSING at #1150. Lease RELEASED; the next `/resume` sets its own mode. **PATH MIGRATION: the next session runs from `/home/grc/grc_library`; all sibling repos are at `/home/grc/` (off `/home/jposluns`, moved to backup); UPDATE ALL `/home/grc` repos at `/resume` FIRST (they may be stale).**
-  - **Version snapshot (D7 validates these tokens):** library `2026.07.666`, README `1.10.27` (as of the Sweep 122 close-out PR #1178, which carries this line; the prior session merged #1169 through #1177); pack `1.65.15` (bumped in #1178 for the "a session must not close with a large unvalidated change" section added to `session-lifecycle.md` section 5). Counts independently re-measured by the orchestrator at the Sweep 122 resume from live files, and matching the worker's proof-of-run, re-verify again at the next resume: gate **78**, rules **15**, skills **24**, commands **15**, Document-types **18**. The gate figure was **77** in the #1169 form of this line and is now 78; gate 78 (backlog item-number permanence) landed in #1173.
+  - **Version snapshot (D7 validates these tokens):** library `2026.07.674`, README `1.10.35` (as of the #1184 orchestrator-takeover session-closing handoff, which carries this line; this session merged #1181 through #1184); pack `1.65.17` (unchanged this session). Counts re-verified this session (guardrail-review r16, worker-measured plus orchestrator-re-verified): gate **78**, rules **15**, skills **24**, commands **16**, Document-types **18**. The commands figure was **15** and is now 16 (`/restore-broken` landed in #1183).
   - **Green-at:** the #1149 merge `3ac1f555` (77/77; pre-push guard green). This #1150 handoff is working-state + the F1/F2 fix + CHANGELOG + version only; `main` stays 77/77 at its descendant merge.
   - **Shipped this session (grc_library + siblings):** #1106-#1150 (full list in [`CHANGELOG.md`](../CHANGELOG.md) / [`DONE.md`](DONE.md)), headline the trust-recovery build (#1147 `audit-validation-coverage.py`, #1148 deep-assessment restructure) and the WORKER-WIRING (`_scratch` #174 transport-aware `/credit-offload`, `_scratch` #175 Codex onboarding core, `grc_library` #1149 command-lockstep fix, #1150 this handoff).
   - **File-drop transport EMPIRICALLY LIVE at close:** `credit-offload-filedrop.py list-workers` showed `worker-20260716-a` (opus) + `codex-mailz-a` (codex) heartbeating via `/home/grc/grc_working`; the `init` layout is pre-provisioned; a real order (`fd-verify-1149-deepassess`) was dispatched to codex to demonstrate the end-to-end loop.
@@ -114,6 +166,33 @@ Items 15 to 24 are in [`next-prs.txt`](next-prs.txt): 3.113, 2.25.3 (Canada AI c
   - **Shipped this session (grc_library):** #1067 (prior resume close-out, merged first) through #1104, notably the **14th rule** #1101, the **Task-1 close** #1102, the two **P3 closes** #1103, and **§1.18 PR-1** #1104; plus the `grc_library_scratch` scratch-CI changed-file-scoping fix (`fec60cac`) and the P1/§1.18/scratch-CI interactive scoping.
   - **Workers / research:** both worker-20260716-a and -b live Opus 4.8. Delivered and banked in `grc_library_scratch:results/` for next session: the **1.1 gate-design seed** (`research-1.1-discussion-execution-gate`), the **Singapore 2.19** (`research-singapore-219`) + **California 2.17** (`research-2.17-california-ai-annex`) annex research (apply, serial), and the **#1104 validate-pr** (CLEAN, batched into this #1105 PR). No open `MAINTAINER_ALERT`.
   - **Queue:** the NEXT SESSION block above (Sweep 119 loop-break `/validate`; then §1.18 PR-2 guard-first gate; the 1.1 design review; the 2.19/2.17 annexes; then P2 by severity + P3). `pending-decisions.md` holds the OWASP ASI08/09/10 decision. 1.19.13 held (first-thing-in-a-morning + ask-at-overnight-mode-change); 1.22.3(b) DONE-sweep cutoff = daily.
+
+## Asserted expectations (2026-07-26 ORCHESTRATOR-TAKEOVER session close)
+
+**Session of 2026-07-26 (the takeover): PRs #1181, #1182, #1183; this closing handoff PR is next.**
+What this session MECHANICALLY verified, scoped to what it touched. The receiving `/resume` `/validate`
+cross-checks these; a finding that contradicts a claim here is a genuine miss to escalate.
+
+**Asserted clean.** All three substantive PRs merged AND validated CLEAN:
+- #1181 (ledger repair): pre-push guard green (78 gates) + an INDEPENDENT adversarial worker verify
+  (nothing invented, nothing lost; every restored row traced to real git history; the Sweep 91 orphan
+  byte-identical) + a post-merge validate-pr; merged `13861709`.
+- #1182 (reconciliation): validate-pr PASS (1 info finding, fixed in #1183); merged `2995788f`.
+- #1183 (`/restore-broken` + guardrail r16): independent pre-push verify CLEAN + guardrail-review r16
+  COHERENT + post-merge validate-pr CLEAN; merged `2c594d03`.
+- Machinery inventory (guardrail r16, worker-measured + orchestrator-re-verified): **78 gates / 15
+  rules / 24 skills / 16 commands**; library `2026.07.673`, README `1.10.34`.
+- The worker-access permission model is correct across all five dirs (`check_perms.sh --check` PASSES);
+  the three control scripts are installed in `/home/grc` (root:root 0700; `check_perms.sh` 0500).
+
+**NOT asserted clean, probe these first:**
+- The recorded destructive fail-open in `tools/sweep-working-records-to-private.py` (TODO 3.129) is REAL
+  and UNFIXED: DO NOT run the sweep `--prune` until 3.129 lands.
+- The Phase-3 tray (20 open items) and the codex deep-assessment (H-01..M-06) are un-triaged.
+- The exec'd-worker system is DESIGNED + prepped but NOT built (the post-resume first task).
+
+**Green at close:** `tools/pre-push-guard.sh` was green on both runners (78 gates + all PR-time checks)
+at this handoff PR's head before merge; the loop-break `/validate` re-verifies against `main`.
 
 ## Asserted expectations (session close-out convention)
 
