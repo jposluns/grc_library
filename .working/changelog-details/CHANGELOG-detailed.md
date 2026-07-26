@@ -8,6 +8,66 @@ The dual-entry convention was introduced in PR #125 (2026-06-21). Historical ent
 
 **Worker-provenance convention (decided 2026-07-23, TODO 3.19):** a reference to a scratch-side worker result or manifest is written as plain backticked text in a `repo:path` form (naming the scratch repo and the result file), never a cross-repo markdown link. A cross-repo relative link target resolves only against a fresh sibling checkout at `main`, not a stale local tree, and cross-repo links are un-gate-checkable; the plain-text form keeps the provenance readable and grep-able without the fragility.
 
+## 2026-07-26, Library Version 2026.07.670, PR #1181 (seven lost QA rows restored, none invented)
+
+Seven rows of the validation-sweep and matrix-fit ledgers had been silently destroyed by editing mistakes. All seven
+are restored, every one recovered from an intact prior revision of its own ledger file, and **nothing is synthesized**.
+
+### Why seven and not six
+
+TODO 3.73 recorded ONE escape of the ledger-fusion class. A worker measuring detector candidates found **five** fused
+rows in [`validate-sweeps/history.md`](../validate-sweeps/history.md) and one in
+[`matrix-fit/history.md`](../matrix-fit/history.md); an independent re-scan by a different worker, using three signals
+none of which was the original over-width one (sequence gap, foreign detail reference, header-role reset), re-found all
+six and confirmed no seventh FUSION.
+
+The seventh loss is a different mechanism, and it is why the re-scan's verdict was right about fusions and incomplete
+about lost rows. **Sweep 91 was OVERWRITTEN, not fused.** In `8d198b2c` an Edit anchored on the Sweep 91 line and
+replaced it with Sweep 92's, deleting it outright. An overwrite leaves a perfectly well-formed, width-normal table, so
+no fusion detector can see it; the only signal is the sequence gap, which the re-scan DID measure and then correctly
+declined to reconstruct from, because inventing a row identifier from a gap would have been fabrication. A one-command
+history search (`git log -S"91 iter 1"`) resolved the gap into a real row.
+
+**The detail that would have destroyed evidence.** Sweep 91's Summary cell survived, orphaned mid-line between Sweep 92
+and Sweep 90. The fusion reconstruction treats a fused line as row A truncated at header width plus the absorbed tail,
+which would have dropped that orphan entirely, deleting the last trace of Sweep 91 while appearing to repair the line.
+The cell was verified byte-identical at 1502 characters against `e94b6923` before being rebuilt into a row.
+
+### How the repair was applied
+
+Deterministically, with a re-parse, rather than by hand, per the high-assurance apply discipline. Three properties are
+worth recording because each was a decision:
+
+- **Identity, not byte-equality.** A first pass demanded the surviving tail match its intact revision exactly and
+  refused to apply when two rows differed. The differences turned out to be the dash-removal sweep (an em-dash rewritten
+  to a comma or to `none`) and the de-link, against common prefixes of 254 to 2927 characters. So the surviving tail is
+  NEWER and correct, and demanding equality would have restored stale prose. The check became a prefix-identity proof
+  and the tail is kept as-is.
+- **The de-link rule.** Each recovered row references its per-run detail file as a markdown link, and all five of those
+  files were swept to the private archive and de-linked across the rest of the ledger. A verbatim restore would have
+  reintroduced five dead links among nine valid ones and silently undone that migration. Stated honestly by the worker
+  who found it: this would NOT fail CI, because `.working/` is gate-exempt, which is exactly the condition that let the
+  fusions survive.
+- **Line numbers move.** All six locators shifted by one between the pin and the applying tree, so they were re-derived
+  immediately before the edit rather than trusted from the delivery.
+
+### Verification
+
+Post-repair re-parse: **zero fusions remain** in either ledger, and **zero unexplained sequence gaps**. The four
+over-width rows still present in [`validate-sweeps/history.md`](../validate-sweeps/history.md) are the known prose-pipe false positives, not fusions. The
+apparent duplicates at Sweeps 9 and 10 are legitimate multi-iteration rows (`9 iter 1/2/3`). Gaps 1 to 8 predate the
+ledger, whose earliest row is Sweep 9 on 2026-06-20.
+
+### Discipline observation
+
+**A worker declined to certify its own completeness claim, and it was right to.** The worker that found the six fusions
+also wrote the detector, and said so: a fusion its signal cannot see is invisible to its own re-scan, so it asked for an
+independent check with a different signal. That check found no seventh fusion and its unresolved gap caveat is what led
+to the overwritten row. Neither worker found Sweep 91 alone; the combination did, plus one history search neither had
+been asked to run. The lesson belongs to the ORDER rather than to either worker: a completeness order over a numbered
+ledger must ask explicitly for a history search on every unresolved sequence gap, because a gap is either a number never
+used or a row deleted, and only history tells them apart.
+
 ## 2026-07-26, Library Version 2026.07.669, PR #1180 (the QA that was closed over came back FAIL)
 
 `validate-pr-1176`, the order the 2026-07-25 session closed without waiting for, finally ran. It came back **FAIL with

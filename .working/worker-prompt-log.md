@@ -30,3 +30,6 @@ can appear in the verb column; nothing here is ever composed from worker output.
 | 2026-07-26T00:58:36Z | codex | codex | wake | none | overnight nudge cadence, round 2 | `If you are currently working on an order, ignore this message and carry on. If you are not, then at your next opportunity resync your grc_library_scratch clone ` |
 | 2026-07-26T00:58:47Z | worker | claude | wake | none | overnight nudge cadence, round 2 | `/credit-offload` |
 | 2026-07-26T00:58:48Z | worker1 | claude | wake | none | overnight nudge cadence, round 2 | `/credit-offload` |
+| 2026-07-26T01:01:55Z | codex | codex | wake | none | overnight nudge cadence, round 1 | `If you are currently working on an order, ignore this message and carry on. If you are not, then at your next opportunity resync your grc_library_scratch clone ` |
+| 2026-07-26T01:02:06Z | worker | claude | wake | none | overnight nudge cadence, round 1 | `/credit-offload` |
+| 2026-07-26T01:02:07Z | worker1 | claude | wake | none | overnight nudge cadence, round 1 | `/credit-offload` |

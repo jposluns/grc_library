@@ -398,6 +398,30 @@ The table-row-join / ledger-row-fusion class (a reverse-chronological ledger row
 
 **Design analysis (2026-07-14, from the #916/#917 build; BUILD DEFERRED to a fresh session).** A prototype measurement showed the naive design (assert every data row's unescaped-pipe count equals its ledger header's) is NOT FP-free: it flags ~50 pre-existing LEGITIMATE rows across the ledgers (validate-pr/history.md 20, improvement-log.md 17, validate-sweeps/history.md 13; deep-assessment/register.md 0) that carry unescaped `|` inside prose cells (the ledgers were never structurally constrained, being gate-exempt). Shipping that naive check as a hard gate would fire on 50 legitimate rows (a decorative/broken gate, gate-discipline). Also the ledgers are structurally inconsistent: validate-sweeps/history.md and deep-assessment/register.md carry a `|---|` separator row, while validate-pr/history.md and improvement-log.md put data directly under the header (and the latter two have `|---|`-shaped text inside prose cells), so separator-based column detection is unreliable too. An FP-free detector needs a SMARTER signal than a column count: (i) flag a data row that contains, MID-ROW, a second occurrence of the ledger's row-start pattern (`| YYYY-MM-DD | <id> |`) - the row-join-that-retains-the-identifier shape; AND (ii) a per-ledger SEQUENCE-GAP check (a missing expected id, e.g. Sweep 102 absent while 103 present) - the dropped-identifier join shape that F1@#915 actually took (a pure column-count check catches F1 but not FP-free). Options for the fresh build: normalize the ~50 legit rows to escape their prose pipes first (a large risky sweep, then the simple check is FP-free), OR build the smarter detector directly. The build was deferred (not attempted) because it is a subtle FP-free-detector design better done fresh, and because it surfaced during a session already carrying a precision-strain signal on exactly this mechanical-edit class. **Interim mitigation now in force (codified in the #916 retro):** insert a ledger row by anchoring the `Edit` on the HEADER line alone and appending the new row AFTER it, never matching-and-re-appending the next row's leading cells.
 
+**REPAIR DONE (2026-07-26); the GATE is what remains.** Seven lost rows were restored, not six, and the
+seventh is a different mechanism. Six were fusions, reconstructed from the intact prior revision of their
+own ledger with NOTHING synthesized (the unrecoverable-row branch never fired). The seventh, **Sweep 91**,
+was not fused but OVERWRITTEN: in `8d198b2c` an Edit anchored on the Sweep 91 line and replaced it with
+Sweep 92's, deleting it outright, and the only surviving trace was its Summary cell stranded as an orphan
+mid-line. A verbatim application of the fusion reconstruction would have DELETED that orphan while
+appearing to repair the line. It was recovered from `e94b6923` and verified byte-identical at 1502
+characters.
+
+The apply was deterministic and re-parsed rather than hand-edited: each absorbed row was proved to BE that
+row by a shared Summary prefix against its intact revision (254 to 2927 characters), the surviving tail was
+kept rather than the historical text because the tail is NEWER (the dash sweep and the de-link both
+post-date it), and the de-link rule was applied so five references to swept detail files did not come back
+as dead links. Post-repair verification: zero fusions remain, zero unexplained sequence gaps remain, the
+apparent duplicates at 9 and 10 are legitimate multi-iteration sweeps, and gaps 1 to 8 predate the ledger,
+whose earliest row is Sweep 9 on 2026-06-20.
+
+**What this means for the gate, and it is a scope change.** The class is LOST ROWS, of which fusion is one
+mechanism and same-line overwrite is another. An overwrite leaves a perfectly well-formed, width-normal
+table, so the structural fusion detector this item specifies would never fire on it; the only signal is the
+SEQUENCE GAP, which must therefore be a first-class check rather than a corroborator. An independent
+re-scan using three non-width signals confirmed six fusions and correctly declined to reconstruct Sweep 91
+from its gap alone, which is what pointed at the history search that resolved it.
+
 **SCOPE CORRECTED AND SEQUENCED (maintainer-directed 2026-07-25c).** The premise above, that #915 is the
 class's first escape, is WRONG. Worker `opus-20260725T121943Z-78ff`, measuring detector candidates for this
 item, found **five** fused rows live on `main` in [`validate-sweeps/history.md`](.working/validate-sweeps/history.md)
